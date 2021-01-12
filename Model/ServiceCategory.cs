@@ -21,6 +21,8 @@ namespace HaloBiz.Model
         [Required]
         public long DivisionId { get; set; }
         public IEnumerable<Services> Services { get; set; }
+        public IEnumerable<ServiceCategoryTask> ServiceCategoryTasks { get; set; }
+        public bool IsDeleted { get; set; }
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public DateTime CreatedAt { get; set; }
         [DatabaseGenerated(DatabaseGeneratedOption.Computed)]

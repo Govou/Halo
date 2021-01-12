@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using HaloBiz.Data;
 using HaloBiz.Model;
@@ -37,7 +38,7 @@ namespace HaloBiz.Repository.Impl
                 .Include(division => division.OperatingEntities)
                 .ThenInclude(x => x.ServiceGroups)
                 .ThenInclude(x => x.ServiceCategories)
-                .FirstOrDefaultAsync( division => division.Id == Id);
+                .FirstOrDefaultAsync( division => division.Id == Id && division.IsDeleted == false);
         }
 
         public async Task<Division> FindDivisionByName(string name)
@@ -47,12 +48,12 @@ namespace HaloBiz.Repository.Impl
                 .Include(division => division.OperatingEntities)
                 .ThenInclude(x => x.ServiceGroups)
                 .ThenInclude(x => x.ServiceCategories)
-                .FirstOrDefaultAsync( division => division.Name == name);
+                .FirstOrDefaultAsync( division => division.Name == name && division.IsDeleted == false);
         }
 
         public async Task<IEnumerable<Division>> FindAllDivisions()
         {
-            return await _context.Divisions
+            return await _context.Divisions.Where(division => division.IsDeleted == false)
                 .Include(division => division.Head)
                 .Include(division => division.OperatingEntities)
                 .ThenInclude(x => x.ServiceGroups)
@@ -72,7 +73,8 @@ namespace HaloBiz.Repository.Impl
 
         public async Task<bool> RemoveDivision(Division division)
         {
-            _context.Divisions.Remove(division);
+            division.IsDeleted = true;
+            _context.Divisions.Update(division);
             return await SaveChanges();
         }
 

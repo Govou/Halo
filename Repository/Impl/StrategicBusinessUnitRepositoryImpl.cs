@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using HaloBiz.Data;
 using HaloBiz.Model;
@@ -31,18 +32,18 @@ namespace HaloBiz.Repository.Impl
         public async Task<StrategicBusinessUnit> FindStrategyBusinessUnitById(long Id)
         {
             return await _context.StrategicBusinessUnits
-                .FirstOrDefaultAsync( sbu => sbu.Id == Id);
+                .FirstOrDefaultAsync( sbu => sbu.Id == Id && sbu.IsDeleted == false);
         }
 
         public async Task<StrategicBusinessUnit> FindStrategyBusinessUnitByName(string name)
         {
             return await _context.StrategicBusinessUnits
-                .FirstOrDefaultAsync( sbu => sbu.Name == name);
+                .FirstOrDefaultAsync( sbu => sbu.Name == name && sbu.IsDeleted == false);
         }
 
         public async Task<IEnumerable<StrategicBusinessUnit>> FindAllStrategyBusinessUnits()
         {
-            return await _context.StrategicBusinessUnits
+            return await _context.StrategicBusinessUnits.Where(sbu => sbu.IsDeleted == false)
                 .ToListAsync();
         }
 
@@ -58,7 +59,8 @@ namespace HaloBiz.Repository.Impl
 
         public async Task<bool> DeleteStrategyBusinessUnit(StrategicBusinessUnit sbu)
         {
-            _context.StrategicBusinessUnits.Remove(sbu);
+            sbu.IsDeleted = true;
+            _context.StrategicBusinessUnits.Update(sbu);
             return await SaveChanges();
         }
 

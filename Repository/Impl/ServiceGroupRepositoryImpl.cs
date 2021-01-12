@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using HaloBiz.Data;
 using HaloBiz.Model;
@@ -32,19 +33,19 @@ namespace HaloBiz.Repository.Impl
         {
             return await _context.ServiceGroups
                 .Include(serviceGroup => serviceGroup.ServiceCategories)                 
-                .FirstOrDefaultAsync( serviceGroup => serviceGroup.Id == Id);
+                .FirstOrDefaultAsync( serviceGroup => serviceGroup.Id == Id && serviceGroup.IsDeleted == false);
         }
 
         public async Task<ServiceGroup> FindServiceGroupByName(string name)
         {
             return await _context.ServiceGroups
                 .Include(serviceGroup => serviceGroup.ServiceCategories) 
-                .FirstOrDefaultAsync( serviceGroup => serviceGroup.Name == name);
+                .FirstOrDefaultAsync( serviceGroup => serviceGroup.Name == name && serviceGroup.IsDeleted == false);
         }
 
         public async Task<IEnumerable<ServiceGroup>> FindAllServiceGroups()
         {
-            return await _context.ServiceGroups
+            return await _context.ServiceGroups.Where(serviceGroup => serviceGroup.IsDeleted == false)
                 .Include(serviceGroup => serviceGroup.ServiceCategories)
                 .ToListAsync();
         }
@@ -61,7 +62,8 @@ namespace HaloBiz.Repository.Impl
 
         public async Task<bool> DeleteServiceGroup(ServiceGroup serviceGroup)
         {
-            _context.ServiceGroups.Remove(serviceGroup);
+            serviceGroup.IsDeleted = true;
+            _context.ServiceGroups.Update(serviceGroup);
             return await SaveChanges();
         }
 

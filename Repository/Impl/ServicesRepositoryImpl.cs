@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using HaloBiz.Data;
 using HaloBiz.Model;
@@ -32,18 +33,18 @@ namespace HaloBiz.Repository.Impl
         public async Task<Services> FindServicesById(long Id)
         {
             return await _context.Services
-                .FirstOrDefaultAsync( service => service.Id == Id);
+                .FirstOrDefaultAsync( service => service.Id == Id && service.IsDeleted == false);
         }
 
         public async Task<Services> FindServiceByName(string name)
         {
             return await _context.Services
-                .FirstOrDefaultAsync( service => service.Name == name);
+                .FirstOrDefaultAsync( service => service.Name == name && service.IsDeleted == false);
         }
 
         public async Task<IEnumerable<Services>> FindAllServices()
         {
-            return await _context.Services
+            return await _context.Services.Where(service => service.IsDeleted == false)
                 .ToListAsync();
         }
 
@@ -59,7 +60,8 @@ namespace HaloBiz.Repository.Impl
 
         public async Task<bool> DeleteService(Services service)
         {
-            _context.Services.Remove(service);
+            service.IsDeleted = true;
+            _context.Services.Update(service);
             return await SaveChanges();
         }
 

@@ -2,14 +2,21 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using System.Text;
 using System.Threading.Tasks;
 using AutoMapper;
 using HaloBiz.Data;
 using HaloBiz.Helpers;
 using HaloBiz.MyServices;
 using HaloBiz.MyServices.Impl;
+using HaloBiz.MyServices.Impl.LAMS;
+using HaloBiz.MyServices.LAMS;
 using HaloBiz.Repository;
 using HaloBiz.Repository.Impl;
+using HaloBiz.Repository.Impl.LAMS;
+using HaloBiz.Repository.LAMS;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Hosting;
@@ -21,6 +28,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 
 namespace HaloBiz
@@ -40,6 +48,7 @@ namespace HaloBiz
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {       
+
             if (env.IsDevelopment())
             {
                 services.AddDbContext<DataContext>(options =>
@@ -58,6 +67,21 @@ namespace HaloBiz
 
             }
 
+            //Authentication with JWT Setup
+            services
+                .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+                .AddJwtBearer(options =>
+                {
+                   options.TokenValidationParameters = new TokenValidationParameters
+                    {
+                        ValidateIssuerSigningKey = true,
+                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(Configuration["JWTSecretKey"] ?? Configuration.GetSection("AppSettings:JWTSecretKey").Value)),
+                        ValidateIssuer = false,
+                        ValidateAudience = false
+                    };
+                });
+
+
             // singletons
             //services.AddSingleton(Configuration.GetSection("AppSettings").Get<AppSettings>());
 
@@ -72,6 +96,9 @@ namespace HaloBiz
             services.AddScoped<IServiceGroupService, ServiceGroupServiceImpl>();
             services.AddScoped<IServiceCategoryService, ServiceCategoryServiceImpl>();
             services.AddScoped<IServicesService, ServicesServiceImpl>();
+            services.AddScoped<IAccountClassService, AccountClassServiceImpl>();
+            services.AddScoped<ILeadTypeService, LeadTypeServiceImpl>();
+            services.AddScoped<ILeadOriginService, LeadOriginServiceImpl>();
             //repositories
             services.AddScoped<IStateRepository, StateRepositoryImpl>();
             services.AddScoped<IBranchRepository, BranchRepositoryImpl>();
@@ -84,6 +111,9 @@ namespace HaloBiz
             services.AddScoped<IUserProfileRepository, UserProfileRepositoryImpl>();
             services.AddScoped<IModificationHistoryRepository, ModificationHistoryRepositoryImpl>();
             services.AddScoped<IServicesRepository, ServicesRepositoryImpl>();
+            services.AddScoped<IAccountClassRepository, AccountClassRepositoryImpl>();
+            services.AddScoped<ILeadTypeRepository, LeadTypeRepositoryImpl>();
+            services.AddScoped<ILeadOriginRepository, LeadOriginRepositoryImpl>();
 
             services.AddAutoMapper(typeof(Startup));
 
@@ -130,6 +160,8 @@ namespace HaloBiz
             app.UseHttpsRedirection();
 
             app.UseRouting();
+
+            app.UseAuthentication();
 
             app.UseAuthorization();
 

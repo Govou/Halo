@@ -36,6 +36,7 @@ namespace HaloBiz.Controllers
             this.userProfileService = userProfileService;
         }
 
+
         [HttpPost("Login")]
         public async Task<ActionResult> Login(LoginReceivingDTO loginReceiving)
         {
@@ -87,12 +88,28 @@ namespace HaloBiz.Controllers
             return Ok(new UserAuthTransferDTO { Token = jwtToken, UserProfile = userProfile });
         }
 
-        [HttpPost("update-profile")]
-        public async Task<ActionResult> UpdateProfile(UserProfileReceivingDTO userProfileReceivingDTO)
+        [HttpPost("CreateUser")]
+        public async Task<ActionResult> UpdateProfile(AuthUserProfileReceivingDTO authUserProfileReceivingDTO)
         {
 
+            GoogleJsonWebSignature.Payload payload;
+            
 
-            var response = await userProfileService.AddUserProfile(userProfileReceivingDTO);
+            try
+            {
+                payload = await GoogleJsonWebSignature.ValidateAsync(authUserProfileReceivingDTO.IdToken);
+            }
+            catch (InvalidJwtException invalidJwtException)
+            {
+                return StatusCode(404, invalidJwtException.Message);
+            }
+                
+            if (!payload.EmailVerified)
+            {
+                return StatusCode(404, "Email verification failed.");
+            }
+
+            var response = await userProfileService.AddUserProfile(authUserProfileReceivingDTO.UserProfile);
 
             if (response.StatusCode >= 400)
                 return StatusCode(response.StatusCode, response);

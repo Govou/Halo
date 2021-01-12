@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using HaloBiz.Data;
 using HaloBiz.Model;
@@ -35,7 +36,7 @@ namespace HaloBiz.Repository.Impl
                 .Include(office => office.State)
                 .Include(office => office.LGA)
                 .Include(office => office.Branch)                
-                .FirstOrDefaultAsync( office => office.Id == Id);
+                .FirstOrDefaultAsync( office => office.Id == Id && office.IsDeleted == false);
         }
 
         public async Task<Office> FindOfficeByName(string name)
@@ -45,12 +46,12 @@ namespace HaloBiz.Repository.Impl
                 .Include(office => office.State)
                 .Include(office => office.LGA)
                 .Include(office => office.Branch) 
-                .FirstOrDefaultAsync( office => office.Name == name);
+                .FirstOrDefaultAsync( office => office.Name == name && office.IsDeleted == false);
         }
 
         public async Task<IEnumerable<Office>> FindAllOffices()
         {
-            return await _context.Offices
+            return await _context.Offices.Where(division => division.IsDeleted == false)
                 .Include(office => office.Head)
                 .Include(office => office.State)
                 .Include(office => office.LGA)
@@ -70,7 +71,8 @@ namespace HaloBiz.Repository.Impl
 
         public async Task<bool> DeleteOffice(Office office)
         {
-            _context.Offices.Remove(office);
+            office.IsDeleted = true;
+            _context.Offices.Update(office);
             return await SaveChanges();
         }
 

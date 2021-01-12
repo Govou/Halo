@@ -18,6 +18,7 @@ namespace HaloBiz.Model
         public long HeadId { get; set; }
         public virtual UserProfile Head { get; set; }
         public IEnumerable<Office> Offices { get; set; }
+        public bool IsDeleted { get; set; }
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public DateTime CreatedAt { get; set; }
         [DatabaseGenerated(DatabaseGeneratedOption.Computed)]

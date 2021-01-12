@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using HaloBiz.Data;
 using HaloBiz.Model;
@@ -38,7 +39,7 @@ namespace HaloBiz.Repository.Impl
                 .Include(operatingEntity => operatingEntity.ServiceGroups)
                 .ThenInclude(x => x.ServiceCategories)
                 //.Include(operatingEntity => operatingEntity.StrategicBusinessUnits)        
-                .FirstOrDefaultAsync( operatingEntity => operatingEntity.Id == Id);
+                .FirstOrDefaultAsync( operatingEntity => operatingEntity.Id == Id && operatingEntity.IsDeleted == false);
         }
 
         public async Task<OperatingEntity> FindOperatingEntityByName(string name)
@@ -48,12 +49,12 @@ namespace HaloBiz.Repository.Impl
                 .Include(operatingEntity => operatingEntity.ServiceGroups)
                 .ThenInclude(x => x.ServiceCategories)
                 //.Include(operatingEntity => operatingEntity.StrategicBusinessUnits)        
-                .FirstOrDefaultAsync( operatingEntity => operatingEntity.Name == name);
+                .FirstOrDefaultAsync( operatingEntity => operatingEntity.Name == name && operatingEntity.IsDeleted == false);
         }
 
         public async Task<IEnumerable<OperatingEntity>> FindAllOperatingEntity()
         {
-            return await _context.OperatingEntities
+            return await _context.OperatingEntities.Where(operatingEntity => operatingEntity.IsDeleted == false)
                 .Include(operatingEntity => operatingEntity.Head)
                 .Include(operatingEntity => operatingEntity.ServiceGroups)
                 .ThenInclude(x => x.ServiceCategories)
@@ -73,7 +74,8 @@ namespace HaloBiz.Repository.Impl
 
         public async Task<bool> DeleteOperatingEntity(OperatingEntity operatingEntity)
         {
-            _context.OperatingEntities.Remove(operatingEntity);
+            operatingEntity.IsDeleted = true;
+            _context.OperatingEntities.Update(operatingEntity);
             return await SaveChanges();
         }
 

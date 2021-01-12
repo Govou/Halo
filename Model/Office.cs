@@ -23,6 +23,7 @@ namespace HaloBiz.Model
         public UserProfile Head { get; set; }
         public long BranchId { get; set; }
         public virtual Branch Branch { get; set; }
+        public bool IsDeleted { get; set; }
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public DateTime CreatedAt { get; set; }
         [DatabaseGenerated(DatabaseGeneratedOption.Computed)]

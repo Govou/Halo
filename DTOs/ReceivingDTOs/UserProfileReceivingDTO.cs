@@ -6,9 +6,9 @@ namespace HaloBiz.DTOs.ReceivingDTO
     public class UserProfileReceivingDTO
     {
     
-        [Required, RegularExpression("\\w{3,20}", ErrorMessage="Firstname can only be alphabets between 3 to 20 characters long")]
+        [Required, RegularExpression("\\w{2,20}", ErrorMessage="Firstname can only be alphabets between 3 to 20 characters long")]
         public string FirstName { get; set; }
-        [Required, RegularExpression("\\w{3,20}", ErrorMessage="Lastname can only be alphabets between 3 to 20 characters long")]
+        [Required, RegularExpression("\\w{1,20}", ErrorMessage="Lastname can only be alphabets between 3 to 20 characters long")]
         public string LastName { get; set; }
         [StringLength(20, ErrorMessage="Othername can only be alphabets between 3 to 20 characters long")]
         public string OtherName { get; set; }

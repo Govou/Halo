@@ -20,6 +20,7 @@ namespace HaloBiz.Model
         public virtual Division Division { get; set; }
         public IEnumerable<ServiceGroup> ServiceGroups { get; set; }
         public IEnumerable<StrategicBusinessUnit> StrategicBusinessUnits { get; set; }
+        public bool IsDeleted { get; set; }
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public DateTime CreatedAt { get; set; }
         [DatabaseGenerated(DatabaseGeneratedOption.Computed)]

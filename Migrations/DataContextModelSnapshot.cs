@@ -19,6 +19,235 @@ namespace HaloBiz.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128)
                 .HasAnnotation("ProductVersion", "5.0.0");
 
+            modelBuilder.Entity("HaloBiz.Model.AccountsModel.Account", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .UseIdentityColumn();
+
+                    b.Property<long>("AccountClassId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("Alias")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                    b.Property<long>("CreatedById")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<bool>("IsDebitBalance")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AccountClassId");
+
+                    b.HasIndex("CreatedById");
+
+                    b.ToTable("Accounts");
+                });
+
+            modelBuilder.Entity("HaloBiz.Model.AccountsModel.AccountClass", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .UseIdentityColumn();
+
+                    b.Property<long>("AccountClassAlias")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("Caption")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                    b.Property<long>("CreatedById")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CreatedById");
+
+                    b.ToTable("AccountClasses");
+                });
+
+            modelBuilder.Entity("HaloBiz.Model.AccountsModel.AccountDetail", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .UseIdentityColumn();
+
+                    b.Property<long>("AccountClassAlias")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("AccountDetailsAlias")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("AccountMasterId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("BranchId")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                    b.Property<long>("CreatedById")
+                        .HasColumnType("bigint");
+
+                    b.Property<double>("Credit")
+                        .HasColumnType("float");
+
+                    b.Property<double>("Debit")
+                        .HasColumnType("float");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<bool>("IntegrationFlag")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<long>("OfficeId")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTime>("TransactionDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<long>("TransactionId")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                    b.Property<long>("VoucherId")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AccountMasterId");
+
+                    b.HasIndex("BranchId");
+
+                    b.HasIndex("CreatedById");
+
+                    b.HasIndex("OfficeId");
+
+                    b.ToTable("AccountDetails");
+                });
+
+            modelBuilder.Entity("HaloBiz.Model.AccountsModel.AccountMaster", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .UseIdentityColumn();
+
+                    b.Property<long>("AccountMasterAlias")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("BranchId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("ChartofAccountSubId")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                    b.Property<long>("CreatedById")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<bool>("IntegrationFlag")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<long>("OfficeId")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                    b.Property<long>("VoucherId")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BranchId");
+
+                    b.HasIndex("ChartofAccountSubId");
+
+                    b.HasIndex("CreatedById");
+
+                    b.HasIndex("OfficeId");
+
+                    b.ToTable("AccountMasters");
+                });
+
             modelBuilder.Entity("HaloBiz.Model.Branch", b =>
                 {
                     b.Property<long>("Id")
@@ -43,6 +272,9 @@ namespace HaloBiz.Migrations
 
                     b.Property<long>("HeadId")
                         .HasColumnType("bigint");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -81,6 +313,9 @@ namespace HaloBiz.Migrations
                     b.Property<long>("HeadId")
                         .HasColumnType("bigint");
 
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
                     b.Property<string>("MissionStatement")
                         .HasColumnType("nvarchar(max)");
 
@@ -99,6 +334,124 @@ namespace HaloBiz.Migrations
                     b.HasIndex("HeadId");
 
                     b.ToTable("Divisions");
+                });
+
+            modelBuilder.Entity("HaloBiz.Model.FinanceVoucherType", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .UseIdentityColumn();
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                    b.Property<long>("CreatedById")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                    b.Property<string>("VoucherType")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CreatedById");
+
+                    b.ToTable("FinanceVoucherTypes");
+                });
+
+            modelBuilder.Entity("HaloBiz.Model.LAMS.LeadOrigin", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .UseIdentityColumn();
+
+                    b.Property<string>("Caption")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                    b.Property<long>("CreatedById")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<long>("LeadTypeId")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CreatedById");
+
+                    b.HasIndex("LeadTypeId");
+
+                    b.ToTable("LeadOrigins");
+                });
+
+            modelBuilder.Entity("HaloBiz.Model.LAMS.LeadType", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .UseIdentityColumn();
+
+                    b.Property<string>("Caption")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                    b.Property<long>("CreatedById")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CreatedById");
+
+                    b.ToTable("LeadTypes");
                 });
 
             modelBuilder.Entity("HaloBiz.Model.LGA", b =>
@@ -131,6 +484,54 @@ namespace HaloBiz.Migrations
                     b.HasIndex("StateId");
 
                     b.ToTable("LGAs");
+                });
+
+            modelBuilder.Entity("HaloBiz.Model.ManyToManyRelationship.SBUAccountMaster", b =>
+                {
+                    b.Property<long>("AccountMasterId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("StrategicBusinessUnitId")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("AccountMasterId", "StrategicBusinessUnitId");
+
+                    b.HasIndex("StrategicBusinessUnitId");
+
+                    b.ToTable("SBUAccountMaster");
+                });
+
+            modelBuilder.Entity("HaloBiz.Model.ManyToManyRelationship.ServiceRequiredServiceDocument", b =>
+                {
+                    b.Property<long>("RequiredServiceDocumentId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("ServicesId")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("RequiredServiceDocumentId", "ServicesId");
+
+                    b.HasIndex("ServicesId");
+
+                    b.ToTable("ServiceRequiredServiceDocument");
+                });
+
+            modelBuilder.Entity("HaloBiz.Model.ManyToManyRelationship.ServiceRequiredServiceField", b =>
+                {
+                    b.Property<long>("RequiredServiceFieldId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("ServicesId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("RequiredServiceField")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("RequiredServiceFieldId", "ServicesId");
+
+                    b.HasIndex("ServicesId");
+
+                    b.ToTable("ServiceRequiredServiceField");
                 });
 
             modelBuilder.Entity("HaloBiz.Model.ModificationHistory", b =>
@@ -194,6 +595,9 @@ namespace HaloBiz.Migrations
                     b.Property<long>("HeadId")
                         .HasColumnType("bigint");
 
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
                     b.Property<long>("LGAId")
                         .HasColumnType("bigint");
 
@@ -253,6 +657,9 @@ namespace HaloBiz.Migrations
                     b.Property<long>("HeadId")
                         .HasColumnType("bigint");
 
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(50)
@@ -270,6 +677,78 @@ namespace HaloBiz.Migrations
                     b.HasIndex("HeadId");
 
                     b.ToTable("OperatingEntities");
+                });
+
+            modelBuilder.Entity("HaloBiz.Model.RequiredServiceDocument", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .UseIdentityColumn();
+
+                    b.Property<string>("Caption")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                    b.Property<long>("CreatedBy")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("RequiredServiceDocuments");
+                });
+
+            modelBuilder.Entity("HaloBiz.Model.RequiredServiceField", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .UseIdentityColumn();
+
+                    b.Property<string>("Caption")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                    b.Property<long>("CreatedBy")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("RequiredServiceFields");
                 });
 
             modelBuilder.Entity("HaloBiz.Model.ServiceCategory", b =>
@@ -291,6 +770,9 @@ namespace HaloBiz.Migrations
 
                     b.Property<long>("DivisionId")
                         .HasColumnType("bigint");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -315,6 +797,49 @@ namespace HaloBiz.Migrations
                     b.ToTable("ServiceCategories");
                 });
 
+            modelBuilder.Entity("HaloBiz.Model.ServiceCategoryTask", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .UseIdentityColumn();
+
+                    b.Property<string>("Caption")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                    b.Property<long>("CreatedById")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<long>("ServiceCategoryId")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CreatedById");
+
+                    b.HasIndex("ServiceCategoryId");
+
+                    b.ToTable("ServiceCategoryTasks");
+                });
+
             modelBuilder.Entity("HaloBiz.Model.ServiceGroup", b =>
                 {
                     b.Property<long>("Id")
@@ -334,6 +859,9 @@ namespace HaloBiz.Migrations
 
                     b.Property<long>("DivisionId")
                         .HasColumnType("bigint");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -384,6 +912,9 @@ namespace HaloBiz.Migrations
                     b.Property<string>("ImageUrl")
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -476,6 +1007,9 @@ namespace HaloBiz.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -563,6 +1097,9 @@ namespace HaloBiz.Migrations
                     b.Property<bool>("ProfileStatus")
                         .HasColumnType("bit");
 
+                    b.Property<long?>("SBUId")
+                        .HasColumnType("bigint");
+
                     b.Property<long>("StaffId")
                         .HasColumnType("bigint");
 
@@ -577,7 +1114,109 @@ namespace HaloBiz.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("SBUId");
+
                     b.ToTable("UserProfiles");
+                });
+
+            modelBuilder.Entity("HaloBiz.Model.AccountsModel.Account", b =>
+                {
+                    b.HasOne("HaloBiz.Model.AccountsModel.AccountClass", "AccountClass")
+                        .WithMany()
+                        .HasForeignKey("AccountClassId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("HaloBiz.Model.UserProfile", "CreatedBy")
+                        .WithMany()
+                        .HasForeignKey("CreatedById")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("AccountClass");
+
+                    b.Navigation("CreatedBy");
+                });
+
+            modelBuilder.Entity("HaloBiz.Model.AccountsModel.AccountClass", b =>
+                {
+                    b.HasOne("HaloBiz.Model.UserProfile", "CreatedBy")
+                        .WithMany()
+                        .HasForeignKey("CreatedById")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("CreatedBy");
+                });
+
+            modelBuilder.Entity("HaloBiz.Model.AccountsModel.AccountDetail", b =>
+                {
+                    b.HasOne("HaloBiz.Model.AccountsModel.AccountMaster", "AccountMaster")
+                        .WithMany()
+                        .HasForeignKey("AccountMasterId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("HaloBiz.Model.Branch", "Branch")
+                        .WithMany()
+                        .HasForeignKey("BranchId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("HaloBiz.Model.UserProfile", "CreatedBy")
+                        .WithMany()
+                        .HasForeignKey("CreatedById")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("HaloBiz.Model.Office", "Office")
+                        .WithMany()
+                        .HasForeignKey("OfficeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("AccountMaster");
+
+                    b.Navigation("Branch");
+
+                    b.Navigation("CreatedBy");
+
+                    b.Navigation("Office");
+                });
+
+            modelBuilder.Entity("HaloBiz.Model.AccountsModel.AccountMaster", b =>
+                {
+                    b.HasOne("HaloBiz.Model.Branch", "Branch")
+                        .WithMany()
+                        .HasForeignKey("BranchId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("HaloBiz.Model.AccountsModel.Account", "ChartofAccountSub")
+                        .WithMany("AccountMasters")
+                        .HasForeignKey("ChartofAccountSubId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("HaloBiz.Model.UserProfile", "CreatedBy")
+                        .WithMany()
+                        .HasForeignKey("CreatedById")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("HaloBiz.Model.Office", "Office")
+                        .WithMany()
+                        .HasForeignKey("OfficeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Branch");
+
+                    b.Navigation("ChartofAccountSub");
+
+                    b.Navigation("CreatedBy");
+
+                    b.Navigation("Office");
                 });
 
             modelBuilder.Entity("HaloBiz.Model.Branch", b =>
@@ -602,6 +1241,47 @@ namespace HaloBiz.Migrations
                     b.Navigation("Head");
                 });
 
+            modelBuilder.Entity("HaloBiz.Model.FinanceVoucherType", b =>
+                {
+                    b.HasOne("HaloBiz.Model.UserProfile", "CreatedBy")
+                        .WithMany()
+                        .HasForeignKey("CreatedById")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("CreatedBy");
+                });
+
+            modelBuilder.Entity("HaloBiz.Model.LAMS.LeadOrigin", b =>
+                {
+                    b.HasOne("HaloBiz.Model.UserProfile", "CreatedBy")
+                        .WithMany()
+                        .HasForeignKey("CreatedById")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("HaloBiz.Model.LAMS.LeadType", "LeadType")
+                        .WithMany("LeadOrigins")
+                        .HasForeignKey("LeadTypeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("CreatedBy");
+
+                    b.Navigation("LeadType");
+                });
+
+            modelBuilder.Entity("HaloBiz.Model.LAMS.LeadType", b =>
+                {
+                    b.HasOne("HaloBiz.Model.UserProfile", "CreatedBy")
+                        .WithMany()
+                        .HasForeignKey("CreatedById")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("CreatedBy");
+                });
+
             modelBuilder.Entity("HaloBiz.Model.LGA", b =>
                 {
                     b.HasOne("HaloBiz.Model.State", "State")
@@ -611,6 +1291,61 @@ namespace HaloBiz.Migrations
                         .IsRequired();
 
                     b.Navigation("State");
+                });
+
+            modelBuilder.Entity("HaloBiz.Model.ManyToManyRelationship.SBUAccountMaster", b =>
+                {
+                    b.HasOne("HaloBiz.Model.AccountsModel.AccountMaster", "AccountMaster")
+                        .WithMany("SBUAccountMaster")
+                        .HasForeignKey("AccountMasterId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("HaloBiz.Model.StrategicBusinessUnit", "StrategicBusinessUnit")
+                        .WithMany("SBUAccountMaster")
+                        .HasForeignKey("StrategicBusinessUnitId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("AccountMaster");
+
+                    b.Navigation("StrategicBusinessUnit");
+                });
+
+            modelBuilder.Entity("HaloBiz.Model.ManyToManyRelationship.ServiceRequiredServiceDocument", b =>
+                {
+                    b.HasOne("HaloBiz.Model.RequiredServiceDocument", "RequiredServiceDocument")
+                        .WithMany("Services")
+                        .HasForeignKey("RequiredServiceDocumentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("HaloBiz.Model.Services", "Services")
+                        .WithMany("RequiredServiceDocument")
+                        .HasForeignKey("ServicesId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("RequiredServiceDocument");
+
+                    b.Navigation("Services");
+                });
+
+            modelBuilder.Entity("HaloBiz.Model.ManyToManyRelationship.ServiceRequiredServiceField", b =>
+                {
+                    b.HasOne("HaloBiz.Model.RequiredServiceField", null)
+                        .WithMany("Services")
+                        .HasForeignKey("RequiredServiceFieldId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("HaloBiz.Model.Services", "Services")
+                        .WithMany("RequiredFields")
+                        .HasForeignKey("ServicesId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Services");
                 });
 
             modelBuilder.Entity("HaloBiz.Model.ModificationHistory", b =>
@@ -689,6 +1424,25 @@ namespace HaloBiz.Migrations
                     b.Navigation("ServiceGroup");
                 });
 
+            modelBuilder.Entity("HaloBiz.Model.ServiceCategoryTask", b =>
+                {
+                    b.HasOne("HaloBiz.Model.UserProfile", "CreatedBy")
+                        .WithMany()
+                        .HasForeignKey("CreatedById")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("HaloBiz.Model.ServiceCategory", "ServiceCategory")
+                        .WithMany("ServiceCategoryTasks")
+                        .HasForeignKey("ServiceCategoryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("CreatedBy");
+
+                    b.Navigation("ServiceCategory");
+                });
+
             modelBuilder.Entity("HaloBiz.Model.ServiceGroup", b =>
                 {
                     b.HasOne("HaloBiz.Model.OperatingEntity", "OperatingEntity")
@@ -722,6 +1476,25 @@ namespace HaloBiz.Migrations
                     b.Navigation("OperatingEntity");
                 });
 
+            modelBuilder.Entity("HaloBiz.Model.UserProfile", b =>
+                {
+                    b.HasOne("HaloBiz.Model.StrategicBusinessUnit", "SBU")
+                        .WithMany("Members")
+                        .HasForeignKey("SBUId");
+
+                    b.Navigation("SBU");
+                });
+
+            modelBuilder.Entity("HaloBiz.Model.AccountsModel.Account", b =>
+                {
+                    b.Navigation("AccountMasters");
+                });
+
+            modelBuilder.Entity("HaloBiz.Model.AccountsModel.AccountMaster", b =>
+                {
+                    b.Navigation("SBUAccountMaster");
+                });
+
             modelBuilder.Entity("HaloBiz.Model.Branch", b =>
                 {
                     b.Navigation("Offices");
@@ -732,6 +1505,11 @@ namespace HaloBiz.Migrations
                     b.Navigation("OperatingEntities");
                 });
 
+            modelBuilder.Entity("HaloBiz.Model.LAMS.LeadType", b =>
+                {
+                    b.Navigation("LeadOrigins");
+                });
+
             modelBuilder.Entity("HaloBiz.Model.OperatingEntity", b =>
                 {
                     b.Navigation("ServiceGroups");
@@ -739,8 +1517,20 @@ namespace HaloBiz.Migrations
                     b.Navigation("StrategicBusinessUnits");
                 });
 
+            modelBuilder.Entity("HaloBiz.Model.RequiredServiceDocument", b =>
+                {
+                    b.Navigation("Services");
+                });
+
+            modelBuilder.Entity("HaloBiz.Model.RequiredServiceField", b =>
+                {
+                    b.Navigation("Services");
+                });
+
             modelBuilder.Entity("HaloBiz.Model.ServiceCategory", b =>
                 {
+                    b.Navigation("ServiceCategoryTasks");
+
                     b.Navigation("Services");
                 });
 
@@ -749,9 +1539,23 @@ namespace HaloBiz.Migrations
                     b.Navigation("ServiceCategories");
                 });
 
+            modelBuilder.Entity("HaloBiz.Model.Services", b =>
+                {
+                    b.Navigation("RequiredFields");
+
+                    b.Navigation("RequiredServiceDocument");
+                });
+
             modelBuilder.Entity("HaloBiz.Model.State", b =>
                 {
                     b.Navigation("LGAs");
+                });
+
+            modelBuilder.Entity("HaloBiz.Model.StrategicBusinessUnit", b =>
+                {
+                    b.Navigation("Members");
+
+                    b.Navigation("SBUAccountMaster");
                 });
 #pragma warning restore 612, 618
         }

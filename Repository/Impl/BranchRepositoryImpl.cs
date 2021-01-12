@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using HaloBiz.Data;
 using HaloBiz.Model;
@@ -34,7 +35,7 @@ namespace HaloBiz.Repository.Impl
             return await _context.Branches
                 .Include(branch => branch.Head)
                 .Include(branch => branch.Offices)
-                .FirstOrDefaultAsync( branch => branch.Id == Id);
+                .FirstOrDefaultAsync( branch => branch.Id == Id && branch.IsDeleted == false);
         }
 
         public async Task<Branch> FindBranchByName(string name)
@@ -42,12 +43,12 @@ namespace HaloBiz.Repository.Impl
             return await _context.Branches
                 .Include(branch => branch.Head)
                 .Include(branch => branch.Offices)
-                .FirstOrDefaultAsync( branch => branch.Name == name);
+                .FirstOrDefaultAsync( branch => branch.Name == name && branch.IsDeleted == false);
         }
 
         public async Task<IEnumerable<Branch>> FindAllBranches()
         {
-            return await _context.Branches
+            return await _context.Branches.Where(branch => branch.IsDeleted == false)
                 .Include(branch => branch.Head)
                 .Include(branch => branch.Offices)
                 .ToListAsync();
@@ -65,7 +66,8 @@ namespace HaloBiz.Repository.Impl
 
         public async Task<bool> DeleteBranch(Branch branch)
         {
-            _context.Branches.Remove(branch);
+            branch.IsDeleted = true;
+            _context.Branches.Update(branch);
             return await SaveChanges();
         }
 

@@ -8,11 +8,11 @@ namespace HaloBiz.Model
     {
         [Key]
         public long Id { get; set; }
-        [Required, MaxLength(20), MinLength(3), RegularExpression("\\w{3,20}")]
+        [Required, MaxLength(20), MinLength(2), RegularExpression("\\w{3,20}")]
         public string FirstName { get; set; }
-        [RegularExpression("\\w{3,20}")]
+        [RegularExpression("\\w{2,20}")]
         public string LastName { get; set; }
-        [RegularExpression("\\w{3,20}")]
+        [RegularExpression("\\w{2,20}")]
         public string OtherName { get; set; }
         [RegularExpression("\\w{2,50}")]
         public string CodeName { get; set; }
@@ -39,8 +39,10 @@ namespace HaloBiz.Model
         [MaxLength(255)]
         public string InstagramHandle { get; set; }
         public long StaffId { get; set; }
-        public bool ProfileStatus { get; set; }
-        public bool IsDeleted { get; set; }
+        public long? SBUId { get; set; }
+        public virtual StrategicBusinessUnit SBU { get; set; }
+        public bool ProfileStatus { get; set; } = true;
+        public bool IsDeleted { get; set; } = false;
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public DateTime CreatedAt { get; set; }
         [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
