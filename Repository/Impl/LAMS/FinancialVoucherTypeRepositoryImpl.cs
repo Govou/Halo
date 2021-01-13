@@ -14,7 +14,7 @@ namespace HaloBiz.Repository.Impl.LAMS
     {
         private readonly DataContext _context;
         private readonly ILogger<FinancialVoucherTypeRepositoryImpl> _logger;
-        public FinanceVoucherTypeRepositoryImpl(DataContext context, ILogger<FinancialVoucherTypeRepositoryImpl> logger)
+        public FinancialVoucherTypeRepositoryImpl(DataContext context, ILogger<FinancialVoucherTypeRepositoryImpl> logger)
         {
             this._logger = logger;
             this._context = context;
@@ -71,5 +71,7 @@ namespace HaloBiz.Repository.Impl.LAMS
                return false;
            }
         }
+
+        
     }
 }

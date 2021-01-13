@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using HaloBiz.Model;
 
 namespace HaloBiz.DTOs.TransferDTOs.LAMS
 {

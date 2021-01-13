@@ -23,7 +23,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
         private readonly IFinancialVoucherTypeRepository _voucherTypeRepo;
         private readonly IMapper _mapper;
 
-        public LeadOriginServiceImpl(IModificationHistoryRepository historyRepo, 
+        public FinancialVoucherTypeServiceImpl(IModificationHistoryRepository historyRepo, 
         IFinancialVoucherTypeRepository voucherTypeRepo, ILogger<FinancialVoucherTypeServiceImpl> logger, IMapper mapper)
         {
             this._mapper = mapper;
@@ -47,7 +47,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
         public async Task<ApiResponse> GetAllFinancialVoucherTypes()
         {
-            var voucherTypes = await _voucherTypeRepo.FindAllFinanceVoucherTypes();
+            var voucherTypes = await _voucherTypeRepo.FindAllFinanceVoucherType();
             if (voucherTypes == null)
             {
                 return new ApiResponse(404);
@@ -116,5 +116,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
             return new ApiOkResponse(true);
         }
+
+        
     }
 }

@@ -8,7 +8,7 @@ namespace HaloBiz.Repository.LAMS
     {
          Task<FinanceVoucherType> SaveFinanceVoucherType(FinanceVoucherType voucherType);
          Task<FinanceVoucherType> FindFinanceVoucherTypeById(long Id);
-         Task<IEnumerable<FinanceVoucherType>> FindAllFinanceVoucherTypes();
+         Task<IEnumerable<FinanceVoucherType>> FindAllFinanceVoucherType();
          Task<FinanceVoucherType> UpdateFinanceVoucherType(FinanceVoucherType voucherType);
          Task<bool> DeleteFinanceVoucherType(FinanceVoucherType voucherType);
     }

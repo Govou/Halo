@@ -20,7 +20,7 @@ namespace HaloBiz.Controllers.LAMS
         [HttpGet("")]
         public async Task<ActionResult> GetFinancialVoucherTypes()
         {
-            var response = await _finacialVoucherTypeService.GetAllFinanclalVoucherTypes();
+            var response = await _finacialVoucherTypeService.GetAllFinancialVoucherTypes();
             if (response.StatusCode >= 400)
                 return StatusCode(response.StatusCode, response);
             var voucherType = ((ApiOkResponse)response).Result;
@@ -40,7 +40,7 @@ namespace HaloBiz.Controllers.LAMS
         [HttpPost("")]
         public async Task<ActionResult> AddNewFinancialVoucherType(FinancialVoucherTypeReceivingDTO voucherTypeReceiving)
         {
-            var response = await _finacialVoucherTypeService.AddLeadOrigin(HttpContext, voucherTypeReceiving);
+            var response = await _finacialVoucherTypeService.AddFinancialVoucherType(HttpContext, voucherTypeReceiving);
             if (response.StatusCode >= 400)
                 return StatusCode(response.StatusCode, response);
             var voucherType = ((ApiOkResponse)response).Result;
@@ -50,7 +50,7 @@ namespace HaloBiz.Controllers.LAMS
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateById(long id, FinancialVoucherTypeReceivingDTO voucherTypeReceiving)
         {
-            var response = await _finacialVoucherTypeService.UpdateLeadOrigin(HttpContext, id, voucherTypeReceiving);
+            var response = await _finacialVoucherTypeService.UpdateFinancialVoucherType(HttpContext, id, voucherTypeReceiving);
             if (response.StatusCode >= 400)
                 return StatusCode(response.StatusCode, response);
             var voucherType = ((ApiOkResponse)response).Result;
@@ -60,7 +60,7 @@ namespace HaloBiz.Controllers.LAMS
         [HttpDelete("{id}")]
         public async Task<ActionResult> DeleteById(int id)
         {
-            var response = await _finacialVoucherTypeService.DeleteLeadOrigin(id);
+            var response = await _finacialVoucherTypeService.DeleteFinancialVoucherType(id);
             return StatusCode(response.StatusCode);
         }
     }
