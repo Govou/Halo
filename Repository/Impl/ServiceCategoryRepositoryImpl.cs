@@ -32,6 +32,7 @@ namespace HaloBiz.Repository.Impl
         public async Task<ServiceCategory> FindServiceCategoryById(long Id)
         {
             return await _context.ServiceCategories
+                .Include(office => office.ServiceGroup)
                 .Include(office => office.Services)                 
                 .FirstOrDefaultAsync( category => category.Id == Id && category.IsDeleted == false);
         }
@@ -39,6 +40,7 @@ namespace HaloBiz.Repository.Impl
         public async Task<ServiceCategory> FindServiceCategoryByName(string name)
         {
             return await _context.ServiceCategories
+                .Include(office => office.ServiceGroup)
                 .Include(category => category.Services)
                 .FirstOrDefaultAsync(category => category.Name == name && category.IsDeleted == false);
         }
@@ -46,6 +48,7 @@ namespace HaloBiz.Repository.Impl
         public async Task<IEnumerable<ServiceCategory>> FindAllServiceCategories()
         {
             return await _context.ServiceCategories.Where(category => category.IsDeleted == false)
+                .Include(office => office.ServiceGroup)
                 .Include(category => category.Services)
                 .ToListAsync();
         }

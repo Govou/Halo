@@ -28,7 +28,15 @@ namespace HaloBiz.MyServices.Impl
 
         public async Task<ApiResponse> AddUserProfile(UserProfileReceivingDTO userProfileReceivingDTO)
         {
-            if(!userProfileReceivingDTO.Email.EndsWith("halogen-group.com"))
+            if(
+                !(userProfileReceivingDTO.Email.Trim().EndsWith("halogen-group.com") || 
+                userProfileReceivingDTO.Email.Trim().EndsWith("avanthalogen.com") ||
+                userProfileReceivingDTO.Email.Trim().EndsWith("averthalogen.com") ||
+                userProfileReceivingDTO.Email.Trim().EndsWith("armourxhalogen.com") ||
+                userProfileReceivingDTO.Email.Trim().EndsWith("pshalogen.com") ||
+                userProfileReceivingDTO.Email.Trim().EndsWith("academyhalogen.com") ||
+                userProfileReceivingDTO.Email.Trim().EndsWith("armadahalogen.com") )
+                )
             {
                 return new ApiResponse(400, "Invalid email address");
             }

@@ -8,18 +8,18 @@ namespace HaloBiz.Model
     {
         [Key]
         public long Id { get; set; }
-        [Required, MaxLength(20), MinLength(2), RegularExpression("\\w{3,20}")]
+        [Required, MaxLength(20), MinLength(2), RegularExpression("[\\w\\s\\W]{2,20}")]
         public string FirstName { get; set; }
-        [RegularExpression("\\w{2,20}")]
+        [RegularExpression("[\\w\\s\\W]{2,20}")]
         public string LastName { get; set; }
-        [RegularExpression("\\w{2,20}")]
+        [RegularExpression("[\\w\\s\\W]{2,20}")]
         public string OtherName { get; set; }
-        [RegularExpression("\\w{2,50}")]
+        [RegularExpression("[\\w\\s\\W]{2,20}")]
         public string CodeName { get; set; }
         [Required]
         public DateTime DateOfBirth { get; set; }
 
-        [EmailAddress]
+        [RegularExpression("^[_A-Za-z0-9-\\+]+(\\.[_A-Za-z0-9-]+)*@[A-Za-z0-9-]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$", ErrorMessage="Invalid Email Address")]
         public string Email { get; set; }
         [RegularExpression("\\d{10,15}")]
         public string MobileNumber { get; set; }

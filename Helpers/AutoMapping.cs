@@ -28,6 +28,7 @@ namespace HaloBiz.Helpers
             CreateMap<Division, DivisionTransferDTO>();
             CreateMap<DivisionReceivingDTO, Division>();
             CreateMap<OperatingEntity, OperatingEntityTransferDTO>();
+            CreateMap<OperatingEntity, OperatingEntityWithoutServiceGroupDTO>();
             CreateMap<OperatingEntityReceivingDTO, OperatingEntity>();
             CreateMap<Division,DivisionWithoutOperatingEntityDTO>();
             CreateMap<State, StateWithoutLGATransferDto>();
@@ -36,6 +37,7 @@ namespace HaloBiz.Helpers
             CreateMap<StrategicBusinessUnit, StrategicBusinessUnitTransferDTO>();
             CreateMap<StrategicBusinessUnitReceivingDTO, StrategicBusinessUnit>();
             CreateMap<ServiceGroup, ServiceGroupTransferDTO>();
+            CreateMap<ServiceGroup, ServiceGroupWithoutServiceCategoryDTO>();
             CreateMap<ServiceGroupReceivingDTO, ServiceGroup>();
             CreateMap<ServiceCategoryReceivingDTO, ServiceCategory>();
             CreateMap<ServiceCategory, ServiceCategoryTransferDTO>();

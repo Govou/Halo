@@ -13,8 +13,9 @@ namespace HaloBiz.Model
         [StringLength(1000)]
         public string Description { get; set; }
         [Required]
-        public long CreatedBy { get; set; }
-         public bool IsDeleted { get; set; }
+        public long CreatedById { get; set; }
+        public virtual UserProfile CreatedBy { get; set; }
+        public bool IsDeleted { get; set; } = false;
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public DateTime CreatedAt { get; set; }
         [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
