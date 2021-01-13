@@ -8,7 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace HaloBiz.Controllers
+namespace HaloBiz.Controllers.AccountsModel
 {
     [Route("api/v1/[controller]")]
     [ApiController]

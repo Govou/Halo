@@ -36,6 +36,9 @@ namespace HaloBiz.Data
     public DbSet<ServiceRequiredServiceField> ServiceRequiredServiceField { get; set; }
     public DbSet<RequiredServiceDocument> RequiredServiceDocuments { get; set; }
     public DbSet<ServiceRequiredServiceDocument> ServiceRequiredServiceDocument { get; set; }
+    public DbSet<StandardSLAForOperatingEntities> StandardSLAForOperatingEntities { get; set; }
+    public DbSet<MeansOfIdentification> MeansOfIdentification { get; set; }
+    public DbSet<GroupType> GroupType { get; set; }
     protected override void OnModelCreating(ModelBuilder builder)
         {
             //Defines many to many relationship between SBU and AccountMaster
@@ -210,6 +213,22 @@ namespace HaloBiz.Data
                .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
             builder.Entity<RequiredServiceField>()
+                .Property(p => p.CreatedAt)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            builder.Entity<MeansOfIdentification>()
+               .Property(p => p.UpdatedAt)
+               .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            builder.Entity<MeansOfIdentification>()
+                .Property(p => p.CreatedAt)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            builder.Entity<GroupType>()
+               .Property(p => p.UpdatedAt)
+               .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            builder.Entity<GroupType>()
                 .Property(p => p.CreatedAt)
                 .HasDefaultValueSql("CURRENT_TIMESTAMP");
 

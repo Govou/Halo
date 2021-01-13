@@ -136,7 +136,7 @@ namespace HaloBiz.Controllers
             };
 
 
-            var secret = _config["TokenSecret"] ?? _config.GetSection("AppSettings:JWTSecretKey").Value;
+            var secret = _config["JWTSecretKey"] ?? _config.GetSection("AppSettings:JWTSecretKey").Value;
 
             var key = new SymmetricSecurityKey(Encoding
                 .UTF8.GetBytes(secret));
