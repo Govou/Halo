@@ -24,6 +24,8 @@ namespace HaloBiz.Model.LAMS
         public string Email { get; set; }
         [StringLength(1000)]
         public string LogoUrl { get; set; }
+        [StringLength(1000)]
+        public string Address { get; set; }
         public long? PrimaryContactId { get; set; }
         public virtual LeadDivisionContact PrimaryContact { get; set; }
         public long? SecondaryContactId { get; set; }

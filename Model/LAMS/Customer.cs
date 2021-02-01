@@ -17,8 +17,12 @@ namespace HaloBiz.Model.LAMS
         public string PhoneNumber { get; set; }
         [Required, RegularExpression("^[_A-Za-z0-9-\\+]+(\\.[_A-Za-z0-9-]+)*@[A-Za-z0-9-]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$", ErrorMessage = "Invalid Email Address")]
         public string Email { get; set; }
+        [StringLength(100)]
+        public string Industry { get; set; }
         [Required]
         public string RCNumber { get; set; }
+        [Required]
+        public string LogoUrl { get; set; }
         public long GroupTypeId { get; set; }
         public virtual GroupType GroupType { get; set; }
         public IEnumerable<CustomerDivision> CustomerDivisions { get; set; }

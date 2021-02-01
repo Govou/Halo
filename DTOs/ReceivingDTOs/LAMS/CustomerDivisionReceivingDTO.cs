@@ -20,6 +20,8 @@ namespace HaloBiz.DTOs.ReceivingDTOs.LAMS
         public string Email { get; set; }
         [StringLength(1000)]
         public string LogoUrl { get; set; }
+        [StringLength(1000)]
+        public string Address { get; set; }
         public long CustomerId { get; set; }
     }
 }

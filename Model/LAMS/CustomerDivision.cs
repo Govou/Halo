@@ -6,7 +6,7 @@ namespace HaloBiz.Model.LAMS
 {
     public class CustomerDivision
     {
-         [Key]
+        [Key]
         public long Id { get; set; }
         [StringLength(100)]
         public string Industry { get; set; }
@@ -20,6 +20,8 @@ namespace HaloBiz.Model.LAMS
         public string Email { get; set; }
         [StringLength(1000)]
         public string LogoUrl { get; set; }
+        [StringLength(1000)]
+        public string Address { get; set; }
         public long CustomerId { get; set; }
         public virtual Customer Customer { get; set; }
         public long CreatedById { get; set; }

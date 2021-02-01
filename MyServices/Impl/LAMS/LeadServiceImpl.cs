@@ -249,12 +249,60 @@ namespace HaloBiz.MyServices.Impl.LAMS
         
         }
 
+        private async void ConvertLeadToCustomer(long leadId, DataContext context)
+        {
+            var lead = await context.Leads
+                .Include(x => x.LeadDivisions)
+                .FirstOrDefaultAsync(x => x.Id == leadId);
+
+            //Converts lead to customer and saves customer and update lead
+            var customerEntity = await context.Customers.AddAsync( new Customer(){
+                GroupName = lead.GroupName,
+                RCNumber = lead.RCNumber,
+                GroupTypeId = lead.GroupTypeId,
+                Industry = lead.Industry,
+                Email = "",
+                PhoneNumber = ""
+            });
+            lead.CustomerId = customerEntity.Entity.Id;
+            context.Leads.Update(lead);
+            await context.SaveChangesAsync();
+
+
+            foreach (var leadDivision in lead.LeadDivisions)
+            {
+                
+            }
+
+            
+        }
+
+        // private async Task<Quote> ConvertLeadDivisionToCustomerDivision(LeadDivision leadDivision, Customer customer, DataContext context)
+        // {
+        //     //creates customer division from lead division and saves the customer division
+        //     await customerDivision =  new CustomerDivision(){
+        //         Industry = leadDivision.Industry,
+        //         RCNumber = leadDivision.RCNumber,
+        //         DivisionName = leadDivision.DivisionName,
+        //         Email = leadDivision.Email,
+        //         LogoUrl = leadDivision.LogoUrl,
+        //         CustomerId = customer.Id,
+        //         PhoneNumber = leadDivision.PhoneNumber,
+        //         Address = leadDivision.Address
+        //     }
+
+        //     var quote = await context.Quotes
+        //         .Include(x => x.QuoteServices)
+        //         .FirstOrDefaultAsync(x => x.LeadDivisionId == leadDivisionId);
+
+            
+        // }
+
         // private async Task<Quote> ConvertQuoteToContract(long leadDivisionId, DataContext context)
         // {
         //     var quotes = await context.LeadDivisions
-        //         .Include(x => x.Quotes)
-        //         .
-        //         .FirstOrDefaultAsync(x => x.Id == leadId);
+        //         .Include(x => x.Quote)
+        //         .FirstOrDefaultAsync(x => x.Id == leadDivisionId);
                 
         // }
     }
