@@ -34,7 +34,7 @@ namespace HaloBiz.Model.LAMS
         public virtual Office Office { get; set; }
         public long LeadId { get; set; }
         public virtual Lead Lead { get; set; }
-        public  IEnumerable<Quote> Quotes { get; set; }
+        public  Quote Quote { get; set; }
         public IEnumerable<LeadDivisionKeyPerson> LeadDivisionKeyPersons { get; set; }
         public long CreatedById { get; set; }
         public virtual UserProfile CreatedBy { get; set; }

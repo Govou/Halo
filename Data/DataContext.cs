@@ -67,6 +67,8 @@ namespace HaloBiz.Data
     public DbSet<Contract> Contracts {get; set; }   
     public DbSet<ContractService> ContractServices {get; set; }
     public DbSet<NegotiationDocument> NegotiationDocuments { get; set; }
+    public DbSet<Amortization> Amortizations { get; set; }
+    public DbSet<Invoice> Invoices { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder builder)
@@ -491,6 +493,22 @@ namespace HaloBiz.Data
                .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
             builder.Entity<ContractService>()
+                .Property(p => p.CreatedAt)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            builder.Entity<Amortization>()
+               .Property(p => p.UpdatedAt)
+               .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            builder.Entity<Amortization>()
+                .Property(p => p.CreatedAt)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            builder.Entity<Invoice>()
+               .Property(p => p.UpdatedAt)
+               .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            builder.Entity<Invoice>()
                 .Property(p => p.CreatedAt)
                 .HasDefaultValueSql("CURRENT_TIMESTAMP");
 

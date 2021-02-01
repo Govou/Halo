@@ -39,6 +39,7 @@ namespace HaloBiz.Repository.Impl.LAMS
                 .Include(x => x.SecondaryContact)
                 .Include(x => x.LeadDivisionKeyPersons)
                 .Include(x => x.LeadOrigin)
+                .Include(x => x.Quote)
                 .FirstOrDefaultAsync( leadDivision => leadDivision.Id == Id && leadDivision.IsDeleted == false);
         }
 
@@ -51,6 +52,7 @@ namespace HaloBiz.Repository.Impl.LAMS
                 .Include(x => x.SecondaryContact)
                 .Include(x => x.LeadDivisionKeyPersons)
                 .Include(x => x.LeadOrigin)
+                .Include(x => x.Quote)
                 .FirstOrDefaultAsync( leadDivision => leadDivision.DivisionName == name && leadDivision.IsDeleted == false);
         }
 
@@ -63,6 +65,7 @@ namespace HaloBiz.Repository.Impl.LAMS
                 .Include(x => x.SecondaryContact)
                 .Include(x => x.LeadDivisionKeyPersons)
                 .Include(x => x.LeadOrigin)
+                .Include(x => x.Quote)
                 .FirstOrDefaultAsync(leadDivision => leadDivision.RCNumber == rcNumber && leadDivision.IsDeleted == false);
         }
 
@@ -75,6 +78,7 @@ namespace HaloBiz.Repository.Impl.LAMS
                 .Include(x => x.SecondaryContact)
                 .Include(x => x.LeadDivisionKeyPersons)
                 .Include(x => x.LeadOrigin)
+                .Include(x => x.Quote)
                 .Where(leadDivision => leadDivision.IsDeleted == false)
                 .OrderBy(leadDivision => leadDivision.CreatedAt)
                 .ToListAsync();

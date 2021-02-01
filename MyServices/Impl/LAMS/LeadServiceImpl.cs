@@ -14,6 +14,7 @@ using HaloBiz.Repository;
 using HaloBiz.Repository.Impl;
 using HaloBiz.Repository.LAMS;
 using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.Logging;
 
@@ -22,12 +23,14 @@ namespace HaloBiz.MyServices.Impl.LAMS
     public class LeadServiceImpl : ILeadService
     {
         private readonly ILogger<LeadServiceImpl> _logger;
+        private readonly DataContext _context;
         private readonly IReferenceNumberRepository _refNumberRepo;
         private readonly IModificationHistoryRepository _historyRepo;
         private readonly ILeadRepository _leadRepo;
         private readonly IMapper _mapper;
 
         public LeadServiceImpl(
+                                DataContext context,
                                 IReferenceNumberRepository refNumberRepo,
                                 IModificationHistoryRepository historyRepo,
                                 ILeadRepository leadRepo,
@@ -36,6 +39,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                                 )
         {
             this._mapper = mapper;
+            this._context = context;
             this._refNumberRepo = refNumberRepo;
             this._historyRepo = historyRepo;
             this._leadRepo = leadRepo;
@@ -220,6 +224,39 @@ namespace HaloBiz.MyServices.Impl.LAMS
             var leadTransferDTOs = _mapper.Map<LeadTransferDTO>(updatedLead);
             return new ApiOkResponse(leadTransferDTOs);
         }
+
+
+        public async Task<ApiResponse> ConvertLeadToClient(long leadId)
+        {
+            using(var transaction =  await _context.Database.BeginTransactionAsync())
+            {
+                try
+                {
+                    var lead = await GetLeadById(leadId);
+                    
+
+                    return new ApiOkResponse(true);
+                }
+                catch (System.Exception e)
+                {
+                    _logger.LogError(e.Message);
+                    _logger.LogError(e.StackTrace);
+                    return new ApiResponse(500);
+                }
+
+            }
+
+        
+        }
+
+        // private async Task<Quote> ConvertQuoteToContract(long leadDivisionId, DataContext context)
+        // {
+        //     var quotes = await context.LeadDivisions
+        //         .Include(x => x.Quotes)
+        //         .
+        //         .FirstOrDefaultAsync(x => x.Id == leadId);
+                
+        // }
     }
 }
 
