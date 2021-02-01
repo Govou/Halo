@@ -4,14 +4,16 @@ using HaloBiz.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace HaloBiz.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20210201130204_addedRoleAndRoleClaims")]
+    partial class addedRoleAndRoleClaims
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -3032,9 +3034,6 @@ namespace HaloBiz.Migrations
                     b.Property<bool>("ProfileStatus")
                         .HasColumnType("bit");
 
-                    b.Property<long>("RoleId")
-                        .HasColumnType("bigint");
-
                     b.Property<long?>("SBUId")
                         .HasColumnType("bigint");
 
@@ -3051,8 +3050,6 @@ namespace HaloBiz.Migrations
                         .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("RoleId");
 
                     b.HasIndex("SBUId");
 
@@ -4236,17 +4233,9 @@ namespace HaloBiz.Migrations
 
             modelBuilder.Entity("HaloBiz.Model.UserProfile", b =>
                 {
-                    b.HasOne("HaloBiz.Model.RoleManagement.Role", "Role")
-                        .WithMany()
-                        .HasForeignKey("RoleId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("HaloBiz.Model.StrategicBusinessUnit", "SBU")
                         .WithMany("Members")
                         .HasForeignKey("SBUId");
-
-                    b.Navigation("Role");
 
                     b.Navigation("SBU");
                 });
