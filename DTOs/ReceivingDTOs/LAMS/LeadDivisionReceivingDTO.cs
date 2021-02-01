@@ -17,6 +17,8 @@ namespace HaloBiz.DTOs.ReceivingDTOs
         public string Email { get; set; }
         [StringLength(1000)]
         public string LogoUrl { get; set; }
+        [StringLength(1000)]
+        public string Address { get; set; }
         public long? PrimaryContactId { get; set; }
         public long? SecondaryContactId { get; set; }
         public long? BranchId { get; set; }

@@ -111,6 +111,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
             leadDivisionToUpdate.BranchId = (Int64) leadDivisionReceivingDTO.BranchId;
             leadDivisionToUpdate.OfficeId = (Int64) leadDivisionReceivingDTO.OfficeId;
             leadDivisionToUpdate.LeadId = leadDivisionReceivingDTO.LeadId;
+            leadDivisionToUpdate.Address = leadDivisionReceivingDTO.Address;
 
             var updatedLeadDivision = await _leadDivisionRepo.UpdateLeadDivision(leadDivisionToUpdate);
 
