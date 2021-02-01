@@ -2,6 +2,7 @@ using HaloBiz.Model;
 using HaloBiz.Model.AccountsModel;
 using HaloBiz.Model.LAMS;
 using HaloBiz.Model.ManyToManyRelationship;
+using HaloBiz.Model.RoleManagement;
 using Microsoft.EntityFrameworkCore;
 
 namespace HaloBiz.Data
@@ -69,6 +70,8 @@ namespace HaloBiz.Data
     public DbSet<NegotiationDocument> NegotiationDocuments { get; set; }
     public DbSet<Amortization> Amortizations { get; set; }
     public DbSet<Invoice> Invoices { get; set; }
+    public DbSet<Role> Roles { get; set; }
+    public DbSet<RoleClaim> RoleClaims { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder builder)
