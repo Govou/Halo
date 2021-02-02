@@ -1,4 +1,6 @@
 using System;
+using HaloBiz.Model;
+using HaloBiz.Model.RoleManagement;
 
 namespace HaloBiz.DTOs.TransferDTOs
 {
@@ -21,6 +23,8 @@ namespace HaloBiz.DTOs.TransferDTOs
         public string TwitterHandle { get; set; }
         public string InstagramHandle { get; set; }
         public long StaffId { get; set; }
+        public StrategicBusinessUnit SBU { get; set; }
+        public virtual Role Role { get; set; }
         public bool ProfileStatus { get; set; }
 
         public override string ToString()

@@ -131,6 +131,36 @@ namespace HaloBiz.MyServices.Impl
             return new ApiOkResponse(userProfileTransferDto);
 
         }
+        public async Task<ApiResponse> AssignUserToSBU(long userId, long SBUId)
+        {
+            var userToUpdate = await _userRepo.FindUserById(userId);
+            if(userToUpdate == null)
+            {
+                return new ApiResponse(404);
+            }
+            userToUpdate.SBUId = SBUId;
+
+
+            var updatedUser = await _userRepo.UpdateUserProfile(userToUpdate);
+
+            if(updatedUser == null)
+            {
+                return new ApiResponse(500);
+            }
+
+            ModificationHistory history = new ModificationHistory(){
+                ModelChanged = "UserProfile",
+                ChangeSummary = "Assigned user to an SBU",
+                ChangedBy = updatedUser,
+                ModifiedModelId = updatedUser.Id
+            };
+
+            await _historyRepo.SaveHistory(history);
+
+            var userProfileTransferDto = _mapper.Map<UserProfileTransferDTO>(updatedUser);
+            return new ApiOkResponse(userProfileTransferDto);
+
+        }
 
 
         public async Task<ApiResponse> DeleteUserProfile(long userId)
