@@ -18,7 +18,7 @@ namespace HaloBiz.Model
         public string Name { get; set; }
         [Required, MinLength(3), MaxLength(255)]
         public string Description { get; set; }
-        [MaxLength(500)]
+        [MaxLength(5000)]
         public string ImageUrl { get; set; }
         [Required]
         public double UnitPrice { get; set; }
