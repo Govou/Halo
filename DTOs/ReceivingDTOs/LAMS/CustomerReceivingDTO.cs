@@ -17,5 +17,7 @@ namespace HaloBiz.DTOs.ReceivingDTOs.LAMS
         [Required]
         public string RCNumber { get; set; }
         public long GroupTypeId { get; set; }
+        [StringLength(5000)]
+        public string LogoUrl { get; set; }
     }
 }

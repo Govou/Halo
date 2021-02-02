@@ -82,6 +82,17 @@ namespace HaloBiz.Controllers
                 return StatusCode(response.StatusCode, response);
             var user = ((ApiOkResponse)response).Result;
             return Ok((UserProfileTransferDTO)user);
+        
+        }
+        
+        [HttpPut("{id}/StrategicBusinessUnit/{SBUId}")]
+        public async Task<IActionResult> AssignUserToSBU(long id, long SBUId)
+        {
+            var response = await _userProfileService.AssignUserToSBU(id, SBUId);
+            if(response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var user = ((ApiOkResponse) response).Result;
+            return Ok((UserProfileTransferDTO) user);
         }
 
         [HttpDelete("{id}")]

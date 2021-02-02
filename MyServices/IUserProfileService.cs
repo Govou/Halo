@@ -13,5 +13,7 @@ namespace HaloBiz.MyServices
         Task<ApiResponse> UpdateUserProfile(long userId, UserProfileReceivingDTO userProfileReceivingDTO);
         Task<ApiResponse> DeleteUserProfile(long userId);
         Task<ApiResponse> UpdateUserRole(long userId, long roleId);
+        Task<ApiResponse> AssignUserToSBU(long userId, long SBUId);
+
     }
 }

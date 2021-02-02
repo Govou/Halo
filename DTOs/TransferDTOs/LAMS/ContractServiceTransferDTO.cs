@@ -46,10 +46,6 @@ namespace HaloBiz.DTOs.TransferDTOs.LAMS
         public Services Service { get; set; }
         public long ContractId { get; set; }
         public virtual Contract Contract { get; set; }
-        public long OfficeId { get; set; }
-        public virtual Office Office { get; set; }
-        public long BranchId { get; set; }
-        public virtual Branch Branch { get; set; }
         public long QuoteServiceId { get; set; }
         public virtual QuoteService QuoteService { get; set; }
         public IEnumerable<ClosureDocument> ClosureDocuments { get; set; }

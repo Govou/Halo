@@ -107,6 +107,17 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
         }
 
+        public async Task<ApiResponse> GetAllLeadKeyPersonsByLeadId(long leadId)
+        {
+            var leadKeyPersons = await _leadKeyPersonRepo.FindAllLeadKeyPersonByLeadId(leadId);
+            if (leadKeyPersons == null)
+            {
+                return new ApiResponse(404);
+            }
+            var leadKeyPersonTransferDTO = _mapper.Map<IEnumerable<LeadKeyPersonTransferDTO>>(leadKeyPersons);
+            return new ApiOkResponse(leadKeyPersonTransferDTO); 
+        }
+
         public async Task<ApiResponse> DeleteKeyPerson(long Id)
         {
             var leadKeyPersonToDelete = await _leadKeyPersonRepo.FindLeadKeyPersonById(Id);

@@ -22,6 +22,7 @@ namespace HaloBiz.DTOs.TransferDTOs.LAMS
         public DateTime? ContractEndDate { get; set; }
         public TimeCycle? PaymentCycle { get; set; }
         public long? PaymentCycleInDays { get; set; }
+        public long? InvoiceCycleInDays {get ; set; }
         public DateTime? FirstInvoiceSendDate { get; set; }
         public TimeCycle? InvoicingInterval { get; set; }
         public string ProblemStatement { get; set; }
@@ -53,13 +54,9 @@ namespace HaloBiz.DTOs.TransferDTOs.LAMS
         public long ServiceId { get; set; }
         public Services Service { get; set; }
         public long QuoteId { get; set; }
-        public long OfficeId { get; set; }
-        public virtual Office Office { get; set; }
-        public long BranchId { get; set; }
-        public Branch Branch { get; set; }
         public IEnumerable<ContractService> ContractServices { get; set; }
-        public IEnumerable<QuoteServiceDocument> QuoteServiceDocuments { get; set; }
-        public IEnumerable<SBUToQuoteServiceProportion> SBUToQuoteServiceProportions { get; set; }
+        public IEnumerable<QuoteServiceDocumentTransferDTO> QuoteServiceDocuments { get; set; }
+        public IEnumerable<SBUToQuoteServiceProportionTransferDTO> SBUToQuoteServiceProportions { get; set; }
         public VersionType Version { get; set; }
         public long CreatedById { get; set; }
         public virtual UserProfile CreatedBy { get; set; }

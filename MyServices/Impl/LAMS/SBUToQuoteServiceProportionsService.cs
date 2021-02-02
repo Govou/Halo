@@ -81,7 +81,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                     entity.Proportion = Math.Round(2.0/sumRatio * 100.00, 2);
                 }else
                 {
-                    entity.Proportion = Math.Round(1/sumRatio * 100.00, 2);
+                    entity.Proportion = Math.Round(1.0/sumRatio * 100.00, 2);
                 }
                 entity.CreatedById = loggedInUserId;
             }

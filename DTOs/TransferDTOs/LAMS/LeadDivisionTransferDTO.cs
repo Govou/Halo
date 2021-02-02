@@ -15,6 +15,7 @@ namespace HaloBiz.DTOs.TransferDTOs.LAMS
         public string PhoneNumber { get; set; }
         public string Email { get; set; }
         public string LogoUrl { get; set; }
+        public string Address { get; set; }
         public long PrimaryContactId { get; set; }
         public virtual LeadDivisionContact PrimaryContact { get; set; }
         public long? SecondaryContactId { get; set; }

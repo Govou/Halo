@@ -4,14 +4,16 @@ using HaloBiz.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace HaloBiz.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20210201133046_AddsNewFieldsToLeadDivision")]
+    partial class AddsNewFieldsToLeadDivision
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -422,11 +424,11 @@ namespace HaloBiz.Migrations
                     b.Property<bool>("IsInvoiceSent")
                         .HasColumnType("bit");
 
-                    b.Property<long>("Quantity")
-                        .HasColumnType("bigint");
+                    b.Property<int>("Quantity")
+                        .HasColumnType("int");
 
-                    b.Property<double>("UnitPrice")
-                        .HasColumnType("float");
+                    b.Property<long>("UnitPrice")
+                        .HasColumnType("bigint");
 
                     b.Property<DateTime>("UpdatedAt")
                         .ValueGeneratedOnAddOrUpdate()
@@ -776,6 +778,9 @@ namespace HaloBiz.Migrations
                     b.Property<double?>("BillableAmount")
                         .HasColumnType("float");
 
+                    b.Property<long>("BranchId")
+                        .HasColumnType("bigint");
+
                     b.Property<double?>("Budget")
                         .HasColumnType("float");
 
@@ -815,14 +820,14 @@ namespace HaloBiz.Migrations
                     b.Property<DateTime?>("FulfillmentStartDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<long?>("InvoiceCycleInDays")
-                        .HasColumnType("bigint");
-
                     b.Property<int?>("InvoicingInterval")
                         .HasColumnType("int");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
+
+                    b.Property<long>("OfficeId")
+                        .HasColumnType("bigint");
 
                     b.Property<int?>("PaymentCycle")
                         .HasColumnType("int");
@@ -894,9 +899,13 @@ namespace HaloBiz.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("BranchId");
+
                     b.HasIndex("ContractId");
 
                     b.HasIndex("CreatedById");
+
+                    b.HasIndex("OfficeId");
 
                     b.HasIndex("QuoteServiceId");
 
@@ -940,7 +949,7 @@ namespace HaloBiz.Migrations
                         .HasColumnType("bit");
 
                     b.Property<string>("LogoUrl")
-                        .HasMaxLength(5000)
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("PhoneNumber")
@@ -1003,8 +1012,8 @@ namespace HaloBiz.Migrations
                         .HasColumnType("bit");
 
                     b.Property<string>("LogoUrl")
-                        .HasMaxLength(5000)
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
 
                     b.Property<string>("PhoneNumber")
                         .IsRequired()
@@ -1163,8 +1172,8 @@ namespace HaloBiz.Migrations
                         .HasColumnType("bigint");
 
                     b.Property<string>("LogoUrl")
-                        .HasMaxLength(5000)
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
 
                     b.Property<long?>("PrimaryContactId")
                         .HasColumnType("bigint");
@@ -1318,8 +1327,8 @@ namespace HaloBiz.Migrations
                         .HasColumnType("bigint");
 
                     b.Property<string>("LogoUrl")
-                        .HasMaxLength(5000)
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
 
                     b.Property<long?>("OfficeId")
                         .HasColumnType("bigint");
@@ -1728,6 +1737,9 @@ namespace HaloBiz.Migrations
                     b.Property<double?>("BillableAmount")
                         .HasColumnType("float");
 
+                    b.Property<long?>("BranchId")
+                        .HasColumnType("bigint");
+
                     b.Property<double?>("Budget")
                         .HasColumnType("float");
 
@@ -1764,9 +1776,6 @@ namespace HaloBiz.Migrations
                     b.Property<DateTime?>("FulfillmentStartDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<long?>("InvoiceCycleInDays")
-                        .HasColumnType("bigint");
-
                     b.Property<int?>("InvoicingInterval")
                         .HasColumnType("int");
 
@@ -1775,6 +1784,9 @@ namespace HaloBiz.Migrations
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
+
+                    b.Property<long?>("OfficeId")
+                        .HasColumnType("bigint");
 
                     b.Property<int?>("PaymentCycle")
                         .HasColumnType("int");
@@ -1846,7 +1858,11 @@ namespace HaloBiz.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("BranchId");
+
                     b.HasIndex("CreatedById");
+
+                    b.HasIndex("OfficeId");
 
                     b.HasIndex("QuoteId");
 
@@ -2745,8 +2761,8 @@ namespace HaloBiz.Migrations
                         .HasColumnType("bigint");
 
                     b.Property<string>("ImageUrl")
-                        .HasMaxLength(5000)
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
@@ -3405,6 +3421,12 @@ namespace HaloBiz.Migrations
 
             modelBuilder.Entity("HaloBiz.Model.LAMS.ContractService", b =>
                 {
+                    b.HasOne("HaloBiz.Model.Branch", "Branch")
+                        .WithMany()
+                        .HasForeignKey("BranchId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("HaloBiz.Model.LAMS.Contract", "Contract")
                         .WithMany("ContractServices")
                         .HasForeignKey("ContractId")
@@ -3414,6 +3436,12 @@ namespace HaloBiz.Migrations
                     b.HasOne("HaloBiz.Model.UserProfile", "CreatedBy")
                         .WithMany()
                         .HasForeignKey("CreatedById")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("HaloBiz.Model.Office", "Office")
+                        .WithMany()
+                        .HasForeignKey("OfficeId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -3429,9 +3457,13 @@ namespace HaloBiz.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.Navigation("Branch");
+
                     b.Navigation("Contract");
 
                     b.Navigation("CreatedBy");
+
+                    b.Navigation("Office");
 
                     b.Navigation("QuoteService");
 
@@ -3738,11 +3770,19 @@ namespace HaloBiz.Migrations
 
             modelBuilder.Entity("HaloBiz.Model.LAMS.QuoteService", b =>
                 {
+                    b.HasOne("HaloBiz.Model.Branch", "Branch")
+                        .WithMany()
+                        .HasForeignKey("BranchId");
+
                     b.HasOne("HaloBiz.Model.UserProfile", "CreatedBy")
                         .WithMany()
                         .HasForeignKey("CreatedById")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.HasOne("HaloBiz.Model.Office", "Office")
+                        .WithMany()
+                        .HasForeignKey("OfficeId");
 
                     b.HasOne("HaloBiz.Model.LAMS.Quote", "Quote")
                         .WithMany("QuoteServices")
@@ -3756,7 +3796,11 @@ namespace HaloBiz.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.Navigation("Branch");
+
                     b.Navigation("CreatedBy");
+
+                    b.Navigation("Office");
 
                     b.Navigation("Quote");
 

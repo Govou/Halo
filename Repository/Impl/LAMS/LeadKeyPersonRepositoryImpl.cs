@@ -72,5 +72,12 @@ namespace HaloBiz.Repository.Impl.LAMS
                return false;
            }
         }
+
+         public async Task<IEnumerable<LeadKeyPerson>> FindAllLeadKeyPersonByLeadId(long leadId)
+        {
+            return await _context.LeadKeyPeople
+                    .Where(x => x.LeadId == leadId && x.IsDeleted == false)
+                    .ToListAsync();
+        }
     }
 }

@@ -22,6 +22,7 @@ namespace HaloBiz.Model.LAMS
         public DateTime? ContractEndDate {get ; set; }
         public TimeCycle? PaymentCycle {get ; set; }
         public long? PaymentCycleInDays {get ; set; }
+        public long? InvoiceCycleInDays {get ; set; }
         public DateTime? FirstInvoiceSendDate {get ; set; }
         public TimeCycle? InvoicingInterval  {get ; set; }
         [StringLength(2000)]
@@ -55,10 +56,6 @@ namespace HaloBiz.Model.LAMS
         public Services Service { get; set; }
         public long QuoteId { get; set; }
         public Quote Quote { get; set; }
-        public long? OfficeId { get; set; }
-        public virtual Office Office { get; set; }
-        public long? BranchId { get; set; }
-        public Branch Branch { get; set; }
         public IEnumerable<ContractService> ContractServices { get; set; }
         public IEnumerable<QuoteServiceDocument> QuoteServiceDocuments { get; set; }
         public IEnumerable<SBUToQuoteServiceProportion> SBUToQuoteServiceProportions { get; set; }

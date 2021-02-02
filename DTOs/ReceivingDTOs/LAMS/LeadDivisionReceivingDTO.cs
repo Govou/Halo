@@ -15,8 +15,10 @@ namespace HaloBiz.DTOs.ReceivingDTOs
         public string PhoneNumber { get; set; }
         [Required, RegularExpression("^[_A-Za-z0-9-\\+]+(\\.[_A-Za-z0-9-]+)*@[A-Za-z0-9-]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$", ErrorMessage = "Invalid Email Address")]
         public string Email { get; set; }
-        [StringLength(1000)]
+        [StringLength(5000)]
         public string LogoUrl { get; set; }
+        [StringLength(3000)]
+        public string Address { get; set; }
         public long? PrimaryContactId { get; set; }
         public long? SecondaryContactId { get; set; }
         public long? BranchId { get; set; }
