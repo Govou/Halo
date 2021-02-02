@@ -8,6 +8,7 @@ using HaloBiz.DTOs.ReceivingDTOs.LAMS;
 using HaloBiz.DTOs.TransferDTOs.LAMS;
 using HaloBiz.Helpers;
 using HaloBiz.MyServices.LAMS;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HaloBiz.Controllers.LAMS
@@ -47,6 +48,16 @@ namespace HaloBiz.Controllers.LAMS
         public async Task<ActionResult> GetById(long id)
         {
             var response = await _leadService.GetLeadById(id);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var lead = ((ApiOkResponse)response).Result;
+            return Ok(lead);
+        }
+
+        [HttpPost("ConverLeadToClient/{id}")]
+        public async Task<ActionResult> ConvertLeadToClient( long id, ConvertLeadToClientReceivingDTO convertLeadToClientReceivingDTO)
+        {
+            var response = await _leadService.ConvertLeadToClient(HttpContext, id, convertLeadToClientReceivingDTO.GenerateInvoice);
             if (response.StatusCode >= 400)
                 return StatusCode(response.StatusCode, response);
             var lead = ((ApiOkResponse)response).Result;
