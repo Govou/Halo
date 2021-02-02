@@ -21,7 +21,7 @@ namespace HaloBiz.Model.LAMS
         public string Industry { get; set; }
         [Required]
         public string RCNumber { get; set; }
-        [Required]
+        [StringLength(5000)]
         public string LogoUrl { get; set; }
         public long GroupTypeId { get; set; }
         public virtual GroupType GroupType { get; set; }
