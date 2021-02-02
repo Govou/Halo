@@ -111,7 +111,6 @@ namespace HaloBiz.MyServices.Impl.LAMS
             quoteServiceToUpdate.IsConvertedToContractService = quoteServiceReceivingDTO.IsConvertedToContractService;
 
             quoteServiceToUpdate.ServiceId = quoteServiceReceivingDTO.ServiceId;
-            quoteServiceToUpdate.Version = quoteServiceReceivingDTO.Version;
 
             var updatedQuoteService = await _quoteServiceRepo.UpdateQuoteService(quoteServiceToUpdate);
 
