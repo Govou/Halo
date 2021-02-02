@@ -11,6 +11,7 @@ namespace HaloBiz.Repository.LAMS
         Task<LeadDivisionKeyPerson> FindLeadDivisionKeyPersonById(long Id);
 
         Task<IEnumerable<LeadDivisionKeyPerson>> FindAllLeadDivisionKeyPerson();
+        Task<IEnumerable<LeadDivisionKeyPerson>> FindAllLeadDivisionKeyPersonByLeadDivisionId(long leadDivisionId);
 
         Task<LeadDivisionKeyPerson> UpdateLeadDivisionKeyPerson(LeadDivisionKeyPerson entity);
         Task<bool> DeleteLeadDivisionKeyPerson(LeadDivisionKeyPerson entity);
