@@ -86,6 +86,7 @@ namespace HaloBiz.MyServices.Impl.RoleManagement
             var summary = $"Initial details before change, \n {roleToUpdate.ToString()} \n" ;
 
             roleToUpdate.Name = roleReceivingDTO.Name;
+            roleToUpdate.Description = roleReceivingDTO.Description;
 
             var roleClaimsDeleted = await _roleRepo.DeleteRoleClaims(roleToUpdate);
             if (!roleClaimsDeleted)

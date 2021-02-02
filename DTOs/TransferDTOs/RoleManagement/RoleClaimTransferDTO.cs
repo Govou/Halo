@@ -10,6 +10,7 @@ namespace HaloBiz.DTOs.TransferDTOs.RoleManagement
     public class RoleClaimTransferDTO
     {
         public long Id { get; set; }
+        public string Description { get; set; }
         public string Name { get; set; }
         public long RoleId { get; set; }
     }
