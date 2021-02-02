@@ -13,6 +13,8 @@ namespace HaloBiz.Model.RoleManagement
         [Required]
         public string Name { get; set; }
         [Required]
+        public string Description { get; set; }
+        [Required]
         public long RoleId { get; set; }
         public virtual Role Role { get; set; }
     }
