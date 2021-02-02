@@ -34,8 +34,6 @@ namespace HaloBiz.Repository.Impl.LAMS
         public async Task<ContractService> FindContractServiceById(long Id)
         {
             return await _context.ContractServices
-                .Include(x => x.Branch)
-                .Include(x => x.Office)
                 .Include(x => x.Contract)
                 .Include(x => x.QuoteService)
                 .Include(x => x.Service)
@@ -47,8 +45,6 @@ namespace HaloBiz.Repository.Impl.LAMS
         public async Task<IEnumerable<ContractService>> FindAllContractServicesForAContract(long contractId)
         {
             return await _context.ContractServices
-                .Include(x => x.Branch)
-                .Include(x => x.Office)
                 .Include(x => x.Contract)
                 .Include(x => x.QuoteService)
                 .Include(x => x.Service)
@@ -60,8 +56,6 @@ namespace HaloBiz.Repository.Impl.LAMS
         public async Task<IEnumerable<ContractService>> FindContractServicesByReferenceNumber(string refNo)
         {
             return await _context.ContractServices
-                .Include(x => x.Branch)
-                .Include(x => x.Office)
                 .Include(x => x.Contract)
                 .Include(x => x.QuoteService)
                 .Include(x => x.Service)

@@ -24,7 +24,7 @@ namespace HaloBiz.Model.LAMS
         public string GroupName { get; set; }
         public long GroupTypeId { get; set; }
         public GroupType GroupType { get; set; }
-        [StringLength(1000)]
+        [StringLength(5000)]
         public string LogoUrl { get; set; }
         public bool LeadCaptureStatus { get; set; } = false;
         public bool LeadQualificationStatus { get; set; } = false;

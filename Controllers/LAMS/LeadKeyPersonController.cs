@@ -28,6 +28,16 @@ namespace HaloBiz.Controllers.LAMS
             return Ok(leadKeyPerson);
         }
 
+        [HttpGet("Lead/{leadId}")]
+        public async Task<ActionResult> GetLeadKeyPeopleByLeadId(long leadId)
+        {
+            var response = await _leadKeyPersonService.GetAllLeadKeyPersonsByLeadId(leadId);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var leadKeyPerson = ((ApiOkResponse)response).Result;
+            return Ok(leadKeyPerson);
+        }
+
         [HttpGet("{id}")]
         public async Task<ActionResult> GetById(long id)
         {

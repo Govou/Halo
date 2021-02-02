@@ -10,8 +10,8 @@ namespace HaloBiz.Model.AccountsModel
         [Key]
         public long Id { get; set; }
         public string InvoiceNumber { get; set; }
-        public long UnitPrice { get; set; }
-        public int Quantity { get; set; }
+        public double UnitPrice { get; set; }
+        public long Quantity { get; set; }
         public double Discount { get; set; }
         public double Value { get; set; }
         public DateTime DateToBeSent { get; set; }

@@ -24,6 +24,10 @@ namespace HaloBiz.Repository.Impl.LAMS
         public async Task<LeadDivisionKeyPerson> SaveLeadDivisionKeyPerson(LeadDivisionKeyPerson entity)
         {
             var LeadDivisionKeyPersonEntity = await _context.LeadDivisionKeyPeople.AddAsync(entity);
+             if(! await SaveChanges())
+            {
+                return null;
+            }
             return LeadDivisionKeyPersonEntity.Entity;
         }
 
@@ -68,6 +72,13 @@ namespace HaloBiz.Repository.Impl.LAMS
                 _logger.LogError(ex.Message);
                 return false;
             }
+        }
+
+        public async Task<IEnumerable<LeadDivisionKeyPerson>> FindAllLeadDivisionKeyPersonByLeadDivisionId(long leadDivisionId)
+        {
+            return await _context.LeadDivisionKeyPeople
+                    .Where(x => x.LeadDivisionId == leadDivisionId && x.IsDeleted == false)
+                    .ToListAsync();
         }
     }
 }

@@ -39,12 +39,18 @@ namespace HaloBiz.Repository.Impl.LAMS
         public async Task<QuoteService> FindQuoteServiceById(long Id)
         {
             return await _context.QuoteServices
+                .Include(x => x.QuoteServiceDocuments)
+                .Include(x => x.SBUToQuoteServiceProportions)
+                .Include(x => x.ContractServices)
                 .FirstOrDefaultAsync( quoteService => quoteService.Id == Id && quoteService.IsDeleted == false);
         }
 
         public async Task<IEnumerable<QuoteService>> FindAllQuoteService()
         {
             return await _context.QuoteServices
+                .Include(x => x.QuoteServiceDocuments)
+                .Include(x => x.SBUToQuoteServiceProportions)
+                .Include(x => x.ContractServices)
                 .Where(quoteService => quoteService.IsDeleted == false)
                 .OrderBy(quoteService => quoteService.CreatedAt)
                 .ToListAsync();

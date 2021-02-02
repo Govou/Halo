@@ -6,6 +6,5 @@ namespace HaloBiz.DTOs.TransferDTOs.LAMS
     public class QuoteServiceDocumentTransferDTO : DocumentSetupTransferDTO
     {
         public long QuoteServiceId { get; set; }
-        public QuoteService QuoteService { get; set; }
     }
 }

@@ -11,6 +11,6 @@ namespace HaloBiz.DTOs.TransferDTOs.LAMS
         public ProportionStatusType Status { get; set; }
         public StrategicBusinessUnit StrategicBusinessUnit { get; set; }
         public UserProfile UserInvolved { get; set; }
-        public QuoteService QuoteService { get; set; }
+        public long QuoteServiceId { get; set; }
     }
 }

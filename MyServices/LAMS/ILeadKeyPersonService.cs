@@ -13,5 +13,6 @@ namespace HaloBiz.MyServices.LAMS
         Task<ApiResponse> GetLeadKeyPersonById(long id);
         Task<ApiResponse> UpdateLeadKeyPerson(HttpContext context, long id, LeadKeyPersonReceivingDTO leadKeyPersonReceivingDTO);
         Task<ApiResponse> DeleteKeyPerson(long Id);
+        Task<ApiResponse> GetAllLeadKeyPersonsByLeadId(long leadId);
     }
 }

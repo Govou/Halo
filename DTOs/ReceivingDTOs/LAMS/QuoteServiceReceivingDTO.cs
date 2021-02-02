@@ -18,6 +18,7 @@ namespace HaloBiz.DTOs.ReceivingDTOs
         public DateTime? ContractEndDate { get; set; }
         public TimeCycle? PaymentCycle { get; set; }
         public long? PaymentCycleInDays { get; set; }
+        public long? InvoiceCycleInDays {get ; set; }
         public DateTime? FirstInvoiceSendDate { get; set; }
         public TimeCycle? InvoicingInterval { get; set; }
         [StringLength(2000)]

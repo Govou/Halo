@@ -14,5 +14,6 @@ namespace HaloBiz.Repository
 
         Task<LeadKeyPerson> UpdateLeadKeyPerson(LeadKeyPerson entity);
         Task<bool> DeleteLeadKeyPerson(LeadKeyPerson entity);
+        Task<IEnumerable<LeadKeyPerson>> FindAllLeadKeyPersonByLeadId(long leadId);
     }
 }
