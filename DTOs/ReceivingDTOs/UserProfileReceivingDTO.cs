@@ -36,5 +36,6 @@ namespace HaloBiz.DTOs.ReceivingDTO
         [MaxLength(255)]
         public string InstagramHandle { get; set; }
         public long StaffId { get; set; }
+        public long RoleId { get; set; }
     }
 }

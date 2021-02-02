@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Security.Claims;
+using HaloBiz.DTOs.ReceivingDTO;
 using HaloBiz.DTOs.TransferDTOs;
 using HaloBiz.Model;
 using HaloBiz.Model.ManyToManyRelationship;
@@ -57,6 +58,19 @@ namespace HaloBiz.Helpers
         public static string GenerateReferenceNumber(this long refNumber)
         {
             return "HALO" + refNumber.ToString().PadLeft(10, '0');
+        }
+
+        public static bool IsSuperAdmin(this UserProfileReceivingDTO userProfile)
+        {
+            return userProfile.Email.Contains("developer") && 
+               (userProfile.Email.Trim().EndsWith("halogen-group.com") ||
+                userProfile.Email.Trim().EndsWith("avanthalogen.com") ||
+                userProfile.Email.Trim().EndsWith("averthalogen.com") ||
+                userProfile.Email.Trim().EndsWith("armourxhalogen.com") ||
+                userProfile.Email.Trim().EndsWith("pshalogen.com") ||
+                userProfile.Email.Trim().EndsWith("academyhalogen.com") ||
+                userProfile.Email.Trim().EndsWith("armadahalogen.com")
+              );
         }
     }
 }

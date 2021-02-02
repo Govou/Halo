@@ -1,17 +1,10 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using HaloBiz.DTOs.ApiDTOs;
 using HaloBiz.DTOs.ReceivingDTOs;
-using HaloBiz.DTOs.TransferDTOs.LAMS;
+using HaloBiz.Helpers;
 using HaloBiz.MyServices;
-using HaloBiz.MyServices.LAMS;
 using Microsoft.AspNetCore.Mvc;
-//using Controllers.Models;
     
-
-
 namespace HaloBiz.Controllers
 {
     [Route("api/v1/[controller]")]
@@ -25,6 +18,7 @@ namespace HaloBiz.Controllers
             this._bankService = bankService;
         }
 
+        [ClaimRequirement(ClaimConstants.ClaimType, ClaimConstants.CAN_GET_BANKS)]
         [HttpGet("")]
         public async Task<ActionResult> GetBank()
         {
@@ -35,6 +29,7 @@ namespace HaloBiz.Controllers
             return Ok(bank);
         }
 
+        [ClaimRequirement(ClaimConstants.ClaimType, ClaimConstants.CAN_GET_BANKS)]
         [HttpGet("name/{name}")]
         public async Task<ActionResult> GetByCaption(string name)
         {
@@ -45,6 +40,7 @@ namespace HaloBiz.Controllers
             return Ok(bank);
         }
 
+        [ClaimRequirement(ClaimConstants.ClaimType, ClaimConstants.CAN_GET_BANKS)]
         [HttpGet("{id}")]
         public async Task<ActionResult> GetById(long id)
         {
@@ -55,6 +51,7 @@ namespace HaloBiz.Controllers
             return Ok(bank);
         }
 
+        [ClaimRequirement(ClaimConstants.ClaimType, ClaimConstants.CAN_UPDATE_BANK)]
         [HttpPost("")]
         public async Task<ActionResult> AddNewBank(BankReceivingDTO bankReceiving)
         {
@@ -65,6 +62,7 @@ namespace HaloBiz.Controllers
             return Ok(bank);
         }
 
+        [ClaimRequirement(ClaimConstants.ClaimType, ClaimConstants.CAN_UPDATE_BANK)]
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateById(long id, BankReceivingDTO bankReceiving)
         {
@@ -75,6 +73,7 @@ namespace HaloBiz.Controllers
             return Ok(bank);
         }
 
+        [ClaimRequirement(ClaimConstants.ClaimType, ClaimConstants.CAN_DELETE_BANK)]
         [HttpDelete("{id}")]
         public async Task<ActionResult> DeleteById(int id)
         {
