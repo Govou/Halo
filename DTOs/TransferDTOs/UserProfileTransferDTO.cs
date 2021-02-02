@@ -1,3 +1,4 @@
+using HaloBiz.Model.RoleManagement;
 using System;
 
 namespace HaloBiz.DTOs.TransferDTOs
@@ -22,6 +23,8 @@ namespace HaloBiz.DTOs.TransferDTOs
         public string InstagramHandle { get; set; }
         public long StaffId { get; set; }
         public bool ProfileStatus { get; set; }
+        public long RoleId { get; set; }
+        public Role Role { get; set; }
 
         public override string ToString()
         {

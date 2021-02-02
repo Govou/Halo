@@ -3,7 +3,9 @@ using System.Threading.Tasks;
 using HaloBiz.DTOs.ApiDTOs;
 using HaloBiz.DTOs.ReceivingDTO;
 using HaloBiz.DTOs.TransferDTOs;
+using HaloBiz.Helpers;
 using HaloBiz.MyServices;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HaloBiz.Controllers
@@ -69,6 +71,17 @@ namespace HaloBiz.Controllers
                 return StatusCode(response.StatusCode, response);
             var user = ((ApiOkResponse) response).Result;
             return Ok((UserProfileTransferDTO) user);
+        }
+
+        [Authorize(Roles = ClaimConstants.SUPER_ADMIN)]
+        [HttpPut("UpdateUserRole/{id}/{roleId}")]
+        public async Task<IActionResult> UpdateUserRole(long id, long roleId)
+        {
+            var response = await _userProfileService.UpdateUserRole(id, roleId);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var user = ((ApiOkResponse)response).Result;
+            return Ok((UserProfileTransferDTO)user);
         }
 
         [HttpDelete("{id}")]

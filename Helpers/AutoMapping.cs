@@ -4,11 +4,14 @@ using HaloBiz.DTOs;
 using HaloBiz.DTOs.ReceivingDTO;
 using HaloBiz.DTOs.ReceivingDTOs;
 using HaloBiz.DTOs.ReceivingDTOs.LAMS;
+using HaloBiz.DTOs.ReceivingDTOs.RoleManagement;
 using HaloBiz.DTOs.TransferDTOs;
 using HaloBiz.DTOs.TransferDTOs.LAMS;
+using HaloBiz.DTOs.TransferDTOs.RoleManagement;
 using HaloBiz.Model;
 using HaloBiz.Model.AccountsModel;
 using HaloBiz.Model.LAMS;
+using HaloBiz.Model.RoleManagement;
 
 namespace HaloBiz.Helpers
 {
@@ -134,6 +137,10 @@ namespace HaloBiz.Helpers
             CreateMap<NegotiationDocument, NegotiationDocumentTransferDTO>();
             CreateMap<NegotiationDocumentReceivingDTO, NegotiationDocument>();
             CreateMap<NegotiationDocument, DocumentSetupTransferDTO>();
+            CreateMap<RoleReceivingDTO, Role>();
+            CreateMap<Role, RoleTransferDTO>();
+            CreateMap<RoleClaimReceivingDTO, RoleClaim>();
+            CreateMap<RoleClaim, RoleClaimTransferDTO>();
         }
     }
 }

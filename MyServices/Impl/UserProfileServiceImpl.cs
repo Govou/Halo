@@ -132,6 +132,39 @@ namespace HaloBiz.MyServices.Impl
 
         }
 
+        public async Task<ApiResponse> UpdateUserRole(long userId, long roleId)
+        {
+            var userToUpdate = await _userRepo.FindUserById(userId);
+            if (userToUpdate == null)
+            {
+                return new ApiResponse(404);
+            }
+            var summary = $"Initial details before change, \n {userToUpdate.ToString()} \n";
+            userToUpdate.RoleId = roleId;
+
+            summary += $"Details after change, \n {userToUpdate.ToString()} \n";
+
+            var updatedUser = await _userRepo.UpdateUserProfile(userToUpdate);
+
+            if (updatedUser == null)
+            {
+                return new ApiResponse(500);
+            }
+
+            ModificationHistory history = new ModificationHistory()
+            {
+                ModelChanged = "UserProfile",
+                ChangeSummary = summary,
+                ChangedBy = updatedUser,
+                ModifiedModelId = updatedUser.Id
+            };
+
+            await _historyRepo.SaveHistory(history);
+
+            var userProfileTransferDto = _mapper.Map<UserProfileTransferDTO>(updatedUser);
+            return new ApiOkResponse(userProfileTransferDto);
+        }
+
 
         public async Task<ApiResponse> DeleteUserProfile(long userId)
         {
@@ -148,6 +181,5 @@ namespace HaloBiz.MyServices.Impl
 
             return new ApiOkResponse(true);
         }
-
     }
 }

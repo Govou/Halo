@@ -10,11 +10,15 @@ using HaloBiz.Helpers;
 using HaloBiz.MyServices;
 using HaloBiz.MyServices.Impl;
 using HaloBiz.MyServices.Impl.LAMS;
+using HaloBiz.MyServices.Impl.RoleManagement;
 using HaloBiz.MyServices.LAMS;
+using HaloBiz.MyServices.RoleManagement;
 using HaloBiz.Repository;
 using HaloBiz.Repository.Impl;
 using HaloBiz.Repository.Impl.LAMS;
+using HaloBiz.Repository.Impl.RoleManagement;
 using HaloBiz.Repository.LAMS;
+using HaloBiz.Repository.RoleManagement;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
@@ -81,6 +85,14 @@ namespace HaloBiz
                     };
                 });
 
+            if (env.IsProduction())
+            {
+                services.AddAuthorization(options => {
+                    options.FallbackPolicy = new AuthorizationPolicyBuilder()
+                        .RequireAuthenticatedUser()
+                        .Build();
+                });
+            }      
 
             // singletons
             //services.AddSingleton(Configuration.GetSection("AppSettings").Get<AppSettings>());
@@ -134,6 +146,7 @@ namespace HaloBiz
             services.AddScoped<IRegionService, RegionServiceImpl>();
             services.AddScoped<IZoneService, ZoneServiceImpl>();
             services.AddScoped<INegotiationDocumentService, NegotiationDocumentServiceImpl>();
+            services.AddScoped<IRoleService, RoleServiceImpl>();
 
 
             //repositories
@@ -190,6 +203,7 @@ namespace HaloBiz
             services.AddScoped<IRegionRepository, RegionRepositoryImpl>();
             services.AddScoped<IZoneRepository, ZoneRepositoryImpl>();
             services.AddScoped<INegotiationDocumentRepository, NegotiationDocumentRepositoryImpl>();
+            services.AddScoped<IRoleRepository, RoleRepositoryImpl>();
 
 
 
@@ -201,6 +215,29 @@ namespace HaloBiz
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "HaloBiz", Version = "v1" });
+                c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme { 
+                    Description = @"JWT Authorization header using the Bearer scheme.
+                                    Enter your token in the text input below.
+                                    Example: 'eyJhbGciOiJSUzI1NiIsImt'",
+                    Name = "Authorization",
+                    In = ParameterLocation.Header,
+                    Type = SecuritySchemeType.Http,
+                    Scheme = "Bearer",
+                    BearerFormat = "JWT"
+                });
+                c.AddSecurityRequirement(new OpenApiSecurityRequirement {
+                    {
+                        new OpenApiSecurityScheme
+                        {
+                            Reference = new OpenApiReference
+                            {
+                                Type = ReferenceType.SecurityScheme,
+                                Id = JwtBearerDefaults.AuthenticationScheme
+                            }
+                        },
+                        new List<string>()
+                    }
+                });
             });
         }
 
