@@ -9,7 +9,8 @@ namespace HaloBiz.Model.LAMS
     {
         [Key]
         public long Id { get; set; }
-        [StringLength(50)]
+        public long? LeadTypeId { get; set; }
+        public virtual LeadType LeadType { get; set; }
         public long LeadOriginId { get; set; }
         public virtual LeadOrigin LeadOrigin { get; set; }
         [StringLength(100)]
