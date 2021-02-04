@@ -36,7 +36,6 @@ namespace HaloBiz.Model.AccountsModel
         public long AccountMasterId { get; set; }
         [Required]
         public virtual AccountMaster AccountMaster { get; set; }
-        public long AccountClassAlias { get; set; }
         public long CreatedById { get; set; }
         public virtual UserProfile CreatedBy { get; set; }
         public bool IsDeleted { get; set; } = false;

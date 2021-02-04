@@ -12,7 +12,7 @@ namespace HaloBiz.MyServices
     {
         Task<ApiResponse> AddAccount(HttpContext context, AccountReceivingDTO accountClassReceivingDTO);
         Task<ApiResponse> GetAccountById(long id);
-        Task<ApiResponse> GetAccountByAlias(long alias);
+        Task<ApiResponse> GetAccountByAlias(string alias);
         Task<ApiResponse> GetAllAccounts();
         Task<ApiResponse> UpdateAccount(long id, AccountReceivingDTO accountClassReceivingDTO);
         Task<ApiResponse> DeleteAccount(long id);

@@ -54,10 +54,10 @@ namespace HaloBiz.Controllers.LAMS
             return Ok(lead);
         }
 
-        [HttpPost("ConverLeadToClient/{id}")]
-        public async Task<ActionResult> ConvertLeadToClient( long id, ConvertLeadToClientReceivingDTO convertLeadToClientReceivingDTO)
+        [HttpPut("ConvertLeadToClient/{id}")]
+        public async Task<ActionResult> ConvertLeadToClient( long id)
         {
-            var response = await _leadService.ConvertLeadToClient(HttpContext, id, convertLeadToClientReceivingDTO.GenerateInvoice);
+            var response = await _leadService.ConvertLeadToClient(HttpContext, id);
             if (response.StatusCode >= 400)
                 return StatusCode(response.StatusCode, response);
             var lead = ((ApiOkResponse)response).Result;

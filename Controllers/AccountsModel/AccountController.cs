@@ -31,7 +31,7 @@ namespace HaloBiz.Controllers.AccountsModel
             return Ok((IEnumerable<AccountTransferDTO>)Account);
         }
         [HttpGet("alias/{alias}")]
-        public async Task<ActionResult> GetByAlias(long alias)
+        public async Task<ActionResult> GetByAlias(string alias)
         {
             var response = await _accountService.GetAccountByAlias(alias);
             if (response.StatusCode >= 400)

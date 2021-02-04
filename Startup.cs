@@ -147,6 +147,7 @@ namespace HaloBiz
             services.AddScoped<IZoneService, ZoneServiceImpl>();
             services.AddScoped<INegotiationDocumentService, NegotiationDocumentServiceImpl>();
             services.AddScoped<IRoleService, RoleServiceImpl>();
+            services.AddScoped<ILeadConversionService, LeadConversionServiceImpl>();
             services.AddScoped<IOtherLeadCaptureInfoService, OtherLeadCaptureInfoServiceImpl>();
 
 

@@ -4,14 +4,16 @@ using HaloBiz.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace HaloBiz.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20210204184242_UpdatesTaskFulfillmentAndDeliverableFulfillment")]
+    partial class UpdatesTaskFulfillmentAndDeliverableFulfillment
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -26,9 +28,8 @@ namespace HaloBiz.Migrations
                         .HasColumnType("bigint")
                         .UseIdentityColumn();
 
-                    b.Property<string>("Alias")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<long>("Alias")
+                        .HasColumnType("bigint");
 
                     b.Property<long?>("ControlAccountId")
                         .IsRequired()
@@ -55,6 +56,9 @@ namespace HaloBiz.Migrations
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<long?>("Number")
+                        .HasColumnType("bigint");
 
                     b.Property<DateTime>("UpdatedAt")
                         .ValueGeneratedOnAddOrUpdate()
@@ -1023,106 +1027,6 @@ namespace HaloBiz.Migrations
                     b.HasIndex("CustomerId");
 
                     b.ToTable("CustomerDivisions");
-                });
-
-            modelBuilder.Entity("HaloBiz.Model.LAMS.DeliverableFulfillment", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint")
-                        .UseIdentityColumn();
-
-                    b.Property<double?>("Budget")
-                        .HasColumnType("float");
-
-                    b.Property<string>("Caption")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime2")
-                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
-
-                    b.Property<long>("CreatedById")
-                        .HasColumnType("bigint");
-
-                    b.Property<DateTime?>("DateAndTimeOfProvidedEvidence")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime?>("DateAndTimePicked")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime?>("DateTimeReassigned")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime?>("DateTimeRequestedForValidation")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime?>("DeliverableCompletionDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("DeliverableCompletionReferenceNo")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("DeliverableCompletionReferenceUrl")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime?>("DeliverableCompletionTime")
-                        .HasColumnType("datetime2");
-
-                    b.Property<bool>("DeliverableStatus")
-                        .HasColumnType("bit");
-
-                    b.Property<DateTime?>("DeliveryDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Description")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime?>("EndDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("IsPicked")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("IsRequestedForValidation")
-                        .HasColumnType("bit");
-
-                    b.Property<long?>("ResponsibleId")
-                        .HasColumnType("bigint");
-
-                    b.Property<DateTime?>("StartDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime?>("TaskCompletionDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime?>("TaskCompletionTime")
-                        .HasColumnType("datetime2");
-
-                    b.Property<long>("TaskFullfillmentId")
-                        .HasColumnType("bigint");
-
-                    b.Property<DateTime>("UpdatedAt")
-                        .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("datetime2")
-                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
-
-                    b.Property<bool>("WasReassigned")
-                        .HasColumnType("bit");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CreatedById");
-
-                    b.HasIndex("ResponsibleId");
-
-                    b.HasIndex("TaskFullfillmentId");
-
-                    b.ToTable("DeliverableFulfillments");
                 });
 
             modelBuilder.Entity("HaloBiz.Model.LAMS.DropReason", b =>
@@ -2194,7 +2098,7 @@ namespace HaloBiz.Migrations
                     b.Property<long?>("AccountableId")
                         .HasColumnType("bigint");
 
-                    b.Property<double?>("Budget")
+                    b.Property<double>("Budget")
                         .HasColumnType("float");
 
                     b.Property<string>("Caption")
@@ -2208,8 +2112,7 @@ namespace HaloBiz.Migrations
 
                     b.Property<DateTime>("CreatedAt")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime2")
-                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+                        .HasColumnType("datetime2");
 
                     b.Property<long>("CreatedById")
                         .HasColumnType("bigint");
@@ -2217,7 +2120,7 @@ namespace HaloBiz.Migrations
                     b.Property<long>("CustomerDivisionId")
                         .HasColumnType("bigint");
 
-                    b.Property<DateTime?>("DateTimePicked")
+                    b.Property<DateTime>("DateTimePicked")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Description")
@@ -2241,7 +2144,7 @@ namespace HaloBiz.Migrations
                     b.Property<long?>("SupportId")
                         .HasColumnType("bigint");
 
-                    b.Property<DateTime?>("TaskCompletionDateTime")
+                    b.Property<DateTime>("TaskCompletionDateTime")
                         .HasColumnType("datetime2");
 
                     b.Property<bool>("TaskCompletionStatus")
@@ -2249,8 +2152,7 @@ namespace HaloBiz.Migrations
 
                     b.Property<DateTime>("UpdatedAt")
                         .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("datetime2")
-                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+                        .HasColumnType("datetime2");
 
                     b.HasKey("Id");
 
@@ -2270,7 +2172,7 @@ namespace HaloBiz.Migrations
 
                     b.HasIndex("SupportId");
 
-                    b.ToTable("TaskFulfillments");
+                    b.ToTable("TaskFulfillment");
                 });
 
             modelBuilder.Entity("HaloBiz.Model.LGA", b =>
@@ -3744,31 +3646,6 @@ namespace HaloBiz.Migrations
                     b.Navigation("CreatedBy");
 
                     b.Navigation("Customer");
-                });
-
-            modelBuilder.Entity("HaloBiz.Model.LAMS.DeliverableFulfillment", b =>
-                {
-                    b.HasOne("HaloBiz.Model.UserProfile", "CreatedBy")
-                        .WithMany()
-                        .HasForeignKey("CreatedById")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("HaloBiz.Model.UserProfile", "Responsible")
-                        .WithMany()
-                        .HasForeignKey("ResponsibleId");
-
-                    b.HasOne("HaloBiz.Model.LAMS.TaskFulfillment", "TaskFullfillment")
-                        .WithMany()
-                        .HasForeignKey("TaskFullfillmentId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("CreatedBy");
-
-                    b.Navigation("Responsible");
-
-                    b.Navigation("TaskFullfillment");
                 });
 
             modelBuilder.Entity("HaloBiz.Model.LAMS.DropReason", b =>

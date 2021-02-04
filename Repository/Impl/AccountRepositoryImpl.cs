@@ -27,7 +27,7 @@ namespace HaloBiz.Repository.Impl
             return await SaveChanges();
         }
 
-        public async Task<Account> FindAccountByAlias(long alias)
+        public async Task<Account> FindAccountByAlias(string alias)
         {
             return await _context.Accounts.FirstOrDefaultAsync(account => account.Alias == alias && account.IsDeleted == false);
 
@@ -44,14 +44,38 @@ namespace HaloBiz.Repository.Impl
 
         }
 
-        public async Task<Account> SaveAccount(Account Account)
+        public async Task<Account> SaveAccount(Account account)
         {
-            var AccountEntity = await _context.Accounts.AddAsync(Account);
-            if (await SaveChanges())
+            await _context.Database.OpenConnectionAsync();
+            using(var transaction = await _context.Database.BeginTransactionAsync()){
+            try{
+                await _context.Database.ExecuteSqlRawAsync("SET IDENTITY_INSERT dbo.Accounts ON");
+
+                var  lastSavedAccount = await _context.Accounts.Where(x => x.ControlAccountId == account.ControlAccountId)
+                    .OrderBy(x => x.Id).LastOrDefaultAsync();
+                if(lastSavedAccount == null || lastSavedAccount.Id < 1000000000)
+                {
+                    account.Id = (long) account.ControlAccountId + 1;
+                }else{
+                    account.Id = lastSavedAccount.Id + 1;
+                }
+                var savedAccount = await _context.Accounts.AddAsync(account);
+                await _context.SaveChangesAsync();
+                await transaction.CommitAsync();
+                return savedAccount.Entity;
+            }catch(Exception e)
             {
-                return AccountEntity.Entity;
+                await transaction.RollbackAsync();
+                _logger.LogError(e.Message);
+                _logger.LogError(e.StackTrace);
+                return null;
+            }finally{
+                
+                await _context.Database.ExecuteSqlRawAsync("SET IDENTITY_INSERT dbo.Accounts OFF");
+                await _context.Database.CloseConnectionAsync();
             }
-            return null;
+            }
+           
         }
 
         public async Task<Account> UpdateAccount(Account Account)

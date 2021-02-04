@@ -15,7 +15,7 @@ namespace HaloBiz.DTOs.TransferDTOs.LAMS
         public string Email { get; set; }
         public string RCNumber { get; set; }
         public long GroupTypeId { get; set; }
-        public virtual GroupType GroupType { get; set; }
-        public IEnumerable<CustomerDivision> CustomerDivisions { get; set; }
+        public  GroupTypeTransferDTO GroupType { get; set; }
+        public IEnumerable<CustomerDivisionTransferDTO> CustomerDivisions { get; set; }
     }
 }

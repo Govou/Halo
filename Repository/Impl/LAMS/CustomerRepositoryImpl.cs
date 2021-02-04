@@ -33,8 +33,20 @@ namespace HaloBiz.Repository.Impl.LAMS
 
         public async Task<Customer> FindCustomerById(long Id)
         {
-            return await _context.Customers
+            var customer =  await _context.Customers
+                .Include(x => x.GroupType)
                 .FirstOrDefaultAsync(entity => entity.Id == Id && entity.IsDeleted == false);
+            if(customer != null)
+            {
+                customer.CustomerDivisions = await _context.CustomerDivisions
+                    .Where(x => x.CustomerId == customer.Id)
+                    .ToListAsync();
+            }
+            foreach (var division in customer.CustomerDivisions)
+            {
+                division.Customer = null;
+            }
+            return customer;
         }
 
         public async Task<IEnumerable<Customer>> FindAllCustomer()
@@ -46,8 +58,20 @@ namespace HaloBiz.Repository.Impl.LAMS
         }
         public async Task<Customer> FindCustomerByName(string name)
         {
-            return await _context.Customers
+            var customer =  await _context.Customers
+                .Include(x => x.GroupType)
                 .FirstOrDefaultAsync(entity => entity.GroupName == name && entity.IsDeleted == false);
+            if(customer != null)
+            {
+                customer.CustomerDivisions = await _context.CustomerDivisions
+                    .Where(x => x.CustomerId == customer.Id)
+                    .ToListAsync();
+            }
+            foreach (var division in customer.CustomerDivisions)
+            {
+                division.Customer = null;
+            }
+            return customer;
         }
 
         public async Task<Customer> UpdateCustomer(Customer entity)

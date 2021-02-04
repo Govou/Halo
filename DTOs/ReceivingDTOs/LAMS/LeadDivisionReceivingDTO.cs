@@ -4,6 +4,7 @@ namespace HaloBiz.DTOs.ReceivingDTOs
 {
     public class LeadDivisionReceivingDTO
     {
+        public long LeadTypeId { get; set; }
         public long LeadOriginId { get; set; }
         [StringLength(100)]
         public string Industry { get; set; }

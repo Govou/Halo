@@ -21,12 +21,37 @@ namespace HaloBiz.Repository.Impl
 
         public async Task<ControlAccount> SaveControlAccount(ControlAccount controlAccount)
         {
-            var controlAccountEntity = await _context.ControlAccounts.AddAsync(controlAccount);
-            if(await SaveChanges())
+            
+            using(var transaction = await _context.Database.BeginTransactionAsync())
             {
-                return controlAccountEntity.Entity;
+                try{
+                    await _context.Database.OpenConnectionAsync();
+                    await _context.Database.ExecuteSqlRawAsync("SET IDENTITY_INSERT dbo.ControlAccounts ON");
+
+                    var  lastSavedControl = await _context.ControlAccounts.Where(control => control.AccountClassId == controlAccount.AccountClassId)
+                        .OrderBy(control => control.Id).LastOrDefaultAsync();
+                    if(lastSavedControl == null || lastSavedControl.Id < 100000000)
+                    {
+                        controlAccount.Id = controlAccount.AccountClassId + 100000000;
+                    }else{
+                        controlAccount.Id = lastSavedControl.Id + 100000000;
+                    }
+                    var savedControlAccount = await _context.ControlAccounts.AddAsync(controlAccount);
+                    await _context.SaveChangesAsync();
+                    await transaction.CommitAsync();
+                    return savedControlAccount.Entity;
+                }catch(Exception e)
+                {
+                    await transaction.RollbackAsync();
+                    _logger.LogError(e.Message);
+                    _logger.LogError(e.StackTrace);
+                    return null;
+                }finally{
+                    await _context.Database.ExecuteSqlRawAsync("SET IDENTITY_INSERT dbo.ControlAccounts OFF");
+                    await _context.Database.CloseConnectionAsync();
+                }
             }
-            return null;
+
         }
 
         public async Task<ControlAccount> FindControlAccountById(long Id)

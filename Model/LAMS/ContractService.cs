@@ -56,6 +56,7 @@ namespace HaloBiz.Model.LAMS
         public long ContractId { get; set; }
         public virtual Contract Contract { get; set; }
         public long QuoteServiceId { get; set; }
+        public IEnumerable<TaskFulfillment> TaskFulfillments { get; set; }
         public virtual QuoteService QuoteService { get; set; }
         public IEnumerable<ClosureDocument> ClosureDocuments { get; set; }
         public IEnumerable<SBUToContractServiceProportion> SBUToContractServiceProportions { get; set; }

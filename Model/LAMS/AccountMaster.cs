@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using HaloBiz.Model.LAMS;
 using HaloBiz.Model.ManyToManyRelationship;
 
 namespace HaloBiz.Model.AccountsModel
@@ -20,9 +21,10 @@ namespace HaloBiz.Model.AccountsModel
         public bool IntegrationFlag { get; set; }
         [Required]
         public long VoucherId { get; set; }
+        public FinanceVoucherType Voucher { get; set; }
         [Required]
-        public long ChartofAccountSubId { get; set; }
-        public virtual Account ChartofAccountSub { get; set; }
+        public long AccountId { get; set; }
+        public virtual Account Account { get; set; }
         [Required]
         public long BranchId { get; set; }
         public virtual Branch Branch { get; set; }
