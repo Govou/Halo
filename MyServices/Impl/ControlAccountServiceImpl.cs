@@ -19,55 +19,29 @@ namespace HaloBiz.MyServices.Impl
     public class ControlAccountServiceImpl : IControlAccountService
     {
         private readonly ILogger<ControlAccountServiceImpl> _logger;
-        private readonly DataContext _context;
         private readonly IControlAccountRepository _controlAccountRepo;
         private readonly IMapper _mapper;
 
-        public ControlAccountServiceImpl(ILogger<ControlAccountServiceImpl> logger, DataContext context, IControlAccountRepository controlAccountRepo, IMapper mapper)
+        public ControlAccountServiceImpl(ILogger<ControlAccountServiceImpl> logger,  IControlAccountRepository controlAccountRepo, IMapper mapper)
         {
             this._mapper = mapper;
             this._logger = logger;
-            this._context = context;
             this._controlAccountRepo = controlAccountRepo;
         }
 
         public async Task<ApiResponse> AddControlAccount(HttpContext context, ControlAccountReceivingDTO controlAccountReceivingDTO)
         {
 
-            await _context.Database.OpenConnectionAsync();
-            try{
-                await _context.Database.ExecuteSqlRawAsync("SET IDENTITY_INSERT dbo.ControlAccounts ON");
                 var controlAcc = _mapper.Map<ControlAccount>(controlAccountReceivingDTO);
                 controlAcc.CreatedById = context.GetLoggedInUserId();
-                long accountClassId = controlAccountReceivingDTO.AccountClassId;
-                var controlQuerable = _controlAccountRepo.GetControlAccountQueryable();
 
-                var  lastSavedControl = await _context.ControlAccounts.Where(control => control.AccountClassId == accountClassId)
-                    .OrderBy(control => control.Id).LastOrDefaultAsync();
-                if(lastSavedControl == null)
-                {
-                    controlAcc.Id = accountClassId + 10000;
-                }else{
-                    controlAcc.Id = lastSavedControl.Id + 10000;
-                }
-                var savedControlAccount = await _context.ControlAccounts.AddAsync(controlAcc);
+                var savedControlAccount = await _controlAccountRepo.SaveControlAccount(controlAcc);
                 if (savedControlAccount == null)
                 {
                     return new ApiResponse(500);
                 }
-                await _context.SaveChangesAsync();
                 var controlAccountTransferDTOs = _mapper.Map<ControlAccountTransferDTO>(controlAcc);
                 return new ApiOkResponse(controlAccountTransferDTOs);
-
-            }catch(Exception e)
-            {
-                _logger.LogError(e.Message);
-                _logger.LogError(e.StackTrace);
-                return new ApiResponse(500);
-            }finally{
-                await _context.Database.ExecuteSqlRawAsync("SET IDENTITY_INSERT dbo.ControlAccounts OFF");
-                await _context.Database.CloseConnectionAsync();
-            }
 
         }
 
