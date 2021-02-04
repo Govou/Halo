@@ -85,14 +85,14 @@ namespace HaloBiz
                     };
                 });
 
-            if (env.IsProduction())
-            {
-                services.AddAuthorization(options => {
-                    options.FallbackPolicy = new AuthorizationPolicyBuilder()
-                        .RequireAuthenticatedUser()
-                        .Build();
-                });
-            }      
+//             if (env.IsProduction())
+//             {
+//                 services.AddAuthorization(options => {
+//                     options.FallbackPolicy = new AuthorizationPolicyBuilder()
+//                         .RequireAuthenticatedUser()
+//                         .Build();
+//                 });
+//             }      
 
             // singletons
             //services.AddSingleton(Configuration.GetSection("AppSettings").Get<AppSettings>());
