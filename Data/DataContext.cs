@@ -72,6 +72,7 @@ namespace HaloBiz.Data
     public DbSet<Invoice> Invoices { get; set; }
     public DbSet<Role> Roles { get; set; }
     public DbSet<RoleClaim> RoleClaims { get; set; }
+    public DbSet<OtherLeadCaptureInfo> OtherLeadCaptureInfos { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder builder)
@@ -512,6 +513,14 @@ namespace HaloBiz.Data
                .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
             builder.Entity<Invoice>()
+                .Property(p => p.CreatedAt)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            builder.Entity<OtherLeadCaptureInfo>()
+               .Property(p => p.UpdatedAt)
+               .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            builder.Entity<OtherLeadCaptureInfo>()
                 .Property(p => p.CreatedAt)
                 .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
