@@ -73,6 +73,8 @@ namespace HaloBiz.Data
     public DbSet<Role> Roles { get; set; }
     public DbSet<RoleClaim> RoleClaims { get; set; }
     public DbSet<OtherLeadCaptureInfo> OtherLeadCaptureInfos { get; set; }
+    public DbSet<TaskFulfillment> TaskFulfillments { get; set; }
+    public DbSet<DeliverableFulfillment> DeliverableFulfillments { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder builder)
@@ -521,6 +523,22 @@ namespace HaloBiz.Data
                .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
             builder.Entity<OtherLeadCaptureInfo>()
+                .Property(p => p.CreatedAt)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            builder.Entity<TaskFulfillment>()
+               .Property(p => p.UpdatedAt)
+               .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            builder.Entity<TaskFulfillment>()
+                .Property(p => p.CreatedAt)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            builder.Entity<DeliverableFulfillment>()
+               .Property(p => p.UpdatedAt)
+               .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            builder.Entity<DeliverableFulfillment>()
                 .Property(p => p.CreatedAt)
                 .HasDefaultValueSql("CURRENT_TIMESTAMP");
 

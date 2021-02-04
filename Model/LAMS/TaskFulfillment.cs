@@ -25,12 +25,12 @@ namespace HaloBiz.Model.LAMS
         public UserProfile Informed { get; set; }
         public long? SupportId { get; set; }
         public UserProfile Support { get; set; }
-        public double Budget { get; set; }
-        public bool IsPicked { get; set; }
-        public DateTime DateTimePicked {get; set;}
-        public bool IsAllDeliverableAssigned {get; set;}
-        public DateTime TaskCompletionDateTime {get; set;}
-        public bool TaskCompletionStatus {get; set;}
+        public double? Budget { get; set; }
+        public bool IsPicked { get; set; } = false;
+        public DateTime? DateTimePicked {get; set;}
+        public bool IsAllDeliverableAssigned {get; set;} = false;
+        public DateTime? TaskCompletionDateTime {get; set;}
+        public bool TaskCompletionStatus {get; set;} = false;
         public long CreatedById { get; set; }
         public virtual UserProfile CreatedBy { get; set; }
         public bool IsDeleted { get; set; } = false;
