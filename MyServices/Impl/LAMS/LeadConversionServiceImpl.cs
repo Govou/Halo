@@ -189,6 +189,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
             await ConvertSBUToQuoteServicePropToSBUToContractServiceProp( quoteService.Id, contractService.Id, context);
             await ConvertQuoteServieDocumentsToClosureDocuments(quoteService.Id, contractService.Id, context);
+            await CreateTaskAndDeliverables(quoteService.ServiceId, contractService ,customerDivision.Id );
             if(contractService.InvoicingInterval != TimeCycle.Adhoc)
             {
                 await GenerateInvoices( contractService,  customerDivision.Id, contractId, context);
@@ -260,7 +261,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                                     (DateTime) contractService.FirstInvoiceSendDate, 
                                     (DateTime) contractService.ContractEndDate, 
                                     (TimeCycle) contractService.InvoicingInterval, 
-                                    (int) contractService.PaymentCycleInDays );
+                                    (int) contractService.InvoiceCycleInDays );
             
             foreach (var date in sendDates)
             {
@@ -375,20 +376,87 @@ namespace HaloBiz.MyServices.Impl.LAMS
         }
 
 
-        // private async Task<TaskFulfillment> CreateTaskAndDeliverables(long serviceId, ContractService contractServcie)
-        // {
-        //     Services servcie = await _context.Services.FirstOrDefaultAsync(x => x.Id == contractServcie.ServiceId); 
-        //     if(servcie == null)
-        //     {
-        //         return null;
-        //     }
-        //     IEnumerable<ServiceCategoryTask> serviceCategory = await _context.ServiceCategoryTasks.Where(x => x.ServiceCategoryId == servcie.ServiceCategoryId).ToListAsync();
-        //     return new TaskFulfillment();
-        // }
+        private async Task<bool> CreateTaskAndDeliverables(long serviceId, ContractService contractServcie, long customerDivisionId)
+        {
+            Services servcie = await _context.Services.FirstOrDefaultAsync(x => x.Id == contractServcie.ServiceId); 
+            if(servcie == null)
+            {
+                return false;
+            }
 
-        // private async Task<bool> GenerateCustomerAccount(Customer customer)
-        // {
+            IEnumerable<ServiceCategoryTask> serviceCategoryTasks = await _context.ServiceCategoryTasks
+            .Include(x => x.ServiceTaskDeliverable)
+            .Where(x => x.ServiceCategoryId == servcie.ServiceCategoryId && x.IsDeleted == false).ToListAsync();
             
-        // }
+            foreach (var serviceTask in serviceCategoryTasks)
+            {
+                await CreateTaskFulfillment(
+                                     serviceTask, 
+                                     contractServcie,  
+                                    customerDivisionId,
+                                    servcie.OperatingEntityId
+                                    );
+            }
+            return true;
+        }
+
+        private async Task<bool> CreateTaskFulfillment(
+                                    ServiceCategoryTask serviceTask, 
+                                    ContractService contractServcie,  
+                                    long customerDivisionId,
+                                    long operatingEntityId
+                                    )
+        {
+            var operatingEntity = await _context.OperatingEntities
+                        .Include(x => x.Division)
+                        .FirstOrDefaultAsync(x => x.Id == operatingEntityId);
+             
+            var task = await  _context.TaskFulfillments.AddAsync(new TaskFulfillment(){
+                Caption = serviceTask.Caption,
+                CustomerDivisionId = customerDivisionId,
+                ResponsibleId = operatingEntity.HeadId,
+                AccountableId = operatingEntity.HeadId,
+                ConsultedId = operatingEntity.Division.HeadId,
+                InformedId = operatingEntity.Division.HeadId,
+                CreatedById = this.LoggedInUserId
+            });
+
+            await _context.SaveChangesAsync();
+
+            foreach (var deliverable in serviceTask.ServiceTaskDeliverable)
+            {
+                await CreateDeliverableFulfillment(task.Entity.Id, deliverable);
+            }
+            return true;
+        }
+        private async Task<bool> CreateDeliverableFulfillment(
+                                    long taskId, 
+                                    ServiceTaskDeliverable serviceTaskDeliverable
+                                    )
+        {
+             
+            var deliverable = await  _context.DeliverableFulfillments.AddAsync(new DeliverableFulfillment(){
+                Caption = serviceTaskDeliverable.Caption,
+                Description = serviceTaskDeliverable.Description,
+                TaskFullfillmentId = taskId,
+                CreatedById = this.LoggedInUserId
+            });
+
+            await _context.SaveChangesAsync();
+            return true;
+        }
+
+        
+        private async Task<bool> CreateAccount(
+                                    long ServiceId, 
+                                    ServiceTaskDeliverable serviceTaskDeliverable
+                                    )
+        {
+             
+            return true;
+        }
+
+
+
     }
 }
