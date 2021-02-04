@@ -22,7 +22,7 @@ namespace HaloBiz.DTOs.ReceivingDTOs
         [Required]
         public long VoucherId { get; set; }
         [Required]
-        public long ChartofAccountSubId { get; set; }
+        public long AccountId { get; set; }
         [Required]
         public long BranchId { get; set; }
         [Required]

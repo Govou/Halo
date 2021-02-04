@@ -111,7 +111,7 @@ namespace HaloBiz.MyServices.Impl
             AccountMasterToUpdate.OfficeId = accountMasterReceivingDTO.OfficeId;
             AccountMasterToUpdate.BranchId = accountMasterReceivingDTO.BranchId;
             AccountMasterToUpdate.AccountMasterAlias = accountMasterReceivingDTO.AccountMasterAlias;
-            AccountMasterToUpdate.ChartofAccountSubId = accountMasterReceivingDTO.ChartofAccountSubId;
+            AccountMasterToUpdate.AccountId = accountMasterReceivingDTO.AccountId;
             var updatedAccountMaster = await _AccountMasterRepo.UpdateAccountMaster(AccountMasterToUpdate);
 
             if (updatedAccountMaster == null)
