@@ -147,6 +147,7 @@ namespace HaloBiz
             services.AddScoped<IZoneService, ZoneServiceImpl>();
             services.AddScoped<INegotiationDocumentService, NegotiationDocumentServiceImpl>();
             services.AddScoped<IRoleService, RoleServiceImpl>();
+            services.AddScoped<IOtherLeadCaptureInfoService, OtherLeadCaptureInfoServiceImpl>();
 
 
             //repositories
@@ -204,6 +205,7 @@ namespace HaloBiz
             services.AddScoped<IZoneRepository, ZoneRepositoryImpl>();
             services.AddScoped<INegotiationDocumentRepository, NegotiationDocumentRepositoryImpl>();
             services.AddScoped<IRoleRepository, RoleRepositoryImpl>();
+            services.AddScoped<IOtherLeadCaptureInfoRepository, OtherLeadCaptureInfoRepositoryImpl>();
 
 
 
