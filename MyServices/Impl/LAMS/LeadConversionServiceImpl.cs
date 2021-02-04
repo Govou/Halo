@@ -388,7 +388,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
         // private async Task<bool> GenerateCustomerAccount(Customer customer)
         // {
-
+            
         // }
     }
 }
