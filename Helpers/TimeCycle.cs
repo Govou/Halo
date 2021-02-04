@@ -2,6 +2,6 @@ namespace HaloBiz.Helpers
 {
     public enum TimeCycle
     {
-        Weekly,BiWeekly, Monthly, BiMonthly, Quarterly, SemiAnnually, Annually, BiAnnually, Others
+        Weekly,BiWeekly, Monthly, BiMonthly, Quarterly, SemiAnnually, Annually, BiAnnually, Others,Adhoc
     }
 }
