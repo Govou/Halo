@@ -56,7 +56,7 @@ namespace HaloBiz.MyServices.Impl
             return new ApiOkResponse(true);
         }
 
-        public async Task<ApiResponse> GetAccountByAlias(long alias)
+        public async Task<ApiResponse> GetAccountByAlias(string alias)
         {
             var Account = await _AccountRepo.FindAccountByAlias(alias);
             if (Account == null)
@@ -98,7 +98,6 @@ namespace HaloBiz.MyServices.Impl
             }
             AccountToUpdate.Alias = AccountReceivingDTO.Alias;
             AccountToUpdate.Description = AccountReceivingDTO.Description;
-            AccountToUpdate.Number = AccountReceivingDTO.Number;
             var updatedAccount = await _AccountRepo.UpdateAccount(AccountToUpdate);
 
             if (updatedAccount == null)

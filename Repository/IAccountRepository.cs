@@ -12,7 +12,7 @@ namespace HaloBiz.Repository
 
         Task<Account> FindAccountById(long Id);
 
-        Task<Account> FindAccountByAlias(long alias);
+        Task<Account> FindAccountByAlias(string alias);
 
         Task<IEnumerable<Account>> FindAllAccounts();
 

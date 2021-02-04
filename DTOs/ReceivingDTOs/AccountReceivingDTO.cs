@@ -13,11 +13,10 @@ namespace HaloBiz.DTOs.ReceivingDTOs
         [StringLength(1000)]
         public string Description { get; set; }
         [Required]
-        public long Alias { get; set; }
+        public string Alias { get; set; }
         [Required]
         public bool IsDebitBalance { get; set; }
         [Required]
         public long ControlAccountId { get; set; }
-        public long Number { get; set; }
     }
 }
