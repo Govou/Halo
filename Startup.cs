@@ -149,6 +149,8 @@ namespace HaloBiz
             services.AddScoped<IRoleService, RoleServiceImpl>();
             services.AddScoped<ILeadConversionService, LeadConversionServiceImpl>();
             services.AddScoped<IOtherLeadCaptureInfoService, OtherLeadCaptureInfoServiceImpl>();
+            services.AddScoped<ITaskFulfillmentService, TaskFulfillmentServiceImpl>();
+            services.AddScoped<IDeliverableFulfillmentService, DeliverableFulfillmentServiceImpl>();
 
 
             //repositories
@@ -207,6 +209,8 @@ namespace HaloBiz
             services.AddScoped<INegotiationDocumentRepository, NegotiationDocumentRepositoryImpl>();
             services.AddScoped<IRoleRepository, RoleRepositoryImpl>();
             services.AddScoped<IOtherLeadCaptureInfoRepository, OtherLeadCaptureInfoRepositoryImpl>();
+            services.AddScoped<ITaskFulfillmentRepository, TaskFulfillmentRepositoryImpl>();
+            services.AddScoped<IDeliverableFulfillmentRepository, DeliverableFulfillmentRepositoryImpl>();
 
 
 
