@@ -143,6 +143,8 @@ namespace HaloBiz.Helpers
             CreateMap<RoleClaim, RoleClaimTransferDTO>();
             CreateMap<OtherLeadCaptureInfoReceivingDTO, OtherLeadCaptureInfo>();
             CreateMap<OtherLeadCaptureInfo, OtherLeadCaptureInfoTransferDTO>();
+            CreateMap<TaskFulfillmentReceivingDTO, TaskFulfillment>();
+            CreateMap<TaskFulfillment, TaskFulfillmentTransferDTO>();
         }
     }
 }
