@@ -45,7 +45,10 @@ namespace HaloBiz.Repository.Impl.LAMS
                 lead.PrimaryContact = await _context.LeadContacts.FirstOrDefaultAsync(primaryContact => lead.PrimaryContactId == primaryContact.Id);
             if(lead.SecondaryContactId != null)
                 lead.SecondaryContact = await _context.LeadContacts.FirstOrDefaultAsync(contact => lead.SecondaryContactId == contact.Id);
-            lead.LeadDivisions = await _context.LeadDivisions.Where(division => division.LeadId == lead.Id).ToListAsync();
+            lead.LeadDivisions = await _context.LeadDivisions
+                                    .Include(division => division.Quote)
+                                        .ThenInclude(quote => quote.QuoteServices)
+                                    .Where(division => division.LeadId == lead.Id).ToListAsync();
             return lead;
         }
 
@@ -63,7 +66,10 @@ namespace HaloBiz.Repository.Impl.LAMS
                 lead.PrimaryContact = await _context.LeadContacts.FirstOrDefaultAsync(primaryContact => lead.PrimaryContactId == primaryContact.Id);
             if(lead.SecondaryContactId != null)
                 lead.SecondaryContact = await _context.LeadContacts.FirstOrDefaultAsync(contact => lead.SecondaryContactId == contact.Id);
-            lead.LeadDivisions = await _context.LeadDivisions.Where(division => division.LeadId == lead.Id).ToListAsync();
+            lead.LeadDivisions = await _context.LeadDivisions
+                        .Include(division => division.Quote)
+                            .ThenInclude(quote => quote.QuoteServices)
+                        .Where(division => division.LeadId == lead.Id).ToListAsync();
             return lead;
         }
 

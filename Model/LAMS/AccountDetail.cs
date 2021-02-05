@@ -12,14 +12,13 @@ namespace HaloBiz.Model.AccountsModel
         public string Name { get; set; }
         [StringLength(1000)]
         public string Description { get; set; }
+        public long? AccountDetailsAlias { get; set; }
         [Required]
-        public long AccountDetailsAlias { get; set; }
-        [Required]
-        public bool IntegrationFlag { get; set; }
+        public bool IntegrationFlag { get; set; }= false;
         [Required]
         public long VoucherId { get; set; }
         [Required]
-        public long TransactionId { get; set; }
+        public string TransactionId { get; set; }
         [Required]
         public DateTime TransactionDate { get; set; }
         [Required]
