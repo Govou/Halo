@@ -256,88 +256,20 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
         private async Task<bool> GenerateInvoices(ContractService contractService, long customerDivisionId, long contractId, DataContext context)
         {
-            List<Invoice> invoicesToSave = new List<Invoice>();
-            List<DateTime> sendDates = GenerateListOfInvoiceCycle(
+            List<Invoice> invoicesToSave = GenerateListOfInvoiceCycle(
+                                    (DateTime)contractService.ContractStartDate,
                                     (DateTime) contractService.FirstInvoiceSendDate, 
                                     (DateTime) contractService.ContractEndDate, 
-                                    (TimeCycle) contractService.InvoicingInterval, 
-                                    (int) contractService.InvoiceCycleInDays );
-            
-            foreach (var date in sendDates)
-            {
-                invoicesToSave.Add(new Invoice(){
-                    InvoiceNumber = "",
-                    UnitPrice = (double) contractService.UnitPrice,
-                    Quantity = contractService.Quantity,
-                    Discount = contractService.Discount,
-                    Value  = (double) contractService.BillableAmount,
-                    DateToBeSent = date,
-                    IsInvoiceSent = false,
-                    CustomerDivisionId = customerDivisionId,
-                    ContractId = contractId,
-                    ContractServiceId = contractService.Id,
-                    
-                });
-            }
+                                    (TimeCycle) contractService.InvoicingInterval,
+                                    (double) contractService.BillableAmount,
+                                     contractService, 
+                                    customerDivisionId);
 
             await context.Invoices.AddRangeAsync(invoicesToSave);
             await context.SaveChangesAsync();
-
             return true;
-
         }
 
-        private List<DateTime> GenerateListOfInvoiceCycle(DateTime firstInvoiceSendDate, DateTime endDate, TimeCycle cycle, int timeCycleInDays = 0)
-        {
-            int interval = 0;
-            List<DateTime> sendDates = new  List<DateTime>();
-
-
-            switch (cycle)
-            {
-                case TimeCycle.Weekly:
-                    interval = 7;
-                    break;
-                case TimeCycle.BiWeekly:
-                    interval = 14;
-                    break;
-                case TimeCycle.Monthly:
-                    interval = 1;
-                    break;
-                case TimeCycle.BiMonthly:
-                    interval = 2;
-                    break;
-                case TimeCycle.Quarterly:
-                    interval = 4;
-                    break;
-                case TimeCycle.SemiAnnually:
-                    interval = 6;
-                    break;
-                case TimeCycle.Annually:
-                    interval = 12;
-                    break;
-                case TimeCycle.BiAnnually:
-                    interval = 24;
-                    break;
-                case TimeCycle.Others:
-                    interval = timeCycleInDays;
-                    break;
-            }
-
-            if(cycle == TimeCycle.Weekly || cycle == TimeCycle.Others || cycle == TimeCycle.BiWeekly )
-            {
-                while(firstInvoiceSendDate < endDate){
-                    sendDates.Add(firstInvoiceSendDate);
-                    firstInvoiceSendDate = firstInvoiceSendDate.AddDays(interval);
-                }
-            }else{
-                while(firstInvoiceSendDate < endDate){
-                    sendDates.Add(firstInvoiceSendDate);
-                    firstInvoiceSendDate = firstInvoiceSendDate.AddMonths(interval);
-                }
-            }
-            return sendDates;
-        }
 
         private async  Task<bool> GenerateAmortizations(ContractService contractService, CustomerDivision customerDivision, DataContext context)
         {
@@ -373,6 +305,121 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
            await  context.Amortizations.AddRangeAsync(amortizations);
             return true;
+        }
+
+        public static List<Invoice> GenerateListOfInvoiceCycle(
+                                            DateTime startDate, 
+                                            DateTime firstInvoiceSendDate, 
+                                            DateTime endDate, 
+                                            TimeCycle cycle, 
+                                            double amount,
+                                            ContractService contractService, 
+                                            long customerDivisionId)
+        {
+            int interval = 0;
+            List<Invoice> invoices = new  List<Invoice>();
+
+            switch (cycle)
+            {
+                case TimeCycle.Weekly:
+                    interval = 7;
+                    break;
+                case TimeCycle.BiWeekly:
+                    interval = 14;
+                    break;
+                case TimeCycle.Monthly:
+                    interval = 1;
+                    break;
+                case TimeCycle.BiMonthly:
+                    interval = 2;
+                    break;
+                case TimeCycle.Quarterly:
+                    interval = 4;
+                    break;
+                case TimeCycle.SemiAnnually:
+                    interval = 6;
+                    break;
+                case TimeCycle.Annually:
+                    interval = 12;
+                    break;
+                case TimeCycle.BiAnnually:
+                    interval = 24;
+                    break;
+            }
+
+            var invoiceValue = 0.0;
+
+
+            if(cycle == TimeCycle.Weekly || cycle == TimeCycle.BiWeekly)
+            {
+                var invoiceValueForWeekly = GenerateAmount( startDate, endDate,  amount,  cycle);
+
+                while(firstInvoiceSendDate < endDate){
+                         invoices.Add(GenerateInvoice(startDate,  
+                            startDate.AddDays(interval) > endDate ? endDate : startDate.AddDays(interval), 
+                            invoiceValueForWeekly , 
+                            firstInvoiceSendDate,
+                             contractService, 
+                             customerDivisionId));
+                    firstInvoiceSendDate = firstInvoiceSendDate.AddDays(interval);
+                    startDate = startDate.AddDays(interval);
+                }
+            }else if(cycle == TimeCycle.OneTime ){
+                
+                    invoices.Add(GenerateInvoice(startDate,  endDate, amount , firstInvoiceSendDate,
+                                                     contractService, customerDivisionId));
+
+            }else{
+                invoiceValue = amount * (double) interval ;
+                while(firstInvoiceSendDate < endDate){
+                    invoices.Add(GenerateInvoice(startDate,  
+                                        startDate.AddMonths(interval) > endDate ? endDate : startDate.AddDays(interval), 
+                                                invoiceValue , 
+                                                firstInvoiceSendDate, 
+                                                contractService, 
+                                                customerDivisionId));
+                    firstInvoiceSendDate = firstInvoiceSendDate.AddMonths(interval);
+                    startDate = startDate.AddDays(interval);
+                }
+            }
+            return invoices;
+        }
+
+        private static Invoice GenerateInvoice(DateTime from, DateTime to, double amount, DateTime sendDate,ContractService contractService, long customerDivisionId)
+        {
+            return new Invoice(){
+                    InvoiceNumber = "",
+                    UnitPrice = (double) contractService.UnitPrice,
+                    Quantity = contractService.Quantity,
+                    Discount = contractService.Discount,
+                    Value  = amount,
+                    DateToBeSent = sendDate,
+                    IsInvoiceSent = false,
+                    CustomerDivisionId = customerDivisionId,
+                    ContractId = contractService.ContractId,
+                    ContractServiceId = contractService.Id,
+                    StartDate  = from,
+                    EndDate  = to
+            };
+        }
+
+        private static double GenerateAmount(DateTime startDate, DateTime endDate, double amountPerMonth, TimeCycle timeCylce)
+        {
+            var interval = timeCylce == TimeCycle.Weekly ? 7 : 14;
+            var numberOfMonths = 0;
+            var numberOfPayment = Math.Floor(endDate.Subtract(startDate).TotalDays / interval);
+            startDate = startDate.AddMonths(1);
+
+            while(startDate <= endDate)
+            {
+                numberOfMonths++;
+                startDate = startDate.AddMonths(1);
+            }
+            System.Console.WriteLine(numberOfPayment);
+            var totalAmountPayable = numberOfMonths * amountPerMonth;
+            var amountToPay = Math.Round(totalAmountPayable / numberOfPayment, 4);
+            System.Console.WriteLine(amountToPay);
+            return amountToPay;
         }
 
 
@@ -447,14 +494,15 @@ namespace HaloBiz.MyServices.Impl.LAMS
         }
 
         
-        private async Task<bool> CreateAccount(
-                                    long ServiceId, 
-                                    ServiceTaskDeliverable serviceTaskDeliverable
-                                    )
-        {
+        // private async Task<bool> CreateAccount(
+        //                             long ServiceId, 
+        //                             ServiceTaskDeliverable serviceTaskDeliverable,
+        //                             QuoteService quoteService
+        //                             )
+        // {
              
-            return true;
-        }
+            
+        // }
 
 
 
