@@ -19,7 +19,7 @@ namespace HaloBiz.DTOs.ReceivingDTOs
         [Required]
         public long VoucherId { get; set; }
         [Required]
-        public long TransactionId { get; set; }
+        public string TransactionId { get; set; }
         [Required]
         public DateTime TransactionDate { get; set; }
         [Required]

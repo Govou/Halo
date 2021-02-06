@@ -19,6 +19,8 @@ namespace HaloBiz.DTOs.ReceivingDTOs
         public long AccountMasterAlias { get; set; }
         [Required]
         public bool IntegrationFlag { get; set; }
+        public string TransactionId { get; set; }
+
         [Required]
         public long VoucherId { get; set; }
         [Required]

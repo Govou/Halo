@@ -18,6 +18,8 @@ namespace HaloBiz.DTOs.TransferDTOs
         public bool IntegrationFlag { get; set; }
         public long VoucherId { get; set; }
         public FinanceVoucherType Voucher { get; set; }
+        public string TransactionId { get; set; }
+
         public long AccountId { get; set; }
         public virtual Account Account { get; set; }
         public long BranchId { get; set; }

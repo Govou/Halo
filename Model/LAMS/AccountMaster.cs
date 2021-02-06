@@ -22,6 +22,7 @@ namespace HaloBiz.Model.AccountsModel
         [Required]
         public long VoucherId { get; set; }
         public FinanceVoucherType Voucher { get; set; }
+        public string TransactionId { get; set; }
         [Required]
         public long AccountId { get; set; }
         public virtual Account Account { get; set; }

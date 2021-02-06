@@ -15,7 +15,7 @@ namespace HaloBiz.DTOs.TransferDTOs
         public long AccountDetailsAlias { get; set; }
         public bool IntegrationFlag { get; set; }
         public long VoucherId { get; set; }
-        public long TransactionId { get; set; }
+        public string TransactionId { get; set; }
         public DateTime TransactionDate { get; set; }
         public double Credit { get; set; }
         public double Debit { get; set; }

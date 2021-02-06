@@ -25,6 +25,7 @@ namespace HaloBiz.Model.AccountsModel
         public double Credit { get; set; }
         [Required]
         public double Debit { get; set; }
+
         [Required]
         public long BranchId { get; set; }
         public virtual Branch Branch { get; set; }
