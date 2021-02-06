@@ -11,7 +11,7 @@ namespace HaloBiz.Repository.LAMS
         Task<IEnumerable<QuoteService>> FindAllQuoteService();
         Task<QuoteService> UpdateQuoteService(QuoteService quoteService);
         Task<bool> DeleteQuoteService(QuoteService quoteService);
-        Task<bool> DeleteQuoteServiceRange(IEnumerable<QuoteService> operatingEntities);
+        Task<bool> DeleteQuoteServiceRange(IEnumerable<QuoteService> quoteServices);
         Task<bool> SaveQuoteServiceRange(IEnumerable<QuoteService> quoteServices);
     }
 }
