@@ -15,6 +15,8 @@ namespace HaloBiz.Model.AccountsModel
         public double Discount { get; set; }
         public double Value { get; set; }
         public DateTime DateToBeSent { get; set; }
+        public DateTime StartDate { get; set; }
+        public DateTime EndDate { get; set; }
         public bool IsInvoiceSent { get; set; }
         public long CustomerDivisionId { get; set; }
         public CustomerDivision CustomerDivision { get; set; }
