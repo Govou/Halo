@@ -7,6 +7,7 @@ using HaloBiz.Helpers;
 using HaloBiz.Model;
 using HaloBiz.Model.AccountsModel;
 using HaloBiz.Model.LAMS;
+using HaloBiz.Model.ManyToManyRelationship;
 using HaloBiz.MyServices.LAMS;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -18,6 +19,8 @@ namespace HaloBiz.MyServices.Impl.LAMS
         private readonly DataContext _context;
         private readonly ILogger<LeadConversionServiceImpl> _logger;
         public long LoggedInUserId;
+        private readonly string ReceivableControlAccount = "Receivable";
+        private readonly string FinanceVoucherType = " Invoice";
 
         public LeadConversionServiceImpl(
                                         DataContext context, 
@@ -46,6 +49,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
                       var quote = await _context.Quotes
                                             .Include(x => x.QuoteServices)
+                                                .ThenInclude(x => x.SBUToQuoteServiceProportions)
                                             .FirstOrDefaultAsync(x => x.LeadDivisionId == leadDivision.Id);
 
                       Contract contract = await ConvertQuoteToContract( quote, customerDivision.Id,  _context);
@@ -53,7 +57,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
                       foreach (var quoteService in quote.QuoteServices)
                       {
-                          await ConvertQuoteServiceToContractService( quoteService,  _context, customerDivision, contract.Id);
+                          await ConvertQuoteServiceToContractService( quoteService,  _context, customerDivision, contract.Id, leadDivision);
                       }
 
                     }
@@ -138,7 +142,11 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 
         }
 
-        private async Task<bool> ConvertQuoteServiceToContractService(QuoteService quoteService, DataContext context, CustomerDivision customerDivision, long contractId)
+        private async Task<bool> ConvertQuoteServiceToContractService(QuoteService quoteService, 
+                                                                        DataContext context, 
+                                                                        CustomerDivision customerDivision, 
+                                                                        long contractId, 
+                                                                        LeadDivision leadDivision)
         {
             var contractServiceToSave = new ContractService()
             {
@@ -190,6 +198,12 @@ namespace HaloBiz.MyServices.Impl.LAMS
             await ConvertSBUToQuoteServicePropToSBUToContractServiceProp( quoteService.Id, contractService.Id, context);
             await ConvertQuoteServieDocumentsToClosureDocuments(quoteService.Id, contractService.Id, context);
             await CreateTaskAndDeliverables(quoteService.ServiceId, contractService ,customerDivision.Id );
+            await CreateAccounts(   quoteService,
+                                     contractService.Id,
+                                     customerDivision,
+                                     (long) leadDivision.BranchId,
+                                    (long) leadDivision.OfficeId
+                                    );
             if(contractService.InvoicingInterval != TimeCycle.Adhoc)
             {
                 await GenerateInvoices( contractService,  customerDivision.Id, contractId, context);
@@ -494,16 +508,159 @@ namespace HaloBiz.MyServices.Impl.LAMS
         }
 
         
-        // private async Task<bool> CreateAccount(
-        //                             long ServiceId, 
-        //                             ServiceTaskDeliverable serviceTaskDeliverable,
-        //                             QuoteService quoteService
-        //                             )
-        // {
-             
-            
-        // }
+        private async Task<bool> CreateAccounts(
+                                    QuoteService quoteService,
+                                    long contractServiceId,
+                                    CustomerDivision customerDivision,
+                                    long branchId,
+                                    long officeId
+                                    )
+        {
 
+            //Create Customer Account, Account master and account details
+            ControlAccount controlAccount = await _context.ControlAccounts
+                    .FirstOrDefaultAsync(x => x.Caption == this.ReceivableControlAccount);
+
+             Account account = new Account(){
+                Name = $"{customerDivision.DivisionName} Receivable",
+                Description = $"Receivable Account of {customerDivision.DivisionName}",
+                Alias = GenerateClientAlias(customerDivision.DivisionName),
+                IsDebitBalance = true,
+                ControlAccountId = controlAccount.Id,
+             };
+            var savedAccount = await SaveAccount( account);
+
+            customerDivision.AccountId = savedAccount.Id;
+
+            _context.CustomerDivisions.Update(customerDivision);
+            await _context.SaveChangesAsync();
+
+            FinanceVoucherType accountVoucherType = await _context.FinanceVoucherTypes
+                .FirstOrDefaultAsync(x => x.VoucherType == this.FinanceVoucherType);
+
+                 
+            var savedAccountMaster = await CreateAccountMaster( quoteService,
+                                                         contractServiceId,  
+                                                         accountVoucherType.Id, 
+                                                         savedAccount.Id,
+                                                         branchId, 
+                                                         officeId  ); 
+            await SaveRangeSBUAccountMaster( savedAccountMaster.Id, quoteService.SBUToQuoteServiceProportions);           
+            await CreateAccountDetail(quoteService, contractServiceId, accountVoucherType.Id, branchId, officeId,4000, false,savedAccountMaster.Id);
+            
+            return true;
+        }
+
+        private async Task<Account> SaveAccount(Account account)
+        {
+            try{
+                await _context.Database.ExecuteSqlRawAsync("SET IDENTITY_INSERT dbo.Accounts ON");
+
+                var  lastSavedAccount = await _context.Accounts.Where(x => x.ControlAccountId == account.ControlAccountId)
+                    .OrderBy(x => x.Id).LastOrDefaultAsync();
+                if(lastSavedAccount == null || lastSavedAccount.Id < 1000000000)
+                {
+                    account.Id = (long) account.ControlAccountId + 1;
+                }else{
+                    account.Id = lastSavedAccount.Id + 1;
+                }
+                var savedAccount = await _context.Accounts.AddAsync(account);
+                await _context.SaveChangesAsync();
+                return savedAccount.Entity;
+            }catch(Exception)
+            {
+                throw;
+            }finally{
+                await _context.Database.ExecuteSqlRawAsync("SET IDENTITY_INSERT dbo.Accounts OFF");
+            }
+           
+        }
+
+        private async Task<AccountMaster> CreateAccountMaster(QuoteService quoteService,
+                                                        long contractServiceId,  
+                                                        long accountVoucherTypeId, 
+                                                        long accountId,
+                                                        long branchId, 
+                                                        long officeId  )
+        {
+            AccountMaster accountMaster = new AccountMaster(){
+                Name = $"{quoteService.Service.Name} Charges",
+                Description = $"Sales of {quoteService.Service.Name}",
+                IntegrationFlag = false,
+                AccountMasterAlias = 0,
+                VoucherId = accountVoucherTypeId,
+                AccountId = accountId,
+                BranchId = branchId,
+                OfficeId = officeId,
+                TransactionId = $"{quoteService.ReferenceNumber}{contractServiceId}",
+            };     
+            var savedAccountMaster = await _context.AccountMasters.AddAsync(accountMaster);
+            await _context.SaveChangesAsync();
+            return savedAccountMaster.Entity;
+        }
+
+        private async Task<bool> SaveRangeSBUAccountMaster(long accountMasterId, IEnumerable<SBUToQuoteServiceProportion> sBUToQuoteServicesProp)
+        {
+            List<SBUAccountMaster> listOfSBUAccountMaster = new List<SBUAccountMaster>();
+            foreach (var prop in sBUToQuoteServicesProp)
+            {
+                listOfSBUAccountMaster.Add(new SBUAccountMaster(){
+                    StrategicBusinessUnitId = prop.StrategicBusinessUnitId,
+                    AccountMasterId = accountMasterId
+                });
+            }
+
+            await _context.SBUAccountMasters.AddRangeAsync(listOfSBUAccountMaster);
+            await _context.SaveChangesAsync();
+            return true;
+        }
+
+        private async Task<AccountDetail> CreateAccountDetail(
+                                                    QuoteService quoteService,
+                                                    long contractServiceId,  
+                                                    long accountVoucherTypeId, 
+                                                    long branchId, 
+                                                    long officeId,
+                                                    double amount,
+                                                    bool isCredit,
+                                                    long accountMasterId
+                                                    )
+        {
+
+            AccountDetail accountDetail = new AccountDetail(){
+                Name = $"{quoteService.Service.Name} Charges",
+                Description = $"Sales of {quoteService.Service.Name}",
+                IntegrationFlag = false,
+                AccountDetailsAlias = 0,
+                VoucherId = accountVoucherTypeId,
+                TransactionId = $"{quoteService.ReferenceNumber}{contractServiceId}",
+                TransactionDate = DateTime.Now,
+                Credit = isCredit ? amount : 0,
+                Debit = !isCredit ? amount : 0,
+                BranchId = branchId,
+                OfficeId = officeId,
+                AccountMasterId = accountMasterId,
+                CreatedById = this.LoggedInUserId,
+            };
+
+            var savedAccountDetails = await _context.AccountDetails.AddAsync(accountDetail);
+            await _context.SaveChangesAsync();
+            return savedAccountDetails.Entity;
+        }
+
+
+
+        private string GenerateClientAlias(string divisionName){
+            string[] names = divisionName.Split(" ");
+            string initial = "";
+            foreach (var name in names)
+            {
+                initial+= name.Substring(0,1).ToUpper();
+            }
+            return initial;
+        }
+
+       
 
 
     }
