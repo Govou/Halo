@@ -149,6 +149,8 @@ namespace HaloBiz.Helpers
             CreateMap<TaskFulfillment, TaskFulfillmentTransferDTO>();
             CreateMap<DeliverableFulfillmentReceivingDTO, DeliverableFulfillment>();
             CreateMap<DeliverableFulfillment, DeliverableFulfillmentTransferDTO>();
+            CreateMap<Industry, IndustryTransferDTO>();
+            CreateMap<IndustryReceivingDTO, Industry>();
         }
     }
 }
