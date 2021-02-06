@@ -1,6 +1,7 @@
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using HaloBiz.Model.AccountsModel;
 
 namespace HaloBiz.Model.LAMS
 {
@@ -24,6 +25,8 @@ namespace HaloBiz.Model.LAMS
         public string Address { get; set; }
         public long CustomerId { get; set; }
         public virtual Customer Customer { get; set; }
+        public long? AccountId { get; set; }
+        public Account Account { get; set; }
         public long CreatedById { get; set; }
         public virtual UserProfile CreatedBy { get; set; }
         public bool IsDeleted { get; set; } = false;
