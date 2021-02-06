@@ -32,12 +32,14 @@ namespace HaloBiz.Repository.Impl.LAMS
         public async Task<LeadKeyPerson> FindLeadKeyPersonById(long Id)
         {
             return await _context.LeadKeyPeople
+                .Include(x => x.Lead)
                 .FirstOrDefaultAsync( entity => entity.Id == Id && entity.IsDeleted == false);
         }
 
         public async Task<IEnumerable<LeadKeyPerson>> FindAllLeadKeyPerson()
         {
             return await _context.LeadKeyPeople   
+                .Include(x => x.Lead)
                 .Where(entity => entity.IsDeleted == false)
                 .OrderByDescending(entity => entity.FirstName)
                 .ToListAsync();
@@ -76,6 +78,7 @@ namespace HaloBiz.Repository.Impl.LAMS
          public async Task<IEnumerable<LeadKeyPerson>> FindAllLeadKeyPersonByLeadId(long leadId)
         {
             return await _context.LeadKeyPeople
+                    .Include(x => x.Lead)
                     .Where(x => x.LeadId == leadId && x.IsDeleted == false)
                     .ToListAsync();
         }
