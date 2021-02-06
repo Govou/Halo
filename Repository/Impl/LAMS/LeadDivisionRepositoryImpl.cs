@@ -39,6 +39,7 @@ namespace HaloBiz.Repository.Impl.LAMS
                 .Include(x => x.SecondaryContact)
                 .Include(x => x.LeadDivisionKeyPersons)
                 .Include(x => x.LeadOrigin)
+                .Include(x => x.LeadType)
                 .Include(x => x.Quote)
                 .FirstOrDefaultAsync( leadDivision => leadDivision.Id == Id && leadDivision.IsDeleted == false);
         }
