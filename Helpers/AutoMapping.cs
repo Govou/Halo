@@ -103,6 +103,7 @@ namespace HaloBiz.Helpers
             CreateMap<LeadContact, LeadContactTransferDTO>();
             CreateMap<LeadKeyPersonReceivingDTO, LeadKeyPerson>();
             CreateMap<LeadKeyPerson, LeadKeyPersonTransferDTO>();
+            CreateMap<LeadKeyPerson, LeadKeyPersonWithoutLeadTransferDTO>();
             CreateMap<LeadDivisionContactReceivingDTO, LeadDivisionContact>();
             CreateMap<LeadDivisionContact, LeadDivisionContactTransferDTO>();
             CreateMap<CustomerReceivingDTO, Customer>();
