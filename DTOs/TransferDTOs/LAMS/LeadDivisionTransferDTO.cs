@@ -19,17 +19,17 @@ namespace HaloBiz.DTOs.TransferDTOs.LAMS
         public string LogoUrl { get; set; }
         public string Address { get; set; }
         public long PrimaryContactId { get; set; }
-        public virtual LeadDivisionContact PrimaryContact { get; set; }
+        public virtual LeadDivisionContactTransferDTO PrimaryContact { get; set; }
         public long? SecondaryContactId { get; set; }
-        public LeadDivisionContact SecondaryContact { get; set; }
+        public LeadDivisionContactTransferDTO SecondaryContact { get; set; }
         public long BranchId { get; set; }
-        public virtual Branch Branch { get; set; }
+        public virtual BranchTransferDTO Branch { get; set; }
         public long OfficeId { get; set; }
-        public virtual Office Office { get; set; }
+        public virtual OfficeTransferDTO Office { get; set; }
         public long LeadId { get; set; }
-        public virtual Lead Lead { get; set; }
-        public IEnumerable<Quote> Quotes { get; set; }
-        public IEnumerable<LeadDivisionKeyPerson> LeadDivisionKeyPersons { get; set; }
+        public virtual LeadTransferDTO Lead { get; set; }
+        public QuoteWithoutLeadDivisionTransferDTO Quote { get; set; }
+        public IEnumerable<LeadDivisionKeyPersonTransferDTO> LeadDivisionKeyPersons { get; set; }
         public long CreatedById { get; set; }
         public virtual UserProfile CreatedBy { get; set; }
     }

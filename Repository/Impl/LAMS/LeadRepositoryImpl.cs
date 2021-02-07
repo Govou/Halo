@@ -46,9 +46,13 @@ namespace HaloBiz.Repository.Impl.LAMS
             if(lead.SecondaryContactId != null)
                 lead.SecondaryContact = await _context.LeadContacts.FirstOrDefaultAsync(contact => lead.SecondaryContactId == contact.Id);
             lead.LeadDivisions = await _context.LeadDivisions
+                                    .Include(division => division.PrimaryContact)
+                                    .Include(division => division.SecondaryContact)
+                                    .Include(division => division.LeadDivisionKeyPersons)
                                     .Include(division => division.Quote)
                                         .ThenInclude(quote => quote.QuoteServices)
                                     .Where(division => division.LeadId == lead.Id).ToListAsync();
+            //lead.LeadDivisions.ToList().ForEach(x => x.Lead = null);
             lead.LeadKeyPersons = await _context.LeadKeyPeople
                                     .Where(x => x.LeadId == lead.Id && x.IsDeleted == false).ToListAsync();
             lead.LeadKeyPersons.ToList().ForEach(x => x.Lead = null);
@@ -70,9 +74,12 @@ namespace HaloBiz.Repository.Impl.LAMS
             if(lead.SecondaryContactId != null)
                 lead.SecondaryContact = await _context.LeadContacts.FirstOrDefaultAsync(contact => lead.SecondaryContactId == contact.Id);
             lead.LeadDivisions = await _context.LeadDivisions
-                        .Include(division => division.Quote)
-                            .ThenInclude(quote => quote.QuoteServices)
-                        .Where(division => division.LeadId == lead.Id).ToListAsync();
+                                    .Include(division => division.PrimaryContact)
+                                    .Include(division => division.SecondaryContact)
+                                    .Include(division => division.LeadDivisionKeyPersons)
+                                    .Include(division => division.Quote)
+                                        .ThenInclude(quote => quote.QuoteServices)
+                                    .Where(division => division.LeadId == lead.Id).ToListAsync();
             lead.LeadKeyPersons = await _context.LeadKeyPeople
                                     .Where(x => x.LeadId == lead.Id && x.IsDeleted == false).ToListAsync();
             lead.LeadKeyPersons.ToList().ForEach(x => x.Lead = null);

@@ -9,7 +9,7 @@ namespace HaloBiz.DTOs.TransferDTOs.LAMS
     {
         public long Id { get; set; }
         public string ReferenceNo { get; set; }
-        public virtual LeadTypeTransferDTO LeadType { get; set; }
+        public virtual LeadTypeWithoutOriginDTO LeadType { get; set; }
         public long LeadOriginId { get; set; }
         public virtual LeadOriginTransferDTO LeadOrigin { get; set; }
         public string Industry { get; set; }
