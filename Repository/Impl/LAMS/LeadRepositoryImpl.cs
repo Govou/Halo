@@ -52,7 +52,6 @@ namespace HaloBiz.Repository.Impl.LAMS
             lead.LeadKeyPersons = await _context.LeadKeyPeople
                                     .Where(x => x.LeadId == lead.Id && x.IsDeleted == false).ToListAsync();
             lead.LeadKeyPersons.ToList().ForEach(x => x.Lead = null);
-            lead.LeadDivisions.ToList().ForEach(x => x.Lead = null);
             return lead;
         }
 
@@ -77,7 +76,6 @@ namespace HaloBiz.Repository.Impl.LAMS
             lead.LeadKeyPersons = await _context.LeadKeyPeople
                                     .Where(x => x.LeadId == lead.Id && x.IsDeleted == false).ToListAsync();
             lead.LeadKeyPersons.ToList().ForEach(x => x.Lead = null);
-            lead.LeadDivisions.ToList().ForEach(x => x.Lead = null);
             return lead;
         }
 
