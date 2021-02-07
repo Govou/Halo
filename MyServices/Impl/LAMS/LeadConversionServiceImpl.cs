@@ -20,7 +20,9 @@ namespace HaloBiz.MyServices.Impl.LAMS
         private readonly ILogger<LeadConversionServiceImpl> _logger;
         public long LoggedInUserId;
         private readonly string ReceivableControlAccount = "Receivable";
-        private readonly string FinanceVoucherType = " Invoice";
+        private readonly string SALESINVOICEVOUCHER = "Sales Invoice";
+        private readonly string VALUEADDEDTAX = "VALUE ADDED TAX";
+        //private readonly string VALUEADDEDTAX = "VALUE ADDED TAX";
 
         public LeadConversionServiceImpl(
                                         DataContext context, 
@@ -40,6 +42,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 {
                     var lead = await _context.Leads
                         .Include(x => x.LeadDivisions)
+                            .ThenInclude(x => x.Quote)
                         .FirstOrDefaultAsync(x => x.Id == leadId);
                     
                     Customer customer = await ConvertLeadToCustomer(lead, _context);
@@ -421,18 +424,19 @@ namespace HaloBiz.MyServices.Impl.LAMS
         {
             var interval = timeCylce == TimeCycle.Weekly ? 7 : 14;
             var numberOfMonths = 0;
-            var numberOfPayment = Math.Floor(endDate.Subtract(startDate).TotalDays / interval);
+            var daysBetweenStartAndEndDate = (endDate.Subtract(startDate).TotalDays + 1) < interval ?
+                           (int) interval : (endDate.Subtract(startDate).TotalDays + 1);
+            var numberOfPayment = Math.Floor(daysBetweenStartAndEndDate / interval);
             startDate = startDate.AddMonths(1);
 
-            while(startDate <= endDate)
+            while(startDate < endDate)
             {
                 numberOfMonths++;
                 startDate = startDate.AddMonths(1);
             }
-            System.Console.WriteLine(numberOfPayment);
+            numberOfMonths = numberOfMonths == 0 ? 1 : numberOfMonths;
             var totalAmountPayable = numberOfMonths * amountPerMonth;
             var amountToPay = Math.Round(totalAmountPayable / numberOfPayment, 4);
-            System.Console.WriteLine(amountToPay);
             return amountToPay;
         }
 
@@ -517,6 +521,39 @@ namespace HaloBiz.MyServices.Impl.LAMS
                                     )
         {
 
+            await CreateCustomerReceivablAccounts(
+                                     quoteService,
+                                     contractServiceId,
+                                     customerDivision,
+                                     branchId,
+                                     officeId
+                                    );
+            await CreateVATAccount(
+                                     quoteService,
+                                     contractServiceId,
+                                     customerDivision,
+                                     branchId,
+                                     officeId
+                                    );
+            await CreateIncomeAccountMasterAndDetails(
+                                                    quoteService,
+                                                    contractServiceId,
+                                                    customerDivision,
+                                                    branchId,
+                                                    officeId
+                                                        )   ;
+            
+            return true;
+        }
+        private async Task<bool> CreateCustomerReceivablAccounts(
+                                    QuoteService quoteService,
+                                    long contractServiceId,
+                                    CustomerDivision customerDivision,
+                                    long branchId,
+                                    long officeId
+                                    )
+        {
+
             //Create Customer Account, Account master and account details
             ControlAccount controlAccount = await _context.ControlAccounts
                     .FirstOrDefaultAsync(x => x.Caption == this.ReceivableControlAccount);
@@ -528,7 +565,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 IsDebitBalance = true,
                 ControlAccountId = controlAccount.Id,
              };
-            var savedAccount = await SaveAccount( account);
+            var savedAccount = await SaveAccount(account);
 
             customerDivision.AccountId = savedAccount.Id;
 
@@ -536,7 +573,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
             await _context.SaveChangesAsync();
 
             FinanceVoucherType accountVoucherType = await _context.FinanceVoucherTypes
-                .FirstOrDefaultAsync(x => x.VoucherType == this.FinanceVoucherType);
+                .FirstOrDefaultAsync(x => x.VoucherType == this.SALESINVOICEVOUCHER);
 
                  
             var savedAccountMaster = await CreateAccountMaster( quoteService,
@@ -545,11 +582,89 @@ namespace HaloBiz.MyServices.Impl.LAMS
                                                          savedAccount.Id,
                                                          branchId, 
                                                          officeId  ); 
-            await SaveRangeSBUAccountMaster( savedAccountMaster.Id, quoteService.SBUToQuoteServiceProportions);           
-            await CreateAccountDetail(quoteService, contractServiceId, accountVoucherType.Id, branchId, officeId,4000, false,savedAccountMaster.Id);
+            await SaveRangeSBUAccountMaster( savedAccountMaster.Id, quoteService.SBUToQuoteServiceProportions);  
+            var totalContractBillable = CalculateTotalAmountForContract((double)(quoteService.BillableAmount + quoteService.VAT), 
+                                                                        (DateTime)quoteService.ContractStartDate, 
+                                                                        (DateTime) quoteService.ContractEndDate, 
+                                                                        (TimeCycle) quoteService.InvoicingInterval);         
+            await CreateAccountDetail(quoteService, 
+                                    contractServiceId, 
+                                    accountVoucherType.Id, 
+                                    branchId, 
+                                    officeId,
+                                    totalContractBillable, 
+                                    false,savedAccountMaster.Id);
             
             return true;
         }
+        private async Task<bool> CreateVATAccount(
+                                    QuoteService quoteService,
+                                    long contractServiceId,
+                                    CustomerDivision customerDivision,
+                                    long branchId,
+                                    long officeId
+                                    )
+        {
+            var vatAccount = await _context.Accounts.FirstOrDefaultAsync(x => x.Name == this.VALUEADDEDTAX);
+            FinanceVoucherType accountVoucherType = await _context.FinanceVoucherTypes
+                .FirstOrDefaultAsync(x => x.VoucherType == this.SALESINVOICEVOUCHER);
+
+                 
+            var savedAccountMaster = await CreateAccountMaster( quoteService,
+                                                         contractServiceId,  
+                                                         accountVoucherType.Id, 
+                                                         vatAccount.Id,
+                                                         branchId, 
+                                                         officeId  ); 
+            var totalContractBillable = CalculateTotalAmountForContract((double)quoteService.VAT, 
+                                                        (DateTime)quoteService.ContractStartDate, 
+                                                        (DateTime) quoteService.ContractEndDate,
+                                                        (TimeCycle) quoteService.InvoicingInterval); 
+            await CreateAccountDetail(quoteService, 
+                                        contractServiceId, 
+                                        accountVoucherType.Id, 
+                                        branchId, 
+                                        officeId,totalContractBillable, 
+                                        true,savedAccountMaster.Id);
+            
+            return true;
+        }
+
+        private async Task<bool> CreateIncomeAccountMasterAndDetails(
+                                    QuoteService quoteService,
+                                    long contractServiceId,
+                                    CustomerDivision customerDivision,
+                                    long branchId,
+                                    long officeId
+                                    )
+        {
+            
+            var service = await _context.Services.FirstOrDefaultAsync(x => x.Id == quoteService.ServiceId);
+            FinanceVoucherType accountVoucherType = await _context.FinanceVoucherTypes
+                .FirstOrDefaultAsync(x => x.VoucherType == this.SALESINVOICEVOUCHER);
+
+                 
+            var savedAccountMaster = await CreateAccountMaster( quoteService,
+                                                         contractServiceId,  
+                                                         accountVoucherType.Id, 
+                                                         (long) service.AccountId,
+                                                         branchId,
+                                                         officeId );
+            var totalContractBillable = CalculateTotalAmountForContract((double) quoteService.BillableAmount, 
+                                                        (DateTime)quoteService.ContractStartDate, 
+                                                        (DateTime) quoteService.ContractEndDate,
+                                                        (TimeCycle) quoteService.InvoicingInterval); 
+            await CreateAccountDetail(quoteService, 
+                                        contractServiceId, 
+                                        accountVoucherType.Id, 
+                                        branchId, 
+                                        officeId,totalContractBillable, 
+                                        true,savedAccountMaster.Id);
+            
+            return true;
+        }
+
+
 
         private async Task<Account> SaveAccount(Account account)
         {
@@ -660,8 +775,20 @@ namespace HaloBiz.MyServices.Impl.LAMS
             return initial;
         }
 
-       
-
-
+        private double CalculateTotalAmountForContract(double priceOfService, DateTime contractStartDate, DateTime contractEndDate, TimeCycle timeCycle )
+        {
+            if(timeCycle == TimeCycle.OneTime)
+            {
+                return priceOfService;
+            }
+            int numberOfMonth = 0;
+            while(contractStartDate < contractEndDate)
+            {
+                numberOfMonth++;
+                contractStartDate = contractStartDate.AddMonths(1);
+            }
+            
+            return priceOfService * numberOfMonth;
+        }
     }
 }
