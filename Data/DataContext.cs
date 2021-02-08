@@ -76,6 +76,7 @@ namespace HaloBiz.Data
     public DbSet<TaskFulfillment> TaskFulfillments { get; set; }
     public DbSet<DeliverableFulfillment> DeliverableFulfillments { get; set; }
     public DbSet<Industry> Industries { get; set; }
+    public DbSet<Designation> Designations { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder builder)
