@@ -82,6 +82,7 @@ namespace HaloBiz.MyServices.Impl
 
             RequredServiceQualificationElementToUpdate.Caption = RequredServiceQualificationElementReceivingDTO.Caption;
             RequredServiceQualificationElementToUpdate.Description = RequredServiceQualificationElementReceivingDTO.Description;
+            RequredServiceQualificationElementToUpdate.Type = RequredServiceQualificationElementReceivingDTO.Type;
             var updatedRequredServiceQualificationElement = await _RequredServiceQualificationElementRepo.UpdateRequredServiceQualificationElement(RequredServiceQualificationElementToUpdate);
 
             summary += $"Details after change, \n {updatedRequredServiceQualificationElement.ToString()} \n";
