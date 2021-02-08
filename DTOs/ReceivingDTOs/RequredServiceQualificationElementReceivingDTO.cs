@@ -2,6 +2,6 @@
 {
     public class RequredServiceQualificationElementReceivingDTO : BaseSetupDTO
     {
-
+        public string Type { get; set; }
     }
 }
