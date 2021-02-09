@@ -152,6 +152,7 @@ namespace HaloBiz
             services.AddScoped<ITaskFulfillmentService, TaskFulfillmentServiceImpl>();
             services.AddScoped<IDeliverableFulfillmentService, DeliverableFulfillmentServiceImpl>();
             services.AddScoped<IIndustryService, IndustryServiceImpl>();
+            services.AddScoped<IDesignationService, DesignationServiceImpl>();
 
 
             //repositories
@@ -213,6 +214,7 @@ namespace HaloBiz
             services.AddScoped<ITaskFulfillmentRepository, TaskFulfillmentRepositoryImpl>();
             services.AddScoped<IDeliverableFulfillmentRepository, DeliverableFulfillmentRepositoryImpl>();
             services.AddScoped<IIndustryRepository, IndustryRepositoryImpl>();
+            services.AddScoped<IDesignationRepository, DesignationRepositoryImpl>();
 
 
             services.AddAutoMapper(typeof(Startup));
