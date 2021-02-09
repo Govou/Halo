@@ -114,15 +114,15 @@ namespace HaloBiz.Controllers.LAMS
             return Ok(lead);
         }
 
-        [HttpPut("{id}/UpdateLeadConversion")]
-        public async Task<IActionResult> UpdateConversionStatus(long id)
-        {
-            var response = await _leadService.UpdateLeadStagesStatus(id, LeadStages.Conversion);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var lead = ((ApiOkResponse)response).Result;
-            return Ok(lead);
-        }
+        // [HttpPut("{id}/UpdateLeadConversion")]
+        // public async Task<IActionResult> UpdateConversionStatus(long id)
+        // {
+        //     var response = await _leadService.UpdateLeadStagesStatus(id, LeadStages.Conversion);
+        //     if (response.StatusCode >= 400)
+        //         return StatusCode(response.StatusCode, response);
+        //     var lead = ((ApiOkResponse)response).Result;
+        //     return Ok(lead);
+        // }
 
         [HttpPut("{id}/UpdateLeadQualification")]
         public async Task<IActionResult> UpdateQualificationStatus(long id)

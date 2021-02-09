@@ -552,6 +552,22 @@ namespace HaloBiz.Data
                 .Property(p => p.CreatedAt)
                 .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
+            builder.Entity<NegotiationDocument>()
+               .Property(p => p.UpdatedAt)
+               .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            builder.Entity<NegotiationDocument>()
+                .Property(p => p.CreatedAt)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            builder.Entity<Designation>()
+               .Property(p => p.UpdatedAt)
+               .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            builder.Entity<Designation>()
+                .Property(p => p.CreatedAt)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
         }
     }
 }

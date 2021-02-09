@@ -29,18 +29,24 @@ namespace HaloBiz.Repository.Impl
 
         public async Task<AccountClass> FindAccountClassByCaption(string caption)
         {
-            return await _context.AccountClasses.FirstOrDefaultAsync(accountClass => accountClass.Caption == caption && accountClass.IsDeleted == false);
+            return await _context.AccountClasses
+            .Include(x => x.ControlAccounts)
+            .FirstOrDefaultAsync(accountClass => accountClass.Caption == caption && accountClass.IsDeleted == false);
 
         }
 
         public async Task<AccountClass> FindAccountClassById(long Id)
         {
-            return await _context.AccountClasses.FirstOrDefaultAsync(accountClass => accountClass.Id == Id && accountClass.IsDeleted == false);
+            return await _context.AccountClasses
+            .Include(x => x.ControlAccounts)
+            .FirstOrDefaultAsync(accountClass => accountClass.Id == Id && accountClass.IsDeleted == false);
         }
 
         public async Task<IEnumerable<AccountClass>> FindAllAccountClasses()
         {
-            return await _context.AccountClasses.Where(user => user.IsDeleted == false).ToListAsync();
+            return await _context.AccountClasses
+                    .Include(x => x.ControlAccounts)
+                    .Where(user => user.IsDeleted == false).ToListAsync();
 
         }
 
