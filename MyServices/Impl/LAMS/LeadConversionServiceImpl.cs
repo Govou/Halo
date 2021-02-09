@@ -101,6 +101,8 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
             Customer customer = customerEntity.Entity;
             lead.CustomerId = customer.Id;
+            lead.LeadConversionStatus =true;
+            lead.TimeConvertedToClient =(DateTime) DateTime.Now;
             
             context.Leads.Update(lead);
             await context.SaveChangesAsync();
@@ -416,7 +418,8 @@ namespace HaloBiz.MyServices.Impl.LAMS
                     ContractId = contractService.ContractId,
                     ContractServiceId = contractService.Id,
                     StartDate  = from,
-                    EndDate  = to
+                    EndDate  = to,
+                    
             };
         }
 
@@ -564,6 +567,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 Alias = GenerateClientAlias(customerDivision.DivisionName),
                 IsDebitBalance = true,
                 ControlAccountId = controlAccount.Id,
+                CreatedById = this.LoggedInUserId
              };
             var savedAccount = await SaveAccount(account);
 
@@ -609,7 +613,6 @@ namespace HaloBiz.MyServices.Impl.LAMS
             FinanceVoucherType accountVoucherType = await _context.FinanceVoucherTypes
                 .FirstOrDefaultAsync(x => x.VoucherType == this.SALESINVOICEVOUCHER);
 
-                 
             var savedAccountMaster = await CreateAccountMaster( quoteService,
                                                          contractServiceId,  
                                                          accountVoucherType.Id, 
@@ -708,6 +711,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 BranchId = branchId,
                 OfficeId = officeId,
                 TransactionId = $"{quoteService.ReferenceNumber}{contractServiceId}",
+                CreatedById = this.LoggedInUserId
             };     
             var savedAccountMaster = await _context.AccountMasters.AddAsync(accountMaster);
             await _context.SaveChangesAsync();
