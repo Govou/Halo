@@ -79,10 +79,10 @@ namespace Controllers.Controllers
         }*/
 
 
-        [HttpPut("SetWhoIsResponsible/{id}/{userProfileId}")]
-        public async Task<IActionResult> SetWhoIsResponsible(long id, long userProfileId)
+        [HttpPost("ReAssignDeliverableFulfillment/{id}")]
+        public async Task<IActionResult> ReAssignDeliverableFulfillment(long id, DeliverableFulfillmentReceivingDTO deliverableFulfillmentReceivingDTO)
         {
-            var response = await _deliverableFulfillmentService.SetWhoIsResponsible(HttpContext, id, userProfileId);
+            var response = await _deliverableFulfillmentService.ReAssignDeliverableFulfillment(HttpContext, id, deliverableFulfillmentReceivingDTO);
             if (response.StatusCode >= 400)
                 return StatusCode(response.StatusCode, response);
             var deliverableFulfillment = ((ApiOkResponse)response).Result;
