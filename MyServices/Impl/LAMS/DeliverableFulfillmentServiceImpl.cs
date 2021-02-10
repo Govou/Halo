@@ -155,6 +155,47 @@ namespace HaloBiz.MyServices.Impl.LAMS
             return new ApiOkResponse(true);
         }
 
+        public async Task<ApiResponse> SetWhoIsResponsible(HttpContext context, long id, long userProfileId)
+        {
+            var deliverableFulfillmentToUpdate = await _deliverableFulfillmentRepo.FindDeliverableFulfillmentById(id);
+            if (deliverableFulfillmentToUpdate == null)
+            {
+                return new ApiResponse(404);
+            }
+
+            var userProfile = await _userProfileRepo.FindUserById(userProfileId);
+            if (userProfile == null)
+            {
+                return new ApiResponse(500);
+            }
+
+            var summary = $"Initial details before change, \n {deliverableFulfillmentToUpdate.ToString()} \n";
+
+            deliverableFulfillmentToUpdate.ResponsibleId = userProfileId;
+
+            var updatedDeliverableFulfillment = await _deliverableFulfillmentRepo.UpdateDeliverableFulfillment(deliverableFulfillmentToUpdate);
+
+            summary += $"Details after change, \n {updatedDeliverableFulfillment.ToString()} \n";
+
+            if (updatedDeliverableFulfillment == null)
+            {
+                return new ApiResponse(500);
+            }
+            ModificationHistory history = new ModificationHistory()
+            {
+                ModelChanged = "DeliverableFulfillment",
+                ChangeSummary = summary,
+                ChangedById = context.GetLoggedInUserId(),
+                ModifiedModelId = updatedDeliverableFulfillment.Id
+            };
+
+            await _historyRepo.SaveHistory(history);
+
+            var deliverableFulfillmentTransferDTOs = _mapper.Map<DeliverableFulfillmentTransferDTO>(updatedDeliverableFulfillment);
+            return new ApiOkResponse(deliverableFulfillmentTransferDTOs);
+
+        }
+
         public async Task<ApiResponse> ReAssignDeliverableFulfillment(HttpContext context, long id, DeliverableFulfillmentReceivingDTO deliverableFulfillmentReceivingDTO)
         {
             using (var transaction = await _context.Database.BeginTransactionAsync())

@@ -12,8 +12,8 @@ namespace HaloBiz.MyServices.LAMS
         Task<ApiResponse> GetDeliverableFulfillmentById(long id);
         Task<ApiResponse> GetDeliverableFulfillmentByName(string name);
         Task<ApiResponse> UpdateDeliverableFulfillment(HttpContext context, long id, DeliverableFulfillmentReceivingDTO deliverableFulfillmentReceivingDTO);
-        Task<ApiResponse> DeleteDeliverableFulfillment(long id);
-
+        Task<ApiResponse> DeleteDeliverableFulfillment(long id);        
+        Task<ApiResponse> SetWhoIsResponsible(HttpContext context, long id, long userProfileId);
         Task<ApiResponse> ReAssignDeliverableFulfillment(HttpContext context, long id, DeliverableFulfillmentReceivingDTO deliverableFulfillmentReceivingDTO);
         Task<ApiResponse> SetIsPicked(HttpContext context, long id);
         Task<ApiResponse> SetRequestedForValidation(HttpContext context, long id);
