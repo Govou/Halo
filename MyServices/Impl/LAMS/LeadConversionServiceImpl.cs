@@ -22,6 +22,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
         private readonly string ReceivableControlAccount = "Receivable";
         private readonly string SALESINVOICEVOUCHER = "Sales Invoice";
         private readonly string VALUEADDEDTAX = "VALUE ADDED TAX";
+        private readonly string retailLogo = "https://firebasestorage.googleapis.com/v0/b/halo-biz.appspot.com/o/LeadLogo%2FRetail.png?alt=media&token=c07dd3f9-a25e-4b4b-bf23-991a6f09ee58";
         //private readonly string VALUEADDEDTAX = "VALUE ADDED TAX";
 
         public LeadConversionServiceImpl(
@@ -84,8 +85,58 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
         private async Task<Customer> ConvertLeadToCustomer(Lead lead, DataContext context)
         {
+            Customer customer = null;
 
-            //Converts lead to customer and saves customer and update lead
+            if(lead.LeadType.Caption == "Individual" || lead.LeadType.Caption == "SME")
+            {
+                customer = await GetRetailCustomer( lead,  _context);
+            }else{
+                customer = await GetOtherCustomer( lead,  _context);
+            }
+
+            lead.CustomerId = customer.Id;
+            lead.LeadConversionStatus =true;
+            lead.TimeConvertedToClient =(DateTime) DateTime.Now;
+            
+            context.Leads.Update(lead);
+            await context.SaveChangesAsync();
+            return customer;
+ 
+        }
+
+        private async Task<Customer> GetRetailCustomer(Lead lead, DataContext context)
+        {
+            var retailCustomer = await context.Customers
+                .FirstOrDefaultAsync(x => x.GroupName == "Retail");
+
+            if(retailCustomer != null)
+            {
+                return retailCustomer;
+            }
+
+            var customerEntity = await context.Customers.AddAsync( new Customer(){
+                GroupName = "Retail",
+                RCNumber = "",
+                GroupTypeId = lead.GroupTypeId,
+                Industry = "Retail",
+                LogoUrl = this.retailLogo,
+                Email = "",
+                PhoneNumber = "",
+                CreatedById = this.LoggedInUserId,
+            });
+            await context.SaveChangesAsync();
+            return customerEntity.Entity;
+        }
+        private async Task<Customer> GetOtherCustomer(Lead lead, DataContext context)
+        {
+            var retailCustomer = await context.Customers
+                .FirstOrDefaultAsync(x => x.GroupName == lead.GroupName || x.RCNumber == lead.RCNumber);
+
+            if(retailCustomer != null)
+            {
+                return retailCustomer;
+            }
+
             var customerEntity = await context.Customers.AddAsync( new Customer(){
                 GroupName = lead.GroupName,
                 RCNumber = lead.RCNumber,
@@ -98,20 +149,19 @@ namespace HaloBiz.MyServices.Impl.LAMS
             });
 
             await context.SaveChangesAsync();
-
-            Customer customer = customerEntity.Entity;
-            lead.CustomerId = customer.Id;
-            lead.LeadConversionStatus =true;
-            lead.TimeConvertedToClient =(DateTime) DateTime.Now;
-            
-            context.Leads.Update(lead);
-            await context.SaveChangesAsync();
-            return customer;
- 
+            return customerEntity.Entity;
         }
+
 
         private async Task<CustomerDivision> ConvertLeadDivisionToCustomerDivision(LeadDivision leadDivision, long customerId, DataContext context)
         {
+            var customerDivision = await context.CustomerDivisions
+                    .FirstOrDefaultAsync(x => x.DivisionName == leadDivision.DivisionName && x.RCNumber == leadDivision.RCNumber);
+            
+            if(customerDivision != null)
+            {
+                return customerDivision;
+            }
             //creates customer division from lead division and saves the customer division
             var customerDivisionEntity =  await context.CustomerDivisions.AddAsync(new CustomerDivision(){
                 Industry = leadDivision.Industry,
@@ -201,7 +251,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
             var contractService = entity.Entity;
 
             await ConvertSBUToQuoteServicePropToSBUToContractServiceProp( quoteService.Id, contractService.Id, context);
-            await ConvertQuoteServieDocumentsToClosureDocuments(quoteService.Id, contractService.Id, context);
+            await ConvertQuoteServiceDocumentsToClosureDocuments(quoteService.Id, contractService.Id, context);
             await CreateTaskAndDeliverables(quoteService.ServiceId, contractService ,customerDivision.Id );
             await CreateAccounts(   quoteService,
                                      contractService.Id,
@@ -248,15 +298,15 @@ namespace HaloBiz.MyServices.Impl.LAMS
             
         }
 
-        private async Task<bool> ConvertQuoteServieDocumentsToClosureDocuments(long quoteServiceId, long contractServiceId, DataContext context)
+        private async Task<bool> ConvertQuoteServiceDocumentsToClosureDocuments(long quoteServiceId, long contractServiceId, DataContext context)
         {
             var closureDocuments = new List<ClosureDocument>();
 
-            var QuoteServieDocuments = await context.QuoteServiceDocuments
+            var QuoteServiceDocuments = await context.QuoteServiceDocuments
                     .Where(x => x.QuoteServiceId == quoteServiceId)
                     .ToListAsync();
             
-            foreach(var doc in QuoteServieDocuments)
+            foreach(var doc in QuoteServiceDocuments)
             {
                 closureDocuments.Add(new ClosureDocument()
                 {
@@ -289,43 +339,6 @@ namespace HaloBiz.MyServices.Impl.LAMS
             return true;
         }
 
-
-        private async  Task<bool> GenerateAmortizations(ContractService contractService, CustomerDivision customerDivision, DataContext context)
-        {
-            DateTime startDate = (DateTime) contractService.ContractStartDate;
-            DateTime endDate = (DateTime) contractService.ContractEndDate;
-            var InitialYear = startDate.Year;
-            List<Amortization> amortizations = new List<Amortization>();
-
-            for(int i = startDate.Year; i <= endDate.Year; i++)
-            {
-                amortizations.Add(new Amortization(){
-                    Year = i,
-                    ClientId = customerDivision.CustomerId,
-                    DivisionId = customerDivision.Id,
-                    ContractId = contractService.ContractId,
-                    ContractServiceId = contractService.Id,
-                    ContractValue = (double) contractService.Budget,
-                    January = DateTime.Parse($"{i}/01/31") > startDate &&  DateTime.Parse($"{i}/01/31") <= endDate ? (double)contractService.BillableAmount : 0,
-                    February = DateTime.Parse($"{i}/02/28") > startDate && DateTime.Parse($"{i}/02/28") <= endDate ? (double)contractService.BillableAmount : 0,
-                    March =  DateTime.Parse($"{i}/03/31") > startDate && DateTime.Parse($"{i}/03/31") <= endDate ? (double)contractService.BillableAmount : 0,
-                    April = DateTime.Parse($"{i}/04/30") > startDate && DateTime.Parse($"{i}/04/30") <= endDate ? (double)contractService.BillableAmount : 0,
-                    May = DateTime.Parse($"{i}/05/31") > startDate && DateTime.Parse($"{i}/05/31") <= endDate ? (double)contractService.BillableAmount : 0,
-                    June = DateTime.Parse($"{i}/06/30") > startDate && DateTime.Parse($"{i}/06/30") <= endDate ? (double)contractService.BillableAmount : 0,
-                    July = DateTime.Parse($"{i}/07/31") > startDate && DateTime.Parse($"{i}/07/31") <= endDate ? (double)contractService.BillableAmount : 0,
-                    August = DateTime.Parse($"{i}/08/31") > startDate && DateTime.Parse($"{i}/08/31") <= endDate ? (double)contractService.BillableAmount : 0,
-                    September = DateTime.Parse($"{i}/09/30") > startDate && DateTime.Parse($"{i}/09/30") <= endDate ? (double)contractService.BillableAmount : 0,
-                    October = DateTime.Parse($"{i}/10/31") > startDate && DateTime.Parse($"{i}/10/31") <= endDate ?  (double)contractService.BillableAmount : 0,
-                    November = DateTime.Parse($"{i}/11/30") > startDate && DateTime.Parse($"{i}/11/30") <= endDate ? (double)contractService.BillableAmount : 0,
-                    December = DateTime.Parse($"{i}/12/31") > startDate && DateTime.Parse($"{i}/12/31") <= endDate ? (double)contractService.BillableAmount : 0,
-                    
-                });
-            }
-
-           await  context.Amortizations.AddRangeAsync(amortizations);
-            return true;
-        }
-
         public static List<Invoice> GenerateListOfInvoiceCycle(
                                             DateTime startDate, 
                                             DateTime firstInvoiceSendDate, 
@@ -336,6 +349,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                                             long customerDivisionId)
         {
             int interval = 0;
+            var invoiceValue = 0.0;
             List<Invoice> invoices = new  List<Invoice>();
 
             switch (cycle)
@@ -366,7 +380,6 @@ namespace HaloBiz.MyServices.Impl.LAMS
                     break;
             }
 
-            var invoiceValue = 0.0;
 
 
             if(cycle == TimeCycle.Weekly || cycle == TimeCycle.BiWeekly)
@@ -422,6 +435,43 @@ namespace HaloBiz.MyServices.Impl.LAMS
                     
             };
         }
+
+        private async  Task<bool> GenerateAmortizations(ContractService contractService, CustomerDivision customerDivision, DataContext context)
+        {
+            DateTime startDate = (DateTime) contractService.ContractStartDate;
+            DateTime endDate = (DateTime) contractService.ContractEndDate;
+            var InitialYear = startDate.Year;
+            List<Amortization> amortizations = new List<Amortization>();
+
+            for(int i = startDate.Year; i <= endDate.Year; i++)
+            {
+                amortizations.Add(new Amortization(){
+                    Year = i,
+                    ClientId = customerDivision.CustomerId,
+                    DivisionId = customerDivision.Id,
+                    ContractId = contractService.ContractId,
+                    ContractServiceId = contractService.Id,
+                    ContractValue = (double) contractService.Budget,
+                    January = DateTime.Parse($"{i}/01/31") > startDate &&  DateTime.Parse($"{i}/01/31") <= endDate ? (double)contractService.BillableAmount : 0,
+                    February = DateTime.Parse($"{i}/02/28") > startDate && DateTime.Parse($"{i}/02/28") <= endDate ? (double)contractService.BillableAmount : 0,
+                    March =  DateTime.Parse($"{i}/03/31") > startDate && DateTime.Parse($"{i}/03/31") <= endDate ? (double)contractService.BillableAmount : 0,
+                    April = DateTime.Parse($"{i}/04/30") > startDate && DateTime.Parse($"{i}/04/30") <= endDate ? (double)contractService.BillableAmount : 0,
+                    May = DateTime.Parse($"{i}/05/31") > startDate && DateTime.Parse($"{i}/05/31") <= endDate ? (double)contractService.BillableAmount : 0,
+                    June = DateTime.Parse($"{i}/06/30") > startDate && DateTime.Parse($"{i}/06/30") <= endDate ? (double)contractService.BillableAmount : 0,
+                    July = DateTime.Parse($"{i}/07/31") > startDate && DateTime.Parse($"{i}/07/31") <= endDate ? (double)contractService.BillableAmount : 0,
+                    August = DateTime.Parse($"{i}/08/31") > startDate && DateTime.Parse($"{i}/08/31") <= endDate ? (double)contractService.BillableAmount : 0,
+                    September = DateTime.Parse($"{i}/09/30") > startDate && DateTime.Parse($"{i}/09/30") <= endDate ? (double)contractService.BillableAmount : 0,
+                    October = DateTime.Parse($"{i}/10/31") > startDate && DateTime.Parse($"{i}/10/31") <= endDate ?  (double)contractService.BillableAmount : 0,
+                    November = DateTime.Parse($"{i}/11/30") > startDate && DateTime.Parse($"{i}/11/30") <= endDate ? (double)contractService.BillableAmount : 0,
+                    December = DateTime.Parse($"{i}/12/31") > startDate && DateTime.Parse($"{i}/12/31") <= endDate ? (double)contractService.BillableAmount : 0,
+                    
+                });
+            }
+
+           await  context.Amortizations.AddRangeAsync(amortizations);
+            return true;
+        }
+
 
         private static double GenerateAmount(DateTime startDate, DateTime endDate, double amountPerMonth, TimeCycle timeCylce)
         {
@@ -531,7 +581,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                                      branchId,
                                      officeId
                                     );
-            await CreateVATAccount(
+            await CreateVATAccountMAsterDetails(
                                      quoteService,
                                      contractServiceId,
                                      customerDivision,
@@ -556,34 +606,41 @@ namespace HaloBiz.MyServices.Impl.LAMS
                                     long officeId
                                     )
         {
+            long accountId = 0;
 
-            //Create Customer Account, Account master and account details
-            ControlAccount controlAccount = await _context.ControlAccounts
-                    .FirstOrDefaultAsync(x => x.Caption == this.ReceivableControlAccount);
+            if(customerDivision.AccountId > 0){
+                accountId = (long) customerDivision.AccountId;
+            }else{
+                //Create Customer Account, Account master and account details
+                ControlAccount controlAccount = await _context.ControlAccounts
+                        .FirstOrDefaultAsync(x => x.Caption == this.ReceivableControlAccount);
 
-             Account account = new Account(){
-                Name = $"{customerDivision.DivisionName} Receivable",
-                Description = $"Receivable Account of {customerDivision.DivisionName}",
-                Alias = GenerateClientAlias(customerDivision.DivisionName),
-                IsDebitBalance = true,
-                ControlAccountId = controlAccount.Id,
-                CreatedById = this.LoggedInUserId
-             };
-            var savedAccount = await SaveAccount(account);
+                Account account = new Account(){
+                    Name = $"{customerDivision.DivisionName} Receivable",
+                    Description = $"Receivable Account of {customerDivision.DivisionName}",
+                    Alias = GenerateClientAlias(customerDivision.DivisionName),
+                    IsDebitBalance = true,
+                    ControlAccountId = controlAccount.Id,
+                    CreatedById = this.LoggedInUserId
+                };
+                var savedAccount = await SaveAccount(account);
 
-            customerDivision.AccountId = savedAccount.Id;
+                customerDivision.AccountId = savedAccount.Id;
+                accountId = savedAccount.Id;
 
-            _context.CustomerDivisions.Update(customerDivision);
-            await _context.SaveChangesAsync();
+                _context.CustomerDivisions.Update(customerDivision);
+                await _context.SaveChangesAsync();
+
+            }
 
             FinanceVoucherType accountVoucherType = await _context.FinanceVoucherTypes
-                .FirstOrDefaultAsync(x => x.VoucherType == this.SALESINVOICEVOUCHER);
+                    .FirstOrDefaultAsync(x => x.VoucherType == this.SALESINVOICEVOUCHER);
 
                  
             var savedAccountMaster = await CreateAccountMaster( quoteService,
                                                          contractServiceId,  
                                                          accountVoucherType.Id, 
-                                                         savedAccount.Id,
+                                                         accountId,
                                                          branchId, 
                                                          officeId  ); 
             await SaveRangeSBUAccountMaster( savedAccountMaster.Id, quoteService.SBUToQuoteServiceProportions);  
@@ -601,7 +658,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
             
             return true;
         }
-        private async Task<bool> CreateVATAccount(
+        private async Task<bool> CreateVATAccountMAsterDetails(
                                     QuoteService quoteService,
                                     long contractServiceId,
                                     CustomerDivision customerDivision,
@@ -710,7 +767,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 AccountId = accountId,
                 BranchId = branchId,
                 OfficeId = officeId,
-                TransactionId = $"{quoteService.ReferenceNumber}{contractServiceId}",
+                TransactionId = $"{quoteService.ReferenceNumber}/{contractServiceId}",
                 CreatedById = this.LoggedInUserId
             };     
             var savedAccountMaster = await _context.AccountMasters.AddAsync(accountMaster);
@@ -752,7 +809,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 IntegrationFlag = false,
                 AccountDetailsAlias = 0,
                 VoucherId = accountVoucherTypeId,
-                TransactionId = $"{quoteService.ReferenceNumber}{contractServiceId}",
+                TransactionId = $"{quoteService.ReferenceNumber}/{contractServiceId}",
                 TransactionDate = DateTime.Now,
                 Credit = isCredit ? amount : 0,
                 Debit = !isCredit ? amount : 0,
@@ -781,11 +838,13 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
         private double CalculateTotalAmountForContract(double priceOfService, DateTime contractStartDate, DateTime contractEndDate, TimeCycle timeCycle )
         {
+            int numberOfMonth = 0;
+
             if(timeCycle == TimeCycle.OneTime)
             {
                 return priceOfService;
             }
-            int numberOfMonth = 0;
+
             while(contractStartDate < contractEndDate)
             {
                 numberOfMonth++;
