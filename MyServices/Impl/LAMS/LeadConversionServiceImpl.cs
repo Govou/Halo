@@ -573,37 +573,71 @@ namespace HaloBiz.MyServices.Impl.LAMS
                                     long officeId
                                     )
         {
+            FinanceVoucherType accountVoucherType = await _context.FinanceVoucherTypes
+                    .FirstOrDefaultAsync(x => x.VoucherType == this.SALESINVOICEVOUCHER);
 
-            await CreateCustomerReceivablAccounts(
+            var totalContractBillable = CalculateTotalAmountForContract((double)quoteService.BillableAmount, 
+                                                                        (DateTime)quoteService.ContractStartDate, 
+                                                                        (DateTime) quoteService.ContractEndDate, 
+                                                                        (TimeCycle) quoteService.InvoicingInterval);         
+
+            var totalVAT = CalculateTotalAmountForContract((double)quoteService.VAT, 
+                                                                        (DateTime)quoteService.ContractStartDate, 
+                                                                        (DateTime) quoteService.ContractEndDate, 
+                                                                        (TimeCycle) quoteService.InvoicingInterval);       
+            var totalAfterTax = totalContractBillable - totalVAT;
+            var savedAccountMaster = await CreateAccountMaster(quoteService,
+                                                         contractServiceId,  
+                                                         accountVoucherType.Id, 
+                                                         branchId, 
+                                                         officeId,
+                                                         totalContractBillable); 
+
+            await SaveRangeSBUAccountMaster( savedAccountMaster.Id, quoteService.SBUToQuoteServiceProportions);  
+
+            await PostCustomerReceivablAccounts(
                                      quoteService,
                                      contractServiceId,
                                      customerDivision,
                                      branchId,
-                                     officeId
+                                     officeId,
+                                     accountVoucherType.Id,
+                                     totalContractBillable,
+                                     savedAccountMaster.Id
                                     );
-            await CreateVATAccountMAsterDetails(
+
+            await PostVATAccountDetails(
                                      quoteService,
                                      contractServiceId,
                                      customerDivision,
                                      branchId,
-                                     officeId
+                                     officeId,
+                                     accountVoucherType.Id,
+                                     savedAccountMaster.Id,
+                                     totalVAT
                                     );
-            await CreateIncomeAccountMasterAndDetails(
+            await PostIncomeAccountMasterAndDetails(
                                                     quoteService,
                                                     contractServiceId,
                                                     customerDivision,
                                                     branchId,
-                                                    officeId
+                                                    officeId,
+                                                    accountVoucherType.Id,
+                                                    savedAccountMaster.Id,
+                                                    totalAfterTax
                                                         )   ;
             
             return true;
         }
-        private async Task<bool> CreateCustomerReceivablAccounts(
+        private async Task<bool> PostCustomerReceivablAccounts(
                                     QuoteService quoteService,
                                     long contractServiceId,
                                     CustomerDivision customerDivision,
                                     long branchId,
-                                    long officeId
+                                    long officeId,
+                                    long accountVoucherTypeId,
+                                    double totalContractBillable,
+                                    long accountMasterId
                                     )
         {
             long accountId = 0;
@@ -633,93 +667,69 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
             }
 
-            FinanceVoucherType accountVoucherType = await _context.FinanceVoucherTypes
-                    .FirstOrDefaultAsync(x => x.VoucherType == this.SALESINVOICEVOUCHER);
-
-                 
-            var savedAccountMaster = await CreateAccountMaster( quoteService,
-                                                         contractServiceId,  
-                                                         accountVoucherType.Id, 
-                                                         accountId,
-                                                         branchId, 
-                                                         officeId  ); 
-            await SaveRangeSBUAccountMaster( savedAccountMaster.Id, quoteService.SBUToQuoteServiceProportions);  
-            var totalContractBillable = CalculateTotalAmountForContract((double)(quoteService.BillableAmount + quoteService.VAT), 
-                                                                        (DateTime)quoteService.ContractStartDate, 
-                                                                        (DateTime) quoteService.ContractEndDate, 
-                                                                        (TimeCycle) quoteService.InvoicingInterval);         
-            await CreateAccountDetail(quoteService, 
+            await PostAccountDetail(quoteService, 
                                     contractServiceId, 
-                                    accountVoucherType.Id, 
+                                    accountVoucherTypeId, 
                                     branchId, 
                                     officeId,
                                     totalContractBillable, 
-                                    false,savedAccountMaster.Id);
+                                    false,
+                                    accountMasterId,
+                                    accountId
+                                    );
             
             return true;
         }
-        private async Task<bool> CreateVATAccountMAsterDetails(
+        private async Task<bool> PostVATAccountDetails(
                                     QuoteService quoteService,
                                     long contractServiceId,
                                     CustomerDivision customerDivision,
                                     long branchId,
-                                    long officeId
+                                    long officeId,
+                                    long accountVoucherTypeId,
+                                    long accountMasterId,
+                                    double totalVAT
                                     )
         {
             var vatAccount = await _context.Accounts.FirstOrDefaultAsync(x => x.Name == this.VALUEADDEDTAX);
-            FinanceVoucherType accountVoucherType = await _context.FinanceVoucherTypes
-                .FirstOrDefaultAsync(x => x.VoucherType == this.SALESINVOICEVOUCHER);
-
-            var savedAccountMaster = await CreateAccountMaster( quoteService,
-                                                         contractServiceId,  
-                                                         accountVoucherType.Id, 
-                                                         vatAccount.Id,
-                                                         branchId, 
-                                                         officeId  ); 
-            var totalContractBillable = CalculateTotalAmountForContract((double)quoteService.VAT, 
-                                                        (DateTime)quoteService.ContractStartDate, 
-                                                        (DateTime) quoteService.ContractEndDate,
-                                                        (TimeCycle) quoteService.InvoicingInterval); 
-            await CreateAccountDetail(quoteService, 
-                                        contractServiceId, 
-                                        accountVoucherType.Id, 
-                                        branchId, 
-                                        officeId,totalContractBillable, 
-                                        true,savedAccountMaster.Id);
+ 
+            await PostAccountDetail(quoteService, 
+                                    contractServiceId, 
+                                    accountVoucherTypeId, 
+                                    branchId, 
+                                    officeId,
+                                    totalVAT, 
+                                    true,
+                                    accountMasterId,
+                                    vatAccount.Id);
             
             return true;
         }
 
-        private async Task<bool> CreateIncomeAccountMasterAndDetails(
+        private async Task<bool> PostIncomeAccountMasterAndDetails(
                                     QuoteService quoteService,
                                     long contractServiceId,
                                     CustomerDivision customerDivision,
                                     long branchId,
-                                    long officeId
+                                    long officeId,
+                                    long accountVoucherTypeId,
+                                    long accountMasterId,
+                                    double totalBillableAfterTax
                                     )
         {
             
             var service = await _context.Services.FirstOrDefaultAsync(x => x.Id == quoteService.ServiceId);
-            FinanceVoucherType accountVoucherType = await _context.FinanceVoucherTypes
-                .FirstOrDefaultAsync(x => x.VoucherType == this.SALESINVOICEVOUCHER);
 
-                 
-            var savedAccountMaster = await CreateAccountMaster( quoteService,
-                                                         contractServiceId,  
-                                                         accountVoucherType.Id, 
-                                                         (long) service.AccountId,
-                                                         branchId,
-                                                         officeId );
-            var totalContractBillable = CalculateTotalAmountForContract((double) quoteService.BillableAmount, 
-                                                        (DateTime)quoteService.ContractStartDate, 
-                                                        (DateTime) quoteService.ContractEndDate,
-                                                        (TimeCycle) quoteService.InvoicingInterval); 
-            await CreateAccountDetail(quoteService, 
-                                        contractServiceId, 
-                                        accountVoucherType.Id, 
-                                        branchId, 
-                                        officeId,totalContractBillable, 
-                                        true,savedAccountMaster.Id);
+            await PostAccountDetail(quoteService, 
+                                    contractServiceId, 
+                                    accountVoucherTypeId, 
+                                    branchId, 
+                                    officeId,
+                                    totalBillableAfterTax, 
+                                    true,
+                                    accountMasterId,
+                                    (long) service.AccountId
+                                    );
             
             return true;
         }
@@ -754,19 +764,17 @@ namespace HaloBiz.MyServices.Impl.LAMS
         private async Task<AccountMaster> CreateAccountMaster(QuoteService quoteService,
                                                         long contractServiceId,  
                                                         long accountVoucherTypeId, 
-                                                        long accountId,
                                                         long branchId, 
-                                                        long officeId  )
+                                                        long officeId,
+                                                        double amount  )
         {
             AccountMaster accountMaster = new AccountMaster(){
-                Name = $"{quoteService.Service.Name} Charges",
                 Description = $"Sales of {quoteService.Service.Name}",
                 IntegrationFlag = false,
-                AccountMasterAlias = 0,
                 VoucherId = accountVoucherTypeId,
-                AccountId = accountId,
                 BranchId = branchId,
                 OfficeId = officeId,
+                Value = amount,
                 TransactionId = $"{quoteService.ReferenceNumber}/{contractServiceId}",
                 CreatedById = this.LoggedInUserId
             };     
@@ -791,7 +799,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
             return true;
         }
 
-        private async Task<AccountDetail> CreateAccountDetail(
+        private async Task<AccountDetail> PostAccountDetail(
                                                     QuoteService quoteService,
                                                     long contractServiceId,  
                                                     long accountVoucherTypeId, 
@@ -799,20 +807,20 @@ namespace HaloBiz.MyServices.Impl.LAMS
                                                     long officeId,
                                                     double amount,
                                                     bool isCredit,
-                                                    long accountMasterId
+                                                    long accountMasterId,
+                                                    long accountId
                                                     )
         {
 
             AccountDetail accountDetail = new AccountDetail(){
-                Name = $"{quoteService.Service.Name} Charges",
                 Description = $"Sales of {quoteService.Service.Name}",
                 IntegrationFlag = false,
-                AccountDetailsAlias = 0,
                 VoucherId = accountVoucherTypeId,
                 TransactionId = $"{quoteService.ReferenceNumber}/{contractServiceId}",
                 TransactionDate = DateTime.Now,
                 Credit = isCredit ? amount : 0,
                 Debit = !isCredit ? amount : 0,
+                AccountId = accountId,
                 BranchId = branchId,
                 OfficeId = officeId,
                 AccountMasterId = accountMasterId,

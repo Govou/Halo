@@ -12,8 +12,6 @@ namespace HaloBiz.Repository
 
         Task<AccountDetail> FindAccountDetailById(long Id);
 
-        Task<AccountDetail> FindAccountDetailByAlias(long alias);
-        Task<AccountDetail> FindAccountDetailByName(string name);
         Task<IEnumerable<AccountDetail>> FindAllAccountDetails();
 
         Task<AccountDetail> UpdateAccountDetail(AccountDetail accountDetail);

@@ -12,8 +12,6 @@ namespace HaloBiz.MyServices
     {
         Task<ApiResponse> AddAccountDetail(HttpContext context, AccountDetailReceivingDTO accountDetailReceivingDTO);
         Task<ApiResponse> GetAccountDetailById(long id);
-        Task<ApiResponse> GetAccountDetailByAlias(long alias);
-        Task<ApiResponse> GetAccountDetailByName(string name);
         Task<ApiResponse> GetAllAccountDetails();
         Task<ApiResponse> UpdateAccountDetail(long id, AccountDetailReceivingDTO accountDetailReceivingDTO);
         Task<ApiResponse> DeleteAccountDetail(long id);

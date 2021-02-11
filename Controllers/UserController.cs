@@ -31,6 +31,16 @@ namespace HaloBiz.Controllers
             return Ok((IEnumerable<UserProfileTransferDTO>) user);
         }
 
+        [HttpGet("NotInSbu/{sbuId}")]
+        public async Task<ActionResult> GetUsersNotInSbu(long sbuId)
+        {
+            var response = await _userProfileService.FindAllUsersNotInAnSBU(sbuId);
+            if(response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var user = ((ApiOkResponse) response).Result;
+            return Ok(user);
+        }
+
         [HttpGet("email/{email}")]
         public async Task<ActionResult> GetUserByEmail(string email)
         {

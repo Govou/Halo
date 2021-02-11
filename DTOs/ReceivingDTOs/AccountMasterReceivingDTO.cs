@@ -11,20 +11,15 @@ namespace HaloBiz.DTOs.ReceivingDTOs
 {
     public class AccountMasterReceivingDTO
     {
-        [Required]
-        public string Name { get; set; }
         [StringLength(1000)]
         public string Description { get; set; }
         [Required]
-        public long AccountMasterAlias { get; set; }
-        [Required]
         public bool IntegrationFlag { get; set; }
         public string TransactionId { get; set; }
-
+        [Required]
+        public double Value { get; set; }
         [Required]
         public long VoucherId { get; set; }
-        [Required]
-        public long AccountId { get; set; }
         [Required]
         public long BranchId { get; set; }
         [Required]

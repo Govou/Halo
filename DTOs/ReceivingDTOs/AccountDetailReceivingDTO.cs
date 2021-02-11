@@ -8,12 +8,8 @@ namespace HaloBiz.DTOs.ReceivingDTOs
 {
     public class AccountDetailReceivingDTO
     {
-        [Required]
-        public string Name { get; set; }
         [StringLength(1000)]
         public string Description { get; set; }
-        [Required]
-        public long AccountDetailsAlias { get; set; }
         [Required]
         public bool IntegrationFlag { get; set; }
         [Required]
@@ -23,6 +19,10 @@ namespace HaloBiz.DTOs.ReceivingDTOs
         [Required]
         public DateTime TransactionDate { get; set; }
         [Required]
+        public long AccountId { get; set; }
+        [Required]
+        public long AccountMasterId { get; set; }
+        [Required]
         public double Credit { get; set; }
         [Required]
         public double Debit { get; set; }
@@ -30,8 +30,5 @@ namespace HaloBiz.DTOs.ReceivingDTOs
         public long BranchId { get; set; }
         [Required]
         public long OfficeId { get; set; }
-        [Required]
-        public long AccountMasterId { get; set; }
-        public long AccountClassAlias { get; set; }
     }
 }

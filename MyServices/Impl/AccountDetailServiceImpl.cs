@@ -56,16 +56,6 @@ namespace HaloBiz.MyServices.Impl
         return new ApiOkResponse(true);
     }
 
-    public async Task<ApiResponse> GetAccountDetailByAlias(long alias)
-    {
-        var Account = await _AccountDetailsRepo.FindAccountDetailByAlias(alias);
-        if (Account == null)
-        {
-            return new ApiResponse(404);
-        }
-        var AccountDetailTransferDTOs = _mapper.Map<AccountDetailTransferDTO>(Account);
-        return new ApiOkResponse(AccountDetailTransferDTOs);
-    }
 
     public async Task<ApiResponse> GetAccountDetailById(long id)
     {
@@ -88,16 +78,7 @@ namespace HaloBiz.MyServices.Impl
         var AccountDetailTransferDTOs = _mapper.Map<IEnumerable<AccountDetailTransferDTO>>(AccountDetail);
         return new ApiOkResponse(AccountDetailTransferDTOs);
     }
-    public async Task<ApiResponse> GetAccountDetailByName(string name)
-    {
-        var AccountDetail = await _AccountDetailsRepo.FindAccountDetailByName(name);
-        if (AccountDetail == null)
-        {
-            return new ApiResponse(404);
-        }
-        var AccountDetailTransferDTOs = _mapper.Map<AccountDetailTransferDTO>(AccountDetail);
-        return new ApiOkResponse(AccountDetailTransferDTOs);
-    }
+
 
         public async Task<ApiResponse> UpdateAccountDetail(long id, AccountDetailReceivingDTO accountDetailReceivingDTO)
     {
@@ -106,12 +87,11 @@ namespace HaloBiz.MyServices.Impl
         {
             return new ApiResponse(404);
         }
-            AccountDetailToUpdate.Name = accountDetailReceivingDTO.Name;
             AccountDetailToUpdate.Description = accountDetailReceivingDTO.Description; 
             AccountDetailToUpdate.OfficeId = accountDetailReceivingDTO.OfficeId;
             AccountDetailToUpdate.BranchId = accountDetailReceivingDTO.BranchId; 
-            AccountDetailToUpdate.AccountDetailsAlias = accountDetailReceivingDTO.AccountDetailsAlias;
             AccountDetailToUpdate.AccountMasterId = accountDetailReceivingDTO.AccountMasterId;
+            AccountDetailToUpdate.AccountId = accountDetailReceivingDTO.AccountId;
         var updatedAccountDetail = await _AccountDetailsRepo.UpdateAccountDetail(AccountDetailToUpdate);
 
         if (updatedAccountDetail == null)
