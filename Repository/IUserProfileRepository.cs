@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using HaloBiz.Model;
@@ -10,6 +11,7 @@ namespace HaloBiz.Repository
         Task<UserProfile> SaveUserProfile(UserProfile userProfile);
 
         Task<UserProfile> FindUserById(long Id);
+        Task<IEnumerable<Object>> FindAllUsersNotInAnProfile(long sbuId);
 
         Task<UserProfile> FindUserByEmail(string email);
 

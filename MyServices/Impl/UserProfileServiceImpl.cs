@@ -84,6 +84,17 @@ namespace HaloBiz.MyServices.Impl
             var userProfilesTransferDto = _mapper.Map<IEnumerable<UserProfileTransferDTO>>(userProfiles);
             return new ApiOkResponse(userProfilesTransferDto);
         }
+
+        public async  Task<ApiResponse> FindAllUsersNotInAnSBU(long sbuId)
+        {
+            var users = await _userRepo.FindAllUsersNotInAnProfile(sbuId);
+            if(users == null )
+            {
+                return new ApiResponse(404);
+            } 
+            return new ApiOkResponse(users);
+        }
+
         public async Task<ApiResponse> UpdateUserProfile(long userId, UserProfileReceivingDTO userProfileReceivingDTO)
         {
             var userToUpdate = await _userRepo.FindUserById(userId);
