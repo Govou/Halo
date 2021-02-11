@@ -27,18 +27,6 @@ namespace HaloBiz.Repository.Impl
             return await SaveChanges();
         }
 
-        public async Task<AccountMaster> FindAccountMasterByAlias(long alias)
-        {
-            return await _context.AccountMasters.FirstOrDefaultAsync(accountMaster => accountMaster.AccountMasterAlias == alias && accountMaster.IsDeleted == false);
-
-        }
-
-        public async Task<AccountMaster> FindAccountMasterByName(string name)
-        {
-            return await _context.AccountMasters.FirstOrDefaultAsync(accountMaster => accountMaster.Name == name && accountMaster.IsDeleted == false);
-
-        }
-
         public async Task<AccountMaster> FindAccountMasterById(long Id)
         {
             return await _context.AccountMasters.FirstOrDefaultAsync(accountMaster => accountMaster.Id == Id && accountMaster.IsDeleted == false);

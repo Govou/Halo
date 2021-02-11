@@ -30,24 +30,8 @@ namespace HaloBiz.Controllers.AccountsModel
             var AccountDetail = ((ApiOkResponse)response).Result;
             return Ok((IEnumerable<AccountDetailTransferDTO>)AccountDetail);
         }
-        [HttpGet("name/{name}")]
-        public async Task<ActionResult> GetByName(string name)
-        {
-            var response = await _AccountDetailService.GetAccountDetailByName(name);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var AccountDetail = ((ApiOkResponse)response).Result;
-            return Ok((AccountDetailTransferDTO)AccountDetail);
-        }
-        [HttpGet("alias/{alias}")]
-        public async Task<ActionResult> GetByAlias(long alias)
-        {
-            var response = await _AccountDetailService.GetAccountDetailByAlias(alias);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var Account = ((ApiOkResponse)response).Result;
-            return Ok((AccountDetailTransferDTO)Account);
-        }
+
+     
 
         [HttpGet("{id}")]
         public async Task<ActionResult> GetById(long id)
