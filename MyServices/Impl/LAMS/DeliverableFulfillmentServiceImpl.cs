@@ -193,6 +193,74 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
             var deliverableFulfillmentTransferDTOs = _mapper.Map<DeliverableFulfillmentTransferDTO>(updatedDeliverableFulfillment);
             return new ApiOkResponse(deliverableFulfillmentTransferDTOs);
+
+        }
+
+        public async Task<ApiResponse> ReAssignDeliverableFulfillment(HttpContext context, long id, DeliverableFulfillmentReceivingDTO deliverableFulfillmentReceivingDTO)
+        {
+            using (var transaction = await _context.Database.BeginTransactionAsync())
+            {
+                try
+                {
+                    var deliverableFulfillmentToUpdate = await _deliverableFulfillmentRepo.FindDeliverableFulfillmentById(id);
+                    if (deliverableFulfillmentToUpdate == null)
+                    {
+                        return new ApiResponse(404);
+                    }
+
+                    var userProfile = await _userProfileRepo.FindUserById(deliverableFulfillmentReceivingDTO.ResponsibleId.Value);
+                    if (userProfile == null)
+                    {
+                        return new ApiResponse(500);
+                    }
+
+                    var deliverableFulfillment = _mapper.Map<DeliverableFulfillment>(deliverableFulfillmentReceivingDTO);
+                    deliverableFulfillment.TaskFullfillmentId = deliverableFulfillmentToUpdate.TaskFullfillmentId;
+                    deliverableFulfillment.CreatedById = context.GetLoggedInUserId();
+                    var savedDeliverableFulfillment = await _deliverableFulfillmentRepo.SaveDeliverableFulfillment(deliverableFulfillment);
+                    if (savedDeliverableFulfillment == null)
+                    {
+                        return new ApiResponse(500);
+                    }
+
+                    var summary = $"Initial details before change, \n {deliverableFulfillmentToUpdate.ToString()} \n";
+
+                    deliverableFulfillmentToUpdate.WasReassigned = true;
+                    deliverableFulfillmentToUpdate.DateTimeReassigned = DateTime.Now;
+                    deliverableFulfillmentToUpdate.DeliverableStatus = true;
+
+                    var updatedDeliverableFulfillment = await _deliverableFulfillmentRepo.UpdateDeliverableFulfillment(deliverableFulfillmentToUpdate);
+
+                    summary += $"Details after change, \n {updatedDeliverableFulfillment.ToString()} \n";
+
+                    if (updatedDeliverableFulfillment == null)
+                    {
+                        return new ApiResponse(500);
+                    }
+                    ModificationHistory history = new ModificationHistory()
+                    {
+                        ModelChanged = "DeliverableFulfillment",
+                        ChangeSummary = summary,
+                        ChangedById = context.GetLoggedInUserId(),
+                        ModifiedModelId = updatedDeliverableFulfillment.Id
+                    };
+
+                    await _historyRepo.SaveHistory(history);
+
+                    await _context.SaveChangesAsync();
+                    await transaction.CommitAsync();
+
+                    var deliverableFulfillmentTransferDTOs = _mapper.Map<DeliverableFulfillmentTransferDTO>(savedDeliverableFulfillment);
+                    return new ApiOkResponse(deliverableFulfillmentTransferDTOs);
+                }
+                catch (Exception e)
+                {
+                    await transaction.RollbackAsync();
+                    _logger.LogError(e.Message);
+                    _logger.LogError(e.StackTrace);
+                    return new ApiResponse(500);
+                }
+            }        
         }
 
         public async Task<ApiResponse> SetIsPicked(HttpContext context, long id)
@@ -206,7 +274,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
             var summary = $"Initial details before change, \n {deliverableFulfillmentToUpdate.ToString()} \n";
 
             deliverableFulfillmentToUpdate.IsPicked = true;
-            deliverableFulfillmentToUpdate.DateAndTimePicked = DateTime.UtcNow;
+            deliverableFulfillmentToUpdate.DateAndTimePicked = DateTime.Now;
 
             var updatedDeliverableFulfillment = await _deliverableFulfillmentRepo.UpdateDeliverableFulfillment(deliverableFulfillmentToUpdate);
 
@@ -242,7 +310,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
             var summary = $"Initial details before change, \n {deliverableFulfillmentToUpdate.ToString()} \n";
 
             deliverableFulfillmentToUpdate.IsRequestedForValidation = true;
-            deliverableFulfillmentToUpdate.DateTimeRequestedForValidation = DateTime.UtcNow;
+            deliverableFulfillmentToUpdate.DateTimeRequestedForValidation = DateTime.Now;
             var updatedDeliverableFulfillment = await _deliverableFulfillmentRepo.UpdateDeliverableFulfillment(deliverableFulfillmentToUpdate);
 
             summary += $"Details after change, \n {updatedDeliverableFulfillment.ToString()} \n";
@@ -296,7 +364,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                     {
                         var taskFulfillment = updatedDeliverableFulfillment.TaskFullfillment;
                         taskFulfillment.TaskCompletionStatus = true;
-                        taskFulfillment.TaskCompletionDateTime = DateTime.UtcNow;
+                        taskFulfillment.TaskCompletionDateTime = DateTime.Now;
 
                         var updatedTaskFulfillment = await _taskFulfillmentRepo.UpdateTaskFulfillment(taskFulfillment);
 
