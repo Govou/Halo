@@ -64,7 +64,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
             foreach (var entity in entities) 
             {
-                if(entity.Status == ProportionStatusType.LeadGeneratorAndCapture)
+                if(entity.Status == ProportionStatusType.LeadGeneratorAndClosure)
                 {
                     sumRatio += 2;
                 }else
@@ -76,7 +76,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
             foreach (var entity in entities)
             {
-                if(entity.Status == ProportionStatusType.LeadGeneratorAndCapture)
+                if(entity.Status == ProportionStatusType.LeadGeneratorAndClosure)
                 {
                     entity.Proportion = Math.Round(2.0/sumRatio * 100.00, 2);
                 }else
