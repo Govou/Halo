@@ -19,5 +19,6 @@ namespace HaloBiz.Repository
         Task<Account> UpdateAccount(Account Account);
 
         Task<bool> DeleteAccount(Account Account);
+        Task<IEnumerable<Account>> FindAllTradeIncomeAccounts();
     }
 }

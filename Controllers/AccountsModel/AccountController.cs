@@ -30,6 +30,16 @@ namespace HaloBiz.Controllers.AccountsModel
             var Account = ((ApiOkResponse)response).Result;
             return Ok((IEnumerable<AccountTransferDTO>)Account);
         }
+
+        [HttpGet("TradeIncome")]
+        public async Task<ActionResult> GetTradeIncomeAccountes()
+        {
+            var response = await _accountService.GetAllTradeIncomeTaxAccounts();
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var Account = ((ApiOkResponse)response).Result;
+            return Ok((IEnumerable<AccountTransferDTO>)Account);
+        }
         [HttpGet("alias/{alias}")]
         public async Task<ActionResult> GetByAlias(string alias)
         {
