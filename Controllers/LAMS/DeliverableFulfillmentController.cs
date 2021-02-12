@@ -31,6 +31,17 @@ namespace Controllers.Controllers
             var deliverableFulfillment = ((ApiOkResponse)response).Result;
             return Ok(deliverableFulfillment);
         }
+
+        [HttpGet("GetAssignedRation/{taskMasterId}")]
+        public async Task<ActionResult> GetDeliverableFulfillmentToAssignedRatioFulfillment(long taskMasterId)
+        {
+            var response = await _deliverableFulfillmentService.DeliverableToAssignedUserRatio(taskMasterId);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var deliverableFulfillment = ((ApiOkResponse)response).Result;
+            return Ok(deliverableFulfillment);
+        }
+        
         [HttpGet("caption/{name}")]
         public async Task<ActionResult> GetByCaption(string name)
         {

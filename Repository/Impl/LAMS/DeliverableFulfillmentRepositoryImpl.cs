@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using HaloBiz.Data;
 using HaloBiz.Model.LAMS;
 using HaloBiz.Repository.LAMS;
+using halobiz_backend.DTOs.TransferDTOs.LAMS;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
@@ -48,6 +49,18 @@ namespace HaloBiz.Repository.Impl.LAMS
                 .Where(deliverableFulfillment => deliverableFulfillment.IsDeleted == false)
                 .OrderBy(deliverableFulfillment => deliverableFulfillment.CreatedAt)
                 .ToListAsync();
+        }
+        public async Task<IEnumerable<DeliverableFulfillment>> FindAllDeliverableFulfillmentForTaskMaster(long taskMasterId)
+        {
+            var year = DateTime.Now.Year;
+            var taskMasterTasks = await _context.TaskFulfillments
+                        .Include(x => x.DeliverableFUlfillments).ThenInclude(x => x.Responsible)
+                        .Where(x => x.ResponsibleId == taskMasterId && x.CreatedAt.Year == year && x.IsDeleted == false)
+                        .ToListAsync();
+            var listOFDeliverable =  taskMasterTasks.Select(x => x.DeliverableFUlfillments);
+            var deliverrables = new List<DeliverableFulfillment>();
+            listOFDeliverable.ToList().ForEach(x => deliverrables.Concat(x));
+            return deliverrables;
         }
 
         public async Task<DeliverableFulfillment> UpdateDeliverableFulfillment(DeliverableFulfillment deliverableFulfillment)
