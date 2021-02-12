@@ -13,6 +13,7 @@ namespace HaloBiz.Repository.Impl
     {
         private readonly DataContext _context;
         private readonly ILogger<AccountRepositoryImpl> _logger;
+        private readonly string SALES_INCOME_CONTROL = "Trade Income";
         public AccountRepositoryImpl(DataContext context, ILogger<AccountRepositoryImpl> logger)
         {
             this._logger = logger;
@@ -42,6 +43,13 @@ namespace HaloBiz.Repository.Impl
         {
             return await _context.Accounts.Where(user => user.IsDeleted == false).ToListAsync();
 
+        }
+        public async Task<IEnumerable<Account>> FindAllTradeIncomeAccounts()
+        {
+            var  controlAccount = await _context.ControlAccounts
+                .Include(x => x.Accounts)
+                .FirstOrDefaultAsync(x => x.Caption == SALES_INCOME_CONTROL);
+            return controlAccount.Accounts;
         }
 
         public async Task<Account> SaveAccount(Account account)

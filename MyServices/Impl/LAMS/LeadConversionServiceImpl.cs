@@ -44,6 +44,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                     var lead = await _context.Leads
                         .Include(x => x.LeadDivisions)
                             .ThenInclude(x => x.Quote)
+                        .Include(x => x.LeadType)
                         .FirstOrDefaultAsync(x => x.Id == leadId);
                     
                     Customer customer = await ConvertLeadToCustomer(lead, _context);
@@ -536,7 +537,8 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 AccountableId = operatingEntity.HeadId,
                 ConsultedId = operatingEntity.Division.HeadId,
                 InformedId = operatingEntity.Division.HeadId,
-                CreatedById = this.LoggedInUserId
+                CreatedById = this.LoggedInUserId,
+                ContractServiceId = contractServcie.Id
             });
 
             await _context.SaveChangesAsync();
@@ -591,7 +593,8 @@ namespace HaloBiz.MyServices.Impl.LAMS
                                                          accountVoucherType.Id, 
                                                          branchId, 
                                                          officeId,
-                                                         totalContractBillable); 
+                                                         totalContractBillable,
+                                                         customerDivision); 
 
             await SaveRangeSBUAccountMaster( savedAccountMaster.Id, quoteService.SBUToQuoteServiceProportions);  
 
@@ -675,7 +678,8 @@ namespace HaloBiz.MyServices.Impl.LAMS
                                     totalContractBillable, 
                                     false,
                                     accountMasterId,
-                                    accountId
+                                    accountId,
+                                    customerDivision
                                     );
             
             return true;
@@ -701,7 +705,8 @@ namespace HaloBiz.MyServices.Impl.LAMS
                                     totalVAT, 
                                     true,
                                     accountMasterId,
-                                    vatAccount.Id);
+                                    vatAccount.Id,
+                                    customerDivision);
             
             return true;
         }
@@ -728,7 +733,8 @@ namespace HaloBiz.MyServices.Impl.LAMS
                                     totalBillableAfterTax, 
                                     true,
                                     accountMasterId,
-                                    (long) service.AccountId
+                                    (long) service.AccountId,
+                                    customerDivision
                                     );
             
             return true;
@@ -766,16 +772,17 @@ namespace HaloBiz.MyServices.Impl.LAMS
                                                         long accountVoucherTypeId, 
                                                         long branchId, 
                                                         long officeId,
-                                                        double amount  )
+                                                        double amount,
+                                                        CustomerDivision customerDivision  )
         {
             AccountMaster accountMaster = new AccountMaster(){
-                Description = $"Sales of {quoteService.Service.Name}",
+                Description = $"Sales of {quoteService.Service.Name} with service ID: {quoteService.Id} for {customerDivision.DivisionName}",
                 IntegrationFlag = false,
                 VoucherId = accountVoucherTypeId,
                 BranchId = branchId,
                 OfficeId = officeId,
                 Value = amount,
-                TransactionId = $"{quoteService.ReferenceNumber}/{contractServiceId}",
+                TransactionId = $"{quoteService.Service.ServiceCode}/{contractServiceId}",
                 CreatedById = this.LoggedInUserId
             };     
             var savedAccountMaster = await _context.AccountMasters.AddAsync(accountMaster);
@@ -808,15 +815,16 @@ namespace HaloBiz.MyServices.Impl.LAMS
                                                     double amount,
                                                     bool isCredit,
                                                     long accountMasterId,
-                                                    long accountId
+                                                    long accountId,
+                                                    CustomerDivision customerDivision
                                                     )
         {
 
             AccountDetail accountDetail = new AccountDetail(){
-                Description = $"Sales of {quoteService.Service.Name}",
+                Description = $"Sales of {quoteService.Service.Name}  with service ID: {quoteService.Id} for {customerDivision.DivisionName}",
                 IntegrationFlag = false,
                 VoucherId = accountVoucherTypeId,
-                TransactionId = $"{quoteService.ReferenceNumber}/{contractServiceId}",
+                TransactionId = $"{quoteService.Service.ServiceCode}/{contractServiceId}",
                 TransactionDate = DateTime.Now,
                 Credit = isCredit ? amount : 0,
                 Debit = !isCredit ? amount : 0,

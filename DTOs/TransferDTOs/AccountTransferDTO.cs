@@ -14,10 +14,8 @@ namespace HaloBiz.DTOs.TransferDTOs
         public string Name { get; set; }
         public string Description { get; set; }
         public string Alias { get; set; }
-        public IEnumerable<AccountMaster> AccountMasters { get; set; }
         public bool IsDebitBalance { get; set; }
         public long ControlAccountId { get; set; }
-        public virtual ControlAccount ControlAccount { get; set; }
         public IEnumerable<AccountDetail> AccountDetails { get; set; }
     }
 }
