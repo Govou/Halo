@@ -56,7 +56,10 @@ namespace HaloBiz.Repository.Impl.LAMS
             //lead.LeadDivisions.ToList().ForEach(x => x.Lead = null);
             lead.LeadKeyPersons = await _context.LeadKeyPeople
                                     .Where(x => x.LeadId == lead.Id && x.IsDeleted == false).ToListAsync();
-            lead.LeadKeyPersons.ToList().ForEach(x => x.Lead = null);
+            if(lead.LeadKeyPersons != null)
+            {
+                lead.LeadKeyPersons.ToList().ForEach(x => x.Lead = null);
+            }
             return lead;
         }
 
@@ -80,11 +83,17 @@ namespace HaloBiz.Repository.Impl.LAMS
                                     .Include(division => division.LeadDivisionKeyPersons)
                                     .Include(division => division.Quote)
                                         .ThenInclude(quote => quote.QuoteServices)
-                                        .ThenInclude(x => x.QuoteServiceDocuments)
+                                            .ThenInclude(x => x.QuoteServiceDocuments)
+                                    .Include(division => division.Quote)
+                                        .ThenInclude(quote => quote.QuoteServices)
+                                            .ThenInclude(x => x.SBUToQuoteServiceProportions)
                                     .Where(division => division.LeadId == lead.Id).ToListAsync();
             lead.LeadKeyPersons = await _context.LeadKeyPeople
                                     .Where(x => x.LeadId == lead.Id && x.IsDeleted == false).ToListAsync();
-            lead.LeadKeyPersons.ToList().ForEach(x => x.Lead = null);
+            if(lead.LeadKeyPersons != null)
+            {
+                lead.LeadKeyPersons.ToList().ForEach(x => x.Lead = null);
+            }
             return lead;
         }
 
