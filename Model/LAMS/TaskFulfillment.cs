@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using HaloBiz.Helpers;
@@ -31,6 +32,7 @@ namespace HaloBiz.Model.LAMS
         public bool IsAllDeliverableAssigned {get; set;} = false;
         public DateTime? TaskCompletionDateTime {get; set;}
         public bool TaskCompletionStatus {get; set;} = false;
+        public IEnumerable<DeliverableFulfillment> DeliverableFUlfillments { get; set; }
         public long CreatedById { get; set; }
         public virtual UserProfile CreatedBy { get; set; }
         public bool IsDeleted { get; set; } = false;
