@@ -33,7 +33,9 @@ namespace HaloBiz.Repository.Impl.LAMS
         public async Task<TaskFulfillment> FindTaskFulfillmentById(long Id)
         {
             return await _context.TaskFulfillments
-                .FirstOrDefaultAsync( taskFulfillment => taskFulfillment.Id == Id && taskFulfillment.IsDeleted == false);
+                .Where(taskFulfillment => taskFulfillment.Id == Id && taskFulfillment.IsDeleted == false)
+                .Include(x => x.ContractService).ThenInclude(x => x.SBUToContractServiceProportions)
+                .FirstOrDefaultAsync();
         }
 
         public async Task<TaskFulfillment> FindTaskFulfillmentByName(string name)

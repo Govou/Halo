@@ -87,5 +87,25 @@ namespace Controllers.Controllers
             var taskFulfillment = ((ApiOkResponse)response).Result;
             return Ok(taskFulfillment);
         }
+
+        [HttpGet("GetTaskFulfillmentsByOperatingEntityHeadId/{id}")]
+        public async Task<ActionResult> GetTaskFulfillmentsByOperatingEntityHeadId(long id)
+        {
+            var response = await _taskFulfillmentService.GetTaskFulfillmentsByOperatingEntityHeadId(id);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var taskFulfillment = ((ApiOkResponse)response).Result;
+            return Ok(taskFulfillment);
+        }
+
+        [HttpGet("GetTaskFulfillmentDetails/{id}")]
+        public async Task<ActionResult> GetTaskFulfillmentDetails(long id)
+        {
+            var response = await _taskFulfillmentService.GetTaskFulfillmentDetails(id);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var taskFulfillment = ((ApiOkResponse)response).Result;
+            return Ok(taskFulfillment);
+        }
     }
 }

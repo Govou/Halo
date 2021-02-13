@@ -14,5 +14,7 @@ namespace HaloBiz.MyServices.LAMS
         Task<ApiResponse> UpdateTaskFulfillment(HttpContext context, long id, TaskFulfillmentReceivingDTO taskFulfillmentReceivingDTO);
         Task<ApiResponse> DeleteTaskFulfillment(long id);
         Task<ApiResponse> SetIsPicked(HttpContext context, long id);
+        Task<ApiResponse> GetTaskFulfillmentsByOperatingEntityHeadId(long id);
+        Task<ApiResponse> GetTaskFulfillmentDetails(long id);
     }
 }

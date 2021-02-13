@@ -15,6 +15,7 @@ using HaloBiz.MyServices.LAMS;
 using HaloBiz.Repository;
 using HaloBiz.Repository.LAMS;
 using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
 namespace HaloBiz.MyServices.Impl.LAMS
@@ -24,6 +25,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
         private readonly ILogger<TaskFulfillmentServiceImpl> _logger;
         private readonly IModificationHistoryRepository _historyRepo;
         private readonly ITaskFulfillmentRepository _taskFulfillmentRepo;
+        private readonly IOperatingEntityRepository _operatingEntityRepo;
         private readonly IUserProfileRepository _userProfileRepo;
         private readonly DataContext _context;
         private readonly IMapper _mapper;
@@ -31,12 +33,14 @@ namespace HaloBiz.MyServices.Impl.LAMS
         public TaskFulfillmentServiceImpl(IModificationHistoryRepository historyRepo, 
             ITaskFulfillmentRepository taskFulfillmentRepo, 
             IUserProfileRepository userProfileRepo,
+            IOperatingEntityRepository operatingEntityRepo,
             DataContext dataContext,
             ILogger<TaskFulfillmentServiceImpl> logger, IMapper mapper)
         {
             this._mapper = mapper;
             this._historyRepo = historyRepo;
             this._taskFulfillmentRepo = taskFulfillmentRepo;
+            this._operatingEntityRepo = operatingEntityRepo;
             this._userProfileRepo = userProfileRepo;
             this._context = dataContext;
             this._logger = logger;
@@ -182,6 +186,62 @@ namespace HaloBiz.MyServices.Impl.LAMS
             var taskFulfillmentTransferDTOs = _mapper.Map<TaskFulfillmentTransferDTO>(updatedTaskFulfillment);
             return new ApiOkResponse(taskFulfillmentTransferDTOs);
 
+        }
+
+        public async Task<ApiResponse> GetTaskFulfillmentsByOperatingEntityHeadId(long id)
+        {
+            var validOperatingHeadId = _context.OperatingEntities.Any(x => x.HeadId == id && x.IsDeleted == false);
+            if (!validOperatingHeadId)
+            {
+                return new ApiResponse(404);
+            }
+
+            var taskFulfillments = _context.TaskFulfillments.Where(x => x.ResponsibleId == id && x.IsDeleted == false);
+            if (taskFulfillments == null)
+            {
+                return new ApiResponse(404);
+            }
+
+            var taskFulfillmentTransferDTOs = _mapper.Map<IEnumerable<TaskFulfillmentTransferDTO>>(taskFulfillments);
+            return new ApiOkResponse(taskFulfillmentTransferDTOs);
+        }
+
+        public async Task<ApiResponse> GetTaskFulfillmentDetails(long id)
+        {
+            var taskFulfillment = await _taskFulfillmentRepo.FindTaskFulfillmentById(id);
+            if (taskFulfillment == null)
+            {
+                return new ApiResponse(404);
+            }
+
+            var customerDivision = await _context.CustomerDivisions.Where(x => x.Id == taskFulfillment.CustomerDivisionId && x.IsDeleted == false)
+                .Include(x => x.Customer).Include(x => x.Contracts).SingleOrDefaultAsync();
+
+            if (customerDivision == null)
+            {
+                return new ApiResponse(500);
+            }
+
+            var leadDivision = await _context.LeadDivisions.Where(x => x.RCNumber == customerDivision.RCNumber && x.DivisionName == customerDivision.DivisionName && x.IsDeleted == false)
+                .Include(x => x.PrimaryContact).Include(x => x.SecondaryContact).Include(x => x.LeadDivisionKeyPersons).SingleOrDefaultAsync();
+
+            if (leadDivision == null)
+            {
+                return new ApiResponse(500);
+            }
+
+            var deliverableFulfillments = await _context.DeliverableFulfillments.Where(x => x.TaskFullfillmentId == taskFulfillment.Id && x.IsDeleted == false).ToListAsync();
+
+            taskFulfillment.CustomerDivision = customerDivision;
+
+            var taskFulfillmentTransferDTOs = _mapper.Map<TaskFulfillmentTransferDetailsDTO>(taskFulfillment);
+
+            taskFulfillmentTransferDTOs.PrimaryContact = leadDivision.PrimaryContact;
+            taskFulfillmentTransferDTOs.SecondaryContact = leadDivision.SecondaryContact;
+            taskFulfillmentTransferDTOs.LeadDivisionKeyPersons = leadDivision.LeadDivisionKeyPersons;
+            taskFulfillmentTransferDTOs.DeliverableFulfillments = deliverableFulfillments;      
+
+            return new ApiOkResponse(taskFulfillmentTransferDTOs);
         }
     }
 }
