@@ -151,6 +151,7 @@ namespace HaloBiz.Helpers
             CreateMap<OtherLeadCaptureInfo, OtherLeadCaptureInfoTransferDTO>();
             CreateMap<TaskFulfillmentReceivingDTO, TaskFulfillment>();
             CreateMap<TaskFulfillment, TaskFulfillmentTransferDTO>();
+            CreateMap<TaskFulfillment, TaskFulfillmentTransferDetailsDTO>();
             CreateMap<DeliverableFulfillmentReceivingDTO, DeliverableFulfillment>();
             CreateMap<DeliverableFulfillment, DeliverableFulfillmentTransferDTO>();
             CreateMap<Industry, IndustryTransferDTO>();
