@@ -350,6 +350,8 @@ namespace HaloBiz.MyServices.Impl.LAMS
                     var summary = $"Initial details before change, \n {deliverableFulfillmentToUpdate.ToString()} \n";
 
                     deliverableFulfillmentToUpdate.DeliverableStatus = true;
+                    deliverableFulfillmentToUpdate.DeliverableCompletionTime = DateTime.Now;
+
                     var updatedDeliverableFulfillment = await _deliverableFulfillmentRepo.UpdateDeliverableFulfillment(deliverableFulfillmentToUpdate);
 
                     summary += $"Details after change, \n {updatedDeliverableFulfillment.ToString()} \n";
