@@ -49,7 +49,9 @@ namespace HaloBiz.Helpers
                 reqElements.Add(new RequredServiceQualificationElementTransferDTO(){
                     Caption = item.RequredServiceQualificationElement.Caption,
                     Description = item.RequredServiceQualificationElement.Description,
-                    Id = item.RequredServiceQualificationElement.Id
+                    Id = item.RequredServiceQualificationElement.Id,
+                    Type = item.RequredServiceQualificationElement.Type,
+                    ServiceCategoryId = item.RequredServiceQualificationElement.ServiceCategoryId
                 });
             }
             return reqElements;

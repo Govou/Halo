@@ -6,6 +6,7 @@ namespace HaloBiz.Model
     public class RequredServiceQualificationElement : SetupBaseModel
     {
         public string Type { get; set; }
+        public long ServiceCategoryId { get; set; }
         public IList<ServiceRequredServiceQualificationElement> Services { get; set; }
     }
 }

@@ -14,6 +14,7 @@ using HaloBiz.Model.LAMS;
 using HaloBiz.MyServices.LAMS;
 using HaloBiz.Repository;
 using HaloBiz.Repository.LAMS;
+using halobiz_backend.DTOs.TransferDTOs.LAMS;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 
@@ -56,6 +57,45 @@ namespace HaloBiz.MyServices.Impl.LAMS
             }
             var deliverableFulfillmentTransferDTO = _mapper.Map<DeliverableFulfillmentTransferDTO>(savedDeliverableFulfillment);
             return new ApiOkResponse(deliverableFulfillmentTransferDTO);
+        }
+
+        public async Task<ApiResponse> DeliverableToAssignedUserRatio(long taskMasterId)
+        {
+            var listOfDeliverableToAssignedPeronRation = new List<DeliverableToAssignedUserRatioTransferDTO>(); 
+            try{
+
+            var deliverables = await _deliverableFulfillmentRepo.FindAllDeliverableFulfillmentForTaskMaster(taskMasterId);
+            if(deliverables.Count() == 0){
+                return new ApiOkResponse(listOfDeliverableToAssignedPeronRation);
+            }
+
+            var userTaskDictionary = new Dictionary<UserProfile, int>();
+            foreach (var deliverable in deliverables)
+            {
+                if(userTaskDictionary.ContainsKey(deliverable.Responsible))
+                {
+                    userTaskDictionary[deliverable.Responsible]  += 1;
+                }
+                else{
+                    userTaskDictionary.Add(deliverable.Responsible, 0);
+                }
+            }
+
+            userTaskDictionary.Keys.ToList().ForEach(x => {
+                listOfDeliverableToAssignedPeronRation.Add(new DeliverableToAssignedUserRatioTransferDTO(){
+                    User  = x,
+                    Proportion = userTaskDictionary[x]
+                });
+            });
+
+            return new ApiOkResponse(listOfDeliverableToAssignedPeronRation);
+
+            }catch(Exception e )
+            {
+                _logger.LogError(e.Message);
+                return new ApiResponse(500);
+            }
+            
         }
 
         public async Task<ApiResponse> GetAllDeliverableFulfillment()

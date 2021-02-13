@@ -40,8 +40,9 @@ namespace HaloBiz.Repository.Impl.LAMS
         {
             return await _context.QuoteServices
                 .Include(x => x.QuoteServiceDocuments)
-                .Include(x => x.SBUToQuoteServiceProportions)
+                .Include(x => x.SBUToQuoteServiceProportions).ThenInclude(x => x.UserInvolved)
                 .Include(x => x.ContractServices)
+                .Include(x => x.CreatedBy)
                 .FirstOrDefaultAsync( quoteService => quoteService.Id == Id && quoteService.IsDeleted == false);
         }
 

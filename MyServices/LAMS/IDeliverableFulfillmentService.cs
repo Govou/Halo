@@ -9,6 +9,7 @@ namespace HaloBiz.MyServices.LAMS
     {
         Task<ApiResponse> AddDeliverableFulfillment(HttpContext context, DeliverableFulfillmentReceivingDTO deliverableFulfillmentReceivingDTO);
         Task<ApiResponse> GetAllDeliverableFulfillment();
+        Task<ApiResponse> DeliverableToAssignedUserRatio(long taskMasterId);
         Task<ApiResponse> GetDeliverableFulfillmentById(long id);
         Task<ApiResponse> GetDeliverableFulfillmentByName(string name);
         Task<ApiResponse> UpdateDeliverableFulfillment(HttpContext context, long id, DeliverableFulfillmentReceivingDTO deliverableFulfillmentReceivingDTO);

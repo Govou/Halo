@@ -56,17 +56,6 @@ namespace HaloBiz.MyServices.Impl
             return new ApiOkResponse(true);
         }
 
-        public async Task<ApiResponse> GetAccountMasterByAlias(long alias)
-        {
-            var Account = await _AccountMasterRepo.FindAccountMasterByAlias(alias);
-            if (Account == null)
-            {
-                return new ApiResponse(404);
-            }
-            var AccountMasterTransferDTOs = _mapper.Map<AccountMasterTransferDTO>(Account);
-            return new ApiOkResponse(AccountMasterTransferDTOs);
-        }
-
         public async Task<ApiResponse> GetAccountMasterById(long id)
         {
             var AccountMaster = await _AccountMasterRepo.FindAccountMasterById(id);
@@ -88,16 +77,6 @@ namespace HaloBiz.MyServices.Impl
             var AccountMasterTransferDTOs = _mapper.Map<IEnumerable<AccountMasterTransferDTO>>(AccountMaster);
             return new ApiOkResponse(AccountMasterTransferDTOs);
         }
-        public async Task<ApiResponse> GetAccountMasterByName(string name)
-        {
-            var AccountMaster = await _AccountMasterRepo.FindAccountMasterByName(name);
-            if (AccountMaster == null)
-            {
-                return new ApiResponse(404);
-            }
-            var AccountMasterTransferDTOs = _mapper.Map<AccountMasterTransferDTO>(AccountMaster);
-            return new ApiOkResponse(AccountMasterTransferDTOs);
-        }
 
         public async Task<ApiResponse> UpdateAccountMaster(long id, AccountMasterReceivingDTO accountMasterReceivingDTO)
         {
@@ -106,12 +85,9 @@ namespace HaloBiz.MyServices.Impl
             {
                 return new ApiResponse(404);
             }
-            AccountMasterToUpdate.Name = accountMasterReceivingDTO.Name;
             AccountMasterToUpdate.Description = accountMasterReceivingDTO.Description;
             AccountMasterToUpdate.OfficeId = accountMasterReceivingDTO.OfficeId;
             AccountMasterToUpdate.BranchId = accountMasterReceivingDTO.BranchId;
-            AccountMasterToUpdate.AccountMasterAlias = accountMasterReceivingDTO.AccountMasterAlias;
-            AccountMasterToUpdate.AccountId = accountMasterReceivingDTO.AccountId;
             var updatedAccountMaster = await _AccountMasterRepo.UpdateAccountMaster(AccountMasterToUpdate);
 
             if (updatedAccountMaster == null)

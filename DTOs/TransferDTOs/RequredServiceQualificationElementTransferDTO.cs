@@ -7,6 +7,7 @@ namespace HaloBiz.DTOs.TransferDTOs
 {
     public class RequredServiceQualificationElementTransferDTO : BaseSetupTransferDTO
     {
+        public long ServiceCategoryId { get; set; }
         public string Type { get; set; }
     }
 }

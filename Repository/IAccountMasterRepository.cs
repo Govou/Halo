@@ -12,11 +12,6 @@ namespace HaloBiz.Repository
 
         Task<AccountMaster> FindAccountMasterById(long Id);
 
-        Task<AccountMaster> FindAccountMasterByAlias(long alias);
-
-        Task<AccountMaster> FindAccountMasterByName(string name);
-
-
         Task<IEnumerable<AccountMaster>> FindAllAccountMasters();
 
         Task<AccountMaster> UpdateAccountMaster(AccountMaster accountMaster);

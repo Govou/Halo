@@ -54,6 +54,26 @@ namespace HaloBiz.Repository.Impl
                 .OrderBy(user => user.Email)
                 .ToListAsync();
         }
+        public async Task<IEnumerable<Object>> FindAllUsersNotInAnProfile(long sbuId)
+        {
+            var sbu = await _context.StrategicBusinessUnits.FirstOrDefaultAsync(x => x.Id == sbuId);
+            if(sbu == null) return  new List<Object>();
+            var operatingEntityId = sbu.OperatingEntityId;
+
+            var listOfSbuNotPartOfOperatingEntity = await  _context.StrategicBusinessUnits
+                        .Where(x => x.OperatingEntityId != operatingEntityId).Select(x => x.Id).ToListAsync();
+
+            return await _context.UserProfiles
+                .Where(x => listOfSbuNotPartOfOperatingEntity.Contains((long)x.SBUId) && x.IsDeleted == false)
+                .Select(x => new {
+                    email = x.Email,
+                    sbuId = x.SBUId,
+                    firstName = x.FirstName,
+                    lastname = x.LastName
+                    })
+                .OrderBy(user => user.email)
+                .ToListAsync();
+        }
 
         public async Task<UserProfile> UpdateUserProfile(UserProfile userProfile)
         {

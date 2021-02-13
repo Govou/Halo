@@ -8,11 +8,9 @@ namespace HaloBiz.Model.AccountsModel
     {
         [Key]
         public long Id { get; set; }
-        [Required]
-        public string Name { get; set; }
+
         [StringLength(1000)]
         public string Description { get; set; }
-        public long? AccountDetailsAlias { get; set; }
         [Required]
         public bool IntegrationFlag { get; set; }= false;
         [Required]
@@ -25,7 +23,9 @@ namespace HaloBiz.Model.AccountsModel
         public double Credit { get; set; }
         [Required]
         public double Debit { get; set; }
-
+        [Required]
+        public long? AccountId { get; set; }
+        public virtual Account Account { get; set; }
         [Required]
         public long BranchId { get; set; }
         public virtual Branch Branch { get; set; }
