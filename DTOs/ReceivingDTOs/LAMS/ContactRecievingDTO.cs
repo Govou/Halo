@@ -5,6 +5,8 @@ namespace HaloBiz.DTOs.ReceivingDTOs.LAMS
 {
     public class ContactRecievingDTO
     {
+        public string Title { get; set; }
+        public string Gender { get; set; }
         [Required]
         public string FirstName { get; set; }
         [Required]

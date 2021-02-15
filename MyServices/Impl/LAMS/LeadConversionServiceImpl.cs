@@ -254,14 +254,15 @@ namespace HaloBiz.MyServices.Impl.LAMS
             await ConvertSBUToQuoteServicePropToSBUToContractServiceProp( quoteService.Id, contractService.Id, context);
             await ConvertQuoteServiceDocumentsToClosureDocuments(quoteService.Id, contractService.Id, context);
             await CreateTaskAndDeliverables(quoteService.ServiceId, contractService ,customerDivision.Id );
-            await CreateAccounts(   quoteService,
+            
+            if(contractService.InvoicingInterval != TimeCycle.Adhoc)
+            {
+                await CreateAccounts(   quoteService,
                                      contractService.Id,
                                      customerDivision,
                                      (long) leadDivision.BranchId,
                                     (long) leadDivision.OfficeId
                                     );
-            if(contractService.InvoicingInterval != TimeCycle.Adhoc)
-            {
                 await GenerateInvoices( contractService,  customerDivision.Id, contractId, context);
                 await GenerateAmortizations( contractService,  customerDivision, context);
             }
@@ -406,13 +407,13 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 invoiceValue = amount * (double) interval ;
                 while(firstInvoiceSendDate < endDate){
                     invoices.Add(GenerateInvoice(startDate,  
-                                        startDate.AddMonths(interval) > endDate ? endDate : startDate.AddDays(interval), 
+                                        startDate.AddMonths(interval) > endDate ? endDate : startDate.AddMonths(interval), 
                                                 invoiceValue , 
                                                 firstInvoiceSendDate, 
                                                 contractService, 
                                                 customerDivisionId));
                     firstInvoiceSendDate = firstInvoiceSendDate.AddMonths(interval);
-                    startDate = startDate.AddDays(interval);
+                    startDate = startDate.AddMonths(interval);
                 }
             }
             return invoices;
@@ -444,6 +445,11 @@ namespace HaloBiz.MyServices.Impl.LAMS
             var InitialYear = startDate.Year;
             List<Amortization> amortizations = new List<Amortization>();
 
+            var totalContractBillable = CalculateTotalAmountForContract((double)contractService.BillableAmount, 
+                                                                        (DateTime)startDate, 
+                                                                        (DateTime) endDate, 
+                                                                        (TimeCycle) contractService.InvoicingInterval);
+
             for(int i = startDate.Year; i <= endDate.Year; i++)
             {
                 amortizations.Add(new Amortization(){
@@ -452,7 +458,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                     DivisionId = customerDivision.Id,
                     ContractId = contractService.ContractId,
                     ContractServiceId = contractService.Id,
-                    ContractValue = (double) contractService.Budget,
+                    ContractValue = (double) totalContractBillable,
                     January = DateTime.Parse($"{i}/01/31") > startDate &&  DateTime.Parse($"{i}/01/31") <= endDate ? (double)contractService.BillableAmount : 0,
                     February = DateTime.Parse($"{i}/02/28") > startDate && DateTime.Parse($"{i}/02/28") <= endDate ? (double)contractService.BillableAmount : 0,
                     March =  DateTime.Parse($"{i}/03/31") > startDate && DateTime.Parse($"{i}/03/31") <= endDate ? (double)contractService.BillableAmount : 0,
@@ -776,7 +782,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                                                         CustomerDivision customerDivision  )
         {
             AccountMaster accountMaster = new AccountMaster(){
-                Description = $"Sales of {quoteService.Service.Name} with service ID: {quoteService.Id} for {customerDivision.DivisionName}",
+                Description = $"Sales of {quoteService.Service.Name} with service ID: {quoteService.Id} to {customerDivision.DivisionName}",
                 IntegrationFlag = false,
                 VoucherId = accountVoucherTypeId,
                 BranchId = branchId,
@@ -821,7 +827,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
         {
 
             AccountDetail accountDetail = new AccountDetail(){
-                Description = $"Sales of {quoteService.Service.Name}  with service ID: {quoteService.Id} for {customerDivision.DivisionName}",
+                Description = $"Sales of {quoteService.Service.Name}  with service ID: {quoteService.Id} to {customerDivision.DivisionName}",
                 IntegrationFlag = false,
                 VoucherId = accountVoucherTypeId,
                 TransactionId = $"{quoteService.Service.ServiceCode}/{contractServiceId}",

@@ -12,6 +12,8 @@ namespace HaloBiz.Model
     {
         [Key]
         public long Id { get; set; }
+        public string Title { get; set; }
+        public string Gender { get; set; }
         [Required]
         public string FirstName { get; set; }
         [Required]

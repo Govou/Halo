@@ -12,7 +12,6 @@ namespace HaloBiz.DTOs.TransferDTOs
     public class AccountMasterTransferDTO
     {
         public long Id { get; set; }
-        public string Name { get; set; }
         public string Description { get; set; }
         public long AccountMasterAlias { get; set; }
         public bool IntegrationFlag { get; set; }
