@@ -85,6 +85,7 @@ namespace HaloBiz.MyServices.Impl
 
             requiredServiceDocumentToUpdate.Caption = requiredServiceDocumentReceivingDTO.Caption;
             requiredServiceDocumentToUpdate.Description = requiredServiceDocumentReceivingDTO.Description;
+            requiredServiceDocumentToUpdate.Type = requiredServiceDocumentReceivingDTO.Type;
             var updatedRequiredServiceDocument = await _requiredServiceDocumentRepo.UpdateRequiredServiceDocument(requiredServiceDocumentToUpdate);
 
             summary += $"Details after change, \n {updatedRequiredServiceDocument.ToString()} \n";

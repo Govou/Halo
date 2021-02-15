@@ -34,7 +34,8 @@ namespace HaloBiz.Helpers
                 reqDocs.Add(new RequiredServiceDocumentTransferDTO(){
                     Caption = item.RequiredServiceDocument.Caption,
                     Description = item.RequiredServiceDocument.Description,
-                    Id = item.RequiredServiceDocument.Id
+                    Id = item.RequiredServiceDocument.Id,
+                    Type = item.RequiredServiceDocument.Type
                 });
             }
 
