@@ -6,6 +6,7 @@ namespace HaloBiz.DTOs.ReceivingDTOs
 {
     public class QuoteServiceReceivingDTO
     {
+        public long Id { get; set; }
         [Required]
         public string ReferenceNumber { get; set; }
         public double? UnitPrice { get; set; }

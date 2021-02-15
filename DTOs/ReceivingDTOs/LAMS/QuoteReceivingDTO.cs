@@ -10,6 +10,7 @@ namespace HaloBiz.DTOs.ReceivingDTOs
 {
     public class QuoteReceivingDTO
     {
+        public long Id { get; set; }
         [StringLength(50)]
         public string ReferenceNo { get; set; }
         public long LeadDivisionId { get; set; }
