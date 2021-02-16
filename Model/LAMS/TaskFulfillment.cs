@@ -32,6 +32,9 @@ namespace HaloBiz.Model.LAMS
         public bool IsAllDeliverableAssigned {get; set;} = false;
         public DateTime? TaskCompletionDateTime {get; set;}
         public bool TaskCompletionStatus {get; set;} = false;
+        public DateTime? StartDate { get; set; }
+        public DateTime? EndDate { get; set; }
+        public string ServiceCode { get; set; }
         public IEnumerable<DeliverableFulfillment> DeliverableFUlfillments { get; set; }
         public long CreatedById { get; set; }
         public virtual UserProfile CreatedBy { get; set; }

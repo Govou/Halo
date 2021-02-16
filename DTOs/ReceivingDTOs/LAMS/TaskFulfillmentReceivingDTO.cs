@@ -21,5 +21,8 @@ namespace HaloBiz.DTOs.ReceivingDTOs
         public bool IsAllDeliverableAssigned { get; set; } = false;
         public DateTime? TaskCompletionDateTime { get; set; }
         public bool TaskCompletionStatus { get; set; } = false;
+        public DateTime StartDate { get; set; }
+        public DateTime EndDate { get; set; }
+        public string ServiceCode { get; set; }
     }
 }

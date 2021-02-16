@@ -113,6 +113,9 @@ namespace HaloBiz.MyServices.Impl.LAMS
             taskFulfillmentToUpdate.SupportId = taskFulfillmentReceivingDTO.SupportId;
             taskFulfillmentToUpdate.Budget = taskFulfillmentReceivingDTO.Budget;
             taskFulfillmentToUpdate.IsAllDeliverableAssigned = taskFulfillmentReceivingDTO.IsAllDeliverableAssigned;
+            taskFulfillmentToUpdate.StartDate = taskFulfillmentReceivingDTO.StartDate;
+            taskFulfillmentToUpdate.EndDate = taskFulfillmentReceivingDTO.EndDate;
+            taskFulfillmentToUpdate.ServiceCode = taskFulfillmentReceivingDTO.ServiceCode;
 
             var updatedTaskFulfillment = await _taskFulfillmentRepo.UpdateTaskFulfillment(taskFulfillmentToUpdate);
 

@@ -34,5 +34,7 @@ namespace HaloBiz.DTOs.TransferDTOs.LAMS
         public DateTime? DeliverableCompletionTime { get; set; }
         public long CreatedById { get; set; }
         public UserProfile CreatedBy { get; set; }
+        public string ServiceCode { get; set; }
+        public long EscallationTimeDurationForPicking { get; set; }
     }
 }

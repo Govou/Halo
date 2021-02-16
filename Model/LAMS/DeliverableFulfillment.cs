@@ -32,6 +32,8 @@ namespace HaloBiz.Model.LAMS
         public DateTime? DateAndTimeOfProvidedEvidence { get; set; }
         public DateTime? DeliverableCompletionDate { get; set; }
         public DateTime? DeliverableCompletionTime { get; set; }
+        public string ServiceCode { get; set; }
+        public long EscallationTimeDurationForPicking { get; set; } = 0;
         public long CreatedById { get; set; }
         public virtual UserProfile CreatedBy { get; set; }
         public bool IsDeleted { get; set; } = false;
