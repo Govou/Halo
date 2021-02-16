@@ -24,5 +24,6 @@ namespace HaloBiz.DTOs.ReceivingDTOs
         public long BranchId { get; set; }
         [Required]
         public long OfficeId { get; set; }
+        public long CustomerDivisionId { get; set; }
     }
 }

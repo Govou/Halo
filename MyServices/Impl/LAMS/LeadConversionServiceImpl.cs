@@ -22,8 +22,9 @@ namespace HaloBiz.MyServices.Impl.LAMS
         private readonly string ReceivableControlAccount = "Receivable";
         private readonly string SALESINVOICEVOUCHER = "Sales Invoice";
         private readonly string VALUEADDEDTAX = "VALUE ADDED TAX";
+        private readonly string RETAIL_INCOME_ACCOUNT = "RETAIL INCOME ACCOUNT";
         private readonly string retailLogo = "https://firebasestorage.googleapis.com/v0/b/halo-biz.appspot.com/o/LeadLogo%2FRetail.png?alt=media&token=c07dd3f9-a25e-4b4b-bf23-991a6f09ee58";
-        //private readonly string VALUEADDEDTAX = "VALUE ADDED TAX";
+        private bool isRetail = false;
 
         public LeadConversionServiceImpl(
                                         DataContext context, 
@@ -90,6 +91,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
             if(lead.LeadType.Caption == "Individual" || lead.LeadType.Caption == "SME")
             {
+                this.isRetail = true;
                 customer = await GetRetailCustomer( lead,  _context);
             }else{
                 customer = await GetOtherCustomer( lead,  _context);
@@ -650,8 +652,10 @@ namespace HaloBiz.MyServices.Impl.LAMS
                                     )
         {
             long accountId = 0;
-
-            if(customerDivision.AccountId > 0){
+            if(this.isRetail)
+            {
+                accountId = await GetRetailAccount(customerDivision);
+            }else if(customerDivision.AccountId > 0){
                 accountId = (long) customerDivision.AccountId;
             }else{
                 //Create Customer Account, Account master and account details
@@ -690,6 +694,39 @@ namespace HaloBiz.MyServices.Impl.LAMS
             
             return true;
         }
+
+        private async Task<long> GetRetailAccount(CustomerDivision customerDivision ){
+            
+            Account retailAccount  = await _context.Accounts.FirstOrDefaultAsync(x => x.Name == this.RETAIL_INCOME_ACCOUNT);
+            long accountId = 0;
+            if(retailAccount == null)
+            {
+                ControlAccount controlAccount = await _context.ControlAccounts
+                        .FirstOrDefaultAsync(x => x.Caption == this.ReceivableControlAccount);
+
+                Account account = new Account(){
+                    Name = this.RETAIL_INCOME_ACCOUNT,
+                    Description = $"Income Receivable Account of Retail Clients",
+                    Alias = "RIA",
+                    IsDebitBalance = true,
+                    ControlAccountId = controlAccount.Id,
+                    CreatedById = this.LoggedInUserId
+                };
+                var savedAccount = await SaveAccount(account);
+
+                customerDivision.AccountId = savedAccount.Id;
+                _context.CustomerDivisions.Update(customerDivision);
+                await _context.SaveChangesAsync();
+                accountId = savedAccount.Id;
+            }else{
+                accountId = retailAccount.Id;
+            }
+
+            return accountId;
+
+        } 
+
+        
         private async Task<bool> PostVATAccountDetails(
                                     QuoteService quoteService,
                                     long contractServiceId,
@@ -789,7 +826,8 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 OfficeId = officeId,
                 Value = amount,
                 TransactionId = $"{quoteService.Service.ServiceCode}/{contractServiceId}",
-                CreatedById = this.LoggedInUserId
+                CreatedById = this.LoggedInUserId,
+                CustomerDivisionId = customerDivision.Id
             };     
             var savedAccountMaster = await _context.AccountMasters.AddAsync(accountMaster);
             await _context.SaveChangesAsync();

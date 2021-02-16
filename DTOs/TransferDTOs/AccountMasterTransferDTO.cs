@@ -23,6 +23,9 @@ namespace HaloBiz.DTOs.TransferDTOs
         public virtual Branch Branch { get; set; }
         public long OfficeId { get; set; }
         public virtual Office Office { get; set; }
+        public long CustomerDivisionId { get; set; }
+        public CustomerDivisionWithoutObjectsTransferDTO CustomerDivision { get; set; }
+
         public IEnumerable<SBUAccountMaster> SBUAccountMaster { get; set; }
         public IEnumerable<AccountDetailTransferDTO> AccountDetails { get; set; }
     }
