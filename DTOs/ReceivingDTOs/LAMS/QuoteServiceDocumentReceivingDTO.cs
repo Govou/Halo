@@ -6,5 +6,6 @@ namespace HaloBiz.DTOs.ReceivingDTOs
     {
         [Required]
         public long QuoteServiceId { get; set; }
+        public string Type { get; set; }
     }
 }

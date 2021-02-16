@@ -13,6 +13,7 @@ namespace HaloBiz.MyServices.LAMS
         Task<ApiResponse> GetQuoteServiceDocumentByCaption(string caption);
         Task<ApiResponse> UpdateQuoteServiceDocument(HttpContext context, long id, QuoteServiceDocumentReceivingDTO quoteServiceDocumentReceivingDTO);
         Task<ApiResponse> DeleteQuoteServiceDocument(long id);
+        Task<ApiResponse> GetAllQuoteServiceDocumentForAQuoteService(long quoteServiceId);
 
     }
 }

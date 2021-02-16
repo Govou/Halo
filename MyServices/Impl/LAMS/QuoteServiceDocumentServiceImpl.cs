@@ -55,6 +55,16 @@ namespace HaloBiz.MyServices.Impl.LAMS
             var quoteServiceDocumentTransferDTO = _mapper.Map<IEnumerable<QuoteServiceDocumentTransferDTO>>(quoteServiceDocuments);
             return new ApiOkResponse(quoteServiceDocumentTransferDTO);
         }
+        public async Task<ApiResponse> GetAllQuoteServiceDocumentForAQuoteService(long quoteServiceId)
+        {
+            var quoteServiceDocuments = await _quoteServiceDocumentRepo.FindAllQuoteServiceDocumentForAQuoteService(quoteServiceId);
+            if (quoteServiceDocuments == null)
+            {
+                return new ApiResponse(404);
+            }
+            var quoteServiceDocumentTransferDTO = _mapper.Map<IEnumerable<QuoteServiceDocumentTransferDTO>>(quoteServiceDocuments);
+            return new ApiOkResponse(quoteServiceDocumentTransferDTO);
+        }
 
         public async Task<ApiResponse> GetQuoteServiceDocumentById(long id)
         {

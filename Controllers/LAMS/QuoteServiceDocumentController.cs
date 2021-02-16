@@ -31,6 +31,17 @@ namespace Controllers.Controllers
             var quoteServiceDocument = ((ApiOkResponse)response).Result;
             return Ok(quoteServiceDocument);
         }
+
+        [HttpGet("QuoteService/{quoteServiceId}")]
+        public async Task<ActionResult> GetQuoteServiceDocumentsForAQuoteService(long quoteServiceId)
+        {
+            var response = await _quoteServiceDocumentService.GetAllQuoteServiceDocumentForAQuoteService(quoteServiceId);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var quoteServiceDocument = ((ApiOkResponse)response).Result;
+            return Ok(quoteServiceDocument);
+        }
+
         [HttpGet("caption/{caption}")]
         public async Task<ActionResult> GetByCaption(string caption)
         {

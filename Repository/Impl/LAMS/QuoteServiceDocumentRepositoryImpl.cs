@@ -50,6 +50,14 @@ namespace HaloBiz.Repository.Impl.LAMS
                 .ToListAsync();
         }
 
+        public async Task<IEnumerable<QuoteServiceDocument>> FindAllQuoteServiceDocumentForAQuoteService(long quoteServiceId)
+        {
+            return await _context.QuoteServiceDocuments
+                .Where(quoteServiceDocument => quoteServiceDocument.QuoteServiceId == quoteServiceId && quoteServiceDocument.IsDeleted == false)
+                .OrderBy(quoteServiceDocument => quoteServiceDocument.CreatedAt)
+                .ToListAsync();
+        }
+
         public async Task<QuoteServiceDocument> UpdateQuoteServiceDocument(QuoteServiceDocument quoteServiceDocument)
         {
             var quoteServiceDocumentEntity =  _context.QuoteServiceDocuments.Update(quoteServiceDocument);
