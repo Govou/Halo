@@ -12,5 +12,6 @@ namespace HaloBiz.Repository.LAMS
         Task<IEnumerable<QuoteServiceDocument>> FindAllQuoteServiceDocument();
         Task<QuoteServiceDocument> UpdateQuoteServiceDocument(QuoteServiceDocument quoteServiceDocument);
         Task<bool> DeleteQuoteServiceDocument(QuoteServiceDocument quoteServiceDocument);
+        Task<IEnumerable<QuoteServiceDocument>> FindAllQuoteServiceDocumentForAQuoteService(long quoteServiceId);
     }
 }

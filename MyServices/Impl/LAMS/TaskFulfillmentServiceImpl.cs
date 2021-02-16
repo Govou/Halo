@@ -190,7 +190,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
         public async Task<ApiResponse> GetTaskFulfillmentsByOperatingEntityHeadId(long id)
         {
-            var validOperatingHeadId = _context.OperatingEntities.Any(x => x.HeadId == id && x.IsDeleted == false);
+            var validOperatingHeadId = await _context.OperatingEntities.AnyAsync(x => x.HeadId == id && x.IsDeleted == false);
             if (!validOperatingHeadId)
             {
                 return new ApiResponse(404);
