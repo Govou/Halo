@@ -28,6 +28,8 @@ namespace HaloBiz.Model.AccountsModel
         [Required]
         public long OfficeId { get; set; }
         public virtual Office Office { get; set; }
+        public long? CustomerDivisionId { get; set; }
+        public CustomerDivision CustomerDivision { get; set; }
         public IEnumerable<SBUAccountMaster> SBUAccountMaster { get; set; }
         public IEnumerable<AccountDetail> AccountDetails { get; set; }
         [Required]

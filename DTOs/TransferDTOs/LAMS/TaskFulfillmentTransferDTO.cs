@@ -30,7 +30,8 @@ namespace HaloBiz.DTOs.TransferDTOs.LAMS
         public bool IsAllDeliverableAssigned { get; set; } = false;
         public DateTime? TaskCompletionDateTime { get; set; }
         public bool TaskCompletionStatus { get; set; } = false;
-        public long CreatedById { get; set; }
-        public virtual UserProfile CreatedBy { get; set; }
+        public DateTime StartDate { get; set; }
+        public DateTime EndDate { get; set; }
+        public string ServiceCode { get; set; }
     }
 }

@@ -28,5 +28,7 @@ namespace HaloBiz.DTOs.ReceivingDTOs
         public DateTime? DateAndTimeOfProvidedEvidence { get; set; }
         public DateTime? DeliverableCompletionDate { get; set; }
         public DateTime? DeliverableCompletionTime { get; set; }
+        public string ServiceCode { get; set; }
+        public long EscallationTimeDurationForPicking { get; set; }
     }
 }

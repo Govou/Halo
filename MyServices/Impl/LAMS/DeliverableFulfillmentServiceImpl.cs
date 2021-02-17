@@ -156,6 +156,8 @@ namespace HaloBiz.MyServices.Impl.LAMS
             deliverableFulfillmentToUpdate.DateAndTimeOfProvidedEvidence = deliverableFulfillmentReceivingDTO.DateAndTimeOfProvidedEvidence;
             deliverableFulfillmentToUpdate.DeliverableCompletionDate = deliverableFulfillmentReceivingDTO.DeliverableCompletionDate;
             deliverableFulfillmentToUpdate.DeliverableCompletionTime = deliverableFulfillmentReceivingDTO.DeliverableCompletionTime;
+            deliverableFulfillmentToUpdate.ServiceCode = deliverableFulfillmentReceivingDTO.ServiceCode;
+            deliverableFulfillmentToUpdate.EscallationTimeDurationForPicking = deliverableFulfillmentReceivingDTO.EscallationTimeDurationForPicking;
 
             var updatedDeliverableFulfillment = await _deliverableFulfillmentRepo.UpdateDeliverableFulfillment(deliverableFulfillmentToUpdate);
 

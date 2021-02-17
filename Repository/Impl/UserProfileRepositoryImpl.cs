@@ -69,7 +69,8 @@ namespace HaloBiz.Repository.Impl
                     email = x.Email,
                     sbuId = x.SBUId,
                     firstName = x.FirstName,
-                    lastname = x.LastName
+                    lastname = x.LastName,
+                    id = x.Id
                     })
                 .OrderBy(user => user.email)
                 .ToListAsync();

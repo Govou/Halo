@@ -3,6 +3,7 @@ using HaloBiz.Model.AccountsModel;
 using HaloBiz.Model.LAMS;
 using HaloBiz.Model.ManyToManyRelationship;
 using HaloBiz.Model.RoleManagement;
+using halobiz_backend.Model;
 using Microsoft.EntityFrameworkCore;
 
 namespace HaloBiz.Data
@@ -77,6 +78,8 @@ namespace HaloBiz.Data
     public DbSet<DeliverableFulfillment> DeliverableFulfillments { get; set; }
     public DbSet<Industry> Industries { get; set; }
     public DbSet<Designation> Designations { get; set; }
+    public DbSet<Notification> Notifications { get; set; }
+    public DbSet<TaskEscalationTiming> TaskEscalationTiming { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder builder)
@@ -565,6 +568,22 @@ namespace HaloBiz.Data
                .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
             builder.Entity<Designation>()
+                .Property(p => p.CreatedAt)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            builder.Entity<Notification>()
+               .Property(p => p.UpdatedAt)
+               .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            builder.Entity<Notification>()
+                .Property(p => p.CreatedAt)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            builder.Entity<TaskEscalationTiming>()
+               .Property(p => p.UpdatedAt)
+               .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            builder.Entity<TaskEscalationTiming>()
                 .Property(p => p.CreatedAt)
                 .HasDefaultValueSql("CURRENT_TIMESTAMP");
 

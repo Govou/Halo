@@ -28,6 +28,7 @@ namespace HaloBiz.Model.LAMS
         public virtual Customer Customer { get; set; }
         public long? AccountId { get; set; }
         public Account Account { get; set; }
+        public AccountMaster AccountMaster { get; set; }
         public IEnumerable<Contract> Contracts { get; set; }
         public long CreatedById { get; set; }
         public virtual UserProfile CreatedBy { get; set; }
