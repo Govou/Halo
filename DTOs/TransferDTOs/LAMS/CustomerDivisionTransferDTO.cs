@@ -18,7 +18,7 @@ namespace HaloBiz.DTOs.TransferDTOs
         public string Address { get; set; }
         public long CustomerId { get; set; }
         public virtual Customer Customer { get; set; }
-        public AccountMasterTransferDTO AccountMaster { get; set; }
+        public IEnumerable<AccountMasterTransferDTO> AccountMaster { get; set; }
 
     }
     public class CustomerDivisionWithoutObjectsTransferDTO

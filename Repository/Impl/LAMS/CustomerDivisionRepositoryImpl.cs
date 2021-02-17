@@ -35,6 +35,7 @@ namespace HaloBiz.Repository.Impl.LAMS
         {
             return await _context.CustomerDivisions
                 .Include(x => x.Customer)
+                .Include(x => x.AccountMaster)
                 .FirstOrDefaultAsync(entity => entity.Id == Id && entity.IsDeleted == false);
         }
 
@@ -50,6 +51,7 @@ namespace HaloBiz.Repository.Impl.LAMS
         {
             return await _context.CustomerDivisions
                 .Include(x => x.Customer)
+                .Include(x => x.AccountMaster)
                 .FirstOrDefaultAsync(entity => entity.DivisionName == name && entity.IsDeleted == false);
         }
 
