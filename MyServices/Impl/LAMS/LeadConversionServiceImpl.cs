@@ -255,7 +255,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
             await ConvertSBUToQuoteServicePropToSBUToContractServiceProp( quoteService.Id, contractService.Id, context);
             await ConvertQuoteServiceDocumentsToClosureDocuments(quoteService.Id, contractService.Id, context);
-            await CreateTaskAndDeliverables(quoteService.ServiceId, contractService ,customerDivision.Id );
+            await CreateTaskAndDeliverables(quoteService, contractService ,customerDivision.Id );
             
             if(contractService.InvoicingInterval != TimeCycle.Adhoc)
             {
@@ -503,17 +503,17 @@ namespace HaloBiz.MyServices.Impl.LAMS
         }
 
 
-        private async Task<bool> CreateTaskAndDeliverables(long serviceId, ContractService contractServcie, long customerDivisionId)
+        private async Task<bool> CreateTaskAndDeliverables(QuoteService quoteService, ContractService contractServcie, long customerDivisionId)
         {
-            Services servcie = await _context.Services.FirstOrDefaultAsync(x => x.Id == contractServcie.ServiceId); 
-            if(servcie == null)
+            Services service = await _context.Services.FirstOrDefaultAsync(x => x.Id == contractServcie.ServiceId); 
+            if(service == null)
             {
                 return false;
             }
 
             IEnumerable<ServiceCategoryTask> serviceCategoryTasks = await _context.ServiceCategoryTasks
             .Include(x => x.ServiceTaskDeliverable)
-            .Where(x => x.ServiceCategoryId == servcie.ServiceCategoryId && x.IsDeleted == false).ToListAsync();
+            .Where(x => x.ServiceCategoryId == service.ServiceCategoryId && x.IsDeleted == false).ToListAsync();
             
             foreach (var serviceTask in serviceCategoryTasks)
             {
@@ -521,7 +521,8 @@ namespace HaloBiz.MyServices.Impl.LAMS
                                      serviceTask, 
                                      contractServcie,  
                                     customerDivisionId,
-                                    servcie.OperatingEntityId
+                                    quoteService,
+                                    service
                                     );
             }
             return true;
@@ -531,12 +532,13 @@ namespace HaloBiz.MyServices.Impl.LAMS
                                     ServiceCategoryTask serviceTask, 
                                     ContractService contractServcie,  
                                     long customerDivisionId,
-                                    long operatingEntityId
+                                    QuoteService quoteService,
+                                    Services service
                                     )
         {
             var operatingEntity = await _context.OperatingEntities
                         .Include(x => x.Division)
-                        .FirstOrDefaultAsync(x => x.Id == operatingEntityId);
+                        .FirstOrDefaultAsync(x => x.Id == service.OperatingEntityId);
              
             var task = await  _context.TaskFulfillments.AddAsync(new TaskFulfillment(){
                 Caption = serviceTask.Caption,
@@ -546,20 +548,24 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 ConsultedId = operatingEntity.Division.HeadId,
                 InformedId = operatingEntity.Division.HeadId,
                 CreatedById = this.LoggedInUserId,
-                ContractServiceId = contractServcie.Id
+                ContractServiceId = contractServcie.Id,
+                EndDate = quoteService.FulfillmentEndDate,
+                StartDate = quoteService.FulfillmentStartDate,
+                ServiceCode = service.ServiceCode
             });
 
             await _context.SaveChangesAsync();
 
             foreach (var deliverable in serviceTask.ServiceTaskDeliverable)
             {
-                await CreateDeliverableFulfillment(task.Entity.Id, deliverable);
+                await CreateDeliverableFulfillment(task.Entity.Id, deliverable, service.ServiceCode);
             }
             return true;
         }
         private async Task<bool> CreateDeliverableFulfillment(
                                     long taskId, 
-                                    ServiceTaskDeliverable serviceTaskDeliverable
+                                    ServiceTaskDeliverable serviceTaskDeliverable,
+                                    string serviceCode
                                     )
         {
              
@@ -567,7 +573,8 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 Caption = serviceTaskDeliverable.Caption,
                 Description = serviceTaskDeliverable.Description,
                 TaskFullfillmentId = taskId,
-                CreatedById = this.LoggedInUserId
+                CreatedById = this.LoggedInUserId,
+                ServiceCode = serviceCode
             });
 
             await _context.SaveChangesAsync();
