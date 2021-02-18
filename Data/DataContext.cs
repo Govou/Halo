@@ -80,6 +80,7 @@ namespace HaloBiz.Data
     public DbSet<Designation> Designations { get; set; }
     public DbSet<Notification> Notifications { get; set; }
     public DbSet<TaskEscalationTiming> TaskEscalationTiming { get; set; }
+    public DbSet<Claim> Claims { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder builder)
@@ -584,6 +585,30 @@ namespace HaloBiz.Data
                .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
             builder.Entity<TaskEscalationTiming>()
+                .Property(p => p.CreatedAt)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            builder.Entity<Role>()
+               .Property(p => p.UpdatedAt)
+               .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            builder.Entity<Role>()
+                .Property(p => p.CreatedAt)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            builder.Entity<RoleClaim>()
+               .Property(p => p.UpdatedAt)
+               .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            builder.Entity<RoleClaim>()
+                .Property(p => p.CreatedAt)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            builder.Entity<Claim>()
+               .Property(p => p.UpdatedAt)
+               .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            builder.Entity<Claim>()
                 .Property(p => p.CreatedAt)
                 .HasDefaultValueSql("CURRENT_TIMESTAMP");
 

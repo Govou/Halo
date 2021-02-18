@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -19,5 +20,10 @@ namespace HaloBiz.Model.RoleManagement
         public virtual Role Role { get; set; }
 
         public bool IsDeleted { get; set; }
+
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public DateTime CreatedAt { get; set; }
+        [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
+        public DateTime UpdatedAt { get; set; }
     }
 }
