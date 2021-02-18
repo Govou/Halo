@@ -13,5 +13,6 @@ namespace HaloBiz.MyServices.RoleManagement
         Task<ApiResponse> GetAllRoles();
         Task<ApiResponse> UpdateRole(HttpContext context, long id, RoleReceivingDTO RoleReceivingDTO);
         Task<ApiResponse> DeleteRole(long id);
+        Task<ApiResponse> GetAllClaims();
     }
 }
