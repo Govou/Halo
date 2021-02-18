@@ -17,5 +17,7 @@ namespace HaloBiz.Model.RoleManagement
         [Required]
         public long RoleId { get; set; }
         public virtual Role Role { get; set; }
+
+        public bool IsDeleted { get; set; }
     }
 }

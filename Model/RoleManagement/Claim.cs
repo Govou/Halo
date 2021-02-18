@@ -16,5 +16,7 @@ namespace HaloBiz.Model.RoleManagement
 
         [Required]
         public string Description { get; set; }
+
+        public bool IsDeleted { get; set; }
     }
 }
