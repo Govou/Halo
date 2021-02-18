@@ -11,7 +11,7 @@ using System.Linq;
 
 namespace HaloBiz.Controllers.RoleMangement
 {
-    //[Authorize(Roles = ClaimConstants.SUPER_ADMIN)]
+    [Authorize(Roles = ClaimConstants.SUPER_ADMIN)]
     [Route("api/v1/[controller]")]
     [ApiController]
     public class RoleController : Controller

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
+using HaloBiz.Adapters;
 using HaloBiz.DTOs.ApiDTOs;
 using HaloBiz.DTOs.ReceivingDTO;
 using HaloBiz.DTOs.TransferDTOs;
@@ -15,13 +16,15 @@ namespace HaloBiz.MyServices.Impl
     {
         private readonly IUserProfileRepository _userRepo;
         private readonly IMapper _mapper;
-
+        private readonly IMailAdapter _mailAdpater;
         private readonly IModificationHistoryRepository _historyRepo ;
         public UserProfileServiceImpl(IUserProfileRepository userRepo, IMapper mapper, 
+            IMailAdapter mailAdapter,
         IModificationHistoryRepository historyRepo )
         {
             this._mapper = mapper;
             this._userRepo = userRepo;
+            _mailAdpater = mailAdapter;
             _historyRepo = historyRepo;
 
         }
@@ -191,6 +194,8 @@ namespace HaloBiz.MyServices.Impl
             {
                 return new ApiResponse(500);
             }
+
+            await _mailAdpater.SendUserAssignedToRoleMail(updatedUser.Email, updatedUser.FirstName);
 
             ModificationHistory history = new ModificationHistory()
             {
