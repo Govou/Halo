@@ -5,13 +5,16 @@ using HaloBiz.Model.LAMS;
 
 namespace HaloBiz.DTOs.TransferDTOs.LAMS
 {
-    public class DeliverableFulfillmentTransferDTO
+    public class DeliverableFulfillmentTransferDTO : DeliverableFulfillmentWithouthTaskFulfillmentTransferDTO
+    {
+        public TaskFulfillment TaskFullfillment { get; set; }
+    }
+    public class DeliverableFulfillmentWithouthTaskFulfillmentTransferDTO
     {
         public long Id { get; set; }
         public string Description { get; set; }
         public string Caption { get; set; }
         public long TaskFullfillmentId { get; set; }
-        public TaskFulfillment TaskFullfillment { get; set; }
         public long? ResponsibleId { get; set; }
         public UserProfile Responsible { get; set; }
         public DateTime? StartDate { get; set; }

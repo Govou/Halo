@@ -151,10 +151,15 @@ namespace HaloBiz.Helpers
             CreateMap<OtherLeadCaptureInfoReceivingDTO, OtherLeadCaptureInfo>();
             CreateMap<OtherLeadCaptureInfo, OtherLeadCaptureInfoTransferDTO>();
             CreateMap<TaskFulfillmentReceivingDTO, TaskFulfillment>();
-            CreateMap<TaskFulfillment, TaskFulfillmentTransferDTO>();
-            CreateMap<TaskFulfillment, TaskFulfillmentTransferDetailsDTO>();
+            CreateMap<TaskFulfillment, TaskFulfillmentTransferDTO>()
+                .ForMember(dest => dest.ProjectCode, opt => opt.MapFrom( src => $"{src.ServiceCode}/{src.ContractServiceId}"))
+                .ForMember(dest => dest.ProjectDeliveryDate, opt => opt.MapFrom( src => src.ProjectDeliveryDate?? DateTime.Now));
+            CreateMap<TaskFulfillment, TaskFulfillmentTransferDetailsDTO>()
+                            .ForMember(dest => dest.ProjectCode, opt => opt.MapFrom( src => $"{src.ServiceCode}/{src.ContractServiceId}"))
+                .ForMember(dest => dest.ProjectDeliveryDate, opt => opt.MapFrom( src => src.ProjectDeliveryDate?? DateTime.Now));
             CreateMap<DeliverableFulfillmentReceivingDTO, DeliverableFulfillment>();
             CreateMap<DeliverableFulfillment, DeliverableFulfillmentTransferDTO>();
+            CreateMap<DeliverableFulfillment, DeliverableFulfillmentWithouthTaskFulfillmentTransferDTO>();
             CreateMap<Industry, IndustryTransferDTO>();
             CreateMap<IndustryReceivingDTO, Industry>();
             CreateMap<Designation, DesignationTransferDTO>();

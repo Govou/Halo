@@ -70,6 +70,18 @@ namespace HaloBiz.MyServices.Impl.LAMS
             return new ApiOkResponse(taskFulfillmentTransferDTO);
         }
 
+        public async Task<ApiResponse> GetAllUnCompletedTaskFulfillmentForTaskOwner(long taskOwnerId)
+        {
+            var taskFulfillments = await _taskFulfillmentRepo.FindAllTaskFulfillmentForTaskOwner(taskOwnerId);
+            if (taskFulfillments == null)
+            {
+                return new ApiResponse(404);
+            }
+            taskFulfillments.ToList().RemoveAll(x => x.TaskCompletionStatus);
+            var taskFulfillmentTransferDTO = _mapper.Map<IEnumerable<TaskFulfillmentTransferDTO>>(taskFulfillments);
+            return new ApiOkResponse(taskFulfillmentTransferDTO);
+        }
+
         public async Task<ApiResponse> GetTaskFulfillmentById(long id)
         {
             var taskFulfillment = await _taskFulfillmentRepo.FindTaskFulfillmentById(id);
@@ -77,7 +89,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
             {
                 return new ApiResponse(404);
             }
-            var taskFulfillmentTransferDTOs = _mapper.Map<TaskFulfillmentTransferDTO>(taskFulfillment);
+            var taskFulfillmentTransferDTOs = _mapper.Map<TaskFulfillmentTransferDetailsDTO>(taskFulfillment);
             return new ApiOkResponse(taskFulfillmentTransferDTOs);
         }
 
@@ -88,7 +100,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
             {
                 return new ApiResponse(404);
             }
-            var taskFulfillmentTransferDTOs = _mapper.Map<TaskFulfillmentTransferDTO>(taskFulfillment);
+            var taskFulfillmentTransferDTOs = _mapper.Map<TaskFulfillmentTransferDetailsDTO>(taskFulfillment);
             return new ApiOkResponse(taskFulfillmentTransferDTOs);
         }
 
@@ -242,7 +254,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
             taskFulfillmentTransferDTOs.PrimaryContact = leadDivision.PrimaryContact;
             taskFulfillmentTransferDTOs.SecondaryContact = leadDivision.SecondaryContact;
             taskFulfillmentTransferDTOs.LeadDivisionKeyPersons = leadDivision.LeadDivisionKeyPersons;
-            taskFulfillmentTransferDTOs.DeliverableFulfillments = deliverableFulfillments;      
+            taskFulfillmentTransferDTOs.DeliverableFulfillments = _mapper.Map<IEnumerable<DeliverableFulfillmentWithouthTaskFulfillmentTransferDTO>>(deliverableFulfillments);;      
 
             return new ApiOkResponse(taskFulfillmentTransferDTOs);
         }
