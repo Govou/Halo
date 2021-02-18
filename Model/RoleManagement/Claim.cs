@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace HaloBiz.Model.RoleManagement
 {
-    public class Role
+    public class Claim
     {
         [Key]
         public long Id { get; set; }
@@ -16,6 +16,5 @@ namespace HaloBiz.Model.RoleManagement
 
         [Required]
         public string Description { get; set; }
-        public virtual ICollection<RoleClaim> RoleClaims { get; set; }
     }
 }
