@@ -5,6 +5,8 @@ using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 using AutoMapper;
+using HaloBiz.Adapters;
+using HaloBiz.Adapters.Impl;
 using HaloBiz.Data;
 using HaloBiz.Helpers;
 using HaloBiz.MyServices;
@@ -216,6 +218,8 @@ namespace HaloBiz
             services.AddScoped<IIndustryRepository, IndustryRepositoryImpl>();
             services.AddScoped<IDesignationRepository, DesignationRepositoryImpl>();
 
+            // Adapters
+            services.AddScoped<IMailAdapter, MailAdapter>();
 
             services.AddAutoMapper(typeof(Startup));
 
