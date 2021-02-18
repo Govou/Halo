@@ -19,19 +19,18 @@ namespace HaloBiz.Adapters.Impl
 
         public async Task<ApiResponse> SendUserAssignedToRoleMail(string userEmail, string userName)
         {
-            var baseUrl = "http://halobiz-mail-api.herokuapp.com/";
+            var baseUrl = "http://halobiz-mail-api.herokuapp.com/Mail/SendSampleNotification";
 
             try
             {
                 var response = await baseUrl.AllowAnyHttpStatus()
-               .AppendPathSegments("/Mail​/SendSampleNotification")
-               .PostJsonAsync(new
-               {
-                   emailAddress = userEmail,
-                   userName
-               }).ReceiveJson<object>();
+                   .PostJsonAsync(new
+                   {
+                       emailAddress = userEmail,
+                       userName
+                   }).ReceiveJson();
 
-                return new ApiOkResponse(response);
+                return new ApiOkResponse(true);
             }
             catch (Exception ex)
             {
