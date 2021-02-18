@@ -542,6 +542,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
              
             var task = await  _context.TaskFulfillments.AddAsync(new TaskFulfillment(){
                 Caption = serviceTask.Caption,
+                Description = $"{serviceTask.Caption} for {service.Name}",
                 CustomerDivisionId = customerDivisionId,
                 ResponsibleId = operatingEntity.HeadId,
                 AccountableId = operatingEntity.HeadId,
@@ -551,7 +552,9 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 ContractServiceId = contractServcie.Id,
                 EndDate = quoteService.FulfillmentEndDate,
                 StartDate = quoteService.FulfillmentStartDate,
-                ServiceCode = service.ServiceCode
+                ServiceCode = service.ServiceCode,
+                Budget = quoteService.Budget,
+                ProjectDeliveryDate = quoteService.ActivationDate?? quoteService.FulfillmentEndDate, 
             });
 
             await _context.SaveChangesAsync();

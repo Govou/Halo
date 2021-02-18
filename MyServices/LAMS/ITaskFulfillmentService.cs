@@ -11,6 +11,7 @@ namespace HaloBiz.MyServices.LAMS
         Task<ApiResponse> GetAllTaskFulfillment();
         Task<ApiResponse> GetTaskFulfillmentById(long id);
         Task<ApiResponse> GetTaskFulfillmentByName(string name);
+        Task<ApiResponse> GetAllUnCompletedTaskFulfillmentForTaskOwner(long taskOwnerId);
         Task<ApiResponse> UpdateTaskFulfillment(HttpContext context, long id, TaskFulfillmentReceivingDTO taskFulfillmentReceivingDTO);
         Task<ApiResponse> DeleteTaskFulfillment(long id);
         Task<ApiResponse> SetIsPicked(HttpContext context, long id);

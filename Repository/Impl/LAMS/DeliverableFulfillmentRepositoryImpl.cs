@@ -60,6 +60,7 @@ namespace HaloBiz.Repository.Impl.LAMS
             var listOFDeliverable =  taskMasterTasks.Select(x => x.DeliverableFUlfillments);
             var deliverrables = new List<DeliverableFulfillment>();
             listOFDeliverable.ToList().ForEach(x => deliverrables.Concat(x));
+            deliverrables.RemoveAll(x => x.DeliverableStatus);
             return deliverrables;
         }
 

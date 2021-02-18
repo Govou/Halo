@@ -25,8 +25,10 @@ namespace HaloBiz.DTOs.TransferDTOs.LAMS
         public long? SupportId { get; set; }
         public UserProfile Support { get; set; }
         public double? Budget { get; set; }
+        public string ProjectCode { get; set; }
         public bool IsPicked { get; set; } = false;
         public DateTime? DateTimePicked { get; set; }
+        public DateTime? ProjectDeliveryDate { get; set; }
         public bool IsAllDeliverableAssigned { get; set; } = false;
         public DateTime? TaskCompletionDateTime { get; set; }
         public bool TaskCompletionStatus { get; set; } = false;
@@ -37,6 +39,6 @@ namespace HaloBiz.DTOs.TransferDTOs.LAMS
         public LeadDivisionContact PrimaryContact { get; set; }
         public LeadDivisionContact SecondaryContact { get; set; }
         public IEnumerable<LeadDivisionKeyPerson> LeadDivisionKeyPersons { get; set; }
-        public IEnumerable<DeliverableFulfillment> DeliverableFulfillments { get; set; }
+        public IEnumerable<DeliverableFulfillmentWithouthTaskFulfillmentTransferDTO> DeliverableFulfillments { get; set; }
     }
 }

@@ -16,6 +16,8 @@ namespace HaloBiz.DTOs.ReceivingDTOs
         public long? InformedId { get; set; }
         public long? SupportId { get; set; }
         public double? Budget { get; set; }
+        public string ProjectCode { get; set; }
+        public DateTime? ProjectDeliveryDate { get; set; }
         public bool IsPicked { get; set; } = false;
         public DateTime? DateTimePicked { get; set; }
         public bool IsAllDeliverableAssigned { get; set; } = false;

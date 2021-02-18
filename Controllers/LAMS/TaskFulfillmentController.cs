@@ -31,6 +31,17 @@ namespace Controllers.Controllers
             var taskFulfillment = ((ApiOkResponse)response).Result;
             return Ok(taskFulfillment);
         }
+
+        [HttpGet("UnCompletedTaskFulfillmentForTaskOwner/{taskOwnerId}")]
+        public async Task<ActionResult> GetUnCompletedTaskFulfillmentForTaskMaster(long taskOwnerId)
+        {
+            var response = await _taskFulfillmentService. GetAllUnCompletedTaskFulfillmentForTaskOwner(taskOwnerId);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var taskFulfillment = ((ApiOkResponse)response).Result;
+            return Ok(taskFulfillment);
+        }
+        
         [HttpGet("caption/{name}")]
         public async Task<ActionResult> GetByCaption(string name)
         {

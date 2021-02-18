@@ -35,12 +35,20 @@ namespace HaloBiz.Repository.Impl.LAMS
             return await _context.TaskFulfillments
                 .Where(taskFulfillment => taskFulfillment.Id == Id && taskFulfillment.IsDeleted == false)
                 .Include(x => x.ContractService).ThenInclude(x => x.SBUToContractServiceProportions)
+                .Include(x => x.Support)
+                .Include(x => x.Responsible)
+                .Include(x => x.Accountable)
+                .Include(x => x.DeliverableFUlfillments)
                 .FirstOrDefaultAsync();
         }
 
         public async Task<TaskFulfillment> FindTaskFulfillmentByName(string name)
         {
             return await _context.TaskFulfillments
+                .Include(x => x.Support)
+                .Include(x => x.Responsible)
+                .Include(x => x.Accountable)
+                .Include(x => x.DeliverableFUlfillments)
                 .FirstOrDefaultAsync( taskFulfillment => taskFulfillment.Caption == name && taskFulfillment.IsDeleted == false);
         }
 
@@ -48,6 +56,15 @@ namespace HaloBiz.Repository.Impl.LAMS
         {
             return await _context.TaskFulfillments
                 .Where(taskFulfillment => taskFulfillment.IsDeleted == false)
+                .OrderBy(taskFulfillment => taskFulfillment.CreatedAt)
+                .ToListAsync();
+        }
+
+         public async Task<IEnumerable<TaskFulfillment>> FindAllTaskFulfillmentForTaskOwner(long taskOwnerId)
+        {
+            return await _context.TaskFulfillments
+                .Where(taskFulfillment => taskFulfillment.IsDeleted == false 
+                    && (taskFulfillment.AccountableId == taskOwnerId || taskFulfillment.SupportId == taskOwnerId))
                 .OrderBy(taskFulfillment => taskFulfillment.CreatedAt)
                 .ToListAsync();
         }

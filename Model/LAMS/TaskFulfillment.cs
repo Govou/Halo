@@ -12,6 +12,7 @@ namespace HaloBiz.Model.LAMS
         public long Id { get; set; }
         public string Caption { get; set; }
         public string Description { get; set; }
+        public DateTime? ProjectDeliveryDate { get; set; }
         public long CustomerDivisionId { get; set; }
         public CustomerDivision CustomerDivision { get; set; }
         public long ContractServiceId { get; set; }
