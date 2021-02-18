@@ -146,6 +146,7 @@ namespace HaloBiz.Helpers
             CreateMap<NegotiationDocument, DocumentSetupTransferDTO>();
             CreateMap<RoleReceivingDTO, Role>();
             CreateMap<Role, RoleTransferDTO>();
+            CreateMap<Claim, ClaimTransferDTO>();
             CreateMap<RoleClaimReceivingDTO, RoleClaim>();
             CreateMap<RoleClaim, RoleClaimTransferDTO>();
             CreateMap<OtherLeadCaptureInfoReceivingDTO, OtherLeadCaptureInfo>();
