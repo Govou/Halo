@@ -82,6 +82,67 @@ namespace HaloBiz.MyServices.Impl.LAMS
             return new ApiOkResponse(taskFulfillmentTransferDTO);
         }
 
+        public async Task<ApiResponse> GetPMWidgetStatistics(long taskOwnerId)
+        {
+            var taskFulfillments = await _taskFulfillmentRepo.FindAllTaskFulfillmentForTaskOwner(taskOwnerId);
+            var year = DateTime.Now.Year;
+            var tasks = taskFulfillments.Where(x => x.CreatedAt.Year == year);
+            var allTaskAssigned = 0;
+            var completedTask = 0;
+            var acceptedTask = 0;
+            var qualifiedTasks = 0;
+
+            foreach (var task in tasks)
+            {
+                if(task.IsAllDeliverableAssigned){
+                    allTaskAssigned++;
+                }
+
+                if(task.TaskCompletionStatus){
+                    completedTask++;
+                }
+
+                if(!task.TaskCompletionStatus){
+                    acceptedTask +=  CheckIfAccepted(task.DeliverableFUlfillments);
+                }
+
+                if(!task.TaskCompletionStatus){
+                    qualifiedTasks +=  CheckIfQualified(task.DeliverableFUlfillments);
+                }
+            }
+
+            var data = new {allTaskAssigned, completedTask, acceptedTask, qualifiedTasks};
+
+            return new ApiOkResponse(data); 
+        }
+
+        private int CheckIfAccepted(IEnumerable<DeliverableFulfillment> delivrables)
+        {
+            var isAllAccepted = true;
+            foreach (var deliverable in delivrables)
+            {
+                if(deliverable.IsPicked == false)
+                {
+                    isAllAccepted = false;
+                }
+            }
+
+            return isAllAccepted ? 1 : 0;
+        }
+        private int CheckIfQualified(IEnumerable<DeliverableFulfillment> delivrables)
+        {
+            var isAllAccepted = true;
+            foreach (var deliverable in delivrables)
+            {
+                if(deliverable.IsRequestedForValidation == false)
+                {
+                    isAllAccepted = false;
+                }
+            }
+
+            return isAllAccepted ? 1 : 0;
+        }
+
         public async Task<ApiResponse> GetTaskFulfillmentById(long id)
         {
             var taskFulfillment = await _taskFulfillmentRepo.FindTaskFulfillmentById(id);

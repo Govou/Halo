@@ -23,6 +23,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
         private readonly string SALESINVOICEVOUCHER = "Sales Invoice";
         private readonly string VALUEADDEDTAX = "VALUE ADDED TAX";
         private readonly string RETAIL_INCOME_ACCOUNT = "RETAIL INCOME ACCOUNT";
+        private readonly string RETAIL = "RETAIL";
         private readonly string retailLogo = "https://firebasestorage.googleapis.com/v0/b/halo-biz.appspot.com/o/LeadLogo%2FRetail.png?alt=media&token=c07dd3f9-a25e-4b4b-bf23-991a6f09ee58";
         private bool isRetail = false;
 
@@ -45,7 +46,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                     var lead = await _context.Leads
                         .Include(x => x.LeadDivisions)
                             .ThenInclude(x => x.Quote)
-                        .Include(x => x.LeadType)
+                        .Include(x => x.GroupType)
                         .FirstOrDefaultAsync(x => x.Id == leadId);
                     
                     Customer customer = await ConvertLeadToCustomer(lead, _context);
@@ -89,7 +90,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
         {
             Customer customer = null;
 
-            if(lead.LeadType.Caption == "Individual" || lead.LeadType.Caption == "SME")
+            if(lead.GroupType.Caption.ToLower().Trim() == "individual" || lead.GroupType.Caption.ToLower().Trim() == "sme")
             {
                 this.isRetail = true;
                 customer = await GetRetailCustomer( lead,  _context);
@@ -110,7 +111,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
         private async Task<Customer> GetRetailCustomer(Lead lead, DataContext context)
         {
             var retailCustomer = await context.Customers
-                .FirstOrDefaultAsync(x => x.GroupName == "Retail");
+                .FirstOrDefaultAsync(x => x.GroupName == this.RETAIL);
 
             if(retailCustomer != null)
             {
