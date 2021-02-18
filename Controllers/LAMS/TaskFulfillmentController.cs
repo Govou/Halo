@@ -32,6 +32,17 @@ namespace Controllers.Controllers
             return Ok(taskFulfillment);
         }
 
+        [HttpGet("TaskOwnerPmWidget/{taskMasterId}")]
+        public async Task<ActionResult> TaskOwnerPmWidget(long taskMasterId)
+        {
+            var response = await _taskFulfillmentService.GetPMWidgetStatistics(taskMasterId);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var taskFulfillment = ((ApiOkResponse)response).Result;
+            return Ok(taskFulfillment);
+        }
+        
+
         [HttpGet("UnCompletedTaskFulfillmentForTaskOwner/{taskOwnerId}")]
         public async Task<ActionResult> GetUnCompletedTaskFulfillmentForTaskMaster(long taskOwnerId)
         {
