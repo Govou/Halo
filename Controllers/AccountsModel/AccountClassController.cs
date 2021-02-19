@@ -28,8 +28,18 @@ namespace HaloBiz.Controllers.AccountsModel
             if (response.StatusCode >= 400)
                 return StatusCode(response.StatusCode, response);
             var accountClass = ((ApiOkResponse)response).Result;
-            return Ok((IEnumerable<AccountClassTransferDTO>)accountClass);
+            return Ok(accountClass);
         }
+        [HttpGet("AccountClassBreakDown")]
+        public async Task<ActionResult> GetAccountClassesBreakdown()
+        {
+            var response = await _accountClassService.GetBreakdownOfAccountClass();
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var accountClass = ((ApiOkResponse)response).Result;
+            return Ok(accountClass);
+        }
+
         [HttpGet("caption/{caption}")]
         public async Task<ActionResult> GetByCaption(string caption)
         {

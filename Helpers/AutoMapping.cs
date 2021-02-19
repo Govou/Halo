@@ -55,6 +55,7 @@ namespace HaloBiz.Helpers
                 opt.MapFrom(src => src.RequredServiceQualificationElement.GetListOfRequiredQualificationElements()));
             CreateMap<ServicesReceivingDTO, Services>();
             CreateMap<AccountClass, AccountClassTransferDTO>();
+            CreateMap<AccountClass, AccountClassWithTotalTransferDTO>();
             CreateMap<AccountClassReceivingDTO, AccountClass>();
             CreateMap<LeadTypeReceivingDTO, LeadType>();
             CreateMap<LeadType, LeadTypeTransferDTO>();
@@ -119,6 +120,7 @@ namespace HaloBiz.Helpers
             CreateMap<ControlAccountReceivingDTO, ControlAccount>();
             CreateMap<ControlAccount, ControlAccountTransferDTO>();
             CreateMap<ControlAccount, ControlAccountWithoutAccountClassTransferDTO>();
+            CreateMap<ControlAccount, ControlAccountWithTotal>();
             CreateMap<QuoteReceivingDTO, Quote>();
             CreateMap<Quote, QuoteTransferDTO>();
             CreateMap<Quote, QuoteWithoutLeadDivisionTransferDTO>();
