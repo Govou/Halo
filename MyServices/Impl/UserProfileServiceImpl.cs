@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using AutoMapper;
 using HaloBiz.Adapters;
 using HaloBiz.DTOs.ApiDTOs;
+using HaloBiz.DTOs.MailDTOs;
 using HaloBiz.DTOs.ReceivingDTO;
 using HaloBiz.DTOs.TransferDTOs;
 using HaloBiz.Model;
@@ -195,7 +196,12 @@ namespace HaloBiz.MyServices.Impl
                 return new ApiResponse(500);
             }
 
-            await _mailAdpater.SendUserAssignedToRoleMail(updatedUser.Email, updatedUser.FirstName);
+            await _mailAdpater.SendUserAssignedToRoleMail(new NewRoleAssignedDTO { 
+                EmailAddress = updatedUser.Email,
+                UserName = $"{updatedUser.FirstName} {updatedUser.LastName}",
+                Role = updatedUser.Role.Name,
+                RoleClaims = updatedUser.Role.RoleClaims.Select(x=> x.Name).ToArray()
+            });
 
             ModificationHistory history = new ModificationHistory()
             {
