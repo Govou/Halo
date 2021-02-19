@@ -134,13 +134,16 @@ namespace HaloBiz.MyServices.Impl.RoleManagement
             {
                 return new ApiResponse(500);
             }
-                       
-            var roleClaimsToSave = _mapper.Map<ICollection<RoleClaim>>(roleReceivingDTO.RoleClaims);
-            foreach (var item in roleClaimsToSave)
+
+            if (roleReceivingDTO.RoleClaims.Any())
             {
-                item.RoleId = updatedRole.Id;
-            }
-            _context.RoleClaims.AddRange(roleClaimsToSave);
+                var roleClaimsToSave = _mapper.Map<ICollection<RoleClaim>>(roleReceivingDTO.RoleClaims);
+                foreach (var item in roleClaimsToSave)
+                {
+                    item.RoleId = updatedRole.Id;
+                }
+                _context.RoleClaims.AddRange(roleClaimsToSave);
+            }       
 
             summary += $"Details after change, \n {updatedRole.ToString()} \n";
     
