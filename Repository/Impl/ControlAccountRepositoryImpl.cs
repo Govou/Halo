@@ -57,20 +57,20 @@ namespace HaloBiz.Repository.Impl
         public async Task<ControlAccount> FindControlAccountById(long Id)
         {
             return await _context.ControlAccounts
-                .Include(control => control.Accounts)
+                .Include(control => control.Accounts.Where(x => x.IsDeleted == false))
                 .FirstOrDefaultAsync( controlAccount => controlAccount.Id == Id && controlAccount.IsDeleted == false);
         }
 
         public async Task<ControlAccount> FindControlAccountByName(string name)
         {
             return await _context.ControlAccounts
-                .Include(control => control.Accounts)
+                .Include(control => control.Accounts.Where(x => x.IsDeleted == false))
                 .FirstOrDefaultAsync( controlAccount => controlAccount.Caption == name && controlAccount.IsDeleted == false);
         }
         public async Task<ControlAccount> FindControlAccountByAlias(long name)
         {
             return await _context.ControlAccounts
-                .Include(control => control.Accounts)
+                .Include(control => control.Accounts.Where(x => x.IsDeleted == false))
                 .FirstOrDefaultAsync( controlAccount => controlAccount.Alias== name && controlAccount.IsDeleted == false);
         }
 
