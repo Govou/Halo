@@ -149,53 +149,69 @@ namespace HaloBiz.MyServices.Impl.LAMS
             return new ApiOkResponse(deliverableFulfillmentTransferDTOs);
         }
 
-        public async Task<ApiResponse> UpdateDeliverableFulfillment(HttpContext context, long id, DeliverableFulfillmentReceivingDTO deliverableFulfillmentReceivingDTO)
+        public async Task<ApiResponse> UpdateDeliverableFulfillment(HttpContext context, long deliverableId, DeliverableFulfillmentReceivingDTO deliverableFulfillmentReceivingDTO)
         {
-            var deliverableFulfillmentToUpdate = await _deliverableFulfillmentRepo.FindDeliverableFulfillmentById(id);
-            if (deliverableFulfillmentToUpdate == null)
-            {
-                return new ApiResponse(404);
-            }
+            var isUpdateToAssignResponsible = false;
             
-            var summary = $"Initial details before change, \n {deliverableFulfillmentToUpdate.ToString()} \n" ;
-
-            deliverableFulfillmentToUpdate.Caption = deliverableFulfillmentReceivingDTO.Caption;
-            deliverableFulfillmentToUpdate.Description = deliverableFulfillmentReceivingDTO.Description;
-            deliverableFulfillmentToUpdate.TaskFullfillmentId = deliverableFulfillmentReceivingDTO.TaskFullfillmentId;
-            deliverableFulfillmentToUpdate.ResponsibleId = deliverableFulfillmentReceivingDTO.ResponsibleId;
-            deliverableFulfillmentToUpdate.StartDate = deliverableFulfillmentReceivingDTO.StartDate;
-            deliverableFulfillmentToUpdate.EndDate = deliverableFulfillmentReceivingDTO.EndDate;
-            deliverableFulfillmentToUpdate.DeliveryDate = deliverableFulfillmentReceivingDTO.DeliveryDate;
-            deliverableFulfillmentToUpdate.TaskCompletionDate = deliverableFulfillmentReceivingDTO.TaskCompletionDate;
-            deliverableFulfillmentToUpdate.TaskCompletionTime = deliverableFulfillmentReceivingDTO.TaskCompletionTime;
-            deliverableFulfillmentToUpdate.Budget = deliverableFulfillmentReceivingDTO.Budget;
-            deliverableFulfillmentToUpdate.DeliverableCompletionReferenceNo = deliverableFulfillmentReceivingDTO.DeliverableCompletionReferenceNo;
-            deliverableFulfillmentToUpdate.DeliverableCompletionReferenceUrl = deliverableFulfillmentReceivingDTO.DeliverableCompletionReferenceUrl;
-            deliverableFulfillmentToUpdate.DateAndTimeOfProvidedEvidence = deliverableFulfillmentReceivingDTO.DateAndTimeOfProvidedEvidence;
-            deliverableFulfillmentToUpdate.DeliverableCompletionDate = deliverableFulfillmentReceivingDTO.DeliverableCompletionDate;
-            deliverableFulfillmentToUpdate.DeliverableCompletionTime = deliverableFulfillmentReceivingDTO.DeliverableCompletionTime;
-            deliverableFulfillmentToUpdate.ServiceCode = deliverableFulfillmentReceivingDTO.ServiceCode;
-            deliverableFulfillmentToUpdate.EscallationTimeDurationForPicking = deliverableFulfillmentReceivingDTO.EscallationTimeDurationForPicking;
-
-            var updatedDeliverableFulfillment = await _deliverableFulfillmentRepo.UpdateDeliverableFulfillment(deliverableFulfillmentToUpdate);
-
-            summary += $"Details after change, \n {updatedDeliverableFulfillment.ToString()} \n";
-
-            if (updatedDeliverableFulfillment == null)
+            using(var transaction = await _context.Database.BeginTransactionAsync())
             {
-                return new ApiResponse(500);
+                try{
+                    var deliverableFulfillmentToUpdate = await _context.DeliverableFulfillments.FirstOrDefaultAsync( x => x.Id == deliverableId && x.IsDeleted == false);
+                    if (deliverableFulfillmentToUpdate == null)
+                    {
+                        return new ApiResponse(404);
+                    }
+
+                    isUpdateToAssignResponsible = deliverableFulfillmentToUpdate.ResponsibleId == 0 && deliverableFulfillmentReceivingDTO.ResponsibleId > 0;
+                    
+                    var summary = $"Initial details before change, \n {deliverableFulfillmentToUpdate.ToString()} \n" ;
+
+                    deliverableFulfillmentToUpdate.Caption = deliverableFulfillmentReceivingDTO.Caption;
+                    deliverableFulfillmentToUpdate.Description = deliverableFulfillmentReceivingDTO.Description;
+                    deliverableFulfillmentToUpdate.TaskFullfillmentId = deliverableFulfillmentReceivingDTO.TaskFullfillmentId;
+                    deliverableFulfillmentToUpdate.ResponsibleId = deliverableFulfillmentReceivingDTO.ResponsibleId;
+                    deliverableFulfillmentToUpdate.StartDate = deliverableFulfillmentReceivingDTO.StartDate;
+                    deliverableFulfillmentToUpdate.EndDate = deliverableFulfillmentReceivingDTO.EndDate;
+                    deliverableFulfillmentToUpdate.DeliveryDate = deliverableFulfillmentReceivingDTO.DeliveryDate;
+                    deliverableFulfillmentToUpdate.TaskCompletionDate = deliverableFulfillmentReceivingDTO.TaskCompletionDate;
+                    deliverableFulfillmentToUpdate.TaskCompletionTime = deliverableFulfillmentReceivingDTO.TaskCompletionTime;
+                    deliverableFulfillmentToUpdate.Budget = deliverableFulfillmentReceivingDTO.Budget;
+                    deliverableFulfillmentToUpdate.DeliverableCompletionReferenceNo = deliverableFulfillmentReceivingDTO.DeliverableCompletionReferenceNo;
+                    deliverableFulfillmentToUpdate.DeliverableCompletionReferenceUrl = deliverableFulfillmentReceivingDTO.DeliverableCompletionReferenceUrl;
+                    deliverableFulfillmentToUpdate.DateAndTimeOfProvidedEvidence = deliverableFulfillmentReceivingDTO.DateAndTimeOfProvidedEvidence;
+                    deliverableFulfillmentToUpdate.DeliverableCompletionDate = deliverableFulfillmentReceivingDTO.DeliverableCompletionDate;
+                    deliverableFulfillmentToUpdate.DeliverableCompletionTime = deliverableFulfillmentReceivingDTO.DeliverableCompletionTime;
+                    deliverableFulfillmentToUpdate.ServiceCode = deliverableFulfillmentReceivingDTO.ServiceCode;
+                    deliverableFulfillmentToUpdate.EscallationTimeDurationForPicking = deliverableFulfillmentReceivingDTO.EscallationTimeDurationForPicking;
+
+                    var updatedDeliverableFulfillment =  _context.DeliverableFulfillments.Update(deliverableFulfillmentToUpdate).Entity;
+                    await _context.SaveChangesAsync();
+
+                    summary += $"Details after change, \n {updatedDeliverableFulfillment.ToString()} \n";
+
+                    ModificationHistory history = new ModificationHistory(){
+                        ModelChanged = "DeliverableFulfillment",
+                        ChangeSummary = summary,
+                        ChangedById = context.GetLoggedInUserId(),
+                        ModifiedModelId = updatedDeliverableFulfillment.Id
+                    };
+
+                    await _historyRepo.SaveHistory(history);
+
+                    if(isUpdateToAssignResponsible)
+                    {
+                        await CheckAllDeliverablesAndSetTaskAssignmentStatus( deliverableFulfillmentToUpdate.TaskFullfillmentId);
+                    }
+                    await transaction.CommitAsync();
+                    var deliverableFulfillmentTransferDTOs = _mapper.Map<DeliverableFulfillmentTransferDTO>(updatedDeliverableFulfillment);
+                    return new ApiOkResponse(deliverableFulfillmentTransferDTOs);
+                }catch(Exception e){
+                    await transaction.RollbackAsync();
+                    _logger.LogError(e.Message);
+                    _logger.LogError(e.StackTrace);
+                    return new ApiResponse(500);
+                }
             }
-            ModificationHistory history = new ModificationHistory(){
-                ModelChanged = "DeliverableFulfillment",
-                ChangeSummary = summary,
-                ChangedById = context.GetLoggedInUserId(),
-                ModifiedModelId = updatedDeliverableFulfillment.Id
-            };
-
-            await _historyRepo.SaveHistory(history);
-
-            var deliverableFulfillmentTransferDTOs = _mapper.Map<DeliverableFulfillmentTransferDTO>(updatedDeliverableFulfillment);
-            return new ApiOkResponse(deliverableFulfillmentTransferDTOs);
 
         }
 
@@ -215,61 +231,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
             return new ApiOkResponse(true);
         }
 
-        public async Task<ApiResponse> SetWhoIsResponsible(HttpContext context, long id, long userProfileId)
-        {
-            using(var transaction = await _context.Database.BeginTransactionAsync())
-            {
-                try{
-                    var deliverableFulfillmentToUpdate = await _context.DeliverableFulfillments.FirstOrDefaultAsync(x => x.IsDeleted == false && x.Id == id);
-                    if (deliverableFulfillmentToUpdate == null)
-                    {
-                        return new ApiResponse(404);
-                    }
 
-                    var userProfile = await _context.UserProfiles.FirstOrDefaultAsync(x => x.IsDeleted == false && x.Id == userProfileId);
-                    
-                    if (userProfile == null)
-                    {
-                        return new ApiResponse(500);
-                    }
-
-                    var summary = $"Initial details before change, \n {deliverableFulfillmentToUpdate.ToString()} \n";
-
-                    deliverableFulfillmentToUpdate.ResponsibleId = userProfileId;
-
-                    var updatedDeliverableFulfillment =  _context.DeliverableFulfillments.Update(deliverableFulfillmentToUpdate).Entity;
-                    await _context.SaveChangesAsync();
-
-                    await CheckAllDeliverablesAndSetTaskAssignmentStatus( deliverableFulfillmentToUpdate.TaskFullfillmentId);
-
-                    summary += $"Details after change, \n {updatedDeliverableFulfillment.ToString()} \n";
-
-                    ModificationHistory history = new ModificationHistory()
-                    {
-                        ModelChanged = "DeliverableFulfillment",
-                        ChangeSummary = summary,
-                        ChangedById = context.GetLoggedInUserId(),
-                        ModifiedModelId = updatedDeliverableFulfillment.Id
-                    };
-
-                    await _context.ModificationHistories.AddAsync(history);
-                    await _context.SaveChangesAsync();
-
-                    await transaction.CommitAsync();
-
-                    var deliverableFulfillmentTransferDTOs = _mapper.Map<DeliverableFulfillmentTransferDTO>(updatedDeliverableFulfillment);
-                    return new ApiOkResponse(deliverableFulfillmentTransferDTOs);
-
-                }catch(Exception e)
-                {
-                    await transaction.RollbackAsync();
-                    _logger.LogError(e.Message);
-                    _logger.LogError(e.StackTrace);
-                    return new ApiResponse(500);
-                }
-            }
-
-        }
 
         private async Task<bool> CheckAllDeliverablesAndSetTaskAssignmentStatus( long taskId)
         {
