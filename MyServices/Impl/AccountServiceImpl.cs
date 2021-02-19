@@ -108,7 +108,9 @@ namespace HaloBiz.MyServices.Impl
                 return new ApiResponse(404);
             }
             AccountToUpdate.Alias = AccountReceivingDTO.Alias;
+            AccountToUpdate.Name = AccountReceivingDTO.Name;
             AccountToUpdate.Description = AccountReceivingDTO.Description;
+            AccountToUpdate.IsDebitBalance = AccountReceivingDTO.IsDebitBalance;
             var updatedAccount = await _AccountRepo.UpdateAccount(AccountToUpdate);
 
             if (updatedAccount == null)
