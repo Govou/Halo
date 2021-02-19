@@ -29,6 +29,12 @@ namespace HaloBiz.Repository.Impl
             return null;
         }
 
+        public async Task<bool> UpdateUserProfiles(IEnumerable<UserProfile> userProfiles)
+        {
+            _context.UserProfiles.UpdateRange(userProfiles);
+            return await SaveChanges();
+        }
+
         public async Task<UserProfile> FindUserById(long Id)
         {
             return await _context.UserProfiles
@@ -54,6 +60,14 @@ namespace HaloBiz.Repository.Impl
                 .OrderBy(user => user.Email)
                 .ToListAsync();
         }
+
+        public async Task<IEnumerable<UserProfile>> FindAllUserProfilesAttachedToRole(long roleId)
+        {
+            return await _context.UserProfiles
+                .Where(user => user.RoleId == roleId && user.IsDeleted == false)
+                .ToListAsync();
+        }
+
         public async Task<IEnumerable<Object>> FindAllUsersNotInAnProfile(long sbuId)
         {
             var sbu = await _context.StrategicBusinessUnits.FirstOrDefaultAsync(x => x.Id == sbuId);

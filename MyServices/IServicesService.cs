@@ -18,5 +18,6 @@ namespace HaloBiz.MyServices
 
         Task<ApiResponse> DeleteService(long id);
         Task<ApiResponse> DeleteService(HttpContext context, long id);
+        Task<ApiResponse> GetUnpublishedServices();
     }
 }

@@ -107,6 +107,17 @@ namespace HaloBiz.MyServices.Impl
             return new ApiOkResponse(serviceTransferDTO);
         }
 
+        public async Task<ApiResponse> GetUnpublishedServices()
+        {
+            var services = await _servicesRepository.FindAllUnplishedServices();
+            if (services == null)
+            {
+                return new ApiResponse(404);
+            }
+            var serviceTransferDTO = _mapper.Map<IEnumerable<ServicesTransferDTO>>(services);
+            return new ApiOkResponse(serviceTransferDTO);
+        }
+
         public async Task<ApiResponse> GetServiceById(long id)
         {
             var service = await _servicesRepository.FindServicesById(id);

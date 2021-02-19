@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
 using HaloBiz.Data;
@@ -20,11 +21,13 @@ namespace HaloBiz.MyServices.Impl.RoleManagement
         private readonly IModificationHistoryRepository _historyRepo;
         private readonly IMapper _mapper;
         private readonly IRoleRepository _roleRepo;
+        private readonly IUserProfileRepository _userProfileRepo;
         private readonly DataContext _context;
 
         public RoleServiceImpl(
-            IModificationHistoryRepository historyRepo, 
-            IRoleRepository roleRepo, 
+            IModificationHistoryRepository historyRepo,
+            IRoleRepository roleRepo,
+            IUserProfileRepository userProfileRepo,
             DataContext dataContext,
             IMapper mapper)
         {
@@ -32,6 +35,7 @@ namespace HaloBiz.MyServices.Impl.RoleManagement
             this._historyRepo = historyRepo;
             this._context = dataContext;
             this._roleRepo = roleRepo;
+            this._userProfileRepo = userProfileRepo;
         }
 
         public async Task<ApiResponse> AddRole(HttpContext context, RoleReceivingDTO roleReceivingDTO)
@@ -130,13 +134,16 @@ namespace HaloBiz.MyServices.Impl.RoleManagement
             {
                 return new ApiResponse(500);
             }
-                       
-            var roleClaimsToSave = _mapper.Map<ICollection<RoleClaim>>(roleReceivingDTO.RoleClaims);
-            foreach (var item in roleClaimsToSave)
+
+            if (roleReceivingDTO.RoleClaims.Any())
             {
-                item.RoleId = updatedRole.Id;
-            }
-            _context.RoleClaims.AddRange(roleClaimsToSave);
+                var roleClaimsToSave = _mapper.Map<ICollection<RoleClaim>>(roleReceivingDTO.RoleClaims);
+                foreach (var item in roleClaimsToSave)
+                {
+                    item.RoleId = updatedRole.Id;
+                }
+                _context.RoleClaims.AddRange(roleClaimsToSave);
+            }       
 
             summary += $"Details after change, \n {updatedRole.ToString()} \n";
     
@@ -166,6 +173,19 @@ namespace HaloBiz.MyServices.Impl.RoleManagement
             {
                 return new ApiResponse(400);
             }
+
+            var userProfiles = await _userProfileRepo.FindAllUserProfilesAttachedToRole(id);
+            if (userProfiles.Any())
+            {
+                var unAssignedRole = await _roleRepo.FindRoleByName(ClaimConstants.UN_ASSIGNED);
+                foreach (var userProfile in userProfiles)
+                {
+                    userProfile.RoleId = unAssignedRole.Id;
+                }
+
+                await _userProfileRepo.UpdateUserProfiles(userProfiles);
+            }
+
 
             if (!await _roleRepo.DeleteRole(roleToDelete))
             {
