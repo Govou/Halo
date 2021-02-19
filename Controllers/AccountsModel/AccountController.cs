@@ -2,6 +2,7 @@
 using HaloBiz.DTOs.ReceivingDTOs;
 using HaloBiz.DTOs.TransferDTOs;
 using HaloBiz.MyServices;
+using halobiz_backend.DTOs.ReceivingDTOs;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
@@ -31,6 +32,17 @@ namespace HaloBiz.Controllers.AccountsModel
             return Ok((IEnumerable<AccountTransferDTO>)Account);
         }
 
+
+        [HttpPost("SeachAccount")]
+        public async Task<ActionResult> SeachAccount(AccountSearchDTO accountSearchDTO)
+        {
+            var response = await _accountService.SearchForAccountDetails( accountSearchDTO);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var Account = ((ApiOkResponse)response).Result;
+            return Ok(Account);
+        }
+
         [HttpGet("TradeIncome")]
         public async Task<ActionResult> GetTradeIncomeAccountes()
         {
@@ -38,7 +50,7 @@ namespace HaloBiz.Controllers.AccountsModel
             if (response.StatusCode >= 400)
                 return StatusCode(response.StatusCode, response);
             var Account = ((ApiOkResponse)response).Result;
-            return Ok((IEnumerable<AccountTransferDTO>)Account);
+            return Ok(Account);
         }
         [HttpGet("alias/{alias}")]
         public async Task<ActionResult> GetByAlias(string alias)

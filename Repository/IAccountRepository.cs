@@ -20,5 +20,6 @@ namespace HaloBiz.Repository
 
         Task<bool> DeleteAccount(Account Account);
         Task<IEnumerable<Account>> FindAllTradeIncomeAccounts();
+         IQueryable<Account> GetAccountQueriable();
     }
 }
