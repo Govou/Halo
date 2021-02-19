@@ -74,6 +74,20 @@ namespace HaloBiz.Repository.Impl
                     .ToListAsync();
         }
 
+        public async Task<IEnumerable<Services>> FindAllUnplishedServices()
+        {
+            return await _context.Services
+                .Include(service => service.Target)
+                .Include(service => service.ServiceType)
+                .Include(service => service.Account)
+                .Include(service => service.RequiredServiceDocument.Where(row => row.IsDeleted == false))
+                    .ThenInclude(row => row.RequiredServiceDocument)
+                    .Include(service => service.RequredServiceQualificationElement.Where(row => row.IsDeleted == false))
+                    .ThenInclude(row => row.RequredServiceQualificationElement)
+                .Where(service => service.IsRequestedForPublish == true && service.IsPublished == false && service.IsDeleted == false)
+                    .ToListAsync();
+        }
+
         public async Task<Services> UpdateServices(Services service)
         {
             var updatedEntity =  _context.Services.Update(service);
@@ -101,6 +115,5 @@ namespace HaloBiz.Repository.Impl
                return false;
            }
         }
-
     }
 }
