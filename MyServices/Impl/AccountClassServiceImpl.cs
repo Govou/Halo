@@ -89,6 +89,73 @@ namespace HaloBiz.MyServices.Impl
             return new ApiOkResponse(accountClassTransferDTOs);
         }
 
+        public async Task<ApiResponse> GetBreakdownOfAccountClass()
+        {
+            try{
+                var accountsClasses = await _accountClassRepo.FindAllAccountClassesDownToAccountDetails();
+                var  accountClassesWithValue = new List<AccountClassWithTotalTransferDTO>(accountsClasses.Count());
+                foreach (var accountClass in accountsClasses)
+                {
+                    accountClassesWithValue.Add(CalculateAccountClassBalance(accountClass));
+                }
+                return new ApiOkResponse(accountClassesWithValue);
+
+            }catch(Exception e)
+            {
+                _logger.LogError(e.Message);
+                _logger.LogError(e.StackTrace);
+                return new ApiResponse(500);
+            }
+        } 
+
+        private AccountClassWithTotalTransferDTO CalculateAccountClassBalance(AccountClass accountClass)
+        {
+            var controlAccounts = new List<ControlAccountWithTotal>();
+            var total = 0.0;
+            ControlAccountWithTotal controlAccountWithTotal = null;
+
+            foreach (var controlAccount in accountClass.ControlAccounts)
+            {
+                controlAccountWithTotal = CalculateControlAccountBalance(controlAccount);
+                total += controlAccountWithTotal.Total;
+                controlAccounts.Add(controlAccountWithTotal);
+            }
+
+            var accountClassWithTotal = _mapper.Map<AccountClassWithTotalTransferDTO>(accountClass); 
+            accountClassWithTotal.ControlAccounts = controlAccounts;
+            accountClassWithTotal.Total = total;
+            return accountClassWithTotal;
+        }
+        private ControlAccountWithTotal CalculateControlAccountBalance(ControlAccount controlAccount)
+        {
+            var accounts = controlAccount.Accounts;
+            double total = 0.0;
+            foreach (var account in accounts)
+            {
+                total += CalculateAccountBalance(account);
+            }
+
+            var controlAccountWithTotal = _mapper.Map<ControlAccountWithTotal>(controlAccount);
+            controlAccountWithTotal.Total = total;
+            return controlAccountWithTotal;
+        }
+
+        private double CalculateAccountBalance(Account account)
+        {
+            double totalDebit = 0.0;
+            double totalCredit = 0.0;
+
+            foreach (var detail in account.AccountDetails)
+            {
+                totalCredit += detail.Credit;
+                totalDebit += detail.Debit;
+            }
+
+            var total = totalDebit - totalCredit;
+
+            return account.IsDebitBalance ? total : (total * -1);
+        }
+
         public async Task<ApiResponse> UpdateAccountClass(long id, AccountClassReceivingDTO accountClassReceivingDTO)
         {
             var accountClassToUpdate = await _accountClassRepo.FindAccountClassById(id);

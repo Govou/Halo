@@ -46,7 +46,15 @@ namespace HaloBiz.Repository.Impl
         {
             return await _context.AccountClasses
                     .Include(x => x.ControlAccounts.Where(x => x.IsDeleted == false))
-                    .Where(user => user.IsDeleted == false).ToListAsync();
+                    .Where(x => x.IsDeleted == false).ToListAsync();
+        }
+        public async Task<IEnumerable<AccountClass>> FindAllAccountClassesDownToAccountDetails()
+        {
+            return await _context.AccountClasses
+                    .Include(x => x.ControlAccounts.Where(x => x.IsDeleted == false))
+                        .ThenInclude(x => x.Accounts.Where(x => x.IsDeleted == false))
+                            .ThenInclude(x => x.AccountDetails.Where(x => x.IsDeleted == false))
+                    .Where(x => x.IsDeleted == false).ToListAsync();
         }
 
         public async Task<AccountClass> SaveAccountClass(AccountClass accountClass)

@@ -19,4 +19,9 @@ namespace HaloBiz.DTOs.TransferDTOs
         public string Description { get; set; }
         public long Alias { get; set; }
     }
+
+    public class ControlAccountWithTotal : ControlAccountWithoutAccountClassTransferDTO
+    {
+        public double Total { get; set; }
+    }
 }

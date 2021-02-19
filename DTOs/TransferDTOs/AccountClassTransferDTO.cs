@@ -14,4 +14,15 @@ namespace HaloBiz.DTOs.TransferDTOs
         public long AccountClassAlias { get; set; }
         public IEnumerable<ControlAccountWithoutAccountClassTransferDTO> ControlAccounts { get; set; }
     }
+
+    public class AccountClassWithTotalTransferDTO
+    {
+        public long Id { get; set; }
+        public string Caption { get; set; }
+        public string Description { get; set; }
+        public long AccountClassAlias { get; set; }
+        public IEnumerable<ControlAccountWithTotal> ControlAccounts { get; set; }
+
+        public double Total { get; set; }
+    }
 }
