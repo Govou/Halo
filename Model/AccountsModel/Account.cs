@@ -17,6 +17,7 @@ namespace HaloBiz.Model.AccountsModel
         public string Alias { get; set; }
         [Required]
         public bool IsDebitBalance { get; set; }
+        public bool IsActive { get; set; } = true;
         [Required]
         public long? ControlAccountId { get; set; }
         public virtual ControlAccount ControlAccount { get; set; }
