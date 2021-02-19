@@ -9,6 +9,7 @@ namespace HaloBiz.Repository
     {
 
         Task<UserProfile> SaveUserProfile(UserProfile userProfile);
+        Task<bool> SaveUserProfiles(IEnumerable<UserProfile> userProfile);
 
         Task<UserProfile> FindUserById(long Id);
         Task<IEnumerable<Object>> FindAllUsersNotInAnProfile(long sbuId);
@@ -16,6 +17,7 @@ namespace HaloBiz.Repository
         Task<UserProfile> FindUserByEmail(string email);
 
         Task<IEnumerable<UserProfile>> FindAllUserProfile();
+        Task<IEnumerable<UserProfile>> FindAllUserProfilesAttachedToRole(long roleId);
 
         Task<UserProfile> UpdateUserProfile(UserProfile userProfile);
 
