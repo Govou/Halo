@@ -5,7 +5,9 @@ using HaloBiz.DTOs.TransferDTOs;
 using HaloBiz.Helpers;
 using HaloBiz.Model.AccountsModel;
 using HaloBiz.Repository;
+using halobiz_backend.DTOs.ReceivingDTOs;
 using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
@@ -89,6 +91,26 @@ namespace HaloBiz.MyServices.Impl
             return new ApiOkResponse(AccountTransferDTOs);
         }
         
+        public async Task<ApiResponse> SearchForAccountDetails(AccountSearchDTO accountSearchDTO)
+        {
+            var account = await _AccountRepo.FindAccountById(accountSearchDTO.AccountId);
+            if(account == null)
+            {
+                return new ApiResponse(404);
+            }
+
+            if(accountSearchDTO.VoucherTypeId > 0)
+            {
+                account.AccountDetails = account.AccountDetails.Where(x => x.TransactionDate >= accountSearchDTO.TransactionStart 
+                    && x.TransactionDate <= accountSearchDTO.TransactionEnd && x.VoucherId == accountSearchDTO.VoucherTypeId);
+            }else{
+                account.AccountDetails = account.AccountDetails.Where(x => x.CreatedAt >= accountSearchDTO.TransactionStart 
+                    && x.CreatedAt <= accountSearchDTO.TransactionEnd );
+            }
+
+            var AccountTransferDTOs = _mapper.Map<AccountTransferDTO>(account);
+            return new ApiOkResponse(AccountTransferDTOs);
+        }
         public async Task<ApiResponse> GetAllTradeIncomeTaxAccounts()
         {
             var Accountes = await _AccountRepo.FindAllTradeIncomeAccounts();

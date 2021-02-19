@@ -25,7 +25,6 @@ namespace HaloBiz.DTOs.TransferDTOs
         public virtual AccountMaster AccountMaster { get; set; }
         public  long AccountId  { get; set; }
         public virtual Account Account  { get; set; }
-        public long AccountClassAlias { get; set; }
     }
 
     public class AccountDetailWithoutAccountMasterTransferDTO
@@ -40,12 +39,8 @@ namespace HaloBiz.DTOs.TransferDTOs
         public double Debit { get; set; }
         public long BranchId { get; set; }
         public virtual Branch Branch { get; set; }
-        public long OfficeId { get; set; }
-        public virtual Office Office { get; set; }
         public long AccountMasterId { get; set; }
-        public virtual AccountMaster AccountMaster { get; set; }
         public  long AccountId  { get; set; }
-        public virtual Account Account  { get; set; }
-        public long AccountClassAlias { get; set; }
+
     }
 }

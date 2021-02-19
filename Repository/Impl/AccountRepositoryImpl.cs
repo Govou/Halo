@@ -36,13 +36,21 @@ namespace HaloBiz.Repository.Impl
 
         public async Task<Account> FindAccountById(long Id)
         {
-            return await _context.Accounts.FirstOrDefaultAsync(Account => Account.Id == Id && Account.IsDeleted == false);
+            return await _context.Accounts
+                .Include(x => x.AccountDetails)
+                .FirstOrDefaultAsync(Account => Account.Id == Id && Account.IsDeleted == false);
         }
 
         public async Task<IEnumerable<Account>> FindAllAccounts()
         {
-            return await _context.Accounts.Where(user => user.IsDeleted == false).ToListAsync();
+            return await _context.Accounts
+                    .Where(user => user.IsDeleted == false).ToListAsync();
 
+        }
+
+        public  IQueryable<Account> GetAccountQueriable()
+        {
+            return  _context.Accounts.Include(x => x.AccountDetails).AsQueryable();
         }
         public async Task<IEnumerable<Account>> FindAllTradeIncomeAccounts()
         {
