@@ -42,5 +42,33 @@ namespace HaloBiz.Adapters.Impl
                 return new ApiResponse(500, ex.Message);
             }
         }
+        public async Task<ApiResponse> SendNewDeliverableAssigned(NewDeliverableAssignedDTO newDeliverableAssignedDTO)
+        {
+            var baseUrl = "http://halobiz-mail-api.herokuapp.com/Mail/SendNewDeliverableAssigned";
+
+            try
+            {
+                var response = await baseUrl.AllowAnyHttpStatus()
+                   .PostJsonAsync(new
+                   {
+                       emailAddress = newDeliverableAssignedDTO.EmailAddress,
+                       userName = newDeliverableAssignedDTO.UserName,
+                       customer = newDeliverableAssignedDTO.Customer,
+                       taskOwner = newDeliverableAssignedDTO.TaskOwner,
+                       taskName = newDeliverableAssignedDTO.TaskName,
+                       serviceName = newDeliverableAssignedDTO.ServiceName,
+                       quantity = newDeliverableAssignedDTO.Quantity,
+                       deliverable = newDeliverableAssignedDTO.Deliverable
+                   }).ReceiveJson();
+
+                return new ApiOkResponse(true);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogInformation(ex.Message);
+                _logger.LogInformation(ex.StackTrace);
+                return new ApiResponse(500, ex.Message);
+            }
+        }
     }
 }
