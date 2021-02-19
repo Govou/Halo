@@ -1,4 +1,5 @@
 ﻿using HaloBiz.DTOs.ApiDTOs;
+using HaloBiz.DTOs.MailDTOs;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,6 +9,6 @@ namespace HaloBiz.Adapters
 {
     public interface IMailAdapter
     {
-        Task<ApiResponse> SendUserAssignedToRoleMail(string userEmail, string userName);
+        Task<ApiResponse> SendUserAssignedToRoleMail(NewRoleAssignedDTO newRoleAssignedDTO);
     }
 }
