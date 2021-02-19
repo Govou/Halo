@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
+using HaloBiz.DTOs.MailDTOs;
 
 namespace HaloBiz.Adapters.Impl
 {
@@ -17,17 +18,19 @@ namespace HaloBiz.Adapters.Impl
             _logger = logger;
         }
 
-        public async Task<ApiResponse> SendUserAssignedToRoleMail(string userEmail, string userName)
+        public async Task<ApiResponse> SendUserAssignedToRoleMail(NewRoleAssignedDTO newRoleAssignedDTO)
         {
-            var baseUrl = "http://halobiz-mail-api.herokuapp.com/Mail/SendSampleNotification";
+            var baseUrl = "http://halobiz-mail-api.herokuapp.com/Mail/SendNewRoleAssigned";
 
             try
             {
                 var response = await baseUrl.AllowAnyHttpStatus()
                    .PostJsonAsync(new
                    {
-                       emailAddress = userEmail,
-                       userName
+                       emailAddress = newRoleAssignedDTO.EmailAddress,
+                       userName = newRoleAssignedDTO.UserName,
+                       role = newRoleAssignedDTO.Role,
+                       roleClaims = newRoleAssignedDTO.RoleClaims
                    }).ReceiveJson();
 
                 return new ApiOkResponse(true);
