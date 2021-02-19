@@ -9,7 +9,7 @@ namespace HaloBiz.Repository
     {
 
         Task<UserProfile> SaveUserProfile(UserProfile userProfile);
-        Task<bool> SaveUserProfiles(IEnumerable<UserProfile> userProfile);
+        Task<bool> UpdateUserProfiles(IEnumerable<UserProfile> userProfile);
 
         Task<UserProfile> FindUserById(long Id);
         Task<IEnumerable<Object>> FindAllUsersNotInAnProfile(long sbuId);

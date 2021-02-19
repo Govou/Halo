@@ -29,9 +29,9 @@ namespace HaloBiz.Repository.Impl
             return null;
         }
 
-        public async Task<bool> SaveUserProfiles(IEnumerable<UserProfile> userProfiles)
+        public async Task<bool> UpdateUserProfiles(IEnumerable<UserProfile> userProfiles)
         {
-            await _context.UserProfiles.AddRangeAsync(userProfiles);
+            _context.UserProfiles.UpdateRange(userProfiles);
             return await SaveChanges();
         }
 

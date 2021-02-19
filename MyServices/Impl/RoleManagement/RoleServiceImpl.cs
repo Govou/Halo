@@ -183,7 +183,7 @@ namespace HaloBiz.MyServices.Impl.RoleManagement
                     userProfile.RoleId = unAssignedRole.Id;
                 }
 
-                await _userProfileRepo.SaveUserProfiles(userProfiles);
+                await _userProfileRepo.UpdateUserProfiles(userProfiles);
             }
 
 
