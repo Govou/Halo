@@ -4,8 +4,10 @@ using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using AutoMapper;
+using HaloBiz.Adapters;
 using HaloBiz.Data;
 using HaloBiz.DTOs.ApiDTOs;
+using HaloBiz.DTOs.MailDTOs;
 using HaloBiz.DTOs.ReceivingDTOs;
 using HaloBiz.DTOs.TransferDTOs.LAMS;
 using HaloBiz.Helpers;
@@ -25,6 +27,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
     {
         private readonly ILogger<DeliverableFulfillmentServiceImpl> _logger;
         private readonly IModificationHistoryRepository _historyRepo;
+        private readonly IMailAdapter _mailAdapter;
         private readonly IDeliverableFulfillmentRepository _deliverableFulfillmentRepo;
         private readonly ITaskFulfillmentRepository _taskFulfillmentRepo;
         private readonly IUserProfileRepository _userProfileRepo;
@@ -34,12 +37,14 @@ namespace HaloBiz.MyServices.Impl.LAMS
         public DeliverableFulfillmentServiceImpl(IModificationHistoryRepository historyRepo, 
             IDeliverableFulfillmentRepository deliverableFulfillmentRepo, 
             ITaskFulfillmentRepository taskFulfillmentRepo,
+            IMailAdapter mailAdapter,
             IUserProfileRepository userProfileRepo,
             DataContext dataContext,
             ILogger<DeliverableFulfillmentServiceImpl> logger, IMapper mapper)
         {
             this._mapper = mapper;
             this._historyRepo = historyRepo;
+            _mailAdapter = mailAdapter;
             this._deliverableFulfillmentRepo = deliverableFulfillmentRepo;
             this._taskFulfillmentRepo = taskFulfillmentRepo;
             this._userProfileRepo = userProfileRepo;
@@ -56,6 +61,18 @@ namespace HaloBiz.MyServices.Impl.LAMS
             {
                 return new ApiResponse(500);
             }
+
+            await _mailAdapter.SendNewDeliverableAssigned(new NewDeliverableAssignedDTO
+            {
+                EmailAddress = savedDeliverableFulfillment.Responsible.Email,
+                UserName = $"{savedDeliverableFulfillment.Responsible.FirstName} {savedDeliverableFulfillment.Responsible.LastName}",
+                Customer = savedDeliverableFulfillment.TaskFullfillment.CustomerDivision.DivisionName,
+                TaskOwner = $"{savedDeliverableFulfillment.TaskFullfillment.Responsible.FirstName} {savedDeliverableFulfillment.TaskFullfillment.Responsible.LastName}",
+                TaskName = savedDeliverableFulfillment.TaskFullfillment.Caption,
+                ServiceName = savedDeliverableFulfillment.TaskFullfillment.ContractService.ServiceId.ToString(),
+                Quantity = savedDeliverableFulfillment.TaskFullfillment.ContractService.Quantity.ToString(),
+                Deliverable = savedDeliverableFulfillment.Caption
+            });
             var deliverableFulfillmentTransferDTO = _mapper.Map<DeliverableFulfillmentTransferDTO>(savedDeliverableFulfillment);
             return new ApiOkResponse(deliverableFulfillmentTransferDTO);
         }

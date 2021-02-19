@@ -10,5 +10,6 @@ namespace HaloBiz.Adapters
     public interface IMailAdapter
     {
         Task<ApiResponse> SendUserAssignedToRoleMail(NewRoleAssignedDTO newRoleAssignedDTO);
+        Task<ApiResponse> SendNewDeliverableAssigned(NewDeliverableAssignedDTO newDeliverableAssignedDTO);
     }
 }
