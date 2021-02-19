@@ -12,5 +12,6 @@ namespace HaloBiz.Repository
         Task<IEnumerable<Services>> FindAllServices();
         Task<Services> UpdateServices(Services service);
         Task<bool> DeleteService(Services service);
+        Task<IEnumerable<Services>> FindAllUnplishedServices();
     }
 }

@@ -27,6 +27,16 @@ namespace HaloBiz.Controllers
             return Ok(services);
         }
 
+        [HttpGet("GetUnpublishedServices")]
+        public async Task<ActionResult> GetUnpublishedServices()
+        {
+            var response = await _servicesService.GetUnpublishedServices();
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var services = ((ApiOkResponse)response).Result;
+            return Ok(services);
+        }
+
         [HttpGet("name/{name}")]
         public async Task<ActionResult> GetByName(string name)
         {
