@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 
 namespace halobiz_backend.DTOs.ReceivingDTOs
 {
@@ -7,6 +8,6 @@ namespace halobiz_backend.DTOs.ReceivingDTOs
         public long AccountId { get; set; }
         public DateTime TransactionStart { get; set; }
         public DateTime TransactionEnd { get; set; }
-        public long VoucherTypeId { get; set; }
+        public List<Int64> VoucherTypeIds { get; set; }
     }
 }

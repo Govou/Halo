@@ -1,6 +1,8 @@
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using HaloBiz.Model.LAMS;
+using halobiz_backend.DTOs.TransferDTOs;
 
 namespace HaloBiz.Repository.LAMS
 {
@@ -13,5 +15,6 @@ namespace HaloBiz.Repository.LAMS
         Task<IEnumerable<TaskFulfillment>> FindAllTaskFulfillmentForTaskOwner(long taskOwnerId);
         Task<TaskFulfillment> UpdateTaskFulfillment(TaskFulfillment taskFulfillment);
         Task<bool> DeleteTaskFulfillment(TaskFulfillment taskFulfillment);
+        Task<IEnumerable<TaskDeliverablesSummary>> GetTaskDeliverablesSummary(long responsibleId);
     }
 }

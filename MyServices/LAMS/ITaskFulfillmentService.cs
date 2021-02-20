@@ -18,5 +18,6 @@ namespace HaloBiz.MyServices.LAMS
         Task<ApiResponse> SetIsPicked(HttpContext context, long id);
         Task<ApiResponse> GetTaskFulfillmentsByOperatingEntityHeadId(long id);
         Task<ApiResponse> GetTaskFulfillmentDetails(long id);
+        Task<ApiResponse> GetTaskDeliverableSummary(long responsibleId);
     }
 }
