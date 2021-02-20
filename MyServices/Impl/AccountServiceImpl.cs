@@ -99,13 +99,17 @@ namespace HaloBiz.MyServices.Impl
                 return new ApiResponse(404);
             }
 
-            if(accountSearchDTO.VoucherTypeId > 0)
+            if( accountSearchDTO.VoucherTypeIds.Count() > 0)
             {
-                account.AccountDetails = account.AccountDetails.Where(x => x.TransactionDate >= accountSearchDTO.TransactionStart 
-                    && x.TransactionDate <= accountSearchDTO.TransactionEnd && x.VoucherId == accountSearchDTO.VoucherTypeId);
+                account.AccountDetails = account.AccountDetails.Where(
+                x => x.TransactionDate >= accountSearchDTO.TransactionStart 
+                    && x.TransactionDate <= accountSearchDTO.TransactionEnd 
+                        && accountSearchDTO.VoucherTypeIds.Contains(x.VoucherId));
             }else{
-                account.AccountDetails = account.AccountDetails.Where(x => x.CreatedAt >= accountSearchDTO.TransactionStart 
-                    && x.CreatedAt <= accountSearchDTO.TransactionEnd );
+                account.AccountDetails = account.AccountDetails.Where(
+                x => x.TransactionDate >= accountSearchDTO.TransactionStart 
+                    && x.TransactionDate <= accountSearchDTO.TransactionEnd 
+                      );
             }
 
             var AccountTransferDTOs = _mapper.Map<AccountTransferDTO>(account);
