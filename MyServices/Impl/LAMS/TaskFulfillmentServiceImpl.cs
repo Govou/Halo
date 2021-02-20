@@ -14,6 +14,7 @@ using HaloBiz.Model.LAMS;
 using HaloBiz.MyServices.LAMS;
 using HaloBiz.Repository;
 using HaloBiz.Repository.LAMS;
+using halobiz_backend.DTOs.TransferDTOs;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -163,6 +164,68 @@ namespace HaloBiz.MyServices.Impl.LAMS
             }
             var taskFulfillmentTransferDTOs = _mapper.Map<TaskFulfillmentTransferDetailsDTO>(taskFulfillment);
             return new ApiOkResponse(taskFulfillmentTransferDTOs);
+        }
+        public async Task<ApiResponse> GetTaskDeliverableSummary(long responsibleId)
+        {
+            try
+            {
+                List<TaskWithListOfDeliverables> taskWithListOfDeliverables = new List<TaskWithListOfDeliverables>();
+                var userDeliverableSummary =  await _taskFulfillmentRepo.GetTaskDeliverablesSummary(responsibleId);
+                foreach (var deliverableSummary in userDeliverableSummary)
+                {
+                    var deliverable = GetTaskWithListOfDeliverables(taskWithListOfDeliverables, deliverableSummary.TaskId);
+                    if(deliverable == null)
+                    {
+                        taskWithListOfDeliverables.Add(new TaskWithListOfDeliverables()
+                            {
+                                TaskCaption = deliverableSummary.TaskCaption,
+                                TaskId = deliverableSummary.TaskId,
+                                TaskResponsibleId = deliverableSummary.TaskResponsibleId,
+                                TaskResponsibleImageUrl = deliverableSummary.TaskResponsibleImageUrl,
+                                TaskResponsibleName = deliverableSummary.TaskResponsibleName,
+                                DeliverableSummaries = new List<DeliverableSummary>(){
+                                    new DeliverableSummary()
+                                    {
+                                            DeliverableId = deliverableSummary.DeliverableId,
+                                            DeliverableCaption = deliverableSummary.DeliverableCaption,
+                                            DeliveryDate = deliverableSummary.DeliveryDate,
+                                            DeliverableStatus = deliverableSummary.DeliverableStatus,
+                                            DeliverableResponsibleId = deliverableSummary.DeliverableResponsibleId,
+                                    }
+                                }
+                        
+                            });
+                    }else{
+                        deliverable.DeliverableSummaries.Add(
+                            new DeliverableSummary()
+                                    {
+                                            DeliverableId = deliverableSummary.DeliverableId,
+                                            DeliverableCaption = deliverableSummary.DeliverableCaption,
+                                            DeliveryDate = deliverableSummary.DeliveryDate,
+                                            DeliverableStatus = deliverableSummary.DeliverableStatus,
+                                            DeliverableResponsibleId = deliverableSummary.DeliverableResponsibleId,
+                                    }
+                        );
+                    }
+
+                }
+                return new ApiOkResponse(taskWithListOfDeliverables);
+            }catch(Exception e)
+            {
+                _logger.LogError(e.Message);
+                _logger.LogError(e.StackTrace);
+                return new ApiResponse(500);
+            }
+           
+        }
+
+        public TaskWithListOfDeliverables GetTaskWithListOfDeliverables(IEnumerable<TaskWithListOfDeliverables> taskWithListOfDeliverables, long taskId)
+        {
+            if(taskWithListOfDeliverables.Count() == 0) 
+                return null;
+
+            return taskWithListOfDeliverables.FirstOrDefault(x => x.TaskId == taskId);
+
         }
 
         public async Task<ApiResponse> UpdateTaskFulfillment(HttpContext context, long id, TaskFulfillmentReceivingDTO taskFulfillmentReceivingDTO)
