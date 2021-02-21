@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using HaloBiz.Model;
 using HaloBiz.Model.AccountsModel;
 using HaloBiz.Model.ManyToManyRelationship;
 
@@ -14,10 +15,16 @@ namespace HaloBiz.DTOs.TransferDTOs
         public string ImageUrl { get; set; }
         public double UnitPrice { get; set; }
         public long ServiceCategoryId { get; set; }
+        public ServiceCategory ServiceCategory { get; set; }
         public long ServiceGroupId { get; set; }
+        public ServiceGroup ServiceGroup { get; set; }
         public long OperatingEntityId { get; set; }
+        public OperatingEntity OperatingEntity { get; set; }
         public long DivisionId { get; set; }
-         public bool IsPublished { get; set; }
+        public Division Division { get; set; }
+        public long CreatedById { get; set; }
+        public UserProfile CreatedBy { get; set; }
+        public bool IsPublished { get; set; }
         public bool IsRequestedForPublish { get; set; }
         public bool PublishedApprovedStatus { get; set; }
         public TargetTransferDTO Target { get; set; }
