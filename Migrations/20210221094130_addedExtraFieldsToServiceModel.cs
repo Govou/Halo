@@ -11,7 +11,7 @@ namespace HaloBiz.Migrations
                 table: "Services",
                 type: "bigint",
                 nullable: false,
-                defaultValue: 0L);
+                defaultValue: 31L);
 
             migrationBuilder.CreateIndex(
                 name: "IX_Services_CreatedById",
@@ -39,7 +39,7 @@ namespace HaloBiz.Migrations
                 column: "DivisionId",
                 principalTable: "Divisions",
                 principalColumn: "Id",
-                onDelete: ReferentialAction.Cascade);
+                onDelete: ReferentialAction.NoAction);
 
             migrationBuilder.AddForeignKey(
                 name: "FK_Services_OperatingEntities_OperatingEntityId",
@@ -47,7 +47,7 @@ namespace HaloBiz.Migrations
                 column: "OperatingEntityId",
                 principalTable: "OperatingEntities",
                 principalColumn: "Id",
-                onDelete: ReferentialAction.Cascade);
+                onDelete: ReferentialAction.NoAction);
 
             migrationBuilder.AddForeignKey(
                 name: "FK_Services_ServiceGroups_ServiceGroupId",
@@ -55,7 +55,7 @@ namespace HaloBiz.Migrations
                 column: "ServiceGroupId",
                 principalTable: "ServiceGroups",
                 principalColumn: "Id",
-                onDelete: ReferentialAction.Cascade);
+                onDelete: ReferentialAction.NoAction);
 
             migrationBuilder.AddForeignKey(
                 name: "FK_Services_UserProfiles_CreatedById",
@@ -63,7 +63,7 @@ namespace HaloBiz.Migrations
                 column: "CreatedById",
                 principalTable: "UserProfiles",
                 principalColumn: "Id",
-                onDelete: ReferentialAction.Cascade);
+                onDelete: ReferentialAction.NoAction);
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
