@@ -1,5 +1,6 @@
 ﻿using HaloBiz.DTOs.ApiDTOs;
 using HaloBiz.DTOs.ReceivingDTOs;
+using halobiz_backend.DTOs.ReceivingDTOs;
 using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
@@ -15,5 +16,7 @@ namespace HaloBiz.MyServices
         Task<ApiResponse> GetAllAccountMasters();
         Task<ApiResponse> UpdateAccountMaster(long id, AccountMasterReceivingDTO accountMasterReceivingDTO);
         Task<ApiResponse> DeleteAccountMaster(long id);
+        Task<ApiResponse> GetAllAccountMastersByTransactionId(string transactionId);
+        Task<ApiResponse> GetAllAccountMastersByCustomerIdAndContractYear(AccMasterByCustomerIdSearchDto searcDto);
     }
 }

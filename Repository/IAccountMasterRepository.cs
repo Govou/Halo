@@ -1,4 +1,5 @@
 ﻿using HaloBiz.Model.AccountsModel;
+using halobiz_backend.DTOs.ReceivingDTOs;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,5 +18,7 @@ namespace HaloBiz.Repository
         Task<AccountMaster> UpdateAccountMaster(AccountMaster accountMaster);
 
         Task<bool> DeleteAccountMaster(AccountMaster accountMaster);
+        Task<IEnumerable<AccountMaster>> FindAccountMastersByTransactionId(string transactionId);
+        Task<IEnumerable<AccountMaster>> FindAllAccountMastersByCustomerId(AccMasterByCustomerIdSearchDto searchDTO);
     }
 }
