@@ -14,5 +14,6 @@ namespace HaloBiz.Repository.LAMS
         Task<DeliverableFulfillment> UpdateDeliverableFulfillment(DeliverableFulfillment deliverableFulfillment);
         Task<bool> DeleteDeliverableFulfillment(DeliverableFulfillment deliverableFulfillment);
         Task<IEnumerable<DeliverableFulfillment>> FindAllDeliverableFulfillmentForTaskMaster(long taskMasterId);
+        Task<object> GetUserDeliverableStat(long userId);
     }
 }
