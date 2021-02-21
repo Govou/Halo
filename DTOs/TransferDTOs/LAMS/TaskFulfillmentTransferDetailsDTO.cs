@@ -13,7 +13,7 @@ namespace HaloBiz.DTOs.TransferDTOs.LAMS
         public long CustomerDivisionId { get; set; }
         public CustomerDivision CustomerDivision { get; set; }
         public long ContractServiceId { get; set; }
-        public ContractService ContractService { get; set; }
+        public ContractServiceTransferDTO ContractService { get; set; }
         public long? ResponsibleId { get; set; }
         public UserProfile Responsible { get; set; }
         public long? AccountableId { get; set; }
@@ -40,5 +40,15 @@ namespace HaloBiz.DTOs.TransferDTOs.LAMS
         public LeadDivisionContact SecondaryContact { get; set; }
         public IEnumerable<LeadDivisionKeyPerson> LeadDivisionKeyPersons { get; set; }
         public IEnumerable<DeliverableFulfillmentWithouthTaskFulfillmentTransferDTO> DeliverableFulfillments { get; set; }
+        public ServiceDivisionDetails ServiceDivisionDetails { get; set; }
+    }
+
+    public class ServiceDivisionDetails
+    {
+        public string Division { get; set; }
+        public string OperatingEntity { get; set; }
+        public string ServiceCategory { get; set; }
+        public string ServiceGroup { get; set; }
+        public string Service { get; set; }
     }
 }

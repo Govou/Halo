@@ -30,15 +30,19 @@ namespace HaloBiz.MyServices.Impl.LAMS
         private readonly IUserProfileRepository _userProfileRepo;
         private readonly DataContext _context;
         private readonly IMapper _mapper;
+        private readonly IServicesRepository _servicesRepo;
 
         public TaskFulfillmentServiceImpl(IModificationHistoryRepository historyRepo, 
             ITaskFulfillmentRepository taskFulfillmentRepo, 
             IUserProfileRepository userProfileRepo,
             IOperatingEntityRepository operatingEntityRepo,
             DataContext dataContext,
-            ILogger<TaskFulfillmentServiceImpl> logger, IMapper mapper)
+            ILogger<TaskFulfillmentServiceImpl> logger, IMapper mapper,
+             IServicesRepository servicesRepo
+            )
         {
             this._mapper = mapper;
+            this._servicesRepo = servicesRepo;
             this._historyRepo = historyRepo;
             this._taskFulfillmentRepo = taskFulfillmentRepo;
             this._operatingEntityRepo = operatingEntityRepo;
@@ -151,7 +155,9 @@ namespace HaloBiz.MyServices.Impl.LAMS
             {
                 return new ApiResponse(404);
             }
+            var serviceDetails = await _servicesRepo.GetServiceDetails(taskFulfillment.ContractService.ServiceId);
             var taskFulfillmentTransferDTOs = _mapper.Map<TaskFulfillmentTransferDetailsDTO>(taskFulfillment);
+            taskFulfillmentTransferDTOs.ServiceDivisionDetails = serviceDetails;
             return new ApiOkResponse(taskFulfillmentTransferDTOs);
         }
 

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using HaloBiz.Data;
+using HaloBiz.DTOs.TransferDTOs.LAMS;
 using HaloBiz.Model;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -45,6 +46,24 @@ namespace HaloBiz.Repository.Impl
                 .Include(service => service.RequredServiceQualificationElement.Where(row => row.IsDeleted == false))
                 .ThenInclude(row => row.RequredServiceQualificationElement)
                 .FirstOrDefaultAsync( service => service.Id == Id && service.IsDeleted == false);
+        }
+
+        public async Task<ServiceDivisionDetails> GetServiceDetails(long Id)
+        {
+            var service = await _context.Services.FirstOrDefaultAsync(x => x.Id == Id);
+            var serviceDivsionDetails = new ServiceDivisionDetails();
+            if(service == null)
+            {
+                return null;
+            }
+
+            serviceDivsionDetails.Division = await _context.Divisions.Where(x => x.Id == service.DivisionId).Select(x => x.Name).FirstOrDefaultAsync();
+            serviceDivsionDetails.OperatingEntity = await _context.OperatingEntities.Where(x => x.Id == service.OperatingEntityId).Select(x => x.Name).FirstOrDefaultAsync();
+            serviceDivsionDetails.ServiceCategory = await _context.ServiceCategories.Where(x => x.Id == service.ServiceCategoryId).Select(x => x.Name).FirstOrDefaultAsync();
+            serviceDivsionDetails.ServiceGroup = await _context.ServiceGroups.Where(x => x.Id == service.ServiceGroupId).Select(x => x.Name).FirstOrDefaultAsync();
+            serviceDivsionDetails.Service = service.Name;
+
+            return serviceDivsionDetails;
         }
 
         public async Task<Services> FindServiceByName(string name)
