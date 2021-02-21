@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using HaloBiz.DTOs.TransferDTOs.LAMS;
 using HaloBiz.Model;
 
 namespace HaloBiz.Repository
@@ -13,5 +14,6 @@ namespace HaloBiz.Repository
         Task<Services> UpdateServices(Services service);
         Task<bool> DeleteService(Services service);
         Task<IEnumerable<Services>> FindAllUnplishedServices();
+        Task<ServiceDivisionDetails> GetServiceDetails(long Id);
     }
 }
