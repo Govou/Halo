@@ -27,6 +27,6 @@ namespace HaloBiz.DTOs.TransferDTOs
         public CustomerDivisionWithoutObjectsTransferDTO CustomerDivision { get; set; }
 
         public IEnumerable<SBUAccountMaster> SBUAccountMaster { get; set; }
-        public IEnumerable<AccountDetailTransferDTO> AccountDetails { get; set; }
+        public IEnumerable<AccountDetailWithoutAccountMasterTransferDTO> AccountDetails { get; set; }
     }
 }

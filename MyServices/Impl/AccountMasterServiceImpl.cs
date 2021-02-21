@@ -5,6 +5,7 @@ using HaloBiz.DTOs.TransferDTOs;
 using HaloBiz.Helpers;
 using HaloBiz.Model.AccountsModel;
 using HaloBiz.Repository;
+using halobiz_backend.DTOs.ReceivingDTOs;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using System;
@@ -76,6 +77,32 @@ namespace HaloBiz.MyServices.Impl
             }
             var AccountMasterTransferDTOs = _mapper.Map<IEnumerable<AccountMasterTransferDTO>>(AccountMaster);
             return new ApiOkResponse(AccountMasterTransferDTOs);
+        }
+
+        public async Task<ApiResponse> GetAllAccountMastersByTransactionId(string transactionId)
+        {
+            var accountMasters = await _AccountMasterRepo.FindAccountMastersByTransactionId(transactionId);
+            if (accountMasters == null)
+            {
+                return new ApiResponse(404);
+            }
+            var accountMasterTransferDTOs = _mapper.Map<IEnumerable<AccountMasterTransferDTO>>(accountMasters);
+            return new ApiOkResponse(accountMasterTransferDTOs);
+        }
+
+        public async Task<ApiResponse> GetAllAccountMastersByCustomerIdAndContractYear(AccMasterByCustomerIdSearchDto searcDto)
+        {
+            try{
+                var accountMasters = await _AccountMasterRepo.FindAllAccountMastersByCustomerId(searcDto);
+                var accountMasterTransferDTOs = _mapper.Map<IEnumerable<AccountMasterTransferDTO>>(accountMasters);
+                return new ApiOkResponse(accountMasterTransferDTOs);
+            }catch(Exception e)
+            {
+                _logger.LogError(e.Message);
+                _logger.LogError(e.StackTrace);
+                return new ApiResponse(500);
+            }
+            
         }
 
         public async Task<ApiResponse> UpdateAccountMaster(long id, AccountMasterReceivingDTO accountMasterReceivingDTO)

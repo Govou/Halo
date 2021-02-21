@@ -2,6 +2,7 @@
 using HaloBiz.DTOs.ReceivingDTOs;
 using HaloBiz.DTOs.TransferDTOs;
 using HaloBiz.MyServices;
+using halobiz_backend.DTOs.ReceivingDTOs;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
@@ -49,6 +50,26 @@ namespace HaloBiz.Controllers.AccountsModel
                 return StatusCode(response.StatusCode, response);
             var AccountMaster = ((ApiOkResponse)response).Result;
             return Ok((AccountMasterTransferDTO)AccountMaster);
+        }
+
+        [HttpGet("GetAccountMasterByTransactionId/{transactionId}")]
+        public async Task<ActionResult> GetAccountMasterByTransactionId(string transactionId)
+        {
+            var response = await _AccountMasterService.GetAllAccountMastersByTransactionId(transactionId);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var AccountMaster = ((ApiOkResponse)response).Result;
+            return Ok(AccountMaster);
+        }
+
+        [HttpPost("GetAccountMasterByCustomerIdAndContractYears")]
+        public async Task<ActionResult> GetAccountMasterByTransactionId(AccMasterByCustomerIdSearchDto searchDto)
+        {
+            var response = await _AccountMasterService.GetAllAccountMastersByCustomerIdAndContractYear(searchDto);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var accountMasters = ((ApiOkResponse)response).Result;
+            return Ok(accountMasters);
         }
 
         [HttpPut("{id}")]
