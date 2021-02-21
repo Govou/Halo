@@ -307,6 +307,7 @@ namespace HaloBiz.MyServices.Impl
 
             serviceToUpdate.PublishedApprovedStatus = true;
             serviceToUpdate.IsRequestedForPublish = true;
+            serviceToUpdate.IsPublished = true;
 
             var updatedService = await _servicesRepository.UpdateServices(serviceToUpdate);
 
@@ -370,6 +371,8 @@ namespace HaloBiz.MyServices.Impl
 
             serviceToUpdate.PublishedApprovedStatus = false;
             serviceToUpdate.IsRequestedForPublish = true;
+            serviceToUpdate.IsPublished = true;
+
 
             var updatedService = await _servicesRepository.UpdateServices(serviceToUpdate);
 

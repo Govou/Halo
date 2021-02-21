@@ -31,13 +31,18 @@ namespace HaloBiz.Model
         public ServiceType ServiceType { get; set; }
         [Required]
         public long ServiceCategoryId { get; set; }
+        public virtual ServiceCategory ServiceCategory { get; set; }
         [Required]
         public long ServiceGroupId { get; set; }
+        public virtual ServiceGroup ServiceGroup { get; set; }
         [Required]
         public long OperatingEntityId { get; set; }
+        public virtual OperatingEntity OperatingEntity { get; set; }
         [Required]
         public long DivisionId { get; set; }
-        public virtual ServiceCategory ServiceCategory { get; set; }
+        public virtual Division Division { get; set; }
+        public long CreatedById { get; set; }
+        public virtual UserProfile CreatedBy { get; set; }
         public long? AccountId { get; set; }
         public Account Account { get; set; }
         public IList<ServiceRequiredServiceDocument> RequiredServiceDocument { get; set; }
