@@ -62,6 +62,59 @@ namespace HaloBiz.Repository.Impl.LAMS
             listOFDeliverable.ToList().ForEach(x => deliverrables.Concat(x));
             return deliverrables;
         }
+        public async Task<object> GetUserDeliverableStat(long userId)
+        {
+            var userDeliverableInWorkBench = await _context.DeliverableFulfillments
+                .Where(x => x.ResponsibleId == userId && x.DeliverableStatus == false
+                     && x.IsDeleted == false).ToListAsync();
+
+            var userDeliverableAtRisk = userDeliverableInWorkBench
+                        .Where(x => CheckIfDeliverableAtRisk(x.StartDate, x.EndDate)).Count();
+
+            var userDeliverableOverdue = userDeliverableInWorkBench
+                    .Where(x => x.EndDate >= DateTime.Now).Count();
+
+            var numberOfUserDeliverableAtRisk = userDeliverableInWorkBench.Where(
+                    x => CheckIfDeliverableAtRisk(x.StartDate, x.EndDate)).Count();
+
+            var userDeliverableOnTrack = userDeliverableInWorkBench.Count()
+                            - (numberOfUserDeliverableAtRisk + userDeliverableOverdue);
+
+            var completedDeliverable =  await _context.DeliverableFulfillments
+                    .Where(x => x.ResponsibleId == userId && x.DeliverableStatus == true
+                     && x.IsDeleted == false).CountAsync();
+            
+            var numberOfEarlyDeliverableCompletion = await _context.DeliverableFulfillments
+            .Where(x => x.ResponsibleId == userId && x.DeliverableStatus == true 
+                     && x.IsDeleted == false && x.EndDate >= x.DeliverableCompletionDate).CountAsync();
+
+            double earlyDeliveryRate = numberOfEarlyDeliverableCompletion == 0 ? 0 
+                        : (numberOfEarlyDeliverableCompletion / completedDeliverable) * 100 ;
+
+
+            
+            var unPickedDeliverable = userDeliverableInWorkBench.Where(x => x.IsPicked == false).Count();
+
+            double pickRate = unPickedDeliverable == 0 ? 0.0 : (unPickedDeliverable / userDeliverableInWorkBench.Count()) / 100.00;
+            
+            return new{ 
+                userDeliverableOnTrack,
+                userDeliverableInWorkBench = userDeliverableInWorkBench.Count(), 
+                userDeliverableAtRisk = numberOfUserDeliverableAtRisk, 
+                userDeliverableOverdue = userDeliverableOverdue,
+                pickRate,
+                earlyDeliveryRate
+                };
+        }
+
+        public bool CheckIfDeliverableAtRisk(DateTime? start, DateTime? end)
+        {
+            if(end < DateTime.Now || start == null || end == null) 
+                return false;
+            var diffInDate =((DateTime) end).Subtract((DateTime)start).TotalMilliseconds;
+            var diffInStartDateAndPresentDate = DateTime.Now.Subtract((DateTime)start).TotalMilliseconds;
+            return (diffInStartDateAndPresentDate / diffInDate) * 100 >= 90 ? true : false;
+        }
         public async Task<IEnumerable<DeliverableFulfillment>> FindAllAssignedDeliverableFulfillmentForTaskMaster(long taskMasterId)
         {
             var deliverrables = await FindAllDeliverableFulfillmentForTaskMaster( taskMasterId);

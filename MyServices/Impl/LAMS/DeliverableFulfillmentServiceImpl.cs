@@ -148,6 +148,18 @@ namespace HaloBiz.MyServices.Impl.LAMS
             var deliverableFulfillmentTransferDTOs = _mapper.Map<DeliverableFulfillmentTransferDTO>(deliverableFulfillment);
             return new ApiOkResponse(deliverableFulfillmentTransferDTOs);
         }
+        public async Task<ApiResponse> GetUserDeliverableFulfillmentStat(long userId)
+        {
+            try{
+                var stat = await _deliverableFulfillmentRepo.GetUserDeliverableStat(userId);
+                return new ApiOkResponse(stat);
+            }catch(Exception e)
+            {
+                _logger.LogError(e.Message);
+                _logger.LogError(e.StackTrace);
+                return new ApiResponse(500);
+            }
+        }
 
         public async Task<ApiResponse> UpdateDeliverableFulfillment(HttpContext context, long deliverableId, DeliverableFulfillmentReceivingDTO deliverableFulfillmentReceivingDTO)
         {
