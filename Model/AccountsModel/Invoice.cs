@@ -1,7 +1,10 @@
 using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using HaloBiz.Model.LAMS;
+using halobiz_backend.Helpers;
+using halobiz_backend.Model.AccountsModel;
 
 namespace HaloBiz.Model.AccountsModel
 {
@@ -10,6 +13,7 @@ namespace HaloBiz.Model.AccountsModel
         [Key]
         public long Id { get; set; }
         public string InvoiceNumber { get; set; }
+        public string TransactionId { get; set; }
         public double UnitPrice { get; set; }
         public long Quantity { get; set; }
         public double Discount { get; set; }
@@ -20,6 +24,8 @@ namespace HaloBiz.Model.AccountsModel
         public bool IsInvoiceSent { get; set; }
         public long CustomerDivisionId { get; set; }
         public CustomerDivision CustomerDivision { get; set; }
+        public InvoiceStatus IsReceiptedStatus { get; set; }
+        public IEnumerable<Receipt> Receipts { get; set; }
         [Required]
         public long ContractId { get; set; }
         public Contract Contract { get; set; }
@@ -34,15 +40,3 @@ namespace HaloBiz.Model.AccountsModel
 
     }
 }
-
-/*InvoiceNumber
-Unit
-Quantity
-Discount
-Value
-DateToBeSent
-IsInvoiceSent
-ContractId
-ContractServiceId
-CustomerDivisionId
-*/

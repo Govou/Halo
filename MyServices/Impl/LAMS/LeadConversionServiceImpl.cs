@@ -9,6 +9,7 @@ using HaloBiz.Model.AccountsModel;
 using HaloBiz.Model.LAMS;
 using HaloBiz.Model.ManyToManyRelationship;
 using HaloBiz.MyServices.LAMS;
+using halobiz_backend.Helpers;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
@@ -266,7 +267,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                                      (long) leadDivision.BranchId,
                                     (long) leadDivision.OfficeId
                                     );
-                await GenerateInvoices( contractService,  customerDivision.Id, contractId, context);
+                await GenerateInvoices( contractService,  customerDivision.Id, contractId, context, quoteService.Service.ServiceCode);
                 await GenerateAmortizations( contractService,  customerDivision, context);
             }
 
@@ -328,7 +329,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
             return true;
         }
 
-        private async Task<bool> GenerateInvoices(ContractService contractService, long customerDivisionId, long contractId, DataContext context)
+        private async Task<bool> GenerateInvoices(ContractService contractService, long customerDivisionId, long contractId, DataContext context, string serviceCode)
         {
             List<Invoice> invoicesToSave = GenerateListOfInvoiceCycle(
                                     (DateTime)contractService.ContractStartDate,
@@ -337,7 +338,8 @@ namespace HaloBiz.MyServices.Impl.LAMS
                                     (TimeCycle) contractService.InvoicingInterval,
                                     (double) contractService.BillableAmount,
                                      contractService, 
-                                    customerDivisionId);
+                                    customerDivisionId,
+                                    serviceCode);
 
             await context.Invoices.AddRangeAsync(invoicesToSave);
             await context.SaveChangesAsync();
@@ -351,7 +353,8 @@ namespace HaloBiz.MyServices.Impl.LAMS
                                             TimeCycle cycle, 
                                             double amount,
                                             ContractService contractService, 
-                                            long customerDivisionId)
+                                            long customerDivisionId,
+                                            string serviceCode)
         {
             int interval = 0;
             var invoiceValue = 0.0;
@@ -397,14 +400,14 @@ namespace HaloBiz.MyServices.Impl.LAMS
                             invoiceValueForWeekly , 
                             firstInvoiceSendDate,
                              contractService, 
-                             customerDivisionId));
+                             customerDivisionId, serviceCode));
                     firstInvoiceSendDate = firstInvoiceSendDate.AddDays(interval);
                     startDate = startDate.AddDays(interval);
                 }
             }else if(cycle == TimeCycle.OneTime ){
                 
                     invoices.Add(GenerateInvoice(startDate,  endDate, amount , firstInvoiceSendDate,
-                                                     contractService, customerDivisionId));
+                                                     contractService, customerDivisionId, serviceCode));
 
             }else{
                 invoiceValue = amount * (double) interval ;
@@ -414,7 +417,8 @@ namespace HaloBiz.MyServices.Impl.LAMS
                                                 invoiceValue , 
                                                 firstInvoiceSendDate, 
                                                 contractService, 
-                                                customerDivisionId));
+                                                customerDivisionId,
+                                                serviceCode));
                     firstInvoiceSendDate = firstInvoiceSendDate.AddMonths(interval);
                     startDate = startDate.AddMonths(interval);
                 }
@@ -422,14 +426,20 @@ namespace HaloBiz.MyServices.Impl.LAMS
             return invoices;
         }
 
-        private static Invoice GenerateInvoice(DateTime from, DateTime to, double amount, DateTime sendDate,ContractService contractService, long customerDivisionId)
+        private static Invoice GenerateInvoice(
+                                DateTime from, DateTime to, 
+                                double amount, DateTime sendDate,
+                                ContractService contractService, 
+                                long customerDivisionId,
+                                string serviceCode)
         {
             return new Invoice(){
-                    InvoiceNumber = "",
+                    InvoiceNumber = $"INV{serviceCode}/{contractService.Id}",
                     UnitPrice = (double) contractService.UnitPrice,
                     Quantity = contractService.Quantity,
                     Discount = contractService.Discount,
                     Value  = amount,
+                    TransactionId = $"{serviceCode}/{contractService.Id}",
                     DateToBeSent = sendDate,
                     IsInvoiceSent = false,
                     CustomerDivisionId = customerDivisionId,
@@ -437,6 +447,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                     ContractServiceId = contractService.Id,
                     StartDate  = from,
                     EndDate  = to,
+                    IsReceiptedStatus = InvoiceStatus.NotReceipted
                     
             };
         }

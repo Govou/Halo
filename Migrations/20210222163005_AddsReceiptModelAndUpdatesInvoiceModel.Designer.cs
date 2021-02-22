@@ -4,14 +4,16 @@ using HaloBiz.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace HaloBiz.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20210222163005_AddsReceiptModelAndUpdatesInvoiceModel")]
+    partial class AddsReceiptModelAndUpdatesInvoiceModel
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -3615,8 +3617,7 @@ namespace HaloBiz.Migrations
 
                     b.Property<DateTime>("CreatedAt")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime2")
-                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+                        .HasColumnType("datetime2");
 
                     b.Property<long>("CreatedById")
                         .HasColumnType("bigint");
@@ -3663,8 +3664,7 @@ namespace HaloBiz.Migrations
 
                     b.Property<DateTime>("UpdatedAt")
                         .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("datetime2")
-                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+                        .HasColumnType("datetime2");
 
                     b.Property<double>("ValueOfWHT")
                         .HasColumnType("float");
@@ -3675,7 +3675,7 @@ namespace HaloBiz.Migrations
 
                     b.HasIndex("InvoiceId");
 
-                    b.ToTable("Receipts");
+                    b.ToTable("Receipt");
                 });
 
             modelBuilder.Entity("halobiz_backend.Model.Notification", b =>
