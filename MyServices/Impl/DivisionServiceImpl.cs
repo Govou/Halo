@@ -70,6 +70,16 @@ namespace HaloBiz.MyServices.Impl
             var divisionTransferDTOs = _mapper.Map<IEnumerable<DivisionTransferDTO>>(divisions);
             return new ApiOkResponse(divisionTransferDTOs);
         }
+        public async Task<ApiResponse> GetAllDivisionsAndSbu()
+        {
+            var divisions = await _divisionRepo.GetAllDivisionAndSbu();
+            if (divisions == null)
+            {
+                return new ApiResponse(404);
+            }
+            var divisionTransferDTOs = _mapper.Map<IEnumerable<DivisionTransferDTO>>(divisions);
+            return new ApiOkResponse(divisionTransferDTOs);
+        }
 
         public async Task<ApiResponse> GetDivisionByName(string name)
         {

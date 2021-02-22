@@ -15,6 +15,8 @@ namespace halobiz_backend.DTOs.ReceivingDTOs
         public bool IsTaskWitheld { get; set; }
         public double ValueOfWHT { get; set; }
         public long InvoiceId { get; set; }
+        public long ClientId { get; set; }
+        public long BankAccountId { get; set; }
         [StringLength(2000)]
         public string EvidenceOfPaymentUrl { get; set; }
     }

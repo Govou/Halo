@@ -57,6 +57,15 @@ namespace HaloBiz.Repository.Impl
                 .Where(serviceCategories => serviceCategories.IsDeleted == false))
                 .FirstOrDefaultAsync( division => division.Name == name && division.IsDeleted == false);
         }
+        public async Task<IEnumerable<Division>> GetAllDivisionAndSbu()
+        {
+            return await _context.Divisions
+                .Include(division => division.OperatingEntities
+                .Where(operatingEntity => operatingEntity.IsDeleted == false))
+                .ThenInclude(x => x.StrategicBusinessUnits)
+                .Where( division => division.IsDeleted == false)
+                .ToListAsync();
+        }
 
         public async Task<IEnumerable<Division>> FindAllDivisions()
         {
