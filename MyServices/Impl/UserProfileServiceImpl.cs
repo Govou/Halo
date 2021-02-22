@@ -132,6 +132,14 @@ namespace HaloBiz.MyServices.Impl
             {
                 return new ApiResponse(500);
             }
+            if (true) {
+                await _mailAdpater.SendNewUserSignup(new NewUserSignupDTO
+                {
+                    EmailAddress = updatedUser.Email,
+                    UserName = $"{updatedUser.FirstName} {updatedUser.LastName}"
+                });
+            }
+      
 
             ModificationHistory history = new ModificationHistory(){
                 ModelChanged = "UserProfile",
