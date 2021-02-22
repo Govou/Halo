@@ -132,13 +132,26 @@ namespace HaloBiz.MyServices.Impl
             {
                 return new ApiResponse(500);
             }
-            if (true) {
-                await _mailAdpater.SendNewUserSignup(new NewUserSignupDTO
+
+            // send the sign up mail when the user profile completion hits a 100%.
+            if (!updatedUser.SignUpMailSent)
+            {
+                if (ProfileIs100Percent(updatedUser))
                 {
-                    EmailAddress = updatedUser.Email,
-                    UserName = $"{updatedUser.FirstName} {updatedUser.LastName}"
-                });
-            }
+                    await _mailAdpater.SendNewUserSignup(new NewUserSignupDTO
+                    {
+                        EmailAddress = updatedUser.Email,
+                        UserName = $"{updatedUser.FirstName} {updatedUser.LastName}"
+                    });
+
+                    updatedUser.SignUpMailSent = true;
+                    updatedUser = await _userRepo.UpdateUserProfile(updatedUser);
+                    if (updatedUser == null)
+                    {
+                        return new ApiResponse(500);
+                    }
+                }
+            }    
       
 
             ModificationHistory history = new ModificationHistory(){
@@ -240,6 +253,25 @@ namespace HaloBiz.MyServices.Impl
             }
 
             return new ApiOkResponse(true);
+        }
+
+        private bool ProfileIs100Percent(UserProfile userProfile)
+        {
+            return !string.IsNullOrWhiteSpace(userProfile.Address) &&
+                !string.IsNullOrWhiteSpace(userProfile.AltEmail) &&
+                !string.IsNullOrWhiteSpace(userProfile.AltMobileNumber) &&
+                !string.IsNullOrWhiteSpace(userProfile.CodeName) &&
+                userProfile.DateOfBirth != default(DateTime) &&
+                !string.IsNullOrWhiteSpace(userProfile.Email) &&
+                !string.IsNullOrWhiteSpace(userProfile.FacebookHandle) &&
+                !string.IsNullOrWhiteSpace(userProfile.FirstName) &&
+                !string.IsNullOrWhiteSpace(userProfile.ImageUrl) &&
+                !string.IsNullOrWhiteSpace(userProfile.InstagramHandle) &&
+                !string.IsNullOrWhiteSpace(userProfile.LastName) &&
+                !string.IsNullOrWhiteSpace(userProfile.LinkedInHandle) &&
+                !string.IsNullOrWhiteSpace(userProfile.MobileNumber) &&
+                !string.IsNullOrWhiteSpace(userProfile.OtherName) &&
+                !string.IsNullOrWhiteSpace(userProfile.TwitterHandle); 
         }
     }
 }

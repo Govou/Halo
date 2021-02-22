@@ -46,6 +46,7 @@ namespace HaloBiz.Model
         public long RoleId { get; set; }
         public virtual Role Role { get; set; }
         public bool IsDeleted { get; set; } = false;
+        public bool SignUpMailSent { get; set; } = false;
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public DateTime CreatedAt { get; set; }
         [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
