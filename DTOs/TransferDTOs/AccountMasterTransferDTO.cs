@@ -13,7 +13,7 @@ namespace HaloBiz.DTOs.TransferDTOs
     {
         public long Id { get; set; }
         public string Description { get; set; }
-        public long AccountMasterAlias { get; set; }
+        public string AccountMasterAlias { get; set; }
         public bool IntegrationFlag { get; set; }
         public long VoucherId { get; set; }
         public FinanceVoucherType Voucher { get; set; }

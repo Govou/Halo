@@ -75,9 +75,9 @@ namespace HaloBiz.Repository.Impl
                 }else{
                     account.Id = lastSavedAccount.Id + 1;
                 }
-                var accountClass = await _context.ControlAccounts
+                var controlAccount = await _context.ControlAccounts
                         .Include(x => x.AccountClass).FirstOrDefaultAsync(x => x.Id == account.ControlAccountId);
-                account.IsDebitBalance = accountClass.Caption.ToLower().Contains("asset") || accountClass.Caption.ToLower().Contains("expense");
+                account.IsDebitBalance = controlAccount.AccountClass.Caption.ToLower().Contains("asset") || controlAccount.AccountClass.Caption.ToLower().Contains("expense");
                 var savedAccount = await _context.Accounts.AddAsync(account);
                 await _context.SaveChangesAsync();
                 await transaction.CommitAsync();
