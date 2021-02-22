@@ -185,14 +185,9 @@ namespace HaloBiz.MyServices.Impl.LAMS
                     deliverableFulfillmentToUpdate.StartDate = deliverableFulfillmentReceivingDTO.StartDate;
                     deliverableFulfillmentToUpdate.EndDate = deliverableFulfillmentReceivingDTO.EndDate;
                     deliverableFulfillmentToUpdate.DeliveryDate = deliverableFulfillmentReceivingDTO.DeliveryDate;
-                    deliverableFulfillmentToUpdate.TaskCompletionDate = deliverableFulfillmentReceivingDTO.TaskCompletionDate;
-                    deliverableFulfillmentToUpdate.TaskCompletionTime = deliverableFulfillmentReceivingDTO.TaskCompletionTime;
                     deliverableFulfillmentToUpdate.Budget = deliverableFulfillmentReceivingDTO.Budget;
                     deliverableFulfillmentToUpdate.DeliverableCompletionReferenceNo = deliverableFulfillmentReceivingDTO.DeliverableCompletionReferenceNo;
                     deliverableFulfillmentToUpdate.DeliverableCompletionReferenceUrl = deliverableFulfillmentReceivingDTO.DeliverableCompletionReferenceUrl;
-                    deliverableFulfillmentToUpdate.DateAndTimeOfProvidedEvidence = deliverableFulfillmentReceivingDTO.DateAndTimeOfProvidedEvidence;
-                    deliverableFulfillmentToUpdate.DeliverableCompletionDate = deliverableFulfillmentReceivingDTO.DeliverableCompletionDate;
-                    deliverableFulfillmentToUpdate.DeliverableCompletionTime = deliverableFulfillmentReceivingDTO.DeliverableCompletionTime;
                     deliverableFulfillmentToUpdate.ServiceCode = deliverableFulfillmentReceivingDTO.ServiceCode;
                     deliverableFulfillmentToUpdate.EscallationTimeDurationForPicking = deliverableFulfillmentReceivingDTO.EscallationTimeDurationForPicking;
 
