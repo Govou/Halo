@@ -70,5 +70,27 @@ namespace HaloBiz.Adapters.Impl
                 return new ApiResponse(500, ex.Message);
             }
         }
+        public async Task<ApiResponse> SendNewUserSignup(NewUserSignupDTO newUserSignupDTO)
+        {
+            var baseUrl = "http://halobiz-mail-api.herokuapp.com/Mail/SendNewUserSignup";
+
+            try
+            {
+                var response = await baseUrl.AllowAnyHttpStatus()
+                   .PostJsonAsync(new
+                   {
+                       emailAddress = newUserSignupDTO.EmailAddress,
+                       userName = newUserSignupDTO.UserName
+                   }).ReceiveJson();
+
+                return new ApiOkResponse(true);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogInformation(ex.Message);
+                _logger.LogInformation(ex.StackTrace);
+                return new ApiResponse(500, ex.Message);
+            }
+        }
     }
 }
