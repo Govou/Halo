@@ -263,15 +263,17 @@ namespace HaloBiz.MyServices.Impl
                 !string.IsNullOrWhiteSpace(userProfile.CodeName) &&
                 userProfile.DateOfBirth != default(DateTime) &&
                 !string.IsNullOrWhiteSpace(userProfile.Email) &&
-                !string.IsNullOrWhiteSpace(userProfile.FacebookHandle) &&
                 !string.IsNullOrWhiteSpace(userProfile.FirstName) &&
                 !string.IsNullOrWhiteSpace(userProfile.ImageUrl) &&
-                !string.IsNullOrWhiteSpace(userProfile.InstagramHandle) &&
                 !string.IsNullOrWhiteSpace(userProfile.LastName) &&
-                !string.IsNullOrWhiteSpace(userProfile.LinkedInHandle) &&
                 !string.IsNullOrWhiteSpace(userProfile.MobileNumber) &&
-                !string.IsNullOrWhiteSpace(userProfile.OtherName) &&
-                !string.IsNullOrWhiteSpace(userProfile.TwitterHandle); 
+                !string.IsNullOrWhiteSpace(userProfile.OtherName);
+
+            //Some fields stated below were removed by Jayora to enable logic for New User Mail to work Efficiently
+                //!string.IsNullOrWhiteSpace(userProfile.FacebookHandle) &&
+                //!string.IsNullOrWhiteSpace(userProfile.InstagramHandle) &&
+                //!string.IsNullOrWhiteSpace(userProfile.LinkedInHandle) &&
+                //!string.IsNullOrWhiteSpace(userProfile.TwitterHandle);
         }
     }
 }
