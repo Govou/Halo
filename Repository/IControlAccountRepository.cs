@@ -9,7 +9,7 @@ namespace HaloBiz.Repository
     {
         Task<ControlAccount> SaveControlAccount(ControlAccount controlAccount);
         Task<ControlAccount> FindControlAccountById(long Id);
-        Task<ControlAccount> FindControlAccountByAlias(long alias);
+        Task<ControlAccount> FindControlAccountByAlias(string alias);
         Task<ControlAccount> FindControlAccountByName(string name);
         Task<IEnumerable<ControlAccount>> FindAllControlAccount();
         IQueryable<ControlAccount> GetControlAccountQueryable();

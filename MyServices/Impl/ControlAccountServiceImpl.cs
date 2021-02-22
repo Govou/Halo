@@ -61,7 +61,7 @@ namespace HaloBiz.MyServices.Impl
             return new ApiOkResponse(true);
         }
 
-        public async Task<ApiResponse> GetControlAccountByAlias(long alias)
+        public async Task<ApiResponse> GetControlAccountByAlias(string alias)
         {
             var controlAccount = await _controlAccountRepo.FindControlAccountByAlias(alias);
             if (controlAccount == null)

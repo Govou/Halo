@@ -28,7 +28,7 @@ namespace HaloBiz.Controllers.AccountsModel
         }
 
         [HttpGet("alias/{alias}")]
-        public async Task<ActionResult> GetByAlias(long alias)
+        public async Task<ActionResult> GetByAlias(string alias)
         {
             var response = await _controlAccountService.GetControlAccountByAlias(alias);
             if (response.StatusCode >= 400)

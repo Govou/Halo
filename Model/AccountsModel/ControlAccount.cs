@@ -14,7 +14,7 @@ namespace HaloBiz.Model.AccountsModel
         [StringLength(1000)]
         public string Description { get; set; }
         [StringLength(100)]
-        public long Alias { get; set; }
+        public string Alias { get; set; }
         public long AccountClassId { get; set; }
         public AccountClass AccountClass { get; set; }
         public IEnumerable<Account> Accounts { get; set; }
