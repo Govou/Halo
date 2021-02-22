@@ -2,6 +2,7 @@
 using HaloBiz.DTOs.ReceivingDTOs;
 using HaloBiz.DTOs.TransferDTOs;
 using HaloBiz.MyServices;
+using halobiz_backend.DTOs.QueryParamsDTOs;
 using halobiz_backend.DTOs.ReceivingDTOs;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -23,9 +24,9 @@ namespace HaloBiz.Controllers.AccountsModel
         }
 
         [HttpGet("")]
-        public async Task<ActionResult> GetAccountMasters()
+        public async Task<ActionResult> GetAccountMasters([FromQuery]AccountMasterTransactionDateQueryParams query)
         {
-            var response = await _AccountMasterService.GetAllAccountMasters();
+            var response = await _AccountMasterService.QueryAccountMasters( query);
             if (response.StatusCode >= 400)
                 return StatusCode(response.StatusCode, response);
             var AccountMaster = ((ApiOkResponse)response).Result;
@@ -63,7 +64,7 @@ namespace HaloBiz.Controllers.AccountsModel
         }
 
         [HttpPost("GetAccountMasterByCustomerIdAndContractYears")]
-        public async Task<ActionResult> GetAccountMasterByTransactionId(AccMasterByCustomerIdSearchDto searchDto)
+        public async Task<ActionResult> GetAccountMasterByTransactionId(AccountMasterTransactionDateQueryParams searchDto)
         {
             var response = await _AccountMasterService.GetAllAccountMastersByCustomerIdAndContractYear(searchDto);
             if (response.StatusCode >= 400)
