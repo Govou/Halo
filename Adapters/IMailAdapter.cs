@@ -11,5 +11,6 @@ namespace HaloBiz.Adapters
     {
         Task<ApiResponse> SendUserAssignedToRoleMail(NewRoleAssignedDTO newRoleAssignedDTO);
         Task<ApiResponse> SendNewDeliverableAssigned(NewDeliverableAssignedDTO newDeliverableAssignedDTO);
+        Task<ApiResponse> SendNewUserSignup(NewUserSignupDTO newUserSignupDTO);
     }
 }

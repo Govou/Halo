@@ -4,14 +4,16 @@ using HaloBiz.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace HaloBiz.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20210222141424_addedSignUpMailSentToProfileModel")]
+    partial class addedSignUpMailSentToProfileModel
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -424,17 +426,11 @@ namespace HaloBiz.Migrations
                     b.Property<bool>("IsInvoiceSent")
                         .HasColumnType("bit");
 
-                    b.Property<int>("IsReceiptedStatus")
-                        .HasColumnType("int");
-
                     b.Property<long>("Quantity")
                         .HasColumnType("bigint");
 
                     b.Property<DateTime>("StartDate")
                         .HasColumnType("datetime2");
-
-                    b.Property<string>("TransactionId")
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<double>("UnitPrice")
                         .HasColumnType("float");
@@ -3606,81 +3602,6 @@ namespace HaloBiz.Migrations
                     b.ToTable("Zones");
                 });
 
-            modelBuilder.Entity("halobiz_backend.Model.AccountsModel.Receipt", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint")
-                        .UseIdentityColumn();
-
-                    b.Property<string>("Caption")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime2")
-                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
-
-                    b.Property<long>("CreatedById")
-                        .HasColumnType("bigint");
-
-                    b.Property<DateTime>("DateAndTimeOfFundsReceived")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Depositor")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("EvidenceOfPaymentUrl")
-                        .HasMaxLength(2000)
-                        .HasColumnType("nvarchar(2000)");
-
-                    b.Property<long>("InvoiceId")
-                        .HasColumnType("bigint");
-
-                    b.Property<string>("InvoiceNumber")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<double>("InvoiceValue")
-                        .HasColumnType("float");
-
-                    b.Property<double>("InvoiceValueBalanceAfterReceipting")
-                        .HasColumnType("float");
-
-                    b.Property<double>("InvoiceValueBalanceBeforeReceipting")
-                        .HasColumnType("float");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("IsTaskWitheld")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("ReceiptNumber")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<double>("ReceiptValue")
-                        .HasColumnType("float");
-
-                    b.Property<string>("TransactionId")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("UpdatedAt")
-                        .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("datetime2")
-                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
-
-                    b.Property<double>("ValueOfWHT")
-                        .HasColumnType("float");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CreatedById");
-
-                    b.HasIndex("InvoiceId");
-
-                    b.ToTable("Receipts");
-                });
-
             modelBuilder.Entity("halobiz_backend.Model.Notification", b =>
                 {
                     b.Property<long>("Id")
@@ -5116,25 +5037,6 @@ namespace HaloBiz.Migrations
                     b.Navigation("State");
                 });
 
-            modelBuilder.Entity("halobiz_backend.Model.AccountsModel.Receipt", b =>
-                {
-                    b.HasOne("HaloBiz.Model.UserProfile", "CreatedBy")
-                        .WithMany()
-                        .HasForeignKey("CreatedById")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("HaloBiz.Model.AccountsModel.Invoice", "Invoice")
-                        .WithMany("Receipts")
-                        .HasForeignKey("InvoiceId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("CreatedBy");
-
-                    b.Navigation("Invoice");
-                });
-
             modelBuilder.Entity("halobiz_backend.Model.Notification", b =>
                 {
                     b.HasOne("HaloBiz.Model.UserProfile", "Sender")
@@ -5177,11 +5079,6 @@ namespace HaloBiz.Migrations
             modelBuilder.Entity("HaloBiz.Model.AccountsModel.ControlAccount", b =>
                 {
                     b.Navigation("Accounts");
-                });
-
-            modelBuilder.Entity("HaloBiz.Model.AccountsModel.Invoice", b =>
-                {
-                    b.Navigation("Receipts");
                 });
 
             modelBuilder.Entity("HaloBiz.Model.Branch", b =>
