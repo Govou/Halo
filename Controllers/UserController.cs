@@ -105,6 +105,16 @@ namespace HaloBiz.Controllers
             return Ok((UserProfileTransferDTO) user);
         }
 
+        [HttpPut("{id}/DetachStrategicBusinessUnit")]
+        public async Task<IActionResult> DetachUserFromSBU(long id)
+        {
+            var response = await _userProfileService.DetachUserFromSBU(id);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var user = ((ApiOkResponse)response).Result;
+            return Ok((UserProfileTransferDTO)user);
+        }
+
         [HttpDelete("{id}")]
         public async Task<ActionResult> DeleteUserProfileById(int id)
         {

@@ -198,6 +198,38 @@ namespace HaloBiz.MyServices.Impl
 
         }
 
+        public async Task<ApiResponse> DetachUserFromSBU(long userId)
+        {
+            var userToUpdate = await _userRepo.FindUserById(userId);
+            if (userToUpdate == null)
+            {
+                return new ApiResponse(404);
+            }
+            userToUpdate.SBUId = null;
+
+
+            var updatedUser = await _userRepo.UpdateUserProfile(userToUpdate);
+
+            if (updatedUser == null)
+            {
+                return new ApiResponse(500);
+            }
+
+            ModificationHistory history = new ModificationHistory()
+            {
+                ModelChanged = "UserProfile",
+                ChangeSummary = "Detached user from an SBU",
+                ChangedBy = updatedUser,
+                ModifiedModelId = updatedUser.Id
+            };
+
+            await _historyRepo.SaveHistory(history);
+
+            var userProfileTransferDto = _mapper.Map<UserProfileTransferDTO>(updatedUser);
+            return new ApiOkResponse(userProfileTransferDto);
+
+        }
+
         public async Task<ApiResponse> UpdateUserRole(long userId, long roleId)
         {
             var userToUpdate = await _userRepo.FindUserById(userId);
