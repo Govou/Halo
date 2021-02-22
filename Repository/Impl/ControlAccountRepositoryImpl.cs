@@ -67,7 +67,7 @@ namespace HaloBiz.Repository.Impl
                 .Include(control => control.Accounts.Where(x => x.IsDeleted == false))
                 .FirstOrDefaultAsync( controlAccount => controlAccount.Caption == name && controlAccount.IsDeleted == false);
         }
-        public async Task<ControlAccount> FindControlAccountByAlias(long name)
+        public async Task<ControlAccount> FindControlAccountByAlias(string name)
         {
             return await _context.ControlAccounts
                 .Include(control => control.Accounts.Where(x => x.IsDeleted == false))

@@ -9,7 +9,7 @@ namespace HaloBiz.MyServices
     {
         Task<ApiResponse> AddControlAccount(HttpContext context, ControlAccountReceivingDTO ControlAccountReceivingDTO);
         Task<ApiResponse> DeleteControlAccount(long id);
-        Task<ApiResponse> GetControlAccountByAlias(long alias);
+        Task<ApiResponse> GetControlAccountByAlias(string alias);
         Task<ApiResponse> GetControlAccountByCaption(string caption);
         Task<ApiResponse> GetControlAccountById(long id);
         Task<ApiResponse> GetAllControlAccounts();
