@@ -198,7 +198,7 @@ namespace HaloBiz.MyServices.Impl
 
         }
 
-        public async Task<ApiResponse> DetachUserFromSBU(long userId, long SBUId)
+        public async Task<ApiResponse> DetachUserFromSBU(long userId)
         {
             var userToUpdate = await _userRepo.FindUserById(userId);
             if (userToUpdate == null)
