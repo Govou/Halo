@@ -1,5 +1,6 @@
 ﻿using HaloBiz.Data;
 using HaloBiz.Model.AccountsModel;
+using halobiz_backend.DTOs.QueryParamsDTOs;
 using halobiz_backend.DTOs.ReceivingDTOs;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -54,8 +55,14 @@ namespace HaloBiz.Repository.Impl
                 .Include(x => x.AccountDetails)
                 .Where(user => user.IsDeleted == false).ToListAsync();
         }
+        public IQueryable<AccountMaster> GetAccountMastersQueryable()
+        {
+            return  _context.AccountMasters
+                .Include(x => x.AccountDetails)
+                .Where(user => user.IsDeleted == false).AsQueryable();
+        }
 
-        public async Task<IEnumerable<AccountMaster>> FindAllAccountMastersByCustomerId(AccMasterByCustomerIdSearchDto searchDTO)
+        public async Task<IEnumerable<AccountMaster>> FindAllAccountMastersByCustomerId(AccountMasterTransactionDateQueryParams searchDTO)
         {
             var queryable = _context.AccountMasters
                 .Join(
@@ -96,7 +103,7 @@ namespace HaloBiz.Repository.Impl
 
         public async Task<IEnumerable<AccountMaster>> FindAccountMastersByTransactionId(string transactionId)
         {
-            transactionId = String.Join("/",transactionId.Split("%2F"));
+            //transactionId = String.Join("/",transactionId.Split("%2F"));
             return await _context.AccountMasters
                 .Include(x => x.AccountDetails.Where(x => x.IsDeleted == false))
                 .Where(x => x.IsDeleted == false && x.TransactionId == transactionId).ToListAsync();
