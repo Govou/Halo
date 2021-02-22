@@ -30,6 +30,16 @@ namespace HaloBiz.Controllers
             return Ok((IEnumerable<DivisionTransferDTO>)division);
         }
 
+        [HttpGet("GetDivisionsOpEntityAndSbu")]
+        public async Task<ActionResult> GetDivGetDivisionsOpEntityAndSbuisions()
+        {
+            var response = await _divisonService.GetAllDivisionsAndSbu();
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var division = ((ApiOkResponse)response).Result;
+            return Ok((IEnumerable<DivisionTransferDTO>)division);
+        }
+
         [HttpGet("name/{name}")]
         public async Task<ActionResult> GetByName(string name)
         {

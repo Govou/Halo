@@ -22,6 +22,7 @@ namespace HaloBiz.Repository
         Task<Division> UpdateDivision(Division division);
 
         Task<bool> RemoveDivision(Division division);
+        Task<IEnumerable<Division>> GetAllDivisionAndSbu();
 
     }
 }
