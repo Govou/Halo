@@ -12,6 +12,9 @@ using HaloBiz.Model;
 using HaloBiz.Model.AccountsModel;
 using HaloBiz.Model.LAMS;
 using HaloBiz.Model.RoleManagement;
+using halobiz_backend.DTOs.ReceivingDTOs;
+using halobiz_backend.DTOs.TransferDTOs;
+using halobiz_backend.Model.AccountsModel;
 
 namespace HaloBiz.Helpers
 {
@@ -168,6 +171,8 @@ namespace HaloBiz.Helpers
             CreateMap<IndustryReceivingDTO, Industry>();
             CreateMap<Designation, DesignationTransferDTO>();
             CreateMap<DesignationReceivingDTO, Designation>();
+            CreateMap<Receipt, ReceiptTransferDTO>();
+            CreateMap<ReceiptReceivingDTO, Receipt>();
 
         }
     }

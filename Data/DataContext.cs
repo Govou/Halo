@@ -4,6 +4,7 @@ using HaloBiz.Model.LAMS;
 using HaloBiz.Model.ManyToManyRelationship;
 using HaloBiz.Model.RoleManagement;
 using halobiz_backend.Model;
+using halobiz_backend.Model.AccountsModel;
 using Microsoft.EntityFrameworkCore;
 
 namespace HaloBiz.Data
@@ -81,6 +82,7 @@ namespace HaloBiz.Data
     public DbSet<Notification> Notifications { get; set; }
     public DbSet<TaskEscalationTiming> TaskEscalationTiming { get; set; }
     public DbSet<Claim> Claims { get; set; }
+    public DbSet<Receipt> Receipts { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder builder)
@@ -609,6 +611,14 @@ namespace HaloBiz.Data
                .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
             builder.Entity<Claim>()
+                .Property(p => p.CreatedAt)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            builder.Entity<Receipt>()
+               .Property(p => p.UpdatedAt)
+               .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            builder.Entity<Receipt>()
                 .Property(p => p.CreatedAt)
                 .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
