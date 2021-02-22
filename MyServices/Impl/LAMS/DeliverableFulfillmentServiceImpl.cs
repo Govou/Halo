@@ -62,17 +62,17 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 return new ApiResponse(500);
             }
 
-            await _mailAdapter.SendNewDeliverableAssigned(new NewDeliverableAssignedDTO
-            {
-                EmailAddress = savedDeliverableFulfillment.Responsible.Email,
-                UserName = $"{savedDeliverableFulfillment.Responsible.FirstName} {savedDeliverableFulfillment.Responsible.LastName}",
-                Customer = savedDeliverableFulfillment.TaskFullfillment.CustomerDivision.DivisionName,
-                TaskOwner = $"{savedDeliverableFulfillment.TaskFullfillment.Responsible.FirstName} {savedDeliverableFulfillment.TaskFullfillment.Responsible.LastName}",
-                TaskName = savedDeliverableFulfillment.TaskFullfillment.Caption,
-                ServiceName = savedDeliverableFulfillment.TaskFullfillment.ContractService.ServiceId.ToString(),
-                Quantity = savedDeliverableFulfillment.TaskFullfillment.ContractService.Quantity.ToString(),
-                Deliverable = savedDeliverableFulfillment.Caption
-            });
+            // await _mailAdapter.SendNewDeliverableAssigned(new NewDeliverableAssignedDTO
+            // {
+            //     EmailAddress = savedDeliverableFulfillment.Responsible.Email,
+            //     UserName = $"{savedDeliverableFulfillment.Responsible.FirstName} {savedDeliverableFulfillment.Responsible.LastName}",
+            //     Customer = savedDeliverableFulfillment.TaskFullfillment.CustomerDivision.DivisionName,
+            //     TaskOwner = $"{savedDeliverableFulfillment.TaskFullfillment.Responsible.FirstName} {savedDeliverableFulfillment.TaskFullfillment.Responsible.LastName}",
+            //     TaskName = savedDeliverableFulfillment.TaskFullfillment.Caption,
+            //     ServiceName = savedDeliverableFulfillment.TaskFullfillment.ContractService.ServiceId.ToString(),
+            //     Quantity = savedDeliverableFulfillment.TaskFullfillment.ContractService.Quantity.ToString(),
+            //     Deliverable = savedDeliverableFulfillment.Caption
+            // });
             var deliverableFulfillmentTransferDTO = _mapper.Map<DeliverableFulfillmentTransferDTO>(savedDeliverableFulfillment);
             return new ApiOkResponse(deliverableFulfillmentTransferDTO);
         }
