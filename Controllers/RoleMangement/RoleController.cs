@@ -40,9 +40,8 @@ namespace HaloBiz.Controllers.RoleMangement
                 return StatusCode(response.StatusCode, response);
 
             var claims = ((ApiOkResponse)response).Result as IEnumerable<ClaimTransferDTO>;
-            var applicationClaims = ClaimConstants.ApplicationClaims;
 
-            return Ok(claims.Concat(applicationClaims));
+            return Ok(claims);
         }
 
         [HttpGet("name/{name}")]

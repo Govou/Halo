@@ -18,7 +18,7 @@ namespace HaloBiz.Repository
 
         Task<IEnumerable<UserProfile>> FindAllUserProfile();
         Task<IEnumerable<UserProfile>> FindAllUserProfilesAttachedToRole(long roleId);
-        Task<IEnumerable<UserProfile>> FindAllRoleAssigners(long roleId);
+        Task<IEnumerable<UserProfile>> FindAllSuperAdmins();
 
         Task<UserProfile> UpdateUserProfile(UserProfile userProfile);
 

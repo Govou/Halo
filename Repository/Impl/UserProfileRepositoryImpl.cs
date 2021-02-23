@@ -118,11 +118,10 @@ namespace HaloBiz.Repository.Impl
             }
         }
 
-        public async Task<IEnumerable<UserProfile>> FindAllRoleAssigners(long roleId)
+        public async Task<IEnumerable<UserProfile>> FindAllSuperAdmins()
         {
-           // roleId = _context.Roles.Where(roleId.Equals(roleId "SuperAdmin")
             return await _context.UserProfiles
-              .Where(user => user.RoleId == roleId && user.IsDeleted == false)
+              .Where(user => user.RoleId == 1 && user.IsDeleted == false)
               .ToListAsync();
         }
     }
