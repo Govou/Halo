@@ -33,10 +33,28 @@ namespace HaloBiz.Repository.Impl.LAMS
 
         public async Task<CustomerDivision> FindCustomerDivisionById(long Id)
         {
-            return await _context.CustomerDivisions
+            var client = await _context.CustomerDivisions
                 .Include(x => x.Customer)
                 .Include(x => x.AccountMaster)
                 .FirstOrDefaultAsync(entity => entity.Id == Id && entity.IsDeleted == false);
+            if(client == null)
+            {
+                return null;
+            }
+            client.Contracts = await _context.Contracts
+                .Include(x => x.ContractServices)
+                    .ThenInclude(x => x.Service)
+                .Where(x => x.CustomerDivisionId == client.Id).ToListAsync();
+            
+            client.Customer.CustomerDivisions = null;
+
+            client.PrimaryContact = await _context.LeadDivisionContacts
+                .Where(x => x.Id == client.PrimaryContactId && x.IsDeleted == false).FirstOrDefaultAsync();
+
+            client.SecondaryContact = await _context.LeadDivisionContacts
+                .Where(x => x.Id == client.SecondaryContactId && x.IsDeleted == false).FirstOrDefaultAsync();
+            
+            return client;
         }
 
         public async Task<IEnumerable<CustomerDivision>> FindAllCustomerDivision()

@@ -1,4 +1,5 @@
-﻿using HaloBiz.Model.LAMS;
+﻿using HaloBiz.DTOs.TransferDTOs.LAMS;
+using HaloBiz.Model.LAMS;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,6 +20,12 @@ namespace HaloBiz.DTOs.TransferDTOs
         public long CustomerId { get; set; }
         public virtual Customer Customer { get; set; }
         public IEnumerable<AccountMasterTransferDTO> AccountMaster { get; set; }
+        public List<LeadKeyPerson> LeadKeyPeople { get; set; } 
+        public LeadDivisionContact PrimaryContact { get; set; }
+        public IEnumerable<ContractForCustomerDivisionTransferDTO> Contracts { get; set; }
+        public long? PrimaryContactId { get; set; }   
+        public LeadDivisionContact SecondaryContact { get; set; }
+        public long? SecondaryContactId { get; set; } 
 
     }
     public class CustomerDivisionWithoutObjectsTransferDTO
