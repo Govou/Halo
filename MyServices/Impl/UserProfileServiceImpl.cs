@@ -10,6 +10,7 @@ using HaloBiz.DTOs.ReceivingDTO;
 using HaloBiz.DTOs.TransferDTOs;
 using HaloBiz.Model;
 using HaloBiz.Repository;
+using Newtonsoft.Json;
 
 namespace HaloBiz.MyServices.Impl
 {
@@ -138,19 +139,23 @@ namespace HaloBiz.MyServices.Impl
             {
                 if (ProfileIs100Percent(updatedUser))
                 {
-                    await _mailAdpater.SendNewUserSignup(new NewUserSignupDTO
+                    string serializedUser = JsonConvert.SerializeObject(updatedUser);
+                    RunTask(async () => {
+                        await _mailAdpater.SendNewUserSignup(serializedUser);
+                    });                                        
+
+                    var superAdmins = await _userRepo.FindAllSuperAdmins();
+                    if(superAdmins == null)
                     {
-                        EmailAddress = updatedUser.Email,
-                        UserName = $"{updatedUser.FirstName} {updatedUser.LastName}"
-                    });
-                    if (!string.IsNullOrWhiteSpace(updatedUser.AltEmail))
-                    {
-                        await _mailAdpater.SendNewUserSignup(new NewUserSignupDTO
-                        {
-                            EmailAddress = updatedUser.AltEmail,
-                            UserName = $"{updatedUser.FirstName} {updatedUser.LastName}"
-                        });
+                        return new ApiResponse(500);
                     }
+
+                    var superAdminEmails = superAdmins.Select(x => x.Email).ToArray();
+                    var serializedAdminEmails = JsonConvert.SerializeObject(superAdminEmails);
+
+                    RunTask(async () => {
+                        await _mailAdpater.AssignRoleToNewUser(serializedUser, serializedAdminEmails);
+                    });
 
                     updatedUser.SignUpMailSent = true;
                     updatedUser = await _userRepo.UpdateUserProfile(updatedUser);
@@ -257,12 +262,11 @@ namespace HaloBiz.MyServices.Impl
                 return new ApiResponse(500);
             }
 
-            await _mailAdpater.SendUserAssignedToRoleMail(new NewRoleAssignedDTO { 
-                EmailAddress = updatedUser.Email,
-                UserName = $"{updatedUser.FirstName} {updatedUser.LastName}",
-                Role = updatedUser.Role.Name,
-                RoleClaims = updatedUser.Role.RoleClaims.Select(x=> x.Name).ToArray()
-            });
+            var serializedUser = JsonConvert.SerializeObject(updatedUser);
+
+            RunTask(async () => {
+                await _mailAdpater.SendUserAssignedToRoleMail(serializedUser);
+            });       
 
             ModificationHistory history = new ModificationHistory()
             {
@@ -308,12 +312,11 @@ namespace HaloBiz.MyServices.Impl
                 !string.IsNullOrWhiteSpace(userProfile.LastName) &&
                 !string.IsNullOrWhiteSpace(userProfile.MobileNumber) &&
                 !string.IsNullOrWhiteSpace(userProfile.OtherName);
+        }
 
-            //Some fields stated below were removed by Jayora to enable logic for New User Mail to work Efficiently
-                //!string.IsNullOrWhiteSpace(userProfile.FacebookHandle) &&
-                //!string.IsNullOrWhiteSpace(userProfile.InstagramHandle) &&
-                //!string.IsNullOrWhiteSpace(userProfile.LinkedInHandle) &&
-                //!string.IsNullOrWhiteSpace(userProfile.TwitterHandle);
+        private void RunTask(Action action)
+        {
+            Task.Run(action);
         }
     }
 }
