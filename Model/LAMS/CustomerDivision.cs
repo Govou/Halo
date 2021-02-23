@@ -31,6 +31,11 @@ namespace HaloBiz.Model.LAMS
         public IEnumerable<AccountMaster> AccountMaster { get; set; }
         public IEnumerable<Contract> Contracts { get; set; }
         public long CreatedById { get; set; }
+        public List<LeadKeyPerson> LeadKeyPeople { get; set; } 
+        public LeadDivisionContact PrimaryContact { get; set; }
+        public long? PrimaryContactId { get; set; }   
+        public LeadDivisionContact SecondaryContact { get; set; }
+        public long? SecondaryContactId { get; set; }   
         public virtual UserProfile CreatedBy { get; set; }
         public bool IsDeleted { get; set; } = false;
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
