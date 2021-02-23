@@ -95,7 +95,7 @@ namespace HaloBiz.Adapters.Impl
                        userName = userName
                    }).ReceiveJson();
 
-                if (!string.IsNullOrWhiteSpace(userProfile.AltEmail)) 
+                if (!string.IsNullOrWhiteSpace(userProfile.AltEmail))
                 {
                     await baseUrl.AllowAnyHttpStatus()
                    .PostJsonAsync(new
