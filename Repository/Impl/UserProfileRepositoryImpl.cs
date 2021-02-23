@@ -117,6 +117,13 @@ namespace HaloBiz.Repository.Impl
                 return false;
             }
         }
+
+        public async Task<IEnumerable<UserProfile>> FindAllSuperAdmins()
+        {
+            return await _context.UserProfiles
+              .Where(user => user.RoleId == 1 && user.IsDeleted == false)
+              .ToListAsync();
+        }
     }
     
 }
