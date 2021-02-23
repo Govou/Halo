@@ -41,7 +41,7 @@ namespace HaloBiz.Repository.Impl.LAMS
                 .Include(x => x.Support)
                 .Include(x => x.Responsible)
                 .Include(x => x.Accountable)
-                .Include(x => x.DeliverableFUlfillments)
+                .Include(x => x.DeliverableFUlfillments).ThenInclude(x => x.Responsible)
                 .FirstOrDefaultAsync();
 
         }

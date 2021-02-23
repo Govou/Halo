@@ -60,7 +60,7 @@ namespace HaloBiz.Controllers
         [HttpPost("")]
         public async Task<ActionResult> AddNew(ServicesReceivingDTO servicesReceivingDTO)
         {
-            var response = await _servicesService.AddService(servicesReceivingDTO);
+            var response = await _servicesService.AddService(HttpContext, servicesReceivingDTO);
             if (response.StatusCode >= 400)
                 return StatusCode(response.StatusCode, response);
             var service = ((ApiOkResponse)response).Result;

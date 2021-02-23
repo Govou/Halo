@@ -7,7 +7,7 @@ namespace HaloBiz.MyServices
 {
     public interface IServicesService
     {
-        Task<ApiResponse> AddService(ServicesReceivingDTO servicesReceivingDTO);
+        Task<ApiResponse> AddService(HttpContext context, ServicesReceivingDTO servicesReceivingDTO);
         Task<ApiResponse> GetAllServices();
         Task<ApiResponse> GetServiceById(long id);
         Task<ApiResponse> GetServiceByName(string name);
