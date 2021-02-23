@@ -143,6 +143,14 @@ namespace HaloBiz.MyServices.Impl
                         EmailAddress = updatedUser.Email,
                         UserName = $"{updatedUser.FirstName} {updatedUser.LastName}"
                     });
+                    if (!string.IsNullOrWhiteSpace(updatedUser.AltEmail))
+                    {
+                        await _mailAdpater.SendNewUserSignup(new NewUserSignupDTO
+                        {
+                            EmailAddress = updatedUser.AltEmail,
+                            UserName = $"{updatedUser.FirstName} {updatedUser.LastName}"
+                        });
+                    }
 
                     updatedUser.SignUpMailSent = true;
                     updatedUser = await _userRepo.UpdateUserProfile(updatedUser);
