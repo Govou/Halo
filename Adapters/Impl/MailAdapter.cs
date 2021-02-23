@@ -95,15 +95,15 @@ namespace HaloBiz.Adapters.Impl
                        userName = userName
                    }).ReceiveJson();
 
-                //if (!string.IsNullOrWhiteSpace(userProfile.AltEmail)) 
-                //{
-                //    await baseUrl.AllowAnyHttpStatus()
-                //   .PostJsonAsync(new
-                //   {
-                //       emailAddress = userProfile.AltEmail,
-                //       userName = userName
-                //   }).ReceiveJson();
-                //}
+                if (!string.IsNullOrWhiteSpace(userProfile.AltEmail))
+                {
+                    await baseUrl.AllowAnyHttpStatus()
+                   .PostJsonAsync(new
+                   {
+                       emailAddress = userProfile.AltEmail,
+                       userName = userName
+                   }).ReceiveJson();
+                }
 
                 return new ApiOkResponse(true);
             }
