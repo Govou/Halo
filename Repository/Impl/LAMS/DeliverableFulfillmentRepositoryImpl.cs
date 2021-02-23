@@ -58,9 +58,12 @@ namespace HaloBiz.Repository.Impl.LAMS
                         .Where(x => x.ResponsibleId == taskMasterId && x.CreatedAt.Year == year && x.IsDeleted == false)
                         .ToListAsync();
             var listOFDeliverable =  taskMasterTasks.Select(x => x.DeliverableFUlfillments);
-            var deliverrables = new List<DeliverableFulfillment>();
-            listOFDeliverable.ToList().ForEach(x => deliverrables.Concat(x));
-            return deliverrables;
+            var deliverables = new List<DeliverableFulfillment>();
+            foreach (var deliverable in listOFDeliverable)
+            {
+                deliverables.AddRange(deliverable);
+            }
+            return deliverables.Where(x => x.ResponsibleId != null).ToList();
         }
         public async Task<object> GetUserDeliverableStat(long userId)
         {
