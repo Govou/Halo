@@ -151,6 +151,7 @@ namespace HaloBiz.MyServices.Impl
                             UserName = $"{updatedUser.FirstName} {updatedUser.LastName}"
                         });
                     }
+                    if(_userRepo.FindUserById.)
 
                     updatedUser.SignUpMailSent = true;
                     updatedUser = await _userRepo.UpdateUserProfile(updatedUser);
