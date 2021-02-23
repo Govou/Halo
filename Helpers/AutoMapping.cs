@@ -140,7 +140,10 @@ namespace HaloBiz.Helpers
             CreateMap<QuoteServiceDocumentReceivingDTO, QuoteServiceDocument>();
             CreateMap<QuoteServiceDocument, DocumentSetupTransferDTO>();
             CreateMap<ContractService, ContractServiceTransferDTO>();
+            CreateMap<ContractService, ContractServiceForContractTransferDTO>()
+                .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.ContractEndDate > DateTime.Now));
             CreateMap<Contract, ContractTransferDTO>();
+            CreateMap<Contract, ContractForCustomerDivisionTransferDTO>();
             CreateMap<SBUToQuoteServiceProportion, SBUToQuoteServiceProportionTransferDTO>();
             CreateMap<SBUToQuoteServiceProportionReceivingDTO, SBUToQuoteServiceProportion>();
             CreateMap<RegionReceivingDTO, Region>();
