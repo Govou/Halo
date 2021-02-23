@@ -11,6 +11,7 @@ namespace HaloBiz.Repository
         Task<Invoice> UpdateInvoice(Invoice invoice);
         Task<bool> DeleteInvoice(Invoice invoice);
         Task<Invoice> FindInvoiceById(long Id);
+        Task<IEnumerable<Invoice>> GetInvoiceByContractServiceId(long contactDivisionId);
 
     }
 }

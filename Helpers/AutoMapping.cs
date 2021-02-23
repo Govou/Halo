@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using AutoMapper;
 using HaloBiz.DTOs;
 using HaloBiz.DTOs.ReceivingDTO;
@@ -176,6 +177,9 @@ namespace HaloBiz.Helpers
             CreateMap<DesignationReceivingDTO, Designation>();
             CreateMap<Receipt, ReceiptTransferDTO>();
             CreateMap<ReceiptReceivingDTO, Receipt>();
+            CreateMap<Invoice, InvoiceTransferDTO>().ForMember(dest => dest.TotalAmountReceipted, 
+                opt => opt.MapFrom(src => src.Receipts.Sum(x => x.InvoiceValue)));
+            CreateMap<InvoiceReceivingDTO, Invoice>();
 
         }
     }
