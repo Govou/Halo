@@ -46,7 +46,7 @@ namespace HaloBiz.Repository.Impl
         public async Task<IEnumerable<StrategicBusinessUnit>> FindAllStrategyBusinessUnits()
         {
             return await _context.StrategicBusinessUnits
-                .Include(sbu => sbu.Members.Where(x => x.IsDeleted == false))
+                .Include(sbu => sbu.Members.Where(x => x.IsDeleted == false)).AsNoTracking()
                 .Include(sbu => sbu.OperatingEntity)
                 .Where(sbu => sbu.IsDeleted == false)
                 .ToListAsync();
