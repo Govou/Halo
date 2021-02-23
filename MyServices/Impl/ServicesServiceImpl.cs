@@ -13,6 +13,7 @@ using HaloBiz.Model.ManyToManyRelationship;
 using HaloBiz.Repository;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 namespace HaloBiz.MyServices.Impl
 {
@@ -25,6 +26,7 @@ namespace HaloBiz.MyServices.Impl
         private readonly IModificationHistoryRepository _modificationRepo;
         private readonly IServiceRequredServiceQualificationElementRepository _reqServiceElementRepo;
         private readonly DataContext _context;
+        private readonly ILogger<ServicesServiceImpl> _logger;
 
         public ServicesServiceImpl(
                                 IServicesRepository servicesRepository, 
@@ -33,7 +35,8 @@ namespace HaloBiz.MyServices.Impl
                                 IDeleteLogRepository deleteLogRepo, 
                                 IModificationHistoryRepository modificationRepo, 
                                 IServiceRequredServiceQualificationElementRepository reqServiceElementRepo,
-                                DataContext context
+                                DataContext context,
+                                ILogger<ServicesServiceImpl> logger
                                 )
         {
             this._mapper = mapper;
@@ -42,58 +45,56 @@ namespace HaloBiz.MyServices.Impl
             this._modificationRepo = modificationRepo;
             this._reqServiceElementRepo = reqServiceElementRepo;
             this._context = context;
+            this._logger = logger;
             this._servicesRepository = servicesRepository;
         }
 
-        public async Task<ApiResponse> AddService(ServicesReceivingDTO servicesReceivingDTO)
+        public async Task<ApiResponse> AddService(HttpContext context, ServicesReceivingDTO servicesReceivingDTO)
         {
-            IList<ServiceRequiredServiceDocument> serviceRequiredServiceDocument = new List<ServiceRequiredServiceDocument>();
-            IList<ServiceRequredServiceQualificationElement> serviceQualificationElements = new List<ServiceRequredServiceQualificationElement>();
-
-            var service = _mapper.Map<Services>(servicesReceivingDTO);
-            var savedService = await _servicesRepository.SaveService(service);
-            if (savedService == null)
+            using(var transaction = await _context.Database.BeginTransactionAsync())
             {
-                return new ApiResponse(500);
-            }
+                try{
+                        IList<ServiceRequiredServiceDocument> serviceRequiredServiceDocument = new List<ServiceRequiredServiceDocument>();
+                        IList<ServiceRequredServiceQualificationElement> serviceQualificationElements = new List<ServiceRequredServiceQualificationElement>();
 
-            foreach (long id in servicesReceivingDTO.RequiredServiceFieldsId)
-            {
-                serviceQualificationElements.Add(new ServiceRequredServiceQualificationElement()
+                        var service = _mapper.Map<Services>(servicesReceivingDTO);
+                        service.CreatedById = context.GetLoggedInUserId();
+                        var savedService = await _servicesRepository.SaveService(service);
+
+                        foreach (long id in servicesReceivingDTO.RequiredServiceFieldsId)
+                        {
+                            serviceQualificationElements.Add(new ServiceRequredServiceQualificationElement()
+                            {
+                                ServicesId = savedService.Id,
+                                RequredServiceQualificationElementId = id
+                            });
+                        }
+
+                        foreach (long id in servicesReceivingDTO.RequiredDocumentsId)
+                        {
+                            serviceRequiredServiceDocument.Add(new ServiceRequiredServiceDocument()
+                            {
+                                ServicesId = savedService.Id,
+                                RequiredServiceDocumentId = id
+                            });
+                        }
+
+                        var isFieldsSaved = await _reqServiceElementRepo.SaveRangeServiceRequredServiceQualificationElement(serviceQualificationElements);
+
+                        var isDocSaved = await _requiredServiceDocRepo.SaveRangeServiceRequiredServiceDocument(serviceRequiredServiceDocument);
+
+                        var servicesTransferDTO = _mapper.Map<ServicesTransferDTO>(savedService);
+                        await transaction.CommitAsync();
+                        return new ApiOkResponse(servicesTransferDTO);
+
+                }catch(Exception e)
                 {
-                    ServicesId = savedService.Id,
-                    RequredServiceQualificationElementId = id
-                });
+                    _logger.LogError(e.Message);
+                    _logger.LogError(e.StackTrace);
+                    await transaction.RollbackAsync();
+                    return new ApiResponse(500);
+                }
             }
-
-            foreach (long id in servicesReceivingDTO.RequiredDocumentsId)
-            {
-                serviceRequiredServiceDocument.Add(new ServiceRequiredServiceDocument()
-                {
-                    ServicesId = savedService.Id,
-                    RequiredServiceDocumentId = id
-                });
-            }
-
-            var isFieldsSaved = await _reqServiceElementRepo.SaveRangeServiceRequredServiceQualificationElement(serviceQualificationElements);
-
-            var isDocSaved = await _requiredServiceDocRepo.SaveRangeServiceRequiredServiceDocument(serviceRequiredServiceDocument);
-
-            if (!isDocSaved)
-            {
-                await DeleteService(savedService.Id);
-                return new ApiResponse(500);
-            }
-
-            if (!isFieldsSaved)
-            {
-                await DeleteService(savedService.Id);
-                await _requiredServiceDocRepo.DeleteRangeServiceRequiredServiceDocument(serviceRequiredServiceDocument);
-                return new ApiResponse(500);
-            }
-
-            var servicesTransferDTO = _mapper.Map<ServicesTransferDTO>(savedService);
-            return new ApiOkResponse(servicesTransferDTO);
         }
 
         public async Task<ApiResponse> GetAllServices()
