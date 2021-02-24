@@ -185,6 +185,9 @@ namespace HaloBiz.Helpers
             CreateMap<ApproverLevelReceivingDTO, ApproverLevel>();
             CreateMap<ApproverLevel, ApproverLevelTransferDTO>();
             CreateMap<ApproverLevel, BaseSetupTransferDTO>();
+            CreateMap<ProcessesRequiringApprovalReceivingDTO, ProcessesRequiringApproval>();
+            CreateMap<ProcessesRequiringApproval, ProcessesRequiringApprovalTransferDTO>();
+            CreateMap<ProcessesRequiringApproval, BaseSetupTransferDTO>();
 
         }
     }
