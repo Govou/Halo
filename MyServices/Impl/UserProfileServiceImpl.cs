@@ -139,7 +139,11 @@ namespace HaloBiz.MyServices.Impl
             {
                 if (ProfileIs100Percent(updatedUser))
                 {
-                    string serializedUser = JsonConvert.SerializeObject(updatedUser);
+                    string serializedUser = JsonConvert.SerializeObject(updatedUser, new JsonSerializerSettings
+                    {
+                        ReferenceLoopHandling = ReferenceLoopHandling.Ignore
+                    });
+
                     RunTask(async () => {
                         await _mailAdpater.SendNewUserSignup(serializedUser);
                     });                                        
