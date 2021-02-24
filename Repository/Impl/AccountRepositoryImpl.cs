@@ -14,6 +14,7 @@ namespace HaloBiz.Repository.Impl
         private readonly DataContext _context;
         private readonly ILogger<AccountRepositoryImpl> _logger;
         private readonly string SALES_INCOME_CONTROL = "Trade Income";
+        private readonly string CASH_BOOK = "CASH BOOK";
         public AccountRepositoryImpl(DataContext context, ILogger<AccountRepositoryImpl> logger)
         {
             this._logger = logger;
@@ -46,6 +47,17 @@ namespace HaloBiz.Repository.Impl
             return await _context.Accounts
                     .Where(user => user.IsDeleted == false).ToListAsync();
 
+        }
+        public async Task<IEnumerable<Account>> GetCashAccounts()
+        {
+            var controlAccount = await _context.ControlAccounts.FirstOrDefaultAsync(x => x.IsDeleted == false
+                     && x.Caption.ToUpper().Trim() == this.CASH_BOOK);
+            if(controlAccount == null)
+            {
+                return new List<Account>();
+            }
+            return await _context.Accounts
+                    .Where(x => x.IsDeleted == false && x.ControlAccountId == controlAccount.Id).ToListAsync();
         }
 
         public  IQueryable<Account> GetAccountQueriable()
