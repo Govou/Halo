@@ -19,5 +19,6 @@ namespace HaloBiz.MyServices
         Task<ApiResponse> UpdateAccount(long id, AccountReceivingDTO accountClassReceivingDTO);
         Task<ApiResponse> DeleteAccount(long id);
         Task<ApiResponse> GetAllTradeIncomeTaxAccounts();
+        Task<ApiResponse> GetCashBookAccounts();
     }
 }

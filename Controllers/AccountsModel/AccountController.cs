@@ -32,6 +32,16 @@ namespace HaloBiz.Controllers.AccountsModel
             return Ok((IEnumerable<AccountTransferDTO>)Account);
         }
 
+        [HttpGet("CashBookAccounts")]
+        public async Task<ActionResult> GetCashBookAccounts()
+        {
+            var response = await _accountService.GetCashBookAccounts();
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var Account = ((ApiOkResponse)response).Result;
+            return Ok((IEnumerable<AccountTransferDTO>)Account);
+        }
+
 
         [HttpPost("SeachAccount")]
         public async Task<ActionResult> SeachAccount(AccountSearchDTO accountSearchDTO)
