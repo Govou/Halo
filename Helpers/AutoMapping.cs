@@ -188,6 +188,9 @@ namespace HaloBiz.Helpers
             CreateMap<ProcessesRequiringApprovalReceivingDTO, ProcessesRequiringApproval>();
             CreateMap<ProcessesRequiringApproval, ProcessesRequiringApprovalTransferDTO>();
             CreateMap<ProcessesRequiringApproval, BaseSetupTransferDTO>();
+            CreateMap<ApprovalLimitReceivingDTO, ApprovalLimit>();
+            CreateMap<ApprovalLimit, ApprovalLimitTransferDTO>();
+            CreateMap<ApprovalLimit, BaseSetupTransferDTO>();
 
         }
     }
