@@ -44,6 +44,11 @@ namespace HaloBiz.Repository.Impl.LAMS
                 .OrderBy(entity => entity.CreatedAt)
                 .ToListAsync();
         }
+        public async Task<FinanceVoucherType> GetFinanceVoucherTypeByName(string name)
+        {
+            return await _context.FinanceVoucherTypes   
+                .FirstOrDefaultAsync(x => x.IsDeleted == false && x.VoucherType.ToUpper().Trim() == name);
+        }
 
         public async Task<FinanceVoucherType> UpdateFinanceVoucherType(FinanceVoucherType entity)
         {

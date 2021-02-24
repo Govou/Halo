@@ -11,5 +11,6 @@ namespace HaloBiz.Repository.LAMS
          Task<IEnumerable<FinanceVoucherType>> FindAllFinanceVoucherType();
          Task<FinanceVoucherType> UpdateFinanceVoucherType(FinanceVoucherType voucherType);
          Task<bool> DeleteFinanceVoucherType(FinanceVoucherType voucherType);
+         Task<FinanceVoucherType> GetFinanceVoucherTypeByName(string name);
     }
 }
