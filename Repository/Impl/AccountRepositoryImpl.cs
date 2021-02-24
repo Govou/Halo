@@ -19,7 +19,6 @@ namespace HaloBiz.Repository.Impl
         {
             this._logger = logger;
             this._context = context;
-
         }
 
         public async Task<bool> DeleteAccount(Account Account)
@@ -32,7 +31,6 @@ namespace HaloBiz.Repository.Impl
         public async Task<Account> FindAccountByAlias(string alias)
         {
             return await _context.Accounts.FirstOrDefaultAsync(account => account.Alias == alias && account.IsDeleted == false);
-
         }
 
         public async Task<Account> FindAccountById(long Id)

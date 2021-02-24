@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using HaloBiz.Helpers;
 using HaloBiz.Model;
 using HaloBiz.Model.LAMS;
 
@@ -17,6 +18,7 @@ namespace HaloBiz.DTOs.TransferDTOs.LAMS
         public long TaskFullfillmentId { get; set; }
         public long? ResponsibleId { get; set; }
         public UserProfile Responsible { get; set; }
+        public DeliverablePriority Priority { get; set; }
         public DateTime? StartDate { get; set; }
         public DateTime? EndDate { get; set; }
         public DateTime? DeliveryDate { get; set; }
