@@ -19,7 +19,6 @@ namespace HaloBiz.Model
 
         public long ProcessesRequiringApprovalId { get; set; } //module captured
         public virtual ProcessesRequiringApproval ProcessesRequiringApproval { get; set; }
-        public string ModuleCaptured { get; set; }
         [Required]
         public long UpperlimitValue { get; set; }
         [Required]
