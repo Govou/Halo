@@ -16,16 +16,22 @@ namespace HaloBiz.Model
         [Required, MinLength(3), MaxLength(255)]
         public string Description { get; set; }
         [Required]
-        public string ModuleCaptured { get; set; }
+
+        public long ProcessesRequiringApprovalId { get; set; } //module captured
+        public virtual ProcessesRequiringApproval ProcessesRequiringApproval { get; set; }
         [Required]
         public long UpperlimitValue { get; set; }
         [Required]
         public long LowerlimitValue { get; set; }
         [Required]
-        public string ApproverLevel { get; set; }
+        public long ApproverLevelId { get; set; }
+        public virtual ApproverLevel ApproverLevel { get; set; }
         [Required]
-        public string Sequence { get; set; }
+        public long Sequence { get; set; }
         public bool IsDeleted { get; set; } = false;
+        public long CreatedById { get; set; }
+        public virtual UserProfile CreatedBy { get; set; }
+
         [Required]
         public bool IsBypassRequired { get; set; } = false;
 
