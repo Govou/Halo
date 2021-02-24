@@ -197,6 +197,8 @@ namespace HaloBiz.MyServices.Impl.LAMS
                                             DeliveryDate = deliverableSummary.DeliveryDate,
                                             DeliverableStatus = deliverableSummary.DeliverableStatus,
                                             DeliverableResponsibleId = deliverableSummary.DeliverableResponsibleId,
+                                            Priority = deliverableSummary.Priority,
+                                            DeliveryState = GetDeliverableAtRiskStatus(deliverableSummary.StartDate, deliverableSummary.DeliveryDate)
                                     }
                                 }
                         
@@ -210,6 +212,8 @@ namespace HaloBiz.MyServices.Impl.LAMS
                                             DeliveryDate = deliverableSummary.DeliveryDate,
                                             DeliverableStatus = deliverableSummary.DeliverableStatus,
                                             DeliverableResponsibleId = deliverableSummary.DeliverableResponsibleId,
+                                            Priority = deliverableSummary.Priority,
+                                            DeliveryState = GetDeliverableAtRiskStatus(deliverableSummary.StartDate, deliverableSummary.DeliveryDate)
                                     }
                         );
                     }
@@ -223,6 +227,15 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 return new ApiResponse(500);
             }
            
+        }
+
+        private DeliveryState GetDeliverableAtRiskStatus(DateTime? start, DateTime? end)
+        {
+            if(end < DateTime.Now ) 
+                return DeliveryState.Overdue;
+            var diffInDate =((DateTime) end).Subtract((DateTime)start).TotalMilliseconds;
+            var diffInStartDateAndPresentDate = DateTime.Now.Subtract((DateTime)start).TotalMilliseconds;
+            return (diffInStartDateAndPresentDate / (double)diffInDate) * 100 >= 90 ? DeliveryState.AtRisk : DeliveryState.OnTrack;
         }
 
         public TaskWithListOfDeliverables GetTaskWithListOfDeliverables(IEnumerable<TaskWithListOfDeliverables> taskWithListOfDeliverables, long taskId)

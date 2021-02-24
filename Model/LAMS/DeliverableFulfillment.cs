@@ -1,6 +1,7 @@
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using HaloBiz.Helpers;
 
 namespace HaloBiz.Model.LAMS
 {
@@ -19,6 +20,7 @@ namespace HaloBiz.Model.LAMS
         public DateTime? DeliveryDate { get; set; }
         public bool IsPicked { get; set; } = false;
         public DateTime? DateAndTimePicked { get; set; }
+        public DeliverablePriority? Priority { get; set; } =  DeliverablePriority.Low;
         public DateTime? TaskCompletionDate { get; set; }
         public DateTime? TaskCompletionTime { get; set; }
         public bool WasReassigned { get; set; } = false;
