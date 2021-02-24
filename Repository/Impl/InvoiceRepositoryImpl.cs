@@ -57,6 +57,14 @@ namespace HaloBiz.Repository.Impl
             .FirstOrDefaultAsync(x => x.Id == Id && x.IsDeleted == false);
         }
 
+        public async Task<IEnumerable<Invoice>> GetInvoiceByContractServiceId(long contactDivisionId) 
+        {
+            return await _context.Invoices
+                .Include(x => x.Receipts)
+                    .Where(x => x.ContractServiceId == contactDivisionId && x.IsDeleted == false)
+                    .ToListAsync();
+        }
+
         private async Task<bool> SaveChanges()
         {
            try

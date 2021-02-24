@@ -155,6 +155,7 @@ namespace HaloBiz
             services.AddScoped<IDeliverableFulfillmentService, DeliverableFulfillmentServiceImpl>();
             services.AddScoped<IIndustryService, IndustryServiceImpl>();
             services.AddScoped<IDesignationService, DesignationServiceImpl>();
+            services.AddScoped<IInvoiceService, InvoiceService>();
 
 
             //repositories
@@ -217,6 +218,7 @@ namespace HaloBiz
             services.AddScoped<IDeliverableFulfillmentRepository, DeliverableFulfillmentRepositoryImpl>();
             services.AddScoped<IIndustryRepository, IndustryRepositoryImpl>();
             services.AddScoped<IDesignationRepository, DesignationRepositoryImpl>();
+            services.AddScoped<IInvoiceRepository, InvoiceRepositoryImpl>();
 
             // Adapters
             services.AddScoped<IMailAdapter, MailAdapter>();

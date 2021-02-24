@@ -177,9 +177,19 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 CustomerId = customerId,
                 PhoneNumber = leadDivision.PhoneNumber,
                 Address = leadDivision.Address,
+                PrimaryContactId = leadDivision.PrimaryContactId,
+                SecondaryContactId = leadDivision.SecondaryContactId,
                 CreatedById = this.LoggedInUserId,
             });
 
+            await context.SaveChangesAsync();
+
+            foreach (var keyPerson in leadDivision.LeadDivisionKeyPersons)
+            {
+                keyPerson.CustomerDivisionId = customerDivisionEntity.Entity.Id;
+            }
+
+            _context.LeadDivisionKeyPeople.UpdateRange(leadDivision.LeadDivisionKeyPersons);
             await context.SaveChangesAsync();
             
             return customerDivisionEntity.Entity;
