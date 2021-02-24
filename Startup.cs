@@ -158,6 +158,7 @@ namespace HaloBiz
             services.AddScoped<IInvoiceService, InvoiceService>();
             services.AddScoped<IReceiptService, ReceiptServiceImpl>();
             services.AddScoped<IApproverLevelService, ApproverLevelServiceImpl>();
+            services.AddScoped<IApprovalLimitService, ApprovalLimitServiceImpl>();
             services.AddScoped<IProcessesRequiringApprovalService, ProcessesRequiringApprovalServiceImpl>();
 
 
@@ -224,6 +225,7 @@ namespace HaloBiz
             services.AddScoped<IInvoiceRepository, InvoiceRepositoryImpl>();
             services.AddScoped<IReceiptRepository, ReceiptRepositoryImpl>();
             services.AddScoped<IApproverLevelRepository, ApproverLevelRepositoryImpl>();
+            services.AddScoped<IApprovalLimitRepository, ApprovalLimitRepositoryImpl>();
             services.AddScoped<IProcessesRequiringApprovalRepository, ProcessesRequiringApprovalRepositoryImpl>();
 
             // Adapters
