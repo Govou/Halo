@@ -53,7 +53,8 @@ namespace HaloBiz.Repository.Impl
         public async Task<Invoice> FindInvoiceById(long Id)
         {
            return await _context.Invoices
-            .OrderBy(x => x.Receipts)
+           .Include(x => x.CustomerDivision)
+            .Include(x => x.Receipts)
             .FirstOrDefaultAsync(x => x.Id == Id && x.IsDeleted == false);
         }
 

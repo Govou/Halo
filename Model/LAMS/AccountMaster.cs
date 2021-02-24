@@ -22,11 +22,9 @@ namespace HaloBiz.Model.AccountsModel
         public long VoucherId { get; set; }
         public FinanceVoucherType Voucher { get; set; }
         public string TransactionId { get; set; }
-        [Required]
-        public long BranchId { get; set; }
+        public long? BranchId { get; set; }
         public virtual Branch Branch { get; set; }
-        [Required]
-        public long OfficeId { get; set; }
+        public long? OfficeId { get; set; }
         public virtual Office Office { get; set; }
         public long? CustomerDivisionId { get; set; }
         public CustomerDivision CustomerDivision { get; set; }
