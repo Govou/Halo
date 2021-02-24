@@ -262,7 +262,9 @@ namespace HaloBiz.MyServices.Impl
                 return new ApiResponse(500);
             }
 
-            var serializedUser = JsonConvert.SerializeObject(updatedUser);
+            var serializedUser = JsonConvert.SerializeObject(updatedUser, new JsonSerializerSettings { 
+                 ReferenceLoopHandling = ReferenceLoopHandling.Ignore
+            });
 
             RunTask(async () => {
                 await _mailAdpater.SendUserAssignedToRoleMail(serializedUser);
