@@ -11,5 +11,6 @@ namespace HaloBiz.Repository
         Task<ProcessesRequiringApproval> UpdateProcessesRequiringApproval(ProcessesRequiringApproval processesRequiringApproval);
         Task<bool> DeleteProcessesRequiringApproval(ProcessesRequiringApproval processesRequiringApproval);
         Task<ProcessesRequiringApproval> FindProcessesRequiringApprovalById(long Id);
+        Task<ProcessesRequiringApproval> FindProcessesRequiringApprovalByCaption(string caption);
     }
 }

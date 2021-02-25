@@ -8,6 +8,8 @@ namespace HaloBiz.Repository
     {
         Task<ApprovalLimit> SaveApprovalLimit(ApprovalLimit approvalLimit);
         Task<IEnumerable<ApprovalLimit>> GetApprovalLimits();
+
+        Task<IEnumerable<ApprovalLimit>> GetApprovalLimitsByModule(long moduleId);
         Task<ApprovalLimit> UpdateApprovalLimit(ApprovalLimit approvalLimit);
         Task<bool> DeleteApprovalLimit(ApprovalLimit approvalLimit);
         Task<ApprovalLimit> FindApprovalLimitById(long Id);
