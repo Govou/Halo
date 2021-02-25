@@ -119,7 +119,7 @@ namespace HaloBiz.MyServices.Impl
             }
             var approvalLimits = await _approvalLimitRepo.GetApprovalLimitsByModule(module.Id);
             var orderedList = approvalLimits
-                .Where(x => service.UnitPrice > x.UpperlimitValue || (service.UnitPrice < x.UpperlimitValue && service.UnitPrice > x.LowerlimitValue))
+                .Where(x => service.UnitPrice > x.UpperlimitValue || (service.UnitPrice <= x.UpperlimitValue && service.UnitPrice >= x.LowerlimitValue))
                 .OrderBy(x => x.Sequence);
 
             List<Approval> approvals = new List<Approval>();
