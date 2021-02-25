@@ -104,6 +104,12 @@ namespace HaloBiz.Repository.Impl.LAMS
                 .OrderBy(taskFulfillment => taskFulfillment.CreatedAt)
                 .ToListAsync();
         }
+        public async Task<IEnumerable<TaskFulfillment>> GetTaskFulfillmentsByCustomerDivisionId(long customerDivsionId)
+        {
+            return await _context.TaskFulfillments   
+                .Include(x => x.DeliverableFUlfillments.Where(x => x.IsDeleted == true && x.WasReassigned == false))
+                .Where(x => x.CustomerDivisionId == customerDivsionId && x.IsDeleted == false).ToListAsync();
+        }
 
          public async Task<IEnumerable<TaskFulfillment>> FindAllTaskFulfillmentForTaskOwner(long taskOwnerId)
         {

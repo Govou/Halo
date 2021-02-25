@@ -35,5 +35,8 @@ namespace HaloBiz.DTOs.TransferDTOs.LAMS
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
         public string ServiceCode { get; set; }
+        public IEnumerable<DeliverableFulfillmentTransferDTO> DeliverableFulfillments { get; set; }
+        
+        
     }
 }

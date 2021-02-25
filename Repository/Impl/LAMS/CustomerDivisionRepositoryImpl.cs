@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using HaloBiz.Data;
+using HaloBiz.DTOs.TransferDTOs.LAMS;
 using HaloBiz.Model.LAMS;
 using HaloBiz.Repository.LAMS;
 using Microsoft.EntityFrameworkCore;
@@ -78,6 +79,60 @@ namespace HaloBiz.Repository.Impl.LAMS
                }
            ).Where(x => x.GroupTypeId == groupTypeId && x.IsDeleted == false).ToListAsync();
         }
+
+        public async Task<CustomerDivision> GetCustomerDivisionBreakDownById(long id)
+        {
+            var client = await _context.CustomerDivisions
+                .Where(x => x.Id == id && x.IsDeleted == false).FirstOrDefaultAsync();
+            if(client == null)
+            {
+                return null;
+            }
+            client.Contracts = await _context.Contracts
+                .Include(x => x.ContractServices.Where(x => x.IsDeleted == false))
+                .Where(x => x.IsDeleted == false && x.Id == client.CustomerId).ToListAsync();
+            return client;
+        }        
+
+        public async Task<List<ContractToPaidAmountTransferDTO>> GetPaymentsPerContractByCustomerDivisionId(long customerId)
+        {
+            var totalPayedAmount = await _context.CustomerDivisions.Join(
+                _context.Contracts, 
+                division => division.Id, contract => contract.CustomerDivisionId,
+                (contract, division) => new {
+                    ContractId = contract.Id,
+                    CuatomerId = division.Id
+                }
+            ).Join( 
+                _context.Invoices, contract => contract.ContractId, invoice => invoice.ContractId,
+                (prev, invoice) => new {
+                    ContractId = prev.ContractId,
+                    InvoiceId = invoice.Id,
+                    CuatomerId = prev.CuatomerId,
+                    IsInvoiceDeleted = invoice.IsDeleted
+                }
+             ).Join(
+                 _context.Receipts, prev => prev.InvoiceId, receipt => receipt.InvoiceId,
+                 (prev, receipt) => new {
+                     ContractId = prev.ContractId,
+                     Amount = receipt.ReceiptValue,
+                     CustomerId = prev.CuatomerId,
+                     IsReceiptDeleted = receipt.IsDeleted,
+                     IsInvoiceDeleted = prev.IsInvoiceDeleted
+                 }
+             ).Where( x => x.CustomerId == customerId && !x.IsInvoiceDeleted && !x.IsReceiptDeleted)
+                .GroupBy(x => new{
+                    ContractId = x.ContractId
+                }).Select(y => new ContractToPaidAmountTransferDTO(){
+                    AmountPaid = y.Sum( x => x.Amount),
+                    ContractId = y.Key.ContractId
+                }).ToListAsync();
+
+             totalPayedAmount.ForEach(x => System.Console.WriteLine(x.ContractId));
+             return totalPayedAmount;
+
+        }
+        
         public async Task<CustomerDivision> FindCustomerDivisionByName(string name)
         {
             return await _context.CustomerDivisions
