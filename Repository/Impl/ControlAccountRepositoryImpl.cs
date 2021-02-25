@@ -30,11 +30,26 @@ namespace HaloBiz.Repository.Impl
 
                     var  lastSavedControl = await _context.ControlAccounts.Where(control => control.AccountClassId == controlAccount.AccountClassId)
                         .OrderBy(control => control.Id).LastOrDefaultAsync();
-                    if(lastSavedControl == null || lastSavedControl.Id < 100000000)
+
+                    
+                    if(lastSavedControl == null || lastSavedControl.Id < 1000000000)
                     {
-                        controlAccount.Id = controlAccount.AccountClassId + 100000000;
+                        controlAccount.Id = controlAccount.AccountClassId + 10000000;
                     }else{
-                        controlAccount.Id = lastSavedControl.Id + 100000000;
+                        var num = lastSavedControl.Id;
+                        var firstCharacter = num.ToString()[0];
+                        var otherNumbers = num.ToString()[1..].Replace("0", "");
+                        string id;
+                        if(otherNumbers.EndsWith("9"))
+                        {
+                            id = firstCharacter + (int.Parse(otherNumbers) + 2).ToString().PadRight(9, '0');
+                        }
+                        else
+                        {
+                            id = firstCharacter + (int.Parse(otherNumbers) + 1).ToString().PadRight(9, '0');
+                        }
+
+                        controlAccount.Id = long.Parse(id);
                     }
                     var savedControlAccount = await _context.ControlAccounts.AddAsync(controlAccount);
                     await _context.SaveChangesAsync();

@@ -1,3 +1,4 @@
+using HaloBiz.Helpers;
 using HaloBiz.Model.LAMS;
 using System;
 using System.ComponentModel.DataAnnotations;
@@ -11,6 +12,7 @@ namespace HaloBiz.DTOs.ReceivingDTOs
         public long TaskFullfillmentId { get; set; }
         public long? ResponsibleId { get; set; }
         public DateTime? StartDate { get; set; }
+        public DeliverablePriority Priority { get; set; } =  DeliverablePriority.Low;
         public DateTime? EndDate { get; set; }
         public DateTime? DeliveryDate { get; set; }
         public bool IsRequestedForValidation { get; set; } = false;

@@ -67,12 +67,10 @@ namespace HaloBiz.Repository.Impl.LAMS
         }
         public async Task<object> GetUserDeliverableStat(long userId)
         {
-            var userDeliverableInWorkBench = await _context.DeliverableFulfillments
+
+             var userDeliverableInWorkBench = await _context.DeliverableFulfillments
                 .Where(x => x.ResponsibleId == userId && x.DeliverableStatus == false
                      && x.IsDeleted == false).ToListAsync();
-
-            var userDeliverableAtRisk = userDeliverableInWorkBench
-                        .Where(x => CheckIfDeliverableAtRisk(x.StartDate, x.EndDate)).Count();
 
             var userDeliverableOverdue = userDeliverableInWorkBench
                     .Where(x => x.EndDate >= DateTime.Now).Count();
@@ -94,19 +92,39 @@ namespace HaloBiz.Repository.Impl.LAMS
             double earlyDeliveryRate = numberOfEarlyDeliverableCompletion == 0 ? 0 
                         : (numberOfEarlyDeliverableCompletion / completedDeliverable) * 100 ;
 
+            var deliverable = await _context.DeliverableFulfillments
+                .Include(x => x.TaskFullfillment)
+                .FirstOrDefaultAsync(x => x.ResponsibleId == userId);
 
+            double workLoad = 0.0;
+            if(deliverable != null)
+            {
+                
+                var taskOwnerId = deliverable.TaskFullfillment.ResponsibleId;
+                var taskOwnerUnCompletedDeliverables = await _context.TaskFulfillments.Join(
+                    _context.DeliverableFulfillments,
+                    task => task.Id, deliverable => deliverable.TaskFullfillmentId,
+                    (taskOwnerId, deliverable) => new {
+                        IsCompleted = deliverable.DeliverableStatus,
+                        IsAssigned = deliverable.ResponsibleId != null && deliverable.ResponsibleId > 0
+                    }
+                ).Where(x => x.IsCompleted == false && x.IsAssigned == true).CountAsync();
+                workLoad = taskOwnerUnCompletedDeliverables == 0 ? 0 : 
+                    (userDeliverableInWorkBench.Count() / (double) taskOwnerUnCompletedDeliverables) * 100;
+            }
+        
             
-            var unPickedDeliverable = userDeliverableInWorkBench.Where(x => x.IsPicked == false).Count();
+            var pickedDeliverable = userDeliverableInWorkBench.Where(x => x.IsPicked == true).Count();
 
-            double pickRate = unPickedDeliverable == 0 ? 0.0 : (unPickedDeliverable / userDeliverableInWorkBench.Count()) / 100.00;
-            
+            double pickRate = pickedDeliverable == 0 ? 0.0 : (pickedDeliverable / (double) userDeliverableInWorkBench.Count()) * 100.00;
             return new{ 
                 userDeliverableOnTrack,
                 userDeliverableInWorkBench = userDeliverableInWorkBench.Count(), 
                 userDeliverableAtRisk = numberOfUserDeliverableAtRisk, 
                 userDeliverableOverdue = userDeliverableOverdue,
                 pickRate,
-                earlyDeliveryRate
+                earlyDeliveryRate, 
+                workLoad = Math.Floor(workLoad * 100)  / 100.0
                 };
         }
 

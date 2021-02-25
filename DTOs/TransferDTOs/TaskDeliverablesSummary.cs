@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using HaloBiz.Helpers;
 
 namespace halobiz_backend.DTOs.TransferDTOs
 {
@@ -9,8 +10,10 @@ namespace halobiz_backend.DTOs.TransferDTOs
         public long TaskId { get; set; }
         public long? TaskResponsibleId { get; set; }
         public long DeliverableId { get; set; }
+        public DeliverablePriority Priority { get; set; }
         public string DeliverableCaption { get; set; }
         public DateTime? DeliveryDate { get; set; }
+        public DateTime StartDate { get; set; }
         public string TaskResponsibleImageUrl { get; set; }
         public long? DeliverableResponsibleId { get; set; }
         public bool IsPicked { get; set; }
@@ -26,6 +29,7 @@ namespace halobiz_backend.DTOs.TransferDTOs
         public string TaskResponsibleImageUrl { get; set; }
         public string TaskResponsibleName { get; set; }
         public List<DeliverableSummary> DeliverableSummaries { get; set; }
+        public int MyProperty { get; set; }
     }
 
     public class DeliverableSummary
@@ -36,5 +40,12 @@ namespace halobiz_backend.DTOs.TransferDTOs
         public bool DeliverableStatus { get; set; }
         public long? DeliverableResponsibleId { get; set; }
         public bool IsPicked { get; set; }
+        public DeliverablePriority Priority { get; set; }
+        public DeliveryState DeliveryState { get; set; }
+    }
+
+    public enum DeliveryState
+    {
+       OnTrack, AtRisk, Overdue
     }
 }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using HaloBiz.Data;
+using HaloBiz.Helpers;
 using HaloBiz.Model.LAMS;
 using HaloBiz.Repository.LAMS;
 using halobiz_backend.DTOs.TransferDTOs;
@@ -68,7 +69,9 @@ namespace HaloBiz.Repository.Impl.LAMS
                         DeliverableId = deliverable.Id,
                         IsPicked = deliverable.IsPicked,
                         DeliverableCaption = deliverable.Caption,
-                        DeliveryDate = deliverable.DeliveryDate,
+                        DeliveryDate = deliverable.EndDate?? DateTime.Now,
+                        StartDate = deliverable.StartDate?? DateTime.Now,
+                        Priority = deliverable.Priority?? 0 ,
                         DeliverableResponsibleId = deliverable.ResponsibleId
                     }
             ).Join(
@@ -83,9 +86,11 @@ namespace HaloBiz.Repository.Impl.LAMS
                         IsPicked = task.IsPicked,
                         DeliverableCaption = task.DeliverableCaption,
                         DeliveryDate = task.DeliveryDate,
+                        Priority = task.Priority,
                         TaskResponsibleImageUrl = taskOwner.ImageUrl,
                         DeliverableResponsibleId = task.DeliverableResponsibleId,
                         TaskResponsibleName = $"{taskOwner.FirstName} {taskOwner.LastName}",
+                        StartDate =  task.StartDate
                     }
             ).Where(x => x.DeliverableResponsibleId == responsibleId && x.DeliverableStatus == false).ToListAsync();
 
