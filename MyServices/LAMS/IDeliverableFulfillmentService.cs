@@ -1,6 +1,7 @@
 using System.Threading.Tasks;
 using HaloBiz.DTOs.ApiDTOs;
 using HaloBiz.DTOs.ReceivingDTOs;
+using HaloBiz.DTOs.ReceivingDTOs.LAMS;
 using Microsoft.AspNetCore.Http;
 
 namespace HaloBiz.MyServices.LAMS
@@ -16,7 +17,7 @@ namespace HaloBiz.MyServices.LAMS
         Task<ApiResponse> DeleteDeliverableFulfillment(long id);        
         Task<ApiResponse> ReAssignDeliverableFulfillment(HttpContext context, long id, DeliverableFulfillmentReceivingDTO deliverableFulfillmentReceivingDTO);
         Task<ApiResponse> SetIsPicked(HttpContext context, long id);
-        Task<ApiResponse> SetRequestedForValidation(HttpContext context, long id);
+        Task<ApiResponse> SetRequestedForValidation(HttpContext context, long id,  DeliverableFulfillmentApprovalReceivingDTO dto);
         Task<ApiResponse> SetDeliveredStatus(HttpContext context, long id);
         Task<ApiResponse> GetUserDeliverableFulfillmentStat(long userId);
     }

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using HaloBiz.DTOs.ApiDTOs;
 using HaloBiz.DTOs.ReceivingDTOs;
+using HaloBiz.DTOs.ReceivingDTOs.LAMS;
 using HaloBiz.DTOs.TransferDTOs.LAMS;
 using HaloBiz.MyServices.LAMS;
 using Microsoft.AspNetCore.Mvc;
@@ -120,9 +121,9 @@ namespace Controllers.Controllers
         }
 
         [HttpPut("SetRequestedForValidation/{id}")]
-        public async Task<IActionResult> SetRequestedForValidation(long id)
+        public async Task<IActionResult> SetRequestedForValidation(long id, DeliverableFulfillmentApprovalReceivingDTO dto)
         {
-            var response = await _deliverableFulfillmentService.SetRequestedForValidation(HttpContext, id);
+            var response = await _deliverableFulfillmentService.SetRequestedForValidation(HttpContext, id, dto);
             if (response.StatusCode >= 400)
                 return StatusCode(response.StatusCode, response);
             var deliverableFulfillment = ((ApiOkResponse)response).Result;
