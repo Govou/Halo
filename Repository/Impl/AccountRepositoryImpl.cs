@@ -48,8 +48,8 @@ namespace HaloBiz.Repository.Impl
         }
         public async Task<IEnumerable<Account>> GetCashAccounts()
         {
-            var controlAccount = await _context.ControlAccounts.FirstOrDefaultAsync(x => x.IsDeleted == false
-                     && x.Caption.ToUpper().Trim() == this.CASH_BOOK);
+            var controlAccount = await _context.ControlAccounts.FirstOrDefaultAsync(x => 
+                     x.Caption.ToUpper().Trim() == this.CASH_BOOK);
             if(controlAccount == null)
             {
                 return new List<Account>();
