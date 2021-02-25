@@ -57,6 +57,12 @@ namespace HaloBiz.Repository.Impl
             .FirstOrDefaultAsync(x => x.Id == Id && x.IsDeleted == false);
         }
 
+        public async Task<ProcessesRequiringApproval> FindProcessesRequiringApprovalByCaption(string caption)
+        {
+            return await _context.ProcessesRequiringApprovals
+             .FirstOrDefaultAsync(x => x.Caption == caption && x.IsDeleted == false);
+        }
+
         private async Task<bool> SaveChanges()
         {
            try
