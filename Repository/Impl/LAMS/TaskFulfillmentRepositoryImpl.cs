@@ -110,7 +110,7 @@ namespace HaloBiz.Repository.Impl.LAMS
             return await _context.TaskFulfillments
                 .Where(taskFulfillment => taskFulfillment.IsDeleted == false 
                     && (taskFulfillment.AccountableId == taskOwnerId || taskFulfillment.SupportId == taskOwnerId))
-                .Include(x => x.DeliverableFUlfillments)
+                .Include(x => x.DeliverableFUlfillments.Where(x => x.WasReassigned == false && x.IsDeleted == false))
                 .OrderBy(taskFulfillment => taskFulfillment.CreatedAt)
                 .ToListAsync();
         }
