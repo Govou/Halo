@@ -76,6 +76,7 @@ namespace HaloBiz.MyServices.Impl
             var summary = $"Initial details before change, \n {approverLevelToUpdate.ToString()} \n" ;
 
             approverLevelToUpdate.Caption = approverLevelReceivingDTO.Caption;
+            approverLevelToUpdate.Alias = approverLevelReceivingDTO.Alias;
             approverLevelToUpdate.Description = approverLevelReceivingDTO.Description;
             var updatedApproverLevel = await _approverLevelRepo.UpdateApproverLevel(approverLevelToUpdate);
 

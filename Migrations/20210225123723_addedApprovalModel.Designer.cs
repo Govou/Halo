@@ -4,14 +4,16 @@ using HaloBiz.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace HaloBiz.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20210225123723_addedApprovalModel")]
+    partial class addedApprovalModel
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -470,10 +472,10 @@ namespace HaloBiz.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
-                    b.Property<long?>("ContractId")
+                    b.Property<long>("ContractId")
                         .HasColumnType("bigint");
 
-                    b.Property<long?>("ContractServiceId")
+                    b.Property<long>("ContractServiceId")
                         .HasColumnType("bigint");
 
                     b.Property<DateTime>("CreatedAt")
@@ -484,7 +486,7 @@ namespace HaloBiz.Migrations
                     b.Property<long>("CreatedById")
                         .HasColumnType("bigint");
 
-                    b.Property<DateTime?>("DateTimeApproved")
+                    b.Property<DateTime>("DateTimeApproved")
                         .HasColumnType("datetime2");
 
                     b.Property<bool>("IsApproved")
@@ -493,12 +495,10 @@ namespace HaloBiz.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
-                    b.Property<long?>("QuoteId")
-                        .IsRequired()
+                    b.Property<long>("QuoteId")
                         .HasColumnType("bigint");
 
-                    b.Property<long?>("QuoteServiceId")
-                        .IsRequired()
+                    b.Property<long>("QuoteServiceId")
                         .HasColumnType("bigint");
 
                     b.Property<long>("ResponsibleId")
@@ -507,7 +507,7 @@ namespace HaloBiz.Migrations
                     b.Property<long>("Sequence")
                         .HasColumnType("bigint");
 
-                    b.Property<long?>("ServicesId")
+                    b.Property<long>("ServicesId")
                         .HasColumnType("bigint");
 
                     b.Property<DateTime>("UpdatedAt")
@@ -732,51 +732,6 @@ namespace HaloBiz.Migrations
                     b.ToTable("Branches");
                 });
 
-            modelBuilder.Entity("HaloBiz.Model.Company", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint")
-                        .UseIdentityColumn();
-
-                    b.Property<string>("Address")
-                        .IsRequired()
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime2")
-                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
-
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("nvarchar(255)");
-
-                    b.Property<long?>("HeadId")
-                        .HasColumnType("bigint");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<DateTime>("UpdatedAt")
-                        .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("datetime2")
-                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("HeadId");
-
-                    b.ToTable("Companies");
-                });
-
             modelBuilder.Entity("HaloBiz.Model.DeleteLog", b =>
                 {
                     b.Property<long>("Id")
@@ -860,9 +815,6 @@ namespace HaloBiz.Migrations
                         .HasColumnType("bigint")
                         .UseIdentityColumn();
 
-                    b.Property<long>("CompanyId")
-                        .HasColumnType("bigint");
-
                     b.Property<DateTime>("CreatedAt")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("datetime2")
@@ -893,8 +845,6 @@ namespace HaloBiz.Migrations
                         .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("CompanyId");
 
                     b.HasIndex("HeadId");
 
@@ -4271,11 +4221,15 @@ namespace HaloBiz.Migrations
                 {
                     b.HasOne("HaloBiz.Model.LAMS.Contract", "Contract")
                         .WithMany()
-                        .HasForeignKey("ContractId");
+                        .HasForeignKey("ContractId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("HaloBiz.Model.LAMS.ContractService", "ContractService")
                         .WithMany()
-                        .HasForeignKey("ContractServiceId");
+                        .HasForeignKey("ContractServiceId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("HaloBiz.Model.UserProfile", "CreatedBy")
                         .WithMany()
@@ -4303,7 +4257,9 @@ namespace HaloBiz.Migrations
 
                     b.HasOne("HaloBiz.Model.Services", "Services")
                         .WithMany()
-                        .HasForeignKey("ServicesId");
+                        .HasForeignKey("ServicesId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Contract");
 
@@ -4380,15 +4336,6 @@ namespace HaloBiz.Migrations
                     b.Navigation("Head");
                 });
 
-            modelBuilder.Entity("HaloBiz.Model.Company", b =>
-                {
-                    b.HasOne("HaloBiz.Model.UserProfile", "Head")
-                        .WithMany()
-                        .HasForeignKey("HeadId");
-
-                    b.Navigation("Head");
-                });
-
             modelBuilder.Entity("HaloBiz.Model.DeleteLog", b =>
                 {
                     b.HasOne("HaloBiz.Model.UserProfile", "DeletedBy")
@@ -4413,19 +4360,11 @@ namespace HaloBiz.Migrations
 
             modelBuilder.Entity("HaloBiz.Model.Division", b =>
                 {
-                    b.HasOne("HaloBiz.Model.Company", "Company")
-                        .WithMany()
-                        .HasForeignKey("CompanyId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("HaloBiz.Model.UserProfile", "Head")
                         .WithMany()
                         .HasForeignKey("HeadId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("Company");
 
                     b.Navigation("Head");
                 });

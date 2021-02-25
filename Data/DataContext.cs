@@ -86,6 +86,8 @@ namespace HaloBiz.Data
     public DbSet<ApproverLevel> ApproverLevels { get; set; }
     public DbSet<ApprovalLimit> ApprovalLimits { get; set; }
     public DbSet<ProcessesRequiringApproval> ProcessesRequiringApprovals { get; set; }
+    public DbSet<Approval> Approvals { get; set; }
+    public DbSet<Company> Companies { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder builder)
@@ -649,6 +651,21 @@ namespace HaloBiz.Data
                 .Property(p => p.CreatedAt)
                 .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
+            builder.Entity<Approval>()
+               .Property(p => p.UpdatedAt)
+               .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            builder.Entity<Approval>()
+                .Property(p => p.CreatedAt)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            builder.Entity<Company>()
+               .Property(p => p.UpdatedAt)
+               .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            builder.Entity<Company>()
+                .Property(p => p.CreatedAt)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP");
         }
     }
 }

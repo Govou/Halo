@@ -71,5 +71,15 @@ namespace HaloBiz.Repository.Impl
                return false;
            }
         }
+
+        public async Task<IEnumerable<ApprovalLimit>> GetApprovalLimitsByModule(long moduleId)
+        {
+            return await _context.ApprovalLimits
+                .Where(x => x.ProcessesRequiringApprovalId == moduleId && x.IsBypassRequired == false && x.IsDeleted == false)
+                .Include(x => x.ApproverLevel)
+                .Include(x => x.ProcessesRequiringApproval)
+                .OrderBy(x => x.Caption)
+                .ToListAsync();
+        }
     }
 }

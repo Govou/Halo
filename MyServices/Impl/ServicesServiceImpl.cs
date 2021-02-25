@@ -25,6 +25,10 @@ namespace HaloBiz.MyServices.Impl
         private readonly IDeleteLogRepository _deleteLogRepo;
         private readonly IModificationHistoryRepository _modificationRepo;
         private readonly IServiceRequredServiceQualificationElementRepository _reqServiceElementRepo;
+        private readonly IApproverLevelRepository _approverLevelRepo;
+        private readonly IApprovalRepository _approvalRepo;
+        private readonly IApprovalLimitRepository _approvalLimitRepo;
+        private readonly IProcessesRequiringApprovalRepository _processesRequiringApprovalRepo;
         private readonly DataContext _context;
         private readonly ILogger<ServicesServiceImpl> _logger;
 
@@ -35,6 +39,10 @@ namespace HaloBiz.MyServices.Impl
                                 IDeleteLogRepository deleteLogRepo, 
                                 IModificationHistoryRepository modificationRepo, 
                                 IServiceRequredServiceQualificationElementRepository reqServiceElementRepo,
+                                IApproverLevelRepository approverLevelRepo,
+                                IApprovalRepository approvalRepo,
+                                IApprovalLimitRepository approvalLimitRepo,
+                                IProcessesRequiringApprovalRepository processesRequiringApprovalRepo,
                                 DataContext context,
                                 ILogger<ServicesServiceImpl> logger
                                 )
@@ -44,6 +52,10 @@ namespace HaloBiz.MyServices.Impl
             this._deleteLogRepo = deleteLogRepo;
             this._modificationRepo = modificationRepo;
             this._reqServiceElementRepo = reqServiceElementRepo;
+            _approvalLimitRepo = approvalLimitRepo;
+            _approverLevelRepo = approverLevelRepo;
+            _approvalRepo = approvalRepo;
+            _processesRequiringApprovalRepo = processesRequiringApprovalRepo;
             this._context = context;
             this._logger = logger;
             this._servicesRepository = servicesRepository;
@@ -83,6 +95,8 @@ namespace HaloBiz.MyServices.Impl
 
                         var isDocSaved = await _requiredServiceDocRepo.SaveRangeServiceRequiredServiceDocument(serviceRequiredServiceDocument);
 
+                        var successful = await SetUpServiceForApprovals(savedService, context);
+
                         var servicesTransferDTO = _mapper.Map<ServicesTransferDTO>(savedService);
                         await transaction.CommitAsync();
                         return new ApiOkResponse(servicesTransferDTO);
@@ -94,6 +108,61 @@ namespace HaloBiz.MyServices.Impl
                     await transaction.RollbackAsync();
                     return new ApiResponse(500);
                 }
+            }
+        }
+
+        private async Task<bool> SetUpServiceForApprovals(Services service, HttpContext context) 
+        {
+            var module = await _processesRequiringApprovalRepo.FindProcessesRequiringApprovalByCaption("Service Creation");
+            if (module == null) {
+                return false;
+            }
+            var approvalLimits = await _approvalLimitRepo.GetApprovalLimitsByModule(module.Id);
+            var orderedList = approvalLimits
+                .Where(x => service.UnitPrice > x.UpperlimitValue || (service.UnitPrice <= x.UpperlimitValue && service.UnitPrice >= x.LowerlimitValue))
+                .OrderBy(x => x.Sequence);
+
+            List<Approval> approvals = new List<Approval>();
+
+            foreach (var item in orderedList)
+            {
+                var approvalLevelInfo = item.ApproverLevel;
+
+                long responsibleId = 0;
+                if (item.ApproverLevel.Caption == "Division Head")
+                {
+                    responsibleId = service.Division.HeadId;
+                }
+                else if (item.ApproverLevel.Caption == "Operating Entity Head") 
+                {
+                    responsibleId = service.OperatingEntity.HeadId;
+                }
+                else if(item.ApproverLevel.Caption == "CEO")
+                {
+                    // In the absence of company model
+                    responsibleId = 31;
+                }
+
+                var approval = new Approval
+                {
+                    ServicesId = service.Id,
+                    Caption = $"Approval Need To Create Service {service.Name}",
+                    CreatedById = context.GetLoggedInUserId(),
+                    Sequence = item.Sequence,
+                    ResponsibleId = responsibleId,
+                    IsApproved = false,             
+                };
+
+                approvals.Add(approval);
+            }
+
+            if (approvals.Any())
+            {
+                return await _approvalRepo.SaveApprovalRange(approvals);
+            }
+            else
+            {
+                return true;
             }
         }
 
