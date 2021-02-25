@@ -191,7 +191,8 @@ namespace HaloBiz.Helpers
             CreateMap<ApprovalLimitReceivingDTO, ApprovalLimit>();
             CreateMap<ApprovalLimit, ApprovalLimitTransferDTO>();
             CreateMap<ApprovalLimit, BaseSetupTransferDTO>();
-
+            CreateMap<ApprovalReceivingDTO, Approval>();
+            CreateMap<Approval, ApprovalTransferDTO>();
         }
     }
 }
