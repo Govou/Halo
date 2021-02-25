@@ -16,7 +16,7 @@ namespace HaloBiz.Model
         [Required, MinLength(3), MaxLength(50)]
         public string Caption { get; set; }
 
-        public DateTime DateTimeApproved { get; set; }
+        public DateTime? DateTimeApproved { get; set; }
 
         [Required]
         public bool IsApproved { get; set; }
@@ -29,20 +29,20 @@ namespace HaloBiz.Model
         public long Sequence { get; set; }
 
         [Required]
-        public long QuoteServiceId { get; set; }
+        public long? QuoteServiceId { get; set; }
         public virtual QuoteService QuoteService { get; set; }
 
         [Required]
-        public long QuoteId { get; set; }
+        public long? QuoteId { get; set; }
         public virtual Quote Quote { get; set; }
 
-        public long ContractId { get; set; }
+        public long? ContractId { get; set; }
         public virtual Contract Contract { get; set; }
 
-        public long ContractServiceId { get; set; }
+        public long? ContractServiceId { get; set; }
         public virtual ContractService ContractService { get; set; }
 
-        public long ServicesId { get; set; }
+        public long? ServicesId { get; set; }
         public virtual Services Services { get; set; }
 
         public bool IsDeleted { get; set; } = false;
