@@ -198,6 +198,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                                             DeliverableStatus = deliverableSummary.DeliverableStatus,
                                             DeliverableResponsibleId = deliverableSummary.DeliverableResponsibleId,
                                             Priority = deliverableSummary.Priority,
+                                            IsPicked = deliverableSummary.IsPicked,
                                             DeliveryState = GetDeliverableAtRiskStatus(deliverableSummary.StartDate, deliverableSummary.DeliveryDate)
                                     }
                                 }
@@ -213,6 +214,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                                             DeliverableStatus = deliverableSummary.DeliverableStatus,
                                             DeliverableResponsibleId = deliverableSummary.DeliverableResponsibleId,
                                             Priority = deliverableSummary.Priority,
+                                            IsPicked = deliverableSummary.IsPicked,
                                             DeliveryState = GetDeliverableAtRiskStatus(deliverableSummary.StartDate, deliverableSummary.DeliveryDate)
                                     }
                         );
