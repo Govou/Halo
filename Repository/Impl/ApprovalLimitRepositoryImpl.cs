@@ -32,6 +32,8 @@ namespace HaloBiz.Repository.Impl
         {
             return await _context.ApprovalLimits
                 .Where(x => x.IsDeleted == false)
+                .Include(x => x.ApproverLevel)
+                .Include(x => x.ProcessesRequiringApproval)
                 .OrderBy(x => x.Caption)
                 .ToListAsync();
         }
