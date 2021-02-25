@@ -91,6 +91,17 @@ namespace HaloBiz.MyServices.Impl
             return new ApiOkResponse(AccountTransferDTOs);
         }
         
+        public async Task<ApiResponse> GetCashBookAccounts()
+        {
+            var Accountes = await _AccountRepo.GetCashAccounts();
+            if (Accountes == null)
+            {
+                return new ApiResponse(404);
+            }
+            var AccountTransferDTOs = _mapper.Map<IEnumerable<AccountTransferDTO>>(Accountes);
+            return new ApiOkResponse(AccountTransferDTOs);
+        }
+        
         public async Task<ApiResponse> SearchForAccountDetails(AccountSearchDTO accountSearchDTO)
         {
             var account = await _AccountRepo.FindAccountById(accountSearchDTO.AccountId);

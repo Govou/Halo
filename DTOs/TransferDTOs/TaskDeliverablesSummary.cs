@@ -13,6 +13,7 @@ namespace halobiz_backend.DTOs.TransferDTOs
         public DateTime? DeliveryDate { get; set; }
         public string TaskResponsibleImageUrl { get; set; }
         public long? DeliverableResponsibleId { get; set; }
+        public bool IsPicked { get; set; }
         public string TaskResponsibleName { get; set; }
         public bool DeliverableStatus { get; set; }
     }
@@ -34,5 +35,6 @@ namespace halobiz_backend.DTOs.TransferDTOs
         public DateTime? DeliveryDate { get; set; }
         public bool DeliverableStatus { get; set; }
         public long? DeliverableResponsibleId { get; set; }
+        public bool IsPicked { get; set; }
     }
 }

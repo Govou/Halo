@@ -1,8 +1,6 @@
 using System;
-using HaloBiz.Model;
-using HaloBiz.Model.AccountsModel;
 
-namespace halobiz_backend.DTOs.TransferDTOs
+namespace HaloBiz.DTOs.TransferDTOs
 {
     public class ReceiptTransferDTO
     {
@@ -21,7 +19,5 @@ namespace halobiz_backend.DTOs.TransferDTOs
         public string ReceiptNumber { get; set; }
         public long InvoiceId { get; set; }
         public string EvidenceOfPaymentUrl { get; set; }
-        public long CreatedById { get; set; }
-        public UserProfile CreatedBy { get; set; }
     }
 }

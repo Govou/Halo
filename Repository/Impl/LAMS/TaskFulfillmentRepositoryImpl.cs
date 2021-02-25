@@ -66,6 +66,7 @@ namespace HaloBiz.Repository.Impl.LAMS
                         TaskId  = task.Id,
                         TaskResponsibleId =  task.ResponsibleId,
                         DeliverableId = deliverable.Id,
+                        IsPicked = deliverable.IsPicked,
                         DeliverableCaption = deliverable.Caption,
                         DeliveryDate = deliverable.DeliveryDate,
                         DeliverableResponsibleId = deliverable.ResponsibleId
@@ -79,6 +80,7 @@ namespace HaloBiz.Repository.Impl.LAMS
                         TaskResponsibleId =   task.TaskResponsibleId,
                         DeliverableId = task.DeliverableId,
                         DeliverableStatus = task.DeliverableStatus,
+                        IsPicked = task.IsPicked,
                         DeliverableCaption = task.DeliverableCaption,
                         DeliveryDate = task.DeliveryDate,
                         TaskResponsibleImageUrl = taskOwner.ImageUrl,

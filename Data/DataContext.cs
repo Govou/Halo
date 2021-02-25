@@ -83,6 +83,9 @@ namespace HaloBiz.Data
     public DbSet<TaskEscalationTiming> TaskEscalationTiming { get; set; }
     public DbSet<Claim> Claims { get; set; }
     public DbSet<Receipt> Receipts { get; set; }
+    public DbSet<ApproverLevel> ApproverLevels { get; set; }
+    public DbSet<ApprovalLimit> ApprovalLimits { get; set; }
+    public DbSet<ProcessesRequiringApproval> ProcessesRequiringApprovals { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder builder)
@@ -619,6 +622,30 @@ namespace HaloBiz.Data
                .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
             builder.Entity<Receipt>()
+                .Property(p => p.CreatedAt)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            builder.Entity<ApprovalLimit>()
+               .Property(p => p.UpdatedAt)
+               .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            builder.Entity<ApprovalLimit>()
+                .Property(p => p.CreatedAt)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            builder.Entity<ApproverLevel>()
+               .Property(p => p.UpdatedAt)
+               .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            builder.Entity<ApproverLevel>()
+                .Property(p => p.CreatedAt)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            builder.Entity<ProcessesRequiringApproval>()
+               .Property(p => p.UpdatedAt)
+               .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            builder.Entity<ProcessesRequiringApproval>()
                 .Property(p => p.CreatedAt)
                 .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
