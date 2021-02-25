@@ -19,7 +19,6 @@ namespace HaloBiz.Model
         public string Address { get; set; }
         public long? HeadId { get; set; }
         public virtual UserProfile Head { get; set; }
-        public IEnumerable<Division> Divisions { get; set; }
         public bool IsDeleted { get; set; }
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public DateTime CreatedAt { get; set; }

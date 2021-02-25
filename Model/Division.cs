@@ -15,7 +15,6 @@ namespace HaloBiz.Model
         public string Description { get; set; }
         public string MissionStatement { get; set; }
         public long HeadId { get; set; }
-        public long CompanyId { get; set; }
         public virtual UserProfile Head { get; set; }
         public IEnumerable<OperatingEntity> OperatingEntities { get; set; }
         public bool IsDeleted { get; set; }
