@@ -91,6 +91,15 @@ namespace HaloBiz.MyServices.Impl
 
         private async Task<bool> PostAccounts( Receipt receipt, Invoice invoice,  long bankAccountId )
         {
+            var amount = receipt.ReceiptValue;
+            var amountToPost = receipt.ReceiptValue;
+            var whtAmount = 0.0;
+            if(receipt.IsTaskWitheld)
+            {
+                var whtPercentage = receipt.ValueOfWHT;
+                whtAmount = amount * (whtPercentage / 100.0);
+                amountToPost = amount - whtAmount;
+            }
             var queryable = _accountRep.GetAccountQueriable();
             var witholdingTaxAccount = await queryable
                 .FirstOrDefaultAsync(x => x.Name.ToUpper().Trim() == WITHOLDING_TAX && x.IsDeleted == false);
@@ -102,15 +111,15 @@ namespace HaloBiz.MyServices.Impl
             
             //Post to bank
             await  PostAccountDetail(invoice, receipt , receiptVoucherType.Id, 
-                                       false, accountMaster.Id,  bankAccountId, receipt.ReceiptValue - receipt.ValueOfWHT);
+                                       false, accountMaster.Id,  bankAccountId, amountToPost);
             //Post to Task Witholding
             if(receipt.IsTaskWitheld){
                             await PostAccountDetail(invoice, receipt , receiptVoucherType.Id, 
-                                       false, accountMaster.Id,  witholdingTaxAccount.Id, receipt.ValueOfWHT);
+                                       false, accountMaster.Id,  witholdingTaxAccount.Id, whtAmount);
             }
             //Post to client account 
             await PostAccountDetail(invoice, receipt , receiptVoucherType.Id, 
-                                       false, accountMaster.Id,(long)  invoice.CustomerDivision.AccountId, receipt.ReceiptValue);
+                                       true, accountMaster.Id,(long)  invoice.CustomerDivision.AccountId, amount);
             return true;
         }
 

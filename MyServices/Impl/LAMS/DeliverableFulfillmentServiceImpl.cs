@@ -190,6 +190,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                     deliverableFulfillmentToUpdate.DeliverableCompletionReferenceUrl = deliverableFulfillmentReceivingDTO.DeliverableCompletionReferenceUrl;
                     deliverableFulfillmentToUpdate.ServiceCode = deliverableFulfillmentReceivingDTO.ServiceCode;
                     deliverableFulfillmentToUpdate.EscallationTimeDurationForPicking = deliverableFulfillmentReceivingDTO.EscallationTimeDurationForPicking;
+                    deliverableFulfillmentToUpdate.Priority = deliverableFulfillmentReceivingDTO.Priority;
 
                     var updatedDeliverableFulfillment =  _context.DeliverableFulfillments.Update(deliverableFulfillmentToUpdate).Entity;
                     await _context.SaveChangesAsync();
