@@ -9,6 +9,7 @@ using HaloBiz.Data;
 using HaloBiz.DTOs.ApiDTOs;
 using HaloBiz.DTOs.MailDTOs;
 using HaloBiz.DTOs.ReceivingDTOs;
+using HaloBiz.DTOs.ReceivingDTOs.LAMS;
 using HaloBiz.DTOs.TransferDTOs.LAMS;
 using HaloBiz.Helpers;
 using HaloBiz.Model;
@@ -365,7 +366,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
         }
 
-        public async Task<ApiResponse> SetRequestedForValidation(HttpContext context, long id)
+        public async Task<ApiResponse> SetRequestedForValidation(HttpContext context, long id, DeliverableFulfillmentApprovalReceivingDTO dto)
         {
             var deliverableFulfillmentToUpdate = await _deliverableFulfillmentRepo.FindDeliverableFulfillmentById(id);
             if (deliverableFulfillmentToUpdate == null)
@@ -377,6 +378,8 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
             deliverableFulfillmentToUpdate.IsRequestedForValidation = true;
             deliverableFulfillmentToUpdate.DateTimeRequestedForValidation = DateTime.Now;
+            deliverableFulfillmentToUpdate.DeliverableCompletionReferenceNo = dto.DeliverableCompletionReferenceNo;
+            deliverableFulfillmentToUpdate.DeliverableCompletionReferenceUrl = dto.DeliverableCompletionReferenceUrl;
             var updatedDeliverableFulfillment = await _deliverableFulfillmentRepo.UpdateDeliverableFulfillment(deliverableFulfillmentToUpdate);
 
             summary += $"Details after change, \n {updatedDeliverableFulfillment.ToString()} \n";
