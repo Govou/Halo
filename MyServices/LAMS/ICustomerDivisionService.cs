@@ -17,5 +17,6 @@ namespace HaloBiz.MyServices.LAMS
         Task<ApiResponse> GetCustomerDivisionByName(string name);
         Task<ApiResponse> UpdateCustomerDivision(HttpContext context, long id, CustomerDivisionReceivingDTO CustomerDivisionReceivingDTO);
         Task<ApiResponse> DeleteCustomerDivision(long id);
+        Task<ApiResponse> GetCustomerDivisionsByGroupType(long groupTypeId);
     }
 }

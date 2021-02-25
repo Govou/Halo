@@ -65,6 +65,19 @@ namespace HaloBiz.Repository.Impl.LAMS
                 .OrderByDescending(entity => entity.DivisionName)
                 .ToListAsync();
         }
+        public async Task<IEnumerable<object>> FindCustomerDivisionsByGroupType(long groupTypeId)
+        {
+           return await _context.Customers.Join(
+               _context.CustomerDivisions,
+               customer => customer.Id, division => division.CustomerId,
+               (customer, division) => new {
+                    GroupTypeId = customer.GroupTypeId,
+                    ClientName = division.DivisionName,
+                    ClientId = division.Id,
+                    IsDeleted = division.IsDeleted
+               }
+           ).Where(x => x.GroupTypeId == groupTypeId && x.IsDeleted == false).ToListAsync();
+        }
         public async Task<CustomerDivision> FindCustomerDivisionByName(string name)
         {
             return await _context.CustomerDivisions
