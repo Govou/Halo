@@ -17,5 +17,6 @@ namespace HaloBiz.Repository
 
         Task<CustomerDivision> UpdateCustomerDivision(CustomerDivision entity);
         Task<bool> DeleteCustomerDivision(CustomerDivision entity);
+        Task<IEnumerable<object>> FindCustomerDivisionsByGroupType(long groupTypeId);
     }
 }

@@ -28,6 +28,17 @@ namespace HaloBiz.Controllers.LAMS
             return Ok(CustomerDivision);
         }
 
+        [HttpGet("GetCustomerDivisionsByGroupType/{groupTypeId}")]
+        public async Task<ActionResult> GetCustomerDivisionsByGroupType(long groupTypeId)
+        {
+            var response = await _CustomerDivisionService.GetCustomerDivisionsByGroupType(groupTypeId);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var CustomerDivision = ((ApiOkResponse)response).Result;
+            return Ok(CustomerDivision);
+        }
+
+
         [HttpGet("{id}")]
         public async Task<ActionResult> GetById(long id)
         {
