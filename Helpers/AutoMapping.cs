@@ -145,6 +145,10 @@ namespace HaloBiz.Helpers
                 .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.ContractEndDate > DateTime.Now));
             CreateMap<Contract, ContractTransferDTO>();
             CreateMap<Contract, ContractForCustomerDivisionTransferDTO>();
+            CreateMap<Contract, ContractSummaryTransferDTO>().
+                ForMember(dest => dest.ContractValue, opt => opt.MapFrom(
+                    src => src.ContractServices.GetTotalContractValue()
+                ));
             CreateMap<SBUToQuoteServiceProportion, SBUToQuoteServiceProportionTransferDTO>();
             CreateMap<SBUToQuoteServiceProportionReceivingDTO, SBUToQuoteServiceProportion>();
             CreateMap<RegionReceivingDTO, Region>();

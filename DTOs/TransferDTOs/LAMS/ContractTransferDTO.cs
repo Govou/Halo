@@ -20,6 +20,12 @@ namespace HaloBiz.DTOs.TransferDTOs.LAMS
         public long Id { get; set; }
         public string ReferenceNo { get; set; }
         public long CustomerDivisionId { get; set; }
+        public double AmountPaid { get; set; } = 0;
         public IEnumerable<ContractServiceForContractTransferDTO> ContractServices { get; set; }
+    }
+
+    public class ContractSummaryTransferDTO : ContractForCustomerDivisionTransferDTO
+    {
+        public double ContractValue { get; set; }
     }
 }

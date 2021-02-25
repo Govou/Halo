@@ -22,7 +22,8 @@ namespace HaloBiz.DTOs.TransferDTOs
         public IEnumerable<AccountMasterTransferDTO> AccountMaster { get; set; }
         public List<LeadKeyPerson> LeadKeyPeople { get; set; } 
         public LeadDivisionContact PrimaryContact { get; set; }
-        public IEnumerable<ContractForCustomerDivisionTransferDTO> Contracts { get; set; }
+        public IEnumerable<ContractSummaryTransferDTO> Contracts { get; set; }
+        public IEnumerable<TaskFulfillmentTransferDTO> TaskFulfillments { get; set; }
         public long? PrimaryContactId { get; set; }   
         public LeadDivisionContact SecondaryContact { get; set; }
         public long? SecondaryContactId { get; set; } 

@@ -9,6 +9,7 @@ using HaloBiz.Model;
 using HaloBiz.Model.LAMS;
 using HaloBiz.MyServices.LAMS;
 using HaloBiz.Repository;
+using HaloBiz.Repository.LAMS;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using System;
@@ -24,10 +25,15 @@ namespace HaloBiz.MyServices.Impl.LAMS
         private readonly IModificationHistoryRepository _historyRepo;
         private readonly ICustomerDivisionRepository _CustomerDivisionRepo;
         private readonly IMapper _mapper;
+        private readonly ITaskFulfillmentRepository _taskRepo;
 
-        public CustomerDivisionServiceImpl(IModificationHistoryRepository historyRepo, ICustomerDivisionRepository CustomerDivisionRepo, ILogger<CustomerDivisionServiceImpl> logger, IMapper mapper)
+        public CustomerDivisionServiceImpl(IModificationHistoryRepository historyRepo, 
+                        ICustomerDivisionRepository CustomerDivisionRepo, 
+                        ILogger<CustomerDivisionServiceImpl> logger, 
+                        IMapper mapper, ITaskFulfillmentRepository taskRepo)
         {
             this._mapper = mapper;
+            this._taskRepo = taskRepo;
             this._historyRepo = historyRepo;
             this._CustomerDivisionRepo = CustomerDivisionRepo;
             this._logger = logger;
@@ -96,6 +102,34 @@ namespace HaloBiz.MyServices.Impl.LAMS
             var CustomerDivisionTransferDTOs = _mapper.Map<CustomerDivisionTransferDTO>(CustomerDivision);
             return new ApiOkResponse(CustomerDivisionTransferDTOs);
         }
+
+        public async Task<ApiResponse> GetCustomerDivisionBreakDownById(long id)
+        {
+            try{
+                var client = await  _CustomerDivisionRepo.GetCustomerDivisionBreakDownById(id);
+                var listOfContractToAmountPaid = await _CustomerDivisionRepo.GetPaymentsPerContractByCustomerDivisionId(id);
+                
+                var clientTransferDto = _mapper.Map<CustomerDivisionTransferDTO>(client);
+                ContractToPaidAmountTransferDTO value = null;
+                foreach (var contract in clientTransferDto.Contracts)
+                {
+                    value = listOfContractToAmountPaid.FirstOrDefault(x => x.ContractId == contract.Id);
+                    contract.AmountPaid = value != null ? value.AmountPaid : 0;
+                }
+
+                var taskFulfillments = await _taskRepo.GetTaskFulfillmentsByCustomerDivisionId(id);
+
+                clientTransferDto.TaskFulfillments = _mapper.Map<IEnumerable<TaskFulfillmentTransferDTO>>(taskFulfillments);
+
+                return new ApiOkResponse(clientTransferDto);
+            }catch(Exception e)
+            {
+                _logger.LogError(e.Message);
+                _logger.LogError(e.StackTrace);
+                return new ApiResponse(500);
+            }
+        }
+
 
         public async Task<ApiResponse> GetCustomerDivisionById(long id)
         {

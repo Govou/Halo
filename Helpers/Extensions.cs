@@ -1,9 +1,11 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Security.Claims;
 using HaloBiz.DTOs.ReceivingDTO;
 using HaloBiz.DTOs.TransferDTOs;
 using HaloBiz.Model;
+using HaloBiz.Model.LAMS;
 using HaloBiz.Model.ManyToManyRelationship;
 using Microsoft.AspNetCore.Http;
 
@@ -74,6 +76,27 @@ namespace HaloBiz.Helpers
                 userProfile.Email.Trim().EndsWith("academyhalogen.com") ||
                 userProfile.Email.Trim().EndsWith("armadahalogen.com")
               );
+        }
+
+        public static double GetTotalContractValue(this IEnumerable<ContractService> contractServices)
+        {
+            return contractServices.Sum( x => x.GetNumberValuePerContractService());
+        }
+
+        public static double GetNumberValuePerContractService(this ContractService contractService)
+        {
+            if(contractService.InvoicingInterval == TimeCycle.OneTime){
+                return contractService.BillableAmount?? 0.0;
+            }
+            var startDate = contractService.ContractStartDate?? DateTime.Now;
+            var totalAmount = 0.0;
+            while(startDate < contractService.ContractEndDate)
+            {
+                totalAmount += contractService.BillableAmount?? 0.0;
+                startDate = startDate.AddMonths(1);
+            }
+
+            return totalAmount;
         }
     }
 }
