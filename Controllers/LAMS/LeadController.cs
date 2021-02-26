@@ -34,6 +34,16 @@ namespace HaloBiz.Controllers.LAMS
             return Ok(lead);
         }
 
+        [HttpGet("GetUnApprovedLeads")]
+        public async Task<ActionResult> GetUnApprovedLeads()
+        {
+            var response = await _leadService.GetAllUnApprovedLeads();
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var lead = ((ApiOkResponse)response).Result;
+            return Ok(lead);
+        }
+
         [HttpGet("ReferenceNumber/{refNo}")]
         public async Task<ActionResult> GetByCaption(string refNo)
         {
