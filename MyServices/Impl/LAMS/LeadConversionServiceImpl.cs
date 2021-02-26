@@ -47,6 +47,8 @@ namespace HaloBiz.MyServices.Impl.LAMS
                     var lead = await _context.Leads
                         .Include(x => x.LeadDivisions)
                             .ThenInclude(x => x.Quote)
+                        .Include(x => x.LeadDivisions)
+                            .ThenInclude(x => x.LeadDivisionKeyPersons)
                         .Include(x => x.GroupType)
                         .FirstOrDefaultAsync(x => x.Id == leadId);
                     

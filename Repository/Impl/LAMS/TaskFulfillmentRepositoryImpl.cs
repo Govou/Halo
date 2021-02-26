@@ -42,7 +42,7 @@ namespace HaloBiz.Repository.Impl.LAMS
                 .Include(x => x.Support)
                 .Include(x => x.Responsible)
                 .Include(x => x.Accountable)
-                .Include(x => x.DeliverableFUlfillments).ThenInclude(x => x.Responsible)
+                .Include(x => x.DeliverableFUlfillments.Where(x => x.IsDeleted == false && x.WasReassigned == false)).ThenInclude(x => x.Responsible)
                 .FirstOrDefaultAsync();
 
         }
@@ -72,9 +72,11 @@ namespace HaloBiz.Repository.Impl.LAMS
                         DeliveryDate = deliverable.EndDate?? DateTime.Now,
                         StartDate = deliverable.StartDate?? DateTime.Now,
                         Priority = deliverable.Priority?? 0 ,
-                        DeliverableResponsibleId = deliverable.ResponsibleId
+                        DeliverableResponsibleId = deliverable.ResponsibleId,
+                        DeliverableWasReassigned = deliverable.WasReassigned,
+                        IsRequestedForValidation = deliverable.IsRequestedForValidation
                     }
-            ).Join(
+                ).Join(
                 _context.UserProfiles,
                     task => task.TaskResponsibleId, taskOwner => taskOwner.Id,
                     (task, taskOwner) => new TaskDeliverablesSummary(){
@@ -87,12 +89,14 @@ namespace HaloBiz.Repository.Impl.LAMS
                         DeliverableCaption = task.DeliverableCaption,
                         DeliveryDate = task.DeliveryDate,
                         Priority = task.Priority,
+                        DeliverableWasReassigned = task.DeliverableWasReassigned,
                         TaskResponsibleImageUrl = taskOwner.ImageUrl,
                         DeliverableResponsibleId = task.DeliverableResponsibleId,
                         TaskResponsibleName = $"{taskOwner.FirstName} {taskOwner.LastName}",
-                        StartDate =  task.StartDate
+                        StartDate =  task.StartDate,
+                        IsRequestedForValidation = task.IsRequestedForValidation
                     }
-            ).Where(x => x.DeliverableResponsibleId == responsibleId && x.DeliverableStatus == false).ToListAsync();
+            ).Where(x => x.DeliverableResponsibleId == responsibleId && x.DeliverableStatus == false && x.DeliverableWasReassigned == false).ToListAsync();
 
             return userData;
         }

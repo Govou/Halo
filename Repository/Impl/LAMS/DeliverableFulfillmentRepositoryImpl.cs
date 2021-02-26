@@ -73,7 +73,7 @@ namespace HaloBiz.Repository.Impl.LAMS
                      && x.IsDeleted == false).ToListAsync();
 
             var userDeliverableOverdue = userDeliverableInWorkBench
-                    .Where(x => x.EndDate >= DateTime.Now).Count();
+                    .Where(x => x.EndDate < DateTime.Now).Count();
 
             var numberOfUserDeliverableAtRisk = userDeliverableInWorkBench.Where(
                     x => CheckIfDeliverableAtRisk(x.StartDate, x.EndDate)).Count();

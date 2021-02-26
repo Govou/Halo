@@ -19,6 +19,9 @@ namespace halobiz_backend.DTOs.TransferDTOs
         public bool IsPicked { get; set; }
         public string TaskResponsibleName { get; set; }
         public bool DeliverableStatus { get; set; }
+        public bool DeliverableWasReassigned { get; set; }
+        public bool IsRequestedForValidation { get; set; }
+        
     }
 
     public class TaskWithListOfDeliverables
@@ -39,6 +42,8 @@ namespace halobiz_backend.DTOs.TransferDTOs
         public DateTime? DeliveryDate { get; set; }
         public bool DeliverableStatus { get; set; }
         public long? DeliverableResponsibleId { get; set; }
+        public bool IsRequestedForValidation { get; set; }
+        
         public bool IsPicked { get; set; }
         public DeliverablePriority Priority { get; set; }
         public DeliveryState DeliveryState { get; set; }
