@@ -63,6 +63,7 @@ namespace HaloBiz.Repository.Impl
             return await _context.Invoices
                 .Include(x => x.Receipts)
                     .Where(x => x.ContractServiceId == contactDivisionId && x.IsDeleted == false)
+                    .OrderBy(x => x.StartDate)
                     .ToListAsync();
         }
 

@@ -13,6 +13,7 @@ namespace HaloBiz.MyServices.LAMS
     {
         Task<ApiResponse> AddCustomer(HttpContext context, CustomerReceivingDTO customerReceivingDTO);
         Task<ApiResponse> GetAllCustomers();
+        Task<ApiResponse> GetCustomersByGroupType(long groupTypeId);
         Task<ApiResponse> GetCustomerById(long id);
         Task<ApiResponse> GetCustomerByName(string name);
         Task<ApiResponse> UpdateCustomer(HttpContext context, long id, CustomerReceivingDTO customerReceivingDTO);
