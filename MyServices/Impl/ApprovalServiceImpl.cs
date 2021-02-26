@@ -1,4 +1,6 @@
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
 using HaloBiz.DTOs.ApiDTOs;
@@ -6,6 +8,7 @@ using HaloBiz.DTOs.ReceivingDTOs;
 using HaloBiz.DTOs.TransferDTOs;
 using HaloBiz.Helpers;
 using HaloBiz.Model;
+using HaloBiz.Model.LAMS;
 using HaloBiz.Repository;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
@@ -17,13 +20,22 @@ namespace HaloBiz.MyServices.Impl
         private readonly ILogger<ApprovalServiceImpl> _logger;
         private readonly IModificationHistoryRepository _historyRepo;
         private readonly IApprovalRepository _approvalRepo;
+        private readonly IApprovalLimitRepository _approvalLimitRepo;
+        private readonly IProcessesRequiringApprovalRepository _processesRequiringApprovalRepo;
+
         private readonly IMapper _mapper;
 
-        public ApprovalServiceImpl(IModificationHistoryRepository historyRepo, IApprovalRepository approvalRepo, ILogger<ApprovalServiceImpl> logger, IMapper mapper)
+        public ApprovalServiceImpl(IModificationHistoryRepository historyRepo, 
+            IApprovalRepository approvalRepo,
+            IApprovalLimitRepository approvalLimitRepo,
+            IProcessesRequiringApprovalRepository processesRequiringApprovalRepo,
+            ILogger<ApprovalServiceImpl> logger, IMapper mapper)
         {
             this._mapper = mapper;
             this._historyRepo = historyRepo;
             this._approvalRepo = approvalRepo;
+            _approvalLimitRepo = approvalLimitRepo;
+            _processesRequiringApprovalRepo = processesRequiringApprovalRepo;
             this._logger = logger;
         }
         public async  Task<ApiResponse> AddApproval(HttpContext context, ApprovalReceivingDTO approvalReceivingDTO)
@@ -85,6 +97,80 @@ namespace HaloBiz.MyServices.Impl
             }
             var approvalTransferDTO = _mapper.Map<IEnumerable<ApprovalTransferDTO>>(approval);
             return new ApiOkResponse(approvalTransferDTO);
+        }
+
+        public async Task<bool> SetUpApprovalsForClientCreation(Lead lead, HttpContext httpContext)
+        {
+            throw new NotImplementedException();
+        }
+
+        public async Task<bool> SetUpApprovalsForEndorsement(CustomerDivision customerDivision, HttpContext httpContext)
+        {
+            throw new NotImplementedException();
+        }
+
+        public async Task<bool> SetUpApprovalsForServiceCreation(Services service, HttpContext context)
+        {
+            try
+            {
+                var module = await _processesRequiringApprovalRepo.FindProcessesRequiringApprovalByCaption("Service Creation");
+                if (module == null)
+                {
+                    return false;
+                }
+                var approvalLimits = await _approvalLimitRepo.GetApprovalLimitsByModule(module.Id);
+                var orderedList = approvalLimits
+                    .Where(x => service.UnitPrice > x.UpperlimitValue || (service.UnitPrice <= x.UpperlimitValue && service.UnitPrice >= x.LowerlimitValue))
+                    .OrderBy(x => x.Sequence);
+
+                List<Approval> approvals = new List<Approval>();
+
+                foreach (var item in orderedList)
+                {
+                    var approvalLevelInfo = item.ApproverLevel;
+
+                    long responsibleId = 0;
+                    if (item.ApproverLevel.Caption == "Division Head")
+                    {
+                        responsibleId = service.Division.HeadId;
+                    }
+                    else if (item.ApproverLevel.Caption == "Operating Entity Head")
+                    {
+                        responsibleId = service.OperatingEntity.HeadId;
+                    }
+                    else if (item.ApproverLevel.Caption == "CEO")
+                    {
+                        responsibleId = service.Division.Company?.HeadId.Value ?? 31;
+                    }
+
+                    var approval = new Approval
+                    {
+                        ServicesId = service.Id,
+                        Caption = $"Approval Needed To Create Service {service.Name}",
+                        CreatedById = context.GetLoggedInUserId(),
+                        Sequence = item.Sequence,
+                        ResponsibleId = responsibleId,
+                        IsApproved = false,
+                    };
+
+                    approvals.Add(approval);
+                }
+
+                if (approvals.Any())
+                {
+                    return await _approvalRepo.SaveApprovalRange(approvals);
+                }
+                else
+                {
+                    return true;
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogInformation(ex.Message);
+                _logger.LogInformation(ex.StackTrace);
+                return false;
+            }
         }
 
         public  async Task<ApiResponse> UpdateApproval(HttpContext context, long id, ApprovalReceivingDTO approvalReceivingDTO)
