@@ -29,7 +29,7 @@ namespace HaloBiz.Repository.Impl
                     await _context.Database.ExecuteSqlRawAsync("SET IDENTITY_INSERT dbo.ControlAccounts ON");
 
                     var  lastSavedControl = await _context.ControlAccounts.Where(control => control.AccountClassId == controlAccount.AccountClassId)
-                        .OrderBy(control => control.Id).LastOrDefaultAsync();
+                        .OrderBy(control => control.CreatedAt).LastOrDefaultAsync();
 
                     
                     if(lastSavedControl == null || lastSavedControl.Id < 1000000000)
