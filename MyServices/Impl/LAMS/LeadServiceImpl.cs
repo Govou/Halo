@@ -89,6 +89,17 @@ namespace HaloBiz.MyServices.Impl.LAMS
             return new ApiOkResponse(leadTransferDTO);
         }
 
+        public async Task<ApiResponse> GetAllUnApprovedLeads()
+        {
+            var leads = await _leadRepo.FindAllUnApprovedLeads();
+            if (leads == null)
+            {
+                return new ApiResponse(404);
+            }
+            var leadTransferDTO = _mapper.Map<IEnumerable<LeadTransferDTO>>(leads);
+            return new ApiOkResponse(leadTransferDTO);
+        }
+
         public async Task<ApiResponse> GetLeadById(long id)
         {
             var lead = await _leadRepo.FindLeadById(id);

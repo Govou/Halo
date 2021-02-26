@@ -43,6 +43,7 @@ namespace HaloBiz.Repository.Impl
         {
             return await _context.Approvals
                 .Where(x => x.IsDeleted == false)
+                .Include(x => x.Responsible)
                 .OrderBy(x => x.Caption)
                 .ToListAsync();
         }

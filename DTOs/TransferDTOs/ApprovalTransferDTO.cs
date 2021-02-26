@@ -17,7 +17,7 @@ namespace HaloBiz.DTOs.TransferDTOs
         public UserProfile Responsible { get; set; }
 
         public long Sequence { get; set; }
-
+        public string Level { get; set; }
         public long? QuoteServiceId { get; set; }
         public QuoteService QuoteService { get; set; }
 

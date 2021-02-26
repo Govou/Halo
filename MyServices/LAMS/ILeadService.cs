@@ -17,5 +17,6 @@ namespace HaloBiz.MyServices.LAMS
         Task<ApiResponse> UpdateLead(HttpContext context, long id, LeadReceivingDTO leadReceivingDTO);
         Task<ApiResponse> UpdateLeadStagesStatus(long leadId, LeadStages stage);
         Task<ApiResponse> ConvertLeadToClient(HttpContext context,long leadId);
+        Task<ApiResponse> GetAllUnApprovedLeads();
     }
 }
