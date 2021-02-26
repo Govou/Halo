@@ -12,7 +12,7 @@ namespace HaloBiz.Repository
 
         Task<Customer> FindCustomerById(long Id);
         Task<Customer> FindCustomerByName(string name);
-
+        Task<IEnumerable<object>> FindCustomersByGroupType(long groupTypeId);
         Task<IEnumerable<Customer>> FindAllCustomer();
 
         Task<Customer> UpdateCustomer(Customer entity);

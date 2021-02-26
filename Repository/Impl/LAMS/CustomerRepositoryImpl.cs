@@ -31,6 +31,8 @@ namespace HaloBiz.Repository.Impl.LAMS
             return null;            
         }
 
+
+
         public async Task<Customer> FindCustomerById(long Id)
         {
             var customer =  await _context.Customers
@@ -54,6 +56,14 @@ namespace HaloBiz.Repository.Impl.LAMS
             return await _context.Customers
                 .Where(entity => entity.IsDeleted == false)
                 .OrderByDescending(entity => entity.GroupName)
+                .ToListAsync();
+        }
+
+        public async Task<IEnumerable<object>> FindCustomersByGroupType(long groupTypeId)
+        {
+            return await _context.Customers
+                .Where(entity => entity.IsDeleted == false && entity.GroupTypeId == groupTypeId)
+                .OrderByDescending(entity => entity.GroupName).Select(x => new {id = x.Id, groupName = x.GroupName})
                 .ToListAsync();
         }
         public async Task<Customer> FindCustomerByName(string name)

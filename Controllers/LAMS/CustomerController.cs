@@ -28,6 +28,16 @@ namespace HaloBiz.Controllers.LAMS
             return Ok(customer);
         }
 
+        [HttpGet("GroupType/{groupType}")]
+        public async Task<ActionResult> GetCustomersByGroupTypeId(long groupType)
+        {
+            var response = await _customerService.GetCustomersByGroupType(groupType);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var customer = ((ApiOkResponse)response).Result;
+            return Ok(customer);
+        }
+
         [HttpGet("{id}")]
         public async Task<ActionResult> GetById(long id)
         {

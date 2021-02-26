@@ -73,6 +73,19 @@ namespace HaloBiz.MyServices.Impl.LAMS
             return new ApiOkResponse(CustomerTransferDTOs);
         }
 
+        public async Task<ApiResponse> GetCustomersByGroupType(long groupTypeId)
+        {
+            try{
+                var customers = await _CustomerRepo.FindCustomersByGroupType(groupTypeId);
+                return new ApiOkResponse(customers); 
+            }catch(Exception e)
+            {
+                _logger.LogError(e.Message);
+                _logger.LogError(e.StackTrace);
+                return new ApiResponse(500);
+            }
+        }
+
         public async Task<ApiResponse> GetCustomerByName(string name)
         {
             var Customer = await _CustomerRepo.FindCustomerByName(name);
