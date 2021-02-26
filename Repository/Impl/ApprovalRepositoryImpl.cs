@@ -64,6 +64,23 @@ namespace HaloBiz.Repository.Impl
                 .ToListAsync();
         }
 
+        public async Task<IEnumerable<Approval>> GetPendingApprovalsByQuoteId(long quoteId)
+        {
+            return await _context.Approvals
+                .Where(x => x.IsApproved == false && x.QuoteId == quoteId && x.IsDeleted == false)
+                .OrderBy(x => x.Caption)
+                .ToListAsync();
+        }
+    
+
+        public async Task<IEnumerable<Approval>> GetPendingApprovalsByServiceId(long serviceId)
+        {
+            return await _context.Approvals
+                .Where(x => x.IsApproved == false && x.ServicesId == serviceId && x.IsDeleted == false)
+                .OrderBy(x => x.Caption)
+                .ToListAsync();
+        }
+
         public async Task<Approval> UpdateApproval(Approval approval)
         {
              var approvalEntity =  _context.Approvals.Update(approval);
