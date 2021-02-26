@@ -28,6 +28,9 @@ namespace HaloBiz.Model
         [Required]
         public long Sequence { get; set; }
 
+        [Required]
+        public string Level { get; set; }
+
         public long? QuoteServiceId { get; set; }
         public virtual QuoteService QuoteService { get; set; }
 
