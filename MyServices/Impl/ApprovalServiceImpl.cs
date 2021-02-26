@@ -169,6 +169,8 @@ namespace HaloBiz.MyServices.Impl
                         Sequence = item.Sequence,
                         ResponsibleId = responsibleId,
                         IsApproved = false,
+                        DateTimeApproved = null,
+                        Level = item.ApproverLevel.Caption                         
                     };
 
                     approvals.Add(approval);
