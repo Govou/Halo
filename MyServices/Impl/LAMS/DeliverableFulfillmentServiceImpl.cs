@@ -244,7 +244,8 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
         private async Task<bool> CheckAllDeliverablesAndSetTaskAssignmentStatus( long taskId)
         {
-            bool isAllDeliverableAssigned = true;
+
+            System.Console.WriteLine("updatedDeliverableFulfillment /n");
             var taskFulfillment = await _context.TaskFulfillments
                 .Include(x => x.DeliverableFUlfillments)
                 .FirstOrDefaultAsync(x => x.IsDeleted == false && x.Id == taskId);
@@ -253,11 +254,11 @@ namespace HaloBiz.MyServices.Impl.LAMS
             {
                 if(deliverable.ResponsibleId == null || deliverable.ResponsibleId == 0)
                 {
-                    isAllDeliverableAssigned = false;
+                    return false;
                 }
             }
 
-            taskFulfillment.IsAllDeliverableAssigned  = isAllDeliverableAssigned;
+            taskFulfillment.IsAllDeliverableAssigned  = true;
             _context.TaskFulfillments.Update(taskFulfillment);
             await  _context.SaveChangesAsync();
             return true;
@@ -313,6 +314,8 @@ namespace HaloBiz.MyServices.Impl.LAMS
                     };
 
                     await _historyRepo.SaveHistory(history);
+
+                    await CheckAllDeliverablesAndSetTaskAssignmentStatus(updatedDeliverableFulfillment.TaskFullfillmentId);
 
                     await _context.SaveChangesAsync();
                     await transaction.CommitAsync();

@@ -123,29 +123,27 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
         private int CheckIfAccepted(IEnumerable<DeliverableFulfillment> delivrables)
         {
-            var isAllAccepted = true;
             foreach (var deliverable in delivrables)
             {
                 if(deliverable.IsPicked == false)
                 {
-                    isAllAccepted = false;
+                    return 0;
                 }
             }
 
-            return isAllAccepted ? 1 : 0;
+            return 1;
         }
         private int CheckIfQualified(IEnumerable<DeliverableFulfillment> delivrables)
         {
-            var isAllAccepted = true;
             foreach (var deliverable in delivrables)
             {
                 if(deliverable.IsRequestedForValidation == false)
                 {
-                    isAllAccepted = false;
+                    return 0;
                 }
             }
 
-            return isAllAccepted ? 1 : 0;
+            return 1;
         }
 
         public async Task<ApiResponse> GetTaskFulfillmentById(long id)
@@ -199,6 +197,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                                             DeliverableResponsibleId = deliverableSummary.DeliverableResponsibleId,
                                             Priority = deliverableSummary.Priority,
                                             IsPicked = deliverableSummary.IsPicked,
+                                            IsRequestedForValidation = deliverableSummary.IsRequestedForValidation,
                                             DeliveryState = GetDeliverableAtRiskStatus(deliverableSummary.StartDate, deliverableSummary.DeliveryDate)
                                     }
                                 }
@@ -215,6 +214,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                                             DeliverableResponsibleId = deliverableSummary.DeliverableResponsibleId,
                                             Priority = deliverableSummary.Priority,
                                             IsPicked = deliverableSummary.IsPicked,
+                                            IsRequestedForValidation = deliverableSummary.IsRequestedForValidation,
                                             DeliveryState = GetDeliverableAtRiskStatus(deliverableSummary.StartDate, deliverableSummary.DeliveryDate)
                                     }
                         );
