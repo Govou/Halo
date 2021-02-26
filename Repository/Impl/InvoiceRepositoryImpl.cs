@@ -31,7 +31,6 @@ namespace HaloBiz.Repository.Impl
         {
             return await _context.Invoices
                 .Where(x => x.IsDeleted == false)
-                .OrderBy(x => x.Receipts)
                 .ToListAsync();
         }
 

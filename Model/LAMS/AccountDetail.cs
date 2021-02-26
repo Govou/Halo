@@ -23,14 +23,12 @@ namespace HaloBiz.Model.AccountsModel
         public double Credit { get; set; }
         [Required]
         public double Debit { get; set; }
-        [Required]
         public long? AccountId { get; set; }
         public virtual Account Account { get; set; }
-        [Required]
-        public long BranchId { get; set; }
+        public long? BranchId { get; set; }
         public virtual Branch Branch { get; set; }
         [Required]
-        public long OfficeId { get; set; }
+        public long? OfficeId { get; set; }
         public virtual Office Office { get; set; }
         [Required]
         public long AccountMasterId { get; set; }

@@ -60,9 +60,10 @@ namespace HaloBiz.MyServices.Impl
                     }
                     receipt.TransactionId = invoice.TransactionId;
                     receipt.ReceiptNumber = $"{invoice.InvoiceNumber.Replace("INV", "RCP")}/{count}";
-                    receipt.InvoiceValueBalanceAfterReceipting = receipt.InvoiceValue - receipt.InvoiceValueBalanceBeforeReceipting ;
+                    receipt.InvoiceValueBalanceAfterReceipting = receipt.InvoiceValueBalanceBeforeReceipting -  receipt.InvoiceValue ;
+                    receipt.CreatedById = context.GetLoggedInUserId();
                     var savedReceipt = await _receiptRepo.SaveReceipt(receipt);
-                    var receiptTransferDTO = _mapper.Map<ReceiptTransferDTO>(invoice);
+                    var receiptTransferDTO = _mapper.Map<ReceiptTransferDTO>(savedReceipt);
                     if(receipt.InvoiceValueBalanceAfterReceipting == 0)
                     {
                         invoice.IsReceiptedStatus = InvoiceStatus.CompletelyReceipted;
@@ -106,26 +107,31 @@ namespace HaloBiz.MyServices.Impl
             
             var receiptVoucherType = await _voucherRepo.GetFinanceVoucherTypeByName(this.RECEIPTVOUCHERTYPE);
 
+            var branch = await _context.Branches.FirstOrDefaultAsync();
+            var office = await _context.Offices.FirstOrDefaultAsync();
 
-            var accountMaster = await CreateAccountMaster(receipt, receiptVoucherType.Id ,invoice);
+
+            var accountMaster = await CreateAccountMaster(receipt, receiptVoucherType.Id ,invoice, branch.Id, office.Id);
             
             //Post to bank
             await  PostAccountDetail(invoice, receipt , receiptVoucherType.Id, 
-                                       false, accountMaster.Id,  bankAccountId, amountToPost);
+                                       false, accountMaster.Id,  bankAccountId, amountToPost, branch.Id, office.Id);
             //Post to Task Witholding
             if(receipt.IsTaskWitheld){
                             await PostAccountDetail(invoice, receipt , receiptVoucherType.Id, 
-                                       false, accountMaster.Id,  witholdingTaxAccount.Id, whtAmount);
+                                       false, accountMaster.Id,  witholdingTaxAccount.Id, whtAmount, branch.Id, office.Id);
             }
             //Post to client account 
             await PostAccountDetail(invoice, receipt , receiptVoucherType.Id, 
-                                       true, accountMaster.Id,(long)  invoice.CustomerDivision.AccountId, amount);
+                                       true, accountMaster.Id,(long)  invoice.CustomerDivision.AccountId, amount, branch.Id, office.Id);
             return true;
         }
 
          private async Task<AccountMaster> CreateAccountMaster(Receipt receipt,
                                                         long accountVoucherTypeId,
-                                                        Invoice invoice
+                                                        Invoice invoice,
+                                                        long branchId,
+                                                        long officeId
                                                         )
         {
             AccountMaster accountMaster = new AccountMaster(){
@@ -133,9 +139,11 @@ namespace HaloBiz.MyServices.Impl
                 IntegrationFlag = false,
                 VoucherId = accountVoucherTypeId,
                 Value = receipt.ReceiptValue,
-                TransactionId = receipt.TransactionId,
+                TransactionId = receipt.TransactionId?? "No Transaction Id",
                 CreatedById = this.LoggedInUserId,
-                CustomerDivisionId = invoice.CustomerDivisionId
+                CustomerDivisionId = invoice.CustomerDivisionId,
+                BranchId = branchId,
+                OfficeId = officeId
             };     
             var savedAccountMaster = await _context.AccountMasters.AddAsync(accountMaster);
             await _context.SaveChangesAsync();
@@ -149,7 +157,9 @@ namespace HaloBiz.MyServices.Impl
                                                     bool isCredit,
                                                     long accountMasterId,
                                                     long accountId,
-                                                    double amount
+                                                    double amount,
+                                                    long branchId,
+                                                    long officeId
                                                     )
         {
 
@@ -157,13 +167,16 @@ namespace HaloBiz.MyServices.Impl
                 Description = $"Receipt for invoice: {invoice.InvoiceNumber}  deposited by: {receipt.Depositor}",
                 IntegrationFlag = false,
                 VoucherId = accountVoucherTypeId,
-                TransactionId = invoice.TransactionId,
+                TransactionId = invoice.TransactionId?? "No Transaction Id",
                 TransactionDate = DateTime.Now,
                 Credit = isCredit ? amount : 0,
                 Debit = !isCredit ? amount : 0,
                 AccountId = accountId,
                 AccountMasterId = accountMasterId,
                 CreatedById = this.LoggedInUserId,
+                BranchId = branchId,
+                OfficeId = officeId
+                
             };
 
             var savedAccountDetails = await _context.AccountDetails.AddAsync(accountDetail);
