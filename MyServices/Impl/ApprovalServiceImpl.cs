@@ -101,12 +101,30 @@ namespace HaloBiz.MyServices.Impl
 
         public async Task<bool> SetUpApprovalsForClientCreation(Lead lead, HttpContext httpContext)
         {
-            throw new NotImplementedException();
+            try
+            {
+                return true;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogInformation(ex.Message);
+                _logger.LogInformation(ex.StackTrace);
+                return false;
+            }
         }
 
         public async Task<bool> SetUpApprovalsForEndorsement(CustomerDivision customerDivision, HttpContext httpContext)
         {
-            throw new NotImplementedException();
+            try
+            {
+                return true;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogInformation(ex.Message);
+                _logger.LogInformation(ex.StackTrace);
+                return false;
+            }
         }
 
         public async Task<bool> SetUpApprovalsForServiceCreation(Services service, HttpContext context)
@@ -120,7 +138,7 @@ namespace HaloBiz.MyServices.Impl
                 }
                 var approvalLimits = await _approvalLimitRepo.GetApprovalLimitsByModule(module.Id);
                 var orderedList = approvalLimits
-                    .Where(x => service.UnitPrice > x.UpperlimitValue || (service.UnitPrice <= x.UpperlimitValue && service.UnitPrice >= x.LowerlimitValue))
+                    .Where(x => service.UnitPrice < x.UpperlimitValue || (service.UnitPrice <= x.UpperlimitValue && service.UnitPrice >= x.LowerlimitValue))
                     .OrderBy(x => x.Sequence);
 
                 List<Approval> approvals = new List<Approval>();
@@ -132,15 +150,15 @@ namespace HaloBiz.MyServices.Impl
                     long responsibleId = 0;
                     if (item.ApproverLevel.Caption == "Division Head")
                     {
-                        responsibleId = service.Division.HeadId;
+                        responsibleId = service.Division?.HeadId ?? 31;
                     }
                     else if (item.ApproverLevel.Caption == "Operating Entity Head")
                     {
-                        responsibleId = service.OperatingEntity.HeadId;
+                        responsibleId = service.OperatingEntity?.HeadId ?? 31;
                     }
                     else if (item.ApproverLevel.Caption == "CEO")
                     {
-                        responsibleId = service.Division.Company?.HeadId.Value ?? 31;
+                        responsibleId = service.Division?.Company?.HeadId.Value ?? 31;
                     }
 
                     var approval = new Approval
