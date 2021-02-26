@@ -88,6 +88,28 @@ namespace HaloBiz.MyServices.Impl
             return new ApiOkResponse(approvalTransferDTO);
         }
 
+        public async Task<ApiResponse> GetPendingApprovalsByQuoteId(long quoteId)
+        {
+            var approval = await _approvalRepo.GetPendingApprovalsByQuoteId(quoteId);
+            if (approval == null)
+            {
+                return new ApiResponse(404);
+            }
+            var approvalTransferDTO = _mapper.Map<IEnumerable<ApprovalTransferDTO>>(approval);
+            return new ApiOkResponse(approvalTransferDTO);
+        }
+
+        public async Task<ApiResponse> GetPendingApprovalsByServiceId(long serviceId)
+        {
+            var approval = await _approvalRepo.GetPendingApprovalsByServiceId(serviceId);
+            if (approval == null)
+            {
+                return new ApiResponse(404);
+            }
+            var approvalTransferDTO = _mapper.Map<IEnumerable<ApprovalTransferDTO>>(approval);
+            return new ApiOkResponse(approvalTransferDTO);
+        }
+
         public async Task<ApiResponse> GetUserPendingApprovals(HttpContext context)
         {
             var approval = await _approvalRepo.GetUserPendingApprovals(context.GetLoggedInUserId());
