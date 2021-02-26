@@ -77,6 +77,7 @@ namespace HaloBiz.Repository.Impl
         {
             return await _context.Approvals
                 .Where(x => x.IsApproved == false && x.ServicesId == serviceId && x.IsDeleted == false)
+                .Include(x => x.Responsible)
                 .OrderBy(x => x.Caption)
                 .ToListAsync();
         }
