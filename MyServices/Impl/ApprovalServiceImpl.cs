@@ -121,7 +121,7 @@ namespace HaloBiz.MyServices.Impl
             return new ApiOkResponse(approvalTransferDTO);
         }
 
-        public async Task<bool> SetUpApprovalsForClientCreation(Lead lead, HttpContext httpContext)
+        public bool SetUpApprovalsForClientCreation(Lead lead, HttpContext httpContext)
         {
             try
             {
@@ -135,7 +135,7 @@ namespace HaloBiz.MyServices.Impl
             }
         }
 
-        public async Task<bool> SetUpApprovalsForEndorsement(CustomerDivision customerDivision, HttpContext httpContext)
+        public  bool SetUpApprovalsForEndorsement(CustomerDivision customerDivision, HttpContext httpContext)
         {
             try
             {
