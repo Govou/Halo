@@ -33,19 +33,22 @@ namespace HaloBiz.Repository.Impl.RoleManagement
 
         public async Task<Role> FindRoleById(long Id)
         {
-            return await _context.Roles.Where(x => x.IsDeleted == false).Include(x => x.RoleClaims.Where(x => x.IsDeleted == false))
+            return await _context.Roles.Where(x => x.IsDeleted == false)
+                .Include(x => x.RoleClaims.Where(x => x.IsDeleted == false))
                 .FirstOrDefaultAsync( role => role.Id == Id);
         }
 
         public async Task<Role> FindRoleByName(string name)
         {
-            return await _context.Roles.Where(x => x.IsDeleted == false).Include(x => x.RoleClaims.Where(x => x.IsDeleted == false))
+            return await _context.Roles.Where(x => x.IsDeleted == false)
+                .Include(x => x.RoleClaims.Where(x => x.IsDeleted == false))
                 .FirstOrDefaultAsync( role => role.Name == name);
         }
 
         public async Task<IEnumerable<Role>> FindAllRole()
         {
-            return await _context.Roles.Where(x => x.IsDeleted == false).Include(x => x.RoleClaims.Where(x => x.IsDeleted == false))
+            return await _context.Roles.Where(x => x.IsDeleted == false)
+                .Include(x => x.RoleClaims.Where(x => x.IsDeleted == false))
                 .ToListAsync();
         }
 
@@ -75,7 +78,7 @@ namespace HaloBiz.Repository.Impl.RoleManagement
 
         public async Task<bool> DeleteRoleClaims(Role role)
         {
-            if(role.RoleClaims.Count() < 1)
+            if(!role.RoleClaims.Any())
             {
                 return true;
             }

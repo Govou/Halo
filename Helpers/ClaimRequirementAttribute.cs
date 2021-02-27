@@ -26,7 +26,7 @@ namespace HaloBiz.Helpers
 
         public void OnAuthorization(AuthorizationFilterContext context)
         {
-            if (!context.HttpContext.User.IsInRole(ClaimConstants.SUPER_ADMIN))
+            if (!context.HttpContext.User.IsInRole(ClaimConstants.SuperAdmin))
             {
                 var hasClaim = context.HttpContext.User.Claims.Any(c => c.Type == _claim.Type && c.Value == _claim.Value);
                 if (!hasClaim)
