@@ -46,6 +46,10 @@ namespace HaloBiz.Repository.Impl.LAMS
                 .Include(lead => lead.LeadType)
                 .Include(lead => lead.LeadOrigin)
                 .FirstOrDefaultAsync(lead => lead.Id == Id);
+            if(lead == null)
+            {
+                return null;
+            }
             lead.DropReason = await _context.DropReasons.FirstOrDefaultAsync(dropReason => lead.DropReasonId == dropReason.Id);
             if(lead.PrimaryContactId != null)
                 lead.PrimaryContact = await _context.LeadContacts.FirstOrDefaultAsync(primaryContact => lead.PrimaryContactId == primaryContact.Id);
@@ -78,6 +82,10 @@ namespace HaloBiz.Repository.Impl.LAMS
                 .Include(lead => lead.LeadType)
                 .Include(lead => lead.LeadOrigin)
                 .FirstOrDefaultAsync(lead => lead.ReferenceNo == refNo);
+            if(lead == null)
+            {
+                return null;
+            }
             lead.DropReason = await _context.DropReasons.FirstOrDefaultAsync(dropReason => lead.DropReasonId == dropReason.Id);
             if(lead.PrimaryContactId != null)
                 lead.PrimaryContact = await _context.LeadContacts.FirstOrDefaultAsync(primaryContact => lead.PrimaryContactId == primaryContact.Id);
