@@ -31,29 +31,29 @@ namespace HaloBiz.MyServices.Impl.RoleManagement
             DataContext dataContext,
             IMapper mapper)
         {
-            this._mapper = mapper;
-            this._historyRepo = historyRepo;
-            this._context = dataContext;
-            this._roleRepo = roleRepo;
-            this._userProfileRepo = userProfileRepo;
+            _mapper = mapper;
+            _historyRepo = historyRepo;
+            _context = dataContext;
+            _roleRepo = roleRepo;
+            _userProfileRepo = userProfileRepo;
         }
 
-        public async Task<ApiResponse> AddRole(HttpContext context, RoleReceivingDTO roleReceivingDTO)
+        public async Task<ApiResponse> AddRole(HttpContext context, RoleReceivingDTO roleReceivingDto)
         {
-            var item = await _roleRepo.FindRoleByName(roleReceivingDTO.Name);
+            var item = await _roleRepo.FindRoleByName(roleReceivingDto.Name);
             if (item != null)
             {
                 return new ApiResponse(400, "Role Name Already Exists.");
             }
 
-            var role = _mapper.Map<Role>(roleReceivingDTO);
+            var role = _mapper.Map<Role>(roleReceivingDto);
             var savedRole = await _roleRepo.SaveRole(role);
             if (savedRole == null)
             {
                 return new ApiResponse(500);
             }
-            var roleTransferDTO = _mapper.Map<RoleTransferDTO>(role);
-            return new ApiOkResponse(roleTransferDTO);
+            var roleTransferDto = _mapper.Map<RoleTransferDTO>(role);
+            return new ApiOkResponse(roleTransferDto);
         }
 
         public async Task<ApiResponse> GetAllRoles()
@@ -63,8 +63,8 @@ namespace HaloBiz.MyServices.Impl.RoleManagement
             {
                 return new ApiResponse(404);
             }
-            var roleTransferDTO = _mapper.Map<IEnumerable<RoleTransferDTO>>(roles);
-            return new ApiOkResponse(roleTransferDTO);
+            var roleTransferDto = _mapper.Map<IEnumerable<RoleTransferDTO>>(roles);
+            return new ApiOkResponse(roleTransferDto);
         }
 
         public async Task<ApiResponse> GetAllClaims()
@@ -74,8 +74,8 @@ namespace HaloBiz.MyServices.Impl.RoleManagement
             {
                 return new ApiResponse(404);
             }
-            var claimTransferDTO = _mapper.Map<IEnumerable<ClaimTransferDTO>>(claims);
-            return new ApiOkResponse(claimTransferDTO);
+            var claimTransferDto = _mapper.Map<IEnumerable<ClaimTransferDTO>>(claims);
+            return new ApiOkResponse(claimTransferDto);
         }
 
         public async Task<ApiResponse> GetRoleById(long id)
@@ -85,8 +85,8 @@ namespace HaloBiz.MyServices.Impl.RoleManagement
             {
                 return new ApiResponse(404);
             }
-            var roleTransferDTOs = _mapper.Map<RoleTransferDTO>(role);
-            return new ApiOkResponse(roleTransferDTOs);
+            var roleTransferDtOs = _mapper.Map<RoleTransferDTO>(role);
+            return new ApiOkResponse(roleTransferDtOs);
         }
 
         public async Task<ApiResponse> GetRoleByName(string name)
@@ -96,11 +96,11 @@ namespace HaloBiz.MyServices.Impl.RoleManagement
             {
                 return new ApiResponse(404);
             }
-            var roleTransferDTOs = _mapper.Map<RoleTransferDTO>(role);
-            return new ApiOkResponse(roleTransferDTOs);
+            var roleTransferDtOs = _mapper.Map<RoleTransferDTO>(role);
+            return new ApiOkResponse(roleTransferDtOs);
         }
 
-        public async Task<ApiResponse> UpdateRole(HttpContext context, long id, RoleReceivingDTO roleReceivingDTO)
+        public async Task<ApiResponse> UpdateRole(HttpContext context, long id, RoleReceivingDTO roleReceivingDto)
         {
             var roleToUpdate = await _roleRepo.FindRoleById(id);
             if (roleToUpdate == null)
@@ -108,19 +108,19 @@ namespace HaloBiz.MyServices.Impl.RoleManagement
                 return new ApiResponse(404);
             }
 
-            if(roleToUpdate.Name != roleReceivingDTO.Name)
+            if(roleToUpdate.Name != roleReceivingDto.Name)
             {
-                var item = await _roleRepo.FindRoleByName(roleReceivingDTO.Name);
+                var item = await _roleRepo.FindRoleByName(roleReceivingDto.Name);
                 if (item != null)
                 {
                     return new ApiResponse(400, "Role Name Already Exists.");
                 }
             }          
 
-            var summary = $"Initial details before change, \n {roleToUpdate.ToString()} \n" ;
+            var summary = $"Initial details before change, \n {roleToUpdate} \n" ;
 
-            roleToUpdate.Name = roleReceivingDTO.Name;
-            roleToUpdate.Description = roleReceivingDTO.Description;
+            roleToUpdate.Name = roleReceivingDto.Name;
+            roleToUpdate.Description = roleReceivingDto.Description;
 
             var updatedRole = await _roleRepo.UpdateRole(roleToUpdate);
 
@@ -135,9 +135,9 @@ namespace HaloBiz.MyServices.Impl.RoleManagement
                 return new ApiResponse(500);
             }
 
-            if (roleReceivingDTO.RoleClaims.Any())
+            if (roleReceivingDto.RoleClaims.Any())
             {
-                var roleClaimsToSave = _mapper.Map<ICollection<RoleClaim>>(roleReceivingDTO.RoleClaims);
+                var roleClaimsToSave = _mapper.Map<ICollection<RoleClaim>>(roleReceivingDto.RoleClaims);
                 foreach (var item in roleClaimsToSave)
                 {
                     item.RoleId = updatedRole.Id;
@@ -156,8 +156,8 @@ namespace HaloBiz.MyServices.Impl.RoleManagement
 
             await _historyRepo.SaveHistory(history);
 
-            var roleTransferDTO = _mapper.Map<RoleTransferDTO>(await _roleRepo.FindRoleById(id));
-            return new ApiOkResponse(roleTransferDTO);
+            var roleTransferDto = _mapper.Map<RoleTransferDTO>(await _roleRepo.FindRoleById(id));
+            return new ApiOkResponse(roleTransferDto);
 
         }
 
@@ -169,7 +169,7 @@ namespace HaloBiz.MyServices.Impl.RoleManagement
                 return new ApiResponse(404);
             }
 
-            if(roleToDelete.Name == ClaimConstants.SUPER_ADMIN || roleToDelete.Name == ClaimConstants.UN_ASSIGNED)
+            if(roleToDelete.Name == ClaimConstants.SuperAdmin || roleToDelete.Name == ClaimConstants.UnAssigned)
             {
                 return new ApiResponse(400);
             }
@@ -177,7 +177,7 @@ namespace HaloBiz.MyServices.Impl.RoleManagement
             var userProfiles = await _userProfileRepo.FindAllUserProfilesAttachedToRole(id);
             if (userProfiles.Any())
             {
-                var unAssignedRole = await _roleRepo.FindRoleByName(ClaimConstants.UN_ASSIGNED);
+                var unAssignedRole = await _roleRepo.FindRoleByName(ClaimConstants.UnAssigned);
                 foreach (var userProfile in userProfiles)
                 {
                     userProfile.RoleId = unAssignedRole.Id;

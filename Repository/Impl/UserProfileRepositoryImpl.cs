@@ -61,7 +61,7 @@ namespace HaloBiz.Repository.Impl
                 .ToListAsync();
         }
 
-        public async Task<IEnumerable<UserProfile>> FindAllUserProfilesAttachedToRole(long roleId)
+        public async Task<List<UserProfile>> FindAllUserProfilesAttachedToRole(long roleId)
         {
             return await _context.UserProfiles
                 .Where(user => user.RoleId == roleId && user.IsDeleted == false)
