@@ -28,6 +28,7 @@ namespace HaloBiz.Model.RoleManagement
         public DateTime UpdatedAt { get; set; }
     }
 
+    // DO NOT MODIFY.
     public enum ClaimEnum
     {
         BranchManagement = 1,

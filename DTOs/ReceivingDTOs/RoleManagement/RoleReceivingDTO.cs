@@ -15,6 +15,6 @@ namespace HaloBiz.DTOs.ReceivingDTOs.RoleManagement
         [Required]
         public string Description { get; set; }
 
-        public virtual ICollection<RoleClaimReceivingDTO> RoleClaims { get; set; }
+        public List<RoleClaimReceivingDTO> RoleClaims { get; set; }
     }
 }

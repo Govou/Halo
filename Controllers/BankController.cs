@@ -15,10 +15,9 @@ namespace HaloBiz.Controllers
 
         public BankController(IBankService bankService)
         {
-            this._bankService = bankService;
+            _bankService = bankService;
         }
 
-        //[ClaimRequirement(ClaimConstants.ClaimType, ClaimConstants.CAN_GET_BANKS)]
         [HttpGet("")]
         public async Task<ActionResult> GetBank()
         {
@@ -29,7 +28,6 @@ namespace HaloBiz.Controllers
             return Ok(bank);
         }
 
-        //[ClaimRequirement(ClaimConstants.ClaimType, ClaimConstants.CAN_GET_BANKS)]
         [HttpGet("name/{name}")]
         public async Task<ActionResult> GetByCaption(string name)
         {
@@ -40,7 +38,6 @@ namespace HaloBiz.Controllers
             return Ok(bank);
         }
 
-        //[ClaimRequirement(ClaimConstants.ClaimType, ClaimConstants.CAN_GET_BANKS)]
         [HttpGet("{id}")]
         public async Task<ActionResult> GetById(long id)
         {
@@ -51,7 +48,6 @@ namespace HaloBiz.Controllers
             return Ok(bank);
         }
 
-        //[ClaimRequirement(ClaimConstants.ClaimType, ClaimConstants.CAN_UPDATE_BANK)]
         [HttpPost("")]
         public async Task<ActionResult> AddNewBank(BankReceivingDTO bankReceiving)
         {
@@ -62,7 +58,6 @@ namespace HaloBiz.Controllers
             return Ok(bank);
         }
 
-        //[ClaimRequirement(ClaimConstants.ClaimType, ClaimConstants.CAN_UPDATE_BANK)]
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateById(long id, BankReceivingDTO bankReceiving)
         {
@@ -73,7 +68,6 @@ namespace HaloBiz.Controllers
             return Ok(bank);
         }
 
-        //[ClaimRequirement(ClaimConstants.ClaimType, ClaimConstants.CAN_DELETE_BANK)]
         [HttpDelete("{id}")]
         public async Task<ActionResult> DeleteById(int id)
         {

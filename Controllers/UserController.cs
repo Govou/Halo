@@ -83,7 +83,6 @@ namespace HaloBiz.Controllers
             return Ok((UserProfileTransferDTO) user);
         }
 
-        //[Authorize(Roles = ClaimConstants.SUPER_ADMIN)]
         [HttpPut("UpdateUserRole/{id}/{roleId}")]
         public async Task<IActionResult> UpdateUserRole(long id, long roleId)
         {
