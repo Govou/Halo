@@ -115,15 +115,9 @@ namespace HaloBiz.Controllers
             {
                 new Claim(ClaimTypes.NameIdentifier, userProfile.Id.ToString()),
                 new Claim(ClaimTypes.Email, userProfile.Email),
-                new Claim(ClaimTypes.Role, userProfile.Role.Name)
+                new Claim(ClaimTypes.Role, userProfile.Role.Name),
+                new Claim("RoleId", userProfile.RoleId.ToString())
             };
-
-            var roleClaims = userProfile.Role.RoleClaims;
-
-            foreach (var roleClaim in roleClaims)
-            {
-                claims.Add(new Claim(ClaimConstants.ClaimType, roleClaim.Name));
-            }
 
             var secret = _config["JWTSecretKey"] ?? _config.GetSection("AppSettings:JWTSecretKey").Value;
 

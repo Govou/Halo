@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -5,6 +6,7 @@ using AutoMapper;
 using HaloBiz.Data;
 using HaloBiz.DTOs.ApiDTOs;
 using HaloBiz.DTOs.ReceivingDTOs.RoleManagement;
+using HaloBiz.DTOs.TransferDTOs;
 using HaloBiz.DTOs.TransferDTOs.RoleManagement;
 using HaloBiz.Helpers;
 using HaloBiz.Model;
@@ -76,6 +78,39 @@ namespace HaloBiz.MyServices.Impl.RoleManagement
             }
             var claimTransferDto = _mapper.Map<IEnumerable<ClaimTransferDTO>>(claims);
             return new ApiOkResponse(claimTransferDto);
+        }
+
+        public async Task<ApiResponse> GetUserRoleClaims(HttpContext context)
+        {
+            var userId = context.GetLoggedInUserId();
+            var user = await _userProfileRepo.FindUserById(userId);
+            if (user == null)
+            {
+                return new ApiResponse(500);
+            }
+
+            if (user.Role.Name == ClaimConstants.SuperAdmin)
+            {
+                var roleClaims = new List<RoleClaim>();
+                foreach (ClaimEnum item in Enum.GetValues(typeof(ClaimEnum)))
+                {
+                    roleClaims.Add(new RoleClaim
+                    {
+                        CanAdd = true,
+                        ClaimEnum = item,
+                        CanDelete = true,
+                        CanUpdate = true,
+                        CanView = true,
+                        Description = item.ToString(),
+                        Name = item.ToString(),
+                        RoleId = user.Role.Id
+                    });
+                }
+                user.Role.RoleClaims = roleClaims;
+            }
+
+            var userDto = _mapper.Map<UserProfileTransferDTO>(user);
+            return new ApiOkResponse(userDto);
         }
 
         public async Task<ApiResponse> GetRoleById(long id)

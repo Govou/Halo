@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using HaloBiz.Data;
+using HaloBiz.Helpers;
 using HaloBiz.Model;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -15,8 +16,8 @@ namespace HaloBiz.Repository.Impl
         private readonly ILogger<UserProfileRepositoryImpl> _logger;
         public UserProfileRepositoryImpl(DataContext context, ILogger<UserProfileRepositoryImpl> logger)
         {
-            this._logger = logger;
-            this._context = context;
+            _logger = logger;
+            _context = context;
         }
 
         public async Task<UserProfile> SaveUserProfile(UserProfile userProfile)
@@ -39,7 +40,7 @@ namespace HaloBiz.Repository.Impl
         {
             return await _context.UserProfiles
                 .Include(x => x.SBU)
-                .Include(x => x.Role).ThenInclude(x => x.RoleClaims)
+                .Include(x => x.Role).ThenInclude(x => x.RoleClaims.Where(x => x.IsDeleted == false))
                 .FirstOrDefaultAsync( user => user.Id == Id && user.IsDeleted == false);
         }
 
@@ -121,7 +122,8 @@ namespace HaloBiz.Repository.Impl
         public async Task<IEnumerable<UserProfile>> FindAllSuperAdmins()
         {
             return await _context.UserProfiles
-              .Where(user => user.RoleId == 1 && user.IsDeleted == false).AsNoTracking()
+              .Include(x => x.Role)
+              .Where(user => user.Role.Name == ClaimConstants.SuperAdmin && user.IsDeleted == false).AsNoTracking()
               .ToListAsync();
         }
     }
