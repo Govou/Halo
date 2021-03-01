@@ -84,6 +84,16 @@ namespace HaloBiz.Controllers.LAMS
             return Ok(lead);
         }
 
+        [HttpPut("approve-quote-service/{leadId}/{quoteServiceId}/{sequence}")]
+        public async Task<IActionResult> ApproveQuoteServiceById(long leadId, long quoteServiceId, long sequence)
+        {
+            var response = await _leadService.ApproveQuoteService(HttpContext, leadId, quoteServiceId, sequence);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var serviceGroup = ((ApiOkResponse)response).Result;
+            return Ok(serviceGroup);
+        }
+
         [HttpPost("")]
         public async Task<ActionResult> AddNewLead(LeadReceivingDTO leadReceiving)
         {

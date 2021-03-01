@@ -31,6 +31,8 @@ namespace HaloBiz.MyServices.Impl.LAMS
         private readonly IMapper _mapper;
         private readonly ILeadConversionService _leadConversionService;
         private readonly IApprovalService _approvalService;
+        private readonly IModificationHistoryRepository _modificationRepo;
+        private readonly DataContext _context;
 
         public long LoggedInUserId { get; set; }
 
@@ -41,7 +43,9 @@ namespace HaloBiz.MyServices.Impl.LAMS
                                 ILogger<LeadServiceImpl> logger,
                                 IMapper mapper,
                                 ILeadConversionService leadConversionService,
-                                IApprovalService approvalService
+                                IApprovalService approvalService,
+                                IModificationHistoryRepository modificationHistoryRepo,
+                                DataContext context
                                 )
         {
             _mapper = mapper;
@@ -50,6 +54,8 @@ namespace HaloBiz.MyServices.Impl.LAMS
             _historyRepo = historyRepo;
             _leadRepo = leadRepo;
             _approvalService = approvalService;
+            _modificationRepo = modificationHistoryRepo;
+            _context = context;
             _logger = logger;
         }
 
@@ -273,6 +279,95 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
         }
 
+        public async Task<ApiResponse> ApproveQuoteService(HttpContext context, long leadId, long quoteServiceId, long sequence)
+        {
+            var lead = await _context.Leads.Where(x => x.Id == leadId)
+                                    .Include(x => x.LeadDivisions)
+                                    .ThenInclude(x => x.Quote).SingleOrDefaultAsync();
+
+            var quotes = new List<Quote>();
+
+            foreach (var leadDivision in lead.LeadDivisions)
+            {
+                quotes.Add(leadDivision.Quote);
+            }
+
+            var quoteService = _context.QuoteServices.Where(x => x.Id == quoteServiceId)
+                                    .Include(x => x.Quote).SingleOrDefault();
+
+            if(quoteService == null)
+            {
+                return new ApiResponse(500);
+            }
+
+            var approvals = await _context.Approvals.Where(x => x.QuoteServiceId == quoteServiceId).ToListAsync();
+
+            var approval = approvals.SingleOrDefault(x => x.Sequence == sequence);
+
+            if(approval == null)
+            {
+                return new ApiResponse(500);
+            }
+
+            approval.IsApproved = true;
+            approval.DateTimeApproved = DateTime.Now;
+
+            ModificationHistory history = new ModificationHistory()
+            {
+                ModelChanged = "Service",
+                ChangeSummary = $"Service with QuoteServiceId: {quoteServiceId} was approved by user with userid {context.GetLoggedInUserId()}",
+                ChangedById = context.GetLoggedInUserId(),
+                ModifiedModelId = quoteService.Id
+            };
+
+            await _modificationRepo.SaveHistory(history);
+
+            _context.Approvals.Update(approval);
+
+            var otherApprovalApproved = approvals.Where(x => x.Sequence != sequence).All(x => x.IsApproved);
+
+            if (!otherApprovalApproved) return new ApiOkResponse(true);
+
+            var quote = _context.Quotes.Where(x => x.Id == quoteService.Quote.Id)
+                              .Include(x => x.QuoteServices.Where(q => q.Id != quoteServiceId)).SingleOrDefault();
+
+            if (quote == null)
+            {
+                return new ApiResponse(500);
+            }
+            
+            var allQuoteServicesApprovalsApproved = true;
+            foreach (var qs in quote.QuoteServices)
+            {
+                var theApprovals = await _context.Approvals.Where(x => x.QuoteServiceId == qs.Id).ToListAsync();
+
+                var quoteServiceApproved = theApprovals.All(x => x.IsApproved == true);
+                if (!quoteServiceApproved) 
+                {
+                    allQuoteServicesApprovalsApproved = false;
+                    break;
+                }
+            }
+
+            if (!allQuoteServicesApprovalsApproved) return new ApiOkResponse(true);
+
+            quote.IsApproved = true;
+            _context.Quotes.Update(quote);
+
+            var otherQuotesApproved = quotes.Where(x => x.Id == quote.Id).All(x => x.IsApproved);
+
+            if (!otherQuotesApproved) return new ApiOkResponse(true);
+
+            bool converted = await _leadConversionService.ConvertLeadToClient(leadId, context.GetLoggedInUserId());
+            if (converted)
+            {
+                return new ApiOkResponse(true);
+            }
+            else
+            {
+                return new ApiResponse(500);
+            }
+        }
     }
 }
 
