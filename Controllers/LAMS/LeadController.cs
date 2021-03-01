@@ -64,7 +64,7 @@ namespace HaloBiz.Controllers.LAMS
             return Ok(lead);
         }
         
-        [HttpPut("SetUpLeadForApproval")]
+        [HttpPut("SetUpLeadForApproval/{id}")]
         public async Task<ActionResult> SetUpLeadForApproval(long id)
         {
             var response = await _leadService.SetUpLeadForApproval(HttpContext, id);
