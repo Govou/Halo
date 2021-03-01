@@ -8,10 +8,10 @@ using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Linq;
+using HaloBiz.DTOs.TransferDTOs;
 
 namespace HaloBiz.Controllers.RoleMangement
 {
-    [Authorize(Roles = ClaimConstants.SuperAdmin)]
     [Route("api/v1/[controller]")]
     [ApiController]
     public class RoleController : Controller
@@ -40,6 +40,18 @@ namespace HaloBiz.Controllers.RoleMangement
                 return StatusCode(response.StatusCode, response);
 
             var claims = ((ApiOkResponse)response).Result as IEnumerable<ClaimTransferDTO>;
+
+            return Ok(claims);
+        }
+
+        [HttpGet("GetUserRoleClaims")]
+        public async Task<ActionResult> GetUserRoleClaims()
+        {
+            var response = await _roleService.GetUserRoleClaims(HttpContext);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+
+            var claims = ((ApiOkResponse)response).Result as UserProfileTransferDTO;
 
             return Ok(claims);
         }

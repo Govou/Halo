@@ -2,9 +2,6 @@
 {
     public static class ClaimConstants
     {
-        public const string CanGetBanks = "Can Get Banks";
-        public const string CanUpdateBank = "Can Update Bank";
-        public const string CanDeleteBank = "Can Delete Bank";
 
         public const string ClaimType = "ApplicationClaim";
 

@@ -25,6 +25,6 @@ namespace HaloBiz.Model.RoleManagement
         [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
         public DateTime UpdatedAt { get; set; }
 
-        public virtual ICollection<RoleClaim> RoleClaims { get; set; }
+        public virtual IEnumerable<RoleClaim> RoleClaims { get; set; }
     }
 }

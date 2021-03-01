@@ -13,5 +13,10 @@ namespace HaloBiz.DTOs.TransferDTOs.RoleManagement
         public string Description { get; set; }
         public string Name { get; set; }
         public long RoleId { get; set; }
+        public ClaimEnum ClaimEnum { get; set; }
+        public bool CanAdd { get; set; }
+        public bool CanView { get; set; }
+        public bool CanUpdate { get; set; }
+        public bool CanDelete { get; set; }
     }
 }

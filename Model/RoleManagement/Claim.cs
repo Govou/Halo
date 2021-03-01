@@ -18,11 +18,35 @@ namespace HaloBiz.Model.RoleManagement
         [Required]
         public string Description { get; set; }
 
+        public ClaimEnum ClaimEnum { get; set; }
+
         public bool IsDeleted { get; set; }
 
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public DateTime CreatedAt { get; set; }
         [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
         public DateTime UpdatedAt { get; set; }
+    }
+
+    // DO NOT MODIFY.
+    public enum ClaimEnum
+    {
+        BranchManagement = 1,
+        DivisionManagement,
+        QualificationManagement,
+        ServicesManagement,
+        SbuManagement,
+        TargetManagement,
+        BanksManagement,
+        SLAManagement,
+        LamsManagement,
+        ProjectManagement,
+        TaskManagement,
+        RoleManagement,
+        ApprovalsManagement,
+        AccountsManagement,
+        SetupManagement,
+        ClientManagement,
+        EndorsementManagement
     }
 }

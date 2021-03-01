@@ -20,12 +20,13 @@ namespace HaloBiz.MyServices.Impl
         private readonly IMapper _mapper;
         private readonly IMailAdapter _mailAdpater;
         private readonly IModificationHistoryRepository _historyRepo ;
-        public UserProfileServiceImpl(IUserProfileRepository userRepo, IMapper mapper, 
+        public UserProfileServiceImpl(IUserProfileRepository userRepo, 
+            IMapper mapper, 
             IMailAdapter mailAdapter,
-        IModificationHistoryRepository historyRepo )
+            IModificationHistoryRepository historyRepo)
         {
-            this._mapper = mapper;
-            this._userRepo = userRepo;
+            _mapper = mapper;
+            _userRepo = userRepo;
             _mailAdpater = mailAdapter;
             _historyRepo = historyRepo;
 
@@ -125,7 +126,7 @@ namespace HaloBiz.MyServices.Impl
             userToUpdate.CodeName = userProfileReceivingDTO.CodeName;
             userToUpdate.OtherName = userProfileReceivingDTO.OtherName;
 
-            summary += $"Details after change, \n {userToUpdate.ToString()} \n";
+            summary += $"Details after change, \n {userToUpdate} \n";
 
             var updatedUser = await _userRepo.UpdateUserProfile(userToUpdate);
 
@@ -254,10 +255,10 @@ namespace HaloBiz.MyServices.Impl
             {
                 return new ApiResponse(404);
             }
-            var summary = $"Initial details before change, \n {userToUpdate.ToString()} \n";
+            var summary = $"Initial details before change, \n {userToUpdate} \n";
             userToUpdate.RoleId = roleId;
 
-            summary += $"Details after change, \n {userToUpdate.ToString()} \n";
+            summary += $"Details after change, \n {userToUpdate} \n";
 
             var updatedUser = await _userRepo.UpdateUserProfile(userToUpdate);
 

@@ -18,7 +18,11 @@ namespace HaloBiz.Model.RoleManagement
         [Required]
         public long RoleId { get; set; }
         public virtual Role Role { get; set; }
-
+        public ClaimEnum ClaimEnum { get; set; }
+        public bool CanView { get; set; }
+        public bool CanAdd { get; set; }
+        public bool CanUpdate { get; set; }
+        public bool CanDelete { get; set; }
         public bool IsDeleted { get; set; }
 
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
