@@ -282,12 +282,15 @@ namespace HaloBiz.MyServices.Impl.LAMS
         public async Task<ApiResponse> ApproveQuoteService(HttpContext context, long leadId, long quoteServiceId, long sequence)
         {
             var lead = await _context.Leads.Where(x => x.Id == leadId)
-                                    .Include(x => x.LeadDivisions).SingleOrDefaultAsync();
+                                    .Include(x => x.LeadDivisions)
+                                    .ThenInclude(x => x.Quote).SingleOrDefaultAsync();
 
             var quotes = new List<Quote>();
 
-
-            // var lead = await _context.Quotes.Where(x => x.LeadDivisionId == leadId).SingleOrDefaultAsync();
+            foreach (var leadDivision in lead.LeadDivisions)
+            {
+                quotes.Add(leadDivision.Quote);
+            }
 
             var quoteService = _context.QuoteServices.Where(x => x.Id == quoteServiceId)
                                     .Include(x => x.Quote).SingleOrDefault();
@@ -323,50 +326,47 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
             var otherApprovalApproved = approvals.Where(x => x.Sequence != sequence).All(x => x.IsApproved);
 
-            if (otherApprovalApproved)
+            if (!otherApprovalApproved) return new ApiOkResponse(true);
+
+            var quote = _context.Quotes.Where(x => x.Id == quoteService.Quote.Id)
+                              .Include(x => x.QuoteServices.Where(q => q.Id != quoteServiceId)).SingleOrDefault();
+
+            if (quote == null)
             {
-                var quote = _context.Quotes.Where(x => x.Id == quoteService.Quote.Id)
-                                  .Include(x => x.QuoteServices.Where(x => x.Id != quoteServiceId)).SingleOrDefault();
+                return new ApiResponse(500);
+            }
+            
+            var allQuoteServicesApprovalsApproved = true;
+            foreach (var qs in quote.QuoteServices)
+            {
+                var theApprovals = await _context.Approvals.Where(x => x.QuoteServiceId == qs.Id).ToListAsync();
 
-                bool allQuoteServicesApprovalsApproved = true;
-                foreach (var qs in quote.QuoteServices)
+                var quoteServiceApproved = theApprovals.All(x => x.IsApproved == true);
+                if (!quoteServiceApproved) 
                 {
-                    var theApprovals = await _context.Approvals.Where(x => x.QuoteServiceId == qs.Id).ToListAsync();
-
-                    var quoteServiceApproved = theApprovals.All(x => x.IsApproved == true);
-                    if (!quoteServiceApproved) 
-                    {
-                        allQuoteServicesApprovalsApproved = false;
-                        break;
-                    }
+                    allQuoteServicesApprovalsApproved = false;
+                    break;
                 }
+            }
 
-                if (allQuoteServicesApprovalsApproved)
-                {
-                    quote.IsApproved = true;
-                    _context.Quotes.Update(quote);
+            if (!allQuoteServicesApprovalsApproved) return new ApiOkResponse(true);
 
-                    // check if all the quotes have been approved.
+            quote.IsApproved = true;
+            _context.Quotes.Update(quote);
 
-                    bool converted = await _leadConversionService.ConvertLeadToClient(leadId, context.GetLoggedInUserId());
-                    if (converted)
-                    {
-                        return new ApiOkResponse(true);
-                    }
-                    else
-                    {
-                        return new ApiResponse(500);
-                    }
-                }
-                else
-                {
-                    return new ApiOkResponse(true);
-                }
+            var otherQuotesApproved = quotes.Where(x => x.Id == quote.Id).All(x => x.IsApproved);
+
+            if (!otherQuotesApproved) return new ApiOkResponse(true);
+
+            bool converted = await _leadConversionService.ConvertLeadToClient(leadId, context.GetLoggedInUserId());
+            if (converted)
+            {
+                return new ApiOkResponse(true);
             }
             else
             {
-                return new ApiOkResponse(true);
-            }       
+                return new ApiResponse(500);
+            }
         }
     }
 }
