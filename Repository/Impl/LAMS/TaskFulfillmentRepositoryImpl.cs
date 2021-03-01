@@ -15,7 +15,6 @@ namespace HaloBiz.Repository.Impl.LAMS
     public class TaskFulfillmentRepositoryImpl : ITaskFulfillmentRepository
     {
         private readonly DataContext _context;
-        private readonly IServicesRepository _servicesRepo;
         private readonly ILogger<TaskFulfillmentRepositoryImpl> _logger;
         public TaskFulfillmentRepositoryImpl(DataContext context,
                             ILogger<TaskFulfillmentRepositoryImpl> logger)

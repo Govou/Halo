@@ -63,9 +63,19 @@ namespace HaloBiz.Controllers.LAMS
             var lead = ((ApiOkResponse)response).Result;
             return Ok(lead);
         }
+        
+        [HttpPut("SetUpLeadForApproval")]
+        public async Task<ActionResult> SetUpLeadForApproval(long id)
+        {
+            var response = await _leadService.SetUpLeadForApproval(HttpContext, id);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var lead = ((ApiOkResponse)response).Result;
+            return Ok(lead);
+        }
 
         [HttpPut("ConvertLeadToClient/{id}")]
-        public async Task<ActionResult> ConvertLeadToClient( long id)
+        public async Task<ActionResult> ConvertLeadToClient(long id)
         {
             var response = await _leadService.ConvertLeadToClient(HttpContext, id);
             if (response.StatusCode >= 400)

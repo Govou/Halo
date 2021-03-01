@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
+using HaloBiz.Data;
 using HaloBiz.DTOs.ApiDTOs;
 using HaloBiz.DTOs.ReceivingDTOs;
 using HaloBiz.DTOs.TransferDTOs;
@@ -11,12 +12,14 @@ using HaloBiz.Model;
 using HaloBiz.Model.LAMS;
 using HaloBiz.Repository;
 using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
 namespace HaloBiz.MyServices.Impl
 {
     public class ApprovalServiceImpl : IApprovalService
     {
+        private readonly DataContext _context;
         private readonly ILogger<ApprovalServiceImpl> _logger;
         private readonly IModificationHistoryRepository _historyRepo;
         private readonly IApprovalRepository _approvalRepo;
@@ -29,14 +32,16 @@ namespace HaloBiz.MyServices.Impl
             IApprovalRepository approvalRepo,
             IApprovalLimitRepository approvalLimitRepo,
             IProcessesRequiringApprovalRepository processesRequiringApprovalRepo,
+            DataContext context,
             ILogger<ApprovalServiceImpl> logger, IMapper mapper)
         {
-            this._mapper = mapper;
-            this._historyRepo = historyRepo;
-            this._approvalRepo = approvalRepo;
+            _mapper = mapper;
+            _historyRepo = historyRepo;
+            _approvalRepo = approvalRepo;
             _approvalLimitRepo = approvalLimitRepo;
             _processesRequiringApprovalRepo = processesRequiringApprovalRepo;
-            this._logger = logger;
+            _context = context;
+            _logger = logger;
         }
         public async  Task<ApiResponse> AddApproval(HttpContext context, ApprovalReceivingDTO approvalReceivingDTO)
         {
@@ -121,10 +126,81 @@ namespace HaloBiz.MyServices.Impl
             return new ApiOkResponse(approvalTransferDTO);
         }
 
-        public bool SetUpApprovalsForClientCreation(Lead lead, HttpContext httpContext)
+        public async Task<bool> SetUpApprovalsForClientCreation(long leadId, HttpContext context)
         {
             try
             {
+                var module = await _processesRequiringApprovalRepo.FindProcessesRequiringApprovalByCaption("Client Creation");
+                if (module == null)
+                {
+                    return false;
+                }
+
+                var approvalLimits = await _approvalLimitRepo.GetApprovalLimitsByModule(module.Id);
+                if (approvalLimits == null)
+                {
+                    return false;
+                }
+
+                var lead = await _context.Leads
+                        .Include(x => x.LeadDivisions)
+                        .FirstOrDefaultAsync(x => x.Id == leadId);
+
+                List<Approval> approvals = new List<Approval>();
+                foreach (var leadDivision in lead.LeadDivisions)
+                {
+                    var quote = await _context.Quotes
+                                            .Include(x => x.QuoteServices)
+                                            .ThenInclude(x => x.Service)
+                                            .FirstOrDefaultAsync(x => x.LeadDivisionId == leadDivision.Id);
+
+                    foreach (var quoteService in quote.QuoteServices)
+                    {
+                        if (!quoteService.BillableAmount.HasValue) continue;
+
+                        var orderedList = approvalLimits
+                            .Where(x => quoteService.BillableAmount.Value < x.UpperlimitValue || 
+                                        (quoteService.BillableAmount.Value <= x.UpperlimitValue && quoteService.BillableAmount.Value >= x.LowerlimitValue))
+                            .OrderBy(x => x.Sequence);
+                        
+                        foreach (var item in orderedList)
+                        {
+                            var approvalLevelInfo = item.ApproverLevel;
+
+                            long responsibleId = 0;
+                            if (item.ApproverLevel.Caption == "Division Head")
+                            {
+                                responsibleId = quoteService.Service?.Division?.HeadId ?? 31;
+                            }
+                            else if (item.ApproverLevel.Caption == "Operating Entity Head")
+                            {
+                                responsibleId = quoteService.Service?.OperatingEntity?.HeadId ?? 31;
+                            }
+                            else if (item.ApproverLevel.Caption == "CEO")
+                            {
+                                responsibleId = quoteService.Service?.Division?.Company?.HeadId.Value ?? 31;
+                            }
+
+                            var approval = new Approval
+                            {
+                                QuoteServiceId = quoteService.Id,
+                                Caption = $"Approval Needed To Create Contract Service {quoteService.Service.Name} for Client {leadDivision.DivisionName} under {lead.GroupName}",
+                                CreatedById = context.GetLoggedInUserId(),
+                                Sequence = item.Sequence,
+                                ResponsibleId = responsibleId,
+                                IsApproved = false,
+                                DateTimeApproved = null,
+                                Level = item.ApproverLevel.Caption
+                            };
+
+                            approvals.Add(approval);
+                        }
+                    }                      
+                }
+                if (approvals.Any())
+                {
+                    return await _approvalRepo.SaveApprovalRange(approvals);
+                }
                 return true;
             }
             catch (Exception ex)
@@ -135,11 +211,11 @@ namespace HaloBiz.MyServices.Impl
             }
         }
 
-        public  bool SetUpApprovalsForEndorsement(CustomerDivision customerDivision, HttpContext httpContext)
+        public async Task<bool> SetUpApprovalsForEndorsement(CustomerDivision customerDivision, HttpContext httpContext)
         {
             try
             {
-                return true;
+                return await Task.FromResult(true);
             }
             catch (Exception ex)
             {
@@ -223,7 +299,7 @@ namespace HaloBiz.MyServices.Impl
                 return new ApiResponse(404);
             }
             
-            var summary = $"Initial details before change, \n {approvalToUpdate.ToString()} \n" ;
+            var summary = $"Initial details before change, \n {approvalToUpdate} \n" ;
 
             approvalToUpdate.Caption = approvalReceivingDTO.Caption;
             approvalToUpdate.Sequence = approvalReceivingDTO.Sequence;
