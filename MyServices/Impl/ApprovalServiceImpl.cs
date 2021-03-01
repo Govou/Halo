@@ -151,6 +151,7 @@ namespace HaloBiz.MyServices.Impl
                 {
                     var quote = await _context.Quotes
                                             .Include(x => x.QuoteServices)
+                                            .ThenInclude(x => x.Service)
                                             .FirstOrDefaultAsync(x => x.LeadDivisionId == leadDivision.Id);
 
                     foreach (var quoteService in quote.QuoteServices)
@@ -200,10 +201,7 @@ namespace HaloBiz.MyServices.Impl
                 {
                     return await _approvalRepo.SaveApprovalRange(approvals);
                 }
-                else
-                {
-                    return true;
-                }
+                return true;
             }
             catch (Exception ex)
             {
