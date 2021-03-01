@@ -126,7 +126,7 @@ namespace HaloBiz.MyServices.Impl
             return new ApiOkResponse(approvalTransferDTO);
         }
 
-        public async Task<bool> SetUpApprovalsForClientCreation(Lead lead, HttpContext context)
+        public async Task<bool> SetUpApprovalsForClientCreation(long leadId, HttpContext context)
         {
             try
             {
@@ -142,12 +142,12 @@ namespace HaloBiz.MyServices.Impl
                     return false;
                 }
 
-                var leadWithExtraInfo = await _context.Leads
+                var lead = await _context.Leads
                         .Include(x => x.LeadDivisions)
-                        .FirstOrDefaultAsync(x => x.Id == lead.Id);
+                        .FirstOrDefaultAsync(x => x.Id == leadId);
 
                 List<Approval> approvals = new List<Approval>();
-                foreach (var leadDivision in leadWithExtraInfo.LeadDivisions)
+                foreach (var leadDivision in lead.LeadDivisions)
                 {
                     var quote = await _context.Quotes
                                             .Include(x => x.QuoteServices)
@@ -215,7 +215,7 @@ namespace HaloBiz.MyServices.Impl
         {
             try
             {
-                return true;
+                return await Task.FromResult(true);
             }
             catch (Exception ex)
             {

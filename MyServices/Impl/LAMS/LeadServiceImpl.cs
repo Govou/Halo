@@ -30,6 +30,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
         private readonly ILeadRepository _leadRepo;
         private readonly IMapper _mapper;
         private readonly ILeadConversionService _leadConversionService;
+        private readonly IApprovalService _approvalService;
 
         public long LoggedInUserId { get; set; }
 
@@ -39,15 +40,17 @@ namespace HaloBiz.MyServices.Impl.LAMS
                                 ILeadRepository leadRepo,
                                 ILogger<LeadServiceImpl> logger,
                                 IMapper mapper,
-                                ILeadConversionService leadConversionService
+                                ILeadConversionService leadConversionService,
+                                IApprovalService approvalService
                                 )
         {
-            this._mapper = mapper;
-            this._leadConversionService = leadConversionService;
-            this._refNumberRepo = refNumberRepo;
-            this._historyRepo = historyRepo;
-            this._leadRepo = leadRepo;
-            this._logger = logger;
+            _mapper = mapper;
+            _leadConversionService = leadConversionService;
+            _refNumberRepo = refNumberRepo;
+            _historyRepo = historyRepo;
+            _leadRepo = leadRepo;
+            _approvalService = approvalService;
+            _logger = logger;
         }
 
         public async Task<ApiResponse> AddLead(HttpContext context, LeadReceivingDTO leadReceivingDTO)
@@ -98,6 +101,20 @@ namespace HaloBiz.MyServices.Impl.LAMS
             }
             var leadTransferDTO = _mapper.Map<IEnumerable<LeadTransferDTO>>(leads);
             return new ApiOkResponse(leadTransferDTO);
+        }
+
+        public async Task<ApiResponse> SetUpLeadForApproval(HttpContext httpContext, long id)
+        {
+            var approvalsCreatedSuccessfully = await _approvalService.SetUpApprovalsForClientCreation(id, httpContext);
+                    
+            if(approvalsCreatedSuccessfully)
+            {
+                return new ApiOkResponse(true);
+            }
+            else
+            {
+                return new ApiResponse(500);
+            }
         }
 
         public async Task<ApiResponse> GetLeadById(long id)
