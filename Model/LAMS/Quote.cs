@@ -17,6 +17,7 @@ namespace HaloBiz.Model.LAMS
         public long LeadDivisionId { get; set; }
         public LeadDivision LeadDivision { get; set; }
         public bool IsConvertedToContract { get; set; } = false;
+        public bool IsApproved { get; set; } = false;
         public IEnumerable<QuoteService> QuoteServices { get; set; }
         public VersionType Version { get; set; } = VersionType.Latest;
         public long CreatedById { get; set; }
