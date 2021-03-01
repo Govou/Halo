@@ -110,7 +110,7 @@ namespace HaloBiz.Repository.Impl.LAMS
         public async Task<IEnumerable<TaskFulfillment>> GetTaskFulfillmentsByCustomerDivisionId(long customerDivsionId)
         {
             return await _context.TaskFulfillments   
-                .Include(x => x.DeliverableFUlfillments.Where(x => x.IsDeleted == true && x.WasReassigned == false))
+                .Include(x => x.DeliverableFUlfillments.Where(x => x.IsDeleted == false && x.WasReassigned == false))
                 .Where(x => x.CustomerDivisionId == customerDivsionId && x.IsDeleted == false).ToListAsync();
         }
 
