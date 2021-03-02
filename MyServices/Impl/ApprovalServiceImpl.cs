@@ -130,7 +130,7 @@ namespace HaloBiz.MyServices.Impl
         {
             try
             {
-                var module = await _processesRequiringApprovalRepo.FindProcessesRequiringApprovalByCaption("Client Creation");
+                var module = await _processesRequiringApprovalRepo.FindProcessesRequiringApprovalByCaption("Contract Creation");
                 if (module == null)
                 {
                     return false;
