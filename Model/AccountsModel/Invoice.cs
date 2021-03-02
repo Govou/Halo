@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using HaloBiz.Helpers;
 using HaloBiz.Model.LAMS;
 using halobiz_backend.Helpers;
 using halobiz_backend.Model.AccountsModel;
@@ -25,6 +26,8 @@ namespace HaloBiz.Model.AccountsModel
         public long CustomerDivisionId { get; set; }
         public CustomerDivision CustomerDivision { get; set; }
         public InvoiceStatus IsReceiptedStatus { get; set; }
+        public bool IsFinalInvoice { get; set; }= true;
+        public InvoiceType InvoiceType { get; set; } = InvoiceType.New;
         public IEnumerable<Receipt> Receipts { get; set; }
         [Required]
         public long ContractId { get; set; }

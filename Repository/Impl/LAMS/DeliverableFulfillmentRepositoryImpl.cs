@@ -54,7 +54,7 @@ namespace HaloBiz.Repository.Impl.LAMS
         {
             var year = DateTime.Now.Year;
             var taskMasterTasks = await _context.TaskFulfillments
-                        .Include(x => x.DeliverableFUlfillments).ThenInclude(x => x.Responsible)
+                        .Include(x => x.DeliverableFUlfillments.Where(x => !x.WasReassigned && x.ResponsibleId != null)).ThenInclude(x => x.Responsible)
                         .Where(x => x.ResponsibleId == taskMasterId && x.CreatedAt.Year == year && x.IsDeleted == false)
                         .ToListAsync();
             var listOFDeliverable =  taskMasterTasks.Select(x => x.DeliverableFUlfillments);
@@ -63,7 +63,7 @@ namespace HaloBiz.Repository.Impl.LAMS
             {
                 deliverables.AddRange(deliverable);
             }
-            return deliverables.Where(x => x.ResponsibleId != null).ToList();
+            return deliverables;
         }
         public async Task<object> GetUserDeliverableStat(long userId)
         {

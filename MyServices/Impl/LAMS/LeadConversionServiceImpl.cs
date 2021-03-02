@@ -45,6 +45,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 try
                 {
                     var lead = await _context.Leads
+                        .Include(x => x.LeadKeyPersons)
                         .Include(x => x.LeadDivisions)
                             .ThenInclude(x => x.Quote)
                         .Include(x => x.LeadDivisions)
@@ -153,8 +154,17 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 Email = "",
                 PhoneNumber = "",
                 CreatedById = this.LoggedInUserId,
+                PrimaryContactId = lead.PrimaryContactId,
+                SecondaryContactId = lead.SecondaryContactId
             });
+            await context.SaveChangesAsync();
 
+            foreach (var keyPerson in lead.LeadKeyPersons)
+            {
+                keyPerson.CustomerId = customerEntity.Entity.Id;
+            }
+
+            _context.LeadKeyPeople.UpdateRange(lead.LeadKeyPersons);
             await context.SaveChangesAsync();
             return customerEntity.Entity;
         }
@@ -369,6 +379,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                                             string serviceCode)
         {
             int interval = 0;
+            int invoiceNumber = 1;
             var invoiceValue = 0.0;
             List<Invoice> invoices = new  List<Invoice>();
 
@@ -407,19 +418,24 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 var invoiceValueForWeekly = GenerateAmount( startDate, endDate,  amount,  cycle);
 
                 while(firstInvoiceSendDate < endDate){
-                         invoices.Add(GenerateInvoice(startDate,  
-                            startDate.AddDays(interval) > endDate ? endDate : startDate.AddDays(interval), 
-                            invoiceValueForWeekly , 
-                            firstInvoiceSendDate,
-                             contractService, 
-                             customerDivisionId, serviceCode));
+                         invoices.Add(
+                             GenerateInvoice(startDate,  
+                                            startDate.AddDays(interval) > endDate ? endDate : startDate.AddDays(interval), 
+                                            invoiceValueForWeekly , 
+                                            firstInvoiceSendDate,
+                                            contractService, 
+                                            customerDivisionId,
+                                             serviceCode,
+                                             invoiceNumber)
+                             );
                     firstInvoiceSendDate = firstInvoiceSendDate.AddDays(interval);
                     startDate = startDate.AddDays(interval);
+                    invoiceNumber++;
                 }
             }else if(cycle == TimeCycle.OneTime ){
                 
                     invoices.Add(GenerateInvoice(startDate,  endDate, amount , firstInvoiceSendDate,
-                                                     contractService, customerDivisionId, serviceCode));
+                                                     contractService, customerDivisionId, serviceCode, invoiceNumber));
 
             }else{
                 invoiceValue = amount * (double) interval ;
@@ -430,9 +446,11 @@ namespace HaloBiz.MyServices.Impl.LAMS
                                                 firstInvoiceSendDate, 
                                                 contractService, 
                                                 customerDivisionId,
-                                                serviceCode));
+                                                serviceCode,
+                                                invoiceNumber));
                     firstInvoiceSendDate = firstInvoiceSendDate.AddMonths(interval);
                     startDate = startDate.AddMonths(interval);
+                    invoiceNumber++;
                 }
             }
             return invoices;
@@ -443,10 +461,12 @@ namespace HaloBiz.MyServices.Impl.LAMS
                                 double amount, DateTime sendDate,
                                 ContractService contractService, 
                                 long customerDivisionId,
-                                string serviceCode)
+                                string serviceCode,
+                                int invoiceIndex)
         {
+            string invoiceNumber = $"INV{contractService.Id.ToString().PadLeft(6, '0')}/{invoiceIndex}";
             return new Invoice(){
-                    InvoiceNumber = $"INV{serviceCode}/{contractService.Id}",
+                    InvoiceNumber = invoiceNumber,
                     UnitPrice = (double) contractService.UnitPrice,
                     Quantity = contractService.Quantity,
                     Discount = contractService.Discount,
