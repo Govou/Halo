@@ -39,13 +39,6 @@ namespace HaloBiz.Repository.Impl
 
             if(serviceCategory != null){
                 serviceCategory.Services = await _context.Services
-                .Include(service => service.Target)
-                .Include(service => service.Account)
-                .Include(service => service.ServiceType)
-                .Include(service => service.RequiredServiceDocument.Where(row => row.IsDeleted == false))
-                    .ThenInclude(row => row.RequiredServiceDocument)
-                .Include(service => service.RequredServiceQualificationElement.Where(row => row.IsDeleted == false))
-                .ThenInclude(row => row.RequredServiceQualificationElement)
                 .Where( service => service.ServiceCategoryId == Id && service.IsDeleted == false)
                 .ToListAsync();
             }
@@ -63,13 +56,6 @@ namespace HaloBiz.Repository.Impl
 
                 if(serviceCategory != null){
                     serviceCategory.Services = await _context.Services
-                    .Include(service => service.Target)
-                    .Include(service => service.Account)
-                    .Include(service => service.ServiceType)
-                    .Include(service => service.RequiredServiceDocument.Where(row => row.IsDeleted == false))
-                        .ThenInclude(row => row.RequiredServiceDocument)
-                    .Include(service => service.RequredServiceQualificationElement.Where(row => row.IsDeleted == false))
-                    .ThenInclude(row => row.RequredServiceQualificationElement)
                     .Where( service => service.ServiceCategoryId == serviceCategory.Id && service.IsDeleted == false)
                     .ToListAsync();
                 }
