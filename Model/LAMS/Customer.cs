@@ -25,6 +25,11 @@ namespace HaloBiz.Model.LAMS
         public string LogoUrl { get; set; }
         public long GroupTypeId { get; set; }
         public virtual GroupType GroupType { get; set; }
+        public LeadDivisionContact PrimaryContact { get; set; }
+        public List<LeadKeyPerson> KeyPeople { get; set; } 
+        public long? PrimaryContactId { get; set; }   
+        public LeadDivisionContact SecondaryContact { get; set; }
+        public long? SecondaryContactId { get; set; } 
         public IEnumerable<CustomerDivision> CustomerDivisions { get; set; }
         [Required]
         public long CreatedById { get; set; }

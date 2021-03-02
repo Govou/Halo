@@ -36,6 +36,8 @@ namespace HaloBiz.Repository.Impl.LAMS
         public async Task<Customer> FindCustomerById(long Id)
         {
             var customer =  await _context.Customers
+            .Include(x => x.PrimaryContact)
+            .Include(x => x.SecondaryContact)
                 .Include(x => x.GroupType)
                 .FirstOrDefaultAsync(entity => entity.Id == Id && entity.IsDeleted == false);
             if(customer != null)

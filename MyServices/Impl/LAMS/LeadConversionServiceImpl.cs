@@ -45,6 +45,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 try
                 {
                     var lead = await _context.Leads
+                        .Include(x => x.LeadKeyPersons)
                         .Include(x => x.LeadDivisions)
                             .ThenInclude(x => x.Quote)
                         .Include(x => x.LeadDivisions)
@@ -153,8 +154,17 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 Email = "",
                 PhoneNumber = "",
                 CreatedById = this.LoggedInUserId,
+                PrimaryContactId = lead.PrimaryContactId,
+                SecondaryContactId = lead.SecondaryContactId
             });
+            await context.SaveChangesAsync();
 
+            foreach (var keyPerson in lead.LeadKeyPersons)
+            {
+                keyPerson.CustomerId = customerEntity.Entity.Id;
+            }
+
+            _context.LeadKeyPeople.UpdateRange(lead.LeadKeyPersons);
             await context.SaveChangesAsync();
             return customerEntity.Entity;
         }
