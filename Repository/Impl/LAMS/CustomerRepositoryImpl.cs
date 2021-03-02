@@ -38,12 +38,16 @@ namespace HaloBiz.Repository.Impl.LAMS
             var customer =  await _context.Customers
             .Include(x => x.PrimaryContact)
             .Include(x => x.SecondaryContact)
+            .Include(x => x.KeyPeople)
                 .Include(x => x.GroupType)
                 .FirstOrDefaultAsync(entity => entity.Id == Id && entity.IsDeleted == false);
             if(customer != null)
             {
                 customer.CustomerDivisions = await _context.CustomerDivisions
-                    .Where(x => x.CustomerId == customer.Id)
+                    .Include(x => x.PrimaryContact)
+                    .Include(x => x.SecondaryContact)
+                    .Include(x => x.LeadKeyPeople)
+                    .Where(x => x.CustomerId == customer.Id && x.IsDeleted == false)
                     .ToListAsync();
             }
             foreach (var division in customer.CustomerDivisions)
