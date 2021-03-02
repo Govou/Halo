@@ -285,6 +285,11 @@ namespace HaloBiz.MyServices.Impl.LAMS
                                     .Include(x => x.LeadDivisions)
                                     .ThenInclude(x => x.Quote).SingleOrDefaultAsync();
 
+            if (lead == null)
+            {
+                return new ApiResponse(500);
+            }
+
             var quotes = new List<Quote>();
 
             foreach (var leadDivision in lead.LeadDivisions)
@@ -314,10 +319,10 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
             ModificationHistory history = new ModificationHistory()
             {
-                ModelChanged = "Service",
-                ChangeSummary = $"Service with QuoteServiceId: {quoteServiceId} was approved by user with userid {context.GetLoggedInUserId()}",
+                ModelChanged = "Approval",
+                ChangeSummary = $"Approval with QuoteServiceId: {quoteServiceId} was approved by user with userid {context.GetLoggedInUserId()}",
                 ChangedById = context.GetLoggedInUserId(),
-                ModifiedModelId = quoteService.Id
+                ModifiedModelId = approval.Id
             };
 
             await _modificationRepo.SaveHistory(history);
@@ -341,7 +346,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
             {
                 var theApprovals = await _context.Approvals.Where(x => x.QuoteServiceId == qs.Id).ToListAsync();
 
-                var quoteServiceApproved = theApprovals.All(x => x.IsApproved == true);
+                var quoteServiceApproved = theApprovals.All(x => x.IsApproved);
                 if (!quoteServiceApproved) 
                 {
                     allQuoteServicesApprovalsApproved = false;
@@ -354,7 +359,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
             quote.IsApproved = true;
             _context.Quotes.Update(quote);
 
-            var otherQuotesApproved = quotes.Where(x => x.Id == quote.Id).All(x => x.IsApproved);
+            var otherQuotesApproved = quotes.Where(x => x.Id != quote.Id).All(x => x.IsApproved);
 
             if (!otherQuotesApproved) return new ApiOkResponse(true);
 
