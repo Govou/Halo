@@ -13,7 +13,7 @@ namespace HaloBiz.Model
         [Key]
         public long Id { get; set; }
         
-        [Required, MinLength(3), MaxLength(50)]
+        [Required, MinLength(3), MaxLength(255)]
         public string Caption { get; set; }
 
         public DateTime? DateTimeApproved { get; set; }
