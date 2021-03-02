@@ -4577,11 +4577,11 @@ namespace HaloBiz.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("HaloBiz.Model.LAMS.LeadDivisionContact", "PrimaryContact")
+                    b.HasOne("HaloBiz.Model.LAMS.LeadContact", "PrimaryContact")
                         .WithMany()
                         .HasForeignKey("PrimaryContactId");
 
-                    b.HasOne("HaloBiz.Model.LAMS.LeadDivisionContact", "SecondaryContact")
+                    b.HasOne("HaloBiz.Model.LAMS.LeadContact", "SecondaryContact")
                         .WithMany()
                         .HasForeignKey("SecondaryContactId");
 

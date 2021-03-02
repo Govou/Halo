@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace HaloBiz.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20210302101507_addsContactPersonsToCustomer")]
+    [Migration("20210302102029_addsContactPersonsToCustomer")]
     partial class addsContactPersonsToCustomer
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -4579,11 +4579,11 @@ namespace HaloBiz.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("HaloBiz.Model.LAMS.LeadDivisionContact", "PrimaryContact")
+                    b.HasOne("HaloBiz.Model.LAMS.LeadContact", "PrimaryContact")
                         .WithMany()
                         .HasForeignKey("PrimaryContactId");
 
-                    b.HasOne("HaloBiz.Model.LAMS.LeadDivisionContact", "SecondaryContact")
+                    b.HasOne("HaloBiz.Model.LAMS.LeadContact", "SecondaryContact")
                         .WithMany()
                         .HasForeignKey("SecondaryContactId");
 

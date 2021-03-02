@@ -40,18 +40,18 @@ namespace HaloBiz.Migrations
                 column: "SecondaryContactId");
 
             migrationBuilder.AddForeignKey(
-                name: "FK_Customers_LeadDivisionContacts_PrimaryContactId",
+                name: "FK_Customers_LeadContacts_PrimaryContactId",
                 table: "Customers",
                 column: "PrimaryContactId",
-                principalTable: "LeadDivisionContacts",
+                principalTable: "LeadContacts",
                 principalColumn: "Id",
                 onDelete: ReferentialAction.NoAction);
 
             migrationBuilder.AddForeignKey(
-                name: "FK_Customers_LeadDivisionContacts_SecondaryContactId",
+                name: "FK_Customers_LeadContacts_SecondaryContactId",
                 table: "Customers",
                 column: "SecondaryContactId",
-                principalTable: "LeadDivisionContacts",
+                principalTable: "LeadContacts",
                 principalColumn: "Id",
                 onDelete: ReferentialAction.NoAction);
 
@@ -67,11 +67,11 @@ namespace HaloBiz.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropForeignKey(
-                name: "FK_Customers_LeadDivisionContacts_PrimaryContactId",
+                name: "FK_Customers_LeadContacts_PrimaryContactId",
                 table: "Customers");
 
             migrationBuilder.DropForeignKey(
-                name: "FK_Customers_LeadDivisionContacts_SecondaryContactId",
+                name: "FK_Customers_LeadContacts_SecondaryContactId",
                 table: "Customers");
 
             migrationBuilder.DropForeignKey(
