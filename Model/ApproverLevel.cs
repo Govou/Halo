@@ -13,7 +13,7 @@ namespace HaloBiz.Model
         public long Id { get; set; }
         [Required, MinLength(3), MaxLength(50)]
         public string Caption { get; set; }
-        [Required, MinLength(3), MaxLength(50)]
+        [Required, MinLength(3), MaxLength(255)]
         public string Alias { get; set; }
         [Required, MinLength(3), MaxLength(255)]
         public string Description { get; set; }
