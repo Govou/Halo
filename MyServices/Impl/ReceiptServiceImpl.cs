@@ -60,8 +60,6 @@ namespace HaloBiz.MyServices.Impl
                     }
                     receipt.TransactionId = invoice.TransactionId;
                     receipt.ReceiptNumber = $"{invoice.InvoiceNumber.Replace("INV", "RCP")}/{count}";
-                    System.Console.WriteLine(receipt.InvoiceValueBalanceBeforeReceipting);
-                    System.Console.WriteLine(receipt.InvoiceValue );
                     receipt.InvoiceValueBalanceAfterReceipting = receipt.InvoiceValueBalanceBeforeReceipting -  receipt.ReceiptValue ;
                     receipt.CreatedById = context.GetLoggedInUserId();
                     var savedReceipt = await _receiptRepo.SaveReceipt(receipt);
@@ -70,8 +68,7 @@ namespace HaloBiz.MyServices.Impl
                     {
                         invoice.IsReceiptedStatus = InvoiceStatus.CompletelyReceipted;
                         await _invoiceRepo.UpdateInvoice(invoice);
-                    }else if(receipt.InvoiceValueBalanceAfterReceipting > 0 
-                                && invoice.IsReceiptedStatus == InvoiceStatus.NotReceipted)
+                    }else if(receipt.InvoiceValueBalanceAfterReceipting > 0 )
                     {
                                     invoice.IsReceiptedStatus = InvoiceStatus.PartlyReceipted;
                                     await _invoiceRepo.UpdateInvoice(invoice);
