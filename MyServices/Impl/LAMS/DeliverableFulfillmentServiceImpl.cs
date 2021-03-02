@@ -96,7 +96,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                     userTaskDictionary[deliverable.Responsible]  += 1;
                 }
                 else{
-                    userTaskDictionary.Add(deliverable.Responsible, 0);
+                    userTaskDictionary.Add(deliverable.Responsible, 1);
                 }
             }
 
@@ -245,7 +245,6 @@ namespace HaloBiz.MyServices.Impl.LAMS
         private async Task<bool> CheckAllDeliverablesAndSetTaskAssignmentStatus( long taskId)
         {
 
-            System.Console.WriteLine("updatedDeliverableFulfillment /n");
             var taskFulfillment = await _context.TaskFulfillments
                 .Include(x => x.DeliverableFUlfillments)
                 .FirstOrDefaultAsync(x => x.IsDeleted == false && x.Id == taskId);

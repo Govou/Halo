@@ -14,7 +14,6 @@ namespace HaloBiz.DTOs.ReceivingDTOs
         public double InvoiceValueBalanceAfterReceipting { get; set; }
         public bool IsTaskWitheld { get; set; }
         public double ValueOfWHT { get; set; }
-        public string ReceiptNumber { get; set; }
         public long InvoiceId { get; set; }
         public long AccountId { get; set; }
         public string EvidenceOfPaymentUrl { get; set; }
