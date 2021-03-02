@@ -72,6 +72,9 @@ namespace HaloBiz.MyServices.Impl
 
         // public AccountMaster CreateAccountMaster(Invoice invoice)
         // {
+        //     // var invoice = new Invoice(){
+        //     //     Description = in
+        //     // }
         //     /* 
         // public string Description { get; set; }
         // public bool IntegrationFlag { get; set; }
