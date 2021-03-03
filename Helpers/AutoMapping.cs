@@ -199,6 +199,8 @@ namespace HaloBiz.Helpers
             CreateMap<Approval, ApprovalTransferDTO>();
             CreateMap<CompanyReceivingDTO, Company>();
             CreateMap<Company, CompanyTransferDTO>();
+            CreateMap<EndorsementTypeReceivingDTO, EndorsementType>();
+            CreateMap<EndorsementType, EndorsementTypeTransferDTO>();
         }
     }
 }
