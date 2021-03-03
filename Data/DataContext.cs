@@ -88,6 +88,8 @@ namespace HaloBiz.Data
     public DbSet<ProcessesRequiringApproval> ProcessesRequiringApprovals { get; set; }
     public DbSet<Approval> Approvals { get; set; }
     public DbSet<Company> Companies { get; set; }
+    public DbSet<EndorsementType> EndorsementTypes { get; set; }
+    public DbSet<ClientBeneficiary> ClientBeneficiaries { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder builder)
@@ -664,6 +666,22 @@ namespace HaloBiz.Data
                .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
             builder.Entity<Company>()
+                .Property(p => p.CreatedAt)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            builder.Entity<EndorsementType>()
+               .Property(p => p.UpdatedAt)
+               .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            builder.Entity<EndorsementType>()
+                .Property(p => p.CreatedAt)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            builder.Entity<ClientBeneficiary>()
+               .Property(p => p.UpdatedAt)
+               .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            builder.Entity<ClientBeneficiary>()
                 .Property(p => p.CreatedAt)
                 .HasDefaultValueSql("CURRENT_TIMESTAMP");
         }
