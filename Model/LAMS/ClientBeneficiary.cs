@@ -36,6 +36,8 @@ namespace HaloBiz.Model.LAMS
         public long ClientId { get; set; }
         public virtual CustomerDivision Client { get; set; }
         public string ImageUrl { get; set; }
+        [Required]
+        public long CreatedById { get; set; }
         public bool IsDeleted { get; set; }
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public DateTime CreatedAt { get; set; }
