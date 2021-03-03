@@ -50,6 +50,6 @@ namespace HaloBiz.DTOs.ReceivingDTOs
         public DateTime? TentativeDateOfSiteVisit { get; set; }
         public bool IsConvertedToContractService { get; set; } = false;
         public long ServiceId { get; set; }
-        public VersionType Version { get; set; } = VersionType.Latest;
+        public string GroupInvoiceNumber { get; set; }      
     }
 }

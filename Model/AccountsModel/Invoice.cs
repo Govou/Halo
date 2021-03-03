@@ -35,6 +35,7 @@ namespace HaloBiz.Model.AccountsModel
         [Required]
         public long ContractServiceId { get; set; }
         public ContractService ContractService { get; set; }
+        public IEnumerable<GroupInvoiceDetails> GroupInvoiceDetails { get; set; }
         public bool IsDeleted { get; set; } = false;
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public DateTime CreatedAt { get; set; }
