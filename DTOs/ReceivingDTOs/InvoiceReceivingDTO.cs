@@ -6,7 +6,6 @@ namespace HaloBiz.DTOs.ReceivingDTOs
 {
     public class InvoiceReceivingDTO
     {
-        public string TransactionId { get; set; }
         public double UnitPrice { get; set; }
         public long Quantity { get; set; }
         public double Discount { get; set; }
