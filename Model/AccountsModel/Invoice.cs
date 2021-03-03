@@ -40,6 +40,11 @@ namespace HaloBiz.Model.AccountsModel
         public DateTime CreatedAt { get; set; }
         [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
         public DateTime UpdatedAt { get; set; }
+        public long? CreatedById { get; set; }
+        
+        public UserProfile CreatedBy { get; set; }
+        
+        
 
     }
 }

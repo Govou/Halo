@@ -49,9 +49,9 @@ namespace HaloBiz.Controllers.AccountsModel
         }
 
         [HttpPost("")]
-        public async Task<ActionResult> AddNewinvoice(InvoiceReceivingDTO invoiceReceiving)
+        public async Task<ActionResult> AddNewinvoice(InvoiceReceivingDTO invoiceReceivingDTO)
         {
-            var response = await _invoiceService.AddInvoice(HttpContext, invoiceReceiving);
+            var response = await _invoiceService.AddInvoice(HttpContext, invoiceReceivingDTO);
             if (response.StatusCode >= 400)
                 return StatusCode(response.StatusCode, response);
             var invoice = ((ApiOkResponse)response).Result;
