@@ -154,12 +154,17 @@ namespace HaloBiz.MyServices.Impl
                                             .ThenInclude(x => x.Service)
                                             .FirstOrDefaultAsync(x => x.LeadDivisionId == leadDivision.Id);
 
+                    if(quote == null)
+                    {
+                        return false;
+                    }
+
                     foreach (var quoteService in quote.QuoteServices)
                     {
                         if (!quoteService.BillableAmount.HasValue) continue;
 
                         var orderedList = approvalLimits
-                            .Where(x => quoteService.BillableAmount.Value < x.UpperlimitValue || 
+                            .Where(x => quoteService.BillableAmount.Value > x.UpperlimitValue || 
                                         (quoteService.BillableAmount.Value <= x.UpperlimitValue && quoteService.BillableAmount.Value >= x.LowerlimitValue))
                             .OrderBy(x => x.Sequence);
                         
@@ -168,7 +173,11 @@ namespace HaloBiz.MyServices.Impl
                             var approvalLevelInfo = item.ApproverLevel;
 
                             long responsibleId = 0;
-                            if (item.ApproverLevel.Caption == "Division Head")
+                            if (item.ApproverLevel.Caption == "Branch Head")
+                            {
+                                responsibleId = leadDivision.Branch?.HeadId ?? 31;
+                            }
+                            else if (item.ApproverLevel.Caption == "Division Head")
                             {
                                 responsibleId = quoteService.Service?.Division?.HeadId ?? 31;
                             }
@@ -184,6 +193,7 @@ namespace HaloBiz.MyServices.Impl
                             var approval = new Approval
                             {
                                 QuoteServiceId = quoteService.Id,
+                                QuoteId = quote.Id,
                                 Caption = $"Approval Needed To Create Contract Service {quoteService.Service.Name} for Client {leadDivision.DivisionName} under {lead.GroupName}",
                                 CreatedById = context.GetLoggedInUserId(),
                                 Sequence = item.Sequence,
@@ -201,7 +211,7 @@ namespace HaloBiz.MyServices.Impl
                 {
                     return await _approvalRepo.SaveApprovalRange(approvals);
                 }
-                return true;
+                return false;
             }
             catch (Exception ex)
             {
