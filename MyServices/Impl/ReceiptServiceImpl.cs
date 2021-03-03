@@ -64,6 +64,7 @@ namespace HaloBiz.MyServices.Impl
                     receipt.CreatedById = context.GetLoggedInUserId();
                     var savedReceipt = await _receiptRepo.SaveReceipt(receipt);
                     var receiptTransferDTO = _mapper.Map<ReceiptTransferDTO>(savedReceipt);
+                    
                     if(receipt.InvoiceValueBalanceAfterReceipting == 0)
                     {
                         invoice.IsReceiptedStatus = InvoiceStatus.CompletelyReceipted;
