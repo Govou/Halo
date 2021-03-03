@@ -128,7 +128,6 @@ namespace HaloBiz.Repository.Impl.LAMS
                     ContractId = y.Key.ContractId
                 }).ToListAsync();
 
-             totalPayedAmount.ForEach(x => System.Console.WriteLine(x.ContractId));
              return totalPayedAmount;
 
         }
