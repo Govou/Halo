@@ -283,7 +283,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
             
             if(contractService.InvoicingInterval != TimeCycle.Adhoc)
             {
-                await CreateAccounts(   quoteService,
+                await CreateAccounts(quoteService,
                                      contractService.Id,
                                      customerDivision,
                                      (long) leadDivision.BranchId,
@@ -368,7 +368,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
             return true;
         }
 
-        public static List<Invoice> GenerateListOfInvoiceCycle(
+        public List<Invoice> GenerateListOfInvoiceCycle(
                                             DateTime startDate, 
                                             DateTime firstInvoiceSendDate, 
                                             DateTime endDate, 
@@ -456,7 +456,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
             return invoices;
         }
 
-        private static Invoice GenerateInvoice(
+        private Invoice GenerateInvoice(
                                 DateTime from, DateTime to, 
                                 double amount, DateTime sendDate,
                                 ContractService contractService, 
@@ -464,7 +464,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                                 string serviceCode,
                                 int invoiceIndex)
         {
-            string invoiceNumber = $"INV{contractService.Id.ToString().PadLeft(6, '0')}/{invoiceIndex}";
+            string invoiceNumber = $"INV{contractService.Id.ToString().PadLeft(8, '0')}/{invoiceIndex}";
             return new Invoice(){
                     InvoiceNumber = invoiceNumber,
                     UnitPrice = (double) contractService.UnitPrice,
@@ -479,8 +479,10 @@ namespace HaloBiz.MyServices.Impl.LAMS
                     ContractServiceId = contractService.Id,
                     StartDate  = from,
                     EndDate  = to,
-                    IsReceiptedStatus = InvoiceStatus.NotReceipted
-                    
+                    IsReceiptedStatus = InvoiceStatus.NotReceipted,
+                    IsFinalInvoice = true,
+                    InvoiceType = InvoiceType.New,
+                    CreatedById =  this.LoggedInUserId
             };
         }
 
@@ -959,7 +961,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 return priceOfService;
             }
 
-            while(contractStartDate < contractEndDate)
+            while(contractStartDate <= contractEndDate)
             {
                 numberOfMonth++;
                 contractStartDate = contractStartDate.AddMonths(1);
