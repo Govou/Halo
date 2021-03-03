@@ -149,7 +149,6 @@ namespace HaloBiz.MyServices.Impl
             AccountToUpdate.Description = AccountReceivingDTO.Description;
             AccountToUpdate.IsDebitBalance = AccountReceivingDTO.IsDebitBalance;
             AccountToUpdate.IsActive = AccountReceivingDTO.IsActive;
-            AccountToUpdate.ControlAccountId = AccountReceivingDTO.ControlAccountId;
             var updatedAccount = await _AccountRepo.UpdateAccount(AccountToUpdate);
 
             if (updatedAccount == null)
