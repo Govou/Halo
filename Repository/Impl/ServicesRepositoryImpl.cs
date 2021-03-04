@@ -40,6 +40,7 @@ namespace HaloBiz.Repository.Impl
             return await _context.Services
                 .Include(service => service.Target)
                 .Include(service => service.Account)
+                .Include(service => service.OperatingEntity).AsNoTracking()
                 .Include(service => service.ServiceType)
                 .Include(service => service.RequiredServiceDocument.Where(row => row.IsDeleted == false))
                     .ThenInclude(row => row.RequiredServiceDocument)
