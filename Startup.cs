@@ -235,6 +235,7 @@ namespace HaloBiz
             services.AddScoped<ICompanyRepository, CompanyRepositoryImpl>();
             services.AddScoped<IEndorsementTypeRepository, EndorsementTypeRepositoryImpl>();
             services.AddScoped<IClientBeneficiaryRepository, ClientBeneficiaryRepositoryImpl>();
+            services.AddScoped<IGroupInvoiceTrackerRepository, GroupInvoiceTrackerRepositoryImpl>();
 
             // Adapters
             services.AddScoped<IMailAdapter, MailAdapter>();

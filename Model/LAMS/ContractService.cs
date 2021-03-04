@@ -60,6 +60,7 @@ namespace HaloBiz.Model.LAMS
         public virtual QuoteService QuoteService { get; set; }
         public IEnumerable<ClosureDocument> ClosureDocuments { get; set; }
         public IEnumerable<SBUToContractServiceProportion> SBUToContractServiceProportions { get; set; }
+        public string GroupInvoiceNumber { get; set; }        
         public VersionType Version { get; set; } = VersionType.Latest;
         public long CreatedById { get; set; }
         public virtual UserProfile CreatedBy { get; set; }
