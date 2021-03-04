@@ -32,30 +32,95 @@ namespace HaloBiz.Repository.Impl.LAMS
 
         public async Task<LeadDivision> FindLeadDivisionById(long Id)
         {
-            return await _context.LeadDivisions
-                .Include(x => x.Branch)
-                .Include(x => x.Office)
-                .Include(x => x.PrimaryContact)
-                .Include(x => x.SecondaryContact)
-                .Include(x => x.LeadDivisionKeyPersons)
-                .Include(x => x.LeadOrigin)
-                .Include(x => x.LeadType)
+            var leadDivision = await _context.LeadDivisions
                 .Include(x => x.Quote)
                 .FirstOrDefaultAsync( leadDivision => leadDivision.Id == Id && leadDivision.IsDeleted == false);
+            
+            if(leadDivision == null)
+            {
+                return null;
+            }
+
+            if(leadDivision.BranchId > 0)
+            {
+                leadDivision.Branch = await _context.Branches.FirstOrDefaultAsync(x => x.Id == leadDivision.BranchId && !x.IsDeleted);
+            }
+            if(leadDivision.OfficeId > 0)
+            {
+                leadDivision.Office =await  _context.Offices.FirstOrDefaultAsync(x => x.Id == leadDivision.OfficeId && !x.IsDeleted);
+            }
+            if(leadDivision.PrimaryContactId > 0)
+            {
+                leadDivision.PrimaryContact = await  _context.LeadDivisionContacts
+                                    .FirstOrDefaultAsync(x => x.Id == leadDivision.PrimaryContactId && !x.IsDeleted);
+            }
+            leadDivision.LeadDivisionKeyPersons = await _context.LeadDivisionKeyPeople
+                                    .Where(x => x.LeadDivisionId == leadDivision.Id && !x.IsDeleted).ToListAsync();
+            
+            if(leadDivision.LeadOriginId > 0)
+            {
+                leadDivision.LeadOrigin = await _context.LeadOrigins
+                                    .FirstOrDefaultAsync(x => x.Id == leadDivision.LeadOriginId && !x.IsDeleted);
+            }
+
+            if(leadDivision.LeadTypeId > 0)
+            {
+                leadDivision.LeadType = await _context.LeadTypes
+                                    .FirstOrDefaultAsync(x => x.Id == leadDivision.LeadTypeId && !x.IsDeleted);
+            }
+            if(leadDivision.LeadTypeId > 0)
+            {
+                leadDivision.LeadType = await _context.LeadTypes
+                                    .FirstOrDefaultAsync(x => x.Id == leadDivision.LeadTypeId && !x.IsDeleted);
+            }
+            return leadDivision;
         }
 
         public async Task<LeadDivision> FindLeadDivisionByName(string name)
         {
-            return await _context.LeadDivisions
-                .Include(x => x.Branch)
-                .Include(x => x.Office)
-                .Include(x => x.PrimaryContact)
-                .Include(x => x.SecondaryContact)
-                .Include(x => x.LeadDivisionKeyPersons)
-                .Include(x => x.LeadOrigin)
-                .Include(x => x.LeadType)
+            var leadDivision = await _context.LeadDivisions
                 .Include(x => x.Quote)
                 .FirstOrDefaultAsync( leadDivision => leadDivision.DivisionName == name && leadDivision.IsDeleted == false);
+            
+            if(leadDivision == null)
+            {
+                return null;
+            }
+
+            if(leadDivision.BranchId > 0)
+            {
+                leadDivision.Branch = await _context.Branches.FirstOrDefaultAsync(x => x.Id == leadDivision.BranchId && !x.IsDeleted);
+            }
+            if(leadDivision.OfficeId > 0)
+            {
+                leadDivision.Office =await  _context.Offices.FirstOrDefaultAsync(x => x.Id == leadDivision.OfficeId && !x.IsDeleted);
+            }
+            if(leadDivision.PrimaryContactId > 0)
+            {
+                leadDivision.PrimaryContact = await  _context.LeadDivisionContacts
+                                    .FirstOrDefaultAsync(x => x.Id == leadDivision.PrimaryContactId && !x.IsDeleted);
+            }
+            leadDivision.LeadDivisionKeyPersons = await _context.LeadDivisionKeyPeople
+                                    .Where(x => x.LeadDivisionId == leadDivision.Id && !x.IsDeleted).ToListAsync();
+            
+            if(leadDivision.LeadOriginId > 0)
+            {
+                leadDivision.LeadOrigin = await _context.LeadOrigins
+                                    .FirstOrDefaultAsync(x => x.Id == leadDivision.LeadOriginId && !x.IsDeleted);
+            }
+
+            if(leadDivision.LeadTypeId > 0)
+            {
+                leadDivision.LeadType = await _context.LeadTypes
+                                    .FirstOrDefaultAsync(x => x.Id == leadDivision.LeadTypeId && !x.IsDeleted);
+            }
+            if(leadDivision.LeadTypeId > 0)
+            {
+                leadDivision.LeadType = await _context.LeadTypes
+                                    .FirstOrDefaultAsync(x => x.Id == leadDivision.LeadTypeId && !x.IsDeleted);
+            }
+            return leadDivision;
+
         }
 
         public async Task<LeadDivision> FindLeadDivisionByRCNumber(string rcNumber)
