@@ -52,7 +52,11 @@ namespace HaloBiz.Repository.Impl
             {
                 service.ServiceType = await _context.ServiceTypes.FirstOrDefaultAsync(x => x.Id == service.ServiceTypeId && !x.IsDeleted);
             }
-            if(service.TargetId > 0)
+            if (service.OperatingEntityId > 0)
+            {
+                service.OperatingEntity = await _context.OperatingEntities.FirstOrDefaultAsync(x => x.Id == service.OperatingEntityId && !x.IsDeleted);
+            }
+            if (service.TargetId > 0)
             {
                 service.Target = await _context.Targets.FirstOrDefaultAsync(x => x.Id == service.TargetId && !x.IsDeleted);
             }
