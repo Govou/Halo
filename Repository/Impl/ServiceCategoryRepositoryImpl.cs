@@ -34,6 +34,11 @@ namespace HaloBiz.Repository.Impl
             var serviceCategory = await _context.ServiceCategories
                 .FirstOrDefaultAsync( category => category.Id == Id && category.IsDeleted == false);
             
+            if(serviceCategory == null)
+            {
+                return null;
+            }
+
             serviceCategory.ServiceCategoryTasks = await _context.ServiceCategoryTasks
                     .Where(x => x.ServiceCategoryId == serviceCategory.Id && !x.IsDeleted).ToListAsync();
             
