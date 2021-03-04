@@ -32,16 +32,40 @@ namespace HaloBiz.Repository.Impl
         public async Task<ServiceCategory> FindServiceCategoryById(long Id)
         {
             var serviceCategory = await _context.ServiceCategories
-                .Include(serviceCategory => serviceCategory.ServiceGroup)
-                .Include(serviceCategory => serviceCategory.ServiceCategoryTasks
-                    .Where(serviceCategoryTask => serviceCategoryTask.IsDeleted == false))                
                 .FirstOrDefaultAsync( category => category.Id == Id && category.IsDeleted == false);
-
+            
+            serviceCategory.ServiceCategoryTasks = await _context.ServiceCategoryTasks
+                    .Where(x => x.ServiceCategoryId == serviceCategory.Id && !x.IsDeleted).ToListAsync();
+            
+            if(serviceCategory.ServiceGroupId > 0)
+            {
+                serviceCategory.ServiceGroup = await _context.ServiceGroups
+                        .FirstOrDefaultAsync(x => x.Id == serviceCategory.ServiceGroupId);
+            }
             if(serviceCategory != null){
                     serviceCategory.Services = await _context.Services
-                    .Include(x => x.RequiredServiceDocument).ThenInclude(x => x.RequiredServiceDocument)
-                    .Include(x => x.RequredServiceQualificationElement).ThenInclude(x => x.RequredServiceQualificationElement)
+                    .Include(x => x.ServiceType)
                     .Where( service => service.ServiceCategoryId == serviceCategory.Id && service.IsDeleted == false)
+                    .Select( x => new Services() {
+                        Id = x.Id ,
+                        ServiceCode = x.ServiceCode,
+                        Name = x.Name,
+                        Description = x.Description,
+                        ImageUrl = x.ImageUrl,
+                        UnitPrice = x.UnitPrice,
+                        IsPublished = x.IsPublished,
+                        IsRequestedForPublish = x.IsRequestedForPublish,
+                        PublishedApprovedStatus = x.PublishedApprovedStatus,
+                        TargetId = x.TargetId,
+                        ServiceType = x.ServiceType,
+                        ServiceTypeId = x.ServiceTypeId,
+                        ServiceCategoryId = x.ServiceCategoryId,
+                        ServiceGroupId = x.ServiceGroupId,
+                        OperatingEntityId = x.OperatingEntityId,
+                        DivisionId = x.DivisionId,
+                        AccountId = x.AccountId,
+                        CreatedById = x.CreatedById
+                    })
                     .ToListAsync();
                 }
 
@@ -64,7 +88,8 @@ namespace HaloBiz.Repository.Impl
                     .ToListAsync();
                 }
 
-                return serviceCategory;        }
+                return serviceCategory;        
+        }
 
         public async Task<IEnumerable<ServiceCategory>> FindAllServiceCategories()
         {
