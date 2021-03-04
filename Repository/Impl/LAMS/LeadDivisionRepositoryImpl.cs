@@ -119,6 +119,9 @@ namespace HaloBiz.Repository.Impl.LAMS
                 leadDivision.LeadType = await _context.LeadTypes
                                     .FirstOrDefaultAsync(x => x.Id == leadDivision.LeadTypeId && !x.IsDeleted);
             }
+
+            leadDivision.OtherLeadCaptureInfo = await _context.OtherLeadCaptureInfos
+                                .FirstOrDefaultAsync(x => x.LeadDivisionId == leadDivision.Id && !x.IsDeleted);
             return leadDivision;
 
         }

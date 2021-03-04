@@ -83,14 +83,20 @@ namespace HaloBiz.Repository.Impl.LAMS
         public async Task<CustomerDivision> GetCustomerDivisionBreakDownById(long id)
         {
             var client = await _context.CustomerDivisions
+                .Include(x => x.OtherLeadCaptureInfo)
                 .Where(x => x.Id == id && x.IsDeleted == false).FirstOrDefaultAsync();
             if(client == null)
             {
                 return null;
             }
             client.Contracts = await _context.Contracts
-                .Include(x => x.ContractServices.Where(x => x.IsDeleted == false))
                 .Where(x => x.IsDeleted == false && x.Id == client.CustomerId).ToListAsync();
+
+            foreach (var contract in client.Contracts)
+            {
+                contract.ContractServices = await _context.ContractServices
+                        .Where(x => x.ContractId == contract.Id && !x.IsDeleted).ToListAsync();
+            }
             return client;
         }        
 
