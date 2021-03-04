@@ -31,6 +31,7 @@ namespace HaloBiz.Model.LAMS
         public IEnumerable<AccountMaster> AccountMaster { get; set; }
         public IEnumerable<Contract> Contracts { get; set; }
         public OtherLeadCaptureInfo OtherLeadCaptureInfo { get; set; }
+        public IEnumerable<TaskFulfillment> TaskFulfillments { get; set; }
         public long CreatedById { get; set; }
         public List<LeadKeyPerson> LeadKeyPeople { get; set; } 
         public LeadDivisionContact PrimaryContact { get; set; }
