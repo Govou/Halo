@@ -37,16 +37,33 @@ namespace HaloBiz.Repository.Impl
 
         public async Task<Services> FindServicesById(long Id)
         {
-            return await _context.Services
-                .Include(service => service.Target)
-                .Include(service => service.Account)
-                .Include(service => service.OperatingEntity).AsNoTracking()
-                .Include(service => service.ServiceType)
-                .Include(service => service.RequiredServiceDocument.Where(row => row.IsDeleted == false))
-                    .ThenInclude(row => row.RequiredServiceDocument)
-                .Include(service => service.RequredServiceQualificationElement.Where(row => row.IsDeleted == false))
-                .ThenInclude(row => row.RequredServiceQualificationElement)
+            var service = await _context.Services
                 .FirstOrDefaultAsync( service => service.Id == Id && service.IsDeleted == false);
+            
+            if(service == null)
+            {
+                return null;
+            }
+            if(service.AccountId > 0)
+            {
+                service.Account = await _context.Accounts.FirstOrDefaultAsync(x => x.Id == service.AccountId && x.IsActive && !x.IsDeleted);
+            }
+            if(service.ServiceTypeId > 0)
+            {
+                service.ServiceType = await _context.ServiceTypes.FirstOrDefaultAsync(x => x.Id == service.ServiceTypeId && !x.IsDeleted);
+            }
+            if(service.TargetId > 0)
+            {
+                service.Target = await _context.Targets.FirstOrDefaultAsync(x => x.Id == service.TargetId && !x.IsDeleted);
+            }
+            service.RequiredServiceDocument = await _context.ServiceRequiredServiceDocument
+                            .Include(x => x.RequiredServiceDocument)
+                            .Where(x => x.ServicesId == service.Id).ToListAsync();
+            service.RequredServiceQualificationElement = await _context.ServiceRequredServiceQualificationElement
+                            .Include(x => x.RequredServiceQualificationElement)
+                            .Where(x => x.ServicesId == service.Id).ToListAsync();
+
+            return service;
         }
 
         public async Task<ServiceDivisionDetails> GetServiceDetails(long Id)
