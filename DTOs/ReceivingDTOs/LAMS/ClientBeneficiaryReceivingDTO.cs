@@ -22,7 +22,7 @@ namespace HaloBiz.DTOs.ReceivingDTOs
         public string Address { get; set; }
         public long MeansOfIdentifcationId { get; set; }
         public string IdentificationNumber { get; set; }
-        public long RelationshipId { get; set; }
+        public long? RelationshipId { get; set; }
         [Required]
         public long ClientId { get; set; }
         public string ImageUrl { get; set; }

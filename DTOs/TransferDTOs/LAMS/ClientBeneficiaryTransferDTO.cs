@@ -18,7 +18,7 @@ namespace HaloBiz.DTOs.TransferDTOs.LAMS
         public string Address { get; set; }
         public long MeansOfIdentifcationId { get; set; }
         public string IdentificationNumber { get; set; }
-        public long RelationshipId { get; set; }
+        public long? RelationshipId { get; set; }
         public long ClientId { get; set; }
         public CustomerDivision Client { get; set; }
         public string ImageUrl { get; set; }
