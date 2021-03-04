@@ -78,30 +78,33 @@ namespace HaloBiz.MyServices.Impl
                     this.LoggedInUserId = context.GetLoggedInUserId();
 
                     var invoice = _mapper.Map<Invoice>(invoiceReceivingDTO);
-                    var contractService = await  _contractServiceRepo.FindContractServiceById(invoice.ContractServiceId);
-                    
+                    var contractService = await _context.ContractServices
+                                .Include(x => x.QuoteService)
+                                .FirstOrDefaultAsync(x => x.Id == invoice.ContractServiceId);
+                    var service = await _context.Services
+                                    .FirstOrDefaultAsync(x => x.Id == contractService.ServiceId);
+
                     invoice.ContractId = contractService.ContractId;
                     invoice.CreatedById = this.LoggedInUserId;
                     invoice.InvoiceType = InvoiceType.New;
-                    invoice.IsFinalInvoice = false;
-                    invoice.TransactionId = $"{contractService.Service.ServiceCode}/{contractService.Id}";
+                    invoice.IsFinalInvoice = true;
+                    invoice.TransactionId = $"{service.ServiceCode}/{contractService.Id}";
 
-                    var savedInvoice = await _invoiceRepo.SaveInvoice(invoice);
-                    var customerDivision = await _customerDivisionRepo.FindCustomerDivisionById(invoice.CustomerDivisionId);  
-                    var service = await _serviceRepo.FindServicesById(contractService.ServiceId);
+                    var customerDivision = await _context.CustomerDivisions
+                                        .Include(x => x.Customer)
+                                        .FirstOrDefaultAsync(x => x.Id == invoice.CustomerDivisionId);
 
                     this.isRetail = customerDivision.Customer.GroupName == RETAIL;
 
                     FinanceVoucherType accountVoucherType = await _context.FinanceVoucherTypes
                             .FirstOrDefaultAsync(x => x.VoucherType == this.SALESINVOICEVOUCHER);
 
-                    var invoiceTransferDTO = _mapper.Map<InvoiceTransferDTO>(invoice);
 
-                    var VAT = invoiceReceivingDTO.BillableAmount * (7.5 / 100.0);
+                    var VAT = invoiceReceivingDTO.VAT;
 
                     var totalAfterTax = invoiceReceivingDTO.BillableAmount - VAT;
-                    var branch = await _context.Branches.FirstOrDefaultAsync();
-                    var office = await _context.Offices.FirstOrDefaultAsync();
+                    var branch = await _context.Branches.OrderByDescending(x => x.Id).FirstOrDefaultAsync();
+                    var office = await _context.Offices.OrderByDescending(x => x.Id).FirstOrDefaultAsync();
 
 
                     var accountMaster = await CreateAccountMaster(
@@ -114,7 +117,6 @@ namespace HaloBiz.MyServices.Impl
                                                             branch.Id,
                                                             office.Id
                                                             );
-                    System.Console.WriteLine(accountMaster.Id);
                     await PostCustomerReceivablAccounts(
                                      contractService.QuoteService,
                                      contractService.Id,
@@ -126,7 +128,6 @@ namespace HaloBiz.MyServices.Impl
                                      accountMaster.Id
                                     );
                     
-                    System.Console.WriteLine(accountMaster.Id);
 
                     await PostVATAccountDetails(
                                             contractService.QuoteService,
@@ -148,6 +149,12 @@ namespace HaloBiz.MyServices.Impl
                                                             accountMaster.Id,
                                                             totalAfterTax
                                                                 )   ;
+
+                    var savedInvoice = await _context.Invoices.AddAsync(invoice);
+                    await _context.SaveChangesAsync();
+                    var invoiceTransferDTO = _mapper.Map<InvoiceTransferDTO>(savedInvoice.Entity);
+
+
                     await GenerateAmortizations(contractService, customerDivision, invoice);
                     
                     await transaction.CommitAsync();
@@ -169,7 +176,8 @@ namespace HaloBiz.MyServices.Impl
                                           Services service,
                                           long contractServiceId,
                                           long voucherId,
-                                          long branchId, long officeId)
+                                          long branchId, 
+                                          long officeId)
         {
             var accountMaster = new AccountMaster(){
                 Description = $"Sales of {service.Name} with service ID: {quoteService.Id} to {customerDivision.DivisionName}",
@@ -182,9 +190,9 @@ namespace HaloBiz.MyServices.Impl
                 CustomerDivisionId = customerDivision.Id,
                 CreatedById =  this.LoggedInUserId
             };
-            var savedAccountMaster = await _context.AccountMasters.AddAsync(accountMaster);
-            await _context.SaveChangesAsync();
-            return savedAccountMaster.Entity;
+            var savedAccountMaster = await _accountMasterRepo.SaveAccountMaster(accountMaster);
+            //await _context.SaveChangesAsync();
+            return savedAccountMaster;
         }
 
 
@@ -253,7 +261,7 @@ namespace HaloBiz.MyServices.Impl
                     CreatedById = this.LoggedInUserId
                 };
 
-                var savedAccount = await _accountRepo.SaveAccount(account);
+                var savedAccount = await SaveAccount(account);
 
                 customerDivision.AccountId = savedAccount.Id;
                 accountId = savedAccount.Id;

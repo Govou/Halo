@@ -267,7 +267,8 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 ContractId = contractId,
                 CreatedById = this.LoggedInUserId,
                 ServiceId = quoteService.ServiceId,
-                ReferenceNo = quoteService.ReferenceNumber
+                ReferenceNo = quoteService.ReferenceNumber,
+                GroupInvoiceNumber = quoteService.GroupInvoiceNumber
             };
 
             var entity = await context.ContractServices.AddAsync(contractServiceToSave);

@@ -90,6 +90,8 @@ namespace HaloBiz.Data
     public DbSet<Company> Companies { get; set; }
     public DbSet<EndorsementType> EndorsementTypes { get; set; }
     public DbSet<ClientBeneficiary> ClientBeneficiaries { get; set; }
+    public DbSet<GroupInvoiceDetails> GroupInvoiceDetails { get; set; }
+    public DbSet<GroupInvoiceTracker> GroupInvoiceTracker { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder builder)
@@ -682,6 +684,14 @@ namespace HaloBiz.Data
                .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
             builder.Entity<ClientBeneficiary>()
+                .Property(p => p.CreatedAt)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            builder.Entity<GroupInvoiceDetails>()
+               .Property(p => p.UpdatedAt)
+               .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            builder.Entity<GroupInvoiceDetails>()
                 .Property(p => p.CreatedAt)
                 .HasDefaultValueSql("CURRENT_TIMESTAMP");
         }

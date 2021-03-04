@@ -56,6 +56,7 @@ namespace HaloBiz.Model.LAMS
         public Services Service { get; set; }
         public long QuoteId { get; set; }
         public Quote Quote { get; set; }
+        public string GroupInvoiceNumber { get; set; }  
         public IEnumerable<ContractService> ContractServices { get; set; }
         public IEnumerable<QuoteServiceDocument> QuoteServiceDocuments { get; set; }
         public IEnumerable<SBUToQuoteServiceProportion> SBUToQuoteServiceProportions { get; set; }

@@ -4,14 +4,16 @@ using HaloBiz.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace HaloBiz.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20210303205408_UpdateContractService")]
+    partial class UpdateContractService
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -383,82 +385,6 @@ namespace HaloBiz.Migrations
                     b.HasIndex("CreatedById");
 
                     b.ToTable("ControlAccounts");
-                });
-
-            modelBuilder.Entity("HaloBiz.Model.AccountsModel.GroupInvoiceDetails", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint")
-                        .UseIdentityColumn();
-
-                    b.Property<double>("BillableAmount")
-                        .HasColumnType("float");
-
-                    b.Property<long>("ContractServiceId")
-                        .HasColumnType("bigint");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime2")
-                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
-
-                    b.Property<long?>("CreatedById")
-                        .HasColumnType("bigint");
-
-                    b.Property<string>("Description")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<long>("InvoiceId")
-                        .HasColumnType("bigint");
-
-                    b.Property<string>("InvoiceNumber")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
-
-                    b.Property<int>("Quantity")
-                        .HasColumnType("int");
-
-                    b.Property<double>("UnitPrice")
-                        .HasColumnType("float");
-
-                    b.Property<DateTime>("UpdatedAt")
-                        .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("datetime2")
-                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
-
-                    b.Property<double>("VAT")
-                        .HasColumnType("float");
-
-                    b.Property<double>("Value")
-                        .HasColumnType("float");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ContractServiceId");
-
-                    b.HasIndex("CreatedById");
-
-                    b.HasIndex("InvoiceId");
-
-                    b.ToTable("GroupInvoiceDetails");
-                });
-
-            modelBuilder.Entity("HaloBiz.Model.AccountsModel.GroupInvoiceTracker", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint")
-                        .UseIdentityColumn();
-
-                    b.Property<long>("Number")
-                        .HasColumnType("bigint");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("GroupInvoiceTracker");
                 });
 
             modelBuilder.Entity("HaloBiz.Model.AccountsModel.Invoice", b =>
@@ -1308,9 +1234,6 @@ namespace HaloBiz.Migrations
 
                     b.Property<DateTime?>("FulfillmentStartDate")
                         .HasColumnType("datetime2");
-
-                    b.Property<string>("GroupInvoiceNumber")
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<long?>("InvoiceCycleInDays")
                         .HasColumnType("bigint");
@@ -2544,9 +2467,6 @@ namespace HaloBiz.Migrations
 
                     b.Property<DateTime?>("FulfillmentStartDate")
                         .HasColumnType("datetime2");
-
-                    b.Property<string>("GroupInvoiceNumber")
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<long?>("InvoiceCycleInDays")
                         .HasColumnType("bigint");
@@ -4490,31 +4410,6 @@ namespace HaloBiz.Migrations
                     b.Navigation("CreatedBy");
                 });
 
-            modelBuilder.Entity("HaloBiz.Model.AccountsModel.GroupInvoiceDetails", b =>
-                {
-                    b.HasOne("HaloBiz.Model.LAMS.ContractService", "ContractService")
-                        .WithMany()
-                        .HasForeignKey("ContractServiceId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("HaloBiz.Model.UserProfile", "CreatedBy")
-                        .WithMany()
-                        .HasForeignKey("CreatedById");
-
-                    b.HasOne("HaloBiz.Model.AccountsModel.Invoice", "Invoice")
-                        .WithMany("GroupInvoiceDetails")
-                        .HasForeignKey("InvoiceId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("ContractService");
-
-                    b.Navigation("CreatedBy");
-
-                    b.Navigation("Invoice");
-                });
-
             modelBuilder.Entity("HaloBiz.Model.AccountsModel.Invoice", b =>
                 {
                     b.HasOne("HaloBiz.Model.LAMS.Contract", "Contract")
@@ -5364,7 +5259,7 @@ namespace HaloBiz.Migrations
                     b.HasOne("HaloBiz.Model.LAMS.CustomerDivision", "CustomerDivision")
                         .WithMany()
                         .HasForeignKey("CustomerDivisionId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
                     b.HasOne("HaloBiz.Model.UserProfile", "Informed")
@@ -5920,8 +5815,6 @@ namespace HaloBiz.Migrations
 
             modelBuilder.Entity("HaloBiz.Model.AccountsModel.Invoice", b =>
                 {
-                    b.Navigation("GroupInvoiceDetails");
-
                     b.Navigation("Receipts");
                 });
 
