@@ -85,6 +85,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
             otherLeadCaptureInfoToUpdate.IndividualDisposableIncome = otherLeadCaptureInfoReceivingDTO.IndividualDisposableIncome;
             otherLeadCaptureInfoToUpdate.IndividualEstimatedAnnualIncome = otherLeadCaptureInfoReceivingDTO.IndividualEstimatedAnnualIncome;
             otherLeadCaptureInfoToUpdate.IndividualResidenceSize = otherLeadCaptureInfoReceivingDTO.IndividualResidenceSize;
+            otherLeadCaptureInfoToUpdate.LeadDivisionId = otherLeadCaptureInfoReceivingDTO.LeadDivisionId;
 
             var updatedOtherLeadCaptureInfo = await _otherLeadCaptureInfoRepo.UpdateOtherLeadCaptureInfo(otherLeadCaptureInfoToUpdate);
 

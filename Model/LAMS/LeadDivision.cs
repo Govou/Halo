@@ -38,6 +38,7 @@ namespace HaloBiz.Model.LAMS
         public long LeadId { get; set; }
         public virtual Lead Lead { get; set; }
         public  Quote Quote { get; set; }
+        public virtual OtherLeadCaptureInfo OtherLeadCaptureInfo { get; set; }
         public IEnumerable<LeadDivisionKeyPerson> LeadDivisionKeyPersons { get; set; }
         public long CreatedById { get; set; }
         public virtual UserProfile CreatedBy { get; set; }
