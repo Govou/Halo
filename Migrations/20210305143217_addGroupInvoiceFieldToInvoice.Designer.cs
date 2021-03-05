@@ -4,14 +4,16 @@ using HaloBiz.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace HaloBiz.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20210305143217_addGroupInvoiceFieldToInvoice")]
+    partial class addGroupInvoiceFieldToInvoice
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -409,6 +411,9 @@ namespace HaloBiz.Migrations
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<long>("InvoiceId")
+                        .HasColumnType("bigint");
+
                     b.Property<string>("InvoiceNumber")
                         .HasColumnType("nvarchar(max)");
 
@@ -437,6 +442,8 @@ namespace HaloBiz.Migrations
                     b.HasIndex("ContractServiceId");
 
                     b.HasIndex("CreatedById");
+
+                    b.HasIndex("InvoiceId");
 
                     b.ToTable("GroupInvoiceDetails");
                 });
@@ -4508,9 +4515,17 @@ namespace HaloBiz.Migrations
                         .WithMany()
                         .HasForeignKey("CreatedById");
 
+                    b.HasOne("HaloBiz.Model.AccountsModel.Invoice", "Invoice")
+                        .WithMany("GroupInvoiceDetails")
+                        .HasForeignKey("InvoiceId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.Navigation("ContractService");
 
                     b.Navigation("CreatedBy");
+
+                    b.Navigation("Invoice");
                 });
 
             modelBuilder.Entity("HaloBiz.Model.AccountsModel.Invoice", b =>
@@ -5924,6 +5939,8 @@ namespace HaloBiz.Migrations
 
             modelBuilder.Entity("HaloBiz.Model.AccountsModel.Invoice", b =>
                 {
+                    b.Navigation("GroupInvoiceDetails");
+
                     b.Navigation("Receipts");
                 });
 
