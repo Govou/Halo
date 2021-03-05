@@ -222,7 +222,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
         }
 
-        public async Task<ApiResponse> UpdateLeadStagesStatus(long leadId, LeadStages stage)
+        public async Task<ApiResponse> UpdateLeadStagesStatus(long leadId, LeadStages stage, LeadCaptureReceivingDTO leadCaptureReceivingDTO = null)
         {
             var leadToUpdate = await _leadRepo.FindLeadById(leadId);
             if (leadToUpdate == null)
@@ -233,6 +233,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
             {
                 case LeadStages.Capture:
                     leadToUpdate.LeadCaptureStatus = true;
+                    leadToUpdate.LeadCaptureDocumentUrl = leadCaptureReceivingDTO.LeadCaptureDocumentUrl;
                     break;
                 case LeadStages.Qualification:
                     leadToUpdate.LeadQualificationStatus = true;

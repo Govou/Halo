@@ -19,5 +19,8 @@ namespace HaloBiz.DTOs.ReceivingDTOs.LAMS
         public long GroupTypeId { get; set; }
         [StringLength(5000)]
         public string LogoUrl { get; set; }
+        public string LeadCaptureDocumentUrl { get; set; }
+        
+        
     }
 }

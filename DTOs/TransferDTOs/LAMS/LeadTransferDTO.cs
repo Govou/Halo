@@ -24,6 +24,7 @@ namespace HaloBiz.DTOs.TransferDTOs.LAMS
         public bool LeadConversionStatus { get; set; } 
         public bool IsLeadDropped { get; set; }
         public string DropLearning { get; set; }
+        public string LeadCaptureDocumentUrl { get; set; }
         public  DropReasonTransferDTO DropReason { get; set; }
         public  LeadContactTransferDTO PrimaryContact { get; set; }
         public LeadContactTransferDTO SecondaryContact { get; set; }

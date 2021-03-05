@@ -105,9 +105,9 @@ namespace HaloBiz.Controllers.LAMS
         }
 
         [HttpPut("{id}/UpdateLeadCaptured")]
-        public async Task<IActionResult> UpdateCaptureStatus(long id)
+        public async Task<IActionResult> UpdateCaptureStatus(long id, LeadCaptureReceivingDTO leadCaptureReceivingDTO)
         {
-            var response = await _leadService.UpdateLeadStagesStatus(id, LeadStages.Capture);
+            var response = await _leadService.UpdateLeadStagesStatus(id, LeadStages.Capture, leadCaptureReceivingDTO);
             if (response.StatusCode >= 400)
                 return StatusCode(response.StatusCode, response);
             var lead = ((ApiOkResponse)response).Result;
