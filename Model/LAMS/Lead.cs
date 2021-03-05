@@ -26,6 +26,7 @@ namespace HaloBiz.Model.LAMS
         public GroupType GroupType { get; set; }
         [StringLength(5000)]
         public string LogoUrl { get; set; }
+        public string LeadCaptureDocumentUrl { get; set; }
         public bool LeadCaptureStatus { get; set; } = false;
         public bool LeadQualificationStatus { get; set; } = false;
         public DateTime? TimeMovedToLeadQualification { get; set; }
