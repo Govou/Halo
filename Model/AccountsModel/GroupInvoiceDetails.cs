@@ -18,8 +18,6 @@ namespace HaloBiz.Model.AccountsModel
         public double BillableAmount { get; set; }
         public long ContractServiceId { get; set; }
         public ContractService ContractService { get; set; }
-        public long InvoiceId { get; set; }
-        public Invoice Invoice { get; set; }
         public bool IsDeleted { get; set; } = false;
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public DateTime CreatedAt { get; set; }

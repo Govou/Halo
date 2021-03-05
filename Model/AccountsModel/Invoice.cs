@@ -24,6 +24,7 @@ namespace HaloBiz.Model.AccountsModel
         public DateTime EndDate { get; set; }
         public bool IsInvoiceSent { get; set; }
         public long CustomerDivisionId { get; set; }
+        public string GroupInvoiceNumber{get; set;}
         public CustomerDivision CustomerDivision { get; set; }
         public InvoiceStatus IsReceiptedStatus { get; set; }
         public bool IsFinalInvoice { get; set; }= true;
@@ -35,6 +36,7 @@ namespace HaloBiz.Model.AccountsModel
         [Required]
         public long ContractServiceId { get; set; }
         public ContractService ContractService { get; set; }
+        [NotMapped]
         public IEnumerable<GroupInvoiceDetails> GroupInvoiceDetails { get; set; }
         public bool IsDeleted { get; set; } = false;
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]

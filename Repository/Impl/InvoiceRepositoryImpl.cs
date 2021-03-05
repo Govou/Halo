@@ -57,13 +57,41 @@ namespace HaloBiz.Repository.Impl
             .FirstOrDefaultAsync(x => x.Id == Id && x.IsDeleted == false);
         }
 
-        public async Task<IEnumerable<Invoice>> GetInvoiceByContractServiceId(long contactDivisionId) 
+        public async Task<IEnumerable<Invoice>> GetInvoiceByContractServiceId(long contractServiceId) 
         {
-            return await _context.Invoices
+            var contractServcie = await _context.ContractServices
+                    .FirstOrDefaultAsync(x => x.Id == contractServiceId && !x.IsDeleted);
+
+            if(contractServcie == null)
+            {
+                return new List<Invoice>();
+            }
+
+            List<Invoice> invoices;
+
+            if(String.IsNullOrWhiteSpace(contractServcie.GroupInvoiceNumber))
+            {
+                invoices = await _context.Invoices
                 .Include(x => x.Receipts)
-                    .Where(x => x.ContractServiceId == contactDivisionId && x.IsDeleted == false)
+                    .Where(x => x.ContractServiceId == contractServiceId && x.IsDeleted == false)
                     .OrderBy(x => x.StartDate)
                     .ToListAsync();
+            }else{
+                invoices = await _context.Invoices
+                .Include(x => x.Receipts)
+                    .Where(x => x.GroupInvoiceNumber == contractServcie.GroupInvoiceNumber && !x.IsDeleted)
+                    .OrderBy(x => x.StartDate)
+                    .ToListAsync();
+                
+                foreach (var invoice in invoices)
+                {
+                    invoice.GroupInvoiceDetails = await _context.GroupInvoiceDetails
+                            .Where(x => x.InvoiceNumber == invoice.GroupInvoiceNumber && !x.IsDeleted).ToListAsync();
+                }
+
+            }
+
+            return invoices;
         }
 
         private async Task<bool> SaveChanges()
