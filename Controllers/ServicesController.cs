@@ -78,9 +78,9 @@ namespace HaloBiz.Controllers
         }
 
         [HttpPut("disapprove-service/{serviceId}/{sequence}")]
-        public async Task<IActionResult> DisapproveServiceById(long id, long sequence)
+        public async Task<IActionResult> DisapproveServiceById(long serviceId, long sequence)
         {
-            var response = await _servicesService.DisapproveService(HttpContext, id, sequence);
+            var response = await _servicesService.DisapproveService(HttpContext, serviceId, sequence);
             if (response.StatusCode >= 400)
                 return StatusCode(response.StatusCode, response);
             var serviceGroup = ((ApiOkResponse)response).Result;
