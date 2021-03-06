@@ -52,6 +52,16 @@ namespace HaloBiz.Model
         [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
         public DateTime UpdatedAt { get; set; }
 
+        public override bool Equals(object obj)
+        {
+            return obj is UserProfile profile &&
+                   Id == profile.Id;
+        }
+
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(Id);
+        }
 
         public override string ToString()
         {
