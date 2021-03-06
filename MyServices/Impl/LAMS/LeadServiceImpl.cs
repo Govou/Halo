@@ -284,7 +284,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
         {
             try
             {
-                var lead = await _context.Leads.Where(x => x.Id == leadId)
+                /*var lead = await _context.Leads.Where(x => x.Id == leadId)
                     .Include(x => x.LeadDivisions)
                     .ThenInclude(x => x.Quote).SingleOrDefaultAsync();
 
@@ -298,7 +298,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 foreach (var leadDivision in lead.LeadDivisions)
                 {
                     quotes.Add(leadDivision.Quote);
-                }
+                }*/
 
                 var quoteService = _context.QuoteServices.Where(x => x.Id == quoteServiceId)
                     .Include(x => x.Quote).SingleOrDefault();
@@ -343,15 +343,20 @@ namespace HaloBiz.MyServices.Impl.LAMS
                     return new ApiOkResponse(true);
                 }
 
-                var quote = _context.Quotes.Where(x => x.Id == quoteService.Quote.Id)
-                    .Include(x => x.QuoteServices.Where(q => q.Id != quoteServiceId)).SingleOrDefault();
+                var quote = quoteService.Quote;
 
                 if (quote == null)
                 {
                     return new ApiResponse(500);
                 }
+                
+                quote.IsApproved = true;
+                _context.Quotes.Update(quote);
+                await _context.SaveChangesAsync();
             
-                var allQuoteServicesApprovalsApproved = true;
+                return new ApiOkResponse(true);
+                
+                /*var allQuoteServicesApprovalsApproved = true;
                 foreach (var qs in quote.QuoteServices)
                 {
                     var theApprovals = await _context.Approvals.Where(x => x.QuoteServiceId == qs.Id).ToListAsync();
@@ -370,13 +375,9 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 if (!allQuoteServicesApprovalsApproved)
                 {
                     return new ApiOkResponse(true);
-                }
-
-                quote.IsApproved = true;
-                _context.Quotes.Update(quote);
-                await _context.SaveChangesAsync();
-
-                var otherQuotesApproved = quotes.Where(x => x.Id != quote.Id).All(x => x.IsApproved);
+                }*/
+                
+                /*var otherQuotesApproved = quotes.Where(x => x.Id != quote.Id).All(x => x.IsApproved);
 
                 // Second exit scenario.
                 // All Quote's Quote Service(s) Approved.
@@ -394,7 +395,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 else
                 {
                     return new ApiResponse(500);
-                }
+                }*/
             }
             catch (Exception e)
             {
