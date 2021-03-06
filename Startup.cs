@@ -58,7 +58,8 @@ namespace HaloBiz
             if (env.IsDevelopment())
             {
                 services.AddDbContext<DataContext>(options =>
-                    options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
+                    options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"))
+                    .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking));
 
             }
             else
@@ -69,7 +70,8 @@ namespace HaloBiz
                 var password = Configuration["DbPassword"];
                 var database = Configuration["Database"];
                 services.AddDbContext<DataContext>(options =>
-                    options.UseSqlServer($"Server={server},{port};Database={database};User Id={user};Password={password};"));
+                    options.UseSqlServer($"Server={server},{port};Database={database};User Id={user};Password={password};")
+                    .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking));
 
             }
 
