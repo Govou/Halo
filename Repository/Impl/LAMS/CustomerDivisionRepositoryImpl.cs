@@ -55,9 +55,15 @@ namespace HaloBiz.Repository.Impl.LAMS
             client.SecondaryContact = await _context.LeadDivisionContacts
                 .Where(x => x.Id == client.SecondaryContactId && x.IsDeleted == false).FirstOrDefaultAsync();
 
-            client.TaskFulfillments = await _context.TaskFulfillments.AsNoTracking()
-                .Where(x => x.CustomerDivisionId == client.Id && x.IsDeleted == false)
-                .Include(x => x.DeliverableFUlfillments.Where(x => x.IsDeleted == false)).ToListAsync();
+            client.TaskFulfillments = await _context.TaskFulfillments.AsSplitQuery().Where(x => x.CustomerDivisionId == client.Id && x.IsDeleted == false)
+                .Include(x => x.Accountable)
+                .Include(x => x.Consulted)
+                .Include(x => x.Informed)
+                .Include(x => x.Responsible)
+                .Include(x => x.Support)
+                .Include(x => x.DeliverableFUlfillments.Where(x => x.IsDeleted == false))
+                    .ThenInclude(x => x.Responsible)
+                    .ToListAsync();
 
             return client;
         }
