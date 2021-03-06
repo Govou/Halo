@@ -47,6 +47,7 @@ namespace HaloBiz.Repository.Impl.LAMS
             return await _context.ClientBeneficiaries
                 .Where(clientBeneficiary => clientBeneficiary.IsDeleted == false)
                 .OrderBy(clientBeneficiary => clientBeneficiary.CreatedAt)
+                .Include(x => x.Relationship)
                 .ToListAsync();
         }
 
