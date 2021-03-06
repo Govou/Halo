@@ -103,6 +103,17 @@ namespace HaloBiz.MyServices.Impl
             var approvalTransferDTO = _mapper.Map<IEnumerable<ApprovalTransferDTO>>(approval);
             return new ApiOkResponse(approvalTransferDTO);
         }
+        
+        public async Task<ApiResponse> GetApprovalsByQuoteId(long quoteId)
+        {
+            var approval = await _approvalRepo.GetApprovalsByQuoteId(quoteId);
+            if (approval == null)
+            {
+                return new ApiResponse(404);
+            }
+            var approvalTransferDTO = _mapper.Map<IEnumerable<ApprovalTransferDTO>>(approval);
+            return new ApiOkResponse(approvalTransferDTO);
+        }
 
         public async Task<ApiResponse> GetPendingApprovalsByServiceId(long serviceId)
         {

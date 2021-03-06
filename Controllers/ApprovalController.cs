@@ -61,6 +61,16 @@ namespace HaloBiz.Controllers
             var approval = ((ApiOkResponse)response).Result;
             return Ok(approval);
         }
+        
+        [HttpGet("GetApprovalsByQuoteId/{quoteId}")]
+        public async Task<ActionResult> GetApprovalsByQuoteId(long quoteId)
+        {
+            var response = await _approvalService.GetApprovalsByQuoteId(quoteId);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var approval = ((ApiOkResponse)response).Result;
+            return Ok(approval);
+        }
 
         [HttpGet("GetUserPendingApprovals")]
         public async Task<ActionResult> GetUserPendingApprovals()
