@@ -316,6 +316,7 @@ namespace HaloBiz.MyServices.Impl
             }
 
             theApproval.IsApproved = true;
+            theApproval.DateTimeApproved = DateTime.Now;
             _context.Approvals.Update(theApproval);
             await _context.SaveChangesAsync();
 
