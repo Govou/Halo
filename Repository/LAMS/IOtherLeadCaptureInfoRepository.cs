@@ -11,5 +11,6 @@ namespace HaloBiz.Repository.LAMS
         Task<IEnumerable<OtherLeadCaptureInfo>> FindAllOtherLeadCaptureInfo();
         Task<OtherLeadCaptureInfo> UpdateOtherLeadCaptureInfo(OtherLeadCaptureInfo otherLeadCaptureInfo);
         Task<bool> DeleteOtherLeadCaptureInfo(OtherLeadCaptureInfo otherLeadCaptureInfo);
+        Task<OtherLeadCaptureInfo> FindOtherLeadCaptureInfoByLeadDivisionId(long leadDivisionId);
     }
 }

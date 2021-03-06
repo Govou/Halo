@@ -35,6 +35,17 @@ namespace HaloBiz.Repository.Impl.LAMS
             return await _context.OtherLeadCaptureInfos
                 .FirstOrDefaultAsync( otherLeadCaptureInfo => otherLeadCaptureInfo.Id == Id && otherLeadCaptureInfo.IsDeleted == false);
         }
+        public async Task<OtherLeadCaptureInfo> FindOtherLeadCaptureInfoByLeadDivisionId(long leadDivisionId)
+        {
+            var otherLeadCaptureInfo = await _context.OtherLeadCaptureInfos
+                .FirstOrDefaultAsync( otherLeadCaptureInfo => otherLeadCaptureInfo.LeadDivisionId == leadDivisionId && otherLeadCaptureInfo.IsDeleted == false);
+
+            if(otherLeadCaptureInfo != null)
+            {
+                otherLeadCaptureInfo.LeadDivision = null;
+            }
+            return otherLeadCaptureInfo;
+        }
 
         public async Task<IEnumerable<OtherLeadCaptureInfo>> FindAllOtherLeadCaptureInfo()
         {

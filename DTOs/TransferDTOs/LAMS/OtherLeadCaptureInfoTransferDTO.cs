@@ -7,7 +7,6 @@ namespace HaloBiz.DTOs.TransferDTOs.LAMS
     public class OtherLeadCaptureInfoTransferDTO
     {
         public long Id { get; set; }
-
         public double CooperateEstimatedAnnualIncome { get; set; }
         public double CooperateEstimatedAnnualProfit { get; set; }
         public long CooperateBalanceSheetSize { get; set; }
@@ -24,7 +23,5 @@ namespace HaloBiz.DTOs.TransferDTOs.LAMS
         public  LeadDivision LeadDivision { get; set; }
         public long CustomerDivisionId { get; set; }
         public CustomerDivision CustomerDivision { get; set; }
-        public long CreatedById { get; set; }
-        public virtual UserProfile CreatedBy { get; set; }
     }
 }
