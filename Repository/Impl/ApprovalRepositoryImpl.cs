@@ -69,7 +69,16 @@ namespace HaloBiz.Repository.Impl
             return await _context.Approvals
                 .Where(x => x.IsApproved == false && x.QuoteId == quoteId && x.IsDeleted == false)
                 .Include(x => x.Responsible)
-                .OrderBy(x => x.Caption)
+                .OrderBy(x => x.Sequence)
+                .ToListAsync();
+        }
+        
+        public async Task<IEnumerable<Approval>> GetApprovalsByQuoteId(long quoteId)
+        {
+            return await _context.Approvals
+                .Where(x => x.QuoteId == quoteId && x.IsDeleted == false)
+                .Include(x => x.Responsible)
+                .OrderBy(x => x.Sequence)
                 .ToListAsync();
         }
     

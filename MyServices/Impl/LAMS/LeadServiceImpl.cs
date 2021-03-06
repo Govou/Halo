@@ -318,6 +318,8 @@ namespace HaloBiz.MyServices.Impl.LAMS
             approval.IsApproved = true;
             approval.DateTimeApproved = DateTime.Now;
 
+            _context.Approvals.Update(approval);
+            
             ModificationHistory history = new ModificationHistory()
             {
                 ModelChanged = "Approval",
@@ -327,8 +329,6 @@ namespace HaloBiz.MyServices.Impl.LAMS
             };
 
             await _modificationRepo.SaveHistory(history);
-
-            _context.Approvals.Update(approval);
 
             var otherApprovalApproved = approvals.Where(x => x.Sequence != sequence).All(x => x.IsApproved);
 
@@ -359,6 +359,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
             quote.IsApproved = true;
             _context.Quotes.Update(quote);
+            await _context.SaveChangesAsync();
 
             var otherQuotesApproved = quotes.Where(x => x.Id != quote.Id).All(x => x.IsApproved);
 
