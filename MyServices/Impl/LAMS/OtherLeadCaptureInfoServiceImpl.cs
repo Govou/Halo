@@ -66,6 +66,16 @@ namespace HaloBiz.MyServices.Impl.LAMS
             var otherLeadCaptureInfoTransferDTOs = _mapper.Map<OtherLeadCaptureInfoTransferDTO>(otherLeadCaptureInfo);
             return new ApiOkResponse(otherLeadCaptureInfoTransferDTOs);
         }
+        public async Task<ApiResponse> GetOtherLeadCaptureInfoByLeadDivisionId(long leadDivisionId)
+        {
+            var otherLeadCaptureInfo = await _otherLeadCaptureInfoRepo.FindOtherLeadCaptureInfoByLeadDivisionId(leadDivisionId);
+            if (otherLeadCaptureInfo == null)
+            {
+                return new ApiResponse(404);
+            }
+            var otherLeadCaptureInfoTransferDTOs = _mapper.Map<OtherLeadCaptureInfoTransferDTO>(otherLeadCaptureInfo);
+            return new ApiOkResponse(otherLeadCaptureInfoTransferDTOs);
+        }
 
         public async Task<ApiResponse> UpdateOtherLeadCaptureInfo(HttpContext context, long id, OtherLeadCaptureInfoReceivingDTO otherLeadCaptureInfoReceivingDTO)
         {

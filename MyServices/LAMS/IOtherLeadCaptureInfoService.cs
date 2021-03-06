@@ -12,6 +12,7 @@ namespace HaloBiz.MyServices.LAMS
         Task<ApiResponse> GetOtherLeadCaptureInfoById(long id);
         Task<ApiResponse> UpdateOtherLeadCaptureInfo(HttpContext context, long id, OtherLeadCaptureInfoReceivingDTO otherLeadCaptureInfoReceivingDTO);
         Task<ApiResponse> DeleteOtherLeadCaptureInfo(long id);
+        Task<ApiResponse> GetOtherLeadCaptureInfoByLeadDivisionId(long leadDivisionId);
 
     }
 }

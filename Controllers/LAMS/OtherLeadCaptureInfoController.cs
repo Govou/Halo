@@ -41,6 +41,15 @@ namespace Controllers.Controllers
             var otherLeadCaptureInfo = ((ApiOkResponse)response).Result;
             return Ok(otherLeadCaptureInfo);
         }
+        [HttpGet("LeadDivision/{leadDivisionId}")]
+        public async Task<ActionResult> GetByLeadDivisionId(long leadDivisionId)
+        {
+            var response = await _otherLeadCaptureInfoService.GetOtherLeadCaptureInfoByLeadDivisionId(leadDivisionId);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var otherLeadCaptureInfo = ((ApiOkResponse)response).Result;
+            return Ok(otherLeadCaptureInfo);
+        }
 
         [HttpPost("")]
         public async Task<ActionResult> AddNewOtherLeadCaptureInfo(OtherLeadCaptureInfoReceivingDTO otherLeadCaptureInfoReceiving)
