@@ -312,7 +312,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
             return new ApiOkResponse(true);
         }
 
-        public async Task<ApiResponse> SetIsPicked(HttpContext context, long id)
+        public async Task<ApiResponse> SetIsPicked(HttpContext context, long id, bool isPicked)
         {
             var taskFulfillmentToUpdate = await _taskFulfillmentRepo.FindTaskFulfillmentById(id);
             if (taskFulfillmentToUpdate == null)
@@ -322,7 +322,17 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
             var summary = $"Initial details before change, \n {taskFulfillmentToUpdate.ToString()} \n";
 
-            taskFulfillmentToUpdate.IsPicked = true;
+            if(isPicked)
+            {
+                taskFulfillmentToUpdate.IsPicked = true;
+            }else {
+                if(taskFulfillmentToUpdate.DeliverableFUlfillments.Any(x => x.ResponsibleId > 0))
+                {
+                    return new ApiResponse(409, "Cannot drop Task. Task deliverable has been assigned");
+                }
+                taskFulfillmentToUpdate.IsPicked = false;
+            }
+
             taskFulfillmentToUpdate.DateTimePicked = DateTime.UtcNow;
 
             var updatedTaskFulfillment = await _taskFulfillmentRepo.UpdateTaskFulfillment(taskFulfillmentToUpdate);
@@ -347,6 +357,10 @@ namespace HaloBiz.MyServices.Impl.LAMS
             return new ApiOkResponse(taskFulfillmentTransferDTOs);
 
         }
+
+        public bool CheckIfAnyDeliverableIsAssigned(IEnumerable<DeliverableFulfillment> deliverables) =>
+                        deliverables.Any(x => x.ResponsibleId > 0);
+        
 
         public async Task<ApiResponse> GetTaskFulfillmentsByOperatingEntityHeadId(long id)
         {

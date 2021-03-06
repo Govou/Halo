@@ -113,7 +113,17 @@ namespace Controllers.Controllers
         [HttpPut("SetIsPicked/{id}")]
         public async Task<IActionResult> SetIsPicked(long id)
         {
-            var response = await _taskFulfillmentService.SetIsPicked(HttpContext, id);
+            var response = await _taskFulfillmentService.SetIsPicked(HttpContext, id, true);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var taskFulfillment = ((ApiOkResponse)response).Result;
+            return Ok(taskFulfillment);
+        }
+
+        [HttpPut("DropPicked/{id}")]
+        public async Task<IActionResult> DropPickedTask(long id)
+        {
+            var response = await _taskFulfillmentService.SetIsPicked(HttpContext, id, false);
             if (response.StatusCode >= 400)
                 return StatusCode(response.StatusCode, response);
             var taskFulfillment = ((ApiOkResponse)response).Result;
