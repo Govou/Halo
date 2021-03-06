@@ -403,6 +403,31 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 return new ApiResponse(500, e.Message);
             }
         }
+
+        public async Task<ApiResponse> DisapproveQuoteService(HttpContext context, long leadId, long quoteServiceId, long sequence)
+        {
+            try
+            {
+                var lead = await _context.Leads.FindAsync(leadId);
+
+                if (lead == null)
+                {
+                    return new ApiResponse(500);
+                }
+
+                lead.IsLeadDropped = true;
+                _context.Leads.Update(lead);
+                await _context.SaveChangesAsync();
+
+                return new ApiOkResponse(true);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e.Message);
+                _logger.LogError(e.StackTrace);
+                return new ApiResponse(500, e.Message);
+            }
+        }
     }
 }
 

@@ -20,5 +20,6 @@ namespace HaloBiz.MyServices.LAMS
         Task<ApiResponse> GetAllUnApprovedLeads();
         Task<ApiResponse> SetUpLeadForApproval(HttpContext httpContext, long id);
         Task<ApiResponse> ApproveQuoteService(HttpContext httpContext, long leadId, long quoteServiceId, long sequence);
+        Task<ApiResponse> DisapproveQuoteService(HttpContext httpContext, long leadId, long quoteServiceId, long sequence);
     }
 }
