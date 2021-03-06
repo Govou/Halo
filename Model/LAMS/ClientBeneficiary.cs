@@ -32,6 +32,7 @@ namespace HaloBiz.Model.LAMS
         public long MeansOfIdentifcationId { get; set; }
         public string IdentificationNumber { get; set; }
         public long? RelationshipId { get; set; }
+        public Relationship Relationship { get; set; }
         [Required]
         public long ClientId { get; set; }
         public virtual CustomerDivision Client { get; set; }
