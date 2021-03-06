@@ -40,10 +40,16 @@ namespace HaloBiz.Repository.Impl.LAMS
             var otherLeadCaptureInfo = await _context.OtherLeadCaptureInfos
                 .FirstOrDefaultAsync( otherLeadCaptureInfo => otherLeadCaptureInfo.LeadDivisionId == leadDivisionId && otherLeadCaptureInfo.IsDeleted == false);
 
-            if(otherLeadCaptureInfo != null)
+            if(otherLeadCaptureInfo == null)
             {
-                otherLeadCaptureInfo.LeadDivision = null;
+                return null;
             }
+            if(otherLeadCaptureInfo.GroupTypeId > 0)
+            {
+                otherLeadCaptureInfo.GroupType = await _context.GroupType
+                    .FirstOrDefaultAsync(x => x.Id == otherLeadCaptureInfo.GroupTypeId && !x.IsDeleted);
+            }
+            otherLeadCaptureInfo.LeadDivision = null;
             return otherLeadCaptureInfo;
         }
 
