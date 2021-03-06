@@ -63,6 +63,8 @@ namespace HaloBiz.Repository.Impl.LAMS
                 .Include(x => x.Support)
                 .Include(x => x.DeliverableFUlfillments.Where(x => x.IsDeleted == false))
                     .ThenInclude(x => x.Responsible)
+                .Include(x => x.DeliverableFUlfillments.Where(x => x.IsDeleted == false))
+                    .ThenInclude(x => x.CreatedBy)
                     .ToListAsync();
 
             return client;
