@@ -32,6 +32,10 @@ namespace HaloBiz.Repository.Impl.LAMS
             }
             return null;
         }
+        public  IQueryable<TaskFulfillment> GetTaskFulfillmentQueryable()
+        {
+            return _context.TaskFulfillments.Where(x => !x.IsDeleted).AsQueryable();
+        }
 
         public async Task<TaskFulfillment> FindTaskFulfillmentById(long Id)
         {

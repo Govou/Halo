@@ -17,5 +17,6 @@ namespace HaloBiz.Repository.LAMS
         Task<bool> DeleteTaskFulfillment(TaskFulfillment taskFulfillment);
         Task<IEnumerable<TaskDeliverablesSummary>> GetTaskDeliverablesSummary(long responsibleId);
         Task<IEnumerable<TaskFulfillment>> GetTaskFulfillmentsByCustomerDivisionId(long customerDivsionId);
+        IQueryable<TaskFulfillment> GetTaskFulfillmentQueryable();
     }
 }
