@@ -12,10 +12,9 @@ namespace HaloBiz.MyServices
         Task<ApiResponse> GetServiceById(long id);
         Task<ApiResponse> GetServiceByName(string name);
         Task<ApiResponse> UpdateServices(HttpContext context, long id, ServicesReceivingDTO serviceReceivingDTO);
-        Task<ApiResponse> ApproveService(HttpContext context, long id);
-        Task<ApiResponse> DisapproveService(HttpContext context, long id);
+        Task<ApiResponse> ApproveService(HttpContext context, long id, long sequence);
+        Task<ApiResponse> DisapproveService(HttpContext context, long id, long sequence);
         Task<ApiResponse> RequestPublishService(HttpContext context, long id);
-
         Task<ApiResponse> DeleteService(long id);
         Task<ApiResponse> DeleteService(HttpContext context, long id);
         Task<ApiResponse> GetUnpublishedServices();

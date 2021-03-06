@@ -103,10 +103,32 @@ namespace HaloBiz.MyServices.Impl
             var approvalTransferDTO = _mapper.Map<IEnumerable<ApprovalTransferDTO>>(approval);
             return new ApiOkResponse(approvalTransferDTO);
         }
+        
+        public async Task<ApiResponse> GetApprovalsByQuoteId(long quoteId)
+        {
+            var approval = await _approvalRepo.GetApprovalsByQuoteId(quoteId);
+            if (approval == null)
+            {
+                return new ApiResponse(404);
+            }
+            var approvalTransferDTO = _mapper.Map<IEnumerable<ApprovalTransferDTO>>(approval);
+            return new ApiOkResponse(approvalTransferDTO);
+        }
 
         public async Task<ApiResponse> GetPendingApprovalsByServiceId(long serviceId)
         {
             var approval = await _approvalRepo.GetPendingApprovalsByServiceId(serviceId);
+            if (approval == null)
+            {
+                return new ApiResponse(404);
+            }
+            var approvalTransferDTO = _mapper.Map<IEnumerable<ApprovalTransferDTO>>(approval);
+            return new ApiOkResponse(approvalTransferDTO);
+        }
+        
+        public async Task<ApiResponse> GetApprovalsByServiceId(long serviceId)
+        {
+            var approval = await _approvalRepo.GetApprovalsByServiceId(serviceId);
             if (approval == null)
             {
                 return new ApiResponse(404);
@@ -239,6 +261,13 @@ namespace HaloBiz.MyServices.Impl
         {
             try
             {
+                var serviceWithExtraInfo = await _context.Services.AsNoTracking().Where(x => x.Id == service.Id)
+                    .Include(x => x.Division)
+                    .ThenInclude(x => x.Company)
+                    .Include(x => x.OperatingEntity)
+                    .ThenInclude(x => x.Head)
+                    .FirstOrDefaultAsync();
+                
                 var module = await _processesRequiringApprovalRepo.FindProcessesRequiringApprovalByCaption("Service Creation");
                 if (module == null)
                 {
@@ -256,17 +285,23 @@ namespace HaloBiz.MyServices.Impl
                     var approvalLevelInfo = item.ApproverLevel;
 
                     long responsibleId = 0;
-                    if (item.ApproverLevel.Caption == "Division Head")
+                    
+                    // How to tell branch head ??
+                    if (item.ApproverLevel.Caption == "Branch Head")
                     {
-                        responsibleId = service.Division?.HeadId ?? 31;
+                        responsibleId = 31;
+                    }
+                    else if (item.ApproverLevel.Caption == "Division Head")
+                    {
+                        responsibleId = serviceWithExtraInfo?.Division?.HeadId ?? 31;
                     }
                     else if (item.ApproverLevel.Caption == "Operating Entity Head")
                     {
-                        responsibleId = service.OperatingEntity?.HeadId ?? 31;
+                        responsibleId = serviceWithExtraInfo?.OperatingEntity?.HeadId ?? 31;
                     }
                     else if (item.ApproverLevel.Caption == "CEO")
                     {
-                        responsibleId = service.Division?.Company?.HeadId.Value ?? 31;
+                        responsibleId = serviceWithExtraInfo?.Division?.Company?.HeadId.Value ?? 31;
                     }
 
                     var approval = new Approval

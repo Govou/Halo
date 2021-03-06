@@ -67,20 +67,20 @@ namespace HaloBiz.Controllers
             return Ok(service);
         }
 
-        [HttpPut("{id}/approve-service")]
-        public async Task<IActionResult> ApproveServiceById(long id)
+        [HttpPut("approve-service/{serviceId}/{sequence}")]
+        public async Task<IActionResult> ApproveServiceById(long serviceId, long sequence)
         {
-            var response = await _servicesService.ApproveService(HttpContext, id);
+            var response = await _servicesService.ApproveService(HttpContext, serviceId, sequence);
             if (response.StatusCode >= 400)
                 return StatusCode(response.StatusCode, response);
             var serviceGroup = ((ApiOkResponse)response).Result;
             return Ok(serviceGroup);
         }
 
-        [HttpPut("{id}/disapprove-service")]
-        public async Task<IActionResult> DisapproveServiceById(long id)
+        [HttpPut("disapprove-service/{serviceId}/{sequence}")]
+        public async Task<IActionResult> DisapproveServiceById(long serviceId, long sequence)
         {
-            var response = await _servicesService.DisapproveService(HttpContext, id);
+            var response = await _servicesService.DisapproveService(HttpContext, serviceId, sequence);
             if (response.StatusCode >= 400)
                 return StatusCode(response.StatusCode, response);
             var serviceGroup = ((ApiOkResponse)response).Result;

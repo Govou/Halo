@@ -303,8 +303,29 @@ namespace HaloBiz.MyServices.Impl
                 }
             }
         }
-        public async Task<ApiResponse> ApproveService(HttpContext context, long id)
+        public async Task<ApiResponse> ApproveService(HttpContext context, long id, long sequence)
         {
+
+            var approvalsForTheService = await _context.Approvals.Where(x => !x.IsDeleted && x.ServicesId == id).ToListAsync();
+
+            var theApproval = approvalsForTheService.SingleOrDefault(x => x.Sequence == sequence);
+
+            if(theApproval == null)
+            {
+                return new ApiResponse(500);
+            }
+
+            theApproval.IsApproved = true;
+            theApproval.DateTimeApproved = DateTime.Now;
+            _context.Approvals.Update(theApproval);
+            await _context.SaveChangesAsync();
+
+            bool allApprovalsApproved = approvalsForTheService.All(x => x.IsApproved);
+
+            // Return scenario 1
+            // All the approvals for service not yet approved.
+            if (!allApprovalsApproved) return new ApiOkResponse(true);
+
             var serviceToUpdate = await _servicesRepository.FindServicesById(id);
             if (serviceToUpdate == null)
             {
@@ -333,7 +354,6 @@ namespace HaloBiz.MyServices.Impl
 
             var serviceTransferDTO = _mapper.Map<ServicesTransferDTO>(updatedService);
             return new ApiOkResponse(serviceTransferDTO);
-
         }
 
         public async Task<ApiResponse> RequestPublishService(HttpContext context, long id)
@@ -367,9 +387,9 @@ namespace HaloBiz.MyServices.Impl
             return new ApiOkResponse(serviceTransferDTO);
 
         }
-        public async Task<ApiResponse> DisapproveService(HttpContext context, long id)
+        public async Task<ApiResponse> DisapproveService(HttpContext context, long serviceId, long sequence)
         {
-            var serviceToUpdate = await _servicesRepository.FindServicesById(id);
+            var serviceToUpdate = await _servicesRepository.FindServicesById(serviceId);
             if (serviceToUpdate == null)
             {
                 return new ApiResponse(404);

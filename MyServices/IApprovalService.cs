@@ -19,6 +19,8 @@ namespace HaloBiz.MyServices
         Task<bool> SetUpApprovalsForClientCreation(long id, HttpContext httpContext);
         Task<bool> SetUpApprovalsForEndorsement(CustomerDivision customerDivision, HttpContext httpContext);
         Task<ApiResponse> GetPendingApprovalsByServiceId(long serviceId);
+        Task<ApiResponse> GetApprovalsByServiceId(long serviceId);
         Task<ApiResponse> GetPendingApprovalsByQuoteId(long quoteId);
+        Task<ApiResponse> GetApprovalsByQuoteId(long quoteId);
     }
 }

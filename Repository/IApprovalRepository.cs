@@ -15,6 +15,8 @@ namespace HaloBiz.Repository
         Task<IEnumerable<Approval>> GetUserPendingApprovals(long userId);
         Task<bool> SaveApprovalRange(List<Approval> approvals);
         Task<IEnumerable<Approval>> GetPendingApprovalsByQuoteId(long quoteId);
+        Task<IEnumerable<Approval>> GetApprovalsByQuoteId(long quoteId);
         Task<IEnumerable<Approval>> GetPendingApprovalsByServiceId(long serviceId);
+        Task<IEnumerable<Approval>> GetApprovalsByServiceId(long serviceId);
     }
 }
