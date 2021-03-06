@@ -376,7 +376,8 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 _context.Quotes.Update(quote);
                 await _context.SaveChangesAsync();
 
-                var otherQuotesApproved = quotes.Where(x => x.Id != quote.Id).All(x => x.IsApproved);
+                return new ApiOkResponse(true);
+                /*var otherQuotesApproved = quotes.Where(x => x.Id != quote.Id).All(x => x.IsApproved);
 
                 // Second exit scenario.
                 // All Quote's Quote Service(s) Approved.
@@ -394,7 +395,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 else
                 {
                     return new ApiResponse(500);
-                }
+                }*/
             }
             catch (Exception e)
             {
