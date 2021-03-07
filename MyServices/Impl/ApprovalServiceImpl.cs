@@ -273,7 +273,11 @@ namespace HaloBiz.MyServices.Impl
                 {
                     return false;
                 }
+
                 var approvalLimits = await _approvalLimitRepo.GetApprovalLimitsByModule(module.Id);
+
+                if (!approvalLimits.Any()) return false;
+
                 var orderedList = approvalLimits
                     .Where(x => service.UnitPrice < x.UpperlimitValue || (service.UnitPrice <= x.UpperlimitValue && service.UnitPrice >= x.LowerlimitValue))
                     .OrderBy(x => x.Sequence);
@@ -282,14 +286,12 @@ namespace HaloBiz.MyServices.Impl
 
                 foreach (var item in orderedList)
                 {
-                    var approvalLevelInfo = item.ApproverLevel;
-
                     long responsibleId = 0;
                     
                     // How to tell branch head ??
                     if (item.ApproverLevel.Caption == "Branch Head")
                     {
-                        responsibleId = 31;
+                        continue;
                     }
                     else if (item.ApproverLevel.Caption == "Division Head")
                     {
@@ -325,7 +327,7 @@ namespace HaloBiz.MyServices.Impl
                 }
                 else
                 {
-                    return true;
+                    return false;
                 }
             }
             catch (Exception ex)
