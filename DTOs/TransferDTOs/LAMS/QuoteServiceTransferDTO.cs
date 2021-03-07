@@ -54,6 +54,8 @@ namespace HaloBiz.DTOs.TransferDTOs.LAMS
         public long ServiceId { get; set; }
         public Services Service { get; set; }
         public long QuoteId { get; set; }
+        public string GroupInvoiceNumber { get; set; }  
+
         public IEnumerable<ContractService> ContractServices { get; set; }
         public IEnumerable<QuoteServiceDocumentTransferDTO> QuoteServiceDocuments { get; set; }
         public IEnumerable<SBUToQuoteServiceProportionTransferDTO> SBUToQuoteServiceProportions { get; set; }
