@@ -164,21 +164,33 @@ namespace HaloBiz.MyServices.Impl
                     return false;
                 }
 
-                var lead = await _context.Leads
+                if (!approvalLimits.Any()) return false;
+
+                var lead = await _context.Leads.AsNoTracking()
                         .Include(x => x.LeadDivisions)
+                           .ThenInclude(x => x.Branch)
                         .FirstOrDefaultAsync(x => x.Id == leadId);
 
                 List<Approval> approvals = new List<Approval>();
                 foreach (var leadDivision in lead.LeadDivisions)
                 {
-                    var quote = await _context.Quotes
+                    var quote = await _context.Quotes.AsNoTracking()
                                             .Include(x => x.QuoteServices)
-                                            .ThenInclude(x => x.Service)
                                             .FirstOrDefaultAsync(x => x.LeadDivisionId == leadDivision.Id);
 
                     if(quote == null)
                     {
                         return false;
+                    }
+                    
+                    foreach (var quoteService in quote.QuoteServices)
+                    {
+                        quoteService.Service = await _context.Services.AsNoTracking().Where(x => x.Id == quoteService.ServiceId)
+                            .Include(x => x.Division)
+                            .ThenInclude(x => x.Company)
+                            .Include(x => x.OperatingEntity)
+                            .ThenInclude(x => x.Head)
+                            .FirstOrDefaultAsync();
                     }
 
                     foreach (var quoteService in quote.QuoteServices)
@@ -273,7 +285,11 @@ namespace HaloBiz.MyServices.Impl
                 {
                     return false;
                 }
+
                 var approvalLimits = await _approvalLimitRepo.GetApprovalLimitsByModule(module.Id);
+
+                if (!approvalLimits.Any()) return false;
+
                 var orderedList = approvalLimits
                     .Where(x => service.UnitPrice < x.UpperlimitValue || (service.UnitPrice <= x.UpperlimitValue && service.UnitPrice >= x.LowerlimitValue))
                     .OrderBy(x => x.Sequence);
@@ -282,14 +298,12 @@ namespace HaloBiz.MyServices.Impl
 
                 foreach (var item in orderedList)
                 {
-                    var approvalLevelInfo = item.ApproverLevel;
-
                     long responsibleId = 0;
                     
                     // How to tell branch head ??
                     if (item.ApproverLevel.Caption == "Branch Head")
                     {
-                        responsibleId = 31;
+                        continue;
                     }
                     else if (item.ApproverLevel.Caption == "Division Head")
                     {
@@ -325,7 +339,7 @@ namespace HaloBiz.MyServices.Impl
                 }
                 else
                 {
-                    return true;
+                    return false;
                 }
             }
             catch (Exception ex)

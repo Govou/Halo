@@ -56,41 +56,48 @@ namespace HaloBiz.MyServices.Impl
         {
             using(var transaction = await _context.Database.BeginTransactionAsync())
             {
-                try{
-                        IList<ServiceRequiredServiceDocument> serviceRequiredServiceDocument = new List<ServiceRequiredServiceDocument>();
-                        IList<ServiceRequredServiceQualificationElement> serviceQualificationElements = new List<ServiceRequredServiceQualificationElement>();
+                try
+                {
 
-                        var service = _mapper.Map<Services>(servicesReceivingDTO);
-                        service.CreatedById = context.GetLoggedInUserId();
-                        var savedService = await _servicesRepository.SaveService(service);
+                    IList<ServiceRequiredServiceDocument> serviceRequiredServiceDocument = new List<ServiceRequiredServiceDocument>();
+                    IList<ServiceRequredServiceQualificationElement> serviceQualificationElements = new List<ServiceRequredServiceQualificationElement>();
 
-                        foreach (long id in servicesReceivingDTO.RequiredServiceFieldsId)
+                    var service = _mapper.Map<Services>(servicesReceivingDTO);
+                    service.CreatedById = context.GetLoggedInUserId();
+                    var savedService = await _servicesRepository.SaveService(service);
+
+                    foreach (long id in servicesReceivingDTO.RequiredServiceFieldsId)
+                    {
+                        serviceQualificationElements.Add(new ServiceRequredServiceQualificationElement()
                         {
-                            serviceQualificationElements.Add(new ServiceRequredServiceQualificationElement()
-                            {
-                                ServicesId = savedService.Id,
-                                RequredServiceQualificationElementId = id
-                            });
-                        }
+                            ServicesId = savedService.Id,
+                            RequredServiceQualificationElementId = id
+                        });
+                    }
 
-                        foreach (long id in servicesReceivingDTO.RequiredDocumentsId)
+                    foreach (long id in servicesReceivingDTO.RequiredDocumentsId)
+                    {
+                        serviceRequiredServiceDocument.Add(new ServiceRequiredServiceDocument()
                         {
-                            serviceRequiredServiceDocument.Add(new ServiceRequiredServiceDocument()
-                            {
-                                ServicesId = savedService.Id,
-                                RequiredServiceDocumentId = id
-                            });
-                        }
+                            ServicesId = savedService.Id,
+                            RequiredServiceDocumentId = id
+                        });
+                    }
 
-                        var isFieldsSaved = await _reqServiceElementRepo.SaveRangeServiceRequredServiceQualificationElement(serviceQualificationElements);
+                    var isFieldsSaved = await _reqServiceElementRepo.SaveRangeServiceRequredServiceQualificationElement(serviceQualificationElements);
 
-                        var isDocSaved = await _requiredServiceDocRepo.SaveRangeServiceRequiredServiceDocument(serviceRequiredServiceDocument);
+                    var isDocSaved = await _requiredServiceDocRepo.SaveRangeServiceRequiredServiceDocument(serviceRequiredServiceDocument);
 
-                        var successful = await _approvalService.SetUpApprovalsForServiceCreation(savedService, context);
+                    var successful = await _approvalService.SetUpApprovalsForServiceCreation(savedService, context);
+                    if (!successful) 
+                    {
+                        await transaction.RollbackAsync();
+                        return new ApiResponse(500, "Could not set up approvals for the service."); 
+                    }
 
-                        var servicesTransferDTO = _mapper.Map<ServicesTransferDTO>(savedService);
-                        await transaction.CommitAsync();
-                        return new ApiOkResponse(servicesTransferDTO);
+                    var servicesTransferDTO = _mapper.Map<ServicesTransferDTO>(savedService);
+                    await transaction.CommitAsync();
+                    return new ApiOkResponse(servicesTransferDTO);
 
                 }catch(Exception e)
                 {
