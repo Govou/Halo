@@ -284,21 +284,6 @@ namespace HaloBiz.MyServices.Impl.LAMS
         {
             try
             {
-                /*var lead = await _context.Leads.Where(x => x.Id == leadId)
-                    .Include(x => x.LeadDivisions)
-                    .ThenInclude(x => x.Quote).SingleOrDefaultAsync();
-
-                if (lead == null)
-                {
-                    return new ApiResponse(500);
-                }
-
-                var quotes = new List<Quote>();
-
-                foreach (var leadDivision in lead.LeadDivisions)
-                {
-                    quotes.Add(leadDivision.Quote);
-                }*/
 
                 var quoteService = _context.QuoteServices.Where(x => x.Id == quoteServiceId)
                     .Include(x => x.Quote).SingleOrDefault();
@@ -354,48 +339,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 _context.Quotes.Update(quote);
                 await _context.SaveChangesAsync();
             
-                return new ApiOkResponse(true);
-                
-                /*var allQuoteServicesApprovalsApproved = true;
-                foreach (var qs in quote.QuoteServices)
-                {
-                    var theApprovals = await _context.Approvals.Where(x => x.QuoteServiceId == qs.Id).ToListAsync();
-
-                    var quoteServiceApproved = theApprovals.All(x => x.IsApproved);
-                    if (!quoteServiceApproved) 
-                    {
-                        allQuoteServicesApprovalsApproved = false;
-                        break;
-                    }
-                }
-
-                // Second exit scenario.
-                // All Approvals for Quote Service Approved.
-                // All Approvals for All Quote Services not approved.
-                if (!allQuoteServicesApprovalsApproved)
-                {
-                    return new ApiOkResponse(true);
-                }*/
-                
-                /*var otherQuotesApproved = quotes.Where(x => x.Id != quote.Id).All(x => x.IsApproved);
-
-                // Second exit scenario.
-                // All Quote's Quote Service(s) Approved.
-                // All Quotes not approved.
-                if (!otherQuotesApproved)
-                {
-                    return new ApiOkResponse(true);
-                }
-
-                bool converted = await _leadConversionService.ConvertLeadToClient(leadId, context.GetLoggedInUserId());
-                if (converted)
-                {
-                    return new ApiOkResponse(true);
-                }
-                else
-                {
-                    return new ApiResponse(500);
-                }*/
+                return new ApiOkResponse(true);             
             }
             catch (Exception e)
             {
