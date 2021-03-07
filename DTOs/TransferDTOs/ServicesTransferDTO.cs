@@ -29,6 +29,7 @@ namespace HaloBiz.DTOs.TransferDTOs
         public bool PublishedApprovedStatus { get; set; }
         public TargetTransferDTO Target { get; set; }
         public AccountTransferDTO Account { get; set; }
+        public long AccountId { get; set; }
         public ServiceTypeTransferDTO ServiceType { get; set; }
         public DateTime CreatedAt { get; set; }
         public IList<RequiredServiceDocumentTransferDTO> RequiredServiceDocument { get; set; }
