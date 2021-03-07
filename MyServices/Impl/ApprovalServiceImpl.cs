@@ -164,6 +164,8 @@ namespace HaloBiz.MyServices.Impl
                     return false;
                 }
 
+                if (!approvalLimits.Any()) return false;
+
                 var lead = await _context.Leads
                         .Include(x => x.LeadDivisions)
                         .FirstOrDefaultAsync(x => x.Id == leadId);
