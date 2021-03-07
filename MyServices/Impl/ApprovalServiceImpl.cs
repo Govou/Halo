@@ -166,21 +166,31 @@ namespace HaloBiz.MyServices.Impl
 
                 if (!approvalLimits.Any()) return false;
 
-                var lead = await _context.Leads
+                var lead = await _context.Leads.AsNoTracking()
                         .Include(x => x.LeadDivisions)
+                           .ThenInclude(x => x.Branch)
                         .FirstOrDefaultAsync(x => x.Id == leadId);
 
                 List<Approval> approvals = new List<Approval>();
                 foreach (var leadDivision in lead.LeadDivisions)
                 {
-                    var quote = await _context.Quotes
+                    var quote = await _context.Quotes.AsNoTracking()
                                             .Include(x => x.QuoteServices)
-                                            .ThenInclude(x => x.Service)
                                             .FirstOrDefaultAsync(x => x.LeadDivisionId == leadDivision.Id);
 
                     if(quote == null)
                     {
                         return false;
+                    }
+                    
+                    foreach (var quoteService in quote.QuoteServices)
+                    {
+                        quoteService.Service = await _context.Services.AsNoTracking().Where(x => x.Id == quoteService.ServiceId)
+                            .Include(x => x.Division)
+                            .ThenInclude(x => x.Company)
+                            .Include(x => x.OperatingEntity)
+                            .ThenInclude(x => x.Head)
+                            .FirstOrDefaultAsync();
                     }
 
                     foreach (var quoteService in quote.QuoteServices)
