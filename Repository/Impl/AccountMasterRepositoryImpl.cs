@@ -99,6 +99,7 @@ namespace HaloBiz.Repository.Impl
 
                 return  await _context.AccountMasters 
                             .Include(x => x.AccountDetails)
+                            .ThenInclude(x => x.Account)
                             .Where(x => accountMasterIds.Contains(x.Id)).ToArrayAsync();
         }
 
@@ -107,6 +108,7 @@ namespace HaloBiz.Repository.Impl
             //transactionId = String.Join("/",transactionId.Split("%2F"));
             return await _context.AccountMasters
                 .Include(x => x.AccountDetails.Where(x => x.IsDeleted == false))
+                .ThenInclude(x => x.Account)
                 .Where(x => x.IsDeleted == false && x.TransactionId == transactionId).ToListAsync();
         }
         public async Task<AccountMaster> SaveAccountMaster(AccountMaster accountMaster)
