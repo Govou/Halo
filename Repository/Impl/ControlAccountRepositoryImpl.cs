@@ -32,9 +32,9 @@ namespace HaloBiz.Repository.Impl
                         .OrderBy(control => control.CreatedAt).LastOrDefaultAsync();
 
                     
-                    if(lastSavedControl == null || lastSavedControl.Id < 1000000000)
+                    if(lastSavedControl == null || lastSavedControl.Id < 100000000)
                     {
-                        controlAccount.Id = controlAccount.AccountClassId + 10000000;
+                        controlAccount.Id = controlAccount.AccountClassId + 100000000;
                     }else{
                         var num = lastSavedControl.Id;
                         var firstCharacter = num.ToString()[0];

@@ -66,6 +66,20 @@ namespace HaloBiz.Repository.Impl
                 .ToListAsync();
         }
 
+        public async Task<IEnumerable<OperatingEntity>> FindAllOperatingEntityWithSBUProportion()
+        {
+            var operatingEntites =  await _context.OperatingEntities
+                            .Where(x => !x.IsDeleted).ToListAsync();
+
+            foreach (var operatingEntity in operatingEntites)
+            {
+                operatingEntity.SBUProportion = await _context.SBUProportions
+                    .FirstOrDefaultAsync(x => x.OperatingEntityId == operatingEntity.Id && !x.IsDeleted);
+            }
+            return operatingEntites;
+        }
+
+
         public async Task<OperatingEntity> UpdateOperatingEntity(OperatingEntity operatingEntity)
         {
             var updatedEntity =  _context.OperatingEntities.Update(operatingEntity);

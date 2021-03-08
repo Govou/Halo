@@ -51,6 +51,16 @@ namespace HaloBiz.MyServices.Impl
             var operatingEntityTransferDTOs = _mapper.Map<IEnumerable<OperatingEntityTransferDTO>>(operatingEntity);
             return new ApiOkResponse(operatingEntityTransferDTOs);
         }
+        public async Task<ApiResponse> GetAllOperatingEntitiesAndSBUProportion()
+        {
+            var operatingEntity = await _operatingEntityRepo.FindAllOperatingEntityWithSBUProportion();
+            if (operatingEntity == null)
+            {
+                return new ApiResponse(404);
+            }
+            var operatingEntityTransferDTOs = _mapper.Map<IEnumerable<OperatingEntityTransferDTO>>(operatingEntity);
+            return new ApiOkResponse(operatingEntityTransferDTOs);
+        }
 
         public async Task<ApiResponse> GetOperatingEntityById(long id)
         {

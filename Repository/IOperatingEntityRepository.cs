@@ -18,5 +18,6 @@ namespace HaloBiz.Repository
 
         Task<bool> DeleteOperatingEntity(OperatingEntity operatingEntity);
         Task<bool> DeleteOperatingEntityRange(IEnumerable<OperatingEntity> operatingEntities);
+        Task<IEnumerable<OperatingEntity>> FindAllOperatingEntityWithSBUProportion();
     }
 }
