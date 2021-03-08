@@ -55,7 +55,9 @@ namespace HaloBiz.Repository.Impl.LAMS
                 lead.PrimaryContact = await _context.LeadContacts.FirstOrDefaultAsync(primaryContact => lead.PrimaryContactId == primaryContact.Id);
             if(lead.SecondaryContactId != null)
                 lead.SecondaryContact = await _context.LeadContacts.FirstOrDefaultAsync(contact => lead.SecondaryContactId == contact.Id);
-            lead.LeadDivisions = await _context.LeadDivisions
+            lead.LeadDivisions = await _context.LeadDivisions.AsNoTracking()
+                                    .Include(x => x.Branch)
+                                    .Include(x => x.Office)
                                     .Include(division => division.PrimaryContact)
                                     .Include(division => division.SecondaryContact)
                                     .Include(division => division.LeadDivisionKeyPersons.Where(x => x.IsDeleted == false))
