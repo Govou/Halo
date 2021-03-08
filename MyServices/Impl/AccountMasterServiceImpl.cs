@@ -72,7 +72,11 @@ namespace HaloBiz.MyServices.Impl
 
         public async Task<ApiResponse> QueryAccountMasters(AccountMasterTransactionDateQueryParams query)
         {
-            if(query.StartDate != null && query.EndDate != null && query.TransactionId == null)
+            if(query.VoucherTypeIds != null && query.VoucherTypeIds.Count > 0  
+                    && query.StartDate != null && query.EndDate != null){
+                return await GetAllAccountMastersByVoucherId(query);
+            }
+            else if(query.StartDate != null && query.EndDate != null && query.TransactionId == null)
             {
                 return await GetAllAccountMastersByTransactionDate(query);
             }
@@ -103,6 +107,21 @@ namespace HaloBiz.MyServices.Impl
                 var queryable =  _AccountMasterRepo.GetAccountMastersQueryable();
                 var accountMasters = await queryable.Where(x => x.CreatedAt >= query.StartDate
                             && x.CreatedAt <= query.EndDate && x.IsDeleted == false).ToListAsync();
+                var AccountMasterTransferDTOs = _mapper.Map<IEnumerable<AccountMasterTransferDTO>>(accountMasters);
+                return new ApiOkResponse(AccountMasterTransferDTOs);
+            }catch(Exception e)
+            {
+                _logger.LogError(e.Message);
+                _logger.LogError(e.StackTrace);
+                return new ApiResponse(500);
+            }
+        }
+        public async Task<ApiResponse> GetAllAccountMastersByVoucherId(AccountMasterTransactionDateQueryParams query)
+        {
+            try{
+                var queryable =  _AccountMasterRepo.GetAccountMastersQueryable();
+                var accountMasters = await queryable.Where(x => x.CreatedAt >= query.StartDate
+                            && x.CreatedAt <= query.EndDate && !x.IsDeleted && query.VoucherTypeIds.Contains(x.VoucherId)).ToListAsync();
                 var AccountMasterTransferDTOs = _mapper.Map<IEnumerable<AccountMasterTransferDTO>>(accountMasters);
                 return new ApiOkResponse(AccountMasterTransferDTOs);
             }catch(Exception e)

@@ -59,6 +59,7 @@ namespace HaloBiz.Repository.Impl
         {
             return  _context.AccountMasters
                 .Include(x => x.AccountDetails)
+                .Include(x => x.Voucher)
                 .Where(user => user.IsDeleted == false).AsQueryable();
         }
 
