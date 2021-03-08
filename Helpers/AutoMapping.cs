@@ -203,6 +203,8 @@ namespace HaloBiz.Helpers
             CreateMap<EndorsementType, EndorsementTypeTransferDTO>();
             CreateMap<ClientBeneficiaryReceivingDTO, ClientBeneficiary>();
             CreateMap<ClientBeneficiary, ClientBeneficiaryTransferDTO>();
+            CreateMap<SBUProportionReceivingDTO, SBUProportion>();
+            CreateMap<SBUProportion, SBUProportionTransferDTO>();
         }
     }
 }

@@ -18,6 +18,7 @@ namespace HaloBiz.Model
         [Required]
         public long DivisionId { get; set; }
         public virtual Division Division { get; set; }
+        public SBUProportion SBUProportion {get; set;}
         public IEnumerable<ServiceGroup> ServiceGroups { get; set; }
         public IEnumerable<StrategicBusinessUnit> StrategicBusinessUnits { get; set; }
         public bool IsDeleted { get; set; }
