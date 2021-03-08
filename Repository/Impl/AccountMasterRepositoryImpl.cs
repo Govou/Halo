@@ -98,6 +98,7 @@ namespace HaloBiz.Repository.Impl
 
                 return  await _context.AccountMasters 
                             .Include(x => x.AccountDetails)
+                            .ThenInclude(x => x.Account)
                             .Where(x => accountMasterIds.Contains(x.Id)).ToArrayAsync();
         }
 
