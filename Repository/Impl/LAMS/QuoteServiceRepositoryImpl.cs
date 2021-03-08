@@ -44,6 +44,10 @@ namespace HaloBiz.Repository.Impl.LAMS
                 .Include(x => x.ContractServices)
                 .Include(x => x.CreatedBy)
                 .FirstOrDefaultAsync( quoteService => quoteService.Id == Id && quoteService.IsDeleted == false);
+            if(quoteService == null)
+            {
+                return null;
+            }
             quoteService.Service = await _context.Services.FirstOrDefaultAsync(x => x.Id == quoteService.ServiceId && !x.IsDeleted);
             return quoteService;
         }
