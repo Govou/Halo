@@ -12,12 +12,14 @@ using HaloBiz.MyServices.LAMS;
 using halobiz_backend.Helpers;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using AutoMapper;
 
 namespace HaloBiz.MyServices.Impl.LAMS
 {
     public class LeadConversionServiceImpl : ILeadConversionService
     {
         private readonly DataContext _context;
+        private readonly IMapper _mapper;
         private readonly ILogger<LeadConversionServiceImpl> _logger;
         public long LoggedInUserId;
         private readonly string ReceivableControlAccount = "Receivable";
@@ -27,16 +29,18 @@ namespace HaloBiz.MyServices.Impl.LAMS
         private readonly string RETAIL = "RETAIL";
         private readonly string retailLogo = "https://firebasestorage.googleapis.com/v0/b/halo-biz.appspot.com/o/LeadLogo%2FRetail.png?alt=media&token=c07dd3f9-a25e-4b4b-bf23-991a6f09ee58";
         private bool isRetail = false;
+        
         private readonly List<string> groupInvoiceNumbers = new List<string>();
 
         public LeadConversionServiceImpl(
                                         DataContext context, 
-                                        ILogger<LeadConversionServiceImpl> logger
-                                        
+                                        ILogger<LeadConversionServiceImpl> logger,
+                                        IMapper mapper
                                         )
         {
             this._context = context;
             this._logger = logger;
+            this._mapper = mapper;
         }
         public async Task<bool> ConvertLeadToClient(long leadId, long loggedInUserId)
         {
@@ -326,7 +330,6 @@ namespace HaloBiz.MyServices.Impl.LAMS
             var groupContractServices = await _context.QuoteServices
                 .Where(x => x.GroupInvoiceNumber == contractService.GroupInvoiceNumber && !x.IsDeleted)
                     .ToListAsync();
-            
             foreach (var quoteService in groupContractServices)
             {
                 totalBillable += (double) quoteService.BillableAmount;
@@ -334,13 +337,11 @@ namespace HaloBiz.MyServices.Impl.LAMS
             }
 
             this.groupInvoiceNumbers.Add(contractService.GroupInvoiceNumber);
+            var newContractService = _mapper.Map<ContractService>(contractService);
+            newContractService.BillableAmount = totalBillable;
+            newContractService.VAT = totalVAT;
             
-            contractService.BillableAmount = totalBillable;
-            contractService.VAT = totalVAT;
-            contractService.Quantity = 0;
-            contractService.UnitPrice = 0;
-
-            return contractService;
+            return newContractService;
             
         }
 
@@ -544,10 +545,16 @@ namespace HaloBiz.MyServices.Impl.LAMS
                              $"TRS{serviceCode}/{contractService.Id}"
                                     :  $"{contractService.GroupInvoiceNumber.Replace("GINV", "TRS")}/{contractService.Id}" ;
 
+            var unitPrice = String.IsNullOrWhiteSpace(contractService.GroupInvoiceNumber) 
+                                ? contractService.UnitPrice : 0;
+
+            var quantity = String.IsNullOrWhiteSpace(contractService.GroupInvoiceNumber) ?
+                                contractService.Quantity : 0;
+
             return new Invoice(){
                     InvoiceNumber = $"{invoiceNumber}/{invoiceIndex}",
-                    UnitPrice = (double) contractService.UnitPrice,
-                    Quantity = contractService.Quantity,
+                    UnitPrice =   (double) unitPrice,
+                    Quantity = quantity,
                     Discount = contractService.Discount,
                     Value  = amount,
                     TransactionId = transactionId,
@@ -722,12 +729,12 @@ namespace HaloBiz.MyServices.Impl.LAMS
             FinanceVoucherType accountVoucherType = await _context.FinanceVoucherTypes
                     .FirstOrDefaultAsync(x => x.VoucherType == this.SALESINVOICEVOUCHER);
 
-            var totalContractBillable = CalculateTotalAmountForContract((double)quoteService.BillableAmount, 
+            var totalContractBillable = CalculateTotalAmountForContract((double)contractService.BillableAmount, 
                                                                         (DateTime)quoteService.ContractStartDate, 
                                                                         (DateTime) quoteService.ContractEndDate, 
                                                                         (TimeCycle) quoteService.InvoicingInterval);         
 
-            var totalVAT = CalculateTotalAmountForContract((double)quoteService.VAT, 
+            var totalVAT = CalculateTotalAmountForContract((double)contractService.VAT, 
                                                                         (DateTime)quoteService.ContractStartDate, 
                                                                         (DateTime) quoteService.ContractEndDate, 
                                                                         (TimeCycle) quoteService.InvoicingInterval);       
