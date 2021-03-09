@@ -28,7 +28,7 @@ namespace HaloBiz.MyServices.Impl
         private readonly IAccountRepository _accountRep;
         private readonly IFinancialVoucherTypeRepository _voucherRepo;
         private readonly string WITHOLDING_TAX = "WITHOLDING TAX";
-        private readonly string RECEIPTVOUCHERTYPE = "RECEIPT";
+        private readonly string RECEIPTVOUCHERTYPE = "Sales Receipt";
         private long LoggedInUserId;
 
         public ReceiptServiceImpl(ILogger<ReceiptServiceImpl> logger, IReceiptRepository receiptRepo,
