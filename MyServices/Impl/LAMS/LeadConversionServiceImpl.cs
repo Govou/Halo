@@ -337,6 +337,8 @@ namespace HaloBiz.MyServices.Impl.LAMS
             
             contractService.BillableAmount = totalBillable;
             contractService.VAT = totalVAT;
+            contractService.Quantity = 0;
+            contractService.UnitPrice = 0;
 
             return contractService;
             
