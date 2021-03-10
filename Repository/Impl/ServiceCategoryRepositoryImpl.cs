@@ -50,7 +50,7 @@ namespace HaloBiz.Repository.Impl
             if(serviceCategory != null){
                     serviceCategory.Services = await _context.Services
                     .Include(x => x.ServiceType)
-                    .Where( service => service.ServiceCategoryId == serviceCategory.Id && service.IsDeleted == false)
+                    .Where( service => service.ServiceCategoryId == serviceCategory.Id && !service.IsDeleted  && service.IsPublished)
                     .Select( x => new Services() {
                         Id = x.Id ,
                         ServiceCode = x.ServiceCode,
