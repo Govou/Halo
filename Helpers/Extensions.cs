@@ -88,7 +88,7 @@ namespace HaloBiz.Helpers
             if(contractService.InvoicingInterval == TimeCycle.OneTime){
                 return contractService.BillableAmount?? 0.0;
             }
-            var startDate = contractService.ContractStartDate?? DateTime.Now;
+            var startDate = (DateTime) contractService.ContractStartDate;
             var totalAmount = 0.0;
             while(startDate < contractService.ContractEndDate)
             {
