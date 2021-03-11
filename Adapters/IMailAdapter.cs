@@ -13,5 +13,8 @@ namespace HaloBiz.Adapters
         Task<ApiResponse> SendNewDeliverableAssigned(NewDeliverableAssignedDTO newDeliverableAssignedDTO);
         Task<ApiResponse> SendNewUserSignup(string userProfile);
         Task<ApiResponse> AssignRoleToNewUser(string serializedUser, string adminEmails);
+        Task<ApiResponse> ApproveNewService(string serializedApprovals);
+        Task<ApiResponse> ApproveNewQuoteService(string serializedApprovals);
+        Task<ApiResponse> SendQuoteNotification(string serializedQuote);
     }
 }
