@@ -94,14 +94,14 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
             var quoteFromDatabase = await _quoteRepo.FindQuoteById(savedQuote.Id);
             
-            var serializedQuote = JsonConvert.SerializeObject(quoteFromDatabase, new JsonSerializerSettings { 
-                ReferenceLoopHandling = ReferenceLoopHandling.Ignore
-            });
+            //var serializedQuote = JsonConvert.SerializeObject(quoteFromDatabase, new JsonSerializerSettings { 
+            //    ReferenceLoopHandling = ReferenceLoopHandling.Ignore
+            //});
 
-            Action action = async () => {
-                await _mailAdapter.SendQuoteNotification(serializedQuote);
-            };
-            action.RunAsTask();
+            //Action action = async () => {
+            //    await _mailAdapter.SendQuoteNotification(serializedQuote);
+            //};
+            //action.RunAsTask();
             var quoteTransferDTO = _mapper.Map<QuoteTransferDTO>(quoteFromDatabase);
             return new ApiOkResponse(quoteTransferDTO);
         }
