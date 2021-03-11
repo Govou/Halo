@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
+using System.Threading.Tasks;
 using HaloBiz.DTOs.ReceivingDTO;
 using HaloBiz.DTOs.TransferDTOs;
 using HaloBiz.Model;
@@ -97,6 +98,11 @@ namespace HaloBiz.Helpers
             }
 
             return totalAmount;
+        }
+
+        public static void RunAsTask(this Action action)
+        {
+            Task.Run(action);
         }
     }
 }

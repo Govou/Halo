@@ -10,6 +10,7 @@ using HaloBiz.DTOs.MailDTOs;
 using Newtonsoft.Json;
 using HaloBiz.Model;
 using Microsoft.Extensions.Configuration;
+using HaloBiz.Model.LAMS;
 
 namespace HaloBiz.Adapters.Impl
 {
@@ -139,5 +140,142 @@ namespace HaloBiz.Adapters.Impl
                 return new ApiResponse(500, ex.Message);
             }
         }
+
+        public async Task<ApiResponse> ApproveNewService(string serializedApprovals)
+        {
+            var baseUrl = $"{_mailBaseUrl}/Mail/ApproveNewService";
+
+            var servicesApprovalItems = JsonConvert.DeserializeObject<List<Approval>>(serializedApprovals);
+
+            try
+            {
+                foreach (var approval in servicesApprovalItems)
+                {
+                    var response = await baseUrl.AllowAnyHttpStatus()
+                   .PostJsonAsync(new
+                   {
+                       userName = $"{approval.Responsible?.FirstName} {approval.Responsible?.LastName}",
+                       serviceName = approval.QuoteService?.Service?.Name,
+                       emailAddress = approval.Responsible?.Email
+                   }).ReceiveJson();
+                }         
+
+                return new ApiOkResponse(true);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogInformation(ex.Message);
+                _logger.LogInformation(ex.StackTrace);
+                return new ApiResponse(500, ex.Message);
+            }
+        }
+
+        public async Task<ApiResponse> ApproveNewQuoteService(string serializedApprovals)
+        {
+            var baseUrl = $"{_mailBaseUrl}/Mail/ApproveNewQuoteService";
+
+            var servicesApprovalItems = JsonConvert.DeserializeObject<List<Approval>>(serializedApprovals);
+
+            try
+            {
+                foreach (var approval in servicesApprovalItems)
+                {
+                    var response = await baseUrl.AllowAnyHttpStatus()
+                   .PostJsonAsync(new
+                   {
+                       userName = $"{approval.Responsible?.FirstName} {approval.Responsible?.LastName}",
+                       serviceName = approval.QuoteService?.Service?.Name,
+                       emailAddress = approval.Responsible?.Email
+                   }).ReceiveJson();
+                }
+                
+
+                return new ApiOkResponse(true);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogInformation(ex.Message);
+                _logger.LogInformation(ex.StackTrace);
+                return new ApiResponse(500, ex.Message);
+            }
+        }
+
+        public async Task<ApiResponse> SendQuoteNotification(string serializedQuote)
+        {
+            var baseUrl = $"{_mailBaseUrl}/Mail/SendQuoteNotification";
+
+            var quotesDetails = JsonConvert.DeserializeObject<Quote>(serializedQuote);
+
+            try
+            {
+                var response = await baseUrl.AllowAnyHttpStatus()
+                   .PostJsonAsync(new
+                   {
+                       nameOfContact = quotesDetails.LeadDivision?.PrimaryContact?.FirstName,
+                       quoteservices = JsonConvert.SerializeObject(quotesDetails.QuoteServices.Select(x => x.Service.Name)),
+                       emailAddress = quotesDetails.LeadDivision?.PrimaryContact?.Email
+                   }).ReceiveJson();
+
+                return new ApiOkResponse(true);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogInformation(ex.Message);
+                _logger.LogInformation(ex.StackTrace);
+                return new ApiResponse(500, ex.Message);
+            }
+        }
+
+        //public async Task<ApiResponse> LeadConversionTriggered(string serializedLeadtoClient)
+        //{
+        //    var baseUrl = $"{_mailBaseUrl}/Mail/LeadConversionTriggered";
+
+        //    var quotesDetails = JsonConvert.DeserializeObject<Quote>(serializedLeadtoClient);
+
+        //    try
+        //    {
+        //        var response = await baseUrl.AllowAnyHttpStatus()
+        //           .PostJsonAsync(new
+        //           {
+        //               nameOfContact = quotesDetails.LeadDivision?.PrimaryContact?.FirstName,
+        //               quoteservices = JsonConvert.SerializeObject(quotesDetails.QuoteServices.Select(x => x.Service.Name)),
+        //               emailAddress = quotesDetails.LeadDivision?.PrimaryContact?.Email
+        //           }).ReceiveJson();
+
+        //        return new ApiOkResponse(true);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        _logger.LogInformation(ex.Message);
+        //        _logger.LogInformation(ex.StackTrace);
+        //        return new ApiResponse(500, ex.Message);
+        //    }
+        //}
+
+        //public async Task<ApiResponse> LeadDroppedNotification(string serializedLead)
+        //{
+        //    var baseUrl = $"{_mailBaseUrl}/Mail/LeadDroppedNotification";
+
+        //    var leadDetails = JsonConvert.DeserializeObject<LeadDivision>(serializedLead);
+        //    var userProfile = JsonConvert.DeserializeObject<UserProfile>(serializedLead);
+
+        //    try
+        //    {
+        //        var response = await baseUrl.AllowAnyHttpStatus()
+        //           .PostJsonAsync(new
+        //           {
+        //               leadName = leadDetails.DivisionName,
+        //               emailAddress = userProfile.Email
+        //           }).ReceiveJson();
+
+        //        return new ApiOkResponse(true);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        _logger.LogInformation(ex.Message);
+        //        _logger.LogInformation(ex.StackTrace);
+        //        return new ApiResponse(500, ex.Message);
+        //    }
+        //}
     }
 }

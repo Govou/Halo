@@ -8,9 +8,9 @@ namespace HaloBiz.DTOs.TransferDTOs.LAMS
     {
         public long Id { get; set; }
         public long LeadTypeId { get; set; }
-        public virtual LeadTypeWithoutOriginDTO LeadType { get; set; }
+        public LeadTypeWithoutOriginDTO LeadType { get; set; }
         public long LeadOriginId { get; set; }
-        public virtual LeadOriginWithoutTypeTransferDTO LeadOrigin { get; set; }
+        public LeadOriginWithoutTypeTransferDTO LeadOrigin { get; set; }
         public string Industry { get; set; }
         public string RCNumber { get; set; }
         public string DivisionName { get; set; }
@@ -19,15 +19,15 @@ namespace HaloBiz.DTOs.TransferDTOs.LAMS
         public string LogoUrl { get; set; }
         public string Address { get; set; }
         public long PrimaryContactId { get; set; }
-        public virtual LeadDivisionContactTransferDTO PrimaryContact { get; set; }
+        public LeadDivisionContactTransferDTO PrimaryContact { get; set; }
         public long? SecondaryContactId { get; set; }
         public LeadDivisionContactTransferDTO SecondaryContact { get; set; }
         public long BranchId { get; set; }
-        public virtual BranchTransferDTO Branch { get; set; }
+        public BranchTransferDTO Branch { get; set; }
         public long OfficeId { get; set; }
         public virtual OfficeTransferDTO Office { get; set; }
         public long LeadId { get; set; }
-        public virtual LeadTransferDTO Lead { get; set; }
+        public LeadTransferDTO Lead { get; set; }
         public QuoteWithoutLeadDivisionTransferDTO Quote { get; set; }
         public IEnumerable<LeadDivisionKeyPersonTransferDTO> LeadDivisionKeyPersons { get; set; }
         public long CreatedById { get; set; }
