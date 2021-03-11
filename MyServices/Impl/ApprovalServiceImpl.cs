@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
+using HaloBiz.Adapters;
 using HaloBiz.Data;
 using HaloBiz.DTOs.ApiDTOs;
 using HaloBiz.DTOs.ReceivingDTOs;
@@ -14,6 +15,7 @@ using HaloBiz.Repository;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 
 namespace HaloBiz.MyServices.Impl
 {
@@ -25,6 +27,7 @@ namespace HaloBiz.MyServices.Impl
         private readonly IApprovalRepository _approvalRepo;
         private readonly IApprovalLimitRepository _approvalLimitRepo;
         private readonly IProcessesRequiringApprovalRepository _processesRequiringApprovalRepo;
+        private readonly IMailAdapter _mailAdapter;
 
         private readonly IMapper _mapper;
 
@@ -32,6 +35,7 @@ namespace HaloBiz.MyServices.Impl
             IApprovalRepository approvalRepo,
             IApprovalLimitRepository approvalLimitRepo,
             IProcessesRequiringApprovalRepository processesRequiringApprovalRepo,
+            IMailAdapter mailAdapter,
             DataContext context,
             ILogger<ApprovalServiceImpl> logger, IMapper mapper)
         {
@@ -40,6 +44,7 @@ namespace HaloBiz.MyServices.Impl
             _approvalRepo = approvalRepo;
             _approvalLimitRepo = approvalLimitRepo;
             _processesRequiringApprovalRepo = processesRequiringApprovalRepo;
+            _mailAdapter = mailAdapter;
             _context = context;
             _logger = logger;
         }
@@ -243,7 +248,24 @@ namespace HaloBiz.MyServices.Impl
                 }
                 if (approvals.Any())
                 {
-                    return await _approvalRepo.SaveApprovalRange(approvals);
+                    var successful = await _approvalRepo.SaveApprovalRange(approvals);
+                    if (successful)
+                    {
+                        var serializedApprovals = JsonConvert.SerializeObject(approvals, new JsonSerializerSettings
+                        {
+                            ReferenceLoopHandling = ReferenceLoopHandling.Ignore
+                        });
+
+                        Action action = async () => {
+                            await _mailAdapter.ApproveNewQuoteService(serializedApprovals);                     
+                        };
+                        action.RunAsTask();
+                        return true;
+                    }
+                    else
+                    {
+                        return false;
+                    }
                 }
                 return false;
             }
@@ -335,7 +357,24 @@ namespace HaloBiz.MyServices.Impl
 
                 if (approvals.Any())
                 {
-                    return await _approvalRepo.SaveApprovalRange(approvals);
+                    var successful = await _approvalRepo.SaveApprovalRange(approvals);
+                    if (successful)
+                    {
+                        var serializedApprovals = JsonConvert.SerializeObject(approvals, new JsonSerializerSettings
+                        {
+                            ReferenceLoopHandling = ReferenceLoopHandling.Ignore
+                        });
+
+                        Action action = async () => {
+                            await _mailAdapter.ApproveNewService(serializedApprovals);
+                        };
+                        action.RunAsTask();
+                        return true;
+                    }
+                    else
+                    {
+                        return false;
+                    }
                 }
                 else
                 {
