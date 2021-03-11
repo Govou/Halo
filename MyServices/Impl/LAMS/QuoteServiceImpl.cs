@@ -4,6 +4,7 @@ using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using AutoMapper;
+using HaloBiz.Adapters;
 using HaloBiz.Data;
 using HaloBiz.DTOs.ApiDTOs;
 using HaloBiz.DTOs.ReceivingDTOs;
@@ -16,6 +17,7 @@ using HaloBiz.Repository;
 using HaloBiz.Repository.LAMS;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 
 namespace HaloBiz.MyServices.Impl.LAMS
 {
@@ -25,6 +27,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
         private readonly IModificationHistoryRepository _historyRepo;
         private readonly IQuoteRepository _quoteRepo;
         private readonly IQuoteServiceRepository _quoteServiceRepo;
+        private readonly IMailAdapter _mailAdapter;
         private readonly IMapper _mapper;
         private readonly DataContext _context;
 
@@ -32,6 +35,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
             IQuoteRepository quoteRepo, 
             IQuoteServiceRepository quoteServiceRepo, 
             ILogger<QuoteServiceImpl> logger, 
+            IMailAdapter mailAdapter,
             IMapper mapper,
             DataContext context)
         {
@@ -39,6 +43,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
             this._historyRepo = historyRepo;
             this._quoteRepo = quoteRepo;
             this._quoteServiceRepo = quoteServiceRepo;
+            this._mailAdapter = mailAdapter;
             this._logger = logger;
             this._context = context;
         }
@@ -87,7 +92,16 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 }                   
             }
 
-            var quoteFromDatabase = await _quoteRepo.FindQuoteById(savedQuote.Id);          
+            var quoteFromDatabase = await _quoteRepo.FindQuoteById(savedQuote.Id);
+            
+            var serializedQuote = JsonConvert.SerializeObject(quoteFromDatabase, new JsonSerializerSettings { 
+                ReferenceLoopHandling = ReferenceLoopHandling.Ignore
+            });
+
+            Action action = async () => {
+                await _mailAdapter.SendQuoteNotification(serializedQuote);
+            };
+            action.RunAsTask();
             var quoteTransferDTO = _mapper.Map<QuoteTransferDTO>(quoteFromDatabase);
             return new ApiOkResponse(quoteTransferDTO);
         }
