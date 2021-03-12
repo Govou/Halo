@@ -21,6 +21,7 @@ using halobiz_backend.DTOs.TransferDTOs.LAMS;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 
 namespace HaloBiz.MyServices.Impl.LAMS
 {
@@ -63,17 +64,6 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 return new ApiResponse(500);
             }
 
-            // await _mailAdapter.SendNewDeliverableAssigned(new NewDeliverableAssignedDTO
-            // {
-            //     EmailAddress = savedDeliverableFulfillment.Responsible.Email,
-            //     UserName = $"{savedDeliverableFulfillment.Responsible.FirstName} {savedDeliverableFulfillment.Responsible.LastName}",
-            //     Customer = savedDeliverableFulfillment.TaskFullfillment.CustomerDivision.DivisionName,
-            //     TaskOwner = $"{savedDeliverableFulfillment.TaskFullfillment.Responsible.FirstName} {savedDeliverableFulfillment.TaskFullfillment.Responsible.LastName}",
-            //     TaskName = savedDeliverableFulfillment.TaskFullfillment.Caption,
-            //     ServiceName = savedDeliverableFulfillment.TaskFullfillment.ContractService.ServiceId.ToString(),
-            //     Quantity = savedDeliverableFulfillment.TaskFullfillment.ContractService.Quantity.ToString(),
-            //     Deliverable = savedDeliverableFulfillment.Caption
-            // });
             var deliverableFulfillmentTransferDTO = _mapper.Map<DeliverableFulfillmentTransferDTO>(savedDeliverableFulfillment);
             return new ApiOkResponse(deliverableFulfillmentTransferDTO);
         }
@@ -165,6 +155,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
         public async Task<ApiResponse> UpdateDeliverableFulfillment(HttpContext context, long deliverableId, DeliverableFulfillmentReceivingDTO deliverableFulfillmentReceivingDTO)
         {
             var isUpdateToAssignResponsible = false;
+            var isUpdateThatAssignsDeliverable = false;
             
             using(var transaction = await _context.Database.BeginTransactionAsync())
             {
@@ -176,6 +167,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                     }
 
                     isUpdateToAssignResponsible = deliverableFulfillmentToUpdate.ResponsibleId == 0 && deliverableFulfillmentReceivingDTO.ResponsibleId > 0;
+                    isUpdateThatAssignsDeliverable = deliverableFulfillmentToUpdate.ResponsibleId == null && deliverableFulfillmentReceivingDTO.ResponsibleId > 0;
                     
                     var summary = $"Initial details before change, \n {deliverableFulfillmentToUpdate.ToString()} \n" ;
 
@@ -209,8 +201,14 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
                     if(isUpdateToAssignResponsible)
                     {
-                        await CheckAllDeliverablesAndSetTaskAssignmentStatus( deliverableFulfillmentToUpdate.TaskFullfillmentId);
+                        await CheckAllDeliverablesAndSetTaskAssignmentStatus( deliverableFulfillmentToUpdate.TaskFullfillmentId);                     
                     }
+
+                    if (isUpdateThatAssignsDeliverable)
+                    {
+                        await SendNewDeliverableAssignedMail(updatedDeliverableFulfillment);
+                    }
+
                     await transaction.CommitAsync();
                     var deliverableFulfillmentTransferDTOs = _mapper.Map<DeliverableFulfillmentTransferDTO>(updatedDeliverableFulfillment);
                     return new ApiOkResponse(deliverableFulfillmentTransferDTOs);
@@ -471,6 +469,25 @@ namespace HaloBiz.MyServices.Impl.LAMS
                     return new ApiResponse(500);
                 }
             }
+        }
+
+        private async Task SendNewDeliverableAssignedMail(DeliverableFulfillment deliverableFulfillment)
+        {
+            deliverableFulfillment.Responsible = await _context.UserProfiles.FindAsync(deliverableFulfillment.ResponsibleId);
+            deliverableFulfillment.TaskFullfillment = await _context.TaskFulfillments.AsNoTracking()
+                .Where(x => x.Id == deliverableFulfillment.TaskFullfillmentId)
+                .Include(x => x.CustomerDivision)
+                .Include(x => x.Responsible)
+                .Include(x => x.ContractService).ThenInclude(x => x.Service)
+                .FirstOrDefaultAsync();
+
+            var serializedDeliverableInfo = JsonConvert.SerializeObject(deliverableFulfillment, new JsonSerializerSettings { ReferenceLoopHandling = ReferenceLoopHandling.Ignore });
+
+            Action action = async () =>
+            {
+                await _mailAdapter.SendNewDeliverableAssigned(serializedDeliverableInfo);
+            };
+            action.RunAsTask();
         }
     }
 }

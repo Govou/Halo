@@ -10,10 +10,11 @@ namespace HaloBiz.Adapters
     public interface IMailAdapter
     {
         Task<ApiResponse> SendUserAssignedToRoleMail(string userProfile);
-        Task<ApiResponse> SendNewDeliverableAssigned(NewDeliverableAssignedDTO newDeliverableAssignedDTO);
+        Task<ApiResponse> SendNewDeliverableAssigned(string serializedDeliverable);
+        Task<ApiResponse> SendNewTaskAssigned(string serializedTask);
         Task<ApiResponse> SendNewUserSignup(string userProfile);
         Task<ApiResponse> AssignRoleToNewUser(string serializedUser, string adminEmails);
-        Task<ApiResponse> ApproveNewService(string serializedApprovals);
+        Task<ApiResponse> ApproveNewService(string serializedApproval);
         Task<ApiResponse> ApproveNewQuoteService(string serializedApprovals);
         Task<ApiResponse> SendQuoteNotification(string serializedQuote);
     }

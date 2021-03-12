@@ -11,19 +11,23 @@ using Newtonsoft.Json;
 using HaloBiz.Model;
 using Microsoft.Extensions.Configuration;
 using HaloBiz.Model.LAMS;
+using HaloBiz.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace HaloBiz.Adapters.Impl
 {
     public class MailAdapter : IMailAdapter
     {
         private readonly ILogger<MailAdapter> _logger;
+        private readonly DataContext _context;
         private readonly IConfiguration _configuration;
         private readonly string _mailBaseUrl;
-        public MailAdapter(ILogger<MailAdapter> logger, IConfiguration configuration)
+        public MailAdapter(ILogger<MailAdapter> logger, DataContext context, IConfiguration configuration)
         {
             _logger = logger;
             _configuration = configuration;
             _mailBaseUrl = _configuration["MailServiceBaseUrl"] ?? _configuration.GetSection("AppSettings:MailServiceBaseUrl").Value;
+            _context = context;
         }
 
         public async Task<ApiResponse> SendUserAssignedToRoleMail(string message)
@@ -52,23 +56,25 @@ namespace HaloBiz.Adapters.Impl
                 return new ApiResponse(500, ex.Message);
             }
         }
-        public async Task<ApiResponse> SendNewDeliverableAssigned(NewDeliverableAssignedDTO newDeliverableAssignedDTO)
+        public async Task<ApiResponse> SendNewDeliverableAssigned(string serializedDeliverable)
         {
             var baseUrl = $"{_mailBaseUrl}/Mail/SendNewDeliverableAssigned";
 
+            var deliverableFulfillment = JsonConvert.DeserializeObject<DeliverableFulfillment>(serializedDeliverable);
+            
             try
             {
                 var response = await baseUrl.AllowAnyHttpStatus()
                    .PostJsonAsync(new
                    {
-                       emailAddress = newDeliverableAssignedDTO.EmailAddress,
-                       userName = newDeliverableAssignedDTO.UserName,
-                       customer = newDeliverableAssignedDTO.Customer,
-                       taskOwner = newDeliverableAssignedDTO.TaskOwner,
-                       taskName = newDeliverableAssignedDTO.TaskName,
-                       serviceName = newDeliverableAssignedDTO.ServiceName,
-                       quantity = newDeliverableAssignedDTO.Quantity,
-                       deliverable = newDeliverableAssignedDTO.Deliverable
+                       emailAddress = deliverableFulfillment.Responsible.Email,
+                       userName = $"{deliverableFulfillment.Responsible.FirstName} {deliverableFulfillment.Responsible.LastName}",
+                       client = deliverableFulfillment.TaskFullfillment.CustomerDivision.DivisionName,
+                       taskOwner = $"{deliverableFulfillment.TaskFullfillment.Responsible.FirstName} {deliverableFulfillment.TaskFullfillment.Responsible.LastName}",
+                       taskName = deliverableFulfillment.TaskFullfillment.Caption,
+                       serviceName = deliverableFulfillment.TaskFullfillment.ContractService.Service.Name,
+                       serviceQuantity = deliverableFulfillment.TaskFullfillment.ContractService.Quantity.ToString(),
+                       deliverableName = deliverableFulfillment.Caption
                    }).ReceiveJson();
 
                 return new ApiOkResponse(true);
@@ -80,6 +86,35 @@ namespace HaloBiz.Adapters.Impl
                 return new ApiResponse(500, ex.Message);
             }
         }
+
+        public async Task<ApiResponse> SendNewTaskAssigned(string serializedTask)
+        {
+            var baseUrl = $"{_mailBaseUrl}/Mail/NewTaskAssigned";
+
+            var task = JsonConvert.DeserializeObject<TaskFulfillment>(serializedTask);
+
+            try
+            {
+                var response = await baseUrl.AllowAnyHttpStatus()
+                   .PostJsonAsync(new
+                   {
+                       emailAddresses = new string[] { task.Responsible?.Email },
+                       userName = $"{task.Responsible?.FirstName} {task.Responsible?.LastName}",
+                       customer = task.CustomerDivision?.DivisionName,
+                       operatingEntityName = task.ContractService?.Service?.OperatingEntity?.Name,
+                       taskName = task.Caption
+                   }).ReceiveJson();
+
+                return new ApiOkResponse(true);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogInformation(ex.Message);
+                _logger.LogInformation(ex.StackTrace);
+                return new ApiResponse(500, ex.Message);
+            }
+        }
+
         public async Task<ApiResponse> SendNewUserSignup(string messsage)
         {
             var baseUrl = $"{_mailBaseUrl}/Mail/SendNewUserSignup";
@@ -141,25 +176,33 @@ namespace HaloBiz.Adapters.Impl
             }
         }
 
-        public async Task<ApiResponse> ApproveNewService(string serializedApprovals)
+        public async Task<ApiResponse> ApproveNewService(string serializedApproval)
         {
             var baseUrl = $"{_mailBaseUrl}/Mail/ApproveNewService";
 
-            var servicesApprovalItems = JsonConvert.DeserializeObject<List<Approval>>(serializedApprovals);
+            var approval = JsonConvert.DeserializeObject<Approval>(serializedApproval);
 
             try
             {
-                foreach (var approval in servicesApprovalItems)
+                if (approval.Responsible != null && approval.Services != null)
                 {
                     var response = await baseUrl.AllowAnyHttpStatus()
-                   .PostJsonAsync(new
-                   {
-                       userName = $"{approval.Responsible?.FirstName} {approval.Responsible?.LastName}",
-                       serviceName = approval.QuoteService?.Service?.Name,
-                       emailAddress = approval.Responsible?.Email
-                   }).ReceiveJson();
-                }         
-
+                    .PostJsonAsync(new
+                    {
+                        emailAddresses = new string[] { approval.Responsible?.Email },
+                        userName = $"{approval.Responsible.FirstName} {approval.Responsible.LastName}",
+                        operatingEntityName = approval.Services.OperatingEntity.Name,
+                        serviceCategoryName = approval.Services.ServiceCategory.Name,
+                        divisionName = approval.Services.Division.Name,
+                        serviceName = approval.Services.Name
+                    }).ReceiveJson();
+                }
+                else
+                {
+                    var approvalInfo = JsonConvert.SerializeObject(approval, new JsonSerializerSettings { ReferenceLoopHandling = ReferenceLoopHandling.Ignore });
+                    _logger.LogInformation($"Failed to send mail for approval {approvalInfo} due to missing parameters");
+                }
+                                     
                 return new ApiOkResponse(true);
             }
             catch (Exception ex)
@@ -174,21 +217,28 @@ namespace HaloBiz.Adapters.Impl
         {
             var baseUrl = $"{_mailBaseUrl}/Mail/ApproveNewQuoteService";
 
-            var servicesApprovalItems = JsonConvert.DeserializeObject<List<Approval>>(serializedApprovals);
+            var approval = JsonConvert.DeserializeObject<Approval>(serializedApprovals);
 
             try
             {
-                foreach (var approval in servicesApprovalItems)
+                if(approval.Responsible != null && approval.QuoteService != null && approval.QuoteService.Service != null)
                 {
                     var response = await baseUrl.AllowAnyHttpStatus()
-                   .PostJsonAsync(new
-                   {
-                       userName = $"{approval.Responsible?.FirstName} {approval.Responsible?.LastName}",
-                       serviceName = approval.QuoteService?.Service?.Name,
-                       emailAddress = approval.Responsible?.Email
-                   }).ReceiveJson();
+                    .PostJsonAsync(new
+                    {
+                        emailAddresses = new string[] { approval.Responsible?.Email },
+                        userName = $"{approval.Responsible.FirstName} {approval.Responsible.LastName}",
+                        operatingEntityName = approval.QuoteService.Service.OperatingEntity.Name,
+                        serviceCategoryName = approval.QuoteService.Service.ServiceCategory.Name,
+                        divisionName = approval.QuoteService.Service.Division.Name,
+                        quoteServiceName = approval.QuoteService.Service.Name                
+                    }).ReceiveJson();
                 }
-                
+                else
+                {
+                    var approvalInfo = JsonConvert.SerializeObject(approval, new JsonSerializerSettings { ReferenceLoopHandling = ReferenceLoopHandling.Ignore });
+                    _logger.LogError($"Failed to send mail for approval {approvalInfo} due to missing parameters");
+                }            
 
                 return new ApiOkResponse(true);
             }
