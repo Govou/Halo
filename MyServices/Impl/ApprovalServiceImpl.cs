@@ -251,15 +251,7 @@ namespace HaloBiz.MyServices.Impl
                     var successful = await _approvalRepo.SaveApprovalRange(approvals);
                     if (successful)
                     {
-                        var serializedApprovals = JsonConvert.SerializeObject(approvals, new JsonSerializerSettings
-                        {
-                            ReferenceLoopHandling = ReferenceLoopHandling.Ignore
-                        });
-
-                        Action action = async () => {
-                            await _mailAdapter.ApproveNewQuoteService(serializedApprovals);                     
-                        };
-                        action.RunAsTask();
+                        await SendMailsForContractApprovals(approvals);
                         return true;
                     }
                     else
@@ -360,15 +352,7 @@ namespace HaloBiz.MyServices.Impl
                     var successful = await _approvalRepo.SaveApprovalRange(approvals);
                     if (successful)
                     {
-                        var serializedApprovals = JsonConvert.SerializeObject(approvals, new JsonSerializerSettings
-                        {
-                            ReferenceLoopHandling = ReferenceLoopHandling.Ignore
-                        });
-
-                        Action action = async () => {
-                            await _mailAdapter.ApproveNewService(serializedApprovals);
-                        };
-                        action.RunAsTask();
+                        await SendMailsForServiceApprovals(approvals);                      
                         return true;
                     }
                     else
@@ -420,6 +404,58 @@ namespace HaloBiz.MyServices.Impl
 
             var approvalTransferDTOs = _mapper.Map<ApprovalTransferDTO>(updatedApproval);
             return new ApiOkResponse(approvalTransferDTOs);
+        }
+
+        private async Task SendMailsForServiceApprovals(List<Approval> approvals)
+        {
+            foreach (var approval in approvals)
+            {
+                approval.Responsible = await _context.UserProfiles.FindAsync(approval.ResponsibleId);
+
+                approval.Services = await _context.Services.AsNoTracking()
+                    .Where(x => x.Id == approval.ServicesId)
+                    .Include(x => x.OperatingEntity)
+                    .Include(x => x.Division)
+                    .Include(x => x.ServiceCategory)
+                    .FirstOrDefaultAsync();
+
+                var serializedApproval = JsonConvert.SerializeObject(approval, new JsonSerializerSettings
+                {
+                    ReferenceLoopHandling = ReferenceLoopHandling.Ignore
+                });
+
+                Action action = async () => {
+                    await _mailAdapter.ApproveNewService(serializedApproval);
+                };
+
+                action.RunAsTask();
+            }
+        }
+
+        private async Task SendMailsForContractApprovals(List<Approval> approvals)
+        {
+            foreach (var approval in approvals)
+            {
+                approval.Responsible = await _context.UserProfiles.FindAsync(approval.ResponsibleId);
+
+                approval.QuoteService = await _context.QuoteServices.AsNoTracking()
+                    .Where(x => x.Id == approval.QuoteServiceId)
+                    .Include(x => x.Service).ThenInclude(x => x.OperatingEntity)
+                    .Include(x => x.Service).ThenInclude(x => x.ServiceCategory)
+                    .Include(x => x.Service).ThenInclude(x => x.Division)
+                    .FirstOrDefaultAsync();
+
+                var serializedApproval = JsonConvert.SerializeObject(approval, new JsonSerializerSettings
+                {
+                    ReferenceLoopHandling = ReferenceLoopHandling.Ignore
+                });
+
+                Action action = async () => {
+                    await _mailAdapter.ApproveNewQuoteService(serializedApproval);
+                };
+
+                action.RunAsTask();
+            }
         }
     }
 }
