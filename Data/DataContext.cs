@@ -93,6 +93,9 @@ namespace HaloBiz.Data
     public DbSet<GroupInvoiceDetails> GroupInvoiceDetails { get; set; }
     public DbSet<GroupInvoiceTracker> GroupInvoiceTracker { get; set; }
     public DbSet<SBUProportion> SBUProportions { get; set; }
+    
+    public DbSet<EndorsementTypeTracker> EndorsementTypeTrackers { get; set; }
+    public DbSet<ContractServiceForEndorsement> ContractServiceForEndorsements{ get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder builder)
@@ -701,6 +704,22 @@ namespace HaloBiz.Data
                .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
             builder.Entity<SBUProportion>()
+                .Property(p => p.CreatedAt)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            builder.Entity<EndorsementTypeTracker>()
+               .Property(p => p.UpdatedAt)
+               .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            builder.Entity<EndorsementTypeTracker>()
+                .Property(p => p.CreatedAt)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            builder.Entity<ContractServiceForEndorsement>()
+               .Property(p => p.UpdatedAt)
+               .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            builder.Entity<ContractServiceForEndorsement>()
                 .Property(p => p.CreatedAt)
                 .HasDefaultValueSql("CURRENT_TIMESTAMP");
         }

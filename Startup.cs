@@ -165,6 +165,7 @@ namespace HaloBiz
             services.AddScoped<IEndorsementTypeService, EndorsementTypeServiceImpl>();
             services.AddScoped<IClientBeneficiaryService, ClientBeneficiaryServiceImpl>();
             services.AddScoped<ISBUProportionService, SBUProportionServiceImpl>();
+            services.AddScoped<IContractServiceForEndorsementService, ContractServiceForEndorsementServiceImpl>();
 
 
             //repositories
@@ -238,6 +239,7 @@ namespace HaloBiz
             services.AddScoped<IClientBeneficiaryRepository, ClientBeneficiaryRepositoryImpl>();
             services.AddScoped<IGroupInvoiceTrackerRepository, GroupInvoiceTrackerRepositoryImpl>();
             services.AddScoped<ISBUProportionRepository, SBUProportionRepositoryImpl>();
+            services.AddScoped<IContractServiceForEndorsementRepository, ContractServiceForEndorsementRepositoryImpl>();
 
             // Adapters
             services.AddScoped<IMailAdapter, MailAdapter>();
