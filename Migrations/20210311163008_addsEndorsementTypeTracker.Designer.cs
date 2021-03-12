@@ -4,14 +4,16 @@ using HaloBiz.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace HaloBiz.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20210311163008_addsEndorsementTypeTracker")]
+    partial class addsEndorsementTypeTracker
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1024,7 +1026,7 @@ namespace HaloBiz.Migrations
 
                     b.HasIndex("EndorsementTypeId");
 
-                    b.ToTable("EndorsementTypeTrackers");
+                    b.ToTable("EndorsementTypeTrackerS");
                 });
 
             modelBuilder.Entity("HaloBiz.Model.GroupType", b =>
@@ -1309,9 +1311,6 @@ namespace HaloBiz.Migrations
                     b.Property<double?>("BillableAmount")
                         .HasColumnType("float");
 
-                    b.Property<long?>("BranchId")
-                        .HasColumnType("bigint");
-
                     b.Property<double?>("Budget")
                         .HasColumnType("float");
 
@@ -1362,9 +1361,6 @@ namespace HaloBiz.Migrations
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
-
-                    b.Property<long?>("OfficeId")
-                        .HasColumnType("bigint");
 
                     b.Property<int?>("PaymentCycle")
                         .HasColumnType("int");
@@ -1436,200 +1432,15 @@ namespace HaloBiz.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("BranchId");
-
                     b.HasIndex("ContractId");
 
                     b.HasIndex("CreatedById");
-
-                    b.HasIndex("OfficeId");
 
                     b.HasIndex("QuoteServiceId");
 
                     b.HasIndex("ServiceId");
 
                     b.ToTable("ContractServices");
-                });
-
-            modelBuilder.Entity("HaloBiz.Model.LAMS.ContractServiceForEndorsement", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint")
-                        .UseIdentityColumn();
-
-                    b.Property<DateTime?>("ActivationDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("BeneficiaryIdentificationType")
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
-
-                    b.Property<string>("BeneficiaryName")
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
-
-                    b.Property<string>("BenificiaryIdentificationNumber")
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
-
-                    b.Property<double?>("BillableAmount")
-                        .HasColumnType("float");
-
-                    b.Property<long?>("BranchId")
-                        .HasColumnType("bigint");
-
-                    b.Property<double?>("Budget")
-                        .HasColumnType("float");
-
-                    b.Property<DateTime?>("ContractEndDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<long>("ContractId")
-                        .HasColumnType("bigint");
-
-                    b.Property<DateTime?>("ContractStartDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime2")
-                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
-
-                    b.Property<long>("CreatedById")
-                        .HasColumnType("bigint");
-
-                    b.Property<long>("CustomerDivisionId")
-                        .HasColumnType("bigint");
-
-                    b.Property<double>("Discount")
-                        .HasColumnType("float");
-
-                    b.Property<DateTime?>("DropoffDateTime")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Dropofflocation")
-                        .HasMaxLength(1000)
-                        .HasColumnType("nvarchar(1000)");
-
-                    b.Property<long>("EndorsementTypeId")
-                        .HasColumnType("bigint");
-
-                    b.Property<DateTime?>("FirstInvoiceSendDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime?>("FulfillmentEndDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime?>("FulfillmentStartDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("GroupInvoiceNumber")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<long?>("InvoiceCycleInDays")
-                        .HasColumnType("bigint");
-
-                    b.Property<int?>("InvoicingInterval")
-                        .HasColumnType("int");
-
-                    b.Property<bool>("IsApproved")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("IsDeclined")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("IsRequestedForApproval")
-                        .HasColumnType("bit");
-
-                    b.Property<long?>("OfficeId")
-                        .HasColumnType("bigint");
-
-                    b.Property<int?>("PaymentCycle")
-                        .HasColumnType("int");
-
-                    b.Property<long?>("PaymentCycleInDays")
-                        .HasColumnType("bigint");
-
-                    b.Property<DateTime?>("PickupDateTime")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("PickupLocation")
-                        .HasMaxLength(1000)
-                        .HasColumnType("nvarchar(1000)");
-
-                    b.Property<long?>("PreviousContractServiceId")
-                        .HasColumnType("bigint");
-
-                    b.Property<string>("ProblemStatement")
-                        .HasMaxLength(2000)
-                        .HasColumnType("nvarchar(2000)");
-
-                    b.Property<DateTime?>("ProgramCommencementDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<long?>("ProgramDuration")
-                        .HasColumnType("bigint");
-
-                    b.Property<DateTime?>("ProgramEndDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<long>("Quantity")
-                        .HasColumnType("bigint");
-
-                    b.Property<string>("ReferenceNo")
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<long>("ServiceId")
-                        .HasColumnType("bigint");
-
-                    b.Property<DateTime?>("TentativeDateForSiteSurvey")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime?>("TentativeDateOfSiteVisit")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime?>("TentativeFulfillmentDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime?>("TentativeProofOfConceptEndDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime?>("TentativeProofOfConceptStartDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<double?>("UnitPrice")
-                        .HasColumnType("float");
-
-                    b.Property<DateTime>("UpdatedAt")
-                        .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("datetime2")
-                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
-
-                    b.Property<double?>("VAT")
-                        .HasColumnType("float");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("BranchId");
-
-                    b.HasIndex("ContractId");
-
-                    b.HasIndex("CreatedById");
-
-                    b.HasIndex("CustomerDivisionId");
-
-                    b.HasIndex("EndorsementTypeId");
-
-                    b.HasIndex("OfficeId");
-
-                    b.HasIndex("ServiceId");
-
-                    b.ToTable("ContractServiceForEndorsements");
                 });
 
             modelBuilder.Entity("HaloBiz.Model.LAMS.Customer", b =>
@@ -3066,9 +2877,6 @@ namespace HaloBiz.Migrations
                     b.Property<long?>("ConsultedId")
                         .HasColumnType("bigint");
 
-                    b.Property<long?>("ContractServiceForEndorsementId")
-                        .HasColumnType("bigint");
-
                     b.Property<long>("ContractServiceId")
                         .HasColumnType("bigint");
 
@@ -3135,8 +2943,6 @@ namespace HaloBiz.Migrations
                     b.HasIndex("AccountableId");
 
                     b.HasIndex("ConsultedId");
-
-                    b.HasIndex("ContractServiceForEndorsementId");
 
                     b.HasIndex("ContractServiceId");
 
@@ -5093,10 +4899,6 @@ namespace HaloBiz.Migrations
 
             modelBuilder.Entity("HaloBiz.Model.LAMS.ContractService", b =>
                 {
-                    b.HasOne("HaloBiz.Model.Branch", "Branch")
-                        .WithMany()
-                        .HasForeignKey("BranchId");
-
                     b.HasOne("HaloBiz.Model.LAMS.Contract", "Contract")
                         .WithMany("ContractServices")
                         .HasForeignKey("ContractId")
@@ -5108,10 +4910,6 @@ namespace HaloBiz.Migrations
                         .HasForeignKey("CreatedById")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.HasOne("HaloBiz.Model.Office", "Office")
-                        .WithMany()
-                        .HasForeignKey("OfficeId");
 
                     b.HasOne("HaloBiz.Model.LAMS.QuoteService", "QuoteService")
                         .WithMany("ContractServices")
@@ -5125,70 +4923,11 @@ namespace HaloBiz.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Branch");
-
                     b.Navigation("Contract");
 
                     b.Navigation("CreatedBy");
-
-                    b.Navigation("Office");
 
                     b.Navigation("QuoteService");
-
-                    b.Navigation("Service");
-                });
-
-            modelBuilder.Entity("HaloBiz.Model.LAMS.ContractServiceForEndorsement", b =>
-                {
-                    b.HasOne("HaloBiz.Model.Branch", "Branch")
-                        .WithMany()
-                        .HasForeignKey("BranchId");
-
-                    b.HasOne("HaloBiz.Model.LAMS.Contract", "Contract")
-                        .WithMany()
-                        .HasForeignKey("ContractId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("HaloBiz.Model.UserProfile", "CreatedBy")
-                        .WithMany()
-                        .HasForeignKey("CreatedById")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("HaloBiz.Model.LAMS.CustomerDivision", "CustomerDivision")
-                        .WithMany()
-                        .HasForeignKey("CustomerDivisionId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("HaloBiz.Model.LAMS.EndorsementType", "EndorsementType")
-                        .WithMany()
-                        .HasForeignKey("EndorsementTypeId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("HaloBiz.Model.Office", "Office")
-                        .WithMany()
-                        .HasForeignKey("OfficeId");
-
-                    b.HasOne("HaloBiz.Model.Services", "Service")
-                        .WithMany()
-                        .HasForeignKey("ServiceId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Branch");
-
-                    b.Navigation("Contract");
-
-                    b.Navigation("CreatedBy");
-
-                    b.Navigation("CustomerDivision");
-
-                    b.Navigation("EndorsementType");
-
-                    b.Navigation("Office");
 
                     b.Navigation("Service");
                 });
@@ -5726,10 +5465,6 @@ namespace HaloBiz.Migrations
                     b.HasOne("HaloBiz.Model.UserProfile", "Consulted")
                         .WithMany()
                         .HasForeignKey("ConsultedId");
-
-                    b.HasOne("HaloBiz.Model.LAMS.ContractServiceForEndorsement", null)
-                        .WithMany("TaskFulfillments")
-                        .HasForeignKey("ContractServiceForEndorsementId");
 
                     b.HasOne("HaloBiz.Model.LAMS.ContractService", "ContractService")
                         .WithMany("TaskFulfillments")
@@ -6354,11 +6089,6 @@ namespace HaloBiz.Migrations
 
                     b.Navigation("SBUToContractServiceProportions");
 
-                    b.Navigation("TaskFulfillments");
-                });
-
-            modelBuilder.Entity("HaloBiz.Model.LAMS.ContractServiceForEndorsement", b =>
-                {
                     b.Navigation("TaskFulfillments");
                 });
 

@@ -4,14 +4,16 @@ using HaloBiz.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace HaloBiz.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20210311185721_addsContractServiceForEndorsement")]
+    partial class addsContractServiceForEndorsement
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1309,9 +1311,6 @@ namespace HaloBiz.Migrations
                     b.Property<double?>("BillableAmount")
                         .HasColumnType("float");
 
-                    b.Property<long?>("BranchId")
-                        .HasColumnType("bigint");
-
                     b.Property<double?>("Budget")
                         .HasColumnType("float");
 
@@ -1362,9 +1361,6 @@ namespace HaloBiz.Migrations
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
-
-                    b.Property<long?>("OfficeId")
-                        .HasColumnType("bigint");
 
                     b.Property<int?>("PaymentCycle")
                         .HasColumnType("int");
@@ -1436,13 +1432,9 @@ namespace HaloBiz.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("BranchId");
-
                     b.HasIndex("ContractId");
 
                     b.HasIndex("CreatedById");
-
-                    b.HasIndex("OfficeId");
 
                     b.HasIndex("QuoteServiceId");
 
@@ -1476,9 +1468,6 @@ namespace HaloBiz.Migrations
                     b.Property<double?>("BillableAmount")
                         .HasColumnType("float");
 
-                    b.Property<long?>("BranchId")
-                        .HasColumnType("bigint");
-
                     b.Property<double?>("Budget")
                         .HasColumnType("float");
 
@@ -1497,9 +1486,6 @@ namespace HaloBiz.Migrations
                         .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
                     b.Property<long>("CreatedById")
-                        .HasColumnType("bigint");
-
-                    b.Property<long>("CustomerDivisionId")
                         .HasColumnType("bigint");
 
                     b.Property<double>("Discount")
@@ -1545,9 +1531,6 @@ namespace HaloBiz.Migrations
                     b.Property<bool>("IsRequestedForApproval")
                         .HasColumnType("bit");
 
-                    b.Property<long?>("OfficeId")
-                        .HasColumnType("bigint");
-
                     b.Property<int?>("PaymentCycle")
                         .HasColumnType("int");
 
@@ -1560,9 +1543,6 @@ namespace HaloBiz.Migrations
                     b.Property<string>("PickupLocation")
                         .HasMaxLength(1000)
                         .HasColumnType("nvarchar(1000)");
-
-                    b.Property<long?>("PreviousContractServiceId")
-                        .HasColumnType("bigint");
 
                     b.Property<string>("ProblemStatement")
                         .HasMaxLength(2000)
@@ -1615,17 +1595,11 @@ namespace HaloBiz.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("BranchId");
-
                     b.HasIndex("ContractId");
 
                     b.HasIndex("CreatedById");
 
-                    b.HasIndex("CustomerDivisionId");
-
                     b.HasIndex("EndorsementTypeId");
-
-                    b.HasIndex("OfficeId");
 
                     b.HasIndex("ServiceId");
 
@@ -5093,10 +5067,6 @@ namespace HaloBiz.Migrations
 
             modelBuilder.Entity("HaloBiz.Model.LAMS.ContractService", b =>
                 {
-                    b.HasOne("HaloBiz.Model.Branch", "Branch")
-                        .WithMany()
-                        .HasForeignKey("BranchId");
-
                     b.HasOne("HaloBiz.Model.LAMS.Contract", "Contract")
                         .WithMany("ContractServices")
                         .HasForeignKey("ContractId")
@@ -5108,10 +5078,6 @@ namespace HaloBiz.Migrations
                         .HasForeignKey("CreatedById")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.HasOne("HaloBiz.Model.Office", "Office")
-                        .WithMany()
-                        .HasForeignKey("OfficeId");
 
                     b.HasOne("HaloBiz.Model.LAMS.QuoteService", "QuoteService")
                         .WithMany("ContractServices")
@@ -5125,13 +5091,9 @@ namespace HaloBiz.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Branch");
-
                     b.Navigation("Contract");
 
                     b.Navigation("CreatedBy");
-
-                    b.Navigation("Office");
 
                     b.Navigation("QuoteService");
 
@@ -5140,10 +5102,6 @@ namespace HaloBiz.Migrations
 
             modelBuilder.Entity("HaloBiz.Model.LAMS.ContractServiceForEndorsement", b =>
                 {
-                    b.HasOne("HaloBiz.Model.Branch", "Branch")
-                        .WithMany()
-                        .HasForeignKey("BranchId");
-
                     b.HasOne("HaloBiz.Model.LAMS.Contract", "Contract")
                         .WithMany()
                         .HasForeignKey("ContractId")
@@ -5156,21 +5114,11 @@ namespace HaloBiz.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("HaloBiz.Model.LAMS.CustomerDivision", "CustomerDivision")
-                        .WithMany()
-                        .HasForeignKey("CustomerDivisionId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("HaloBiz.Model.LAMS.EndorsementType", "EndorsementType")
                         .WithMany()
                         .HasForeignKey("EndorsementTypeId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.HasOne("HaloBiz.Model.Office", "Office")
-                        .WithMany()
-                        .HasForeignKey("OfficeId");
 
                     b.HasOne("HaloBiz.Model.Services", "Service")
                         .WithMany()
@@ -5178,17 +5126,11 @@ namespace HaloBiz.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Branch");
-
                     b.Navigation("Contract");
 
                     b.Navigation("CreatedBy");
 
-                    b.Navigation("CustomerDivision");
-
                     b.Navigation("EndorsementType");
-
-                    b.Navigation("Office");
 
                     b.Navigation("Service");
                 });

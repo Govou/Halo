@@ -206,6 +206,9 @@ namespace HaloBiz.Helpers
             CreateMap<ClientBeneficiary, ClientBeneficiaryTransferDTO>();
             CreateMap<SBUProportionReceivingDTO, SBUProportion>();
             CreateMap<SBUProportion, SBUProportionTransferDTO>();
+            CreateMap<ContractServiceForEndorsementReceivingDto, ContractServiceForEndorsement>();
+            CreateMap<ContractServiceForEndorsement, ContractServiceForEndorsementTransferDto>();
+            CreateMap<ContractServiceForEndorsement, ContractService>();
         }
     }
 }
