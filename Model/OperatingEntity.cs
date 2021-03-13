@@ -13,6 +13,7 @@ namespace HaloBiz.Model
         public string Name { get; set; }
         [Required, MinLength(3), MaxLength(255)]
         public string Description { get; set; }
+        public string Alias { get; set; } //For holding Cost Center Code (Dtrack)
         public long HeadId { get; set; }
         public virtual UserProfile Head { get; set; }
         [Required]
