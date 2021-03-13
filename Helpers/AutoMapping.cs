@@ -209,6 +209,8 @@ namespace HaloBiz.Helpers
             CreateMap<ContractServiceForEndorsementReceivingDto, ContractServiceForEndorsement>();
             CreateMap<ContractServiceForEndorsement, ContractServiceForEndorsementTransferDto>();
             CreateMap<ContractServiceForEndorsement, ContractService>();
+            CreateMap<ModeOfTransportReceivingDTO, ModeOfTransport>();
+            CreateMap<ModeOfTransport, ModeOfTransportTransferDTO>();
         }
     }
 }
