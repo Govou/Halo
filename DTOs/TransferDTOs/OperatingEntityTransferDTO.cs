@@ -12,6 +12,7 @@ namespace HaloBiz.DTOs.TransferDTOs
         public long Id { get; set; }
         public string Name { get; set; }
         public string Description { get; set; }
+        public string Alias { get; set; } //For holding Cost Center Code (Dtrack)
         public  UserProfileTransferDTO Head { get; set; }
         public long DivisionId { get; set; }
         public SBUProportionTransferDTO SBUProportion { get; set; }
