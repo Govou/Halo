@@ -52,9 +52,9 @@ namespace Controllers.Controllers
         }
 
         [HttpPost("")]
-        public async Task<ActionResult> AddNewLeadType(LeadTypeReceivingDTO LeadTypeReceiving)
+        public async Task<ActionResult> AddNewLeadType(LeadTypeReceivingDTO leadTypeReceiving)
         {
-            var response = await _leadTypeService.AddLeadType(HttpContext, LeadTypeReceiving);
+            var response = await _leadTypeService.AddLeadType(HttpContext, leadTypeReceiving);
             if (response.StatusCode >= 400)
                 return StatusCode(response.StatusCode, response);
             var leadType = ((ApiOkResponse)response).Result;
@@ -62,9 +62,9 @@ namespace Controllers.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateById(long id, LeadTypeReceivingDTO LeadTypeReceiving)
+        public async Task<IActionResult> UpdateById(long id, LeadTypeReceivingDTO leadTypeReceivingDTO)
         {
-            var response = await _leadTypeService.UpdateLeadType(HttpContext, id, LeadTypeReceiving);
+            var response = await _leadTypeService.UpdateLeadType(HttpContext, id, leadTypeReceivingDTO);
             if (response.StatusCode >= 400)
                 return StatusCode(response.StatusCode, response);
             var leadType = ((ApiOkResponse)response).Result;

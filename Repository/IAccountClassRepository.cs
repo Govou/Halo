@@ -15,6 +15,7 @@ namespace HaloBiz.Repository
         Task<AccountClass> FindAccountClassByCaption(string caption);
 
         Task<IEnumerable<AccountClass>> FindAllAccountClasses();
+        Task<IEnumerable<AccountClass>> FindAllAccountClassesDownToAccountDetails();
 
         Task<AccountClass> UpdateAccountClass(AccountClass accountClass);
 

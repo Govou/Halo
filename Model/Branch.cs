@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using HaloBiz.Model.LAMS;
 
 namespace HaloBiz.Model
 {
@@ -18,6 +19,7 @@ namespace HaloBiz.Model
         public long HeadId { get; set; }
         public virtual UserProfile Head { get; set; }
         public IEnumerable<Office> Offices { get; set; }
+        public IEnumerable<Region> Regions { get; set; }
         public bool IsDeleted { get; set; }
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public DateTime CreatedAt { get; set; }

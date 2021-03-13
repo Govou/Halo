@@ -32,18 +32,23 @@ namespace HaloBiz.Repository.Impl
         public async Task<StrategicBusinessUnit> FindStrategyBusinessUnitById(long Id)
         {
             return await _context.StrategicBusinessUnits
+                .Include(sbu => sbu.OperatingEntity)
                 .FirstOrDefaultAsync( sbu => sbu.Id == Id && sbu.IsDeleted == false);
         }
 
         public async Task<StrategicBusinessUnit> FindStrategyBusinessUnitByName(string name)
         {
             return await _context.StrategicBusinessUnits
+                .Include(sbu => sbu.OperatingEntity)
                 .FirstOrDefaultAsync( sbu => sbu.Name == name && sbu.IsDeleted == false);
         }
 
         public async Task<IEnumerable<StrategicBusinessUnit>> FindAllStrategyBusinessUnits()
         {
-            return await _context.StrategicBusinessUnits.Where(sbu => sbu.IsDeleted == false)
+            return await _context.StrategicBusinessUnits
+                .Include(sbu => sbu.Members.Where(x => x.IsDeleted == false)).AsNoTracking()
+                .Include(sbu => sbu.OperatingEntity)
+                .Where(sbu => sbu.IsDeleted == false)
                 .ToListAsync();
         }
 

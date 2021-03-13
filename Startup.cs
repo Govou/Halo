@@ -5,16 +5,22 @@ using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 using AutoMapper;
+using HaloBiz.Adapters;
+using HaloBiz.Adapters.Impl;
 using HaloBiz.Data;
 using HaloBiz.Helpers;
 using HaloBiz.MyServices;
 using HaloBiz.MyServices.Impl;
 using HaloBiz.MyServices.Impl.LAMS;
+using HaloBiz.MyServices.Impl.RoleManagement;
 using HaloBiz.MyServices.LAMS;
+using HaloBiz.MyServices.RoleManagement;
 using HaloBiz.Repository;
 using HaloBiz.Repository.Impl;
 using HaloBiz.Repository.Impl.LAMS;
+using HaloBiz.Repository.Impl.RoleManagement;
 using HaloBiz.Repository.LAMS;
+using HaloBiz.Repository.RoleManagement;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
@@ -81,6 +87,14 @@ namespace HaloBiz
                     };
                 });
 
+//             if (env.IsProduction())
+//             {
+//                 services.AddAuthorization(options => {
+//                     options.FallbackPolicy = new AuthorizationPolicyBuilder()
+//                         .RequireAuthenticatedUser()
+//                         .Build();
+//                 });
+//             }      
 
             // singletons
             //services.AddSingleton(Configuration.GetSection("AppSettings").Get<AppSettings>());
@@ -100,6 +114,61 @@ namespace HaloBiz
             services.AddScoped<ILeadTypeService, LeadTypeServiceImpl>();
             services.AddScoped<ILeadOriginService, LeadOriginServiceImpl>();
             services.AddScoped<IFinancialVoucherTypeService, FinancialVoucherTypeServiceImpl>();
+            services.AddScoped<IAccountService, AccountServiceImpl>();
+            services.AddScoped<IGroupTypeService, GroupTypeServiceImpl>();
+            services.AddScoped<IRelationshipService, RelationshipServiceImpl>();
+            services.AddScoped<IBankService, BankServiceImpl>();
+            services.AddScoped<ITargetService, TargetServiceImpl>();
+            services.AddScoped<IServiceTypeService, ServiceTypeServiceImpl>();
+            services.AddScoped<IStandardSLAForOperatingEntitiesService, StandardSLAForOperatingEntitiesServiceImpl>();
+            services.AddScoped<IMeansOfIdentificationService, MeansOfIdentificationServiceImpl>();
+            services.AddScoped<IAccountMasterService, AccountMasterServiceImpl>();
+            services.AddScoped<IAccountDetailService, AccountDetailServiceImpl>();
+            services.AddScoped<IServiceCategoryTaskService, ServiceCategoryTaskServiceImpl>();
+            services.AddScoped<IServiceTaskDeliverableService, ServiceTaskDeliverableServiceImpl>();
+            services.AddScoped<IRequiredServiceDocumentService, RequiredServiceDocumentServiceImpl>();
+            services.AddScoped<IRequredServiceQualificationElementService, RequredServiceQualificationElementServiceImpl>();
+            services.AddScoped<IDropReasonService, DropReasonServiceImpl>();
+            services.AddScoped<ILeadContactService, LeadContactServiceImpl>();
+            services.AddScoped<ILeadKeyPersonService, LeadKeyPersonServiceImpl>();
+            services.AddScoped<ILeadDivisionContactService, LeadDivisionContactServiceImpl>();
+            services.AddScoped<ICustomerService, CustomerServiceImpl>();
+            services.AddScoped<ICustomerDivisionService, CustomerDivisionServiceImpl>();
+            services.AddScoped<ILeadService, LeadServiceImpl>();
+            services.AddScoped<ILeadDivisionKeyPersonService, LeadDivisionKeyPersonServiceImpl>();
+            services.AddScoped<IControlAccountService, ControlAccountServiceImpl>();
+            services.AddScoped<IQuoteService, QuoteServiceImpl>();
+            services.AddScoped<IQuoteServiceService, QuoteServiceServiceImpl>();
+            services.AddScoped<ILeadDivisionService, LeadDivisionServiceImpl>();
+            services.AddScoped<IClosureDocumentService, ClosureDocumentServiceImpl>();
+            services.AddScoped<IQuoteServiceDocumentService, QuoteServiceDocumentServiceImpl>();
+            services.AddScoped<IContractService, ContractServiceImpl>();
+            services.AddScoped<IContractServiceService, ContractServiceServiceImpl>();
+            services.AddScoped<ISBUToQuoteServiceProportionsService, SBUToQuoteServiceProportionsServiceImpl>();
+            services.AddScoped<IRegionService, RegionServiceImpl>();
+            services.AddScoped<IZoneService, ZoneServiceImpl>();
+            services.AddScoped<INegotiationDocumentService, NegotiationDocumentServiceImpl>();
+            services.AddScoped<IRoleService, RoleServiceImpl>();
+            services.AddScoped<ILeadConversionService, LeadConversionServiceImpl>();
+            services.AddScoped<IOtherLeadCaptureInfoService, OtherLeadCaptureInfoServiceImpl>();
+            services.AddScoped<ITaskFulfillmentService, TaskFulfillmentServiceImpl>();
+            services.AddScoped<IDeliverableFulfillmentService, DeliverableFulfillmentServiceImpl>();
+            services.AddScoped<IIndustryService, IndustryServiceImpl>();
+            services.AddScoped<IDesignationService, DesignationServiceImpl>();
+            services.AddScoped<IInvoiceService, InvoiceService>();
+            services.AddScoped<IReceiptService, ReceiptServiceImpl>();
+            services.AddScoped<IApproverLevelService, ApproverLevelServiceImpl>();
+            services.AddScoped<IApprovalLimitService, ApprovalLimitServiceImpl>();
+            services.AddScoped<IProcessesRequiringApprovalService, ProcessesRequiringApprovalServiceImpl>();
+            services.AddScoped<IApprovalService, ApprovalServiceImpl>();
+            services.AddScoped<ICompanyService, CompanyServiceImpl>();
+            services.AddScoped<IEndorsementTypeService, EndorsementTypeServiceImpl>();
+            services.AddScoped<IClientBeneficiaryService, ClientBeneficiaryServiceImpl>();
+            services.AddScoped<ISBUProportionService, SBUProportionServiceImpl>();
+            services.AddScoped<IContractServiceForEndorsementService, ContractServiceForEndorsementServiceImpl>();
+            services.AddScoped<IModeOfTransportService, ModeOfTransportServiceImpl>();
+
+
             //repositories
             services.AddScoped<IStateRepository, StateRepositoryImpl>();
             services.AddScoped<IBranchRepository, BranchRepositoryImpl>();
@@ -116,6 +185,66 @@ namespace HaloBiz
             services.AddScoped<ILeadTypeRepository, LeadTypeRepositoryImpl>();
             services.AddScoped<ILeadOriginRepository, LeadOriginRepositoryImpl>();
             services.AddScoped<IFinancialVoucherTypeRepository, FinancialVoucherTypeRepositoryImpl>();
+            services.AddScoped<IAccountRepository, AccountRepositoryImpl>();
+            services.AddScoped<IGroupTypeRepository, GroupTypeRepositoryImpl>();
+            services.AddScoped<IRelationshipRepository, RelationshipRepositoryImpl>();
+            services.AddScoped<IBankRepository, BankRepositoryImpl>();
+            services.AddScoped<ITargetRepository, TargetRepositoryImpl>();
+            services.AddScoped<IServiceTypeRepository, ServiceTypeRepositoryImpl>();
+            services.AddScoped<IStandardSLAForOperatingEntitiesRepository, StandardSLAForOperatingEntitiesRepositoryImpl>();
+            services.AddScoped<IMeansOfIdentificationRepository, MeansOfIdentificationRepositoryImpl>();
+            services.AddScoped<IAccountDetailsRepository, AccountDetailRepositoryImpl>();
+            services.AddScoped<IAccountMasterRepository, AccountMasterRepositoryImpl>();
+            services.AddScoped<IServiceCategoryTaskRepository, ServiceCategoryTaskRepositoryImpl>();
+            services.AddScoped<IServiceTaskDeliverableRepository, ServiceTaskDeliverableRepositoryImpl>();
+            services.AddScoped<IRequiredServiceDocumentRepository, RequiredServiceDocumentRepositoryImpl>();
+            services.AddScoped<IServiceRequiredServiceDocumentRepository, ServiceRequiredServiceDocumentRepositoryImpl>();
+            services.AddScoped<IRequredServiceQualificationElementRepository, RequredServiceQualificationElementRepositoryImpl>();
+            services.AddScoped<IDropReasonRepository, DropReasonRepositoryImpl>();
+            services.AddScoped<IDeleteLogRepository, DeleteLogRepositoryImpl>();
+            services.AddScoped<ILeadContactRepository, LeadContactRepositoryImpl>();
+            services.AddScoped<ILeadKeyPersonRepository, LeadKeyPersonRepositoryImpl>();
+            services.AddScoped<IServiceRequredServiceQualificationElementRepository, ServiceRequredServiceQualificationElementRepositoryImpl>();
+            services.AddScoped<ILeadDivisionContactRepository, LeadDivisionContactRepositoryImpl>();
+            services.AddScoped<ICustomerRepository, CustomerRepositoryImpl>();
+            services.AddScoped<ICustomerDivisionRepository, CustomerDivisionRepositoryImpl>();
+            services.AddScoped<ILeadRepository, LeadRepositoryImpl>();
+            services.AddScoped<IReferenceNumberRepository, ReferenceNumberRepositoryImpl>();
+            services.AddScoped<ILeadDivisionKeyPersonRepository, LeadDivisionKeyPersonRepositoryImpl>();
+            services.AddScoped<IControlAccountRepository, ControlAccountRepositoryImpl>();
+            services.AddScoped<IQuoteRepository, QuoteRepositoryImpl>();
+            services.AddScoped<IQuoteServiceRepository, QuoteServiceRepositoryImpl>();
+            services.AddScoped<ILeadDivisionRepository, LeadDivisionRepositoryImpl>();
+            services.AddScoped<IContractRepository, ContractRepositoryImpl>();
+            services.AddScoped<IClosureDocumentRepository, ClosureDocumentRepositoryImpl>();
+            services.AddScoped<IQuoteServiceDocumentRepository, QuoteServiceDocumentRepositoryImpl>();
+            services.AddScoped<IContractServiceRepository, ContractServiceRepositoryImpl>();
+            services.AddScoped<ISBUToQuoteServiceProportionRepository, SBUToQuoteServiceProportionRepositoryImpl>();
+            services.AddScoped<IRegionRepository, RegionRepositoryImpl>();
+            services.AddScoped<IZoneRepository, ZoneRepositoryImpl>();
+            services.AddScoped<INegotiationDocumentRepository, NegotiationDocumentRepositoryImpl>();
+            services.AddScoped<IRoleRepository, RoleRepositoryImpl>();
+            services.AddScoped<IOtherLeadCaptureInfoRepository, OtherLeadCaptureInfoRepositoryImpl>();
+            services.AddScoped<ITaskFulfillmentRepository, TaskFulfillmentRepositoryImpl>();
+            services.AddScoped<IDeliverableFulfillmentRepository, DeliverableFulfillmentRepositoryImpl>();
+            services.AddScoped<IIndustryRepository, IndustryRepositoryImpl>();
+            services.AddScoped<IDesignationRepository, DesignationRepositoryImpl>();
+            services.AddScoped<IInvoiceRepository, InvoiceRepositoryImpl>();
+            services.AddScoped<IReceiptRepository, ReceiptRepositoryImpl>();
+            services.AddScoped<IApproverLevelRepository, ApproverLevelRepositoryImpl>();
+            services.AddScoped<IApprovalLimitRepository, ApprovalLimitRepositoryImpl>();
+            services.AddScoped<IProcessesRequiringApprovalRepository, ProcessesRequiringApprovalRepositoryImpl>();
+            services.AddScoped<IApprovalRepository, ApprovalRepositoryImpl>();
+            services.AddScoped<ICompanyRepository, CompanyRepositoryImpl>();
+            services.AddScoped<IEndorsementTypeRepository, EndorsementTypeRepositoryImpl>();
+            services.AddScoped<IClientBeneficiaryRepository, ClientBeneficiaryRepositoryImpl>();
+            services.AddScoped<IGroupInvoiceTrackerRepository, GroupInvoiceTrackerRepositoryImpl>();
+            services.AddScoped<ISBUProportionRepository, SBUProportionRepositoryImpl>();
+            services.AddScoped<IContractServiceForEndorsementRepository, ContractServiceForEndorsementRepositoryImpl>();
+            services.AddScoped<IModeOfTransportRepository, ModeOfTransportRepositoryImpl>();
+
+            // Adapters
+            services.AddScoped<IMailAdapter, MailAdapter>();
 
             services.AddAutoMapper(typeof(Startup));
 
@@ -124,6 +253,29 @@ namespace HaloBiz
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "HaloBiz", Version = "v1" });
+                c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme { 
+                    Description = @"JWT Authorization header using the Bearer scheme.
+                                    Enter your token in the text input below.
+                                    Example: 'eyJhbGciOiJSUzI1NiIsImt'",
+                    Name = "Authorization",
+                    In = ParameterLocation.Header,
+                    Type = SecuritySchemeType.Http,
+                    Scheme = "Bearer",
+                    BearerFormat = "JWT"
+                });
+                c.AddSecurityRequirement(new OpenApiSecurityRequirement {
+                    {
+                        new OpenApiSecurityScheme
+                        {
+                            Reference = new OpenApiReference
+                            {
+                                Type = ReferenceType.SecurityScheme,
+                                Id = JwtBearerDefaults.AuthenticationScheme
+                            }
+                        },
+                        new List<string>()
+                    }
+                });
             });
         }
 

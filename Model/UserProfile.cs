@@ -1,3 +1,4 @@
+using HaloBiz.Model.RoleManagement;
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -42,12 +43,25 @@ namespace HaloBiz.Model
         public long? SBUId { get; set; }
         public virtual StrategicBusinessUnit SBU { get; set; }
         public bool ProfileStatus { get; set; } = true;
+        public long RoleId { get; set; }
+        public virtual Role Role { get; set; }
         public bool IsDeleted { get; set; } = false;
+        public bool SignUpMailSent { get; set; } = false;
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public DateTime CreatedAt { get; set; }
         [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
         public DateTime UpdatedAt { get; set; }
 
+        public override bool Equals(object obj)
+        {
+            return obj is UserProfile profile &&
+                   Id == profile.Id;
+        }
+
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(Id);
+        }
 
         public override string ToString()
         {

@@ -15,5 +15,6 @@ namespace HaloBiz.MyServices
         Task<ApiResponse> GetAllDivisions();
         Task<ApiResponse> UpdateDivision(long id, DivisionReceivingDTO branchReceivingDTO);
         Task<ApiResponse> DeleteDivision(long id);
+        Task<ApiResponse> GetAllDivisionsAndSbu();
     }
 }

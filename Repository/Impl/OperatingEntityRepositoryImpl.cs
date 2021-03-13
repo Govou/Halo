@@ -13,11 +13,12 @@ namespace HaloBiz.Repository.Impl
     {
         private readonly DataContext _context;
         private readonly ILogger<OperatingEntityRepositoryImpl> _logger;
-        public OperatingEntityRepositoryImpl(DataContext context, ILogger<OperatingEntityRepositoryImpl> logger)
+        private readonly IServiceGroupRepository _serviceGroupRepository;
+        public OperatingEntityRepositoryImpl(DataContext context, ILogger<OperatingEntityRepositoryImpl> logger, IServiceGroupRepository serviceGroupRepository)
         {
             this._logger = logger;
             this._context = context;
-
+            _serviceGroupRepository = serviceGroupRepository;
         }
 
         public async Task<OperatingEntity> SaveOperatingEntity(OperatingEntity operatingEntity)
@@ -39,8 +40,7 @@ namespace HaloBiz.Repository.Impl
                 .Include(operatingEntity => operatingEntity.ServiceGroups)
                 .ThenInclude(x => x.ServiceCategories)
                 .Include(operatingEntity => operatingEntity.Division)
-                
-                //.Include(operatingEntity => operatingEntity.StrategicBusinessUnits)        
+                .Include(operatingEntity => operatingEntity.StrategicBusinessUnits)        
                 .FirstOrDefaultAsync( operatingEntity => operatingEntity.Id == Id && operatingEntity.IsDeleted == false);
         }
 
@@ -51,7 +51,7 @@ namespace HaloBiz.Repository.Impl
                 .Include(operatingEntity => operatingEntity.ServiceGroups)
                 .ThenInclude(x => x.ServiceCategories)
                 .Include(operatingEntity => operatingEntity.Division)
-                //.Include(operatingEntity => operatingEntity.StrategicBusinessUnits)        
+                .Include(operatingEntity => operatingEntity.StrategicBusinessUnits)        
                 .FirstOrDefaultAsync( operatingEntity => operatingEntity.Name == name && operatingEntity.IsDeleted == false);
         }
 
@@ -62,9 +62,23 @@ namespace HaloBiz.Repository.Impl
                 .Include(operatingEntity => operatingEntity.ServiceGroups)
                 .ThenInclude(x => x.ServiceCategories)
                 .Include(operatingEntity => operatingEntity.Division)
-                //.Include(operatingEntity => operatingEntity.StrategicBusinessUnits)   
+                .Include(operatingEntity => operatingEntity.StrategicBusinessUnits)   
                 .ToListAsync();
         }
+
+        public async Task<IEnumerable<OperatingEntity>> FindAllOperatingEntityWithSBUProportion()
+        {
+            var operatingEntites =  await _context.OperatingEntities
+                            .Where(x => !x.IsDeleted).ToListAsync();
+
+            foreach (var operatingEntity in operatingEntites)
+            {
+                operatingEntity.SBUProportion = await _context.SBUProportions
+                    .FirstOrDefaultAsync(x => x.OperatingEntityId == operatingEntity.Id && !x.IsDeleted);
+            }
+            return operatingEntites;
+        }
+
 
         public async Task<OperatingEntity> UpdateOperatingEntity(OperatingEntity operatingEntity)
         {
@@ -78,6 +92,8 @@ namespace HaloBiz.Repository.Impl
 
         public async Task<bool> DeleteOperatingEntity(OperatingEntity operatingEntity)
         {
+            await _serviceGroupRepository.DeleteServiceGroupRange(operatingEntity.ServiceGroups);
+
             operatingEntity.IsDeleted = true;
             _context.OperatingEntities.Update(operatingEntity);
             return await SaveChanges();
@@ -92,6 +108,17 @@ namespace HaloBiz.Repository.Impl
                _logger.LogError(ex.Message);
                return false;
            }
+        }
+
+        public async Task<bool> DeleteOperatingEntityRange(IEnumerable<OperatingEntity> operatingEntities)
+        {
+            foreach (var oe in operatingEntities)
+            {
+                await _serviceGroupRepository.DeleteServiceGroupRange(oe.ServiceGroups);
+                oe.IsDeleted = true;
+            }
+            _context.OperatingEntities.UpdateRange(operatingEntities);
+            return await SaveChanges();
         }
     }
 }

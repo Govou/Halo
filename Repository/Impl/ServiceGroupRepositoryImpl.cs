@@ -13,10 +13,12 @@ namespace HaloBiz.Repository.Impl
     {
         private readonly DataContext _context;
         private readonly ILogger<ServiceGroupRepositoryImpl> _logger;
-        public ServiceGroupRepositoryImpl(DataContext context, ILogger<ServiceGroupRepositoryImpl> logger)
+        private readonly IServiceCategoryRepository _serviceCategoryRepository;
+        public ServiceGroupRepositoryImpl(DataContext context, ILogger<ServiceGroupRepositoryImpl> logger, IServiceCategoryRepository serviceCategoryRepository)
         {
             this._logger = logger;
             this._context = context;
+            _serviceCategoryRepository = serviceCategoryRepository;
         }
 
         public async Task<ServiceGroup> SaveServiceGroup(ServiceGroup serviceGroup)
@@ -65,6 +67,8 @@ namespace HaloBiz.Repository.Impl
 
         public async Task<bool> DeleteServiceGroup(ServiceGroup serviceGroup)
         {
+            await _serviceCategoryRepository.DeleteServiceCategoryRange(serviceGroup.ServiceCategories);
+
             serviceGroup.IsDeleted = true;
             _context.ServiceGroups.Update(serviceGroup);
             return await SaveChanges();
@@ -79,6 +83,18 @@ namespace HaloBiz.Repository.Impl
                _logger.LogError(ex.Message);
                return false;
            }
+        }
+
+        public async Task<bool> DeleteServiceGroupRange(IEnumerable<ServiceGroup> serviceGroups)
+        {
+            foreach (var sg in serviceGroups)
+            {
+                await _serviceCategoryRepository.DeleteServiceCategoryRange(sg.ServiceCategories);
+                sg.IsDeleted = true;
+            }
+            _context.ServiceGroups.UpdateRange(serviceGroups);
+            return await SaveChanges();
+
         }
     }
 }

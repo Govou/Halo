@@ -41,7 +41,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
             {
                 return new ApiResponse(500);
             }
-            var leadTypeTransferDTO = _mapper.Map<LeadTypeTransferDTO>(leadType);
+            var leadTypeTransferDTO = _mapper.Map<LeadTypeTransferDTO>(savedLeadType);
             return new ApiOkResponse(leadTypeTransferDTO);
         }
 

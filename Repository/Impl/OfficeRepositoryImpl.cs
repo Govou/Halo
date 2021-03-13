@@ -76,6 +76,16 @@ namespace HaloBiz.Repository.Impl
             return await SaveChanges();
         }
 
+        public async Task<bool> DeleteOfficeRange(IEnumerable<Office> offices)
+        {
+            foreach (var office in offices)
+            {
+                office.IsDeleted = true;
+            }
+            _context.Offices.UpdateRange(offices);
+            return await SaveChanges();
+        }
+
         private async Task<bool> SaveChanges()
         {
            try{

@@ -8,6 +8,13 @@ namespace HaloBiz.DTOs.TransferDTOs.LAMS
         public long Id { get; set; }
         public string Caption { get; set; }
         public string Description { get; set; }
-        public IEnumerable<LeadOriginTransferDTO> LeadOrigins { get; set; }
+        public IEnumerable<LeadOriginWithoutTypeTransferDTO> LeadOrigins { get; set; }
+    }
+    public class LeadTypeWithoutOriginDTO
+    {
+        public long Id { get; set; }
+        public string Caption { get; set; }
+        public string Description { get; set; }
+
     }
 }

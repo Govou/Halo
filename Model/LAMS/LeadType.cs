@@ -14,6 +14,7 @@ namespace HaloBiz.Model.LAMS
         [StringLength(1000)]
         public string Description { get; set; }
         public IEnumerable<LeadOrigin> LeadOrigins { get; set; }
+        public IEnumerable<Lead> Leads { get; set; }
         [Required]
         public long CreatedById { get; set; }
         [Required]

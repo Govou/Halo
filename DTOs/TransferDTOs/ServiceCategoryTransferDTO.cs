@@ -13,5 +13,6 @@ namespace HaloBiz.DTOs.TransferDTOs
         public long OperatingEntityId { get; set; }
         public long DivisionId { get; set; }
         public IEnumerable<ServicesTransferDTO> Services { get; set; }
+        public IEnumerable<ServiceCategoryTaskTransferDTO> ServiceCategoryTasks { get; set; }
     }
 }

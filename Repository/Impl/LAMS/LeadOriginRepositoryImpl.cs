@@ -34,18 +34,21 @@ namespace HaloBiz.Repository.Impl.LAMS
         public async Task<LeadOrigin> FindLeadOriginById(long Id)
         {
             return await _context.LeadOrigins
+                .Include(x => x.LeadType)
                 .FirstOrDefaultAsync( leadOrigin => leadOrigin.Id == Id && leadOrigin.IsDeleted == false);
         }
 
         public async Task<LeadOrigin> FindLeadOriginByName(string name)
         {
             return await _context.LeadOrigins
+                .Include(x => x.LeadType)
                 .FirstOrDefaultAsync( leadOrigin => leadOrigin.Caption == name && leadOrigin.IsDeleted == false);
         }
 
         public async Task<IEnumerable<LeadOrigin>> FindAllLeadOrigin()
         {
             return await _context.LeadOrigins   
+                .Include(x => x.LeadType)
                 .Where(leadOrigin => leadOrigin.IsDeleted == false)
                 .OrderBy(leadOrigin => leadOrigin.CreatedAt)
                 .ToListAsync();

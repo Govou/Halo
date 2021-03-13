@@ -11,12 +11,14 @@ namespace HaloBiz.MyServices.Impl
 {
     public class ServiceGroupServiceImpl : IServiceGroupService
     {
+        private readonly IServiceCategoryService _serviceCategoryService;
         private readonly IServiceGroupRepository _serviceGroupRepo;
         private readonly IMapper _mapper;
 
-        public ServiceGroupServiceImpl(IServiceGroupRepository serviceGroupRepo, IMapper mapper)
+        public ServiceGroupServiceImpl( IServiceCategoryService serviceCategoryService,  IServiceGroupRepository serviceGroupRepo, IMapper mapper)
         {
             this._mapper = mapper;
+            this._serviceCategoryService = serviceCategoryService;
             this._serviceGroupRepo = serviceGroupRepo;
  
         }
@@ -95,6 +97,11 @@ namespace HaloBiz.MyServices.Impl
             if (serviceGroupToDelete == null)
             {
                 return new ApiResponse(404);
+            }
+
+            foreach (ServiceCategory serviceCategory in serviceGroupToDelete.ServiceCategories)
+            {
+                await _serviceCategoryService.DeleteServiceCategory(serviceCategory.Id);
             }
 
             if (!await _serviceGroupRepo.DeleteServiceGroup(serviceGroupToDelete))

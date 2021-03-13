@@ -17,6 +17,6 @@ namespace HaloBiz.Repository
         Task<ServiceCategory> UpdateServiceCategory(ServiceCategory category);
 
         Task<bool> DeleteServiceCategory(ServiceCategory category);
-
+        Task<bool> DeleteServiceCategoryRange(IEnumerable<ServiceCategory> serviceCategories);
     }
 }

@@ -41,7 +41,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
             {
                 return new ApiResponse(500);
             }
-            var leadOriginTransferDTO = _mapper.Map<LeadOriginTransferDTO>(leadOrigin);
+            var leadOriginTransferDTO = _mapper.Map<LeadOriginTransferDTO>(savedLeadOrigin);
             return new ApiOkResponse(leadOriginTransferDTO);
         }
 

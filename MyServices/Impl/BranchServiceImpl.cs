@@ -15,12 +15,14 @@ namespace HaloBiz.MyServices.Impl
     public class BranchServiceImpl : IBranchService
     {
         private readonly ILogger<BranchServiceImpl> _logger;
+        private readonly IOfficeService _officeService;
         private readonly IBranchRepository _branchRepo;
         private readonly IMapper _mapper;
 
-        public BranchServiceImpl(IBranchRepository branchRepo, ILogger<BranchServiceImpl> logger, IMapper mapper)
+        public BranchServiceImpl(IOfficeService officeService, IBranchRepository branchRepo, ILogger<BranchServiceImpl> logger, IMapper mapper)
         {
             this._mapper = mapper;
+            this._officeService = officeService;
             this._branchRepo = branchRepo;
             this._logger = logger;
         }
@@ -99,6 +101,11 @@ namespace HaloBiz.MyServices.Impl
             if (branchToDelete == null)
             {
                 return new ApiResponse(404);
+            }
+
+            foreach (Office office in branchToDelete.Offices)
+            {
+                await _officeService.DeleteOffice(office.Id);
             }
 
             if (!await _branchRepo.DeleteBranch(branchToDelete))

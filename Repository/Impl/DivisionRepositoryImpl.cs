@@ -14,11 +14,12 @@ namespace HaloBiz.Repository.Impl
     {
         private readonly DataContext _context;
         private readonly ILogger<DivisionRepositoryImpl> _logger;
-        public DivisionRepositoryImpl(DataContext context, ILogger<DivisionRepositoryImpl> logger)
+        private readonly IOperatingEntityRepository _operatingEntityRepository;
+        public DivisionRepositoryImpl(DataContext context, ILogger<DivisionRepositoryImpl> logger, IOperatingEntityRepository operatingEntityRepository)
         {
             this._logger = logger;
             this._context = context;
-
+            this._operatingEntityRepository = operatingEntityRepository;
         }
 
         public async Task<Division> SaveDivision(Division division)
@@ -35,9 +36,12 @@ namespace HaloBiz.Repository.Impl
         {
             return await _context.Divisions
                 .Include(division => division.Head)
-                .Include(division => division.OperatingEntities)
-                .ThenInclude(x => x.ServiceGroups)
-                .ThenInclude(x => x.ServiceCategories)
+                .Include(division => division.OperatingEntities
+                .Where(operatingEntity => operatingEntity.IsDeleted == false))
+                .ThenInclude(x => x.ServiceGroups
+                .Where(serviceGroup => serviceGroup.IsDeleted == false))
+                .ThenInclude(x => x.ServiceCategories
+                .Where(serviceCategories => serviceCategories.IsDeleted == false))
                 .FirstOrDefaultAsync( division => division.Id == Id && division.IsDeleted == false);
         }
 
@@ -45,19 +49,35 @@ namespace HaloBiz.Repository.Impl
         {
             return await _context.Divisions
                 .Include(division => division.Head)
-                .Include(division => division.OperatingEntities)
-                .ThenInclude(x => x.ServiceGroups)
-                .ThenInclude(x => x.ServiceCategories)
+                .Include(division => division.OperatingEntities
+                .Where(operatingEntity => operatingEntity.IsDeleted == false))
+                .ThenInclude(x => x.ServiceGroups
+                .Where(serviceGroup => serviceGroup.IsDeleted == false))
+                .ThenInclude(x => x.ServiceCategories
+                .Where(serviceCategories => serviceCategories.IsDeleted == false))
                 .FirstOrDefaultAsync( division => division.Name == name && division.IsDeleted == false);
+        }
+        public async Task<IEnumerable<Division>> GetAllDivisionAndSbu()
+        {
+            return await _context.Divisions
+                .Include(division => division.OperatingEntities
+                .Where(operatingEntity => operatingEntity.IsDeleted == false))
+                .ThenInclude(x => x.StrategicBusinessUnits)
+                .Where( division => division.IsDeleted == false)
+                .ToListAsync();
         }
 
         public async Task<IEnumerable<Division>> FindAllDivisions()
         {
-            return await _context.Divisions.Where(division => division.IsDeleted == false)
+            return await _context.Divisions
                 .Include(division => division.Head)
-                .Include(division => division.OperatingEntities)
-                .ThenInclude(x => x.ServiceGroups)
-                .ThenInclude(x => x.ServiceCategories)
+                .Include(division => division.OperatingEntities
+                .Where(operatingEntity => operatingEntity.IsDeleted == false))
+                .ThenInclude(x => x.ServiceGroups
+                .Where(serviceGroup => serviceGroup.IsDeleted == false))
+                .ThenInclude(x => x.ServiceCategories
+                .Where(serviceCategories => serviceCategories.IsDeleted == false))
+                .Where(division => division.IsDeleted == false)
                 .ToListAsync();
         }
 
@@ -73,6 +93,8 @@ namespace HaloBiz.Repository.Impl
 
         public async Task<bool> RemoveDivision(Division division)
         {
+            await _operatingEntityRepository.DeleteOperatingEntityRange(division.OperatingEntities);
+
             division.IsDeleted = true;
             _context.Divisions.Update(division);
             return await SaveChanges();

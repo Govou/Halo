@@ -17,5 +17,6 @@ namespace HaloBiz.Repository
         Task<ServiceGroup> UpdateServiceGroup(ServiceGroup serviceGroup);
 
         Task<bool> DeleteServiceGroup(ServiceGroup serviceGroup);
+        Task<bool> DeleteServiceGroupRange(IEnumerable<ServiceGroup> serviceGroups);
     }
 }

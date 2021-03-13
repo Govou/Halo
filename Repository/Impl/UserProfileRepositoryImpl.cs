@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using HaloBiz.Data;
+using HaloBiz.Helpers;
 using HaloBiz.Model;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -15,8 +16,8 @@ namespace HaloBiz.Repository.Impl
         private readonly ILogger<UserProfileRepositoryImpl> _logger;
         public UserProfileRepositoryImpl(DataContext context, ILogger<UserProfileRepositoryImpl> logger)
         {
-            this._logger = logger;
-            this._context = context;
+            _logger = logger;
+            _context = context;
         }
 
         public async Task<UserProfile> SaveUserProfile(UserProfile userProfile)
@@ -29,21 +30,65 @@ namespace HaloBiz.Repository.Impl
             return null;
         }
 
+        public async Task<bool> UpdateUserProfiles(IEnumerable<UserProfile> userProfiles)
+        {
+            _context.UserProfiles.UpdateRange(userProfiles);
+            return await SaveChanges();
+        }
+
         public async Task<UserProfile> FindUserById(long Id)
         {
             return await _context.UserProfiles
+                .Include(x => x.SBU)
+                .Include(x => x.Role).ThenInclude(x => x.RoleClaims.Where(x => x.IsDeleted == false))
                 .FirstOrDefaultAsync( user => user.Id == Id && user.IsDeleted == false);
         }
 
         public async Task<UserProfile> FindUserByEmail(string email)
         {
             return await _context.UserProfiles
+                .Include(x => x.SBU)
+                .Include(x => x.Role).ThenInclude(x => x.RoleClaims)
                 .FirstOrDefaultAsync( user => user.Email == email && user.IsDeleted == false);
         }
 
         public async Task<IEnumerable<UserProfile>> FindAllUserProfile()
         {
-            return await _context.UserProfiles.Where(user => user.IsDeleted == false).ToListAsync();
+            return await _context.UserProfiles
+                .Include(x => x.SBU)
+                .Include(x => x.Role).ThenInclude(x => x.RoleClaims)
+                .Where(user => user.IsDeleted == false)
+                .OrderBy(user => user.Email)
+                .ToListAsync();
+        }
+
+        public async Task<List<UserProfile>> FindAllUserProfilesAttachedToRole(long roleId)
+        {
+            return await _context.UserProfiles
+                .Where(user => user.RoleId == roleId && user.IsDeleted == false)
+                .ToListAsync();
+        }
+
+        public async Task<IEnumerable<Object>> FindAllUsersNotInAnProfile(long sbuId)
+        {
+            var sbu = await _context.StrategicBusinessUnits.FirstOrDefaultAsync(x => x.Id == sbuId);
+            if(sbu == null) return  new List<Object>();
+            var operatingEntityId = sbu.OperatingEntityId;
+
+            var listOfSbuNotPartOfOperatingEntity = await  _context.StrategicBusinessUnits
+                        .Where(x => x.OperatingEntityId != operatingEntityId).Select(x => x.Id).ToListAsync();
+
+            return await _context.UserProfiles
+                .Where(x => listOfSbuNotPartOfOperatingEntity.Contains((long)x.SBUId) && x.IsDeleted == false)
+                .Select(x => new {
+                    email = x.Email,
+                    sbuId = x.SBUId,
+                    firstName = x.FirstName,
+                    lastname = x.LastName,
+                    id = x.Id
+                    })
+                .OrderBy(user => user.email)
+                .ToListAsync();
         }
 
         public async Task<UserProfile> UpdateUserProfile(UserProfile userProfile)
@@ -72,6 +117,14 @@ namespace HaloBiz.Repository.Impl
                 _logger.LogError(ex.Message);
                 return false;
             }
+        }
+
+        public async Task<IEnumerable<UserProfile>> FindAllSuperAdmins()
+        {
+            return await _context.UserProfiles
+              .Include(x => x.Role)
+              .Where(user => user.Role.Name == ClaimConstants.SuperAdmin && user.IsDeleted == false).AsNoTracking()
+              .ToListAsync();
         }
     }
     

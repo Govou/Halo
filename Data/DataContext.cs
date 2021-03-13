@@ -2,6 +2,9 @@ using HaloBiz.Model;
 using HaloBiz.Model.AccountsModel;
 using HaloBiz.Model.LAMS;
 using HaloBiz.Model.ManyToManyRelationship;
+using HaloBiz.Model.RoleManagement;
+using halobiz_backend.Model;
+using halobiz_backend.Model.AccountsModel;
 using Microsoft.EntityFrameworkCore;
 
 namespace HaloBiz.Data
@@ -32,27 +35,84 @@ namespace HaloBiz.Data
     public DbSet<LeadOrigin> LeadOrigins { get; set; }
     public DbSet<LeadType> LeadTypes { get; set; }
     public DbSet<FinanceVoucherType> FinanceVoucherTypes { get; set; }
-    public DbSet<RequiredServiceField> RequiredServiceFields{get; set;}
-    public DbSet<ServiceRequiredServiceField> ServiceRequiredServiceField { get; set; }
+    public DbSet<RequredServiceQualificationElement> RequredServiceQualificationElements{get; set;}
     public DbSet<RequiredServiceDocument> RequiredServiceDocuments { get; set; }
     public DbSet<ServiceRequiredServiceDocument> ServiceRequiredServiceDocument { get; set; }
     public DbSet<StandardSLAForOperatingEntities> StandardSLAForOperatingEntities { get; set; }
     public DbSet<MeansOfIdentification> MeansOfIdentification { get; set; }
     public DbSet<GroupType> GroupType { get; set; }
-    protected override void OnModelCreating(ModelBuilder builder)
+    public DbSet<Relationship> Relationships { get; set; }
+    public DbSet<Target> Targets { get; set; }
+    public DbSet<Bank> Banks { get; set; }
+    public DbSet<ServiceTaskDeliverable> ServiceTaskDeliverables { get; set; }
+    public DbSet<ServiceType> ServiceTypes {get; set; }
+    public DbSet<DropReason> DropReasons {get; set; }
+    public DbSet<Customer> Customers {get; set; }
+    public DbSet<LeadContact> LeadContacts {get; set; }
+    public DbSet<LeadDivisionContact> LeadDivisionContacts {get; set; }
+    public DbSet<Lead> Leads {get; set; }
+    public DbSet<LeadDivision> LeadDivisions {get; set; }
+    public DbSet<LeadDivisionKeyPerson> LeadDivisionKeyPeople {get; set; }
+    public DbSet<LeadKeyPerson> LeadKeyPeople {get; set; }
+    public DbSet<Quote> Quotes {get; set; }
+    public DbSet<QuoteService> QuoteServices {get; set; }
+    public DbSet<QuoteServiceDocument> QuoteServiceDocuments {get; set; }
+    public DbSet<CustomerDivision> CustomerDivisions {get; set; }
+    public DbSet<SBUToContractServiceProportion> SBUToContractServiceProportions {get; set; }
+    public DbSet<SBUToQuoteServiceProportion> SBUToQuoteServiceProportions {get; set; }
+    public DbSet<ClosureDocument> ClosureDocuments {get; set; }
+    public DbSet<DeleteLog> DeleteLogs {get; set; }
+    public DbSet<ServiceRequredServiceQualificationElement> ServiceRequredServiceQualificationElement {get; set; }
+    public DbSet<ReferenceNumber> ReferenceNumbers {get; set; }
+    public DbSet<Region> Regions {get; set; }
+    public DbSet<ControlAccount> ControlAccounts {get; set; }
+    public DbSet<Zone> Zones {get; set; }   
+    public DbSet<Contract> Contracts {get; set; }   
+    public DbSet<ContractService> ContractServices {get; set; }
+    public DbSet<NegotiationDocument> NegotiationDocuments { get; set; }
+    public DbSet<Amortization> Amortizations { get; set; }
+    public DbSet<Invoice> Invoices { get; set; }
+    public DbSet<Role> Roles { get; set; }
+    public DbSet<RoleClaim> RoleClaims { get; set; }
+    public DbSet<OtherLeadCaptureInfo> OtherLeadCaptureInfos { get; set; }
+    public DbSet<TaskFulfillment> TaskFulfillments { get; set; }
+    public DbSet<DeliverableFulfillment> DeliverableFulfillments { get; set; }
+    public DbSet<Industry> Industries { get; set; }
+    public DbSet<Designation> Designations { get; set; }
+    public DbSet<Notification> Notifications { get; set; }
+    public DbSet<TaskEscalationTiming> TaskEscalationTiming { get; set; }
+    public DbSet<Claim> Claims { get; set; }
+    public DbSet<Receipt> Receipts { get; set; }
+    public DbSet<ApproverLevel> ApproverLevels { get; set; }
+    public DbSet<ApprovalLimit> ApprovalLimits { get; set; }
+    public DbSet<ProcessesRequiringApproval> ProcessesRequiringApprovals { get; set; }
+    public DbSet<Approval> Approvals { get; set; }
+    public DbSet<Company> Companies { get; set; }
+    public DbSet<EndorsementType> EndorsementTypes { get; set; }
+    public DbSet<ClientBeneficiary> ClientBeneficiaries { get; set; }
+    public DbSet<GroupInvoiceDetails> GroupInvoiceDetails { get; set; }
+    public DbSet<GroupInvoiceTracker> GroupInvoiceTracker { get; set; }
+    public DbSet<SBUProportion> SBUProportions { get; set; }
+    public DbSet<ModeOfTransport> ModeOfTransports { get; set; }
+    
+    public DbSet<EndorsementTypeTracker> EndorsementTypeTrackers { get; set; }
+    public DbSet<ContractServiceForEndorsement> ContractServiceForEndorsements{ get; set; }
+
+
+        protected override void OnModelCreating(ModelBuilder builder)
         {
             //Defines many to many relationship between SBU and AccountMaster
             builder.Entity<SBUAccountMaster>()
                 .HasKey(sc => new { sc.AccountMasterId, sc.StrategicBusinessUnitId });
 
-            builder.Entity<ServiceRequiredServiceField>()
-                .HasKey(sc => new {sc.RequiredServiceFieldId, sc.ServicesId});
-
             builder.Entity<ServiceRequiredServiceDocument>()
                 .HasKey(sc => new {sc.RequiredServiceDocumentId, sc.ServicesId});
 
+            builder.Entity<ServiceRequredServiceQualificationElement>()
+                .HasKey(sc => new {sc.RequredServiceQualificationElementId, sc.ServicesId});
+
             builder.Entity<State>()
-               .Property(p => p.UpdatedAt)
+               .Property(p => p.UpdatedAt   )
                .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
             builder.Entity<State>()
@@ -208,11 +268,11 @@ namespace HaloBiz.Data
                 .Property(p => p.CreatedAt)
                 .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
-            builder.Entity<RequiredServiceField>()
+            builder.Entity<RequredServiceQualificationElement>()
                .Property(p => p.UpdatedAt)
                .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
-            builder.Entity<RequiredServiceField>()
+            builder.Entity<RequredServiceQualificationElement>()
                 .Property(p => p.CreatedAt)
                 .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
@@ -232,6 +292,445 @@ namespace HaloBiz.Data
                 .Property(p => p.CreatedAt)
                 .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
+            builder.Entity<Target>()
+               .Property(p => p.UpdatedAt)
+               .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            builder.Entity<Target>()
+                .Property(p => p.CreatedAt)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            builder.Entity<Relationship>()
+               .Property(p => p.UpdatedAt)
+               .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            builder.Entity<Relationship>()
+                .Property(p => p.CreatedAt)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            builder.Entity<Bank>()
+               .Property(p => p.UpdatedAt)
+               .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            builder.Entity<Bank>()
+                .Property(p => p.CreatedAt)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            builder.Entity<StandardSLAForOperatingEntities>()
+               .Property(p => p.UpdatedAt)
+               .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            builder.Entity<StandardSLAForOperatingEntities>()
+                .Property(p => p.CreatedAt)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            builder.Entity<ServiceTaskDeliverable>()
+               .Property(p => p.UpdatedAt)
+               .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            builder.Entity<ServiceTaskDeliverable>()
+                .Property(p => p.CreatedAt)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            builder.Entity<ServiceType>()
+               .Property(p => p.UpdatedAt)
+               .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            builder.Entity<ServiceType>()
+                .Property(p => p.CreatedAt)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            builder.Entity<ServiceRequiredServiceDocument>()
+               .Property(p => p.UpdatedAt)
+               .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            builder.Entity<ServiceRequiredServiceDocument>()
+                .Property(p => p.CreatedAt)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            builder.Entity<Customer>()
+               .Property(p => p.UpdatedAt)
+               .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            builder.Entity<Customer>()
+                .Property(p => p.CreatedAt)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            builder.Entity<LeadContact>()
+               .Property(p => p.UpdatedAt)
+               .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            builder.Entity<LeadContact>()
+                .Property(p => p.CreatedAt)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            builder.Entity<LeadDivisionContact>()
+               .Property(p => p.UpdatedAt)
+               .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            builder.Entity<LeadDivisionContact>()
+                .Property(p => p.CreatedAt)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            builder.Entity<DropReason>()
+               .Property(p => p.UpdatedAt)
+               .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            builder.Entity<DropReason>()
+                .Property(p => p.CreatedAt)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            builder.Entity<Lead>()
+               .Property(p => p.UpdatedAt)
+               .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            builder.Entity<Lead>()
+                .Property(p => p.CreatedAt)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            builder.Entity<LeadDivision>()
+               .Property(p => p.UpdatedAt)
+               .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            builder.Entity<LeadDivision>()
+                .Property(p => p.CreatedAt)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            builder.Entity<LeadDivisionKeyPerson>()
+               .Property(p => p.UpdatedAt)
+               .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            builder.Entity<LeadDivisionKeyPerson>()
+                .Property(p => p.CreatedAt)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            builder.Entity<LeadKeyPerson>()
+               .Property(p => p.UpdatedAt)
+               .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            builder.Entity<LeadKeyPerson>()
+                .Property(p => p.CreatedAt)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            builder.Entity<QuoteService>()
+               .Property(p => p.UpdatedAt)
+               .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            builder.Entity<QuoteService>()
+                .Property(p => p.CreatedAt)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            builder.Entity<Quote>()
+               .Property(p => p.UpdatedAt)
+               .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            builder.Entity<Quote>()
+                .Property(p => p.CreatedAt)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            builder.Entity<QuoteServiceDocument>()
+               .Property(p => p.UpdatedAt)
+               .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            builder.Entity<QuoteServiceDocument>()
+                .Property(p => p.CreatedAt)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            builder.Entity<CustomerDivision>()
+               .Property(p => p.UpdatedAt)
+               .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            builder.Entity<CustomerDivision>()
+                .Property(p => p.CreatedAt)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            builder.Entity<SBUToContractServiceProportion>()
+               .Property(p => p.UpdatedAt)
+               .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            builder.Entity<SBUToContractServiceProportion>()
+                .Property(p => p.CreatedAt)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            builder.Entity<SBUToQuoteServiceProportion>()
+               .Property(p => p.UpdatedAt)
+               .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            builder.Entity<SBUToQuoteServiceProportion>()
+                .Property(p => p.CreatedAt)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            builder.Entity<ClosureDocument>()
+               .Property(p => p.UpdatedAt)
+               .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            builder.Entity<ClosureDocument>()
+                .Property(p => p.CreatedAt)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            builder.Entity<DeleteLog>()
+               .Property(p => p.UpdatedAt)
+               .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            builder.Entity<DeleteLog>()
+                .Property(p => p.CreatedAt)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            builder.Entity<ServiceRequredServiceQualificationElement>()
+               .Property(p => p.UpdatedAt)
+               .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            builder.Entity<ServiceRequredServiceQualificationElement>()
+                .Property(p => p.CreatedAt)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            builder.Entity<Zone>()
+               .Property(p => p.UpdatedAt)
+               .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            builder.Entity<Zone>()
+                .Property(p => p.CreatedAt)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            builder.Entity<Region>()
+               .Property(p => p.UpdatedAt)
+               .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            builder.Entity<Region>()
+                .Property(p => p.CreatedAt)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            builder.Entity<ControlAccount>()
+               .Property(p => p.UpdatedAt)
+               .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            builder.Entity<ControlAccount>()
+                .Property(p => p.CreatedAt)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            builder.Entity<Contract>()
+               .Property(p => p.UpdatedAt)
+               .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            builder.Entity<Contract>()
+                .Property(p => p.CreatedAt)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            builder.Entity<ContractService>()
+               .Property(p => p.UpdatedAt)
+               .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            builder.Entity<ContractService>()
+                .Property(p => p.CreatedAt)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            builder.Entity<Amortization>()
+               .Property(p => p.UpdatedAt)
+               .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            builder.Entity<Amortization>()
+                .Property(p => p.CreatedAt)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            builder.Entity<Invoice>()
+               .Property(p => p.UpdatedAt)
+               .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            builder.Entity<Invoice>()
+                .Property(p => p.CreatedAt)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            builder.Entity<OtherLeadCaptureInfo>()
+               .Property(p => p.UpdatedAt)
+               .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            builder.Entity<OtherLeadCaptureInfo>()
+                .Property(p => p.CreatedAt)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            builder.Entity<TaskFulfillment>()
+               .Property(p => p.UpdatedAt)
+               .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            builder.Entity<TaskFulfillment>()
+                .Property(p => p.CreatedAt)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            builder.Entity<DeliverableFulfillment>()
+               .Property(p => p.UpdatedAt)
+               .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            builder.Entity<DeliverableFulfillment>()
+                .Property(p => p.CreatedAt)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            builder.Entity<Industry>()
+               .Property(p => p.UpdatedAt)
+               .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            builder.Entity<Industry>()
+                .Property(p => p.CreatedAt)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            builder.Entity<NegotiationDocument>()
+               .Property(p => p.UpdatedAt)
+               .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            builder.Entity<NegotiationDocument>()
+                .Property(p => p.CreatedAt)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            builder.Entity<Designation>()
+               .Property(p => p.UpdatedAt)
+               .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            builder.Entity<Designation>()
+                .Property(p => p.CreatedAt)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            builder.Entity<Notification>()
+               .Property(p => p.UpdatedAt)
+               .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            builder.Entity<Notification>()
+                .Property(p => p.CreatedAt)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            builder.Entity<TaskEscalationTiming>()
+               .Property(p => p.UpdatedAt)
+               .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            builder.Entity<TaskEscalationTiming>()
+                .Property(p => p.CreatedAt)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            builder.Entity<Role>()
+               .Property(p => p.UpdatedAt)
+               .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            builder.Entity<Role>()
+                .Property(p => p.CreatedAt)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            builder.Entity<RoleClaim>()
+               .Property(p => p.UpdatedAt)
+               .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            builder.Entity<RoleClaim>()
+                .Property(p => p.CreatedAt)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            builder.Entity<Claim>()
+               .Property(p => p.UpdatedAt)
+               .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            builder.Entity<Claim>()
+                .Property(p => p.CreatedAt)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            builder.Entity<Receipt>()
+               .Property(p => p.UpdatedAt)
+               .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            builder.Entity<Receipt>()
+                .Property(p => p.CreatedAt)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            builder.Entity<ApprovalLimit>()
+               .Property(p => p.UpdatedAt)
+               .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            builder.Entity<ApprovalLimit>()
+                .Property(p => p.CreatedAt)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            builder.Entity<ApproverLevel>()
+               .Property(p => p.UpdatedAt)
+               .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            builder.Entity<ApproverLevel>()
+                .Property(p => p.CreatedAt)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            builder.Entity<ProcessesRequiringApproval>()
+               .Property(p => p.UpdatedAt)
+               .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            builder.Entity<ProcessesRequiringApproval>()
+                .Property(p => p.CreatedAt)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            builder.Entity<Approval>()
+               .Property(p => p.UpdatedAt)
+               .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            builder.Entity<Approval>()
+                .Property(p => p.CreatedAt)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            builder.Entity<Company>()
+               .Property(p => p.UpdatedAt)
+               .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            builder.Entity<Company>()
+                .Property(p => p.CreatedAt)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            builder.Entity<EndorsementType>()
+               .Property(p => p.UpdatedAt)
+               .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            builder.Entity<EndorsementType>()
+                .Property(p => p.CreatedAt)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            builder.Entity<ClientBeneficiary>()
+               .Property(p => p.UpdatedAt)
+               .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            builder.Entity<ClientBeneficiary>()
+                .Property(p => p.CreatedAt)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            builder.Entity<GroupInvoiceDetails>()
+               .Property(p => p.UpdatedAt)
+               .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            builder.Entity<GroupInvoiceDetails>()
+                .Property(p => p.CreatedAt)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            builder.Entity<SBUProportion>()
+               .Property(p => p.UpdatedAt)
+               .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            builder.Entity<SBUProportion>()
+                .Property(p => p.CreatedAt)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            builder.Entity<EndorsementTypeTracker>()
+               .Property(p => p.UpdatedAt)
+               .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            builder.Entity<EndorsementTypeTracker>()
+                .Property(p => p.CreatedAt)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            builder.Entity<ContractServiceForEndorsement>()
+               .Property(p => p.UpdatedAt)
+               .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            builder.Entity<ContractServiceForEndorsement>()
+                .Property(p => p.CreatedAt)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            builder.Entity<ModeOfTransport>()
+              .Property(p => p.UpdatedAt)
+              .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            builder.Entity<ModeOfTransport>()
+                .Property(p => p.CreatedAt)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP");
         }
     }
 }

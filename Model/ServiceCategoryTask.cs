@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -13,6 +14,7 @@ namespace HaloBiz.Model
         public string Description { get; set; }
         public long ServiceCategoryId { get; set; }
         public virtual ServiceCategory ServiceCategory { get; set; }
+        public IEnumerable<ServiceTaskDeliverable> ServiceTaskDeliverable { get; set; }
         public long CreatedById { get; set; }
         public virtual UserProfile CreatedBy { get; set; }
         public bool IsDeleted { get; set; } = false;

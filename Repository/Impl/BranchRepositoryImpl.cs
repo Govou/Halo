@@ -13,11 +13,12 @@ namespace HaloBiz.Repository.Impl
     {
         private readonly DataContext _context;
         private readonly ILogger<BranchRepositoryImpl> _logger;
-        public BranchRepositoryImpl(DataContext context, ILogger<BranchRepositoryImpl> logger)
+        private readonly IOfficeRepository _officeRepository;
+        public BranchRepositoryImpl(DataContext context, ILogger<BranchRepositoryImpl> logger, IOfficeRepository officeRepository)
         {
             this._logger = logger;
             this._context = context;
-
+            this._officeRepository = officeRepository;
         }
 
         public async Task<Branch> SaveBranch(Branch branch)
@@ -34,7 +35,8 @@ namespace HaloBiz.Repository.Impl
         {
             return await _context.Branches
                 .Include(branch => branch.Head)
-                .Include(branch => branch.Offices)
+                .Include(branch => branch.Offices
+                .Where(office => office.IsDeleted == false))
                 .FirstOrDefaultAsync( branch => branch.Id == Id && branch.IsDeleted == false);
         }
 
@@ -42,7 +44,8 @@ namespace HaloBiz.Repository.Impl
         {
             return await _context.Branches
                 .Include(branch => branch.Head)
-                .Include(branch => branch.Offices)
+                .Include(branch => branch.Offices
+                .Where(office => office.IsDeleted == false))
                 .FirstOrDefaultAsync( branch => branch.Name == name && branch.IsDeleted == false);
         }
 
@@ -50,7 +53,8 @@ namespace HaloBiz.Repository.Impl
         {
             return await _context.Branches.Where(branch => branch.IsDeleted == false)
                 .Include(branch => branch.Head)
-                .Include(branch => branch.Offices)
+                .Include(branch => branch.Offices
+                .Where(office => office.IsDeleted == false))
                 .ToListAsync();
         }
 
@@ -65,7 +69,9 @@ namespace HaloBiz.Repository.Impl
         }
 
         public async Task<bool> DeleteBranch(Branch branch)
-        {
+        {           
+            await _officeRepository.DeleteOfficeRange(branch.Offices);
+
             branch.IsDeleted = true;
             _context.Branches.Update(branch);
             return await SaveChanges();
@@ -73,9 +79,11 @@ namespace HaloBiz.Repository.Impl
 
         private async Task<bool> SaveChanges()
         {
-           try{
+           try
+           {
                return  await _context.SaveChangesAsync() > 0;
-           }catch(Exception ex)
+           }
+           catch(Exception ex)
            {
                _logger.LogError(ex.Message);
                return false;

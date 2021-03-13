@@ -16,6 +16,7 @@ namespace HaloBiz.Repository
         Task<Office> UpdateOffice(Office office);
 
         Task<bool> DeleteOffice(Office office);
+        Task<bool> DeleteOfficeRange(IEnumerable<Office> offices);
 
     }
 }

@@ -5,13 +5,9 @@ namespace HaloBiz.DTOs.TransferDTOs.LAMS
 {
     public class FinancialVoucherTypeTransferDTO
     {
-        [Key]
         public long Id { get; set; }
         public string VoucherType { get; set; }
-        [StringLength(1000)]
+        public string Alias { get; set; } //To map with TranType from Dtrack
         public string Description { get; set; }
-        [Required]
-        public long CreatedById { get; set; }
-        public virtual UserProfile CreatedBy { get; set; }
     }
 }

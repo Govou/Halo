@@ -15,12 +15,14 @@ namespace HaloBiz.MyServices.Impl
     public class DivisionServiceImpl : IDivisonService
     {
         private readonly ILogger<DivisionServiceImpl> _logger;
+        private readonly IOperatingEntityService _operatingEntityService;
         private readonly IDivisionRepository _divisionRepo;
         private readonly IMapper _mapper;
 
-        public DivisionServiceImpl(IDivisionRepository divisionRepo, ILogger<DivisionServiceImpl> logger, IMapper mapper)
+        public DivisionServiceImpl(IOperatingEntityService operatingEntityService ,IDivisionRepository divisionRepo, ILogger<DivisionServiceImpl> logger, IMapper mapper)
         {
             this._mapper = mapper;
+            this._operatingEntityService = operatingEntityService;
             this._divisionRepo = divisionRepo;
             this._logger = logger;
         }
@@ -28,6 +30,7 @@ namespace HaloBiz.MyServices.Impl
         public async Task<ApiResponse> AddDivision(DivisionReceivingDTO divisionReceivingDTO)
         {
             var division = _mapper.Map<Division>(divisionReceivingDTO);
+            division.CompanyId = 1;
             var saveddivision = await _divisionRepo.SaveDivision(division);
             if (saveddivision == null)
             {
@@ -45,6 +48,11 @@ namespace HaloBiz.MyServices.Impl
                 return new ApiResponse(404);
             }
 
+            foreach (OperatingEntity operatingEntity in divisionToDelete.OperatingEntities)
+            {
+                await _operatingEntityService.DeleteOperatingEntity(operatingEntity.Id);
+            }
+
             if (!await _divisionRepo.RemoveDivision(divisionToDelete))
             {
                 return new ApiResponse(500);
@@ -56,6 +64,16 @@ namespace HaloBiz.MyServices.Impl
         public async Task<ApiResponse> GetAllDivisions()
         {
             var divisions = await _divisionRepo.FindAllDivisions();
+            if (divisions == null)
+            {
+                return new ApiResponse(404);
+            }
+            var divisionTransferDTOs = _mapper.Map<IEnumerable<DivisionTransferDTO>>(divisions);
+            return new ApiOkResponse(divisionTransferDTOs);
+        }
+        public async Task<ApiResponse> GetAllDivisionsAndSbu()
+        {
+            var divisions = await _divisionRepo.GetAllDivisionAndSbu();
             if (divisions == null)
             {
                 return new ApiResponse(404);

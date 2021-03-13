@@ -13,11 +13,13 @@ namespace HaloBiz.Model
         public string Name { get; set; }
         [Required, MinLength(3), MaxLength(255)]
         public string Description { get; set; }
+        public string Alias { get; set; } //For holding Cost Center Code (Dtrack)
         public long HeadId { get; set; }
         public virtual UserProfile Head { get; set; }
         [Required]
         public long DivisionId { get; set; }
         public virtual Division Division { get; set; }
+        public SBUProportion SBUProportion {get; set;}
         public IEnumerable<ServiceGroup> ServiceGroups { get; set; }
         public IEnumerable<StrategicBusinessUnit> StrategicBusinessUnits { get; set; }
         public bool IsDeleted { get; set; }
