@@ -16,6 +16,11 @@ namespace HaloBiz.DTOs.TransferDTOs.LAMS
         public string DivisionName { get; set; }
         public string PhoneNumber { get; set; }
         public string Email { get; set; }
+        #region Address is a concatenation of State, LGA and Street for each lead Division. Address will be auto populated
+        public StateWithoutLGATransferDto State { get; set; }
+        public LGATransferDTO LGA { get; set; }
+        public string Street { get; set; }
+        #endregion
         public string LogoUrl { get; set; }
         public string Address { get; set; }
         public long PrimaryContactId { get; set; }
