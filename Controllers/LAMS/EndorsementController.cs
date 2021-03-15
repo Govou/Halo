@@ -56,7 +56,7 @@ namespace Controllers.Controllers
         [HttpPost("")]
         public async Task<ActionResult> PostEndorsement(ContractServiceForEndorsementReceivingDto dto)
         {
-            var response = await _contractServiceForEndorsementService.AddNewContractServiceForEndorsement(dto);
+            var response = await _contractServiceForEndorsementService.AddNewContractServiceForEndorsement(HttpContext, dto);
             if (response.StatusCode >= 400)
                 return StatusCode(response.StatusCode, response);
             var endorsements = ((ApiOkResponse)response).Result;
@@ -67,7 +67,7 @@ namespace Controllers.Controllers
         [HttpPut("ConverToContract/{contractServiceForEndorsementId}")]
         public async Task<ActionResult> ConvertEndorsementToCOntract(long contractServiceForEndorsementId)
         {
-            var response = await _contractServiceForEndorsementService.ConvertContractServiceForEndorsement(contractServiceForEndorsementId);
+            var response = await _contractServiceForEndorsementService.ConvertContractServiceForEndorsement(HttpContext ,contractServiceForEndorsementId);
             if (response.StatusCode >= 400)
                 return StatusCode(response.StatusCode, response);
             var endorsements = ((ApiOkResponse)response).Result;

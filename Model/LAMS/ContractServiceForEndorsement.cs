@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System;
 
 namespace HaloBiz.Model.LAMS
 {
@@ -12,10 +13,8 @@ namespace HaloBiz.Model.LAMS
         public bool IsDeclined { get; set; }
         public long CustomerDivisionId { get; set; }
         public CustomerDivision CustomerDivision { get; set; }
-        
-        
-        
-        
         public long? PreviousContractServiceId { get; set; }
+        public DateTime? DateForNewContractToTakeEffect { get; set; }
+        
     }
 }
