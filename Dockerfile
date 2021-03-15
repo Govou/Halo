@@ -7,10 +7,10 @@ EXPOSE 443
 
 FROM mcr.microsoft.com/dotnet/sdk:5.0-buster-slim AS build
 WORKDIR /src
-COPY ["halobiz-backend/HaloBiz.csproj", "halobiz-backend/"]
-RUN dotnet restore "halobiz-backend/HaloBiz.csproj"
-COPY . .
-WORKDIR "/src/halobiz-backend"
+COPY *.csproj ./
+RUN dotnet restore
+COPY . ./
+WORKDIR /src
 RUN dotnet build "HaloBiz.csproj" -c Release -o /app/build
 
 FROM build AS publish
