@@ -13,6 +13,8 @@ using halobiz_backend.Helpers;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using AutoMapper;
+using HaloBiz.Adapters;
+using Newtonsoft.Json;
 
 namespace HaloBiz.MyServices.Impl.LAMS
 {
@@ -20,6 +22,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
     {
         private readonly DataContext _context;
         private readonly IMapper _mapper;
+        private readonly IMailAdapter _mailAdapter;
         private readonly ILogger<LeadConversionServiceImpl> _logger;
         public long LoggedInUserId;
         private readonly string ReceivableControlAccount = "Receivable";
@@ -35,12 +38,14 @@ namespace HaloBiz.MyServices.Impl.LAMS
         public LeadConversionServiceImpl(
                                         DataContext context, 
                                         ILogger<LeadConversionServiceImpl> logger,
-                                        IMapper mapper
+                                        IMapper mapper,
+                                        IMailAdapter mailAdapter
                                         )
         {
             this._context = context;
             this._logger = logger;
             this._mapper = mapper;
+            _mailAdapter = mailAdapter;
         }
         public async Task<bool> ConvertLeadToClient(long leadId, long loggedInUserId)
         {
@@ -706,12 +711,15 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
             await _context.SaveChangesAsync();
 
+            await SendNewTaskAssignedMail(task.Entity);
+            
             foreach (var deliverable in serviceTask.ServiceTaskDeliverable)
             {
                 await CreateDeliverableFulfillment(task.Entity.Id, deliverable, service.ServiceCode, loggedInUserId);
             }
             return true;
         }
+
         private async Task<bool> CreateDeliverableFulfillment(
                                     long taskId, 
                                     ServiceTaskDeliverable serviceTaskDeliverable,
@@ -1097,5 +1105,15 @@ namespace HaloBiz.MyServices.Impl.LAMS
             return priceOfService * numberOfMonth;
         }
 
+        private async Task SendNewTaskAssignedMail(TaskFulfillment taskFulfillment)
+        {
+            taskFulfillment.Responsible = await _context.UserProfiles.FindAsync(taskFulfillment.ResponsibleId);
+            var serializedTask = JsonConvert.SerializeObject(taskFulfillment, new JsonSerializerSettings { ReferenceLoopHandling = ReferenceLoopHandling.Ignore });
+            Action action = async () =>
+            {
+                await _mailAdapter.SendNewTaskAssigned(serializedTask);
+            };
+            action.RunAsTask();
+        }
     }
 }

@@ -4,14 +4,16 @@ using HaloBiz.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace HaloBiz.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20210314110049_extendedAccountModel")]
+    partial class extendedAccountModel
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1398,7 +1400,7 @@ namespace HaloBiz.Migrations
                     b.Property<long>("Quantity")
                         .HasColumnType("bigint");
 
-                    b.Property<long?>("QuoteServiceId")
+                    b.Property<long>("QuoteServiceId")
                         .HasColumnType("bigint");
 
                     b.Property<string>("ReferenceNo")
@@ -5175,7 +5177,9 @@ namespace HaloBiz.Migrations
 
                     b.HasOne("HaloBiz.Model.LAMS.QuoteService", "QuoteService")
                         .WithMany("ContractServices")
-                        .HasForeignKey("QuoteServiceId");
+                        .HasForeignKey("QuoteServiceId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("HaloBiz.Model.Services", "Service")
                         .WithMany()

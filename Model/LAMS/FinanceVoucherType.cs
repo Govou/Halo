@@ -11,6 +11,7 @@ namespace HaloBiz.Model.LAMS
         public string VoucherType { get; set; }
         [StringLength(1000)]
         public string Description { get; set; }
+        public string Alias { get; set; } //To map with TranType from Dtrack
         [Required]
         public long CreatedById { get; set; }
         public virtual UserProfile CreatedBy { get; set; }

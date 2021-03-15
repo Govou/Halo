@@ -35,6 +35,15 @@ namespace HaloBiz.Model.LAMS
         public virtual Branch Branch { get; set; }
         public long? OfficeId { get; set; }
         public virtual Office Office { get; set; }
+
+        #region Address is a concatenation of State, LGA and Street for each lead Division. Address will be auto populated
+        public long? StateId { get; set; }
+        public virtual State State { get; set; }
+        public long? LGAId { get; set; }
+        public LGA LGA { get; set; }
+        public string Street { get; set; }
+        #endregion
+
         public long LeadId { get; set; }
         public virtual Lead Lead { get; set; }
         public  Quote Quote { get; set; }
