@@ -4,14 +4,16 @@ using HaloBiz.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace HaloBiz.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20210316184555_custdiv")]
+    partial class custdiv
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -45,9 +47,6 @@ namespace HaloBiz.Migrations
                     b.Property<string>("Description")
                         .HasMaxLength(1000)
                         .HasColumnType("nvarchar(1000)");
-
-                    b.Property<bool>("IntegrationFlag")
-                        .HasColumnType("bit");
 
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
@@ -512,12 +511,6 @@ namespace HaloBiz.Migrations
 
                     b.Property<int>("IsReceiptedStatus")
                         .HasColumnType("int");
-
-                    b.Property<bool>("IsReversalInvoice")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("IsReversed")
-                        .HasColumnType("bit");
 
                     b.Property<long>("Quantity")
                         .HasColumnType("bigint");
@@ -1404,7 +1397,7 @@ namespace HaloBiz.Migrations
                     b.Property<long>("Quantity")
                         .HasColumnType("bigint");
 
-                    b.Property<long?>("QuoteServiceId")
+                    b.Property<long>("QuoteServiceId")
                         .HasColumnType("bigint");
 
                     b.Property<string>("ReferenceNo")
@@ -1510,9 +1503,6 @@ namespace HaloBiz.Migrations
 
                     b.Property<long>("CustomerDivisionId")
                         .HasColumnType("bigint");
-
-                    b.Property<DateTime?>("DateForNewContractToTakeEffect")
-                        .HasColumnType("datetime2");
 
                     b.Property<double>("Discount")
                         .HasColumnType("float");
@@ -4572,12 +4562,6 @@ namespace HaloBiz.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
-                    b.Property<bool>("IsReversalReceipt")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("IsReversed")
-                        .HasColumnType("bit");
-
                     b.Property<bool>("IsTaskWitheld")
                         .HasColumnType("bit");
 
@@ -5203,7 +5187,9 @@ namespace HaloBiz.Migrations
 
                     b.HasOne("HaloBiz.Model.LAMS.QuoteService", "QuoteService")
                         .WithMany("ContractServices")
-                        .HasForeignKey("QuoteServiceId");
+                        .HasForeignKey("QuoteServiceId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("HaloBiz.Model.Services", "Service")
                         .WithMany()

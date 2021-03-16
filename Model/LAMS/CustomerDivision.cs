@@ -37,7 +37,14 @@ namespace HaloBiz.Model.LAMS
         public LeadDivisionContact PrimaryContact { get; set; }
         public long? PrimaryContactId { get; set; }   
         public LeadDivisionContact SecondaryContact { get; set; }
-        public long? SecondaryContactId { get; set; }   
+        public long? SecondaryContactId { get; set; }
+        #region Address is a concatenation of State, LGA and Street for each lead Division. Address will be auto populated
+        public long? StateId { get; set; }
+        public virtual State State { get; set; }
+        public long? LGAId { get; set; }
+        public LGA LGA { get; set; }
+        public string Street { get; set; }
+        #endregion
         public virtual UserProfile CreatedBy { get; set; }
         public bool IsDeleted { get; set; } = false;
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
