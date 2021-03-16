@@ -18,6 +18,11 @@ namespace HaloBiz.DTOs.ReceivingDTOs.LAMS
         public string PhoneNumber { get; set; }
         [Required, RegularExpression("^[_A-Za-z0-9-\\+]+(\\.[_A-Za-z0-9-]+)*@[A-Za-z0-9-]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$", ErrorMessage = "Invalid Email Address")]
         public string Email { get; set; }
+        #region Address is a concatenation of State, LGA and Street for each lead Division. Address will be auto populated
+        public long? StateId { get; set; }
+        public long? LGAId { get; set; }
+        public string Street { get; set; }
+        #endregion
         [StringLength(5000)]
         public string LogoUrl { get; set; }
         [StringLength(1000)]
