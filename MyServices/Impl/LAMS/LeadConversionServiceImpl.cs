@@ -463,7 +463,6 @@ namespace HaloBiz.MyServices.Impl.LAMS
         {
             int interval = 0;
             int invoiceNumber = 1;
-            var invoiceValue = 0.0;
             DateTime startDate =(DateTime) contractService.ContractStartDate; 
             DateTime firstInvoiceSendDate =(DateTime) contractService.FirstInvoiceSendDate; 
             DateTime endDate =(DateTime) contractService.ContractEndDate;
@@ -500,17 +499,30 @@ namespace HaloBiz.MyServices.Impl.LAMS
                     break;
             }
 
-
+            var billableForInvoicingPeriod = CalculateTotalBillableForPeriod( contractService, false);
+            var totalContractValue = CalculateTotalAmountForContract(
+                                                                    (double)contractService.BillableAmount,
+                                                                     (DateTime)contractService.ContractStartDate,
+                                                                     (DateTime)contractService.ContractEndDate,
+                                                                     (TimeCycle)contractService.InvoicingInterval
+                                                                    );
 
             if(cycle == TimeCycle.Weekly || cycle == TimeCycle.BiWeekly)
             {
-                var invoiceValueForWeekly = GenerateAmount( startDate, endDate,  amount,  cycle);
 
                 while(firstInvoiceSendDate < endDate){
+                    
+                    //to cater for edge cases where the last invoicing cycle isn't complete
+                    var invoiceValueToPost = billableForInvoicingPeriod <= totalContractValue ?
+                                        billableForInvoicingPeriod : totalContractValue;
+
+                    //to cater for edge cases where the calculated enddate false beyond the contract end date
+                    var invoiceEndDateToPost = startDate.AddMonths(interval) > endDate ? endDate : startDate.AddMonths(interval);
+
                          invoices.Add(
                              GenerateInvoice(startDate,  
-                                            startDate.AddDays(interval) > endDate ? endDate : startDate.AddDays(interval), 
-                                            invoiceValueForWeekly , 
+                                            invoiceEndDateToPost, 
+                                            invoiceValueToPost, 
                                             firstInvoiceSendDate,
                                             contractService, 
                                             customerDivisionId,
@@ -521,6 +533,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                     firstInvoiceSendDate = firstInvoiceSendDate.AddDays(interval);
                     startDate = startDate.AddDays(interval);
                     invoiceNumber++;
+                    totalContractValue -= billableForInvoicingPeriod;
                 }
             }else if(cycle == TimeCycle.OneTime ){
                 
@@ -528,11 +541,18 @@ namespace HaloBiz.MyServices.Impl.LAMS
                                                      contractService, customerDivisionId, serviceCode, invoiceNumber, loggedInUserId));
 
             }else{
-                invoiceValue = amount * (double) interval ;
+                
                 while(firstInvoiceSendDate < endDate){
+
+                    //to cater for edge cases where the last invoicing cycle isn't complete
+                    var invoiceValueToPost = billableForInvoicingPeriod <= totalContractValue ?
+                                        billableForInvoicingPeriod : totalContractValue;
+                    //to cater for edge cases where the calculated enddate false beyond the contract end date
+                    var invoiceEndDateToPost = startDate.AddMonths(interval) > endDate ? endDate : startDate.AddMonths(interval);
+
                     invoices.Add(GenerateInvoice(startDate,  
-                                        startDate.AddMonths(interval) > endDate ? endDate : startDate.AddMonths(interval), 
-                                                invoiceValue , 
+                                                invoiceEndDateToPost, 
+                                                invoiceValueToPost , 
                                                 firstInvoiceSendDate, 
                                                 contractService, 
                                                 customerDivisionId,
@@ -542,6 +562,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                     firstInvoiceSendDate = firstInvoiceSendDate.AddMonths(interval);
                     startDate = startDate.AddMonths(interval);
                     invoiceNumber++;
+                    totalContractValue -= billableForInvoicingPeriod;
                 }
             }
             return invoices;
@@ -629,6 +650,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
             }
 
            await  _context.Amortizations.AddRangeAsync(amortizations);
+           await _context.SaveChangesAsync();
             return true;
         }
 
@@ -753,15 +775,9 @@ namespace HaloBiz.MyServices.Impl.LAMS
                                     bool isReversal
                                     )
         {
-            var totalContractBillable = CalculateTotalAmountForContract((double)contractService.BillableAmount, 
-                                                                        (DateTime)contractService.ContractStartDate, 
-                                                                        (DateTime) contractService.ContractEndDate, 
-                                                                        (TimeCycle) contractService.InvoicingInterval);         
-
-            var totalVAT = CalculateTotalAmountForContract((double)contractService.VAT, 
-                                                                        (DateTime)contractService.ContractStartDate, 
-                                                                        (DateTime) contractService.ContractEndDate, 
-                                                                        (TimeCycle) contractService.InvoicingInterval);       
+            var totalContractBillable = CalculateTotalBillableForPeriod(contractService, false);         
+            var totalVAT = CalculateTotalBillableForPeriod(contractService, true); 
+                  
             var totalAfterTax = totalContractBillable - totalVAT;
             var savedAccountMaster = await CreateAccountMaster(service,
                                                          contractService,  
@@ -1114,6 +1130,73 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 await _mailAdapter.SendNewTaskAssigned(serializedTask);
             };
             action.RunAsTask();
+        }
+
+        private static double GenerateWeeklyAmount(DateTime startDate, DateTime endDate, double amountPerMonth, TimeCycle timeCylce)
+        {
+            var interval = timeCylce == TimeCycle.Weekly ? 7 : 14;
+            var numberOfMonths = 0;
+            var daysBetweenStartAndEndDate = (endDate.Subtract(startDate).TotalDays + 1) < interval ?
+                           (int) interval : (endDate.Subtract(startDate).TotalDays + 1);
+            var numberOfPayment = Math.Floor(daysBetweenStartAndEndDate / interval);
+            startDate = startDate.AddMonths(1);
+
+            while(startDate < endDate)
+            {
+                numberOfMonths++;
+                startDate = startDate.AddMonths(1);
+            }
+            numberOfMonths = numberOfMonths == 0 ? 1 : numberOfMonths;
+            var totalAmountPayable = numberOfMonths * amountPerMonth;
+            var amountToPay = Math.Round(totalAmountPayable / numberOfPayment, 4);
+            return amountToPay;
+        }
+
+        private double CalculateTotalBillableForPeriod(ContractService contractService, bool isVAT )
+        {
+            int interval = 0;
+            DateTime startDate =(DateTime) contractService.ContractStartDate; 
+            DateTime endDate =(DateTime) contractService.ContractEndDate;
+            TimeCycle cycle =(TimeCycle) contractService.InvoicingInterval;
+            double amount = isVAT ? (double) contractService.VAT : (double) contractService.BillableAmount;
+
+            switch (cycle)
+            {
+                case TimeCycle.Weekly:
+                    interval = 7;
+                    break;
+                case TimeCycle.BiWeekly:
+                    interval = 14;
+                    break;
+                case TimeCycle.Monthly:
+                    interval = 1;
+                    break;
+                case TimeCycle.BiMonthly:
+                    interval = 2;
+                    break;
+                case TimeCycle.Quarterly:
+                    interval = 4;
+                    break;
+                case TimeCycle.SemiAnnually:
+                    interval = 6;
+                    break;
+                case TimeCycle.Annually:
+                    interval = 12;
+                    break;
+                case TimeCycle.BiAnnually:
+                    interval = 24;
+                    break;
+            }
+
+            if(cycle == TimeCycle.Weekly || cycle == TimeCycle.BiWeekly)
+            {
+                return GenerateWeeklyAmount( startDate, endDate,  amount,  cycle);
+
+            }else if(cycle == TimeCycle.OneTime ){
+                return amount;
+            }else{
+                return amount * (double) interval ;
+            }
         }
     }
 }

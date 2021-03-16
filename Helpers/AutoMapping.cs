@@ -183,10 +183,12 @@ namespace HaloBiz.Helpers
             CreateMap<Designation, DesignationTransferDTO>();
             CreateMap<DesignationReceivingDTO, Designation>();
             CreateMap<Receipt, ReceiptTransferDTO>();
+            CreateMap<Receipt, Receipt>();
             CreateMap<ReceiptReceivingDTO, Receipt>();
             CreateMap<Invoice, InvoiceTransferDTO>().ForMember(dest => dest.TotalAmountReceipted, 
                 opt => opt.MapFrom(src => src.Receipts.Sum(x => x.ReceiptValue)));
             CreateMap<InvoiceReceivingDTO, Invoice>();
+            CreateMap<Invoice, Invoice>();
             CreateMap<ApproverLevelReceivingDTO, ApproverLevel>();
             CreateMap<ApproverLevel, ApproverLevelTransferDTO>();
             CreateMap<ApproverLevel, BaseSetupTransferDTO>();

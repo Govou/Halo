@@ -11,5 +11,6 @@ namespace HaloBiz.MyServices.LAMS
         Task<ApiResponse> GetUnApprovedContractServiceForEndorsement();
         Task<ApiResponse> ApproveContractServiceForEndorsement(long Id, bool isApproved);
         Task<ApiResponse> ConvertContractServiceForEndorsement(HttpContext httpContext, long Id);
+        Task<ApiResponse> GetAllPossibleEndorsementStartDate(long contractServiceId);
     }
 }

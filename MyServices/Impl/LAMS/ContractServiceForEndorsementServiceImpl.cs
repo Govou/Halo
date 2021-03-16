@@ -17,6 +17,7 @@ using System;
 using HaloBiz.Model.AccountsModel;
 using Microsoft.AspNetCore.Http;
 using HaloBiz.Helpers;
+using halobiz_backend.Model.AccountsModel;
 
 namespace HaloBiz.MyServices.Impl.LAMS
 {
@@ -48,6 +49,13 @@ namespace HaloBiz.MyServices.Impl.LAMS
         public async Task<ApiResponse> AddNewContractServiceForEndorsement (HttpContext httpContext, ContractServiceForEndorsementReceivingDto contractServiceForEndorsementReceiving)
         { 
             var  entityToSave = _mapper.Map<ContractServiceForEndorsement>(contractServiceForEndorsementReceiving);
+            var endorsementType = await _context.EndorsementTypes
+                        .FirstOrDefaultAsync(x => x.Id == entityToSave.EndorsementTypeId);
+            if(endorsementType.Caption.ToLower().Contains("renew") 
+                        && !await ValidateContractToRenew(entityToSave))
+            {
+                return new ApiResponse(400, "Invalid Previous contract service id or invalid new contract start date");
+            }
             entityToSave.CreatedById = httpContext.GetLoggedInUserId();
             var savedEntity = await _cntServiceForEndorsemntRepo.SaveContractServiceForEndorsement(entityToSave);
             if( savedEntity == null)
@@ -58,12 +66,42 @@ namespace HaloBiz.MyServices.Impl.LAMS
             var contractServiceToEndorseTransferDto = _mapper.Map<ContractServiceForEndorsementTransferDto>(savedEntity);
             return new ApiOkResponse(contractServiceToEndorseTransferDto);
         }
+        
+
+        private async Task<bool> ValidateContractToRenew(ContractServiceForEndorsement contractServiceForEndorsement)
+        {
+            if(contractServiceForEndorsement.PreviousContractServiceId == null || contractServiceForEndorsement.PreviousContractServiceId == 0)
+            {
+                return false;
+            }
+            var contractService = await _context.ContractServices
+                        .FirstOrDefaultAsync(x => x.Id == contractServiceForEndorsement.PreviousContractServiceId);
+            
+            if(contractService == null)
+            {
+                return false;
+            }
+            if(contractService.ContractEndDate >= contractServiceForEndorsement.ContractStartDate)
+            {
+                return false;
+            }
+            return true;
+        }
+
+
 
         public async Task<ApiResponse> GetUnApprovedContractServiceForEndorsement()
         {
             var contractServicesForEndorsement = await _cntServiceForEndorsemntRepo.FindAllUnApprovedContractServicesForEndorsement();
-            var contractServicesToEndorseTransferDto = _mapper.Map<IEnumerable<ContractServiceForEndorsementTransferDto>>(contractServicesForEndorsement);
+            var contractServicesToEndorseTransferDto = 
+                _mapper.Map<IEnumerable<ContractServiceForEndorsementTransferDto>>(contractServicesForEndorsement);
             return new ApiOkResponse(contractServicesToEndorseTransferDto);
+        }
+
+        public async Task<ApiResponse> GetAllPossibleEndorsementStartDate(long contractServiceId)
+        {
+            var possibleDates = await _cntServiceForEndorsemntRepo.FindAllPossibleEndorsementStartDate(contractServiceId);
+            return new ApiOkResponse(possibleDates);
         }
 
         public async Task<ApiResponse> ApproveContractServiceForEndorsement(long Id, bool isApproved)
@@ -120,25 +158,30 @@ namespace HaloBiz.MyServices.Impl.LAMS
                     if(endorsementType.ToLower().Contains("service addition"))
                     {
                         await AddServiceEndorsement( contractService, contractServiceForEndorsement,  service, customerDivision);
-                    }else if(endorsementType.ToLower().Contains("sales topup")){
+                    
+                    }else if(endorsementType.ToLower().Contains("service topup")){
+
                         var contractServiceToRetire = await _context.ContractServices
                             .FirstOrDefaultAsync(x => x.Id == contractServiceForEndorsement.PreviousContractServiceId);
+
                         await ServiceTopUpGoingForwardEndorsement( contractServiceToRetire, 
                                                                     contractService,
                                                                     customerDivision,
                                                                     service,
                                                                     contractServiceForEndorsement
                                                                     );
-                    }else if(endorsementType.ToLower().Contains("sales reduction")){
+                    }else if(endorsementType.ToLower().Contains("service reduction")){
+
                         var contractServiceToRetire = await _context.ContractServices
                             .FirstOrDefaultAsync(x => x.Id == contractServiceForEndorsement.PreviousContractServiceId);
+
                         await ServiceReductionGoingForwardEndorsement( contractServiceToRetire, 
                                                                     contractService,
                                                                     customerDivision,
                                                                     service,
                                                                     contractServiceForEndorsement
                                                                     );
-                    }else if(endorsementType.ToLower().Contains("sales retention"))
+                    }else if(endorsementType.ToLower().Contains("service retention"))
                     {
                         var contractServiceToRetire = await _context.ContractServices
                             .FirstOrDefaultAsync(x => x.Id == contractServiceForEndorsement.PreviousContractServiceId);
@@ -216,35 +259,33 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
             await _leadConversionService.CreateTaskAndDeliverables(newContractService, customerDivision.Id, this.loggedInUserId);
 
-            await _leadConversionService.CreateAccounts(contractServcieDifference,
-                                                        customerDivision, 
-                                                        (long)contractServcieDifference.BranchId, 
-                                                        (long)contractServcieDifference.OfficeId, 
-                                                        service,
-                                                        financialVoucherType,
-                                                        null, 
-                                                        this.loggedInUserId,
-                                                        false);
-
             if(string.IsNullOrWhiteSpace(contractServcieDifference.GroupInvoiceNumber))
             {
                 await  UpdateInvoices(contractServcieDifference,contractServiceForEndorsement, true,  false);
             }else {
                 await UpdateInvoices( contractServcieDifference, contractServiceForEndorsement, true, true);
             }
-
-            await _leadConversionService.GenerateAmortizations(contractServcieDifference, customerDivision);
-
-            await _leadConversionService.GenerateAmortizations(newContractService, customerDivision);
             
             var description = $"Service Topup for {service.Name} with serviceId: {service.Id} for client: {customerDivision.DivisionName}. quantity increase of {newContractService.Quantity - retiredContractService.Quantity}";
-            await RetireContractService( 
+            await RetireContractService(
                                         retiredContractService,  
                                         newContractService, 
                                         description,  
                                         contractServiceForEndorsement.EndorsementTypeId
                                         );
             
+            var retiredContractServiceToNegateAmmortization = _mapper.Map<ContractService>(retiredContractService);
+            
+            retiredContractServiceToNegateAmmortization.BillableAmount *=  -1;
+            retiredContractServiceToNegateAmmortization.ContractStartDate = contractServiceForEndorsement.DateForNewContractToTakeEffect;
+
+            //Negate amortization value starting from date of contract service update take of to contract end date
+            await _leadConversionService.GenerateAmortizations(retiredContractServiceToNegateAmmortization, customerDivision);
+
+            //Post ammortization of new contract serivce starting from date of contract service update take of to contract end date
+            newContractService.ContractStartDate = contractServiceForEndorsement.DateForNewContractToTakeEffect;
+            await _leadConversionService.GenerateAmortizations(newContractService, customerDivision);
+
             return true;
         }
 
@@ -262,36 +303,25 @@ namespace HaloBiz.MyServices.Impl.LAMS
             var financialVoucherType = await _context.FinanceVoucherTypes
                             .FirstOrDefaultAsync(x => x.VoucherType.ToLower() == salesReductionVoucher.ToLower());
 
-            await _leadConversionService.CreateAccounts(contractServcieDifference,
-                                                        customerDivision, 
-                                                        (long)contractServcieDifference.BranchId, 
-                                                        (long)contractServcieDifference.OfficeId, 
-                                                        service,
-                                                        financialVoucherType,
-                                                        null, 
-                                                        this.loggedInUserId,
-                                                        true);
-
-            if(string.IsNullOrWhiteSpace(contractServcieDifference.GroupInvoiceNumber))
+            if(String.IsNullOrWhiteSpace(contractServcieDifference.GroupInvoiceNumber))
             {
                 await  UpdateInvoices(contractServcieDifference,contractServiceForEndorsement, false,  false);
             }else {
                 await UpdateInvoices( contractServcieDifference, contractServiceForEndorsement, false, true);
             }
 
-            await _leadConversionService.GenerateAmortizations(contractServcieDifference, customerDivision);
 
             var description = $"Service Reduction for {service.Name} with serviceId: {service.Id} for client: {customerDivision.DivisionName}. quantity reduction of {retiredContractService.Quantity - newContractService.Quantity }";
-            await RetireContractService( 
-                                        retiredContractService,  
-                                        newContractService, 
-                                        description,  
+            await RetireContractService(
+                                        retiredContractService,
+                                        newContractService,
+                                        description,
                                         contractServiceForEndorsement.EndorsementTypeId
                                         );
             
             var retiredContractServiceToNegateAmmortization = _mapper.Map<ContractService>(retiredContractService);
             
-            retiredContractServiceToNegateAmmortization.BillableAmount = retiredContractServiceToNegateAmmortization.BillableAmount * -1;
+            retiredContractServiceToNegateAmmortization.BillableAmount *=  -1;
             retiredContractServiceToNegateAmmortization.ContractStartDate = contractServiceForEndorsement.DateForNewContractToTakeEffect;
 
             //Negate amortization value starting from date of contract service update take of to contract end date
@@ -375,20 +405,22 @@ namespace HaloBiz.MyServices.Impl.LAMS
             IEnumerable<Invoice> invoices = null;
             
             invoices = isGroupInvoice?  await _context.Invoices
-                                    .Where(x => x.GroupInvoiceNumber == contractService.GroupInvoiceNumber && x.StartDate >= contractServiceForEndorsement.DateForNewContractToTakeEffect && !x.IsDeleted)
+                                    .Where(x => x.GroupInvoiceNumber == contractServiceForEndorsement.GroupInvoiceNumber && x.StartDate >= contractServiceForEndorsement.DateForNewContractToTakeEffect && !x.IsDeleted)
                                     .ToListAsync()
                     :
                     await _context.Invoices
-                                    .Where(x => x.ContractServiceId == contractService.Id && x.StartDate >= contractServiceForEndorsement.DateForNewContractToTakeEffect && !x.IsDeleted)
+                                    .Where(x => x.ContractServiceId == contractServiceForEndorsement.PreviousContractServiceId && x.StartDate >= contractServiceForEndorsement.DateForNewContractToTakeEffect && !x.IsDeleted)
                                     .ToListAsync();
+
+            var billbalbleForInvoicingPeriod = CalculateTotalBillableForPeriod(contractService);
             
             foreach (var invoice in invoices)
             {
                 if(isTopUp)
                 {
-                    invoice.Value += (double) contractService.BillableAmount;
+                    invoice.Value += billbalbleForInvoicingPeriod;
                 }else if(!isTopUp){
-                    invoice.Value -= (double) contractService.BillableAmount;
+                    invoice.Value -= billbalbleForInvoicingPeriod;
                 }
 
                 if(!isGroupInvoice)
@@ -414,20 +446,151 @@ namespace HaloBiz.MyServices.Impl.LAMS
         private async Task<bool> GenerateGroupInvoiceDetails(ContractService contractService)
         {
             GroupInvoiceDetails groupInvoiceDetails = new GroupInvoiceDetails()
-                {
-                    InvoiceNumber = contractService.GroupInvoiceNumber,
-                    Description = $"Invoice details for Group Invoice {contractService.GroupInvoiceNumber}",
-                    UnitPrice = (double) contractService.UnitPrice,
-                    Quantity =(int) contractService.Quantity,
-                    VAT  = (double) contractService.VAT,
-                    Value = (double) (contractService.BillableAmount - contractService.VAT),
-                    BillableAmount = (double) contractService.BillableAmount,
-                    ContractServiceId = contractService.Id
-                };
+            {
+                InvoiceNumber = contractService.GroupInvoiceNumber,
+                Description = $"Invoice details for Group Invoice {contractService.GroupInvoiceNumber}",
+                UnitPrice = (double) contractService.UnitPrice,
+                Quantity =(int) contractService.Quantity,
+                VAT  = (double) contractService.VAT,
+                Value = (double) (contractService.BillableAmount - contractService.VAT),
+                BillableAmount = (double) contractService.BillableAmount,
+                ContractServiceId = contractService.Id
+            };
 
             await _context.GroupInvoiceDetails.AddAsync(groupInvoiceDetails);
             await _context.SaveChangesAsync();
             return true;
+        }
+
+        private async Task<bool> ReverseInvoicesAndReceipts(long contractServiceId)
+        {
+            IEnumerable<Invoice> invoicesToBeReversed = await _context.Invoices
+                        .Include(invoice => invoice.Receipts)
+                        .Where(invoice => !invoice.IsDeleted && !invoice.IsReversed && invoice.IsReversalInvoice)
+                        .ToListAsync();
+            List<Receipt> reversalReeceipts = new List<Receipt>();
+            List<Invoice> reversalInvoices = new List<Invoice>();
+
+            foreach (var invoice in invoicesToBeReversed)
+            {
+                reversalInvoices.Add(GenerateReverselInvoice(invoice));
+                invoice.IsReversed = true;
+
+                foreach (var receipt in invoice.Receipts)  
+                {
+                    receipt.IsReversed = true;
+                    reversalReeceipts.Add(GenerateReversalReceipt(receipt));
+                }
+            }
+
+            await _context.Invoices.AddRangeAsync(reversalInvoices);
+            await _context.SaveChangesAsync();
+            await _context.Receipts.AddRangeAsync(reversalReeceipts);
+            await _context.SaveChangesAsync();
+            _context.UpdateRange(invoicesToBeReversed);
+            await _context.SaveChangesAsync();
+            return false;
+        }
+
+
+        private Invoice GenerateReverselInvoice(Invoice invoice)
+        {
+            Invoice invoiceToReverse = _mapper.Map<Invoice>(invoice);
+            invoiceToReverse.Value *= -1;
+            invoiceToReverse.IsInvoiceSent = true;
+            invoiceToReverse.IsReversalInvoice = true;
+            invoiceToReverse.CreatedAt = DateTime.Now;
+            invoiceToReverse.UpdatedAt = DateTime.Now;
+            invoiceToReverse.Id = 0;
+            invoiceToReverse.CreatedById = this.loggedInUserId;
+
+            return invoiceToReverse;
+        }
+
+        private  Receipt GenerateReversalReceipt(Receipt receipt)
+        {
+            Receipt receiptToReverse = _mapper.Map<Receipt>(receipt);
+            receiptToReverse.InvoiceValue*= -1;
+            receiptToReverse.InvoiceValueBalanceAfterReceipting = 0;
+            receiptToReverse.InvoiceValueBalanceBeforeReceipting = 0;
+            receiptToReverse.Caption = $"Reversal of {receiptToReverse.Caption}";
+            receiptToReverse.DateAndTimeOfFundsReceived = DateTime.Now;
+            receiptToReverse.ReceiptValue*= -1;
+            receiptToReverse.UpdatedAt = DateTime.Now;
+            receiptToReverse.CreatedAt = DateTime.Now;
+            receiptToReverse.CreatedById = this.loggedInUserId;
+            receiptToReverse.IsReversalReceipt = true;
+            receiptToReverse.Id= 0;
+
+            return receiptToReverse;
+
+        }
+
+        private static double GenerateWeeklyAmount(DateTime startDate, DateTime endDate, double amountPerMonth, TimeCycle timeCylce)
+        {
+            var interval = timeCylce == TimeCycle.Weekly ? 7 : 14;
+            var numberOfMonths = 0;
+            var daysBetweenStartAndEndDate = (endDate.Subtract(startDate).TotalDays + 1) < interval ?
+                           (int) interval : (endDate.Subtract(startDate).TotalDays + 1);
+            var numberOfPayment = Math.Floor(daysBetweenStartAndEndDate / interval);
+            startDate = startDate.AddMonths(1);
+
+            while(startDate < endDate)
+            {
+                numberOfMonths++;
+                startDate = startDate.AddMonths(1);
+            }
+            numberOfMonths = numberOfMonths == 0 ? 1 : numberOfMonths;
+            var totalAmountPayable = numberOfMonths * amountPerMonth;
+            var amountToPay = Math.Round(totalAmountPayable / numberOfPayment, 4);
+            return amountToPay;
+        }
+
+        private double CalculateTotalBillableForPeriod(ContractService contractService )
+        {
+            int interval = 0;
+            DateTime startDate =(DateTime) contractService.ContractStartDate; 
+            DateTime endDate =(DateTime) contractService.ContractEndDate;
+            TimeCycle cycle =(TimeCycle) contractService.InvoicingInterval;
+            double amount =(double) contractService.BillableAmount;
+
+            switch (cycle)
+            {
+                case TimeCycle.Weekly:
+                    interval = 7;
+                    break;
+                case TimeCycle.BiWeekly:
+                    interval = 14;
+                    break;
+                case TimeCycle.Monthly:
+                    interval = 1;
+                    break;
+                case TimeCycle.BiMonthly:
+                    interval = 2;
+                    break;
+                case TimeCycle.Quarterly:
+                    interval = 4;
+                    break;
+                case TimeCycle.SemiAnnually:
+                    interval = 6;
+                    break;
+                case TimeCycle.Annually:
+                    interval = 12;
+                    break;
+                case TimeCycle.BiAnnually:
+                    interval = 24;
+                    break;
+            }
+
+            if(cycle == TimeCycle.Weekly || cycle == TimeCycle.BiWeekly)
+            {
+                return GenerateWeeklyAmount( startDate, endDate,  amount,  cycle);
+
+            }else if(cycle == TimeCycle.OneTime ){
+                return amount;
+            }else{
+                return amount * (double) interval ;
+            }
         }
 
     }

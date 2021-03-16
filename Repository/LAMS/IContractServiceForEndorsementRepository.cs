@@ -11,5 +11,6 @@ namespace HaloBiz.Repository.LAMS
         Task<IEnumerable<ContractServiceForEndorsement>> FindAllUnApprovedContractServicesForEndorsement();
         Task<ContractServiceForEndorsement> UpdateContractServiceForEndorsement(ContractServiceForEndorsement entity);
         Task<ContractServiceForEndorsement> FindContractServiceForEndorsementById(long Id);
+        Task<IEnumerable<object>> FindAllPossibleEndorsementStartDate(long contractServiceId);
     }
 }

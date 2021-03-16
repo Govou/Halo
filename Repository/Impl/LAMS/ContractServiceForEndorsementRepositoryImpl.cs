@@ -45,6 +45,14 @@ namespace HaloBiz.Repository.Impl.LAMS
                 .Where(x => x.IsRequestedForApproval && !x.IsApproved && !x.IsDeclined)
                 .ToListAsync();
         }
+        public async Task<IEnumerable<object>> FindAllPossibleEndorsementStartDate(long contractServiceId)
+        {
+            return await _context.Invoices
+                .Where(x => !x.IsReversalInvoice && !x.IsDeleted && !x.IsReversed 
+                        && x.StartDate > DateTime.Now && x.ContractServiceId == contractServiceId )
+                .OrderBy(x => x.StartDate)
+                .Select(x => new{startDate = x.StartDate}).ToListAsync();
+        }
         public async Task<ContractServiceForEndorsement> UpdateContractServiceForEndorsement(ContractServiceForEndorsement entity)
         {
             var contractServiceEntityForEndorsement = _context.ContractServiceForEndorsements.Update(entity);
