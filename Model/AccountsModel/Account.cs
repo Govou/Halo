@@ -11,6 +11,8 @@ namespace HaloBiz.Model.AccountsModel
         public long Id { get; set; }
         [Required]
         public string Name { get; set; }
+        [Required]
+        public bool IntegrationFlag { get; set; } = false;
         [StringLength(1000)]
         public string Description { get; set; }
         [Required]
