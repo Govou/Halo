@@ -9,9 +9,9 @@ namespace HaloBiz.MyServices.LAMS
     public interface ILeadConversionService
     {
         Task<bool> ConvertLeadToClient(long leadId, long loggedInUserId);
-        Task<bool> GenerateInvoices(ContractService contractService, long customerDivisionId, string serviceCode);
+        Task<bool> GenerateInvoices(ContractService contractService, long customerDivisionId, string serviceCode, long loggedInUserId);
         Task<bool> GenerateAmortizations(ContractService contractService, CustomerDivision customerDivision);
-        Task<bool> CreateTaskAndDeliverables(ContractService contractServcie, long customerDivisionId);
+        Task<bool> CreateTaskAndDeliverables(ContractService contractServcie, long customerDivisionId, long? loggedInUserId);
         Task<bool> CreateAccounts(
                                     ContractService contractService,
                                     CustomerDivision customerDivision,
@@ -19,11 +19,15 @@ namespace HaloBiz.MyServices.LAMS
                                     long officeId,
                                     Services service,
                                     FinanceVoucherType accountVoucherType,
-                                    QuoteService quoteService = null
+                                    QuoteService quoteService,
+                                    long loggedInUserId,
+                                    bool isReversal
                                     );
         List<Invoice> GenerateListOfInvoiceCycle(
                                             ContractService contractService, 
                                             long customerDivisionId,
-                                            string serviceCode);
+                                            string serviceCode,
+                                            long loggedInUserId
+                                            );
     }
 }

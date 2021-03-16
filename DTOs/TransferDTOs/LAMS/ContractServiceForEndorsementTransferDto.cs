@@ -50,10 +50,9 @@ namespace HaloBiz.DTOs.TransferDTOs.LAMS
         public DateTime? ProgramEndDate {get ; set; }
         public DateTime? TentativeDateOfSiteVisit {get ; set; }
         public long ServiceId { get; set; }
-        public Services Service { get; set; }
+        public ServicesTransferDTO Service { get; set; }
         public long ContractId { get; set; }
-        public Contract Contract { get; set; }
-        public long QuoteServiceId { get; set; }
+        public ContractTransferDTO Contract { get; set; }
         public string GroupInvoiceNumber { get; set; }
         public long EndorsementTypeId { get; set; }        
         public EndorsementType EndorsementType { get; set; }
@@ -62,6 +61,12 @@ namespace HaloBiz.DTOs.TransferDTOs.LAMS
         public bool IsRequestedForApproval { get; set; } = true;
         public bool IsApproved { get; set; } = false;
         public bool IsDeclined { get; set; } = false;
-
+        public long CustomerDivisionId { get; set; }
+        public CustomerDivision CustomerDivision { get; set; }
+        public long BranchId { get; set; }
+        public long OfficeId { get; set; }
+        public long PreviousContractServiceId { get; set; }
+        public DateTime DateForNewContractToTakeEffect { get; set; }
+        
     }
 }

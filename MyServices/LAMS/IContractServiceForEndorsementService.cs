@@ -1,19 +1,18 @@
 using System.Threading.Tasks;
-using HaloBiz.Data;
-using AutoMapper;
 using HaloBiz.DTOs.ReceivingDTOs.LAMS;
-using HaloBiz.Model.LAMS;
-using HaloBiz.DTOs.TransferDTOs.LAMS;
-using HaloBiz.Repository.LAMS;
 using HaloBiz.DTOs.ApiDTOs;
+using Microsoft.AspNetCore.Http;
+using System.Collections.Generic;
 
 namespace HaloBiz.MyServices.LAMS
 {
     public interface IContractServiceForEndorsementService
     {
-         Task<ApiResponse> AddNewContractServiceForEndorsement (ContractServiceForEndorsementReceivingDto contractServiceForEndorsementReceiving);
+        Task<ApiResponse> AddNewContractServiceForEndorsement (HttpContext httpContext, ContractServiceForEndorsementReceivingDto contractServiceForEndorsementReceiving);
         Task<ApiResponse> GetUnApprovedContractServiceForEndorsement();
         Task<ApiResponse> ApproveContractServiceForEndorsement(long Id, bool isApproved);
-        Task<ApiResponse> ConvertContractServiceForEndorsement(long Id);
+        Task<ApiResponse> ConvertContractServiceForEndorsement(HttpContext httpContext, long Id);
+        Task<ApiResponse> GetAllPossibleEndorsementStartDate(long contractServiceId);
+        Task<ApiResponse> AddNewRetentionContractServiceForEndorsement (HttpContext httpContext, List<ContractServiceForEndorsementReceivingDto> contractServiceForEndorsementDtos);
     }
 }

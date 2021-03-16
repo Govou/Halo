@@ -4,14 +4,16 @@ using HaloBiz.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace HaloBiz.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20210314122459_updatesContractServiceModel")]
+    partial class updatesContractServiceModel
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -45,9 +47,6 @@ namespace HaloBiz.Migrations
                     b.Property<string>("Description")
                         .HasMaxLength(1000)
                         .HasColumnType("nvarchar(1000)");
-
-                    b.Property<bool>("IntegrationFlag")
-                        .HasColumnType("bit");
 
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
@@ -501,9 +500,6 @@ namespace HaloBiz.Migrations
                     b.Property<int>("InvoiceType")
                         .HasColumnType("int");
 
-                    b.Property<bool>("IsAccountPosted")
-                        .HasColumnType("bit");
-
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
@@ -515,12 +511,6 @@ namespace HaloBiz.Migrations
 
                     b.Property<int>("IsReceiptedStatus")
                         .HasColumnType("int");
-
-                    b.Property<bool>("IsReversalInvoice")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("IsReversed")
-                        .HasColumnType("bit");
 
                     b.Property<long>("Quantity")
                         .HasColumnType("bigint");
@@ -1514,9 +1504,6 @@ namespace HaloBiz.Migrations
                     b.Property<long>("CustomerDivisionId")
                         .HasColumnType("bigint");
 
-                    b.Property<DateTime?>("DateForNewContractToTakeEffect")
-                        .HasColumnType("datetime2");
-
                     b.Property<double>("Discount")
                         .HasColumnType("float");
 
@@ -1549,9 +1536,6 @@ namespace HaloBiz.Migrations
                         .HasColumnType("int");
 
                     b.Property<bool>("IsApproved")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("IsConvertedToContractService")
                         .HasColumnType("bit");
 
                     b.Property<bool>("IsDeclined")
@@ -1760,9 +1744,6 @@ namespace HaloBiz.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
-                    b.Property<long?>("LGAId")
-                        .HasColumnType("bigint");
-
                     b.Property<string>("LogoUrl")
                         .HasMaxLength(5000)
                         .HasColumnType("nvarchar(max)");
@@ -1781,12 +1762,6 @@ namespace HaloBiz.Migrations
                     b.Property<long?>("SecondaryContactId")
                         .HasColumnType("bigint");
 
-                    b.Property<long?>("StateId")
-                        .HasColumnType("bigint");
-
-                    b.Property<string>("Street")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<DateTime>("UpdatedAt")
                         .ValueGeneratedOnAddOrUpdate()
                         .HasColumnType("datetime2")
@@ -1800,13 +1775,9 @@ namespace HaloBiz.Migrations
 
                     b.HasIndex("CustomerId");
 
-                    b.HasIndex("LGAId");
-
                     b.HasIndex("PrimaryContactId");
 
                     b.HasIndex("SecondaryContactId");
-
-                    b.HasIndex("StateId");
 
                     b.ToTable("CustomerDivisions");
                 });
@@ -1999,9 +1970,6 @@ namespace HaloBiz.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bigint")
                         .UseIdentityColumn();
-
-                    b.Property<string>("Alias")
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("CreatedAt")
                         .ValueGeneratedOnAdd()
@@ -2252,9 +2220,6 @@ namespace HaloBiz.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
-                    b.Property<long?>("LGAId")
-                        .HasColumnType("bigint");
-
                     b.Property<long>("LeadId")
                         .HasColumnType("bigint");
 
@@ -2285,12 +2250,6 @@ namespace HaloBiz.Migrations
                     b.Property<long?>("SecondaryContactId")
                         .HasColumnType("bigint");
 
-                    b.Property<long?>("StateId")
-                        .HasColumnType("bigint");
-
-                    b.Property<string>("Street")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<DateTime>("UpdatedAt")
                         .ValueGeneratedOnAddOrUpdate()
                         .HasColumnType("datetime2")
@@ -2301,8 +2260,6 @@ namespace HaloBiz.Migrations
                     b.HasIndex("BranchId");
 
                     b.HasIndex("CreatedById");
-
-                    b.HasIndex("LGAId");
 
                     b.HasIndex("LeadId");
 
@@ -2315,8 +2272,6 @@ namespace HaloBiz.Migrations
                     b.HasIndex("PrimaryContactId");
 
                     b.HasIndex("SecondaryContactId");
-
-                    b.HasIndex("StateId");
 
                     b.ToTable("LeadDivisions");
                 });
@@ -3341,44 +3296,6 @@ namespace HaloBiz.Migrations
                     b.ToTable("MeansOfIdentification");
                 });
 
-            modelBuilder.Entity("HaloBiz.Model.ModeOfTransport", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint")
-                        .UseIdentityColumn();
-
-                    b.Property<string>("Caption")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime2")
-                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
-
-                    b.Property<long>("CreatedById")
-                        .HasColumnType("bigint");
-
-                    b.Property<string>("Description")
-                        .HasMaxLength(1000)
-                        .HasColumnType("nvarchar(1000)");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
-
-                    b.Property<DateTime>("UpdatedAt")
-                        .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("datetime2")
-                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CreatedById");
-
-                    b.ToTable("ModeOfTransports");
-                });
-
             modelBuilder.Entity("HaloBiz.Model.ModificationHistory", b =>
                 {
                     b.Property<long>("Id")
@@ -3485,9 +3402,6 @@ namespace HaloBiz.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bigint")
                         .UseIdentityColumn();
-
-                    b.Property<string>("Alias")
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("CreatedAt")
                         .ValueGeneratedOnAdd()
@@ -4578,12 +4492,6 @@ namespace HaloBiz.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
-                    b.Property<bool>("IsReversalReceipt")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("IsReversed")
-                        .HasColumnType("bit");
-
                     b.Property<bool>("IsTaskWitheld")
                         .HasColumnType("bit");
 
@@ -5334,10 +5242,6 @@ namespace HaloBiz.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("HaloBiz.Model.LGA", "LGA")
-                        .WithMany()
-                        .HasForeignKey("LGAId");
-
                     b.HasOne("HaloBiz.Model.LAMS.LeadDivisionContact", "PrimaryContact")
                         .WithMany()
                         .HasForeignKey("PrimaryContactId");
@@ -5346,23 +5250,15 @@ namespace HaloBiz.Migrations
                         .WithMany()
                         .HasForeignKey("SecondaryContactId");
 
-                    b.HasOne("HaloBiz.Model.State", "State")
-                        .WithMany()
-                        .HasForeignKey("StateId");
-
                     b.Navigation("Account");
 
                     b.Navigation("CreatedBy");
 
                     b.Navigation("Customer");
 
-                    b.Navigation("LGA");
-
                     b.Navigation("PrimaryContact");
 
                     b.Navigation("SecondaryContact");
-
-                    b.Navigation("State");
                 });
 
             modelBuilder.Entity("HaloBiz.Model.LAMS.DeliverableFulfillment", b =>
@@ -5494,10 +5390,6 @@ namespace HaloBiz.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("HaloBiz.Model.LGA", "LGA")
-                        .WithMany()
-                        .HasForeignKey("LGAId");
-
                     b.HasOne("HaloBiz.Model.LAMS.Lead", "Lead")
                         .WithMany("LeadDivisions")
                         .HasForeignKey("LeadId")
@@ -5526,10 +5418,6 @@ namespace HaloBiz.Migrations
                         .WithMany()
                         .HasForeignKey("SecondaryContactId");
 
-                    b.HasOne("HaloBiz.Model.State", "State")
-                        .WithMany()
-                        .HasForeignKey("StateId");
-
                     b.Navigation("Branch");
 
                     b.Navigation("CreatedBy");
@@ -5540,15 +5428,11 @@ namespace HaloBiz.Migrations
 
                     b.Navigation("LeadType");
 
-                    b.Navigation("LGA");
-
                     b.Navigation("Office");
 
                     b.Navigation("PrimaryContact");
 
                     b.Navigation("SecondaryContact");
-
-                    b.Navigation("State");
                 });
 
             modelBuilder.Entity("HaloBiz.Model.LAMS.LeadDivisionContact", b =>
@@ -5963,17 +5847,6 @@ namespace HaloBiz.Migrations
                 });
 
             modelBuilder.Entity("HaloBiz.Model.MeansOfIdentification", b =>
-                {
-                    b.HasOne("HaloBiz.Model.UserProfile", "CreatedBy")
-                        .WithMany()
-                        .HasForeignKey("CreatedById")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("CreatedBy");
-                });
-
-            modelBuilder.Entity("HaloBiz.Model.ModeOfTransport", b =>
                 {
                     b.HasOne("HaloBiz.Model.UserProfile", "CreatedBy")
                         .WithMany()

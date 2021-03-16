@@ -37,6 +37,16 @@ namespace HaloBiz.Repository.Impl.LAMS
             }
             return null;            
         }
+        public async Task<bool> SaveRangeContractServiceForEndorsement(IEnumerable<ContractServiceForEndorsement> entity)
+        {
+            await _context.ContractServiceForEndorsements.AddRangeAsync(entity);
+
+            if (await SaveChanges())
+            {
+                return true;
+            }
+            return false;            
+        }
 
         public async Task<IEnumerable<ContractServiceForEndorsement>> FindAllUnApprovedContractServicesForEndorsement()
         {
@@ -44,6 +54,14 @@ namespace HaloBiz.Repository.Impl.LAMS
                 .Include(x => x.EndorsementType)
                 .Where(x => x.IsRequestedForApproval && !x.IsApproved && !x.IsDeclined)
                 .ToListAsync();
+        }
+        public async Task<IEnumerable<object>> FindAllPossibleEndorsementStartDate(long contractServiceId)
+        {
+            return await _context.Invoices
+                .Where(x => !x.IsReversalInvoice && !x.IsDeleted && !x.IsReversed 
+                        && x.StartDate > DateTime.Now && x.ContractServiceId == contractServiceId )
+                .OrderBy(x => x.StartDate)
+                .Select(x => new{startDate = x.StartDate}).ToListAsync();
         }
         public async Task<ContractServiceForEndorsement> UpdateContractServiceForEndorsement(ContractServiceForEndorsement entity)
         {

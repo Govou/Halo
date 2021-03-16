@@ -8,7 +8,7 @@ namespace HaloBiz.Model.LAMS
 {
     public class ContractService : BaseContractServiceModel
     {
-        public long QuoteServiceId { get; set; }
+        public long? QuoteServiceId { get; set; } = null;
         public IEnumerable<TaskFulfillment> TaskFulfillments { get; set; }
         public virtual QuoteService QuoteService { get; set; }
         public IEnumerable<ClosureDocument> ClosureDocuments { get; set; }

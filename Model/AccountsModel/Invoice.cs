@@ -28,6 +28,8 @@ namespace HaloBiz.Model.AccountsModel
         public CustomerDivision CustomerDivision { get; set; }
         public InvoiceStatus IsReceiptedStatus { get; set; }
         public bool IsFinalInvoice { get; set; }= true;
+        public bool IsReversed { get; set; }
+        public bool IsReversalInvoice { get; set; }
         public InvoiceType InvoiceType { get; set; } = InvoiceType.New;
         public IEnumerable<Receipt> Receipts { get; set; }
         [Required]
@@ -44,10 +46,7 @@ namespace HaloBiz.Model.AccountsModel
         [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
         public DateTime UpdatedAt { get; set; }
         public long? CreatedById { get; set; }
-        
         public UserProfile CreatedBy { get; set; }
-        
-        
-
+        public bool IsAccountPosted { get; set; } = false;
     }
 }

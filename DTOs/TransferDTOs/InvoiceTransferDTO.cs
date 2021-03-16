@@ -21,6 +21,8 @@ namespace HaloBiz.DTOs.TransferDTOs
         public bool IsInvoiceSent { get; set; }
         public long CustomerDivisionId { get; set; }
         public InvoiceStatus IsReceiptedStatus { get; set; }
+        public bool IsReversed { get; set; }
+        public bool IsReversalInvoice { get; set; }
         public double TotalAmountReceipted { get; set; }
         public IEnumerable<Receipt> Receipts { get; set; }
         public long ContractId { get; set; }
