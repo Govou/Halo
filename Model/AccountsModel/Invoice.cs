@@ -47,6 +47,6 @@ namespace HaloBiz.Model.AccountsModel
         public DateTime UpdatedAt { get; set; }
         public long? CreatedById { get; set; }
         public UserProfile CreatedBy { get; set; }
-        public bool IsAccountPosted { get; set; }
+        public bool IsAccountPosted { get; set; } = false;
     }
 }

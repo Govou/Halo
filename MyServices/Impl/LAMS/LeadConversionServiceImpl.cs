@@ -611,7 +611,9 @@ namespace HaloBiz.MyServices.Impl.LAMS
                     IsFinalInvoice = true,
                     InvoiceType = InvoiceType.New,
                     CreatedById =  loggedInUserId,
-                    GroupInvoiceNumber = String.IsNullOrWhiteSpace(contractService.GroupInvoiceNumber)? null :  invoiceNumber
+                    GroupInvoiceNumber = String.IsNullOrWhiteSpace(contractService.GroupInvoiceNumber)? null :  invoiceNumber,
+                    //First Accounts for first invoices are posted when a lead is converted to client
+                    IsAccountPosted = invoiceIndex == 1
             };
         }
 
@@ -780,7 +782,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
         {
             var totalContractBillable = CalculateTotalBillableForPeriod(contractService, false);         
             var totalVAT = CalculateTotalBillableForPeriod(contractService, true); 
-                  
+
             var totalAfterTax = totalContractBillable - totalVAT;
             var savedAccountMaster = await CreateAccountMaster(service,
                                                          contractService,  

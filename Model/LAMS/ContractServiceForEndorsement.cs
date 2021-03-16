@@ -15,6 +15,6 @@ namespace HaloBiz.Model.LAMS
         public CustomerDivision CustomerDivision { get; set; }
         public long? PreviousContractServiceId { get; set; }
         public DateTime? DateForNewContractToTakeEffect { get; set; }
-        
+        public bool IsConvertedToContractService { get; set; } = false;
     }
 }

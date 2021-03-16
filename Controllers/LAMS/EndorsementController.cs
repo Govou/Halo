@@ -73,6 +73,16 @@ namespace Controllers.Controllers
             return Ok(endorsements);
         }
 
+        [HttpPost("Retention")]
+        public async Task<ActionResult> PostEndorsement(List<ContractServiceForEndorsementReceivingDto> dto)
+        {
+            var response = await _contractServiceForEndorsementService.AddNewRetentionContractServiceForEndorsement(HttpContext, dto);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var endorsements = ((ApiOkResponse)response).Result;
+            return Ok(endorsements);
+        }
+
 
         [HttpPut("ConverToContract/{contractServiceForEndorsementId}")]
         public async Task<ActionResult> ConvertEndorsementToCOntract(long contractServiceForEndorsementId)
@@ -83,9 +93,5 @@ namespace Controllers.Controllers
             var endorsements = ((ApiOkResponse)response).Result;
             return Ok(endorsements);
         }
-
-
-
-
     }
 }

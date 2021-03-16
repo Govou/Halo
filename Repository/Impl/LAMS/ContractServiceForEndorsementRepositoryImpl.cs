@@ -37,6 +37,16 @@ namespace HaloBiz.Repository.Impl.LAMS
             }
             return null;            
         }
+        public async Task<bool> SaveRangeContractServiceForEndorsement(IEnumerable<ContractServiceForEndorsement> entity)
+        {
+            await _context.ContractServiceForEndorsements.AddRangeAsync(entity);
+
+            if (await SaveChanges())
+            {
+                return true;
+            }
+            return false;            
+        }
 
         public async Task<IEnumerable<ContractServiceForEndorsement>> FindAllUnApprovedContractServicesForEndorsement()
         {

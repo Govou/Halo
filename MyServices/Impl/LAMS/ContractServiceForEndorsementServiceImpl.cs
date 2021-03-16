@@ -46,6 +46,32 @@ namespace HaloBiz.MyServices.Impl.LAMS
             this._logger = logger;
         }
 
+        public async Task<ApiResponse> AddNewRetentionContractServiceForEndorsement (HttpContext httpContext, List<ContractServiceForEndorsementReceivingDto> contractServiceForEndorsementDtos)
+        { 
+            try{
+
+                var  entityToSave = _mapper.Map<List<ContractServiceForEndorsement>>(contractServiceForEndorsementDtos);
+                
+                foreach (var entity in entityToSave)
+                {
+                    if( !await ValidateContractToRenew(entity))
+                    {
+                        return new ApiResponse(400, "Invalid Previous contract service id or invalid new contract start date");
+                    }
+
+                    entity.CreatedById = httpContext.GetLoggedInUserId();
+                }
+                
+                var savedEntity = await _cntServiceForEndorsemntRepo.SaveRangeContractServiceForEndorsement(entityToSave);
+                return new ApiOkResponse(true);
+            }catch(Exception ex)
+            {
+                _logger.LogError(ex.Message);
+                _logger.LogError(ex.StackTrace);
+                return new ApiResponse(500, ex.Message);
+            }
+        }
+
         public async Task<ApiResponse> AddNewContractServiceForEndorsement (HttpContext httpContext, ContractServiceForEndorsementReceivingDto contractServiceForEndorsementReceiving)
         { 
             var  entityToSave = _mapper.Map<ContractServiceForEndorsement>(contractServiceForEndorsementReceiving);
@@ -142,6 +168,10 @@ namespace HaloBiz.MyServices.Impl.LAMS
                     var contractServiceEntity = await _context.ContractServices.AddAsync(contractServiceToSave);
                     await _context.SaveChangesAsync();
 
+                    contractServiceForEndorsement.IsConvertedToContractService = true;
+                    _context.ContractServiceForEndorsements.Update(contractServiceForEndorsement);
+                    await _context.SaveChangesAsync();
+
                     var contractService = contractServiceEntity.Entity;
 
                     var contract = await _context.Contracts
@@ -155,11 +185,11 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
                     string endorsementType = contractServiceForEndorsement.EndorsementType.Caption;
 
-                    if(endorsementType.ToLower().Contains("service addition"))
+                    if(endorsementType.ToLower().Contains("addition"))
                     {
                         await AddServiceEndorsement( contractService, contractServiceForEndorsement,  service, customerDivision);
                     
-                    }else if(endorsementType.ToLower().Contains("service topup")){
+                    }else if(endorsementType.ToLower().Contains("topup")){
 
                         var contractServiceToRetire = await _context.ContractServices
                             .FirstOrDefaultAsync(x => x.Id == contractServiceForEndorsement.PreviousContractServiceId);
@@ -170,7 +200,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                                                                     service,
                                                                     contractServiceForEndorsement
                                                                     );
-                    }else if(endorsementType.ToLower().Contains("service reduction")){
+                    }else if(endorsementType.ToLower().Contains("reduction")){
 
                         var contractServiceToRetire = await _context.ContractServices
                             .FirstOrDefaultAsync(x => x.Id == contractServiceForEndorsement.PreviousContractServiceId);
@@ -181,7 +211,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                                                                     service,
                                                                     contractServiceForEndorsement
                                                                     );
-                    }else if(endorsementType.ToLower().Contains("service retention"))
+                    }else if(endorsementType.ToLower().Contains("retention"))
                     {
                         var contractServiceToRetire = await _context.ContractServices
                             .FirstOrDefaultAsync(x => x.Id == contractServiceForEndorsement.PreviousContractServiceId);
@@ -339,9 +369,11 @@ namespace HaloBiz.MyServices.Impl.LAMS
                                                             ContractServiceForEndorsement contractServiceForEndorsement, 
                                                             Services service, CustomerDivision customerDivision)
         {
+            contractServiceForEndorsement.DateForNewContractToTakeEffect = newContractService.ContractStartDate;
             var renewalVoucherName = this._configuration.GetSection("VoucherTypes:SalesRetentionVoucher").Value;
             var financialVoucherType = await _context.FinanceVoucherTypes
                             .FirstOrDefaultAsync(x => x.VoucherType.ToLower() == renewalVoucherName.ToLower());
+
 
             await _leadConversionService.CreateTaskAndDeliverables(newContractService, customerDivision.Id, this.loggedInUserId);
 
@@ -353,12 +385,21 @@ namespace HaloBiz.MyServices.Impl.LAMS
                                                          null,
                                                          this.loggedInUserId,
                                                          false);
+            //Check if an existing invoice with group invoice number already exists
+            //if yes it updates the existing invoice else it creates a new invoice 
+            var invoiceExists = String.IsNullOrWhiteSpace(newContractService.GroupInvoiceNumber) ?
+                    false : await _context.Invoices.AnyAsync(x => x.GroupInvoiceNumber == newContractService.GroupInvoiceNumber);
+
+            if(invoiceExists)
+            {
+                 await  UpdateInvoices(newContractService, contractServiceForEndorsement, true,  true);
+            }else{
+                await  _leadConversionService.GenerateInvoices(newContractService,
+                                                                customerDivision.Id,
+                                                                service.ServiceCode,
+                                                                this.loggedInUserId);
+            }
             
-            await  _leadConversionService.GenerateInvoices(newContractService,
-                                                            customerDivision.Id,
-                                                            service.ServiceCode,
-                                                            this.loggedInUserId);
-           
             await _leadConversionService.GenerateAmortizations(newContractService, customerDivision);
 
             var description = $"Service Renewal for {service.Name} with serviceId: {service.Id} for client: {customerDivision.DivisionName}.";
@@ -369,6 +410,11 @@ namespace HaloBiz.MyServices.Impl.LAMS
                                         description,  
                                         contractServiceForEndorsement.EndorsementTypeId
                                         );
+            
+            if(!String.IsNullOrWhiteSpace(newContractService.GroupInvoiceNumber))
+            {
+                await GenerateGroupInvoiceDetails(newContractService);
+            }
             return true;
         }
 
