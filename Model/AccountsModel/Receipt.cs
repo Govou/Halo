@@ -26,6 +26,8 @@ namespace halobiz_backend.Model.AccountsModel
         public Invoice Invoice { get; set; }
         [StringLength(2000)]
         public string EvidenceOfPaymentUrl { get; set; }
+        public bool IsReversed { get; set; }
+        public bool IsReversalReceipt { get; set; }
         public long CreatedById { get; set; }
         public UserProfile CreatedBy { get; set; }public bool IsDeleted { get; set; } = false;
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]

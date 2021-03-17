@@ -61,14 +61,24 @@ namespace HaloBiz.Repository.Impl.LAMS
         }
         public async Task<IEnumerable<TaskDeliverablesSummary>> GetTaskDeliverablesSummary(long responsibleId)
         {
-            var userData = await _context.TaskFulfillments.Join(
+            var userData = await _context.CustomerDivisions.Join(
+                _context.TaskFulfillments,
+                customerDivision => customerDivision.Id,
+                task => task.CustomerDivisionId,
+                (customerDivision, task) => new {
+                    TaskCaption = task.Caption,
+                    TaskId  = task.Id,
+                    TaskResponsibleId =  task.ResponsibleId,
+                    Project = $"Client: {customerDivision.DivisionName} ServiceCode: {task.ServiceCode}"
+                }
+            ).Join(
                 _context.DeliverableFulfillments, 
-                    task => task.Id, deliverable => deliverable.TaskFullfillmentId,
+                    task => task.TaskId, deliverable => deliverable.TaskFullfillmentId,
                     (task, deliverable) => new {
                         DeliverableStatus = deliverable.DeliverableStatus,
-                        TaskCaption = task.Caption,
-                        TaskId  = task.Id,
-                        TaskResponsibleId =  task.ResponsibleId,
+                        TaskCaption = task.TaskCaption,
+                        TaskId  = task.TaskId,
+                        TaskResponsibleId =  task.TaskResponsibleId,
                         DeliverableId = deliverable.Id,
                         IsPicked = deliverable.IsPicked,
                         DeliverableCaption = deliverable.Caption,
@@ -77,9 +87,10 @@ namespace HaloBiz.Repository.Impl.LAMS
                         Priority = deliverable.Priority?? 0 ,
                         DeliverableResponsibleId = deliverable.ResponsibleId,
                         DeliverableWasReassigned = deliverable.WasReassigned,
-                        IsRequestedForValidation = deliverable.IsRequestedForValidation
+                        IsRequestedForValidation = deliverable.IsRequestedForValidation,
+                        Project = task.Project
                     }
-                ).Join(
+            ).Join(
                 _context.UserProfiles,
                     task => task.TaskResponsibleId, taskOwner => taskOwner.Id,
                     (task, taskOwner) => new TaskDeliverablesSummary(){
@@ -97,7 +108,8 @@ namespace HaloBiz.Repository.Impl.LAMS
                         DeliverableResponsibleId = task.DeliverableResponsibleId,
                         TaskResponsibleName = $"{taskOwner.FirstName} {taskOwner.LastName}",
                         StartDate =  task.StartDate,
-                        IsRequestedForValidation = task.IsRequestedForValidation
+                        IsRequestedForValidation = task.IsRequestedForValidation,
+                        Project = task.Project
                     }
             ).Where(x => x.DeliverableResponsibleId == responsibleId && x.DeliverableStatus == false && x.DeliverableWasReassigned == false).ToListAsync();
 

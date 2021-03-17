@@ -51,16 +51,18 @@ namespace HaloBiz.DTOs.ReceivingDTOs.LAMS
         public DateTime? ProgramEndDate {get ; set; }
         public DateTime? TentativeDateOfSiteVisit {get ; set; }
         public long ServiceId { get; set; }
-        public Services Service { get; set; }
         public long ContractId { get; set; }
-        public virtual Contract Contract { get; set; }
-        public long QuoteServiceId { get; set; }
-        public virtual QuoteService QuoteService { get; set; }
+        public long ContractService {get; set; }
         public string GroupInvoiceNumber { get; set; }
-        public long EndorsementTypeId { get; set; }        
-        public EndorsementType EndorsementType { get; set; }
+        public long EndorsementTypeId { get; set; }
         public bool IsRequestedForApproval { get; set; } = true;
         public bool IsApproved { get; set; } = false;
         public bool IsDeclined { get; set; } = false;
+        public long CustomerDivisionId { get; set; }
+        public long BranchId { get; set; }
+        public long OfficeId { get; set; }
+        public long PreviousContractServiceId { get; set; }
+        public DateTime DateForNewContractToTakeEffect { get; set; }
+    
     }
 }
