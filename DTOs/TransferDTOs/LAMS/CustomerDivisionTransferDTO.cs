@@ -26,8 +26,8 @@ namespace HaloBiz.DTOs.TransferDTOs
         public IEnumerable<TaskFulfillmentTransferDTO> TaskFulfillments { get; set; }
         public long? PrimaryContactId { get; set; }
         #region Address is a concatenation of State, LGA and Street for each lead Division. Address will be auto populated
-        public IEnumerable <StateWithoutLGATransferDto> State { get; set; }
-        public IEnumerable <LGATransferDTO> LGA { get; set; }
+        public long? StateId { get; set; }
+        public long? LGAId { get; set; }
         public string Street { get; set; }
         #endregion
         public LeadDivisionContact SecondaryContact { get; set; }

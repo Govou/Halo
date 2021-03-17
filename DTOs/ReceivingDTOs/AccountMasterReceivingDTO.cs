@@ -16,6 +16,8 @@ namespace HaloBiz.DTOs.ReceivingDTOs
         [Required]
         public bool IntegrationFlag { get; set; }
         public string TransactionId { get; set; }
+        public string DTrackJournalCode { get; set; }
+
         [Required]
         public double Value { get; set; }
         [Required]

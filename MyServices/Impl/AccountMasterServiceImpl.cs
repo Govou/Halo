@@ -168,6 +168,7 @@ namespace HaloBiz.MyServices.Impl
             AccountMasterToUpdate.OfficeId = accountMasterReceivingDTO.OfficeId;
             AccountMasterToUpdate.BranchId = accountMasterReceivingDTO.BranchId;
             AccountMasterToUpdate.CustomerDivisionId = accountMasterReceivingDTO.CustomerDivisionId;
+            AccountMasterToUpdate.DTrackJournalCode = accountMasterReceivingDTO.DTrackJournalCode;
             var updatedAccountMaster = await _AccountMasterRepo.UpdateAccountMaster(AccountMasterToUpdate);
 
             if (updatedAccountMaster == null)
