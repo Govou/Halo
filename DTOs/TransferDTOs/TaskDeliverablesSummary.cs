@@ -21,7 +21,8 @@ namespace halobiz_backend.DTOs.TransferDTOs
         public bool DeliverableStatus { get; set; }
         public bool DeliverableWasReassigned { get; set; }
         public bool IsRequestedForValidation { get; set; }
-        public string Project { get; set; }
+        public string CustomerDivision { get; set; }
+        public string ServiceName { get; set; }
         
         
         
@@ -35,7 +36,8 @@ namespace halobiz_backend.DTOs.TransferDTOs
         public string TaskResponsibleImageUrl { get; set; }
         public string TaskResponsibleName { get; set; }
         public List<DeliverableSummary> DeliverableSummaries { get; set; }
-        public string Project { get; set; }
+        public string CustomerDivision { get; set; }
+        public string ServiceName { get; set; }
     }
 
     public class DeliverableSummary

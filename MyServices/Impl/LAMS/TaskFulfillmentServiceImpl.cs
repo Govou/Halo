@@ -187,7 +187,8 @@ namespace HaloBiz.MyServices.Impl.LAMS
                                 TaskResponsibleId = deliverableSummary.TaskResponsibleId,
                                 TaskResponsibleImageUrl = deliverableSummary.TaskResponsibleImageUrl,
                                 TaskResponsibleName = deliverableSummary.TaskResponsibleName,
-                                Project = deliverableSummary.Project,
+                                CustomerDivision = deliverableSummary.CustomerDivision,
+                                ServiceName = deliverableSummary.ServiceName,
                                 DeliverableSummaries = new List<DeliverableSummary>(){
                                     new DeliverableSummary()
                                     {
