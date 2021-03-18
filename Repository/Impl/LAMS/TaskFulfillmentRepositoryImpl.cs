@@ -60,60 +60,44 @@ namespace HaloBiz.Repository.Impl.LAMS
                 .FirstOrDefaultAsync( taskFulfillment => taskFulfillment.Caption == name && taskFulfillment.IsDeleted == false);
         }
         public async Task<IEnumerable<TaskDeliverablesSummary>> GetTaskDeliverablesSummary(long responsibleId)
-        {
-            var userData = await _context.CustomerDivisions.Join(
-                _context.TaskFulfillments,
-                customerDivision => customerDivision.Id,
-                task => task.CustomerDivisionId,
-                (customerDivision, task) => new {
-                    TaskCaption = task.Caption,
-                    TaskId  = task.Id,
-                    TaskResponsibleId =  task.ResponsibleId,
-                    Project = $"Client: {customerDivision.DivisionName} ServiceCode: {task.ServiceCode}"
-                }
-            ).Join(
-                _context.DeliverableFulfillments, 
-                    task => task.TaskId, deliverable => deliverable.TaskFullfillmentId,
-                    (task, deliverable) => new {
-                        DeliverableStatus = deliverable.DeliverableStatus,
-                        TaskCaption = task.TaskCaption,
-                        TaskId  = task.TaskId,
-                        TaskResponsibleId =  task.TaskResponsibleId,
-                        DeliverableId = deliverable.Id,
-                        IsPicked = deliverable.IsPicked,
-                        DeliverableCaption = deliverable.Caption,
-                        DeliveryDate = deliverable.EndDate?? DateTime.Now,
-                        StartDate = deliverable.StartDate?? DateTime.Now,
-                        Priority = deliverable.Priority?? 0 ,
-                        DeliverableResponsibleId = deliverable.ResponsibleId,
-                        DeliverableWasReassigned = deliverable.WasReassigned,
-                        IsRequestedForValidation = deliverable.IsRequestedForValidation,
-                        Project = task.Project
-                    }
-            ).Join(
-                _context.UserProfiles,
-                    task => task.TaskResponsibleId, taskOwner => taskOwner.Id,
-                    (task, taskOwner) => new TaskDeliverablesSummary(){
-                        TaskCaption = task.TaskCaption,
-                        TaskId  = task.TaskId,
-                        TaskResponsibleId =   task.TaskResponsibleId,
-                        DeliverableId = task.DeliverableId,
-                        DeliverableStatus = task.DeliverableStatus,
-                        IsPicked = task.IsPicked,
-                        DeliverableCaption = task.DeliverableCaption,
-                        DeliveryDate = task.DeliveryDate,
-                        Priority = task.Priority,
-                        DeliverableWasReassigned = task.DeliverableWasReassigned,
-                        TaskResponsibleImageUrl = taskOwner.ImageUrl,
-                        DeliverableResponsibleId = task.DeliverableResponsibleId,
-                        TaskResponsibleName = $"{taskOwner.FirstName} {taskOwner.LastName}",
-                        StartDate =  task.StartDate,
-                        IsRequestedForValidation = task.IsRequestedForValidation,
-                        Project = task.Project
-                    }
-            ).Where(x => x.DeliverableResponsibleId == responsibleId && x.DeliverableStatus == false && x.DeliverableWasReassigned == false).ToListAsync();
+        {  
 
-            return userData;
+            var query = from customerDivision in _context.CustomerDivisions
+                join task in _context.TaskFulfillments on
+                    customerDivision.Id equals task.CustomerDivisionId
+                join deliverables in _context.DeliverableFulfillments on 
+                    task.Id equals deliverables.TaskFullfillmentId
+                join userProfile in _context.UserProfiles on 
+                    deliverables.ResponsibleId equals userProfile.Id
+                join contractService in _context.ContractServices on
+                    task.ContractServiceId equals contractService.Id
+                join service in _context.Services on
+                    contractService.ServiceId equals service.Id
+                where deliverables.ResponsibleId == responsibleId && 
+                    !deliverables.DeliverableStatus && !deliverables.IsDeleted
+                    && !deliverables.WasReassigned
+                select new TaskDeliverablesSummary(){
+                        TaskCaption = task.Caption,
+                        TaskId  = task.Id,
+                        TaskResponsibleId =   task.ResponsibleId,
+                        DeliverableId = deliverables.Id,
+                        DeliverableStatus = deliverables.DeliverableStatus,
+                        IsPicked = deliverables.IsPicked,
+                        DeliverableCaption = deliverables.Caption,
+                        DeliveryDate = deliverables.EndDate?? DateTime.Now,
+                        Priority = deliverables.Priority?? 0,
+                        DeliverableWasReassigned = deliverables.WasReassigned,
+                        TaskResponsibleImageUrl = userProfile.ImageUrl,
+                        DeliverableResponsibleId = deliverables.ResponsibleId,
+                        TaskResponsibleName = $"{userProfile.FirstName} {userProfile.LastName}",
+                        StartDate =  deliverables.StartDate?? DateTime.Now ,
+                        IsRequestedForValidation = deliverables.IsRequestedForValidation,
+                        ServiceName = service.Name,
+                        CustomerDivision = customerDivision.DivisionName
+
+                };
+
+            return await query.ToListAsync();
         }
 
         public async Task<IEnumerable<TaskFulfillment>> FindAllTaskFulfillment()
