@@ -18,6 +18,7 @@ namespace HaloBiz.DTOs.TransferDTOs
         public long VoucherId { get; set; }
         public FinanceVoucherType Voucher { get; set; }
         public string TransactionId { get; set; }
+        public string DTrackJournalCode { get; set; }
         public double Value { get; set; }
         public long BranchId { get; set; }
         public virtual Branch Branch { get; set; }

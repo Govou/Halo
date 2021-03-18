@@ -22,6 +22,8 @@ namespace HaloBiz.Model.AccountsModel
         public long VoucherId { get; set; }
         public FinanceVoucherType Voucher { get; set; }
         public string TransactionId { get; set; }
+        public string DTrackJournalCode { get; set; }
+        public string ReferenceNumber { get; set; }
         public long? BranchId { get; set; }
         public virtual Branch Branch { get; set; }
         public long? OfficeId { get; set; }
