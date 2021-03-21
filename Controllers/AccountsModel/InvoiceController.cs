@@ -48,10 +48,20 @@ namespace HaloBiz.Controllers.AccountsModel
             return Ok(invoice);
         }
 
-        [HttpPost("")]
+        [HttpPost("AdHocInvoice")]
         public async Task<ActionResult> AddNewinvoice(InvoiceReceivingDTO invoiceReceivingDTO)
         {
             var response = await _invoiceService.AddInvoice(HttpContext, invoiceReceivingDTO);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var invoice = ((ApiOkResponse)response).Result;
+            return Ok(invoice);
+        }
+
+        [HttpPost("GroupAdHocInvoice")]
+        public async Task<ActionResult> AddNewGroupInvoice(GroupInvoiceDto groupInvoiceDto)
+        {
+            var response = await _invoiceService.AddGroupInvoice(HttpContext, groupInvoiceDto);
             if (response.StatusCode >= 400)
                 return StatusCode(response.StatusCode, response);
             var invoice = ((ApiOkResponse)response).Result;
@@ -62,6 +72,16 @@ namespace HaloBiz.Controllers.AccountsModel
         public async Task<IActionResult> UpdateById(long id, InvoiceReceivingDTO invoiceReceiving)
         {
             var response = await _invoiceService.UpdateInvoice(HttpContext, id, invoiceReceiving);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var invoice = ((ApiOkResponse)response).Result;
+            return Ok(invoice);
+        }
+
+        [HttpPut("ConvertToFinalInvoice/{invoiceId}")]
+        public async Task<IActionResult> ConverToFinal(long invoiceId)
+        {
+            var response = await _invoiceService.ConvertProformaInvoiceToFinalInvoice(invoiceId);
             if (response.StatusCode >= 400)
                 return StatusCode(response.StatusCode, response);
             var invoice = ((ApiOkResponse)response).Result;

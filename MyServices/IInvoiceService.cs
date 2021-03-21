@@ -8,10 +8,12 @@ namespace HaloBiz.MyServices
     public interface IInvoiceService
     {
         Task<ApiResponse> AddInvoice(HttpContext context, InvoiceReceivingDTO invoiceReceivingDTO);
+        Task<ApiResponse> AddGroupInvoice(HttpContext httpContext, GroupInvoiceDto groupInvoiceDto);
         Task<ApiResponse> DeleteInvoice(long id);
         Task<ApiResponse> GetAllInvoice();
         Task<ApiResponse> GetAllInvoicesById(long id);
         Task<ApiResponse> GetAllInvoicesByContactserviceId(long contractServiceId);
         Task<ApiResponse> UpdateInvoice(HttpContext context, long id, InvoiceReceivingDTO invoiceReceivingDTO);
+        Task<ApiResponse> ConvertProformaInvoiceToFinalInvoice(long invoiceId);
     }
 }
