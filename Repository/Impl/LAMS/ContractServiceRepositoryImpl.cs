@@ -65,6 +65,14 @@ namespace HaloBiz.Repository.Impl.LAMS
                 .ToListAsync();
         }
 
+        public async Task<IEnumerable<ContractService>> FindContractServicesByGroupInvoiceNumber(string groupInvoiceNumber)
+        {
+            return await _context.ContractServices
+                .Include(x => x.Service)
+                .Where(x => x.GroupInvoiceNumber == groupInvoiceNumber && x.IsDeleted == false)
+                .ToListAsync();
+        }
+
         public async Task<ContractService> UpdateContractService(ContractService entity)
         {
             var contractServiceEntity = _context.ContractServices.Update(entity);

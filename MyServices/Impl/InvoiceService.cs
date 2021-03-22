@@ -104,7 +104,7 @@ namespace HaloBiz.MyServices.Impl
                                     (double) contractService.BillableAmount, (double)contractService.BillableAmount, 
                                     groupInvoiceDto.DateToBeSent);
 
-                    if(await _context.GroupInvoiceDetails.AnyAsync(x => x.InvoiceNumber == groupInvoiceDto.GroupInvoiceNumber))
+                    if(!await _context.GroupInvoiceDetails.AnyAsync(x => x.InvoiceNumber == groupInvoiceDto.GroupInvoiceNumber))
                     {
                         await GenerateAndSaveGroupInvoiceDetails(groupInvoiceDto.GroupInvoiceNumber);
                     }
@@ -153,7 +153,7 @@ namespace HaloBiz.MyServices.Impl
                     invoice.CreatedById = this.LoggedInUserId;
                     invoice.InvoiceType = InvoiceType.New;
                     invoice.IsFinalInvoice = false;
-                    invoice.TransactionId = GenerateTransactionNumber(service.ServiceCode, contractService.Id);
+                    invoice.TransactionId = GenerateTransactionNumber(service.ServiceCode, contractService);
 
                     var customerDivision = await _context.CustomerDivisions
                                         .Include(x => x.Customer)
@@ -268,14 +268,14 @@ namespace HaloBiz.MyServices.Impl
             return new  Invoice()
             {
                 InvoiceNumber = $"{groupInvoiceDto.GroupInvoiceNumber}/{index + 1}",
-                TransactionId = $"{groupInvoiceDto.GroupInvoiceNumber.Replace("GINV", "TRS")}/{groupInvoiceDto.LeadContractServiceId}",
+                TransactionId = $"{groupInvoiceDto.GroupInvoiceNumber.Replace("GINV", "TRS")}/{contractService.Id}",
                 UnitPrice = 0,
                 Quantity = 0,
                 Discount  = 0,
                 Value = groupInvoiceDto.TotalBillable,
                 DateToBeSent = groupInvoiceDto.DateToBeSent,
-                StartDate = groupInvoiceDto.StartDate,
-                EndDate = groupInvoiceDto.EndDate,
+                StartDate = (DateTime)contractService.ContractStartDate,
+                EndDate = (DateTime)contractService.ContractEndDate,
                 CustomerDivisionId = groupInvoiceDto.CustomerDivisionId,
                 GroupInvoiceNumber = groupInvoiceDto.GroupInvoiceNumber,
                 IsFinalInvoice = false,
@@ -301,7 +301,7 @@ namespace HaloBiz.MyServices.Impl
 
                     string description = $"Sales of {service.Name} with service ID: {service.Id} to {customerDivision.DivisionName}";
                     
-                    string transactionId  = GenerateTransactionNumber(service.ServiceCode, contractService.Id);
+                    string transactionId  = GenerateTransactionNumber(service.ServiceCode, contractService);
 
                     var accountMaster = await CreateAccountMaster(
                                                             billableAmount,
@@ -353,7 +353,12 @@ namespace HaloBiz.MyServices.Impl
             return true;
         }
 
-        private string GenerateTransactionNumber(string serviceCode, long contractServiceId) => $"{serviceCode}/{contractServiceId}";
+        private string GenerateTransactionNumber(string serviceCode, ContractService contractService)
+        {
+            return String.IsNullOrWhiteSpace(contractService.GroupInvoiceNumber) ?  $"{serviceCode}/{contractService.Id}"
+            : $"{contractService.GroupInvoiceNumber.Replace("GINV", "TRS")}/{contractService.Id}" ;
+                    
+        } 
 
         public async  Task<AccountMaster> CreateAccountMaster(double value,
                                           long customerDivisionId,

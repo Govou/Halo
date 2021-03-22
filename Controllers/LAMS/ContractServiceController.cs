@@ -28,6 +28,16 @@ namespace HaloBiz.Controllers.LAMS
             return Ok(contract);
         }
 
+        [HttpGet("GroupInvoiceNumber/{groupInvoiceNumber}")]
+        public async Task<ActionResult> GetByGroupInvoiceNumber(string groupInvoiceNumber)
+        {
+            var response = await _contractServiceService.GetContractServiceByGroupInvoiceNumber(groupInvoiceNumber);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var contract = ((ApiOkResponse)response).Result;
+            return Ok(contract);
+        }
+
         [HttpGet("{id}")]
         public async Task<ActionResult> GetById(long id)
         {
