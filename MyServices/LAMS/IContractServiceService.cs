@@ -8,6 +8,7 @@ namespace HaloBiz.MyServices.LAMS
         Task<ApiResponse> DeleteContractService(long id);
 
         Task<ApiResponse> GetAllContractsServcieForAContract(long contractId);
+        Task<ApiResponse> GetContractServiceByGroupInvoiceNumber(string refNo);
 
         Task<ApiResponse> GetContractServiceByReferenceNumber(string refNo);
 

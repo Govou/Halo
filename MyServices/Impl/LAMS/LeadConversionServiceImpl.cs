@@ -520,7 +520,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                                         billableForInvoicingPeriod : totalContractValue;
 
                     //to cater for edge cases where the calculated enddate false beyond the contract end date
-                    var invoiceEndDateToPost = startDate.AddMonths(interval) > endDate ? endDate : startDate.AddMonths(interval);
+                    var invoiceEndDateToPost = startDate.AddDays(interval) > endDate ? endDate : startDate.AddMonths(interval);
 
                          invoices.Add(
                              GenerateInvoice(startDate,  

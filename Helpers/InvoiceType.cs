@@ -2,6 +2,6 @@ namespace HaloBiz.Helpers
 {
     public enum InvoiceType
     {
-        New, Supplementary, Renewal
+        New, Supplementary, Renewal, AdHoc
     }
 }

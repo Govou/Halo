@@ -53,6 +53,8 @@ namespace HaloBiz.DTOs.TransferDTOs.LAMS
         public VersionType Version { get; set; } = VersionType.Latest;
         public long CreatedById { get; set; }
         public virtual UserProfile CreatedBy { get; set; }
+        public string GroupInvoiceNumber { get; set; }
+        public double AdHocInvoicedAmount { get; set; }
     }
     public class ContractServiceForContractTransferDTO
     {
@@ -93,6 +95,8 @@ namespace HaloBiz.DTOs.TransferDTOs.LAMS
         public DateTime? TentativeDateOfSiteVisit {get ; set; }
         public long ServiceId { get; set; }
         public ServicesTransferDTO Service { get; set; }
+        public string GroupInvoiceNumber { get; set; }
+        public double AdHocInvoicedAmount { get; set; }
     
     }
 }

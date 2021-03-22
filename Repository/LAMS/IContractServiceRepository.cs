@@ -10,7 +10,7 @@ namespace HaloBiz.Repository.LAMS
         Task<ContractService> FindContractServiceById(long Id);
         Task<IEnumerable<ContractService>> FindAllContractServicesForAContract(long contractId);
         Task<IEnumerable<ContractService>> FindContractServicesByReferenceNumber(string refNo);
-
+        Task<IEnumerable<ContractService>> FindContractServicesByGroupInvoiceNumber(string groupInvoiceNumber);
         Task<ContractService> UpdateContractService(ContractService entity);
 
         Task<bool> DeleteContractService(ContractService entity);
