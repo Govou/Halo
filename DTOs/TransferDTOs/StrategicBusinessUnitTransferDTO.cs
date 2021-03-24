@@ -11,6 +11,7 @@ namespace HaloBiz.DTOs.TransferDTOs
         public long Id { get; set; }
         public string Name { get; set; }
         public string Description { get; set; }
+        public string Alias { get; set; } //Cost centers
         public long OperatingEntityId { get; set; }
         public virtual OperatingEntityWithoutServiceGroupDTO OperatingEntity { get; set; }
         public IEnumerable<UserProfile> Members { get; set; }

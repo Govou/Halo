@@ -12,6 +12,7 @@ namespace HaloBiz.DTOs.ReceivingDTOs
         public string Name { get; set; }
         [Required, MinLength(3)]
         public string Description { get; set; }
+        public string Alias { get; set; } //Cost centers
         [Required]
         public long OperatingEntityId { get; set; }
        
