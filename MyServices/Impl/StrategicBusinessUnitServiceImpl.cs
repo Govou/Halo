@@ -79,6 +79,7 @@ namespace HaloBiz.MyServices.Impl
             }
             strategicBusinessUnitToUpdate.Name = strategicBusinessUnitReceivingDTO.Name;
             strategicBusinessUnitToUpdate.Description = strategicBusinessUnitReceivingDTO.Description;
+            strategicBusinessUnitToUpdate.Alias = strategicBusinessUnitReceivingDTO.Alias;
             strategicBusinessUnitToUpdate.OperatingEntityId = strategicBusinessUnitReceivingDTO.OperatingEntityId;
 
             var updatedStrategicBusinessUnit = await _strategicBusinessUnitRepo.UpdateStrategyBusinessUnit(strategicBusinessUnitToUpdate);

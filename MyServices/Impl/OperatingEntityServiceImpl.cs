@@ -93,6 +93,7 @@ namespace HaloBiz.MyServices.Impl
             }
             operatingEntityToUpdate.Name = operatingEntityReceivingDTO.Name;
             operatingEntityToUpdate.Description = operatingEntityReceivingDTO.Description;
+            operatingEntityToUpdate.Alias = operatingEntityReceivingDTO.Alias;
             operatingEntityToUpdate.HeadId = operatingEntityReceivingDTO.HeadId;
             operatingEntityToUpdate.DivisionId = operatingEntityReceivingDTO.DivisionId;
 
