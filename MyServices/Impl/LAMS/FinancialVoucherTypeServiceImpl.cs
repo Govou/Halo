@@ -78,6 +78,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
             var summary = $"Initial details before change, \n {voucherTypeToUpdate.ToString()} \n" ;
 
             voucherTypeToUpdate.Description = VoucherTypeReceivingDTO.Description;
+            voucherTypeToUpdate.Alias = VoucherTypeReceivingDTO.Alias;
             voucherTypeToUpdate.VoucherType = VoucherTypeReceivingDTO.VoucherType;
             var updatedVoucherType = await _voucherTypeRepo.UpdateFinanceVoucherType(voucherTypeToUpdate);
 
