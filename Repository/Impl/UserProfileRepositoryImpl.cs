@@ -56,7 +56,7 @@ namespace HaloBiz.Repository.Impl
         {
             return await _context.UserProfiles
                 .Include(x => x.SBU)
-                .Include(x => x.Role).ThenInclude(x => x.RoleClaims)
+                .Include(x => x.Role).ThenInclude(x => x.RoleClaims.Where(x => x.IsDeleted == false))
                 .Where(user => user.IsDeleted == false)
                 .OrderBy(user => user.Email)
                 .ToListAsync();
