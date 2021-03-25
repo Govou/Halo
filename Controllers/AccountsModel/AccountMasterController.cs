@@ -73,6 +73,15 @@ namespace HaloBiz.Controllers.AccountsModel
             return Ok(accountMasters);
         }
 
+        [HttpPost("PostPeriodicAccounts")]
+        public async Task<ActionResult> PostPeriodicAccount()
+        {
+            var response = await _AccountMasterService.PostPeriodicAccountMaster();
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            return Ok();
+        }
+
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateById(long id, AccountMasterReceivingDTO AccountMasterReceiving)
         {

@@ -11,7 +11,7 @@ namespace HaloBiz.Repository.LAMS
         Task<Lead> FindLeadByReferenceNo(string refNo);
         Task<IEnumerable<Lead>> FindAllLead();
         Task<Lead> UpdateLead(Lead lead);
-        void DeleteLead(Lead lead);
+        Task<bool> DeleteLead(Lead lead);
         Task<bool> SaveChanges();
         Task<IEnumerable<Lead>> FindAllUnApprovedLeads();
     }
