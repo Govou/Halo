@@ -39,7 +39,7 @@ namespace HaloBiz.MyServices.Impl
         private readonly string SALESINVOICEVOUCHER = "Sales Invoice";
         private readonly string ReceivableControlAccount = "Receivable";
         private readonly string VALUEADDEDTAX = "VALUE ADDED TAX";
-        private readonly string RETAIL_INCOME_ACCOUNT = "RETAIL RECEIVABLE ACCOUNT";
+        private readonly string RETAIL_RECEIVABLE_ACCOUNT = "RETAIL RECEIVABLE ACCOUNT";
         private readonly string RETAIL = "RETAIL";
 
         public long LoggedInUserId;
@@ -565,7 +565,7 @@ namespace HaloBiz.MyServices.Impl
 
         private async Task<long> GetRetailAccount(CustomerDivision customerDivision ){
             
-            Account retailAccount  = await _context.Accounts.FirstOrDefaultAsync(x => x.Name == this.RETAIL_INCOME_ACCOUNT);
+            Account retailAccount  = await _context.Accounts.FirstOrDefaultAsync(x => x.Name == this.RETAIL_RECEIVABLE_ACCOUNT);
             long accountId = 0;
             if(retailAccount == null)
             {
@@ -573,7 +573,7 @@ namespace HaloBiz.MyServices.Impl
                         .FirstOrDefaultAsync(x => x.Caption == this.ReceivableControlAccount);
 
                 Account account = new Account(){
-                    Name = this.RETAIL_INCOME_ACCOUNT,
+                    Name = this.RETAIL_RECEIVABLE_ACCOUNT,
                     Description = $"Income Receivable Account of Retail Clients",
                     Alias = "RIA",
                     IsDebitBalance = true,
