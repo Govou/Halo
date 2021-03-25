@@ -269,10 +269,15 @@ namespace HaloBiz.MyServices.Impl
             }
         }
 
-        public async Task<bool> SetUpApprovalsForEndorsement(CustomerDivision customerDivision, HttpContext httpContext)
+        public async Task<bool> SetUpApprovalsForServiceTopupEndorsement(CustomerDivision customerDivision, HttpContext httpContext)
         {
             try
             {
+                var module = await _processesRequiringApprovalRepo.FindProcessesRequiringApprovalByCaption("Endorsement:Service Topup");
+                if (module == null)
+                {
+                    return false;
+                }
                 return await Task.FromResult(true);
             }
             catch (Exception ex)
@@ -282,7 +287,64 @@ namespace HaloBiz.MyServices.Impl
                 return false;
             }
         }
-
+        
+        public async Task<bool> SetUpApprovalsForServiceReductionEndorsement(CustomerDivision customerDivision, HttpContext httpContext)
+        {
+            try
+            {
+                var module = await _processesRequiringApprovalRepo.FindProcessesRequiringApprovalByCaption("Endorsement:Service Reduction");
+                if (module == null)
+                {
+                    return false;
+                }
+                return await Task.FromResult(true);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogInformation(ex.Message);
+                _logger.LogInformation(ex.StackTrace);
+                return false;
+            }
+        }
+        
+        public async Task<bool> SetUpApprovalsForServiceAdditionEndorsement(CustomerDivision customerDivision, HttpContext httpContext)
+        {
+            try
+            {
+                var module = await _processesRequiringApprovalRepo.FindProcessesRequiringApprovalByCaption("Endorsement:Service Addition");
+                if (module == null)
+                {
+                    return false;
+                }
+                return await Task.FromResult(true);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogInformation(ex.Message);
+                _logger.LogInformation(ex.StackTrace);
+                return false;
+            }
+        }
+        
+        public async Task<bool> SetUpApprovalsForServiceRenewalEndorsement(CustomerDivision customerDivision, HttpContext httpContext)
+        {
+            try
+            {
+                var module = await _processesRequiringApprovalRepo.FindProcessesRequiringApprovalByCaption("Endorsement:Service Renewal");
+                if (module == null)
+                {
+                    return false;
+                }
+                return await Task.FromResult(true);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogInformation(ex.Message);
+                _logger.LogInformation(ex.StackTrace);
+                return false;
+            }
+        }
+        
         public async Task<bool> SetUpApprovalsForServiceCreation(Services service, HttpContext context)
         {
             try
