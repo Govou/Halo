@@ -18,5 +18,6 @@ namespace HaloBiz.Repository
         Task<IEnumerable<Approval>> GetApprovalsByQuoteId(long quoteId);
         Task<IEnumerable<Approval>> GetPendingApprovalsByServiceId(long serviceId);
         Task<IEnumerable<Approval>> GetApprovalsByServiceId(long serviceId);
+        Task<IEnumerable<Approval>> GetApprovalsByEndorsementId(long endorsementId);
     }
 }

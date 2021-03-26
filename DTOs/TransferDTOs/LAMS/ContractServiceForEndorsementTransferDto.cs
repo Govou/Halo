@@ -57,7 +57,7 @@ namespace HaloBiz.DTOs.TransferDTOs.LAMS
         public long EndorsementTypeId { get; set; }        
         public EndorsementType EndorsementType { get; set; }
         public long CreatedById { get; set; }
-        public virtual UserProfile CreatedBy { get; set; }
+        public UserProfile CreatedBy { get; set; }
         public bool IsRequestedForApproval { get; set; } = true;
         public bool IsApproved { get; set; } = false;
         public bool IsDeclined { get; set; } = false;
@@ -68,6 +68,5 @@ namespace HaloBiz.DTOs.TransferDTOs.LAMS
         public long PreviousContractServiceId { get; set; }
         public DateTime DateForNewContractToTakeEffect { get; set; }
         public DateTime CreatedAt { get; set; }
-        
     }
 }

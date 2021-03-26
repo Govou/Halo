@@ -130,7 +130,18 @@ namespace HaloBiz.MyServices.Impl
             var approvalTransferDTO = _mapper.Map<IEnumerable<ApprovalTransferDTO>>(approval);
             return new ApiOkResponse(approvalTransferDTO);
         }
-        
+
+        public async Task<ApiResponse> GetApprovalsByEndorsementId(long endorsementId)
+        {
+            var approval = await _approvalRepo.GetApprovalsByEndorsementId(endorsementId);
+            if (approval == null)
+            {
+                return new ApiResponse(404);
+            }
+            var approvalTransferDTO = _mapper.Map<IEnumerable<ApprovalTransferDTO>>(approval);
+            return new ApiOkResponse(approvalTransferDTO);
+        }
+
         public async Task<ApiResponse> GetApprovalsByServiceId(long serviceId)
         {
             var approval = await _approvalRepo.GetApprovalsByServiceId(serviceId);

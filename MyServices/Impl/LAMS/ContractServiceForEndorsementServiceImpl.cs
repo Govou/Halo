@@ -171,21 +171,64 @@ namespace HaloBiz.MyServices.Impl.LAMS
             return new ApiOkResponse(possibleDates);
         }
 
-        public async Task<ApiResponse> ApproveContractServiceForEndorsement(long Id, bool isApproved)
+        public async Task<ApiResponse> ApproveContractServiceForEndorsement(long Id, long sequence, bool isApproved)
         {
-            var entityToApprove = await _cntServiceForEndorsemntRepo.FindContractServiceForEndorsementById(Id);
-            if(entityToApprove == null)
+            if (isApproved)
             {
-                return new ApiResponse(404);
+                var approvalsForTheEndorsement = await _context.Approvals.Where(x => !x.IsDeleted && x.ContractServiceForEndorsementId == Id).ToListAsync();
+
+                var theApproval = approvalsForTheEndorsement.SingleOrDefault(x => x.Sequence == sequence);
+
+                if (theApproval == null)
+                {
+                    return new ApiResponse(500);
+                }
+
+                theApproval.IsApproved = true;
+                theApproval.DateTimeApproved = DateTime.Now;
+                _context.Approvals.Update(theApproval);
+                await _context.SaveChangesAsync();
+
+                bool allApprovalsApproved = approvalsForTheEndorsement.All(x => x.IsApproved);
+
+                // Return scenario 1
+                // All the approvals for endorsement not yet approved.
+                if (!allApprovalsApproved) return new ApiOkResponse(true);
+
+                var entityToApprove = await _cntServiceForEndorsemntRepo.FindContractServiceForEndorsementById(Id);
+                if (entityToApprove == null)
+                {
+                    return new ApiResponse(404);
+                }
+                entityToApprove.IsApproved = isApproved;
+                var approvedEntity = await _cntServiceForEndorsemntRepo.UpdateContractServiceForEndorsement(entityToApprove);
+                if (approvedEntity == null)
+                {
+                    return new ApiResponse(500);
+                }
+                var contractServicesToEndorseTransferDto = _mapper.Map<ContractServiceForEndorsementTransferDto>(approvedEntity);
+                return new ApiOkResponse(contractServicesToEndorseTransferDto);
             }
-            entityToApprove.IsApproved = isApproved;
-            var approvedEntity = await _cntServiceForEndorsemntRepo.UpdateContractServiceForEndorsement(entityToApprove);
-            if(approvedEntity == null)
+            else
             {
-                return new ApiResponse(500);
-            }
-            var contractServicesToEndorseTransferDto =  _mapper.Map<ContractServiceForEndorsementTransferDto>(approvedEntity);
-            return new ApiOkResponse(contractServicesToEndorseTransferDto);
+                var endorsementToUpdate = await _cntServiceForEndorsemntRepo.FindContractServiceForEndorsementById(Id);
+                if (endorsementToUpdate == null)
+                {
+                    return new ApiResponse(404);
+                }
+
+                endorsementToUpdate.IsDeclined = true;
+
+                var updatedEndorsement = await _cntServiceForEndorsemntRepo.UpdateContractServiceForEndorsement(endorsementToUpdate);
+
+                if (updatedEndorsement == null)
+                {
+                    return new ApiResponse(500);
+                }
+
+                var contractServicesToEndorseTransferDto = _mapper.Map<ContractServiceForEndorsementTransferDto>(updatedEndorsement);
+                return new ApiOkResponse(contractServicesToEndorseTransferDto);
+            }           
         }
         
         public async Task<ApiResponse> ConvertContractServiceForEndorsement(HttpContext httpContext, long Id)
