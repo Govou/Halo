@@ -26,6 +26,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
         private readonly DataContext _context;
         private readonly IMapper _mapper;
         private readonly ILeadConversionService _leadConversionService;
+        private readonly IApprovalService _approvalService;
         private readonly IContractServiceForEndorsementRepository  _cntServiceForEndorsemntRepo;
         private readonly ILogger<ContractServiceForEndorsementServiceImpl> _logger;
         private readonly IConfiguration _configuration;
@@ -35,12 +36,14 @@ namespace HaloBiz.MyServices.Impl.LAMS
                                             DataContext context, 
                                             IMapper mapper, 
                                             ILeadConversionService leadConversionService,
+                                            IApprovalService approvalService,
                                             ILogger<ContractServiceForEndorsementServiceImpl> logger,
                                             IConfiguration configuration)
         {
             this._context = context;
             this._mapper = mapper;
             this._leadConversionService = leadConversionService;
+            _approvalService = approvalService;
             this._cntServiceForEndorsemntRepo = cntServiceForEndorsemntRepo;
             this._configuration = configuration;
             this._logger = logger;
@@ -50,7 +53,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
         { 
             try{
 
-                var  entityToSave = _mapper.Map<List<ContractServiceForEndorsement>>(contractServiceForEndorsementDtos);
+                var entityToSave = _mapper.Map<List<ContractServiceForEndorsement>>(contractServiceForEndorsementDtos);
                 
                 foreach (var entity in entityToSave)
                 {
@@ -61,10 +64,27 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
                     entity.CreatedById = httpContext.GetLoggedInUserId();
                 }
-                
-                var savedEntity = await _cntServiceForEndorsemntRepo.SaveRangeContractServiceForEndorsement(entityToSave);
+
+                using var transaction = await _context.Database.BeginTransactionAsync();
+                var saveSuccessful = await _cntServiceForEndorsemntRepo.SaveRangeContractServiceForEndorsement(entityToSave);
+
+                if (!saveSuccessful)
+                {
+                    await transaction.RollbackAsync();
+                    return new ApiResponse(500);
+                }
+
+                bool successful = await _approvalService.SetUpApprovalsForContractRenewalEndorsement(entityToSave, httpContext);
+                if (!successful)
+                {
+                    await transaction.RollbackAsync();
+                    return new ApiResponse(500, "Could not set up approvals for service endorsement.");
+                }
+
+                await transaction.CommitAsync();
                 return new ApiOkResponse(true);
-            }catch(Exception ex)
+            }
+            catch(Exception ex)
             {
                 _logger.LogError(ex.Message);
                 _logger.LogError(ex.StackTrace);
@@ -82,15 +102,36 @@ namespace HaloBiz.MyServices.Impl.LAMS
             {
                 return new ApiResponse(400, "Invalid Previous contract service id or invalid new contract start date");
             }
-            entityToSave.CreatedById = httpContext.GetLoggedInUserId();
-            var savedEntity = await _cntServiceForEndorsemntRepo.SaveContractServiceForEndorsement(entityToSave);
-            if( savedEntity == null)
-            {
-                return new ApiResponse(500);
-            } 
 
-            var contractServiceToEndorseTransferDto = _mapper.Map<ContractServiceForEndorsementTransferDto>(savedEntity);
-            return new ApiOkResponse(contractServiceToEndorseTransferDto);
+            entityToSave.CreatedById = httpContext.GetLoggedInUserId();
+
+            using var transaction = await _context.Database.BeginTransactionAsync();
+            try
+            {
+                var savedEntity = await _cntServiceForEndorsemntRepo.SaveContractServiceForEndorsement(entityToSave);
+                if (savedEntity == null)
+                {
+                    return new ApiResponse(500);
+                }
+
+                bool successful = await _approvalService.SetUpApprovalsForContractModificationEndorsement(savedEntity, httpContext);
+                if (!successful)
+                {
+                    await transaction.RollbackAsync();
+                    return new ApiResponse(500, "Could not set up approvals for service endorsement.");
+                }
+
+                var contractServiceToEndorseTransferDto = _mapper.Map<ContractServiceForEndorsementTransferDto>(savedEntity);
+                await transaction.CommitAsync();
+                return new ApiOkResponse(contractServiceToEndorseTransferDto);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.Message);
+                _logger.LogError(ex.StackTrace);
+                await transaction.RollbackAsync();
+                return new ApiResponse(500);
+            }
         }
         
 
