@@ -8,7 +8,9 @@ using HaloBiz.DTOs.ApiDTOs;
 using HaloBiz.DTOs.MailDTOs;
 using HaloBiz.DTOs.ReceivingDTO;
 using HaloBiz.DTOs.TransferDTOs;
+using HaloBiz.Helpers;
 using HaloBiz.Model;
+using HaloBiz.Model.RoleManagement;
 using HaloBiz.Repository;
 using Newtonsoft.Json;
 
@@ -75,6 +77,28 @@ namespace HaloBiz.MyServices.Impl
             {
                 return new ApiResponse(404);
             }
+
+            // Super Admin
+            if(userProfile.Role.Name == ClaimConstants.SuperAdmin)
+            {
+                var roleClaims = new List<RoleClaim>();
+                foreach (ClaimEnum item in Enum.GetValues(typeof(ClaimEnum)))
+                {
+                    roleClaims.Add(new RoleClaim
+                    {
+                        CanAdd = true,
+                        ClaimEnum = item,
+                        CanDelete = true,
+                        CanUpdate = true,
+                        CanView = true,
+                        Description = item.ToString(),
+                        Name = item.ToString(),
+                        RoleId = userProfile.Role.Id
+                    });
+                }
+                userProfile.Role.RoleClaims = roleClaims;
+            }
+
             var userProfileTransferDto = _mapper.Map<UserProfileTransferDTO>(userProfile);
             return new ApiOkResponse(userProfileTransferDto);
         }
