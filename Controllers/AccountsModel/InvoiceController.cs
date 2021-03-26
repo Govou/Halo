@@ -81,7 +81,7 @@ namespace HaloBiz.Controllers.AccountsModel
         [HttpPut("ConvertToFinalInvoice/{invoiceId}")]
         public async Task<IActionResult> ConverToFinal(long invoiceId)
         {
-            var response = await _invoiceService.ConvertProformaInvoiceToFinalInvoice(invoiceId);
+            var response = await _invoiceService.ConvertProformaInvoiceToFinalInvoice(HttpContext ,invoiceId);
             if (response.StatusCode >= 400)
                 return StatusCode(response.StatusCode, response);
             var invoice = ((ApiOkResponse)response).Result;

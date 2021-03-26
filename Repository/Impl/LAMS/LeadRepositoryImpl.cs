@@ -20,11 +20,11 @@ namespace HaloBiz.Repository.Impl.LAMS
             this._context = context;
             this._logger = logger;
         }
-        public void DeleteLead(Lead lead)
+        public async Task<bool> DeleteLead(Lead lead)
         {
             lead.IsDeleted = true;
             _context.Leads.Update(lead);
-            
+            return await SaveChanges();
         }
 
         public async Task<IEnumerable<Lead>> FindAllLead()

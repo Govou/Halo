@@ -106,5 +106,10 @@ namespace HaloBiz.Repository.Impl
                return false;
            }
         }
+
+        public IQueryable<Invoice> GetInvoiceQueryiable()
+        {
+            return _context.Invoices.AsQueryable();
+        }
     }
 }

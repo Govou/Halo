@@ -224,7 +224,8 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
         public async Task<ApiResponse> UpdateLeadStagesStatus(long leadId, LeadStages stage, LeadCaptureReceivingDTO leadCaptureReceivingDTO = null)
         {
-            var leadToUpdate = await _leadRepo.FindLeadById(leadId);
+            var leadToUpdate = await _context.Leads.FirstOrDefaultAsync(x => x.Id == leadId);
+            
             if (leadToUpdate == null)
             {
                 return new ApiResponse(404);

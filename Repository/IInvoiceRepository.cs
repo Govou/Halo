@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using HaloBiz.Model.AccountsModel;
 
@@ -11,6 +12,7 @@ namespace HaloBiz.Repository
         Task<Invoice> UpdateInvoice(Invoice invoice);
         Task<bool> DeleteInvoice(Invoice invoice);
         Task<Invoice> FindInvoiceById(long Id);
+        IQueryable<Invoice> GetInvoiceQueryiable();
         Task<IEnumerable<Invoice>> GetInvoiceByContractServiceId(long contactDivisionId);
 
     }

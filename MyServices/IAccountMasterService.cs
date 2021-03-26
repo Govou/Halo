@@ -21,5 +21,6 @@ namespace HaloBiz.MyServices
         Task<ApiResponse> GetAllAccountMastersByTransactionId(string transactionId);
         Task<ApiResponse> GetAllAccountMastersByCustomerIdAndContractYear(AccountMasterTransactionDateQueryParams searcDto);
         Task<ApiResponse> GetAllAccountMastersByTransactionDate(AccountMasterTransactionDateQueryParams query);
+        Task<ApiResponse> PostPeriodicAccountMaster();
     }
 }
