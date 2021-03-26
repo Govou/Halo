@@ -23,6 +23,7 @@ namespace HaloBiz.MyServices
         Task<ApiResponse> GetPendingApprovalsByServiceId(long serviceId);
         Task<ApiResponse> GetApprovalsByServiceId(long serviceId);
         Task<ApiResponse> GetPendingApprovalsByQuoteId(long quoteId);
+        Task<ApiResponse> GetApprovalsByEndorsementId(long endorsement);
         Task<ApiResponse> GetApprovalsByQuoteId(long quoteId);
     }
 }

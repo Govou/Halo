@@ -43,20 +43,20 @@ namespace Controllers.Controllers
             return Ok(dates);
         }
 
-        [HttpPut("ApproveEndorsement/{id}")]
-        public async Task<ActionResult> ApproveEndorsement(long id)
+        [HttpPut("ApproveEndorsement/{id}/{sequence}")]
+        public async Task<ActionResult> ApproveEndorsement(long id, long sequence)
         {
-            var response = await _contractServiceForEndorsementService.ApproveContractServiceForEndorsement(id, true);
+            var response = await _contractServiceForEndorsementService.ApproveContractServiceForEndorsement(id, sequence, true);
             if (response.StatusCode >= 400)
                 return StatusCode(response.StatusCode, response);
             var endorsements = ((ApiOkResponse)response).Result;
             return Ok(endorsements);
         }
 
-        [HttpPut("DeclineEndorsementApproval/{id}")]
-        public async Task<ActionResult> DeclineEndorsementApproval(long id)
+        [HttpPut("DeclineEndorsementApproval/{id}/{sequence}")]
+        public async Task<ActionResult> DeclineEndorsementApproval(long id, long sequence)
         {
-            var response = await _contractServiceForEndorsementService.ApproveContractServiceForEndorsement(id, false);
+            var response = await _contractServiceForEndorsementService.ApproveContractServiceForEndorsement(id, sequence, false);
             if (response.StatusCode >= 400)
                 return StatusCode(response.StatusCode, response);
             var endorsements = ((ApiOkResponse)response).Result;
