@@ -12,6 +12,7 @@ namespace HaloBiz.Model.LAMS
         public long Id { get; set; }
         [StringLength(50)]
         public string ReferenceNo { get; set; }
+        public string Caption { get; set; }
         public long CustomerDivisionId { get; set; }
         public CustomerDivision CustomerDivision { get; set; }
         public long QuoteId { get; set; }
