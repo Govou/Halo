@@ -394,7 +394,7 @@ namespace HaloBiz.MyServices.Impl
                         var approval = new Approval
                         {
                             ContractId = contractServiceForEndorsement.ContractId,
-                            ContractServiceId = contractServiceForEndorsement.Id,
+                            ContractServiceForEndorsementId = contractServiceForEndorsement.Id,
                             Caption = $"Approval Needed To Renew Contract Service {contractServiceForEndorsement.Service.Name} for Client {customerDivision.DivisionName} under {customerDivision.Customer.GroupName}",
                             CreatedById = context.GetLoggedInUserId(),
                             Sequence = item.Sequence,
