@@ -7,6 +7,7 @@ using Microsoft.Extensions.Logging;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using HaloBiz.Repository.LAMS;
+using halobiz_backend.Helpers;
 
 namespace HaloBiz.Repository.Impl.LAMS
 {
@@ -61,7 +62,7 @@ namespace HaloBiz.Repository.Impl.LAMS
                 .Where(x => !x.IsReversalInvoice && !x.IsDeleted && !x.IsReversed 
                         && x.StartDate > DateTime.Now && x.ContractServiceId == contractServiceId )
                 .OrderBy(x => x.StartDate)
-                .Select(x => new{startDate = x.StartDate}).ToListAsync();
+                .Select(x => new{startDate = x.StartDate, validDate = x.IsReceiptedStatus == InvoiceStatus.NotReceipted}).ToListAsync();
         }
         public async Task<ContractServiceForEndorsement> UpdateContractServiceForEndorsement(ContractServiceForEndorsement entity)
         {
