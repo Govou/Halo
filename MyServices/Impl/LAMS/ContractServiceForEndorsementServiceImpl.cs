@@ -137,21 +137,27 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
         private async Task<bool> ValidateContractToRenew(ContractServiceForEndorsement contractServiceForEndorsement)
         {
-            if(contractServiceForEndorsement.PreviousContractServiceId == null || contractServiceForEndorsement.PreviousContractServiceId == 0)
+            // Changes to allow new service(s) to be added to the renewal.
+            //if (contractServiceForEndorsement.PreviousContractServiceId == null || contractServiceForEndorsement.PreviousContractServiceId == 0)
+            //{
+            //    return false;
+            //}
+
+            if(contractServiceForEndorsement.PreviousContractServiceId != null && contractServiceForEndorsement.PreviousContractServiceId > 0)
             {
-                return false;
-            }
-            var contractService = await _context.ContractServices
+                var contractService = await _context.ContractServices
                         .FirstOrDefaultAsync(x => x.Id == contractServiceForEndorsement.PreviousContractServiceId);
+
+                if (contractService == null)
+                {
+                    return false;
+                }
+                if (contractService.ContractEndDate >= contractServiceForEndorsement.ContractStartDate)
+                {
+                    return false;
+                }
+            }
             
-            if(contractService == null)
-            {
-                return false;
-            }
-            if(contractService.ContractEndDate >= contractServiceForEndorsement.ContractStartDate)
-            {
-                return false;
-            }
             return true;
         }
 
@@ -488,12 +494,16 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
             var description = $"Service Renewal for {service.Name} with serviceId: {service.Id} for client: {customerDivision.DivisionName}.";
 
-            await RetireContractService(
-                                        retiredContractService,  
-                                        newContractService, 
-                                        description,  
+            // Retired contract service can now be null, if processing renewal for a new service during renewal.
+            if(retiredContractService != null)
+            {
+                await RetireContractService(
+                                        retiredContractService,
+                                        newContractService,
+                                        description,
                                         contractServiceForEndorsement.EndorsementTypeId
                                         );
+            }            
             
             if(!String.IsNullOrWhiteSpace(newContractService.GroupInvoiceNumber))
             {
