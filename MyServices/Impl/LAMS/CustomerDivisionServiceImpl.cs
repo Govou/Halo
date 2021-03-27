@@ -141,6 +141,18 @@ namespace HaloBiz.MyServices.Impl.LAMS
             var CustomerDivisionTransferDTOs = _mapper.Map<CustomerDivisionTransferDTO>(CustomerDivision);
             return new ApiOkResponse(CustomerDivisionTransferDTOs);
         }
+
+        public async Task<ApiResponse> GetTaskAndFulfillmentsByCustomerDivisionId(long customerDivisionId)
+        {
+            var taskAndDeliverables = await _CustomerDivisionRepo.FindTaskAndFulfillmentsByCustomerDivisionId(customerDivisionId);
+            if (taskAndDeliverables == null)
+            {
+                return new ApiResponse(404);
+            }
+            var taskAndDeliverablesDTOs = _mapper.Map<List<TaskFulfillmentTransferDTO>>(taskAndDeliverables);
+            return new ApiOkResponse(taskAndDeliverablesDTOs);
+        }
+
         public async Task<ApiResponse> UpdateCustomerDivision(HttpContext context, long id, CustomerDivisionReceivingDTO CustomerDivisionReceivingDTO)
         {
             var CustomerDivisionToUpdate = await _CustomerDivisionRepo.FindCustomerDivisionById(id);
