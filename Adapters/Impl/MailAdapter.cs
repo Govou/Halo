@@ -276,6 +276,23 @@ namespace HaloBiz.Adapters.Impl
             }
         }
 
+        public async Task<ApiResponse> SendPeriodicInvoice(InvoiceMailDTO invoiceMailDTO)
+        {
+            var baseUrl = $"{_mailBaseUrl}/Mail/SendPeriodicInvoice";
+            try
+            {
+                var response = await baseUrl.AllowAnyHttpStatus()
+                   .PostJsonAsync(invoiceMailDTO).ReceiveJson();
+                return new ApiOkResponse(true);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogInformation(ex.Message);
+                _logger.LogInformation(ex.StackTrace);
+                return new ApiResponse(500, ex.Message);
+            }
+        }
+
         //public async Task<ApiResponse> LeadConversionTriggered(string serializedLeadtoClient)
         //{
         //    var baseUrl = $"{_mailBaseUrl}/Mail/LeadConversionTriggered";

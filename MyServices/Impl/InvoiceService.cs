@@ -3,9 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
+using HaloBiz.Adapters;
 using HaloBiz.CustomExceptions;
 using HaloBiz.Data;
 using HaloBiz.DTOs.ApiDTOs;
+using HaloBiz.DTOs.MailDTOs;
 using HaloBiz.DTOs.ReceivingDTOs;
 using HaloBiz.DTOs.TransferDTOs;
 using HaloBiz.Helpers;
@@ -33,9 +35,8 @@ namespace HaloBiz.MyServices.Impl
         private readonly IServicesRepository _serviceRepo;
         private readonly ICustomerDivisionRepository _customerDivisionRepo;
         private readonly  IAccountRepository _accountRepo;
+        private readonly  IMailAdapter _mailAdapter;
         private bool isRetail = false;
-
-        
         private readonly string SALESINVOICEVOUCHER = "Sales Invoice";
         private readonly string ReceivableControlAccount = "Receivable";
         private readonly string VALUEADDEDTAX = "VALUE ADDED TAX";
@@ -56,7 +57,8 @@ namespace HaloBiz.MyServices.Impl
                                 IAccountDetailsRepository accountDetailsRepo,
                                 IServicesRepository serviceRepo,
                                 ICustomerDivisionRepository customerDivisionRepo,
-                                IAccountRepository accountRepo
+                                IAccountRepository accountRepo,
+                                IMailAdapter mailAdapter
                                 )
         {
             this._mapper = mapper;
@@ -70,6 +72,7 @@ namespace HaloBiz.MyServices.Impl
             this._customerDivisionRepo = customerDivisionRepo;
             this._accountRepo = accountRepo;
             this._serviceRepo = serviceRepo;
+            this._mailAdapter = mailAdapter;
         }
         
 
@@ -158,7 +161,7 @@ namespace HaloBiz.MyServices.Impl
         public async Task<ApiResponse> ConvertProformaInvoiceToFinalInvoice(HttpContext httpContext, long invoiceId)
         {
              var invoiceToUpdate = await _invoiceRepo.FindInvoiceById(invoiceId);
-             invoiceToUpdate.IsFinalInvoice = true;
+             invoiceToUpdate.IsAccountPosted = true;
              this.LoggedInUserId = httpContext.GetLoggedInUserId();
              if(invoiceToUpdate == null)
              {
@@ -831,6 +834,194 @@ namespace HaloBiz.MyServices.Impl
             return new ApiOkResponse(invoiceTransferDTOs);
         }
 
-    
+
+        public async Task<ApiResponse> SendPeriodicInvoices()
+        {
+            List<Invoice> invoices = new List<Invoice>();
+            try
+            {
+                //DateTime today = DateTime.Now.Date;
+                var today = DateTime.Parse("2021-03-24 00:00:00.0000000").Date;
+                invoices = await _context.Invoices
+                    .Where(x => x.IsFinalInvoice && !x.IsDeleted 
+                            && x.DateToBeSent.Date == today && !x.IsInvoiceSent).ToListAsync();
+                
+                foreach (var invoice in invoices)
+                {
+                    invoice.IsInvoiceSent = await SendInvoice(invoice);
+                }
+
+                await _context.SaveChangesAsync();
+                return new ApiOkResponse(true);
+            }
+            catch (System.Exception e)
+            {
+                _logger.LogError(e.Message);
+                _logger.LogError(e.StackTrace);
+                return new ApiResponse(500);
+            }finally{
+                try
+                {
+                    if(invoices.Count() > 0)
+                        _context.Invoices.UpdateRange(invoices);
+                }
+                catch (System.Exception e)
+                {
+                    _logger.LogError(e.Message);
+                    _logger.LogError(e.StackTrace);
+                }
+            }
+            
+        }
+        private async Task<bool> SendInvoice(Invoice invoice)
+        {
+            try
+            {
+                InvoiceMailDTO invoiceMailDTO = await GenerateInvoiceMailDTO(invoice);
+                ApiResponse response = await _mailAdapter.SendPeriodicInvoice(invoiceMailDTO);
+                return response.StatusCode == 200;
+            }
+            catch (System.Exception ex)
+            {
+                _logger.LogError($"An Error occured while trying to send Invoice with Id: {invoice.Id}");
+                _logger.LogError($"Error: {ex.Message}");
+                _logger.LogError($"Error: {ex.StackTrace}");
+                return false;
+            }
+
+        }
+        public async Task<ApiResponse> GetInvoiceDetails(long invoiceId)
+        {
+            try
+            {
+                Invoice invoice = await _context.Invoices
+                            .FirstOrDefaultAsync(x => x.Id == invoiceId && !x.IsDeleted);
+
+                if(invoice == null)
+                {
+                    return new ApiResponse(404);
+                }
+
+                InvoiceMailDTO invoiceMailDTO = await GenerateInvoiceMailDTO(invoice);
+                return new ApiOkResponse(invoiceMailDTO);
+            }
+            catch (System.Exception ex)
+            {
+                _logger.LogError($"An Error occured while trying to send Invoice with Id: {invoiceId}");
+                _logger.LogError($"Error: {ex.Message}");
+                _logger.LogError($"Error: {ex.StackTrace}");
+                return new ApiResponse(500);
+            }
+
+        }
+
+        public async Task<ApiResponse> SendInvoice(long invoiceId)
+        {
+            try
+            {
+                Invoice invoice = await _context.Invoices
+                            .FirstOrDefaultAsync(x => x.Id == invoiceId && !x.IsDeleted);
+
+                if(invoice == null)
+                {
+                    return new ApiResponse(404);
+                }
+
+                InvoiceMailDTO invoiceMailDTO = await GenerateInvoiceMailDTO(invoice);
+                ApiResponse response = await _mailAdapter.SendPeriodicInvoice(invoiceMailDTO);
+                if(response.StatusCode == 200)
+                {
+                    return new ApiOkResponse(true);
+                }
+                return new ApiResponse(500, "Invoice Not Sent");
+            }
+            catch (System.Exception ex)
+            {
+                _logger.LogError($"An Error occured while trying to send Invoice with Id: {invoiceId}");
+                _logger.LogError($"Error: {ex.Message}");
+                _logger.LogError($"Error: {ex.StackTrace}");
+                return new ApiResponse(500, "Invoice Not Sent");
+            }
+
+        }
+
+
+        private async Task<InvoiceMailDTO> GenerateInvoiceMailDTO(Invoice invoice)
+        {
+                var customerDivision = await _context.CustomerDivisions
+                                .Include(x => x.State)
+                                .Include(x => x.LGA)
+                                .FirstOrDefaultAsync(x => x.Id == invoice.CustomerDivisionId);
+
+            
+                IEnumerable<ContractService> contractServices;
+                if(String.IsNullOrWhiteSpace(invoice.GroupInvoiceNumber))
+                {
+                    contractServices = await _context.ContractServices
+                            .Include(x => x.Service)
+                            .Where(x => x.Id == invoice.ContractServiceId && !x.IsDeleted).ToListAsync();
+                }else{
+                    contractServices = await _context.ContractServices
+                            .Include(x => x.Service)
+                            .Where(x => x.GroupInvoiceNumber == invoice.GroupInvoiceNumber && !x.IsDeleted).ToListAsync();
+                }
+
+                double discount = 0.0;
+                double subTotal = 0.0;
+                double VAT = 0.0;
+                string invoiceCycle = null;
+                string keyServiceName = "";
+                string[] recepients = new string[] {customerDivision.Email};
+                List<ContractServiceMailDTO> contractServiceMailDTOs = new List<ContractServiceMailDTO>();
+                
+                foreach (var contractService in contractServices)
+                {
+                    discount += contractService.Discount;
+                    subTotal += (double)contractService.UnitPrice * (double) contractService.Quantity;
+                    VAT += (double) contractService.VAT;
+                    invoiceCycle = contractService.InvoicingInterval.ToString();
+                    keyServiceName = contractService.Service.Name;
+
+                    contractServiceMailDTOs.Add(new ContractServiceMailDTO()
+                    {
+                        Description = contractService.Service.Name,
+                        UnitPrice = contractService.UnitPrice??0,
+                        Quantity = contractService.Quantity,
+                        Total = contractService.Quantity * contractService.UnitPrice??0,
+                        Discount = contractService.Discount,
+                    });
+
+                }
+
+                ClientInfoMailDTO client  = new ClientInfoMailDTO()
+                {
+                    Name = customerDivision.DivisionName,
+                    Email = customerDivision.Email,
+                    Street = customerDivision.Street,
+                    State = customerDivision.State != null ? customerDivision.State.Name : "No State Provided",
+                    LGA = customerDivision.LGA != null? customerDivision.LGA.Name : "No LGA Provided"
+                };
+                
+                InvoiceMailDTO invoiceMailDTO = new InvoiceMailDTO()
+                {
+                    Id = invoice.Id,
+                    InvoiceNumber = invoice.InvoiceNumber,
+                    Total = invoice.Value,
+                    SubTotal = subTotal,
+                    VAT = subTotal * (7.5 / 100),
+                    Discount = discount,
+                    InvoicingCycle = invoiceCycle,
+                    StartDate = invoice.StartDate,
+                    EndDate = invoice.EndDate,
+                    Subject = $"Invoice {invoice.InvoiceNumber} for {keyServiceName} due {invoice.EndDate.ToString("dddd, dd MMMM yyyy")}",
+                    Recepients = recepients,
+                    DaysUntilDeadline = invoice.EndDate.Subtract(invoice.StartDate).TotalDays,
+                    ClientInfo = client,
+                    ContractServices = contractServiceMailDTOs
+                };
+
+                return invoiceMailDTO;
+        }
+
     }
 }
