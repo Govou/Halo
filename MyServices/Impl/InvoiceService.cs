@@ -840,8 +840,8 @@ namespace HaloBiz.MyServices.Impl
             List<Invoice> invoices = new List<Invoice>();
             try
             {
-                //DateTime today = DateTime.Now.Date;
-                var today = DateTime.Parse("2021-03-24 00:00:00.0000000").Date;
+                DateTime today = DateTime.Now.Date;
+                //var today = DateTime.Parse("2021-03-24 00:00:00.0000000").Date;
                 invoices = await _context.Invoices
                     .Where(x => x.IsFinalInvoice && !x.IsDeleted 
                             && x.DateToBeSent.Date == today && !x.IsInvoiceSent).ToListAsync();
