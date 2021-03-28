@@ -15,5 +15,8 @@ namespace HaloBiz.MyServices
         Task<ApiResponse> GetAllInvoicesByContactserviceId(long contractServiceId);
         Task<ApiResponse> UpdateInvoice(HttpContext context, long id, InvoiceReceivingDTO invoiceReceivingDTO);
         Task<ApiResponse> ConvertProformaInvoiceToFinalInvoice(HttpContext httpContext, long invoiceId);
+        Task<ApiResponse> SendPeriodicInvoices();
+        Task<ApiResponse> SendInvoice(long invoiceId);
+        Task<ApiResponse> GetInvoiceDetails(long invoiceId);
     }
 }

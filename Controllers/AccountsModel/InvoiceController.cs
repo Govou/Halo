@@ -48,6 +48,26 @@ namespace HaloBiz.Controllers.AccountsModel
             return Ok(invoice);
         }
 
+        [HttpGet("SendInvoice/{invoiceId}")]
+        public async Task<ActionResult> SendInvoice(long invoiceId)
+        {
+            var response = await _invoiceService.SendInvoice(invoiceId);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var invoice = ((ApiOkResponse)response).Result;
+            return Ok(invoice);
+        }
+
+        [HttpGet("GetInvoiceDetails/{invoiceId}")]
+        public async Task<ActionResult> SendInvoiceDetails(long invoiceId)
+        {
+            var response = await _invoiceService.GetInvoiceDetails(invoiceId);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var invoice = ((ApiOkResponse)response).Result;
+            return Ok(invoice);
+        }
+
         [HttpPost("AdHocInvoice")]
         public async Task<ActionResult> AddNewinvoice(InvoiceReceivingDTO invoiceReceivingDTO)
         {
@@ -93,6 +113,16 @@ namespace HaloBiz.Controllers.AccountsModel
         {
             var response = await _invoiceService.DeleteInvoice(id);
             return StatusCode(response.StatusCode);
+        }
+
+        [HttpPost("PostPeriodicInvoice")]
+        public async Task<ActionResult> SendPeriodicInvoices()
+        {
+            var response = await _invoiceService.SendPeriodicInvoices();
+             if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var res = ((ApiOkResponse)response).Result;
+            return Ok(res);
         }
     }
 }
