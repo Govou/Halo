@@ -1015,7 +1015,7 @@ namespace HaloBiz.MyServices.Impl
                     EndDate = invoice.EndDate,
                     Subject = $"Invoice {invoice.InvoiceNumber} for {keyServiceName} due {invoice.EndDate.ToString("dddd, dd MMMM yyyy")}",
                     Recepients = recepients,
-                    DaysUntilDeadline = invoice.EndDate.Subtract(invoice.StartDate).TotalDays,
+                    DaysUntilDeadline = (int) invoice.EndDate.Subtract(DateTime.Now).TotalDays,
                     ClientInfo = client,
                     ContractServices = contractServiceMailDTOs
                 };
