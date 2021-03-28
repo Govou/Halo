@@ -43,6 +43,9 @@ namespace HaloBiz.Model
         public long? ContractServiceId { get; set; }
         public virtual ContractService ContractService { get; set; }
 
+        public long? ContractServiceForEndorsementId { get; set; }
+        public virtual ContractServiceForEndorsement ContractServiceForEndorsement { get; set; }
+
         public long? ServicesId { get; set; }
         public virtual Services Services { get; set; }
 

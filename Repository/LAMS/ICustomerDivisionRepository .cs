@@ -12,6 +12,7 @@ namespace HaloBiz.Repository
         Task<CustomerDivision> SaveCustomerDivision(CustomerDivision entity);
 
         Task<CustomerDivision> FindCustomerDivisionById(long Id);
+        Task<List<TaskFulfillment>> FindTaskAndFulfillmentsByCustomerDivisionId(long customerDivisionId);
         Task<CustomerDivision> GetCustomerDivisionBreakDownById(long id);
         Task<CustomerDivision> FindCustomerDivisionByName(string name);
         Task<IEnumerable<CustomerDivision>> FindAllCustomerDivision();

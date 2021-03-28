@@ -26,6 +26,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
         private readonly DataContext _context;
         private readonly IMapper _mapper;
         private readonly ILeadConversionService _leadConversionService;
+        private readonly IApprovalService _approvalService;
         private readonly IContractServiceForEndorsementRepository  _cntServiceForEndorsemntRepo;
         private readonly ILogger<ContractServiceForEndorsementServiceImpl> _logger;
         private readonly IConfiguration _configuration;
@@ -35,12 +36,14 @@ namespace HaloBiz.MyServices.Impl.LAMS
                                             DataContext context, 
                                             IMapper mapper, 
                                             ILeadConversionService leadConversionService,
+                                            IApprovalService approvalService,
                                             ILogger<ContractServiceForEndorsementServiceImpl> logger,
                                             IConfiguration configuration)
         {
             this._context = context;
             this._mapper = mapper;
             this._leadConversionService = leadConversionService;
+            _approvalService = approvalService;
             this._cntServiceForEndorsemntRepo = cntServiceForEndorsemntRepo;
             this._configuration = configuration;
             this._logger = logger;
@@ -50,7 +53,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
         { 
             try{
 
-                var  entityToSave = _mapper.Map<List<ContractServiceForEndorsement>>(contractServiceForEndorsementDtos);
+                var entityToSave = _mapper.Map<List<ContractServiceForEndorsement>>(contractServiceForEndorsementDtos);
                 
                 foreach (var entity in entityToSave)
                 {
@@ -61,10 +64,27 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
                     entity.CreatedById = httpContext.GetLoggedInUserId();
                 }
-                
-                var savedEntity = await _cntServiceForEndorsemntRepo.SaveRangeContractServiceForEndorsement(entityToSave);
+
+                using var transaction = await _context.Database.BeginTransactionAsync();
+                var saveSuccessful = await _cntServiceForEndorsemntRepo.SaveRangeContractServiceForEndorsement(entityToSave);
+
+                if (!saveSuccessful)
+                {
+                    await transaction.RollbackAsync();
+                    return new ApiResponse(500);
+                }
+
+                bool successful = await _approvalService.SetUpApprovalsForContractRenewalEndorsement(entityToSave, httpContext);
+                if (!successful)
+                {
+                    await transaction.RollbackAsync();
+                    return new ApiResponse(500, "Could not set up approvals for service endorsement.");
+                }
+
+                await transaction.CommitAsync();
                 return new ApiOkResponse(true);
-            }catch(Exception ex)
+            }
+            catch(Exception ex)
             {
                 _logger.LogError(ex.Message);
                 _logger.LogError(ex.StackTrace);
@@ -82,35 +102,62 @@ namespace HaloBiz.MyServices.Impl.LAMS
             {
                 return new ApiResponse(400, "Invalid Previous contract service id or invalid new contract start date");
             }
-            entityToSave.CreatedById = httpContext.GetLoggedInUserId();
-            var savedEntity = await _cntServiceForEndorsemntRepo.SaveContractServiceForEndorsement(entityToSave);
-            if( savedEntity == null)
-            {
-                return new ApiResponse(500);
-            } 
 
-            var contractServiceToEndorseTransferDto = _mapper.Map<ContractServiceForEndorsementTransferDto>(savedEntity);
-            return new ApiOkResponse(contractServiceToEndorseTransferDto);
+            entityToSave.CreatedById = httpContext.GetLoggedInUserId();
+
+            using var transaction = await _context.Database.BeginTransactionAsync();
+            try
+            {
+                var savedEntity = await _cntServiceForEndorsemntRepo.SaveContractServiceForEndorsement(entityToSave);
+                if (savedEntity == null)
+                {
+                    return new ApiResponse(500);
+                }
+
+                bool successful = await _approvalService.SetUpApprovalsForContractModificationEndorsement(savedEntity, httpContext);
+                if (!successful)
+                {
+                    await transaction.RollbackAsync();
+                    return new ApiResponse(500, "Could not set up approvals for service endorsement.");
+                }
+
+                var contractServiceToEndorseTransferDto = _mapper.Map<ContractServiceForEndorsementTransferDto>(savedEntity);
+                await transaction.CommitAsync();
+                return new ApiOkResponse(contractServiceToEndorseTransferDto);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.Message);
+                _logger.LogError(ex.StackTrace);
+                await transaction.RollbackAsync();
+                return new ApiResponse(500);
+            }
         }
         
 
         private async Task<bool> ValidateContractToRenew(ContractServiceForEndorsement contractServiceForEndorsement)
         {
-            if(contractServiceForEndorsement.PreviousContractServiceId == null || contractServiceForEndorsement.PreviousContractServiceId == 0)
+            // Changes to allow new service(s) to be added to the renewal.
+            //if (contractServiceForEndorsement.PreviousContractServiceId == null || contractServiceForEndorsement.PreviousContractServiceId == 0)
+            //{
+            //    return false;
+            //}
+
+            if(contractServiceForEndorsement.PreviousContractServiceId != null && contractServiceForEndorsement.PreviousContractServiceId > 0)
             {
-                return false;
-            }
-            var contractService = await _context.ContractServices
+                var contractService = await _context.ContractServices
                         .FirstOrDefaultAsync(x => x.Id == contractServiceForEndorsement.PreviousContractServiceId);
+
+                if (contractService == null)
+                {
+                    return false;
+                }
+                if (contractService.ContractEndDate >= contractServiceForEndorsement.ContractStartDate)
+                {
+                    return false;
+                }
+            }
             
-            if(contractService == null)
-            {
-                return false;
-            }
-            if(contractService.ContractEndDate >= contractServiceForEndorsement.ContractStartDate)
-            {
-                return false;
-            }
             return true;
         }
 
@@ -130,21 +177,64 @@ namespace HaloBiz.MyServices.Impl.LAMS
             return new ApiOkResponse(possibleDates);
         }
 
-        public async Task<ApiResponse> ApproveContractServiceForEndorsement(long Id, bool isApproved)
+        public async Task<ApiResponse> ApproveContractServiceForEndorsement(long Id, long sequence, bool isApproved)
         {
-            var entityToApprove = await _cntServiceForEndorsemntRepo.FindContractServiceForEndorsementById(Id);
-            if(entityToApprove == null)
+            if (isApproved)
             {
-                return new ApiResponse(404);
+                var approvalsForTheEndorsement = await _context.Approvals.Where(x => !x.IsDeleted && x.ContractServiceForEndorsementId == Id).ToListAsync();
+
+                var theApproval = approvalsForTheEndorsement.SingleOrDefault(x => x.Sequence == sequence);
+
+                if (theApproval == null)
+                {
+                    return new ApiResponse(500);
+                }
+
+                theApproval.IsApproved = true;
+                theApproval.DateTimeApproved = DateTime.Now;
+                _context.Approvals.Update(theApproval);
+                await _context.SaveChangesAsync();
+
+                bool allApprovalsApproved = approvalsForTheEndorsement.All(x => x.IsApproved);
+
+                // Return scenario 1
+                // All the approvals for endorsement not yet approved.
+                if (!allApprovalsApproved) return new ApiOkResponse(true);
+
+                var entityToApprove = await _cntServiceForEndorsemntRepo.FindContractServiceForEndorsementById(Id);
+                if (entityToApprove == null)
+                {
+                    return new ApiResponse(404);
+                }
+                entityToApprove.IsApproved = isApproved;
+                var approvedEntity = await _cntServiceForEndorsemntRepo.UpdateContractServiceForEndorsement(entityToApprove);
+                if (approvedEntity == null)
+                {
+                    return new ApiResponse(500);
+                }
+                var contractServicesToEndorseTransferDto = _mapper.Map<ContractServiceForEndorsementTransferDto>(approvedEntity);
+                return new ApiOkResponse(contractServicesToEndorseTransferDto);
             }
-            entityToApprove.IsApproved = isApproved;
-            var approvedEntity = await _cntServiceForEndorsemntRepo.UpdateContractServiceForEndorsement(entityToApprove);
-            if(approvedEntity == null)
+            else
             {
-                return new ApiResponse(500);
-            }
-            var contractServicesToEndorseTransferDto =  _mapper.Map<ContractServiceForEndorsementTransferDto>(approvedEntity);
-            return new ApiOkResponse(contractServicesToEndorseTransferDto);
+                var endorsementToUpdate = await _cntServiceForEndorsemntRepo.FindContractServiceForEndorsementById(Id);
+                if (endorsementToUpdate == null)
+                {
+                    return new ApiResponse(404);
+                }
+
+                endorsementToUpdate.IsDeclined = true;
+
+                var updatedEndorsement = await _cntServiceForEndorsemntRepo.UpdateContractServiceForEndorsement(endorsementToUpdate);
+
+                if (updatedEndorsement == null)
+                {
+                    return new ApiResponse(500);
+                }
+
+                var contractServicesToEndorseTransferDto = _mapper.Map<ContractServiceForEndorsementTransferDto>(updatedEndorsement);
+                return new ApiOkResponse(contractServicesToEndorseTransferDto);
+            }           
         }
         
         public async Task<ApiResponse> ConvertContractServiceForEndorsement(HttpContext httpContext, long Id)
@@ -404,12 +494,16 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
             var description = $"Service Renewal for {service.Name} with serviceId: {service.Id} for client: {customerDivision.DivisionName}.";
 
-            await RetireContractService(
-                                        retiredContractService,  
-                                        newContractService, 
-                                        description,  
+            // Retired contract service can now be null, if processing renewal for a new service during renewal.
+            if(retiredContractService != null)
+            {
+                await RetireContractService(
+                                        retiredContractService,
+                                        newContractService,
+                                        description,
                                         contractServiceForEndorsement.EndorsementTypeId
                                         );
+            }            
             
             if(!String.IsNullOrWhiteSpace(newContractService.GroupInvoiceNumber))
             {

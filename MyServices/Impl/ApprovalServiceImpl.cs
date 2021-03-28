@@ -130,7 +130,18 @@ namespace HaloBiz.MyServices.Impl
             var approvalTransferDTO = _mapper.Map<IEnumerable<ApprovalTransferDTO>>(approval);
             return new ApiOkResponse(approvalTransferDTO);
         }
-        
+
+        public async Task<ApiResponse> GetApprovalsByEndorsementId(long endorsementId)
+        {
+            var approval = await _approvalRepo.GetApprovalsByEndorsementId(endorsementId);
+            if (approval == null)
+            {
+                return new ApiResponse(404);
+            }
+            var approvalTransferDTO = _mapper.Map<IEnumerable<ApprovalTransferDTO>>(approval);
+            return new ApiOkResponse(approvalTransferDTO);
+        }
+
         public async Task<ApiResponse> GetApprovalsByServiceId(long serviceId)
         {
             var approval = await _approvalRepo.GetApprovalsByServiceId(serviceId);
@@ -190,12 +201,7 @@ namespace HaloBiz.MyServices.Impl
                     
                     foreach (var quoteService in quote.QuoteServices)
                     {
-                        quoteService.Service = await _context.Services.AsNoTracking().Where(x => x.Id == quoteService.ServiceId)
-                            .Include(x => x.Division)
-                            .ThenInclude(x => x.Company)
-                            .Include(x => x.OperatingEntity)
-                            .ThenInclude(x => x.Head)
-                            .FirstOrDefaultAsync();
+                        quoteService.Service = await GetServicesInformationForApprovals(quoteService.ServiceId);
                     }
 
                     foreach (var quoteService in quote.QuoteServices)
@@ -207,27 +213,9 @@ namespace HaloBiz.MyServices.Impl
                                         (quoteService.BillableAmount.Value <= x.UpperlimitValue && quoteService.BillableAmount.Value >= x.LowerlimitValue))
                             .OrderBy(x => x.Sequence);
                         
-                        foreach (var item in orderedList)
+                        foreach (var approvalLimit in orderedList)
                         {
-                            var approvalLevelInfo = item.ApproverLevel;
-
-                            long responsibleId = 0;
-                            if (item.ApproverLevel.Caption == "Branch Head")
-                            {
-                                responsibleId = leadDivision.Branch?.HeadId ?? 31;
-                            }
-                            else if (item.ApproverLevel.Caption == "Division Head")
-                            {
-                                responsibleId = quoteService.Service?.Division?.HeadId ?? 31;
-                            }
-                            else if (item.ApproverLevel.Caption == "Operating Entity Head")
-                            {
-                                responsibleId = quoteService.Service?.OperatingEntity?.HeadId ?? 31;
-                            }
-                            else if (item.ApproverLevel.Caption == "CEO")
-                            {
-                                responsibleId = quoteService.Service?.Division?.Company?.HeadId.Value ?? 31;
-                            }
+                            long responsibleId = GetWhoIsResponsible(approvalLimit, quoteService.Service, leadDivision.Branch);
 
                             var approval = new Approval
                             {
@@ -235,11 +223,11 @@ namespace HaloBiz.MyServices.Impl
                                 QuoteId = quote.Id,
                                 Caption = $"Approval Needed To Create Contract Service {quoteService.Service.Name} for Client {leadDivision.DivisionName} under {lead.GroupName}",
                                 CreatedById = context.GetLoggedInUserId(),
-                                Sequence = item.Sequence,
+                                Sequence = approvalLimit.Sequence,
                                 ResponsibleId = responsibleId,
                                 IsApproved = false,
                                 DateTimeApproved = null,
-                                Level = item.ApproverLevel.Caption
+                                Level = approvalLimit.ApproverLevel.Caption
                             };
 
                             approvals.Add(approval);
@@ -269,11 +257,85 @@ namespace HaloBiz.MyServices.Impl
             }
         }
 
-        public async Task<bool> SetUpApprovalsForEndorsement(CustomerDivision customerDivision, HttpContext httpContext)
+        public async Task<bool> SetUpApprovalsForContractModificationEndorsement(ContractServiceForEndorsement contractServiceForEndorsement, HttpContext context)
         {
             try
             {
-                return await Task.FromResult(true);
+                var endorsementType = await _context.EndorsementTypes.SingleOrDefaultAsync(x => x.Id == contractServiceForEndorsement.EndorsementTypeId);
+                if(endorsementType == null)
+                {
+                    return false;
+                }
+
+                var module = await _processesRequiringApprovalRepo.FindProcessesRequiringApprovalByCaption(endorsementType.Caption);
+                if (module == null)
+                {
+                    return false;
+                }
+
+                var approvalLimits = await _approvalLimitRepo.GetApprovalLimitsByModule(module.Id);
+                if(approvalLimits == null)
+                {
+                    return false;
+                }
+
+                if (!approvalLimits.Any()) return false;
+
+                List<Approval> approvals = new List<Approval>();
+
+                contractServiceForEndorsement.Service = await GetServicesInformationForApprovals(contractServiceForEndorsement.ServiceId);
+                contractServiceForEndorsement.Branch = await _context.Branches.FindAsync(contractServiceForEndorsement.BranchId);
+
+                if (!contractServiceForEndorsement.BillableAmount.HasValue) return false;
+
+                var orderedList = approvalLimits
+                    .Where(x => contractServiceForEndorsement.BillableAmount.Value > x.UpperlimitValue ||
+                                (contractServiceForEndorsement.BillableAmount.Value <= x.UpperlimitValue && 
+                                contractServiceForEndorsement.BillableAmount.Value >= x.LowerlimitValue))
+                    .OrderBy(x => x.Sequence);
+
+                var customerDivision = await _context.CustomerDivisions.Where(x => x.Id == contractServiceForEndorsement.CustomerDivisionId)
+                    .Include(x => x.Customer)
+                    .FirstOrDefaultAsync();
+
+                foreach (var item in orderedList)
+                {
+                    var approvalLevelInfo = item.ApproverLevel;
+
+                    long responsibleId = GetWhoIsResponsible(item, contractServiceForEndorsement.Service, contractServiceForEndorsement.Branch);
+
+                    var approval = new Approval
+                    {
+                        ContractId = contractServiceForEndorsement.ContractId,
+                        ContractServiceForEndorsementId = contractServiceForEndorsement.Id,
+                        Caption = $"Approval needed to endorse {endorsementType.Caption} for contract service {contractServiceForEndorsement.Service.Name} for client {customerDivision.DivisionName} under {customerDivision.Customer.GroupName}",
+                        CreatedById = context.GetLoggedInUserId(),
+                        Sequence = item.Sequence,
+                        ResponsibleId = responsibleId,
+                        IsApproved = false,
+                        DateTimeApproved = null,
+                        Level = item.ApproverLevel.Caption
+                    };
+
+                    approvals.Add(approval);
+                }
+
+                if (approvals.Any())
+                {
+                    var successful = await _approvalRepo.SaveApprovalRange(approvals);
+                    if (successful)
+                    {
+                        return true;
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                }
+                else
+                {
+                    return false;
+                }
             }
             catch (Exception ex)
             {
@@ -282,17 +344,97 @@ namespace HaloBiz.MyServices.Impl
                 return false;
             }
         }
+        
+        public async Task<bool> SetUpApprovalsForContractRenewalEndorsement(List<ContractServiceForEndorsement> contractServiceForEndorsements, HttpContext context)
+        {
+            try
+            {
+                var module = await _processesRequiringApprovalRepo.FindProcessesRequiringApprovalByCaption("Service Retention");
+                if (module == null)
+                {
+                    return false;
+                }
 
+                var approvalLimits = await _approvalLimitRepo.GetApprovalLimitsByModule(module.Id);
+                if (approvalLimits == null)
+                {
+                    return false;
+                }
+
+                if (!approvalLimits.Any()) return false;
+
+                List<Approval> approvals = new List<Approval>();
+
+                foreach (var contractServiceForEndorsement in contractServiceForEndorsements)
+                {
+                    contractServiceForEndorsement.Service = await GetServicesInformationForApprovals(contractServiceForEndorsement.ServiceId);
+                    contractServiceForEndorsement.Branch = await _context.Branches.FindAsync(contractServiceForEndorsement.BranchId);
+                }
+
+                foreach (var contractServiceForEndorsement in contractServiceForEndorsements)
+                {
+                    if (!contractServiceForEndorsement.BillableAmount.HasValue) return false;
+
+                    var orderedList = approvalLimits
+                        .Where(x => contractServiceForEndorsement.BillableAmount.Value > x.UpperlimitValue ||
+                                    (contractServiceForEndorsement.BillableAmount.Value <= x.UpperlimitValue && 
+                                    contractServiceForEndorsement.BillableAmount.Value >= x.LowerlimitValue))
+                        .OrderBy(x => x.Sequence);
+
+                    var customerDivision = await _context.CustomerDivisions.Where(x => x.Id == contractServiceForEndorsement.CustomerDivisionId)
+                        .Include(x => x.Customer)
+                        .FirstOrDefaultAsync();
+
+                    foreach (var item in orderedList)
+                    {
+                        var approvalLevelInfo = item.ApproverLevel;
+
+                        long responsibleId = GetWhoIsResponsible(item, contractServiceForEndorsement.Service, contractServiceForEndorsement.Branch);                      
+
+                        var approval = new Approval
+                        {
+                            ContractId = contractServiceForEndorsement.ContractId,
+                            ContractServiceForEndorsementId = contractServiceForEndorsement.Id,
+                            Caption = $"Approval Needed To Renew Contract Service {contractServiceForEndorsement.Service.Name} for Client {customerDivision.DivisionName} under {customerDivision.Customer.GroupName}",
+                            CreatedById = context.GetLoggedInUserId(),
+                            Sequence = item.Sequence,
+                            ResponsibleId = responsibleId,
+                            IsApproved = false,
+                            DateTimeApproved = null,
+                            Level = item.ApproverLevel.Caption
+                        };
+
+                        approvals.Add(approval);
+                    }
+                }
+
+                if (approvals.Any())
+                {
+                    var successful = await _approvalRepo.SaveApprovalRange(approvals);
+                    if (successful)
+                    {
+                        return true;
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                }
+                return false;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogInformation(ex.Message);
+                _logger.LogInformation(ex.StackTrace);
+                return false;
+            }
+        }
+        
         public async Task<bool> SetUpApprovalsForServiceCreation(Services service, HttpContext context)
         {
             try
             {
-                var serviceWithExtraInfo = await _context.Services.AsNoTracking().Where(x => x.Id == service.Id)
-                    .Include(x => x.Division)
-                    .ThenInclude(x => x.Company)
-                    .Include(x => x.OperatingEntity)
-                    .ThenInclude(x => x.Head)
-                    .FirstOrDefaultAsync();
+                var serviceWithExtraInfo = await GetServicesInformationForApprovals(service.Id);
                 
                 var module = await _processesRequiringApprovalRepo.FindProcessesRequiringApprovalByCaption("Service Creation");
                 if (module == null)
@@ -310,38 +452,23 @@ namespace HaloBiz.MyServices.Impl
 
                 List<Approval> approvals = new List<Approval>();
 
-                foreach (var item in orderedList)
+                foreach (var approvalLimit in orderedList)
                 {
-                    long responsibleId = 0;
-                    
-                    // How to tell branch head ??
-                    if (item.ApproverLevel.Caption == "Branch Head")
-                    {
-                        continue;
-                    }
-                    else if (item.ApproverLevel.Caption == "Division Head")
-                    {
-                        responsibleId = serviceWithExtraInfo?.Division?.HeadId ?? 31;
-                    }
-                    else if (item.ApproverLevel.Caption == "Operating Entity Head")
-                    {
-                        responsibleId = serviceWithExtraInfo?.OperatingEntity?.HeadId ?? 31;
-                    }
-                    else if (item.ApproverLevel.Caption == "CEO")
-                    {
-                        responsibleId = serviceWithExtraInfo?.Division?.Company?.HeadId.Value ?? 31;
-                    }
+                    // How to tell branch head ?? skip.
+                    if (approvalLimit.ApproverLevel.Caption == "Branch Head") continue;
+
+                    long responsibleId = GetWhoIsResponsible(approvalLimit, service, null);
 
                     var approval = new Approval
                     {
                         ServicesId = service.Id,
                         Caption = $"Approval Needed To Create Service {service.Name}",
                         CreatedById = context.GetLoggedInUserId(),
-                        Sequence = item.Sequence,
+                        Sequence = approvalLimit.Sequence,
                         ResponsibleId = responsibleId,
                         IsApproved = false,
                         DateTimeApproved = null,
-                        Level = item.ApproverLevel.Caption                         
+                        Level = approvalLimit.ApproverLevel.Caption                         
                     };
 
                     approvals.Add(approval);
@@ -370,6 +497,42 @@ namespace HaloBiz.MyServices.Impl
                 _logger.LogInformation(ex.Message);
                 _logger.LogInformation(ex.StackTrace);
                 return false;
+            }
+        }
+
+        private async Task<Services> GetServicesInformationForApprovals(long servicesId)
+        {
+            var services = await _context.Services.AsNoTracking().Where(x => x.Id == servicesId)
+                    .Include(x => x.Division)
+                    .ThenInclude(x => x.Company)
+                    .Include(x => x.OperatingEntity)
+                    .ThenInclude(x => x.Head)
+                    .FirstOrDefaultAsync();
+
+            return services;
+        }
+
+        private long GetWhoIsResponsible(ApprovalLimit item, Services service, Branch branch)
+        {
+            if (item.ApproverLevel.Caption == "Branch Head")
+            {
+                return branch?.HeadId ?? 1;                          
+            }
+            else if (item.ApproverLevel.Caption == "Division Head")
+            {
+                return service?.Division?.HeadId ?? 1;
+            }
+            else if (item.ApproverLevel.Caption == "Operating Entity Head")
+            {
+                return service?.OperatingEntity?.HeadId ?? 1;
+            }
+            else if (item.ApproverLevel.Caption == "CEO")
+            {
+                return service?.Division?.Company?.HeadId.Value ?? 1;
+            }
+            else
+            {
+                return 1;
             }
         }
 

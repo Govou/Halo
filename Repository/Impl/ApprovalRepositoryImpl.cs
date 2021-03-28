@@ -101,6 +101,15 @@ namespace HaloBiz.Repository.Impl
                 .ToListAsync();
         }
 
+        public async Task<IEnumerable<Approval>> GetApprovalsByEndorsementId(long endorsementId)
+        {
+            return await _context.Approvals
+                .Where(x => x.ContractServiceForEndorsementId == endorsementId && x.IsDeleted == false)
+                .Include(x => x.Responsible)
+                .OrderBy(x => x.Caption)
+                .ToListAsync();
+        }
+
         public async Task<Approval> UpdateApproval(Approval approval)
         {
              var approvalEntity =  _context.Approvals.Update(approval);

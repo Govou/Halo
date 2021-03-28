@@ -43,7 +43,7 @@ namespace HaloBiz.Repository.Impl.LAMS
                 return null;
             }
             client.Contracts = await _context.Contracts
-                .Include(x => x.ContractServices)
+                .Include(x => x.ContractServices.Where(x => x.Version == Helpers.VersionType.Latest))
                     .ThenInclude(x => x.Service)
                 .Where(x => x.CustomerDivisionId == client.Id).ToListAsync();
             
@@ -55,7 +55,12 @@ namespace HaloBiz.Repository.Impl.LAMS
             client.SecondaryContact = await _context.LeadDivisionContacts
                 .Where(x => x.Id == client.SecondaryContactId && x.IsDeleted == false).FirstOrDefaultAsync();
 
-            client.TaskFulfillments = await _context.TaskFulfillments.Where(x => x.CustomerDivisionId == client.Id && x.IsDeleted == false)
+            return client;
+        }
+
+        public async Task<List<TaskFulfillment>> FindTaskAndFulfillmentsByCustomerDivisionId(long customerDivisionId)
+        {
+            var taskFulfillments = await _context.TaskFulfillments.Where(x => x.CustomerDivisionId == customerDivisionId && x.IsDeleted == false)
                 .Include(x => x.Accountable)
                 .Include(x => x.Consulted)
                 .Include(x => x.Informed)
@@ -67,7 +72,7 @@ namespace HaloBiz.Repository.Impl.LAMS
                     .ThenInclude(x => x.CreatedBy)
                     .ToListAsync();
 
-            return client;
+            return taskFulfillments;
         }
 
         public async Task<IEnumerable<CustomerDivision>> FindAllCustomerDivision()
