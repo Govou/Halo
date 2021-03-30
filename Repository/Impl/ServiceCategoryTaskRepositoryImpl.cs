@@ -51,6 +51,7 @@ namespace HaloBiz.Repository.Impl
         {
             return await _context.ServiceCategoryTasks.Where(serviceCategoryTask => serviceCategoryTask.IsDeleted == false)
                 .Include(serviceCategoryTask => serviceCategoryTask.ServiceCategory)
+                .Include(serviceCategoryTask => serviceCategoryTask.EndorsementType)
                 .Include(serviceCategoryTask => serviceCategoryTask.ServiceTaskDeliverable)
                 .ToListAsync();
         }
