@@ -16,5 +16,6 @@ namespace HaloBiz.Model.LAMS
         public long? PreviousContractServiceId { get; set; }
         public DateTime? DateForNewContractToTakeEffect { get; set; }
         public bool IsConvertedToContractService { get; set; } = false;
+        public string EndorsementDescription { get; set; }
     }
 }
