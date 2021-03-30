@@ -1,3 +1,4 @@
+using HaloBiz.Model.LAMS;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -17,6 +18,8 @@ namespace HaloBiz.Model
         public IEnumerable<ServiceTaskDeliverable> ServiceTaskDeliverable { get; set; }
         public long CreatedById { get; set; }
         public virtual UserProfile CreatedBy { get; set; }
+        public long? EndorsementTypeId { get; set; }
+        public EndorsementType EndorsementType { get; set; }
         public bool IsDeleted { get; set; } = false;
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public DateTime CreatedAt { get; set; }
