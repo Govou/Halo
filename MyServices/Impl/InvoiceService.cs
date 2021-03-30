@@ -949,6 +949,8 @@ namespace HaloBiz.MyServices.Impl
         private async Task<InvoiceMailDTO> GenerateInvoiceMailDTO(Invoice invoice)
         {
                 var customerDivision = await _context.CustomerDivisions
+                                .Include(x => x.PrimaryContact)
+                                .Include(x => x.SecondaryContact)
                                 .Include(x => x.State)
                                 .Include(x => x.LGA)
                                 .FirstOrDefaultAsync(x => x.Id == invoice.CustomerDivisionId);
@@ -968,10 +970,17 @@ namespace HaloBiz.MyServices.Impl
 
                 double discount = 0.0;
                 double subTotal = 0.0;
+                double unInvoicedAmount = 0.0;
                 double VAT = 0.0;
                 string invoiceCycle = null;
                 string keyServiceName = "";
-                string[] recepients = new string[] {customerDivision.Email};
+                List<string> recepients = new List<string>();
+                recepients.Add(customerDivision.Email);
+                if(customerDivision.SecondaryContact != null)
+                    recepients.Add(customerDivision.SecondaryContact.Email);
+                
+                if(customerDivision.PrimaryContact != null)
+                    recepients.Add(customerDivision.PrimaryContact.Email);
                 List<ContractServiceMailDTO> contractServiceMailDTOs = new List<ContractServiceMailDTO>();
                 
                 foreach (var contractService in contractServices)
@@ -979,6 +988,7 @@ namespace HaloBiz.MyServices.Impl
                     discount += contractService.Discount;
                     subTotal += (double)contractService.UnitPrice * (double) contractService.Quantity;
                     VAT += (double) contractService.VAT;
+                    unInvoicedAmount += ((double)contractService.BillableAmount - contractService.AdHocInvoicedAmount);
                     invoiceCycle = contractService.InvoicingInterval.ToString();
                     keyServiceName = contractService.Service.Name;
 
@@ -1009,12 +1019,13 @@ namespace HaloBiz.MyServices.Impl
                     Total = invoice.Value,
                     SubTotal = subTotal,
                     VAT = subTotal * (7.5 / 100),
+                    UnInvoicedAmount = unInvoicedAmount,
                     Discount = discount,
                     InvoicingCycle = invoiceCycle,
                     StartDate = invoice.StartDate,
                     EndDate = invoice.EndDate,
                     Subject = $"Invoice {invoice.InvoiceNumber} for {keyServiceName} due {invoice.EndDate.ToString("dddd, dd MMMM yyyy")}",
-                    Recepients = recepients,
+                    Recepients = recepients.ToArray(),
                     DaysUntilDeadline = (int) invoice.EndDate.Subtract(DateTime.Now).TotalDays,
                     ClientInfo = client,
                     ContractServices = contractServiceMailDTOs

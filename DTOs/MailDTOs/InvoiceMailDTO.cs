@@ -11,6 +11,7 @@ namespace HaloBiz.DTOs.MailDTOs
             public double SubTotal { get; set; }
             public double VAT { get; set; }
             public double Discount { get; set; }
+            public double UnInvoicedAmount { get; set; }
             public string InvoicingCycle { get; set; }
             public DateTime StartDate { get; set; }
             public DateTime EndDate { get; set; }
