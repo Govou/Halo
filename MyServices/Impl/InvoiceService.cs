@@ -244,9 +244,16 @@ namespace HaloBiz.MyServices.Impl
 
         private async Task<ApiResponse> ConvertInvoiceToFinalInvoice(Invoice invoice)
         {
+            using(var transaction  = await _context.Database.BeginTransactionAsync())
+            {
+                try{
                     var contractService = await _context.ContractServices
                                 .Include(x => x.QuoteService)
                                 .FirstOrDefaultAsync(x => x.Id == invoice.ContractServiceId);
+
+                    contractService.AdHocInvoicedAmount+= invoice.Value;
+                    _context.ContractServices.Update(contractService);
+                    await _context.SaveChangesAsync();
 
                     var customerDivision = await _context.CustomerDivisions
                                         .Include(x => x.Customer)
@@ -266,17 +273,24 @@ namespace HaloBiz.MyServices.Impl
                     await PostAccounts(contractService, customerDivision, accountVoucherType.Id, 
                                         VAT, invoice.Value, service);
 
-                    contractService.AdHocInvoicedAmount+= invoice.Value;
-
-                    _context.ContractServices.Update(contractService);
+                    invoice.IsFinalInvoice = true;
                     _context.Invoices.Update(invoice);
                     await _context.SaveChangesAsync();
                     var invoiceTransferDTO = _mapper.Map<InvoiceTransferDTO>(invoice);
 
                     await GenerateAmortizations(contractService, customerDivision, 
                                    (double) contractService.BillableAmount, invoice.Value, invoice.DateToBeSent );
-                    
+                    await _context.SaveChangesAsync();
+                    await transaction.CommitAsync();
                     return new ApiOkResponse(invoiceTransferDTO);
+                    }catch(Exception e)
+                    {
+                        _logger.LogError(e.Message);
+                        _logger.LogError(e.StackTrace);
+                        await transaction.RollbackAsync();
+                        return new ApiResponse(500);
+                    }
+            }
 
         }
 
@@ -845,6 +859,7 @@ namespace HaloBiz.MyServices.Impl
                 invoices = await _context.Invoices
                     .Where(x => x.IsFinalInvoice && !x.IsDeleted 
                             && x.DateToBeSent.Date == today && !x.IsInvoiceSent).ToListAsync();
+                
                 
                 foreach (var invoice in invoices)
                 {
