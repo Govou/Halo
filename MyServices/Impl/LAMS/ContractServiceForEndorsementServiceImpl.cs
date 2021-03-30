@@ -171,6 +171,14 @@ namespace HaloBiz.MyServices.Impl.LAMS
             return new ApiOkResponse(contractServicesToEndorseTransferDto);
         }
 
+        public async Task<ApiResponse> GetEndorsementDetailsById(long endorsementId)
+        {
+            var contractServiceForEndorsement = await _cntServiceForEndorsemntRepo.GetEndorsementDetailsById(endorsementId);
+            var contractServiceToEndorseTransferDto =
+                _mapper.Map<ContractServiceForEndorsementTransferDto>(contractServiceForEndorsement);
+            return new ApiOkResponse(contractServiceToEndorseTransferDto);
+        }
+
         public async Task<ApiResponse> GetAllPossibleEndorsementStartDate(long contractServiceId)
         {
             var possibleDates = await _cntServiceForEndorsemntRepo.FindAllPossibleEndorsementStartDate(contractServiceId);

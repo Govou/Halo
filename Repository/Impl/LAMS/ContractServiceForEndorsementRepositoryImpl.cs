@@ -28,6 +28,23 @@ namespace HaloBiz.Repository.Impl.LAMS
                 .Include(x => x.EndorsementType)
                 .FirstOrDefaultAsync(x => x.Id == Id && x.IsDeleted == false);
         }
+
+        public async Task<ContractServiceForEndorsement> GetEndorsementDetailsById(long endorsementId)
+        {
+            return await _context.ContractServiceForEndorsements.AsNoTracking()
+                .Include(x => x.EndorsementType)
+                .Include(x => x.Service)
+                .ThenInclude(x => x.OperatingEntity)
+                .Include(x => x.Service)
+                .ThenInclude(x => x.ServiceCategory)
+                .Include(x => x.Service)
+                .ThenInclude(x => x.Division)
+                .Include(x => x.Contract)
+                .Include(x => x.CreatedBy)
+                .Include(x => x.CustomerDivision)
+                .FirstOrDefaultAsync(x => x.Id == endorsementId && x.IsDeleted == false);
+        }
+
         public async Task<ContractServiceForEndorsement> SaveContractServiceForEndorsement(ContractServiceForEndorsement entity)
         {
             var contractServiceForEndorsementEntity = await _context.ContractServiceForEndorsements.AddAsync(entity);
