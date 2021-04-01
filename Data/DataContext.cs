@@ -731,6 +731,8 @@ namespace HaloBiz.Data
             builder.Entity<ModeOfTransport>()
                 .Property(p => p.CreatedAt)
                 .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            builder.Entity<UserProfile>().HasIndex(x => x.Email).IsUnique();
         }
     }
 }
