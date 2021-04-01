@@ -348,7 +348,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
             var financialVoucherType = await _context.FinanceVoucherTypes
                             .FirstOrDefaultAsync(x => x.VoucherType.ToLower() == salesVoucherName.ToLower());
 
-            await _leadConversionService.CreateTaskAndDeliverables(contractService, customerDivision.Id, this.loggedInUserId);
+            await _leadConversionService.CreateTaskAndDeliverables(contractService, customerDivision.Id, "Service Addition", this.loggedInUserId);
 
             await _leadConversionService.CreateAccounts(contractService,
                                                          customerDivision, 
@@ -385,7 +385,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
             var financialVoucherType = await _context.FinanceVoucherTypes
                             .FirstOrDefaultAsync(x => x.VoucherType.ToLower() == salesTopUpVoucher.ToLower());
 
-            await _leadConversionService.CreateTaskAndDeliverables(newContractService, customerDivision.Id, this.loggedInUserId);
+            await _leadConversionService.CreateTaskAndDeliverables(newContractService, customerDivision.Id, "Service Topup", this.loggedInUserId);
 
             if(string.IsNullOrWhiteSpace(contractServcieDifference.GroupInvoiceNumber))
             {
@@ -473,7 +473,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                             .FirstOrDefaultAsync(x => x.VoucherType.ToLower() == renewalVoucherName.ToLower());
 
 
-            await _leadConversionService.CreateTaskAndDeliverables(newContractService, customerDivision.Id, this.loggedInUserId);
+            await _leadConversionService.CreateTaskAndDeliverables(newContractService, customerDivision.Id, "Service Retention", this.loggedInUserId);
 
             await _leadConversionService.CreateAccounts(newContractService,
                                                          customerDivision,
