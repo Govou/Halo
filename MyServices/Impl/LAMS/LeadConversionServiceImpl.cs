@@ -62,6 +62,8 @@ namespace HaloBiz.MyServices.Impl.LAMS
                             .ThenInclude(x => x.LeadDivisionKeyPersons)
                         .Include(x => x.GroupType)
                         .FirstOrDefaultAsync(x => x.Id == leadId);
+
+                    if (lead.LeadConversionStatus) return false;
                     
                     Customer customer = await ConvertLeadToCustomer(lead, _context);
                     foreach (var leadDivision in lead.LeadDivisions)
