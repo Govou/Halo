@@ -457,7 +457,7 @@ namespace HaloBiz.MyServices.Impl
                     // How to tell branch head ?? skip.
                     if (approvalLimit.ApproverLevel.Caption == "Branch Head") continue;
 
-                    long responsibleId = GetWhoIsResponsible(approvalLimit, service, null);
+                    long responsibleId = GetWhoIsResponsible(approvalLimit, serviceWithExtraInfo, null);
 
                     var approval = new Approval
                     {
