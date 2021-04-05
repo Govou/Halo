@@ -213,6 +213,10 @@ namespace HaloBiz.Helpers
             CreateMap<ContractServiceForEndorsement, ContractService>();
             CreateMap<ModeOfTransportReceivingDTO, ModeOfTransport>();
             CreateMap<ModeOfTransport, ModeOfTransportTransferDTO>();
+            CreateMap<SupplierReceivingDTO, Supplier>();
+            CreateMap<Supplier, SupplierTransferDTO>();
+            CreateMap<SupplierCategoryReceivingDTO, SupplierCategory>();
+            CreateMap<SupplierCategory, SupplierCategoryTransferDTO>();
         }
     }
 }
