@@ -31,6 +31,15 @@ namespace HaloBiz.Controllers
             var supplierCategory = ((ApiOkResponse)response).Result;
             return Ok(supplierCategory);
         }
+        [HttpGet("{id}")]
+        public async Task<ActionResult> GetById(long id)
+        {
+            var response = await _supplierCategoryService.GetSupplierById(id);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var groupType = ((ApiOkResponse)response).Result;
+            return Ok(groupType);
+        }
 
         [HttpPost("")]
         public async Task<ActionResult> AddNewSupplier(SupplierReceivingDTO supplierCategoryReceiving)

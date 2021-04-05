@@ -11,5 +11,6 @@ namespace HaloBiz.MyServices
         Task<ApiResponse> GetAllSupplierCategories();
         Task<ApiResponse> UpdateSupplier(HttpContext context, long id, SupplierReceivingDTO supplierCategoryReceivingDTO);
         Task<ApiResponse> DeleteSupplier(long id);
+        Task<ApiResponse> GetSupplierById(long id);
     }
 }
