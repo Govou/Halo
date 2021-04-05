@@ -4,14 +4,16 @@ using HaloBiz.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace HaloBiz.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20210402135118_newTables")]
+    partial class newTables
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1543,9 +1545,6 @@ namespace HaloBiz.Migrations
                     b.Property<string>("Dropofflocation")
                         .HasMaxLength(1000)
                         .HasColumnType("nvarchar(1000)");
-
-                    b.Property<string>("EndorsementDescription")
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<long>("EndorsementTypeId")
                         .HasColumnType("bigint");
@@ -3994,9 +3993,6 @@ namespace HaloBiz.Migrations
                         .HasMaxLength(1000)
                         .HasColumnType("nvarchar(1000)");
 
-                    b.Property<long?>("EndorsementTypeId")
-                        .HasColumnType("bigint");
-
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
@@ -4011,8 +4007,6 @@ namespace HaloBiz.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("CreatedById");
-
-                    b.HasIndex("EndorsementTypeId");
 
                     b.HasIndex("ServiceCategoryId");
 
@@ -4625,7 +4619,7 @@ namespace HaloBiz.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Email")
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("FacebookHandle")
                         .HasMaxLength(255)
@@ -4686,10 +4680,6 @@ namespace HaloBiz.Migrations
                         .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("Email")
-                        .IsUnique()
-                        .HasFilter("[Email] IS NOT NULL");
 
                     b.HasIndex("RoleId");
 
@@ -6401,10 +6391,6 @@ namespace HaloBiz.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("HaloBiz.Model.LAMS.EndorsementType", "EndorsementType")
-                        .WithMany()
-                        .HasForeignKey("EndorsementTypeId");
-
                     b.HasOne("HaloBiz.Model.ServiceCategory", "ServiceCategory")
                         .WithMany("ServiceCategoryTasks")
                         .HasForeignKey("ServiceCategoryId")
@@ -6412,8 +6398,6 @@ namespace HaloBiz.Migrations
                         .IsRequired();
 
                     b.Navigation("CreatedBy");
-
-                    b.Navigation("EndorsementType");
 
                     b.Navigation("ServiceCategory");
                 });
