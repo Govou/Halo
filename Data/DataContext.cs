@@ -94,7 +94,11 @@ namespace HaloBiz.Data
     public DbSet<GroupInvoiceTracker> GroupInvoiceTracker { get; set; }
     public DbSet<SBUProportion> SBUProportions { get; set; }
     public DbSet<ModeOfTransport> ModeOfTransports { get; set; }
-    
+    public DbSet<SupplierCategory> SupplierCategories { get; set; }
+    public DbSet<Supplier> Suppliers { get; set; }
+    public DbSet<SupplierService> SupplierServices { get; set; }
+
+
     public DbSet<EndorsementTypeTracker> EndorsementTypeTrackers { get; set; }
     public DbSet<ContractServiceForEndorsement> ContractServiceForEndorsements{ get; set; }
 
@@ -729,6 +733,29 @@ namespace HaloBiz.Data
               .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
             builder.Entity<ModeOfTransport>()
+                .Property(p => p.CreatedAt)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            builder.Entity<SupplierCategory>()
+                .Property(p => p.UpdatedAt)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            builder.Entity<SupplierCategory>()
+                .Property(p => p.CreatedAt)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            builder.Entity<Supplier>()
+            .Property(p => p.UpdatedAt)
+            .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            builder.Entity<Supplier>()
+                .Property(p => p.CreatedAt)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP");
+            builder.Entity<SupplierService>()
+            .Property(p => p.UpdatedAt)
+            .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            builder.Entity<SupplierService>()
                 .Property(p => p.CreatedAt)
                 .HasDefaultValueSql("CURRENT_TIMESTAMP");
         }
