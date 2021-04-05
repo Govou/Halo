@@ -41,13 +41,13 @@ namespace HaloBiz.MyServices.Impl
 
         public async Task<ApiResponse> GetSupplierCategoryById(long id)
         {
-            var groupType = await _supplierCategoryRepo.FindSupplierCategoryById(id);
-            if (groupType == null)
+            var SupplierCategory = await _supplierCategoryRepo.FindSupplierCategoryById(id);
+            if (SupplierCategory == null)
             {
                 return new ApiResponse(404);
             }
-            var groupTypeTransferDTOs = _mapper.Map<GroupTypeTransferDTO>(groupType);
-            return new ApiOkResponse(groupTypeTransferDTOs);
+            var SupplierCategoryTransferDTOs = _mapper.Map<SupplierCategoryTransferDTO>(SupplierCategory);
+            return new ApiOkResponse(SupplierCategoryTransferDTOs);
         }
 
         public async Task<ApiResponse> DeleteSupplierCategory(long id)

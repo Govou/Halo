@@ -55,13 +55,13 @@ namespace HaloBiz.MyServices.Impl
         }
         public async Task<ApiResponse> GetSupplierServiceById(long id)
         {
-            var groupType = await _supplierCategoryRepo.FindSupplierServiceById(id);
-            if (groupType == null)
+            var SupplierService = await _supplierCategoryRepo.FindSupplierServiceById(id);
+            if (SupplierService == null)
             {
                 return new ApiResponse(404);
             }
-            var groupTypeTransferDTOs = _mapper.Map<GroupTypeTransferDTO>(groupType);
-            return new ApiOkResponse(groupTypeTransferDTOs);
+            var SupplierServiceTransferDTOs = _mapper.Map<SupplierServiceTransferDTO>(SupplierService);
+            return new ApiOkResponse(SupplierServiceTransferDTOs);
         }
         public async Task<ApiResponse> GetAllSupplierServiceCategories()
         {
