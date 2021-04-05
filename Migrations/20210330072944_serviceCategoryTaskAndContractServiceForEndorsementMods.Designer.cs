@@ -4,14 +4,16 @@ using HaloBiz.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace HaloBiz.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20210330072944_serviceCategoryTaskAndContractServiceForEndorsementMods")]
+    partial class serviceCategoryTaskAndContractServiceForEndorsementMods
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -4364,200 +4366,6 @@ namespace HaloBiz.Migrations
                     b.ToTable("StrategicBusinessUnits");
                 });
 
-            modelBuilder.Entity("HaloBiz.Model.Supplier", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint")
-                        .UseIdentityColumn();
-
-                    b.Property<string>("Address")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime2")
-                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
-
-                    b.Property<long>("CreatedById")
-                        .HasColumnType("bigint");
-
-                    b.Property<string>("Description")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("ImageUrl")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
-
-                    b.Property<long>("LGAId")
-                        .HasColumnType("bigint");
-
-                    b.Property<string>("MobileNumber")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("PrimaryContactEmail")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("PrimaryContactGender")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("PrimaryContactMobile")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("PrimaryContactName")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<long>("StateId")
-                        .HasColumnType("bigint");
-
-                    b.Property<string>("Street")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<long?>("SupplierCategoryId")
-                        .HasColumnType("bigint");
-
-                    b.Property<string>("SupplierEmail")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("SupplierName")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
-
-                    b.Property<DateTime>("UpdatedAt")
-                        .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("datetime2")
-                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CreatedById");
-
-                    b.HasIndex("LGAId");
-
-                    b.HasIndex("StateId");
-
-                    b.HasIndex("SupplierCategoryId");
-
-                    b.ToTable("Suppliers");
-                });
-
-            modelBuilder.Entity("HaloBiz.Model.SupplierCategory", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint")
-                        .UseIdentityColumn();
-
-                    b.Property<string>("CategoryName")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime2")
-                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
-
-                    b.Property<long>("CreatedById")
-                        .HasColumnType("bigint");
-
-                    b.Property<string>("Description")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
-
-                    b.Property<DateTime>("UpdatedAt")
-                        .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("datetime2")
-                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CreatedById");
-
-                    b.ToTable("SupplierCategories");
-                });
-
-            modelBuilder.Entity("HaloBiz.Model.SupplierService", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint")
-                        .UseIdentityColumn();
-
-                    b.Property<string>("AveragePrice")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime2")
-                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
-
-                    b.Property<long>("CreatedById")
-                        .HasColumnType("bigint");
-
-                    b.Property<string>("Description")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("IdentificationNumber")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("Make")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Model")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("ModelNumber")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("ReferenceNumber1")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("ReferenceNumber2")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("ReferenceNumber3")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("SerailNumber")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("ServiceName")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<string>("StandardDiscount")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<long>("SupplierId")
-                        .HasColumnType("bigint");
-
-                    b.Property<string>("UnitCostPrice")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("UpdatedAt")
-                        .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("datetime2")
-                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CreatedById");
-
-                    b.HasIndex("SupplierId");
-
-                    b.ToTable("SupplierServices");
-                });
-
             modelBuilder.Entity("HaloBiz.Model.Target", b =>
                 {
                     b.Property<long>("Id")
@@ -4625,7 +4433,7 @@ namespace HaloBiz.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Email")
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("FacebookHandle")
                         .HasMaxLength(255)
@@ -4686,10 +4494,6 @@ namespace HaloBiz.Migrations
                         .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("Email")
-                        .IsUnique()
-                        .HasFilter("[Email] IS NOT NULL");
 
                     b.HasIndex("RoleId");
 
@@ -6548,69 +6352,6 @@ namespace HaloBiz.Migrations
                         .IsRequired();
 
                     b.Navigation("OperatingEntity");
-                });
-
-            modelBuilder.Entity("HaloBiz.Model.Supplier", b =>
-                {
-                    b.HasOne("HaloBiz.Model.UserProfile", "CreatedBy")
-                        .WithMany()
-                        .HasForeignKey("CreatedById")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("HaloBiz.Model.LGA", "LGA")
-                        .WithMany()
-                        .HasForeignKey("LGAId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("HaloBiz.Model.State", "State")
-                        .WithMany()
-                        .HasForeignKey("StateId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("HaloBiz.Model.SupplierCategory", "SupplierCategory")
-                        .WithMany()
-                        .HasForeignKey("SupplierCategoryId");
-
-                    b.Navigation("CreatedBy");
-
-                    b.Navigation("LGA");
-
-                    b.Navigation("State");
-
-                    b.Navigation("SupplierCategory");
-                });
-
-            modelBuilder.Entity("HaloBiz.Model.SupplierCategory", b =>
-                {
-                    b.HasOne("HaloBiz.Model.UserProfile", "CreatedBy")
-                        .WithMany()
-                        .HasForeignKey("CreatedById")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("CreatedBy");
-                });
-
-            modelBuilder.Entity("HaloBiz.Model.SupplierService", b =>
-                {
-                    b.HasOne("HaloBiz.Model.UserProfile", "CreatedBy")
-                        .WithMany()
-                        .HasForeignKey("CreatedById")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("HaloBiz.Model.Supplier", "Supplier")
-                        .WithMany()
-                        .HasForeignKey("SupplierId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("CreatedBy");
-
-                    b.Navigation("Supplier");
                 });
 
             modelBuilder.Entity("HaloBiz.Model.Target", b =>

@@ -244,9 +244,16 @@ namespace HaloBiz.MyServices.Impl
 
         private async Task<ApiResponse> ConvertInvoiceToFinalInvoice(Invoice invoice)
         {
+            using(var transaction  = await _context.Database.BeginTransactionAsync())
+            {
+                try{
                     var contractService = await _context.ContractServices
                                 .Include(x => x.QuoteService)
                                 .FirstOrDefaultAsync(x => x.Id == invoice.ContractServiceId);
+
+                    contractService.AdHocInvoicedAmount+= invoice.Value;
+                    _context.ContractServices.Update(contractService);
+                    await _context.SaveChangesAsync();
 
                     var customerDivision = await _context.CustomerDivisions
                                         .Include(x => x.Customer)
@@ -266,17 +273,24 @@ namespace HaloBiz.MyServices.Impl
                     await PostAccounts(contractService, customerDivision, accountVoucherType.Id, 
                                         VAT, invoice.Value, service);
 
-                    contractService.AdHocInvoicedAmount+= invoice.Value;
-
-                    _context.ContractServices.Update(contractService);
+                    invoice.IsFinalInvoice = true;
                     _context.Invoices.Update(invoice);
                     await _context.SaveChangesAsync();
                     var invoiceTransferDTO = _mapper.Map<InvoiceTransferDTO>(invoice);
 
                     await GenerateAmortizations(contractService, customerDivision, 
                                    (double) contractService.BillableAmount, invoice.Value, invoice.DateToBeSent );
-                    
+                    await _context.SaveChangesAsync();
+                    await transaction.CommitAsync();
                     return new ApiOkResponse(invoiceTransferDTO);
+                    }catch(Exception e)
+                    {
+                        _logger.LogError(e.Message);
+                        _logger.LogError(e.StackTrace);
+                        await transaction.RollbackAsync();
+                        return new ApiResponse(500);
+                    }
+            }
 
         }
 
@@ -846,6 +860,7 @@ namespace HaloBiz.MyServices.Impl
                     .Where(x => x.IsFinalInvoice && !x.IsDeleted 
                             && x.DateToBeSent.Date == today && !x.IsInvoiceSent).ToListAsync();
                 
+                
                 foreach (var invoice in invoices)
                 {
                     invoice.IsInvoiceSent = await SendInvoice(invoice);
@@ -949,6 +964,8 @@ namespace HaloBiz.MyServices.Impl
         private async Task<InvoiceMailDTO> GenerateInvoiceMailDTO(Invoice invoice)
         {
                 var customerDivision = await _context.CustomerDivisions
+                                .Include(x => x.PrimaryContact)
+                                .Include(x => x.SecondaryContact)
                                 .Include(x => x.State)
                                 .Include(x => x.LGA)
                                 .FirstOrDefaultAsync(x => x.Id == invoice.CustomerDivisionId);
@@ -968,10 +985,17 @@ namespace HaloBiz.MyServices.Impl
 
                 double discount = 0.0;
                 double subTotal = 0.0;
+                double unInvoicedAmount = 0.0;
                 double VAT = 0.0;
                 string invoiceCycle = null;
                 string keyServiceName = "";
-                string[] recepients = new string[] {customerDivision.Email};
+                List<string> recepients = new List<string>();
+                recepients.Add(customerDivision.Email);
+                if(customerDivision.SecondaryContact != null)
+                    recepients.Add(customerDivision.SecondaryContact.Email);
+                
+                if(customerDivision.PrimaryContact != null)
+                    recepients.Add(customerDivision.PrimaryContact.Email);
                 List<ContractServiceMailDTO> contractServiceMailDTOs = new List<ContractServiceMailDTO>();
                 
                 foreach (var contractService in contractServices)
@@ -979,6 +1003,7 @@ namespace HaloBiz.MyServices.Impl
                     discount += contractService.Discount;
                     subTotal += (double)contractService.UnitPrice * (double) contractService.Quantity;
                     VAT += (double) contractService.VAT;
+                    unInvoicedAmount += ((double)contractService.BillableAmount - contractService.AdHocInvoicedAmount);
                     invoiceCycle = contractService.InvoicingInterval.ToString();
                     keyServiceName = contractService.Service.Name;
 
@@ -1009,12 +1034,13 @@ namespace HaloBiz.MyServices.Impl
                     Total = invoice.Value,
                     SubTotal = subTotal,
                     VAT = subTotal * (7.5 / 100),
+                    UnInvoicedAmount = unInvoicedAmount,
                     Discount = discount,
                     InvoicingCycle = invoiceCycle,
                     StartDate = invoice.StartDate,
                     EndDate = invoice.EndDate,
                     Subject = $"Invoice {invoice.InvoiceNumber} for {keyServiceName} due {invoice.EndDate.ToString("dddd, dd MMMM yyyy")}",
-                    Recepients = recepients,
+                    Recepients = recepients.ToArray(),
                     DaysUntilDeadline = (int) invoice.EndDate.Subtract(DateTime.Now).TotalDays,
                     ClientInfo = client,
                     ContractServices = contractServiceMailDTOs

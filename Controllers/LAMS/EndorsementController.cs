@@ -23,6 +23,16 @@ namespace Controllers.Controllers
             this._contractServiceForEndorsementService = contractServiceForEndorsementService;
         }
 
+        [HttpGet("GetEndorsementDetails/{endorsementId}")]
+        public async Task<ActionResult> GetEndorsementDetails(long endorsementId)
+        {
+            var response = await _contractServiceForEndorsementService.GetEndorsementDetailsById(endorsementId);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var endorsements = ((ApiOkResponse)response).Result;
+            return Ok(endorsements);
+        }
+
         [HttpGet("UnApprovedEndorsements")]
         public async Task<ActionResult> GetDropReason()
         {

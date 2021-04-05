@@ -62,6 +62,8 @@ namespace HaloBiz.MyServices.Impl.LAMS
                             .ThenInclude(x => x.LeadDivisionKeyPersons)
                         .Include(x => x.GroupType)
                         .FirstOrDefaultAsync(x => x.Id == leadId);
+
+                    if (lead.LeadConversionStatus) return false;
                     
                     Customer customer = await ConvertLeadToCustomer(lead, _context);
                     foreach (var leadDivision in lead.LeadDivisions)
@@ -302,7 +304,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
             await ConvertSBUToQuoteServicePropToSBUToContractServiceProp( quoteService.Id, contractService.Id, context);
             await ConvertQuoteServiceDocumentsToClosureDocuments(quoteService.Id, contractService.Id, context);
-            await CreateTaskAndDeliverables(contractService ,customerDivision.Id );
+            await CreateTaskAndDeliverables(contractService, customerDivision.Id, "New");
             
             if(contractService.InvoicingInterval != TimeCycle.Adhoc)
             { 
@@ -681,9 +683,9 @@ namespace HaloBiz.MyServices.Impl.LAMS
         }
 
 
-        public async Task<bool> CreateTaskAndDeliverables(ContractService contractServcie, long customerDivisionId, long? loggedInUserId = null)
+        public async Task<bool> CreateTaskAndDeliverables(ContractService contractServcie, long customerDivisionId, string endorsementType, long? loggedInUserId = null)
         {
-            var createdById =  loggedInUserId?? this.LoggedInUserId;
+            var createdById =  loggedInUserId?? this.LoggedInUserId; 
             Services service = await _context.Services.FirstOrDefaultAsync(x => x.Id == contractServcie.ServiceId); 
             if(service == null)
             {
@@ -692,7 +694,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
             IEnumerable<ServiceCategoryTask> serviceCategoryTasks = await _context.ServiceCategoryTasks
             .Include(x => x.ServiceTaskDeliverable)
-            .Where(x => x.ServiceCategoryId == service.ServiceCategoryId && x.IsDeleted == false).ToListAsync();
+            .Where(x => x.ServiceCategoryId == service.ServiceCategoryId && x.EndorsementType.Caption == endorsementType && x.IsDeleted == false).ToListAsync();
             
             foreach (var serviceTask in serviceCategoryTasks)
             {
@@ -738,7 +740,11 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
             await _context.SaveChangesAsync();
 
-            await SendNewTaskAssignedMail(task.Entity);
+            var taskFulfilment = await _context.TaskFulfillments.AsNoTracking().
+                Where(x => x.Id == task.Entity.Id)
+                .SingleOrDefaultAsync();
+
+            await SendNewTaskAssignedMail(taskFulfilment, contractServcie.Service.OperatingEntity.Name);
             
             foreach (var deliverable in serviceTask.ServiceTaskDeliverable)
             {
@@ -1126,13 +1132,15 @@ namespace HaloBiz.MyServices.Impl.LAMS
             return priceOfService * numberOfMonth;
         }
 
-        private async Task SendNewTaskAssignedMail(TaskFulfillment taskFulfillment)
+        private async Task SendNewTaskAssignedMail(TaskFulfillment taskFulfillment, string operatingEntityName)
         {
-            taskFulfillment.Responsible = await _context.UserProfiles.FindAsync(taskFulfillment.ResponsibleId);
+            taskFulfillment.Responsible = await _context.UserProfiles.AsNoTracking().Where(x => x.Id == taskFulfillment.ResponsibleId).SingleOrDefaultAsync();
+            taskFulfillment.CustomerDivision = await _context.CustomerDivisions.AsNoTracking().Where(x => x.Id == taskFulfillment.CustomerDivisionId).SingleOrDefaultAsync();
+
             var serializedTask = JsonConvert.SerializeObject(taskFulfillment, new JsonSerializerSettings { ReferenceLoopHandling = ReferenceLoopHandling.Ignore });
             Action action = async () =>
             {
-                await _mailAdapter.SendNewTaskAssigned(serializedTask);
+                await _mailAdapter.SendNewTaskAssigned(serializedTask, operatingEntityName);
             };
             action.RunAsTask();
         }

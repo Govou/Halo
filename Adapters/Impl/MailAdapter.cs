@@ -87,7 +87,7 @@ namespace HaloBiz.Adapters.Impl
             }
         }
 
-        public async Task<ApiResponse> SendNewTaskAssigned(string serializedTask)
+        public async Task<ApiResponse> SendNewTaskAssigned(string serializedTask, string operatingEntityName)
         {
             var baseUrl = $"{_mailBaseUrl}/Mail/NewTaskAssigned";
 
