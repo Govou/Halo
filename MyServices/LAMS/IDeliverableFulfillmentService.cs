@@ -20,5 +20,6 @@ namespace HaloBiz.MyServices.LAMS
         Task<ApiResponse> SetRequestedForValidation(HttpContext context, long id,  DeliverableFulfillmentApprovalReceivingDTO dto);
         Task<ApiResponse> SetDeliveredStatus(HttpContext context, long id);
         Task<ApiResponse> GetUserDeliverableFulfillmentStat(long userId);
+        Task<ApiResponse> GetUserDeliverableFulfillmentDashboard(long userId);
     }
 }

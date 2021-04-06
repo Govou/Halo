@@ -152,6 +152,21 @@ namespace HaloBiz.MyServices.Impl.LAMS
             }
         }
 
+        public async Task<ApiResponse> GetUserDeliverableFulfillmentDashboard(long userId)
+        {
+            try
+            {
+                var stat = await _deliverableFulfillmentRepo.GetUserDeliverableDashboard(userId);
+                return new ApiOkResponse(stat);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e.Message);
+                _logger.LogError(e.StackTrace);
+                return new ApiResponse(500);
+            }
+        }
+
         public async Task<ApiResponse> UpdateDeliverableFulfillment(HttpContext context, long deliverableId, DeliverableFulfillmentReceivingDTO deliverableFulfillmentReceivingDTO)
         {
             var isUpdateToAssignResponsible = false;
