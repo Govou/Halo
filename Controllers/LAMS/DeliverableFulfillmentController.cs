@@ -73,6 +73,16 @@ namespace Controllers.Controllers
             return Ok(stat);
         }
 
+        [HttpGet("GetDeliverableDashboard/{userId}")]
+        public async Task<ActionResult> GetUserDeliverableDashboard(long userId)
+        {
+            var response = await _deliverableFulfillmentService.GetUserDeliverableFulfillmentDashboard(userId);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var stat = ((ApiOkResponse)response).Result;
+            return Ok(stat);
+        }
+
         [HttpPost("")]
         public async Task<ActionResult> AddNewDeliverableFulfillment(DeliverableFulfillmentReceivingDTO deliverableFulfillmentReceiving)
         {

@@ -128,6 +128,23 @@ namespace HaloBiz.Repository.Impl.LAMS
                 };
         }
 
+        public async Task<object> GetUserDeliverableDashboard(long userId) 
+        {
+            var userDeliverableInWorkBench = await _context.DeliverableFulfillments
+                .Where(x => x.ResponsibleId == userId && x.DeliverableStatus == false
+                     && x.IsDeleted == false).CountAsync();
+
+            var completedDeliverable = await _context.DeliverableFulfillments
+                    .Where(x => x.ResponsibleId == userId && x.DeliverableStatus == true
+                     && x.IsDeleted == false).CountAsync();
+
+            return new 
+            {
+                userDeliverableInWorkBench,
+                completedDeliverable
+            };
+        }
+
         public bool CheckIfDeliverableAtRisk(DateTime? start, DateTime? end)
         {
             if(end < DateTime.Now || start == null || end == null) 
