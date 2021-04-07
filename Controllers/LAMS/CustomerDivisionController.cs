@@ -59,6 +59,16 @@ namespace HaloBiz.Controllers.LAMS
             return Ok(CustomerDivision);
         }
 
+        [HttpGet("GetClientsWithSecuredMobilityContractServices")]
+        public async Task<ActionResult> GetClientsWithSecuredMobilityContractServices()
+        {
+            var response = await _CustomerDivisionService.GetClientsWithSecuredMobilityContractServices();
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var CustomerDivision = ((ApiOkResponse)response).Result;
+            return Ok(CustomerDivision);
+        }
+
         [HttpGet("ContractsBreakDown/{customerDivsionId}")]
         public async Task<ActionResult> GetContractBreakDownId(long customerDivsionId)
         {

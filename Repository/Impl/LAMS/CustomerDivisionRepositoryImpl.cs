@@ -191,5 +191,17 @@ namespace HaloBiz.Repository.Impl.LAMS
                 return false;
             }
         }
+
+        public Task<List<CustomerDivision>> GetClientsWithSecuredMobilityContractServices()
+        {
+            var clients = _context.CustomerDivisions
+                .Where(x => x.Contracts.Any(x => x.ContractServices.Any(x => x.Service.ServiceCategory.Name == "Secured Mobility")))
+                .Include(x => x.Contracts)
+                .ThenInclude(x => x.ContractServices)
+                .ThenInclude(x => x.Service)
+                .ToListAsync();
+
+            return clients;
+        }
     }
 }

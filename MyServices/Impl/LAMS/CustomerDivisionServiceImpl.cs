@@ -189,5 +189,16 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
 
         }
+
+        public async Task<ApiResponse> GetClientsWithSecuredMobilityContractServices()
+        {
+            var CustomerDivisions = await _CustomerDivisionRepo.GetClientsWithSecuredMobilityContractServices();
+            if (CustomerDivisions == null)
+            {
+                return new ApiResponse(404);
+            }
+            var CustomerDivisionTransferDTOs = _mapper.Map<IEnumerable<CustomerDivisionTransferDTO>>(CustomerDivisions);
+            return new ApiOkResponse(CustomerDivisionTransferDTOs);
+        }
     }
 }
