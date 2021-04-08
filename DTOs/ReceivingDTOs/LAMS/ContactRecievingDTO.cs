@@ -16,7 +16,7 @@ namespace HaloBiz.DTOs.ReceivingDTOs.LAMS
         [RegularExpression("^[_A-Za-z0-9-\\+]+(\\.[_A-Za-z0-9-]+)*@[A-Za-z0-9-]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$", ErrorMessage="Invalid Email Address")]
         public string Email { get; set; }
         [Required]
-        public string Designation { get; set; }
+        public long DesignationId { get; set; }
         [Required]
         public DateTime DateOfBirth { get; set; }
        

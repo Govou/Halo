@@ -77,7 +77,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
             LeadDivisionKeyPersonToUpdate.FirstName = LeadDivisionKeyPersonReceivingDTO.FirstName;
             LeadDivisionKeyPersonToUpdate.LastName = LeadDivisionKeyPersonReceivingDTO.LastName;
             LeadDivisionKeyPersonToUpdate.DateOfBirth = LeadDivisionKeyPersonReceivingDTO.DateOfBirth;
-            LeadDivisionKeyPersonToUpdate.Designation = LeadDivisionKeyPersonReceivingDTO.Designation;
+            LeadDivisionKeyPersonToUpdate.DesignationId = LeadDivisionKeyPersonReceivingDTO.DesignationId;
             LeadDivisionKeyPersonToUpdate.Email = LeadDivisionKeyPersonReceivingDTO.Email;
             LeadDivisionKeyPersonToUpdate.MobileNumber = LeadDivisionKeyPersonReceivingDTO.MobileNumber;
             

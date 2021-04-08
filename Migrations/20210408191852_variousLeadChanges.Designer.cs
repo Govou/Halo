@@ -4,14 +4,16 @@ using HaloBiz.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace HaloBiz.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20210408191852_variousLeadChanges")]
+    partial class variousLeadChanges
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -2322,9 +2324,6 @@ namespace HaloBiz.Migrations
                         .HasColumnType("bigint")
                         .UseIdentityColumn();
 
-                    b.Property<long>("ClientContactQualificationId")
-                        .HasColumnType("bigint");
-
                     b.Property<DateTime>("CreatedAt")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("datetime2")
@@ -2336,8 +2335,9 @@ namespace HaloBiz.Migrations
                     b.Property<DateTime>("DateOfBirth")
                         .HasColumnType("datetime2");
 
-                    b.Property<long>("DesignationId")
-                        .HasColumnType("bigint");
+                    b.Property<string>("Designation")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Email")
                         .HasColumnType("nvarchar(max)");
@@ -2373,11 +2373,7 @@ namespace HaloBiz.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ClientContactQualificationId");
-
                     b.HasIndex("CreatedById");
-
-                    b.HasIndex("DesignationId");
 
                     b.ToTable("LeadContacts");
                 });
@@ -2495,9 +2491,6 @@ namespace HaloBiz.Migrations
                         .HasColumnType("bigint")
                         .UseIdentityColumn();
 
-                    b.Property<long>("ClientContactQualificationId")
-                        .HasColumnType("bigint");
-
                     b.Property<DateTime>("CreatedAt")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("datetime2")
@@ -2509,8 +2502,9 @@ namespace HaloBiz.Migrations
                     b.Property<DateTime>("DateOfBirth")
                         .HasColumnType("datetime2");
 
-                    b.Property<long>("DesignationId")
-                        .HasColumnType("bigint");
+                    b.Property<string>("Designation")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Email")
                         .HasColumnType("nvarchar(max)");
@@ -2546,11 +2540,7 @@ namespace HaloBiz.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ClientContactQualificationId");
-
                     b.HasIndex("CreatedById");
-
-                    b.HasIndex("DesignationId");
 
                     b.ToTable("LeadDivisionContacts");
                 });
@@ -2561,9 +2551,6 @@ namespace HaloBiz.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bigint")
                         .UseIdentityColumn();
-
-                    b.Property<long>("ClientContactQualificationId")
-                        .HasColumnType("bigint");
 
                     b.Property<DateTime>("CreatedAt")
                         .ValueGeneratedOnAdd()
@@ -2579,8 +2566,9 @@ namespace HaloBiz.Migrations
                     b.Property<DateTime>("DateOfBirth")
                         .HasColumnType("datetime2");
 
-                    b.Property<long>("DesignationId")
-                        .HasColumnType("bigint");
+                    b.Property<string>("Designation")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Email")
                         .HasColumnType("nvarchar(max)");
@@ -2616,13 +2604,9 @@ namespace HaloBiz.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ClientContactQualificationId");
-
                     b.HasIndex("CreatedById");
 
                     b.HasIndex("CustomerDivisionId");
-
-                    b.HasIndex("DesignationId");
 
                     b.HasIndex("LeadDivisionId");
 
@@ -2701,9 +2685,6 @@ namespace HaloBiz.Migrations
                         .HasColumnType("bigint")
                         .UseIdentityColumn();
 
-                    b.Property<long>("ClientContactQualificationId")
-                        .HasColumnType("bigint");
-
                     b.Property<DateTime>("CreatedAt")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("datetime2")
@@ -2721,8 +2702,9 @@ namespace HaloBiz.Migrations
                     b.Property<DateTime>("DateOfBirth")
                         .HasColumnType("datetime2");
 
-                    b.Property<long>("DesignationId")
-                        .HasColumnType("bigint");
+                    b.Property<string>("Designation")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Email")
                         .HasColumnType("nvarchar(max)");
@@ -2758,15 +2740,11 @@ namespace HaloBiz.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ClientContactQualificationId");
-
                     b.HasIndex("CreatedById");
 
                     b.HasIndex("CustomerDivisionId");
 
                     b.HasIndex("CustomerId");
-
-                    b.HasIndex("DesignationId");
 
                     b.HasIndex("LeadId");
 
@@ -5996,29 +5974,13 @@ namespace HaloBiz.Migrations
 
             modelBuilder.Entity("HaloBiz.Model.LAMS.LeadContact", b =>
                 {
-                    b.HasOne("HaloBiz.Model.ClientContactQualification", "ClientContactQualification")
-                        .WithMany()
-                        .HasForeignKey("ClientContactQualificationId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("HaloBiz.Model.UserProfile", "CreatedBy")
                         .WithMany()
                         .HasForeignKey("CreatedById")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("HaloBiz.Model.Designation", "Designation")
-                        .WithMany()
-                        .HasForeignKey("DesignationId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("ClientContactQualification");
-
                     b.Navigation("CreatedBy");
-
-                    b.Navigation("Designation");
                 });
 
             modelBuilder.Entity("HaloBiz.Model.LAMS.LeadDivision", b =>
@@ -6092,39 +6054,17 @@ namespace HaloBiz.Migrations
 
             modelBuilder.Entity("HaloBiz.Model.LAMS.LeadDivisionContact", b =>
                 {
-                    b.HasOne("HaloBiz.Model.ClientContactQualification", "ClientContactQualification")
-                        .WithMany()
-                        .HasForeignKey("ClientContactQualificationId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("HaloBiz.Model.UserProfile", "CreatedBy")
                         .WithMany()
                         .HasForeignKey("CreatedById")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("HaloBiz.Model.Designation", "Designation")
-                        .WithMany()
-                        .HasForeignKey("DesignationId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("ClientContactQualification");
-
                     b.Navigation("CreatedBy");
-
-                    b.Navigation("Designation");
                 });
 
             modelBuilder.Entity("HaloBiz.Model.LAMS.LeadDivisionKeyPerson", b =>
                 {
-                    b.HasOne("HaloBiz.Model.ClientContactQualification", "ClientContactQualification")
-                        .WithMany()
-                        .HasForeignKey("ClientContactQualificationId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("HaloBiz.Model.UserProfile", "CreatedBy")
                         .WithMany()
                         .HasForeignKey("CreatedById")
@@ -6135,25 +6075,15 @@ namespace HaloBiz.Migrations
                         .WithMany()
                         .HasForeignKey("CustomerDivisionId");
 
-                    b.HasOne("HaloBiz.Model.Designation", "Designation")
-                        .WithMany()
-                        .HasForeignKey("DesignationId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("HaloBiz.Model.LAMS.LeadDivision", "LeadDivision")
                         .WithMany("LeadDivisionKeyPersons")
                         .HasForeignKey("LeadDivisionId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("ClientContactQualification");
-
                     b.Navigation("CreatedBy");
 
                     b.Navigation("CustomerDivision");
-
-                    b.Navigation("Designation");
 
                     b.Navigation("LeadDivision");
                 });
@@ -6199,12 +6129,6 @@ namespace HaloBiz.Migrations
 
             modelBuilder.Entity("HaloBiz.Model.LAMS.LeadKeyPerson", b =>
                 {
-                    b.HasOne("HaloBiz.Model.ClientContactQualification", "ClientContactQualification")
-                        .WithMany()
-                        .HasForeignKey("ClientContactQualificationId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("HaloBiz.Model.UserProfile", "CreatedBy")
                         .WithMany()
                         .HasForeignKey("CreatedById")
@@ -6219,25 +6143,15 @@ namespace HaloBiz.Migrations
                         .WithMany("KeyPeople")
                         .HasForeignKey("CustomerId");
 
-                    b.HasOne("HaloBiz.Model.Designation", "Designation")
-                        .WithMany()
-                        .HasForeignKey("DesignationId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("HaloBiz.Model.LAMS.Lead", "Lead")
                         .WithMany("LeadKeyPersons")
                         .HasForeignKey("LeadId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("ClientContactQualification");
-
                     b.Navigation("CreatedBy");
 
                     b.Navigation("Customer");
-
-                    b.Navigation("Designation");
 
                     b.Navigation("Lead");
                 });
