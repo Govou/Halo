@@ -82,7 +82,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
             leadKeyPersonToUpdate.FirstName = leadKeyPersonReceivingDTO.FirstName;
             leadKeyPersonToUpdate.LastName = leadKeyPersonReceivingDTO.LastName;
             leadKeyPersonToUpdate.DateOfBirth = leadKeyPersonReceivingDTO.DateOfBirth;
-            leadKeyPersonToUpdate.Designation = leadKeyPersonReceivingDTO.Designation;
+            leadKeyPersonToUpdate.DesignationId = leadKeyPersonReceivingDTO.DesignationId;
             leadKeyPersonToUpdate.Email = leadKeyPersonReceivingDTO.Email;
             leadKeyPersonToUpdate.MobileNumber = leadKeyPersonReceivingDTO.MobileNumber;
             

@@ -97,10 +97,12 @@ namespace HaloBiz.Data
     public DbSet<SupplierCategory> SupplierCategories { get; set; }
     public DbSet<Supplier> Suppliers { get; set; }
     public DbSet<SupplierService> SupplierServices { get; set; }
-
-
     public DbSet<EndorsementTypeTracker> EndorsementTypeTrackers { get; set; }
     public DbSet<ContractServiceForEndorsement> ContractServiceForEndorsements{ get; set; }
+    public DbSet<EngagementType> EngagementTypes { get; set; }
+    public DbSet<LeadEngagement> LeadEngagements { get; set; }
+    public DbSet<ClientEngagement> ClientEngagements{ get; set; }
+    public DbSet<ClientContactQualification> ClientContactQualifications{ get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder builder)
@@ -760,6 +762,38 @@ namespace HaloBiz.Data
                 .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
             builder.Entity<UserProfile>().HasIndex(x => x.Email).IsUnique();
+
+            builder.Entity<EngagementType>()
+            .Property(p => p.UpdatedAt)
+            .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            builder.Entity<EngagementType>()
+                .Property(p => p.CreatedAt)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            builder.Entity<LeadEngagement>()
+            .Property(p => p.UpdatedAt)
+            .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            builder.Entity<LeadEngagement>()
+                .Property(p => p.CreatedAt)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            builder.Entity<ClientEngagement>()
+            .Property(p => p.UpdatedAt)
+            .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            builder.Entity<ClientEngagement>()
+                .Property(p => p.CreatedAt)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            builder.Entity<ClientContactQualification>()
+            .Property(p => p.UpdatedAt)
+            .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            builder.Entity<ClientContactQualification>()
+                .Property(p => p.CreatedAt)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP");
         }
     }
 }
