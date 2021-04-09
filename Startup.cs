@@ -170,6 +170,10 @@ namespace HaloBiz
             services.AddScoped<ISupplierCategoryService, SupplierCategoryServiceImpl>();
             services.AddScoped<ISupplierService, SupplierServiceImpl>();
             services.AddScoped<ISupplierServiceService, SupplierServiceServiceImpl>();
+            services.AddScoped<IClientEngagementService, ClientEngagementServiceImpl>();
+            services.AddScoped<ILeadEngagementService, LeadEngagementServiceImpl>();
+            services.AddScoped<IClientContactQualificationService, ClientContactQualificationServiceImpl>();
+            services.AddScoped<IEngagementTypeService, EngagementTypeServiceImpl>();
 
             //repositories
             services.AddScoped<IStateRepository, StateRepositoryImpl>();
@@ -247,6 +251,10 @@ namespace HaloBiz
             services.AddScoped<ISupplierRepository, SupplierRepositoryImpl>();
             services.AddScoped<ISupplierServiceRepository, SupplierServiceRepositoryImpl>();
             services.AddScoped<ISupplierCategoryRepository, SupplierCategoryRepositoryImpl>();
+            services.AddScoped<IClientEngagementRepository, ClientEngagementRepositoryImpl>();
+            services.AddScoped<ILeadEngagementRepository, LeadEngagementRepositoryImpl>();
+            services.AddScoped<IClientContactQualificationRepository, ClientContactQualificationRepositoryImpl>();
+            services.AddScoped<IEngagementTypeRepository, EngagementTypeRepositoryImpl>();
             // Adapters
             services.AddScoped<IMailAdapter, MailAdapter>();
 
