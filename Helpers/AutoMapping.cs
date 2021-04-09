@@ -219,6 +219,14 @@ namespace HaloBiz.Helpers
             CreateMap<SupplierCategory, SupplierCategoryTransferDTO>();
             CreateMap<SupplierServiceReceivingDTO, SupplierService>();
             CreateMap<SupplierService, SupplierServiceTransferDTO>();
+            CreateMap<ClientEngagementReceivingDTO, ClientEngagement>();
+            CreateMap<ClientEngagement, ClientEngagementTransferDTO>();
+            CreateMap<LeadEngagementReceivingDTO, LeadEngagement>();
+            CreateMap<LeadEngagement, LeadEngagementTransferDTO>();
+            CreateMap<ClientContactQualificationReceivingDTO, ClientContactQualification>();
+            CreateMap<ClientContactQualification, ClientContactQualificationTransferDTO>();
+            CreateMap<EngagementTypeReceivingDTO, EngagementType>();
+            CreateMap<EngagementType, EngagementTypeTransferDTO>();
         }
     }
 }
