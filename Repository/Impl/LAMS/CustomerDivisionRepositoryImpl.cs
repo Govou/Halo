@@ -75,12 +75,17 @@ namespace HaloBiz.Repository.Impl.LAMS
             return taskFulfillments;
         }
 
-        public async Task<IEnumerable<CustomerDivision>> FindAllCustomerDivision()
+        public async Task<IEnumerable<object>> FindAllCustomerDivision()
         {
-            return await _context.CustomerDivisions
+            /*return await _context.CustomerDivisions
                 .Include(x => x.Customer)
                 .Where(entity => entity.IsDeleted == false)
                 .OrderByDescending(entity => entity.DivisionName)
+                .ToListAsync();*/
+
+            return await _context.CustomerDivisions.Where(x => !x.IsDeleted)
+                .OrderBy(x => x.DivisionName)
+                .Select(x => new { Id = x.Id, DivisionName = x.DivisionName })
                 .ToListAsync();
         }
         public async Task<IEnumerable<object>> FindCustomerDivisionsByGroupType(long groupTypeId)

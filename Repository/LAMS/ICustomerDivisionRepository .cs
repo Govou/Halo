@@ -16,7 +16,7 @@ namespace HaloBiz.Repository
         Task<List<CustomerDivision>> GetClientsWithSecuredMobilityContractServices();
         Task<CustomerDivision> GetCustomerDivisionBreakDownById(long id);
         Task<CustomerDivision> FindCustomerDivisionByName(string name);
-        Task<IEnumerable<CustomerDivision>> FindAllCustomerDivision();
+        Task<IEnumerable<object>> FindAllCustomerDivision();
          Task<List<ContractToPaidAmountTransferDTO>> GetPaymentsPerContractByCustomerDivisionId(long customerId);
         Task<CustomerDivision> UpdateCustomerDivision(CustomerDivision entity);
         Task<bool> DeleteCustomerDivision(CustomerDivision entity);
