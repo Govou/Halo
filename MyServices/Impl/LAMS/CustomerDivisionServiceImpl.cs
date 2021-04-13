@@ -75,8 +75,8 @@ namespace HaloBiz.MyServices.Impl.LAMS
             {
                 return new ApiResponse(404);
             }
-            var CustomerDivisionTransferDTOs = _mapper.Map<IEnumerable<CustomerDivisionTransferDTO>>(CustomerDivisions);
-            return new ApiOkResponse(CustomerDivisionTransferDTOs);
+            // var CustomerDivisionTransferDTOs = _mapper.Map<IEnumerable<CustomerDivisionTransferDTO>>(CustomerDivisions);
+            return new ApiOkResponse(CustomerDivisions);
         }
         public async Task<ApiResponse> GetCustomerDivisionsByGroupType(long groupTypeId)
         {
