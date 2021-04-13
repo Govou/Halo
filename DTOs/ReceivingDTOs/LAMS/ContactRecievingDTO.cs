@@ -18,6 +18,8 @@ namespace HaloBiz.DTOs.ReceivingDTOs.LAMS
         [Required]
         public long DesignationId { get; set; }
         [Required]
+        public long ClientContactQualificationId { get; set; }
+        [Required]
         public DateTime DateOfBirth { get; set; }
        
     }

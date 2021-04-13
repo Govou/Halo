@@ -105,6 +105,8 @@ namespace HaloBiz.Repository.Impl.LAMS
                                             .ThenInclude(x => x.SBUToQuoteServiceProportions.Where(x => x.IsDeleted == false))
                                     .Where(division => division.LeadId == lead.Id).ToListAsync();
             lead.LeadKeyPersons = await _context.LeadKeyPeople
+                                    .Include(x => x.Designation)
+                                    .Include(x => x.ClientContactQualification)
                                     .Where(x => x.LeadId == lead.Id && x.IsDeleted == false).ToListAsync();
             if(lead.LeadKeyPersons != null)
             {
