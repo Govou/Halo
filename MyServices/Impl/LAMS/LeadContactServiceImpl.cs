@@ -126,8 +126,11 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
                     leadContactToUpdate.FirstName = leadContactReceivingDTO.FirstName;
                     leadContactToUpdate.LastName = leadContactReceivingDTO.LastName;
+                    leadContactToUpdate.Gender = leadContactReceivingDTO.Gender;
+                    leadContactToUpdate.Title = leadContactReceivingDTO.Title;
                     leadContactToUpdate.DateOfBirth = leadContactReceivingDTO.DateOfBirth;
                     leadContactToUpdate.DesignationId = leadContactReceivingDTO.DesignationId;
+                    leadContactToUpdate.ClientContactQualificationId = leadContactReceivingDTO.ClientContactQualificationId;
                     leadContactToUpdate.Email = leadContactReceivingDTO.Email;
                     leadContactToUpdate.MobileNumber = leadContactReceivingDTO.MobileNumber;
                     
