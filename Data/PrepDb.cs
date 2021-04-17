@@ -14,14 +14,8 @@ namespace HaloBiz.Data
         {
             using(var serviceScope = app.ApplicationServices.CreateScope())
             {
-                SeedData(serviceScope.ServiceProvider.GetService<DataContext>());
                 SetUpApplicationClaims(serviceScope.ServiceProvider.GetService<DataContext>());
             }
-        }
-
-        public static void SeedData(DataContext context)
-        {
-            context.Database.Migrate();
         }
 
         public static void SetUpApplicationClaims(DataContext context) 
