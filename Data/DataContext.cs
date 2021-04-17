@@ -117,7 +117,7 @@ namespace HaloBiz.Data
             builder.Entity<ServiceRequredServiceQualificationElement>()
                 .HasKey(sc => new {sc.RequredServiceQualificationElementId, sc.ServicesId});
 
-            builder.Entity<State>()
+            /*builder.Entity<State>()
                .Property(p => p.UpdatedAt   )
                .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
@@ -793,7 +793,7 @@ namespace HaloBiz.Data
 
             builder.Entity<ClientContactQualification>()
                 .Property(p => p.CreatedAt)
-                .HasDefaultValueSql("CURRENT_TIMESTAMP");
+                .HasDefaultValueSql("CURRENT_TIMESTAMP");*/
         }
     }
 }
