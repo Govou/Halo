@@ -36,6 +36,13 @@ namespace HaloBiz.Repository.Impl.LAMS
                 .FirstOrDefaultAsync( leadEngagement => leadEngagement.Id == Id && leadEngagement.IsDeleted == false);
         }
 
+        public async Task<List<LeadEngagement>> FindLeadEngagementsByLeadId(long leadId)
+        {
+            return await _context.LeadEngagements
+                .Where(leadEngagement => leadEngagement.LeadId == leadId && leadEngagement.IsDeleted == false)
+                .ToListAsync();
+        }
+
         public async Task<LeadEngagement> FindLeadEngagementByName(string name)
         {
             return await _context.LeadEngagements

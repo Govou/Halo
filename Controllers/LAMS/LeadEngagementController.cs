@@ -51,6 +51,16 @@ namespace Controllers.Controllers
             return Ok(leadEngagement);
         }
 
+        [HttpGet("GetLeadEngagementsByLeadId/{leadId}")]
+        public async Task<ActionResult> FindLeadEngagementsByLeadId(long leadId)
+        {
+            var response = await _leadEngagementService.FindLeadEngagementsByLeadId(leadId);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var leadEngagement = ((ApiOkResponse)response).Result;
+            return Ok(leadEngagement);
+        }
+
         [HttpPost("")]
         public async Task<ActionResult> AddNewLeadEngagement(LeadEngagementReceivingDTO leadEngagementReceiving)
         {

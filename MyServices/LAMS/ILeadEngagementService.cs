@@ -10,6 +10,7 @@ namespace HaloBiz.MyServices.LAMS
         Task<ApiResponse> AddLeadEngagement(HttpContext context, LeadEngagementReceivingDTO leadEngagementReceivingDTO);
         Task<ApiResponse> GetAllLeadEngagement();
         Task<ApiResponse> GetLeadEngagementById(long id);
+        Task<ApiResponse> FindLeadEngagementsByLeadId(long leadId);
         Task<ApiResponse> GetLeadEngagementByName(string name);
         Task<ApiResponse> UpdateLeadEngagement(HttpContext context, long id, LeadEngagementReceivingDTO leadEngagementReceivingDTO);
         Task<ApiResponse> DeleteLeadEngagement(long id);

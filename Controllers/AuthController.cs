@@ -89,7 +89,7 @@ namespace HaloBiz.Controllers
 
             var userProfileDTO = authUserProfileReceivingDTO.UserProfile;
 
-            userProfileDTO.RoleId = userProfileDTO.IsSuperAdmin() ? 2 : 1;
+            userProfileDTO.RoleId = userProfileDTO.IsSuperAdmin() ? 1 : 2;
 
             var response = await userProfileService.AddUserProfile(userProfileDTO);
 

@@ -67,6 +67,17 @@ namespace HaloBiz.MyServices.Impl.LAMS
             return new ApiOkResponse(leadEngagementTransferDTOs);
         }
 
+        public async Task<ApiResponse> FindLeadEngagementsByLeadId(long leadId)
+        {
+            var leadEngagement = await _leadEngagementRepo.FindLeadEngagementsByLeadId(leadId);
+            if (leadEngagement == null)
+            {
+                return new ApiResponse(404);
+            }
+            var leadEngagementTransferDTOs = _mapper.Map<List<LeadEngagementTransferDTO>>(leadEngagement);
+            return new ApiOkResponse(leadEngagementTransferDTOs);
+        }
+
         public async Task<ApiResponse> GetLeadEngagementByName(string name)
         {
             var leadEngagement = await _leadEngagementRepo.FindLeadEngagementByName(name);
@@ -94,9 +105,8 @@ namespace HaloBiz.MyServices.Impl.LAMS
             leadEngagementToUpdate.EngagementOutcome = leadEngagementReceivingDTO.EngagementOutcome;
             leadEngagementToUpdate.EngagementTypeId = leadEngagementReceivingDTO.EngagementTypeId;
             leadEngagementToUpdate.LeadCaptureStage = leadEngagementReceivingDTO.LeadCaptureStage;
+            leadEngagementToUpdate.ReasonForEngagement = leadEngagementReceivingDTO.ReasonForEngagement;
             leadEngagementToUpdate.LeadId = leadEngagementReceivingDTO.LeadId;
-            leadEngagementToUpdate.LeadKeyContactId = leadEngagementReceivingDTO.LeadKeyContactId;
-            leadEngagementToUpdate.LeadKeyPersonId = leadEngagementReceivingDTO.LeadKeyPersonId;
             var updatedLeadEngagement = await _leadEngagementRepo.UpdateLeadEngagement(leadEngagementToUpdate);
 
             summary += $"Details after change, \n {updatedLeadEngagement.ToString()} \n";
