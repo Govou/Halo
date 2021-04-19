@@ -1,12 +1,22 @@
+using HaloBiz.Model.ManyToManyRelationship;
 using HaloBiz.Model.RoleManagement;
+using Microsoft.EntityFrameworkCore;
 using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace HaloBiz.Model
 {
+    [Index(nameof(RoleId), Name = "IX_UserProfiles_RoleId")]
+    [Index(nameof(SBUId), Name = "IX_UserProfiles_SBUId")]
     public class UserProfile
     {
+        public UserProfile()
+        {
+            LeadEngagementUserProfiles = new HashSet<LeadEngagementUserProfile>();
+        }
+
         [Key]
         public long Id { get; set; }
         [Required, MaxLength(20), MinLength(2), RegularExpression("[\\w\\s\\W]{2,20}")]
@@ -51,6 +61,9 @@ namespace HaloBiz.Model
         public DateTime CreatedAt { get; set; }
         [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
         public DateTime UpdatedAt { get; set; }
+
+        [InverseProperty(nameof(LeadEngagementUserProfile.UsersEngagedWith))]
+        public virtual ICollection<LeadEngagementUserProfile> LeadEngagementUserProfiles { get; set; }
 
         public override bool Equals(object obj)
         {

@@ -68,15 +68,16 @@ namespace HaloBiz.Helpers
 
         public static bool IsSuperAdmin(this UserProfileReceivingDTO userProfile)
         {
-            return userProfile.Email.Contains("developer") && 
+            return (userProfile.Email.Equals("ahmed.sulaiman@halogen-group.com") ||
+                    userProfile.Email.Equals("omoshola.yusuf@halogen-group.com"))
+                && 
                (userProfile.Email.Trim().EndsWith("halogen-group.com") ||
                 userProfile.Email.Trim().EndsWith("avanthalogen.com") ||
                 userProfile.Email.Trim().EndsWith("averthalogen.com") ||
                 userProfile.Email.Trim().EndsWith("armourxhalogen.com") ||
                 userProfile.Email.Trim().EndsWith("pshalogen.com") ||
                 userProfile.Email.Trim().EndsWith("academyhalogen.com") ||
-                userProfile.Email.Trim().EndsWith("armadahalogen.com")
-              );
+                userProfile.Email.Trim().EndsWith("armadahalogen.com"));
         }
 
         public static double GetTotalContractValue(this IEnumerable<ContractService> contractServices)

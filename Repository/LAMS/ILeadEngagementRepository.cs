@@ -8,6 +8,7 @@ namespace HaloBiz.Repository.LAMS
     {
         Task<LeadEngagement> SaveLeadEngagement(LeadEngagement leadEngagement);
         Task<LeadEngagement> FindLeadEngagementById(long Id);
+        Task<List<LeadEngagement>> FindLeadEngagementsByLeadId(long leadId);
         Task<LeadEngagement> FindLeadEngagementByName(string name);
         Task<IEnumerable<LeadEngagement>> FindAllLeadEngagement();
         Task<LeadEngagement> UpdateLeadEngagement(LeadEngagement leadEngagement);
