@@ -12,6 +12,7 @@ using HaloBiz.DTOs.TransferDTOs.RoleManagement;
 using HaloBiz.Model;
 using HaloBiz.Model.AccountsModel;
 using HaloBiz.Model.LAMS;
+using HaloBiz.Model.ManyToManyRelationship;
 using HaloBiz.Model.RoleManagement;
 using halobiz_backend.DTOs.ReceivingDTOs;
 using halobiz_backend.DTOs.TransferDTOs;
@@ -227,6 +228,11 @@ namespace HaloBiz.Helpers
             CreateMap<ClientContactQualification, ClientContactQualificationTransferDTO>();
             CreateMap<EngagementTypeReceivingDTO, EngagementType>();
             CreateMap<EngagementType, EngagementTypeTransferDTO>();
+            CreateMap<LeadDivisionContactLeadEngagement, LeadDivisionContactLeadEngagementTransferDTO>();
+            CreateMap<LeadDivisionKeyPersonLeadEngagement, LeadDivisionKeyPersonLeadEngagementTransferDTO>();
+            CreateMap<LeadEngagementUserProfile, LeadEngagementUserProfileTransferDTO>();
+            CreateMap<EngagementReasonReceivingDTO, EngagementReason>();
+            CreateMap<EngagementReason, EngagementReasonTransferDTO>();
         }
     }
 }

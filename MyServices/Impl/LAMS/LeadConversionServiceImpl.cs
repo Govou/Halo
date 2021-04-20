@@ -801,7 +801,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                                                             
             if(quoteService != null)
             {
-                await SaveRangeSBUAccountMaster( savedAccountMaster.Id, quoteService.SBUToQuoteServiceProportions);  
+                //await SaveRangeSBUAccountMaster( savedAccountMaster.Id, quoteService.SBUToQuoteServiceProportions);  
             }
 
             await PostCustomerReceivablAccounts(
@@ -1056,7 +1056,8 @@ namespace HaloBiz.MyServices.Impl.LAMS
             List<SBUAccountMaster> listOfSBUAccountMaster = new List<SBUAccountMaster>();
             foreach (var prop in sBUToQuoteServicesProp)
             {
-                listOfSBUAccountMaster.Add(new SBUAccountMaster(){
+                listOfSBUAccountMaster.Add(new SBUAccountMaster()
+                {
                     StrategicBusinessUnitId = prop.StrategicBusinessUnitId,
                     AccountMasterId = accountMasterId
                 });
@@ -1105,7 +1106,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
 
         private string GenerateClientAlias(string divisionName){
-            string[] names = divisionName.Split(" ");
+            string[] names = divisionName.Trim().Split(" ");
             string initial = "";
             foreach (var name in names)
             {

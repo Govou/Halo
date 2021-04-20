@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using HaloBiz.Model;
 using HaloBiz.Model.LAMS;
+using HaloBiz.Model.ManyToManyRelationship;
 
 namespace HaloBiz.DTOs.TransferDTOs.LAMS
 {
@@ -18,5 +19,8 @@ namespace HaloBiz.DTOs.TransferDTOs.LAMS
         public string LeadCaptureStage { get; set; }
         public string EngagementOutcome { get; set; }
         public string ReasonForEngagement { get; set; }
+        public ICollection<LeadDivisionContactLeadEngagementTransferDTO> LeadDivisionContactLeadEngagements { get; set; }
+        public ICollection<LeadDivisionKeyPersonLeadEngagementTransferDTO> LeadDivisionKeyPersonLeadEngagements { get; set; }
+        public ICollection<LeadEngagementUserProfileTransferDTO> LeadEngagementUserProfiles { get; set; }
     }
 }

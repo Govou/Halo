@@ -33,13 +33,24 @@ namespace HaloBiz.Repository.Impl.LAMS
         public async Task<LeadEngagement> FindLeadEngagementById(long Id)
         {
             return await _context.LeadEngagements
+                .Include(x => x.EngagementType)
+                .Include(x => x.EngagementReason)
+                .Include(x => x.LeadDivisionKeyPersonLeadEngagements)
+                .Include(x => x.LeadDivisionContactLeadEngagements)
+                .Include(x => x.LeadEngagementUserProfiles)
                 .FirstOrDefaultAsync( leadEngagement => leadEngagement.Id == Id && leadEngagement.IsDeleted == false);
         }
 
         public async Task<List<LeadEngagement>> FindLeadEngagementsByLeadId(long leadId)
         {
             return await _context.LeadEngagements
+                .Include(x => x.EngagementType)
+                .Include(x => x.EngagementReason)
+                .Include(x => x.LeadDivisionKeyPersonLeadEngagements)
+                .Include(x => x.LeadDivisionContactLeadEngagements)
+                .Include(x => x.LeadEngagementUserProfiles)
                 .Where(leadEngagement => leadEngagement.LeadId == leadId && leadEngagement.IsDeleted == false)
+                .OrderBy(leadEngagement => leadEngagement.Date)
                 .ToListAsync();
         }
 
@@ -52,8 +63,9 @@ namespace HaloBiz.Repository.Impl.LAMS
         public async Task<IEnumerable<LeadEngagement>> FindAllLeadEngagement()
         {
             return await _context.LeadEngagements
+                .Include(x => x.EngagementType)
                 .Where(leadEngagement => leadEngagement.IsDeleted == false)
-                .OrderBy(leadEngagement => leadEngagement.CreatedAt)
+                .OrderBy(leadEngagement => leadEngagement.Date)
                 .ToListAsync();
         }
 
