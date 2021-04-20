@@ -105,6 +105,7 @@ namespace HaloBiz.Data
         public DbSet<LeadDivisionContactLeadEngagement> LeadDivisionContactLeadEngagements { get; set; }
         public DbSet<LeadDivisionKeyPersonLeadEngagement> LeadDivisionKeyPersonLeadEngagements { get; set; }
         public DbSet<LeadEngagementUserProfile> LeadEngagementUserProfiles { get; set; }
+        public DbSet<EngagementReason> EngagementReasons { get; set; }
         protected override void OnModelCreating(ModelBuilder builder)
         {
             //Defines many to many relationship between SBU and AccountMaster

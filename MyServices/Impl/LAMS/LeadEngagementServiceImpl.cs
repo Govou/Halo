@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using AutoMapper;
@@ -9,6 +10,7 @@ using HaloBiz.DTOs.TransferDTOs.LAMS;
 using HaloBiz.Helpers;
 using HaloBiz.Model;
 using HaloBiz.Model.LAMS;
+using HaloBiz.Model.ManyToManyRelationship;
 using HaloBiz.MyServices.LAMS;
 using HaloBiz.Repository;
 using HaloBiz.Repository.LAMS;
@@ -35,6 +37,16 @@ namespace HaloBiz.MyServices.Impl.LAMS
         public async Task<ApiResponse> AddLeadEngagement(HttpContext context, LeadEngagementReceivingDTO leadEngagementReceivingDTO)
         {
             var leadEngagement = _mapper.Map<LeadEngagement>(leadEngagementReceivingDTO);
+
+            leadEngagement.LeadDivisionContactLeadEngagements = leadEngagementReceivingDTO.ContactsEngagedIds
+                .Select(x => new LeadDivisionContactLeadEngagement { ContactsEngagedWithId = x }).ToList();
+
+            leadEngagement.LeadDivisionKeyPersonLeadEngagements = leadEngagementReceivingDTO.KeyPersonsEngagedIds
+                .Select(x => new LeadDivisionKeyPersonLeadEngagement { KeyPersonsEngagedWithId = x }).ToList();
+
+            leadEngagement.LeadEngagementUserProfiles = leadEngagementReceivingDTO.UsersEngagedIds
+                .Select(x => new LeadEngagementUserProfile { UsersEngagedWithId = x }).ToList();
+
             leadEngagement.CreatedById = context.GetLoggedInUserId();
             var savedLeadEngagement = await _leadEngagementRepo.SaveLeadEngagement(leadEngagement);
             if (savedLeadEngagement == null)
@@ -105,7 +117,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
             leadEngagementToUpdate.EngagementOutcome = leadEngagementReceivingDTO.EngagementOutcome;
             leadEngagementToUpdate.EngagementTypeId = leadEngagementReceivingDTO.EngagementTypeId;
             leadEngagementToUpdate.LeadCaptureStage = leadEngagementReceivingDTO.LeadCaptureStage;
-            leadEngagementToUpdate.ReasonForEngagement = leadEngagementReceivingDTO.ReasonForEngagement;
+            leadEngagementToUpdate.EngagementReasonId = leadEngagementReceivingDTO.EngagementReasonId;
             leadEngagementToUpdate.LeadId = leadEngagementReceivingDTO.LeadId;
             var updatedLeadEngagement = await _leadEngagementRepo.UpdateLeadEngagement(leadEngagementToUpdate);
 

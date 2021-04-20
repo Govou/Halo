@@ -28,12 +28,15 @@ namespace HaloBiz.Model.LAMS
         [Required]
         public long EngagementTypeId { get; set; }
         public EngagementType EngagementType { get; set; }
+        [Required]
+        public long EngagementReasonId { get; set; }
+        public EngagementReason EngagementReason { get; set; }
         public DateTime Date { get; set; }
         public long LeadId { get; set; }
         public Lead Lead { get; set; }
         public string LeadCaptureStage { get; set; }
         public string EngagementOutcome { get; set; }
-        public string ReasonForEngagement { get; set; }
+        public string DocumentsUrl { get; set; }
         [Required]
         public long CreatedById { get; set; }
         public UserProfile CreatedBy { get; set; }
@@ -42,10 +45,13 @@ namespace HaloBiz.Model.LAMS
         public DateTime CreatedAt { get; set; }
         [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
         public DateTime UpdatedAt { get; set; }
+
         [InverseProperty(nameof(LeadDivisionContactLeadEngagement.LeadEngagements))]
         public virtual ICollection<LeadDivisionContactLeadEngagement> LeadDivisionContactLeadEngagements { get; set; }
+
         [InverseProperty(nameof(LeadDivisionKeyPersonLeadEngagement.LeadEngagements))]
         public virtual ICollection<LeadDivisionKeyPersonLeadEngagement> LeadDivisionKeyPersonLeadEngagements { get; set; }
+
         [InverseProperty(nameof(LeadEngagementUserProfile.UserLeadEngagements))]
         public virtual ICollection<LeadEngagementUserProfile> LeadEngagementUserProfiles { get; set; }
     }
