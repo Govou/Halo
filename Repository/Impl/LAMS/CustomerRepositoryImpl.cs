@@ -2,19 +2,20 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using HaloBiz.Data;
-using HaloBiz.Model.LAMS;
+using HalobizMigrations.Data;
+
 using HaloBiz.Repository.LAMS;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using HalobizMigrations.Models;
 
 namespace HaloBiz.Repository.Impl.LAMS
 {
     public class CustomerRepositoryImpl : ICustomerRepository
     {
-        private readonly DataContext _context;
+        private readonly HalobizContext _context;
         private readonly ILogger<CustomerRepositoryImpl> _logger;
-        public CustomerRepositoryImpl(DataContext context, ILogger<CustomerRepositoryImpl> logger)
+        public CustomerRepositoryImpl(HalobizContext context, ILogger<CustomerRepositoryImpl> logger)
         {
             this._logger = logger;
             this._context = context;
@@ -38,7 +39,7 @@ namespace HaloBiz.Repository.Impl.LAMS
             var customer =  await _context.Customers
             .Include(x => x.PrimaryContact)
             .Include(x => x.SecondaryContact)
-            .Include(x => x.KeyPeople)
+            .Include(x => x.LeadKeyPeople)
                 .Include(x => x.GroupType)
                 .FirstOrDefaultAsync(entity => entity.Id == Id && entity.IsDeleted == false);
             if(customer != null)

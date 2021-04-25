@@ -7,11 +7,11 @@ namespace HaloBiz.MyServices
 {
     public interface IServicesService
     {
-        Task<ApiResponse> AddService(HttpContext context, ServicesReceivingDTO servicesReceivingDTO);
+        Task<ApiResponse> AddService(HttpContext context, ServiceReceivingDTO servicesReceivingDTO);
         Task<ApiResponse> GetAllServices();
         Task<ApiResponse> GetServiceById(long id);
         Task<ApiResponse> GetServiceByName(string name);
-        Task<ApiResponse> UpdateServices(HttpContext context, long id, ServicesReceivingDTO serviceReceivingDTO);
+        Task<ApiResponse> UpdateServices(HttpContext context, long id, ServiceReceivingDTO serviceReceivingDTO);
         Task<ApiResponse> ApproveService(HttpContext context, long id, long sequence);
         Task<ApiResponse> DisapproveService(HttpContext context, long id, long sequence);
         Task<ApiResponse> RequestPublishService(HttpContext context, long id);

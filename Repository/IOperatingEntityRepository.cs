@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using HaloBiz.Model;
+using HalobizMigrations.Models;
 
 namespace HaloBiz.Repository
 {
@@ -18,6 +18,6 @@ namespace HaloBiz.Repository
 
         Task<bool> DeleteOperatingEntity(OperatingEntity operatingEntity);
         Task<bool> DeleteOperatingEntityRange(IEnumerable<OperatingEntity> operatingEntities);
-        Task<IEnumerable<OperatingEntity>> FindAllOperatingEntityWithSBUProportion();
+        Task<IEnumerable<OperatingEntity>> FindAllOperatingEntityWithSbuproportion();
     }
 }

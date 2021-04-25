@@ -1,4 +1,4 @@
-using HaloBiz.Model;
+using HalobizMigrations.Models;
 
 namespace HaloBiz.DTOs.TransferDTOs
 {
@@ -14,7 +14,7 @@ namespace HaloBiz.DTOs.TransferDTOs
         public long StateId { get; set; }
         public State State { get; set; }
         public long LGAId { get; set; }
-        public LGA LGA { get; set; }
+        public Lga LGA { get; set; }
         public string Street { get; set; }
         public string Address { get; set; }
         public string ImageUrl { get; set; }

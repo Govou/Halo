@@ -1,4 +1,4 @@
-﻿using HaloBiz.Model;
+﻿using HalobizMigrations.Models;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -15,7 +15,7 @@ namespace HaloBiz.DTOs.TransferDTOs
         public string Alias { get; set; } //For holding Cost Center Code (Dtrack)
         public  UserProfileTransferDTO Head { get; set; }
         public long DivisionId { get; set; }
-        public SBUProportionTransferDTO SBUProportion { get; set; }
+        public SbuproportionTransferDTO Sbuproportion { get; set; }
         public DivisionWithoutOperatingEntityDTO Division { get; set; }
         public IEnumerable<ServiceGroupTransferDTO> ServiceGroups { get; set; }
         public IEnumerable<SBUWithoutOperatingEntityTransferDTO> StrategicBusinessUnits { get; set; }

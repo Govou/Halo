@@ -8,11 +8,11 @@ namespace HaloBiz.Controllers
 {
     [Route("api/v1/[controller]")]
     [ApiController]
-    public class ServicesController : ControllerBase
+    public class ServiceController : ControllerBase
     {
         private readonly IServicesService _servicesService;
 
-        public ServicesController(IServicesService servicesService)
+        public ServiceController(IServicesService servicesService)
         {
             this._servicesService = servicesService;
         }
@@ -27,8 +27,8 @@ namespace HaloBiz.Controllers
             return Ok(services);
         }
 
-        [HttpGet("GetUnpublishedServices")]
-        public async Task<ActionResult> GetUnpublishedServices()
+        [HttpGet("GetUnpublishedService")]
+        public async Task<ActionResult> GetUnpublishedService()
         {
             var response = await _servicesService.GetUnpublishedServices();
             if (response.StatusCode >= 400)
@@ -58,7 +58,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpPost("")]
-        public async Task<ActionResult> AddNew(ServicesReceivingDTO servicesReceivingDTO)
+        public async Task<ActionResult> AddNew(ServiceReceivingDTO servicesReceivingDTO)
         {
             var response = await _servicesService.AddService(HttpContext, servicesReceivingDTO);
             if (response.StatusCode >= 400)
@@ -98,7 +98,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateById(long id, ServicesReceivingDTO servicesReceivingDTO)
+        public async Task<IActionResult> UpdateById(long id, ServiceReceivingDTO servicesReceivingDTO)
         {
             var response = await _servicesService.UpdateServices(HttpContext, id, servicesReceivingDTO);
             if (response.StatusCode >= 400)

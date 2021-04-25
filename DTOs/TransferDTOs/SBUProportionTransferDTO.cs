@@ -1,6 +1,6 @@
 namespace HaloBiz.DTOs.TransferDTOs
 {
-    public class SBUProportionTransferDTO
+    public class SbuproportionTransferDTO
     {
         public long Id { get; set; }
         public long OperatingEntityId { get; set; }

@@ -1,3 +1,5 @@
+
+
 using HaloBiz.Model.LAMS;
 
 namespace HaloBiz.DTOs.ReceivingDTOs.LAMS

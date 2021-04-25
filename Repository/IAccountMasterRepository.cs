@@ -1,4 +1,4 @@
-﻿using HaloBiz.Model.AccountsModel;
+﻿using HalobizMigrations.Models;
 using halobiz_backend.DTOs.QueryParamsDTOs;
 using halobiz_backend.DTOs.ReceivingDTOs;
 using System;

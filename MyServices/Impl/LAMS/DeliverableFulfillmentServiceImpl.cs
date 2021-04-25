@@ -5,15 +5,15 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using AutoMapper;
 using HaloBiz.Adapters;
-using HaloBiz.Data;
+using HalobizMigrations.Data;
 using HaloBiz.DTOs.ApiDTOs;
 using HaloBiz.DTOs.MailDTOs;
 using HaloBiz.DTOs.ReceivingDTOs;
 using HaloBiz.DTOs.ReceivingDTOs.LAMS;
 using HaloBiz.DTOs.TransferDTOs.LAMS;
 using HaloBiz.Helpers;
-using HaloBiz.Model;
-using HaloBiz.Model.LAMS;
+using HalobizMigrations.Models;
+
 using HaloBiz.MyServices.LAMS;
 using HaloBiz.Repository;
 using HaloBiz.Repository.LAMS;
@@ -33,7 +33,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
         private readonly IDeliverableFulfillmentRepository _deliverableFulfillmentRepo;
         private readonly ITaskFulfillmentRepository _taskFulfillmentRepo;
         private readonly IUserProfileRepository _userProfileRepo;
-        private readonly DataContext _context;
+        private readonly HalobizContext _context;
         private readonly IMapper _mapper;
 
         public DeliverableFulfillmentServiceImpl(IModificationHistoryRepository historyRepo, 
@@ -41,7 +41,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
             ITaskFulfillmentRepository taskFulfillmentRepo,
             IMailAdapter mailAdapter,
             IUserProfileRepository userProfileRepo,
-            DataContext dataContext,
+            HalobizContext dataContext,
             ILogger<DeliverableFulfillmentServiceImpl> logger, IMapper mapper)
         {
             this._mapper = mapper;
@@ -198,7 +198,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                     deliverableFulfillmentToUpdate.DeliverableCompletionReferenceUrl = deliverableFulfillmentReceivingDTO.DeliverableCompletionReferenceUrl;
                     deliverableFulfillmentToUpdate.ServiceCode = deliverableFulfillmentReceivingDTO.ServiceCode;
                     deliverableFulfillmentToUpdate.EscallationTimeDurationForPicking = deliverableFulfillmentReceivingDTO.EscallationTimeDurationForPicking;
-                    deliverableFulfillmentToUpdate.Priority = deliverableFulfillmentReceivingDTO.Priority;
+                    deliverableFulfillmentToUpdate.Priority = (int)deliverableFulfillmentReceivingDTO.Priority;
 
                     var updatedDeliverableFulfillment =  _context.DeliverableFulfillments.Update(deliverableFulfillmentToUpdate).Entity;
                     await _context.SaveChangesAsync();
@@ -259,10 +259,10 @@ namespace HaloBiz.MyServices.Impl.LAMS
         {
 
             var taskFulfillment = await _context.TaskFulfillments
-                .Include(x => x.DeliverableFUlfillments)
+                .Include(x => x.DeliverableFulfillments)
                 .FirstOrDefaultAsync(x => x.IsDeleted == false && x.Id == taskId);
             
-            foreach (var deliverable in taskFulfillment.DeliverableFUlfillments)
+            foreach (var deliverable in taskFulfillment.DeliverableFulfillments)
             {
                 if(deliverable.ResponsibleId == null || deliverable.ResponsibleId == 0)
                 {

@@ -2,8 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using HaloBiz.Data;
-using HaloBiz.Model;
+using HalobizMigrations.Data;
+using HalobizMigrations.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
@@ -11,9 +11,9 @@ namespace HaloBiz.Repository.Impl
 {
     public class BankRepositoryImpl : IBankRepository
     {
-         private readonly DataContext _context;
+         private readonly HalobizContext _context;
         private readonly ILogger<BankRepositoryImpl> _logger;
-        public BankRepositoryImpl(DataContext context, ILogger<BankRepositoryImpl> logger)
+        public BankRepositoryImpl(HalobizContext context, ILogger<BankRepositoryImpl> logger)
         {
             this._logger = logger;
             this._context = context;

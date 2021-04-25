@@ -19,7 +19,7 @@ namespace HaloBiz.DTOs.MailDTOs
             public string Subject { get; set; }
             public string[] Recepients { get; set; }
             public ClientInfoMailDTO ClientInfo {get; set;}
-            public IEnumerable<ContractServiceMailDTO> ContractServices { get; set; }
+            public IEnumerable<ContractServiceMailDTO> ContractService { get; set; }
         }
 
         public class ContractServiceMailDTO

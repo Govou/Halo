@@ -6,9 +6,9 @@ using Microsoft.AspNetCore.Http;
 
 namespace HaloBiz.MyServices.LAMS
 {
-    public interface ISBUToQuoteServiceProportionsService
+    public interface ISbutoQuoteServiceProportionsService
     {
         Task<ApiResponse> GetAllSBUQuoteProportionForQuoteService(long quoteServiceId);
-        Task<ApiResponse> SaveSBUToQuoteProp(HttpContext context, IEnumerable<SBUToQuoteServiceProportionReceivingDTO> entities);
+        Task<ApiResponse> SaveSBUToQuoteProp(HttpContext context, IEnumerable<SbutoQuoteServiceProportionReceivingDTO> entities);
     }
 }

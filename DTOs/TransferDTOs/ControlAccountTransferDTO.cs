@@ -1,5 +1,5 @@
 using System.Collections.Generic;
-using HaloBiz.Model.AccountsModel;
+using HalobizMigrations.Models;
 
 namespace HaloBiz.DTOs.TransferDTOs
 {

@@ -2,8 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using HaloBiz.Data;
-using HaloBiz.Model.LAMS;
+using HalobizMigrations.Data;
+using HalobizMigrations.Models;
 using HaloBiz.Repository.LAMS;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -12,9 +12,9 @@ namespace HaloBiz.Repository.Impl.LAMS
 {
     public class LeadEngagementRepositoryImpl : ILeadEngagementRepository
     {
-        private readonly DataContext _context;
+        private readonly HalobizContext _context;
         private readonly ILogger<LeadEngagementRepositoryImpl> _logger;
-        public LeadEngagementRepositoryImpl(DataContext context, ILogger<LeadEngagementRepositoryImpl> logger)
+        public LeadEngagementRepositoryImpl(HalobizContext context, ILogger<LeadEngagementRepositoryImpl> logger)
         {
             this._logger = logger;
             this._context = context;
@@ -35,9 +35,9 @@ namespace HaloBiz.Repository.Impl.LAMS
             return await _context.LeadEngagements
                 .Include(x => x.EngagementType)
                 .Include(x => x.EngagementReason)
-                .Include(x => x.LeadDivisionKeyPersonLeadEngagements)
-                .Include(x => x.LeadDivisionContactLeadEngagements)
-                .Include(x => x.LeadEngagementUserProfiles)
+                //.Include(x => x.LeadDivisionKeyPersonLeadEngagements)
+                //.Include(x => x.LeadDivisionContactLeadEngagements)
+                //.Include(x => x.LeadEngagementUserProfiles)
                 .FirstOrDefaultAsync( leadEngagement => leadEngagement.Id == Id && leadEngagement.IsDeleted == false);
         }
 
@@ -46,9 +46,9 @@ namespace HaloBiz.Repository.Impl.LAMS
             return await _context.LeadEngagements
                 .Include(x => x.EngagementType)
                 .Include(x => x.EngagementReason)
-                .Include(x => x.LeadDivisionKeyPersonLeadEngagements)
-                .Include(x => x.LeadDivisionContactLeadEngagements)
-                .Include(x => x.LeadEngagementUserProfiles)
+                //.Include(x => x.LeadDivisionKeyPersonLeadEngagements)
+                //.Include(x => x.LeadDivisionContactLeadEngagements)
+                //.Include(x => x.LeadEngagementUserProfiles)
                 .Where(leadEngagement => leadEngagement.LeadId == leadId && leadEngagement.IsDeleted == false)
                 .OrderBy(leadEngagement => leadEngagement.Date)
                 .ToListAsync();

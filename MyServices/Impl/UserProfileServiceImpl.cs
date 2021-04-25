@@ -9,10 +9,10 @@ using HaloBiz.DTOs.MailDTOs;
 using HaloBiz.DTOs.ReceivingDTO;
 using HaloBiz.DTOs.TransferDTOs;
 using HaloBiz.Helpers;
-using HaloBiz.Model;
-using HaloBiz.Model.RoleManagement;
+using HalobizMigrations.Models;
 using HaloBiz.Repository;
 using Newtonsoft.Json;
+using HaloBiz.Model.RoleManagement;
 
 namespace HaloBiz.MyServices.Impl
 {
@@ -87,7 +87,7 @@ namespace HaloBiz.MyServices.Impl
                     roleClaims.Add(new RoleClaim
                     {
                         CanAdd = true,
-                        ClaimEnum = item,
+                        ClaimEnum = (int)item,
                         CanDelete = true,
                         CanUpdate = true,
                         CanView = true,
@@ -160,7 +160,7 @@ namespace HaloBiz.MyServices.Impl
             }
 
             // send the sign up mail when the user profile completion hits a 100%.
-            if (!updatedUser.SignUpMailSent)
+            if (!updatedUser.SignUpMailSent.Value)
             {
                 if (ProfileIs100Percent(updatedUser))
                 {
@@ -216,7 +216,7 @@ namespace HaloBiz.MyServices.Impl
             {
                 return new ApiResponse(404);
             }
-            userToUpdate.SBUId = SBUId;
+            userToUpdate.Sbuid = SBUId;
 
 
             var updatedUser = await _userRepo.UpdateUserProfile(userToUpdate);
@@ -247,7 +247,7 @@ namespace HaloBiz.MyServices.Impl
             {
                 return new ApiResponse(404);
             }
-            userToUpdate.SBUId = null;
+            userToUpdate.Sbuid = null;
 
 
             var updatedUser = await _userRepo.UpdateUserProfile(userToUpdate);

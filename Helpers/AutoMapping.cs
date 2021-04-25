@@ -9,14 +9,11 @@ using HaloBiz.DTOs.ReceivingDTOs.RoleManagement;
 using HaloBiz.DTOs.TransferDTOs;
 using HaloBiz.DTOs.TransferDTOs.LAMS;
 using HaloBiz.DTOs.TransferDTOs.RoleManagement;
-using HaloBiz.Model;
-using HaloBiz.Model.AccountsModel;
-using HaloBiz.Model.LAMS;
-using HaloBiz.Model.ManyToManyRelationship;
-using HaloBiz.Model.RoleManagement;
+using HalobizMigrations.Models;
 using halobiz_backend.DTOs.ReceivingDTOs;
 using halobiz_backend.DTOs.TransferDTOs;
-using halobiz_backend.Model.AccountsModel;
+using HalobizMigrations.Models.Halobiz;
+using HaloBiz.Model;
 
 namespace HaloBiz.Helpers
 {
@@ -25,7 +22,7 @@ namespace HaloBiz.Helpers
         public AutoMapping()
         {
             CreateMap<State, StateTransferDTO>();    
-            CreateMap<LGA, LGATransferDTO>();
+            CreateMap<Lga, LGATransferDTO>();
             CreateMap<UserProfileReceivingDTO, UserProfile>()
                 .ForMember(member => member.DateOfBirth, 
                     opt =>  opt.MapFrom(src => DateTime.Parse(src.DateOfBirth)));
@@ -52,13 +49,13 @@ namespace HaloBiz.Helpers
             CreateMap<ServiceGroupReceivingDTO, ServiceGroup>();
             CreateMap<ServiceCategoryReceivingDTO, ServiceCategory>();
             CreateMap<ServiceCategory, ServiceCategoryTransferDTO>();
-            CreateMap<ServiceCategory, ServiceCategoryWithoutServicesTransferDTO>();
-            CreateMap<Services, ServicesTransferDTO>()
+            CreateMap<ServiceCategory, ServiceCategoryWithoutServiceTransferDTO>();
+            CreateMap<Service, ServiceTransferDTO>()
                 .ForMember(dest => dest.RequiredServiceDocument, opt => 
-                opt.MapFrom(src => src.RequiredServiceDocument.GetListOfRequiredDocuments()))
+                opt.MapFrom(src => src.ServiceRequiredServiceDocuments.GetListOfRequiredDocuments()))
                 .ForMember(dest => dest.RequiredServiceFields, opt => 
-                opt.MapFrom(src => src.RequredServiceQualificationElement.GetListOfRequiredQualificationElements()));
-            CreateMap<ServicesReceivingDTO, Services>();
+                opt.MapFrom(src => src.ServiceRequredServiceQualificationElements.GetListOfRequiredQualificationElements()));
+            CreateMap<ServiceReceivingDTO, Service>();
             CreateMap<AccountClass, AccountClassTransferDTO>();
             CreateMap<AccountClass, AccountClassWithTotalTransferDTO>();
             CreateMap<AccountClassReceivingDTO, AccountClass>();
@@ -80,8 +77,8 @@ namespace HaloBiz.Helpers
             CreateMap<Relationship, RelationshipTransferDTO>();
             CreateMap<BankReceivingDTO, Bank>();
             CreateMap<Bank, BankTransferDTO>();
-            CreateMap<StandardSLAForOperatingEntitiesReceivingDTO, StandardSLAForOperatingEntities>();
-            CreateMap<StandardSLAForOperatingEntities, StandardSLAForOperatingEntitiesTransferDTO>();
+            CreateMap<StandardSlaforOperatingEntityReceivingDTO, StandardSlaforOperatingEntity>();
+            CreateMap<StandardSlaforOperatingEntity, StandardSlaforOperatingEntityTransferDTO>();
             CreateMap<TargetReceivingDTO, Target>();
             CreateMap<Target, TargetTransferDTO>();
             CreateMap<Target, BaseSetupTransferDTO>();
@@ -151,8 +148,8 @@ namespace HaloBiz.Helpers
                 ForMember(dest => dest.ContractValue, opt => opt.MapFrom(
                     src => src.ContractServices.GetTotalContractValue()
                 ));
-            CreateMap<SBUToQuoteServiceProportion, SBUToQuoteServiceProportionTransferDTO>();
-            CreateMap<SBUToQuoteServiceProportionReceivingDTO, SBUToQuoteServiceProportion>();
+            CreateMap<SbutoQuoteServiceProportion, SbutoQuoteServiceProportionTransferDTO>();
+            CreateMap<SbutoQuoteServiceProportionReceivingDTO, SbutoQuoteServiceProportion>();
             CreateMap<RegionReceivingDTO, Region>();
             CreateMap<Region, RegionTransferDTO>();
             CreateMap<ZoneReceivingDTO, Zone>();
@@ -207,8 +204,8 @@ namespace HaloBiz.Helpers
             CreateMap<EndorsementType, EndorsementTypeTransferDTO>();
             CreateMap<ClientBeneficiaryReceivingDTO, ClientBeneficiary>();
             CreateMap<ClientBeneficiary, ClientBeneficiaryTransferDTO>();
-            CreateMap<SBUProportionReceivingDTO, SBUProportion>();
-            CreateMap<SBUProportion, SBUProportionTransferDTO>();
+            CreateMap<SbuproportionReceivingDTO, Sbuproportion>();
+            CreateMap<Sbuproportion, SbuproportionTransferDTO>();
             CreateMap<ContractServiceForEndorsementReceivingDto, ContractServiceForEndorsement>();
             CreateMap<ContractServiceForEndorsement, ContractServiceForEndorsementTransferDto>();
             CreateMap<ContractServiceForEndorsement, ContractService>();

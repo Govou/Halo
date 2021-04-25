@@ -1,8 +1,9 @@
-﻿using HaloBiz.Model.LAMS;
+﻿
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using HalobizMigrations.Models;
 
 namespace HaloBiz.Repository
 {

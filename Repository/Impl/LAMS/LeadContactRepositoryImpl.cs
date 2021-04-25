@@ -2,8 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using HaloBiz.Data;
-using HaloBiz.Model.LAMS;
+using HalobizMigrations.Data;
+using HalobizMigrations.Models;
 using HaloBiz.Repository.LAMS;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -12,9 +12,9 @@ namespace HaloBiz.Repository.Impl.LAMS
 {
     public class LeadContactRepositoryImpl : ILeadContactRepository
     {
-        private readonly DataContext _context;
+        private readonly HalobizContext _context;
         private readonly ILogger<LeadContactRepositoryImpl> _logger;
-        public LeadContactRepositoryImpl(DataContext context, ILogger<LeadContactRepositoryImpl> logger)
+        public LeadContactRepositoryImpl(HalobizContext context, ILogger<LeadContactRepositoryImpl> logger)
         {
             this._logger = logger;
             this._context = context;

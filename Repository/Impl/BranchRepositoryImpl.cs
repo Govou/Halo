@@ -2,8 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using HaloBiz.Data;
-using HaloBiz.Model;
+using HalobizMigrations.Data;
+using HalobizMigrations.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
@@ -11,10 +11,10 @@ namespace HaloBiz.Repository.Impl
 {
     public class BranchRepositoryImpl : IBranchRepository
     {
-        private readonly DataContext _context;
+        private readonly HalobizContext _context;
         private readonly ILogger<BranchRepositoryImpl> _logger;
         private readonly IOfficeRepository _officeRepository;
-        public BranchRepositoryImpl(DataContext context, ILogger<BranchRepositoryImpl> logger, IOfficeRepository officeRepository)
+        public BranchRepositoryImpl(HalobizContext context, ILogger<BranchRepositoryImpl> logger, IOfficeRepository officeRepository)
         {
             this._logger = logger;
             this._context = context;

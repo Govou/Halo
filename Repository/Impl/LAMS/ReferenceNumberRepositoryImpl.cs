@@ -1,6 +1,6 @@
 using System.Threading.Tasks;
-using HaloBiz.Data;
-using HaloBiz.Model.LAMS;
+using HalobizMigrations.Data;
+using HalobizMigrations.Models;
 using HaloBiz.Repository.LAMS;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -9,10 +9,10 @@ namespace HaloBiz.Repository.Impl.LAMS
 {
     public class ReferenceNumberRepositoryImpl : IReferenceNumberRepository
     {
-        private readonly DataContext _context;
+        private readonly HalobizContext _context;
         private readonly ILogger<ReferenceNumberRepositoryImpl> _logger;
 
-        public ReferenceNumberRepositoryImpl(DataContext context, ILogger<ReferenceNumberRepositoryImpl> logger)
+        public ReferenceNumberRepositoryImpl(HalobizContext context, ILogger<ReferenceNumberRepositoryImpl> logger)
         {
             this._context = context;
             this._logger = logger;

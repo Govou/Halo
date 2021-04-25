@@ -1,8 +1,7 @@
 using System.Threading.Tasks;
-using HaloBiz.Data;
+using HalobizMigrations.Data;
 using AutoMapper;
 using HaloBiz.DTOs.ReceivingDTOs.LAMS;
-using HaloBiz.Model.LAMS;
 using HaloBiz.DTOs.TransferDTOs.LAMS;
 using HaloBiz.Repository.LAMS;
 using HaloBiz.DTOs.ApiDTOs;
@@ -11,19 +10,17 @@ using HaloBiz.MyServices.LAMS;
 using Microsoft.Extensions.Logging;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
-using HaloBiz.Model;
+using HalobizMigrations.Models;
 using System.Linq;
 using System;
-using HaloBiz.Model.AccountsModel;
 using Microsoft.AspNetCore.Http;
 using HaloBiz.Helpers;
-using halobiz_backend.Model.AccountsModel;
 
 namespace HaloBiz.MyServices.Impl.LAMS
 {
     public class ContractServiceForEndorsementServiceImpl : IContractServiceForEndorsementService
     {
-        private readonly DataContext _context;
+        private readonly HalobizContext _context;
         private readonly IMapper _mapper;
         private readonly ILeadConversionService _leadConversionService;
         private readonly IApprovalService _approvalService;
@@ -33,7 +30,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
         private  long loggedInUserId;
 
         public ContractServiceForEndorsementServiceImpl( IContractServiceForEndorsementRepository  cntServiceForEndorsemntRepo,
-                                            DataContext context,
+                                            HalobizContext context,
                                             IMapper mapper,
                                             ILeadConversionService leadConversionService,
                                             IApprovalService approvalService,
@@ -165,10 +162,10 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
         public async Task<ApiResponse> GetUnApprovedContractServiceForEndorsement()
         {
-            var contractServicesForEndorsement = await _cntServiceForEndorsemntRepo.FindAllUnApprovedContractServicesForEndorsement();
-            var contractServicesToEndorseTransferDto =
-                _mapper.Map<IEnumerable<ContractServiceForEndorsementTransferDto>>(contractServicesForEndorsement);
-            return new ApiOkResponse(contractServicesToEndorseTransferDto);
+            var contractServiceForEndorsement = await _cntServiceForEndorsemntRepo.FindAllUnApprovedContractServicesForEndorsement();
+            var contractServiceToEndorseTransferDto =
+                _mapper.Map<IEnumerable<ContractServiceForEndorsementTransferDto>>(contractServiceForEndorsement);
+            return new ApiOkResponse(contractServiceToEndorseTransferDto);
         }
 
         public async Task<ApiResponse> GetEndorsementDetailsById(long endorsementId)
@@ -220,8 +217,8 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 {
                     return new ApiResponse(500);
                 }
-                var contractServicesToEndorseTransferDto = _mapper.Map<ContractServiceForEndorsementTransferDto>(approvedEntity);
-                return new ApiOkResponse(contractServicesToEndorseTransferDto);
+                var contractServiceToEndorseTransferDto = _mapper.Map<ContractServiceForEndorsementTransferDto>(approvedEntity);
+                return new ApiOkResponse(contractServiceToEndorseTransferDto);
             }
             else
             {
@@ -240,8 +237,8 @@ namespace HaloBiz.MyServices.Impl.LAMS
                     return new ApiResponse(500);
                 }
 
-                var contractServicesToEndorseTransferDto = _mapper.Map<ContractServiceForEndorsementTransferDto>(updatedEndorsement);
-                return new ApiOkResponse(contractServicesToEndorseTransferDto);
+                var contractServiceToEndorseTransferDto = _mapper.Map<ContractServiceForEndorsementTransferDto>(updatedEndorsement);
+                return new ApiOkResponse(contractServiceToEndorseTransferDto);
             }
         }
 
@@ -351,7 +348,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
         }
 
 
-        private async Task<bool> AddServiceEndorsement(ContractService contractService,ContractServiceForEndorsement contractServiceForEndorsement, Services service, CustomerDivision customerDivision)
+        private async Task<bool> AddServiceEndorsement(ContractService contractService,ContractServiceForEndorsement contractServiceForEndorsement, Service service, CustomerDivision customerDivision)
         {
             var salesVoucherName = this._configuration.GetSection("VoucherTypes:SalesInvoiceVoucher").Value;
             var financialVoucherType = await _context.FinanceVoucherTypes
@@ -404,7 +401,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
         private async Task<bool> ServiceTopUpGoingForwardEndorsement(ContractService retiredContractService,
                                                                     ContractService newContractService,
                                                                     CustomerDivision customerDivision,
-                                                                    Services service,
+                                                                    Service service,
                                                                     ContractServiceForEndorsement contractServiceForEndorsement
                                                                     )
         {
@@ -450,7 +447,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
         private async Task<bool> ServiceReductionGoingForwardEndorsement(ContractService retiredContractService,
                                                                     ContractService newContractService,
                                                                     CustomerDivision customerDivision,
-                                                                    Services service,
+                                                                    Service service,
                                                                     ContractServiceForEndorsement contractServiceForEndorsement
                                                                     )
         {
@@ -495,7 +492,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                                                             ContractService retiredContractService,
                                                             ContractService newContractService,
                                                             ContractServiceForEndorsement contractServiceForEndorsement,
-                                                            Services service, CustomerDivision customerDivision)
+                                                            Service service, CustomerDivision customerDivision)
         {
             contractServiceForEndorsement.DateForNewContractToTakeEffect = newContractService.ContractStartDate;
             var renewalVoucherName = this._configuration.GetSection("VoucherTypes:SalesRetentionVoucher").Value;
@@ -554,7 +551,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
         private ContractService GetContractServiceDifference(ContractService retiredContractService, ContractService newContractService)
         {
             var contractServcie = _mapper.Map<ContractService>(newContractService);
-            contractServcie.VAT = contractServcie.VAT - retiredContractService.VAT;
+            contractServcie.Vat = contractServcie.Vat - retiredContractService.Vat;
             contractServcie.Quantity = contractServcie.Quantity - retiredContractService.Quantity;
             contractServcie.BillableAmount = contractServcie.BillableAmount - retiredContractService.BillableAmount;
             contractServcie.Budget = contractServcie.Budget = retiredContractService.Budget;
@@ -573,7 +570,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
             };
 
             await _context.EndorsementTypeTrackers.AddAsync(tracker);
-            retiredContractService.Version = VersionType.Previous;
+            retiredContractService.Version = (int)VersionType.Previous;
             _context.ContractServices.Update(retiredContractService);
             return await _context.SaveChangesAsync() > 0;
         }
@@ -623,14 +620,14 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
         private async Task<bool> GenerateGroupInvoiceDetails(ContractService contractService)
         {
-            GroupInvoiceDetails groupInvoiceDetails = new GroupInvoiceDetails()
+            GroupInvoiceDetail groupInvoiceDetails = new GroupInvoiceDetail()
             {
                 InvoiceNumber = contractService.GroupInvoiceNumber,
                 Description = $"Invoice details for Group Invoice {contractService.GroupInvoiceNumber}",
                 UnitPrice = (double) contractService.UnitPrice,
                 Quantity =(int) contractService.Quantity,
-                VAT  = (double) contractService.VAT,
-                Value = (double) (contractService.BillableAmount - contractService.VAT),
+                Vat  = (double) contractService.Vat,
+                Value = (double) (contractService.BillableAmount - contractService.Vat),
                 BillableAmount = (double) contractService.BillableAmount,
                 ContractServiceId = contractService.Id
             };
@@ -644,7 +641,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
         {
             IEnumerable<Invoice> invoicesToBeReversed = await _context.Invoices
                         .Include(invoice => invoice.Receipts)
-                        .Where(invoice => !invoice.IsDeleted && !invoice.IsReversed && invoice.IsReversalInvoice)
+                        .Where(invoice => !invoice.IsDeleted && !invoice.IsReversed.Value && invoice.IsReversalInvoice.Value)
                         .ToListAsync();
             List<Receipt> reversalReeceipts = new List<Receipt>();
             List<Invoice> reversalInvoices = new List<Invoice>();

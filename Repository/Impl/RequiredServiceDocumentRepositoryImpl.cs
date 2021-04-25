@@ -2,8 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using HaloBiz.Data;
-using HaloBiz.Model;
+using HalobizMigrations.Data;
+using HalobizMigrations.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
@@ -11,9 +11,9 @@ namespace HaloBiz.Repository.Impl
 {
     public class RequiredServiceDocumentRepositoryImpl : IRequiredServiceDocumentRepository
     {
-        private readonly DataContext _context;
+        private readonly HalobizContext _context;
         private readonly ILogger<RequiredServiceDocumentRepositoryImpl> _logger;
-        public RequiredServiceDocumentRepositoryImpl(DataContext context, ILogger<RequiredServiceDocumentRepositoryImpl> logger)
+        public RequiredServiceDocumentRepositoryImpl(HalobizContext context, ILogger<RequiredServiceDocumentRepositoryImpl> logger)
         {
             this._logger = logger;
             this._context = context;
@@ -33,7 +33,7 @@ namespace HaloBiz.Repository.Impl
         public async Task<RequiredServiceDocument> FindRequiredServiceDocumentById(long Id)
         {
             return await _context.RequiredServiceDocuments
-                .Include(serviceDoc => serviceDoc.Services)
+                .Include(serviceDoc => serviceDoc.ServiceRequiredServiceDocuments)
                 .FirstOrDefaultAsync( RequiredServiceDocument => RequiredServiceDocument.Id == Id && RequiredServiceDocument.IsDeleted == false);
         }
 

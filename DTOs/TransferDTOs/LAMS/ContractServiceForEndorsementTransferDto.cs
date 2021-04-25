@@ -1,9 +1,7 @@
 using System;
 using System.ComponentModel.DataAnnotations;
 using HaloBiz.Helpers;
-using HaloBiz.Model;
-using HaloBiz.Model.LAMS;
-using Contract = HaloBiz.Model.LAMS.Contract;
+using HalobizMigrations.Models;
 
 namespace HaloBiz.DTOs.TransferDTOs.LAMS
 {
@@ -50,7 +48,7 @@ namespace HaloBiz.DTOs.TransferDTOs.LAMS
         public DateTime? ProgramEndDate {get ; set; }
         public DateTime? TentativeDateOfSiteVisit {get ; set; }
         public long ServiceId { get; set; }
-        public ServicesTransferDTO Service { get; set; }
+        public ServiceTransferDTO Service { get; set; }
         public long ContractId { get; set; }
         public ContractTransferDTO Contract { get; set; }
         public string GroupInvoiceNumber { get; set; }

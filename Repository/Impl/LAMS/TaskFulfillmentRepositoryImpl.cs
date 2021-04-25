@@ -2,11 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using HaloBiz.Data;
+using HalobizMigrations.Data;
 using HaloBiz.Helpers;
-using HaloBiz.Model.LAMS;
 using HaloBiz.Repository.LAMS;
 using halobiz_backend.DTOs.TransferDTOs;
+using HalobizMigrations.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
@@ -14,9 +14,9 @@ namespace HaloBiz.Repository.Impl.LAMS
 {
     public class TaskFulfillmentRepositoryImpl : ITaskFulfillmentRepository
     {
-        private readonly DataContext _context;
+        private readonly HalobizContext _context;
         private readonly ILogger<TaskFulfillmentRepositoryImpl> _logger;
-        public TaskFulfillmentRepositoryImpl(DataContext context,
+        public TaskFulfillmentRepositoryImpl(HalobizContext context,
                             ILogger<TaskFulfillmentRepositoryImpl> logger)
         {
             this._logger = logger;
@@ -41,11 +41,11 @@ namespace HaloBiz.Repository.Impl.LAMS
         {
             return await _context.TaskFulfillments
                 .Where(taskFulfillment => taskFulfillment.Id == Id && taskFulfillment.IsDeleted == false)
-                .Include(x => x.ContractService).ThenInclude(x => x.SBUToContractServiceProportions)
+                .Include(x => x.ContractService).ThenInclude(x => x.SbutoContractServiceProportions)
                 .Include(x => x.Support)
                 .Include(x => x.Responsible)
                 .Include(x => x.Accountable)
-                .Include(x => x.DeliverableFUlfillments.Where(x => x.IsDeleted == false && x.WasReassigned == false)).ThenInclude(x => x.Responsible)
+                .Include(x => x.DeliverableFulfillments.Where(x => x.IsDeleted == false && x.WasReassigned == false)).ThenInclude(x => x.Responsible)
                 .FirstOrDefaultAsync();
 
         }
@@ -56,7 +56,7 @@ namespace HaloBiz.Repository.Impl.LAMS
                 .Include(x => x.Support)
                 .Include(x => x.Responsible)
                 .Include(x => x.Accountable)
-                .Include(x => x.DeliverableFUlfillments)
+                .Include(x => x.DeliverableFulfillments)
                 .FirstOrDefaultAsync( taskFulfillment => taskFulfillment.Caption == name && taskFulfillment.IsDeleted == false);
         }
         public async Task<IEnumerable<TaskDeliverablesSummary>> GetTaskDeliverablesSummary(long responsibleId)
@@ -85,7 +85,7 @@ namespace HaloBiz.Repository.Impl.LAMS
                         IsPicked = deliverables.IsPicked,
                         DeliverableCaption = deliverables.Caption,
                         DeliveryDate = deliverables.EndDate?? DateTime.Now,
-                        Priority = deliverables.Priority?? 0,
+                        Priority = (DeliverablePriority)(deliverables.Priority ?? 0),
                         DeliverableWasReassigned = deliverables.WasReassigned,
                         TaskResponsibleImageUrl = userProfile.ImageUrl,
                         DeliverableResponsibleId = deliverables.ResponsibleId,
@@ -110,7 +110,7 @@ namespace HaloBiz.Repository.Impl.LAMS
         public async Task<IEnumerable<TaskFulfillment>> GetTaskFulfillmentsByCustomerDivisionId(long customerDivsionId)
         {
             return await _context.TaskFulfillments   
-                .Include(x => x.DeliverableFUlfillments.Where(x => x.IsDeleted == false && x.WasReassigned == false))
+                .Include(x => x.DeliverableFulfillments.Where(x => x.IsDeleted == false && x.WasReassigned == false))
                 .Where(x => x.CustomerDivisionId == customerDivsionId && x.IsDeleted == false).ToListAsync();
         }
 
@@ -119,7 +119,7 @@ namespace HaloBiz.Repository.Impl.LAMS
             return await _context.TaskFulfillments
                 .Where(taskFulfillment => taskFulfillment.IsDeleted == false 
                     && (taskFulfillment.AccountableId == taskOwnerId || taskFulfillment.SupportId == taskOwnerId))
-                .Include(x => x.DeliverableFUlfillments.Where(x => x.WasReassigned == false && x.IsDeleted == false))
+                .Include(x => x.DeliverableFulfillments.Where(x => x.WasReassigned == false && x.IsDeleted == false))
                 .OrderBy(taskFulfillment => taskFulfillment.CreatedAt)
                 .ToListAsync();
         }

@@ -1,16 +1,15 @@
 using System;
 using System.Threading.Tasks;
 using AutoMapper;
-using HaloBiz.Data;
+using HalobizMigrations.Data;
 using HaloBiz.DTOs.ApiDTOs;
 using HaloBiz.DTOs.ReceivingDTOs;
 using HaloBiz.DTOs.TransferDTOs;
 using HaloBiz.Helpers;
-using HaloBiz.Model.AccountsModel;
+using HalobizMigrations.Models;
 using HaloBiz.Repository;
 using HaloBiz.Repository.LAMS;
 using halobiz_backend.Helpers;
-using halobiz_backend.Model.AccountsModel;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -23,7 +22,7 @@ namespace HaloBiz.MyServices.Impl
         private readonly IReceiptRepository _receiptRepo;
         private readonly IModificationHistoryRepository _modificationRepo;
         private readonly IMapper _mapper;
-        private readonly DataContext _context;
+        private readonly HalobizContext _context;
         private readonly IInvoiceRepository _invoiceRepo;
         private readonly IAccountRepository _accountRep;
         private readonly IFinancialVoucherTypeRepository _voucherRepo;
@@ -32,7 +31,7 @@ namespace HaloBiz.MyServices.Impl
         private long LoggedInUserId;
 
         public ReceiptServiceImpl(ILogger<ReceiptServiceImpl> logger, IReceiptRepository receiptRepo,
-                     IModificationHistoryRepository modificationRepo, IMapper mapper, DataContext context,
+                     IModificationHistoryRepository modificationRepo, IMapper mapper, HalobizContext context,
                         IInvoiceRepository invoiceRepo, IAccountRepository accountRep, IFinancialVoucherTypeRepository voucherRepo )
         {
             this._logger = logger;
@@ -67,11 +66,11 @@ namespace HaloBiz.MyServices.Impl
                     
                     if(receipt.InvoiceValueBalanceAfterReceipting == 0)
                     {
-                        invoice.IsReceiptedStatus = InvoiceStatus.CompletelyReceipted;
+                        invoice.IsReceiptedStatus = (int)InvoiceStatus.CompletelyReceipted;
                         await _invoiceRepo.UpdateInvoice(invoice);
                     }else if(receipt.InvoiceValueBalanceAfterReceipting > 0 )
                     {
-                                    invoice.IsReceiptedStatus = InvoiceStatus.PartlyReceipted;
+                                    invoice.IsReceiptedStatus = (int)InvoiceStatus.PartlyReceipted;
                                     await _invoiceRepo.UpdateInvoice(invoice);
                     }
                     
@@ -97,7 +96,7 @@ namespace HaloBiz.MyServices.Impl
             var whtAmount = 0.0;
             if(receipt.IsTaskWitheld)
             {
-                var whtPercentage = receipt.ValueOfWHT;
+                var whtPercentage = receipt.ValueOfWht;
                 whtAmount = amount * (whtPercentage / 100.0);
                 amountToPost = amount - whtAmount;
             }

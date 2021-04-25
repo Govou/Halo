@@ -2,20 +2,21 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using HaloBiz.Data;
-using HaloBiz.Model.LAMS;
+using HalobizMigrations.Data;
+
 using HaloBiz.Repository.LAMS;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using HalobizMigrations.Models;
 
 namespace HaloBiz.Repository.Impl.LAMS
 {
     public class LeadRepositoryImpl : ILeadRepository
     {
-        private readonly DataContext _context;
+        private readonly HalobizContext _context;
         private readonly ILogger<LeadRepositoryImpl> _logger;
 
-        public LeadRepositoryImpl(DataContext context, ILogger<LeadRepositoryImpl> logger)
+        public LeadRepositoryImpl(HalobizContext context, ILogger<LeadRepositoryImpl> logger)
         {
             this._context = context;
             this._logger = logger;
@@ -35,7 +36,7 @@ namespace HaloBiz.Repository.Impl.LAMS
 
         public async Task<IEnumerable<Lead>> FindAllUnApprovedLeads()
         {
-            return await _context.Leads.Where(lead => lead.LeadCaptureStatus && lead.LeadQualificationStatus && lead.LeadOpportunityStatus && lead.LeadClosureStatus
+            return await _context.Leads.Where(lead => lead.LeadCaptureStatus && lead.LeadQualificationStatus && lead.LeadOpportunityStatus && lead.LeadClosureStatus.Value
                                         && !lead.LeadConversionStatus && !lead.IsLeadDropped && !lead.IsDeleted).ToListAsync();
         }
 
@@ -60,17 +61,17 @@ namespace HaloBiz.Repository.Impl.LAMS
                                     .Include(x => x.Office)
                                     .Include(division => division.PrimaryContact)
                                     .Include(division => division.SecondaryContact)
-                                    .Include(division => division.LeadDivisionKeyPersons.Where(x => x.IsDeleted == false))
+                                    .Include(division => division.LeadDivisionKeyPeople.Where(x => x.IsDeleted == false))
                                     .Include(division => division.Quote)
                                         .ThenInclude(quote => quote.QuoteServices.Where(x => x.IsDeleted == false))
                                         .ThenInclude(x => x.QuoteServiceDocuments.Where(x => x.IsDeleted == false))
                                     .Where(division => division.LeadId == lead.Id).ToListAsync();
             //lead.LeadDivisions.ToList().ForEach(x => x.Lead = null);
-            lead.LeadKeyPersons = await _context.LeadKeyPeople
+            lead.LeadKeyPeople = await _context.LeadKeyPeople
                                     .Where(x => x.LeadId == lead.Id && x.IsDeleted == false).ToListAsync();
-            if(lead.LeadKeyPersons != null)
+            if(lead.LeadKeyPeople != null)
             {
-                lead.LeadKeyPersons.ToList().ForEach(x => x.Lead = null);
+                lead.LeadKeyPeople.ToList().ForEach(x => x.Lead = null);
             }
             return lead;
         }
@@ -96,21 +97,21 @@ namespace HaloBiz.Repository.Impl.LAMS
             lead.LeadDivisions = await _context.LeadDivisions
                                     .Include(division => division.PrimaryContact)
                                     .Include(division => division.SecondaryContact)
-                                    .Include(division => division.LeadDivisionKeyPersons)
+                                    .Include(division => division.LeadDivisionKeyPeople)
                                     .Include(division => division.Quote)
                                         .ThenInclude(quote => quote.QuoteServices.Where(x => x.IsDeleted == false))
                                             .ThenInclude(x => x.QuoteServiceDocuments.Where(x => x.IsDeleted == false))
                                     .Include(division => division.Quote)
                                         .ThenInclude(quote => quote.QuoteServices.Where(x => x.IsDeleted == false))
-                                            .ThenInclude(x => x.SBUToQuoteServiceProportions.Where(x => x.IsDeleted == false))
+                                            .ThenInclude(x => x.SbutoQuoteServiceProportions.Where(x => x.IsDeleted == false))
                                     .Where(division => division.LeadId == lead.Id).ToListAsync();
-            lead.LeadKeyPersons = await _context.LeadKeyPeople
+            lead.LeadKeyPeople = await _context.LeadKeyPeople
                                     .Include(x => x.Designation)
                                     .Include(x => x.ClientContactQualification)
                                     .Where(x => x.LeadId == lead.Id && x.IsDeleted == false).ToListAsync();
-            if(lead.LeadKeyPersons != null)
+            if(lead.LeadKeyPeople != null)
             {
-                lead.LeadKeyPersons.ToList().ForEach(x => x.Lead = null);
+                lead.LeadKeyPeople.ToList().ForEach(x => x.Lead = null);
             }
             return lead;
         }

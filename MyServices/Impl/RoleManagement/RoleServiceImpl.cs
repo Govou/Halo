@@ -3,18 +3,18 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
-using HaloBiz.Data;
+using HalobizMigrations.Data;
 using HaloBiz.DTOs.ApiDTOs;
 using HaloBiz.DTOs.ReceivingDTOs.RoleManagement;
 using HaloBiz.DTOs.TransferDTOs;
 using HaloBiz.DTOs.TransferDTOs.RoleManagement;
 using HaloBiz.Helpers;
-using HaloBiz.Model;
-using HaloBiz.Model.RoleManagement;
-using HaloBiz.MyServices.RoleManagement;
+using HalobizMigrations.Models;
 using HaloBiz.Repository;
 using HaloBiz.Repository.RoleManagement;
 using Microsoft.AspNetCore.Http;
+using HaloBiz.Model.RoleManagement;
+using HaloBiz.MyServices.RoleManagement;
 
 namespace HaloBiz.MyServices.Impl.RoleManagement
 {
@@ -24,13 +24,13 @@ namespace HaloBiz.MyServices.Impl.RoleManagement
         private readonly IMapper _mapper;
         private readonly IRoleRepository _roleRepo;
         private readonly IUserProfileRepository _userProfileRepo;
-        private readonly DataContext _context;
+        private readonly HalobizContext _context;
 
         public RoleServiceImpl(
             IModificationHistoryRepository historyRepo,
             IRoleRepository roleRepo,
             IUserProfileRepository userProfileRepo,
-            DataContext dataContext,
+            HalobizContext dataContext,
             IMapper mapper)
         {
             _mapper = mapper;
@@ -97,7 +97,7 @@ namespace HaloBiz.MyServices.Impl.RoleManagement
                     roleClaims.Add(new RoleClaim
                     {
                         CanAdd = true,
-                        ClaimEnum = item,
+                        ClaimEnum = (int)item,
                         CanDelete = true,
                         CanUpdate = true,
                         CanView = true,

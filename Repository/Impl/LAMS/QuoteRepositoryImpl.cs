@@ -2,20 +2,20 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using HaloBiz.Data;
-using HaloBiz.Model.LAMS;
+using HalobizMigrations.Data;
 using HaloBiz.Repository.LAMS;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using HalobizMigrations.Models;
 
 namespace HaloBiz.Repository.Impl.LAMS
 {
     public class QuoteRepositoryImpl : IQuoteRepository
     {
-        private readonly DataContext _context;
+        private readonly HalobizContext _context;
         private readonly ILogger<QuoteRepositoryImpl> _logger;
         private readonly IQuoteServiceRepository _quoteServiceRepository;
-        public QuoteRepositoryImpl(DataContext context, ILogger<QuoteRepositoryImpl> logger, IQuoteServiceRepository quoteServiceRepository)
+        public QuoteRepositoryImpl(HalobizContext context, ILogger<QuoteRepositoryImpl> logger, IQuoteServiceRepository quoteServiceRepository)
         {
             this._logger = logger;
             this._context = context;

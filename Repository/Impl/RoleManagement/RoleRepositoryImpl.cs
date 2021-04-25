@@ -2,9 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using HaloBiz.Data;
-using HaloBiz.Model;
-using HaloBiz.Model.RoleManagement;
+using HalobizMigrations.Data;
+using HalobizMigrations.Models;
 using HaloBiz.Repository.RoleManagement;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -13,9 +12,9 @@ namespace HaloBiz.Repository.Impl.RoleManagement
 {
     public class RoleRepositoryImpl : IRoleRepository
     {
-        private readonly DataContext _context;
+        private readonly HalobizContext _context;
         private readonly ILogger<RoleRepositoryImpl> _logger;
-        public RoleRepositoryImpl(DataContext context, ILogger<RoleRepositoryImpl> logger)
+        public RoleRepositoryImpl(HalobizContext context, ILogger<RoleRepositoryImpl> logger)
         {
             this._logger = logger;
             this._context = context;

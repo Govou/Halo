@@ -5,8 +5,7 @@ using HaloBiz.DTOs.ApiDTOs;
 using HaloBiz.DTOs.ReceivingDTOs;
 using HaloBiz.DTOs.TransferDTOs;
 using HaloBiz.Helpers;
-using HaloBiz.Model;
-using HaloBiz.Model.ManyToManyRelationship;
+using HalobizMigrations.Models;
 using HaloBiz.Repository;
 using Microsoft.AspNetCore.Http;
 
@@ -119,7 +118,7 @@ namespace HaloBiz.MyServices.Impl
             }
             
 
-            await _servicerequiredServiceDocRepo.DeleteRangeServiceRequiredServiceDocument(requiredServiceDocumentToDelete.Services);
+            await _servicerequiredServiceDocRepo.DeleteRangeServiceRequiredServiceDocument(requiredServiceDocumentToDelete.ServiceRequiredServiceDocuments);
 
             if (!await _requiredServiceDocumentRepo.DeleteRequiredServiceDocument(requiredServiceDocumentToDelete))
             {

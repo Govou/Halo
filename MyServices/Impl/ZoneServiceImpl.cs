@@ -5,7 +5,7 @@ using HaloBiz.DTOs.ApiDTOs;
 using HaloBiz.DTOs.ReceivingDTOs;
 using HaloBiz.DTOs.TransferDTOs;
 using HaloBiz.Helpers;
-using HaloBiz.Model;
+using HalobizMigrations.Models;
 using HaloBiz.Repository;
 using Microsoft.AspNetCore.Http;
 
@@ -85,7 +85,7 @@ namespace HaloBiz.MyServices.Impl
             zoneToUpdate.HeadId = zoneReceivingDTO.HeadId;
             zoneToUpdate.RegionId = zoneReceivingDTO.RegionId;
             zoneToUpdate.StateId = zoneReceivingDTO.StateId;
-            zoneToUpdate.LGAId = zoneReceivingDTO.LGAId;
+            zoneToUpdate.Lgaid = zoneReceivingDTO.LGAId;
             var updatedZone = await _zoneRepo.UpdateZone(zoneToUpdate);
 
             summary += $"Details after change, \n {updatedZone.ToString()} \n";

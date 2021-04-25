@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using HaloBiz.Model;
-using HaloBiz.Model.RoleManagement;
+using HalobizMigrations.Models;
 
 namespace HaloBiz.Repository.RoleManagement
 {

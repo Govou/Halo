@@ -1,6 +1,7 @@
+using HalobizMigrations.Models;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using HaloBiz.Model.LAMS;
+
 
 namespace HaloBiz.Repository.LAMS
 {

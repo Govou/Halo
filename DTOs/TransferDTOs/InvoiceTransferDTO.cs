@@ -1,8 +1,7 @@
 using System;
 using System.Collections.Generic;
-using HaloBiz.Model.LAMS;
 using halobiz_backend.Helpers;
-using halobiz_backend.Model.AccountsModel;
+using HalobizMigrations.Models;
 
 namespace HaloBiz.DTOs.TransferDTOs
 {

@@ -2,8 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using HaloBiz.Data;
-using HaloBiz.Model;
+using HalobizMigrations.Data;
+using HalobizMigrations.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
@@ -12,9 +12,9 @@ namespace HaloBiz.Repository.Impl
 
     public class ApprovalLimitRepositoryImpl : IApprovalLimitRepository
     {
-        private readonly DataContext _context;
+        private readonly HalobizContext _context;
         private readonly ILogger<ApprovalLimitRepositoryImpl> _logger;
-        public ApprovalLimitRepositoryImpl(DataContext context, ILogger<ApprovalLimitRepositoryImpl> logger)
+        public ApprovalLimitRepositoryImpl(HalobizContext context, ILogger<ApprovalLimitRepositoryImpl> logger)
         {
             this._logger = logger;
             this._context = context;

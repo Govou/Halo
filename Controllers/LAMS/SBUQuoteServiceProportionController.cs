@@ -15,15 +15,15 @@ namespace HaloBiz.Controllers.LAMS
     [ApiController]
     public class SBUQuoteServiceProportionController : ControllerBase
     {
-        private readonly ISBUToQuoteServiceProportionsService _sQSSP;
+        private readonly ISbutoQuoteServiceProportionsService _sQSSP;
 
-        public SBUQuoteServiceProportionController(ISBUToQuoteServiceProportionsService sQSSP)
+        public SBUQuoteServiceProportionController(ISbutoQuoteServiceProportionsService sQSSP)
         {
             _sQSSP = sQSSP;
         }
 
         [HttpPost("")]
-        public async Task<ActionResult> AddNewQuoteServiceDocument( IEnumerable<SBUToQuoteServiceProportionReceivingDTO> listOfsQSSP)
+        public async Task<ActionResult> AddNewQuoteServiceDocument( IEnumerable<SbutoQuoteServiceProportionReceivingDTO> listOfsQSSP)
         {
             var response = await _sQSSP.SaveSBUToQuoteProp(HttpContext, listOfsQSSP);
             if (response.StatusCode >= 400)

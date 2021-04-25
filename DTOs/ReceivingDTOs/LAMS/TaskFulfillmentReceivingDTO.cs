@@ -1,4 +1,4 @@
-using HaloBiz.Model.LAMS;
+
 using System;
 using System.ComponentModel.DataAnnotations;
 

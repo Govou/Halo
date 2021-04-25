@@ -1,19 +1,19 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using HaloBiz.DTOs.TransferDTOs.LAMS;
-using HaloBiz.Model;
+using HalobizMigrations.Models;
 
 namespace HaloBiz.Repository
 {
     public interface IServicesRepository
     {
-        Task<Services> SaveService(Services service);
-        Task<Services> FindServicesById(long Id);
-        Task<Services> FindServiceByName(string name);
-        Task<IEnumerable<Services>> FindAllServices();
-        Task<Services> UpdateServices(Services service);
-        Task<bool> DeleteService(Services service);
-        Task<IEnumerable<Services>> FindAllUnplishedServices();
+        Task<Service> SaveService(Service service);
+        Task<Service> FindServicesById(long Id);
+        Task<Service> FindServiceByName(string name);
+        Task<IEnumerable<Service>> FindAllServices();
+        Task<Service> UpdateServices(Service service);
+        Task<bool> DeleteService(Service service);
+        Task<IEnumerable<Service>> FindAllUnplishedServices();
         Task<ServiceDivisionDetails> GetServiceDetails(long Id);
     }
 }

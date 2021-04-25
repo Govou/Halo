@@ -1,8 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using HaloBiz.Data;
-using HaloBiz.Model.ManyToManyRelationship;
+using HalobizMigrations.Data;
+using HalobizMigrations.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
@@ -10,9 +10,9 @@ namespace HaloBiz.Repository.Impl
 {
     public class ServiceRequredServiceQualificationElementRepositoryImpl : IServiceRequredServiceQualificationElementRepository
     {
-        private readonly DataContext _context;
+        private readonly HalobizContext _context;
         private readonly ILogger<ServiceRequredServiceQualificationElementRepositoryImpl> _logger;
-        public ServiceRequredServiceQualificationElementRepositoryImpl(DataContext context, ILogger<ServiceRequredServiceQualificationElementRepositoryImpl> logger)
+        public ServiceRequredServiceQualificationElementRepositoryImpl(HalobizContext context, ILogger<ServiceRequredServiceQualificationElementRepositoryImpl> logger)
         {
             this._logger = logger;
             this._context = context;
@@ -20,12 +20,12 @@ namespace HaloBiz.Repository.Impl
 
         public async Task<bool> SaveRangeServiceRequredServiceQualificationElement(IEnumerable<ServiceRequredServiceQualificationElement> serviceRequredServiceQualificationElement)
         {
-            await _context.ServiceRequredServiceQualificationElement.AddRangeAsync(serviceRequredServiceQualificationElement);
+            await _context.ServiceRequredServiceQualificationElements.AddRangeAsync(serviceRequredServiceQualificationElement);
             return await SaveChanges();
         }
         public async Task<ServiceRequredServiceQualificationElement> SaveServiceRequredServiceQualificationElement(ServiceRequredServiceQualificationElement serviceRequredServiceQualificationElement)
         {
-            var savedEntity = await _context.ServiceRequredServiceQualificationElement.AddAsync(serviceRequredServiceQualificationElement);
+            var savedEntity = await _context.ServiceRequredServiceQualificationElements.AddAsync(serviceRequredServiceQualificationElement);
             if(await SaveChanges())
             {
                 return savedEntity.Entity;
@@ -35,7 +35,7 @@ namespace HaloBiz.Repository.Impl
 
         public async Task<ServiceRequredServiceQualificationElement> FindServiceRequredServiceQualificationElementById(long serviceId, long serviceElementId)
         {
-            return await _context.ServiceRequredServiceQualificationElement                
+            return await _context.ServiceRequredServiceQualificationElements                
                 .FirstOrDefaultAsync( serviceRequredServiceQualificationElement => 
                     serviceRequredServiceQualificationElement.ServicesId == serviceId 
                         && serviceRequredServiceQualificationElement.RequredServiceQualificationElementId== serviceElementId 
@@ -45,7 +45,7 @@ namespace HaloBiz.Repository.Impl
         public async Task<bool> DeleteServiceRequredServiceQualificationElement(ServiceRequredServiceQualificationElement serviceRequredServiceQualificationElement)
         {
             serviceRequredServiceQualificationElement.IsDeleted = true;
-            _context.ServiceRequredServiceQualificationElement.Update(serviceRequredServiceQualificationElement);
+            _context.ServiceRequredServiceQualificationElements.Update(serviceRequredServiceQualificationElement);
             return await SaveChanges();
         }
 
@@ -55,7 +55,7 @@ namespace HaloBiz.Repository.Impl
             {
                 doc.IsDeleted = true;
             }
-            _context.ServiceRequredServiceQualificationElement.UpdateRange(serviceRequredServiceQualificationElements);
+            _context.ServiceRequredServiceQualificationElements.UpdateRange(serviceRequredServiceQualificationElements);
             return await SaveChanges();
         }
 

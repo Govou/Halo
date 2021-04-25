@@ -1,4 +1,4 @@
-using HaloBiz.Model;
+using HalobizMigrations.Models;
 using System;
 
 namespace HaloBiz.DTOs.ReceivingDTOs
@@ -23,7 +23,7 @@ namespace HaloBiz.DTOs.ReceivingDTOs
 
         public long? ContractServiceId { get; set; }
 
-        public long? ServicesId { get; set; }
+        public long? ServiceId { get; set; }
 
         public long CreatedById { get; set; }
         public UserProfile CreatedBy { get; set; }

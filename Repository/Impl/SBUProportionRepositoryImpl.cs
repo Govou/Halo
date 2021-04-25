@@ -1,28 +1,28 @@
-using HaloBiz.Data;
+using HalobizMigrations.Data;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using HaloBiz.Model;
+using HalobizMigrations.Models;
 using Microsoft.EntityFrameworkCore;
 
 
 namespace HaloBiz.Repository.Impl
 {
-    public class SBUProportionRepositoryImpl : ISBUProportionRepository
+    public class SbuproportionRepositoryImpl : ISbuproportionRepository
     {
-        private readonly DataContext _context;
-        private readonly ILogger<SBUProportionRepositoryImpl> _logger;
-        public SBUProportionRepositoryImpl(DataContext context, ILogger<SBUProportionRepositoryImpl> logger)
+        private readonly HalobizContext _context;
+        private readonly ILogger<SbuproportionRepositoryImpl> _logger;
+        public SbuproportionRepositoryImpl(HalobizContext context, ILogger<SbuproportionRepositoryImpl> logger)
         {
             this._logger = logger;
             this._context = context;
         }
 
-        public async Task<SBUProportion> SaveSBUProportion(SBUProportion sbuProportion)
+        public async Task<Sbuproportion> SaveSbuproportion(Sbuproportion sbuProportion)
         {
-            var savedEntity = await _context.SBUProportions.AddAsync(sbuProportion);
+            var savedEntity = await _context.Sbuproportions.AddAsync(sbuProportion);
             if(await SaveChanges())
             {
                 return savedEntity.Entity;
@@ -30,26 +30,26 @@ namespace HaloBiz.Repository.Impl
             return null;
         }
 
-        public async Task<SBUProportion> FindSBUProportionById(long Id)
+        public async Task<Sbuproportion> FindSbuproportionById(long Id)
         {
-            return await _context.SBUProportions
+            return await _context.Sbuproportions
                 .FirstOrDefaultAsync( x => x.Id == Id && x.IsDeleted == false);
         }
-        public async Task<SBUProportion> FindSBUProportionByOperatingEntityId(long Id)
+        public async Task<Sbuproportion> FindSbuproportionByOperatingEntityId(long Id)
         {
-            return await _context.SBUProportions
+            return await _context.Sbuproportions
                 .FirstOrDefaultAsync( x => x.OperatingEntityId == Id && x.IsDeleted == false);
         }
 
-        public async Task<IEnumerable<SBUProportion>> FindAllSBUProportions()
+        public async Task<IEnumerable<Sbuproportion>> FindAllSbuproportions()
         {
-            return await _context.SBUProportions.Where(x => x.IsDeleted == false)
+            return await _context.Sbuproportions.Where(x => x.IsDeleted == false)
                 .ToListAsync();
         }
 
-        public async Task<SBUProportion> UpdateSBUProportion(SBUProportion sbuProportion)
+        public async Task<Sbuproportion> UpdateSbuproportion(Sbuproportion sbuProportion)
         {
-            var updatedEntity =  _context.SBUProportions.Update(sbuProportion);
+            var updatedEntity =  _context.Sbuproportions.Update(sbuProportion);
             if(await SaveChanges())
             {
                 return updatedEntity.Entity;
@@ -57,10 +57,10 @@ namespace HaloBiz.Repository.Impl
             return null;
         }
 
-        public async Task<bool> DeleteSBUProportion(SBUProportion sbuProportion)
+        public async Task<bool> DeleteSbuproportion(Sbuproportion sbuProportion)
         {
              sbuProportion.IsDeleted = true;
-            _context.SBUProportions.Update(sbuProportion);
+            _context.Sbuproportions.Update(sbuProportion);
             return await SaveChanges();
         }
 

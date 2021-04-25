@@ -1,5 +1,5 @@
-﻿using HaloBiz.Data;
-using HaloBiz.Model.AccountsModel;
+﻿using HalobizMigrations.Data;
+using HalobizMigrations.Models;
 using halobiz_backend.DTOs.QueryParamsDTOs;
 using halobiz_backend.DTOs.ReceivingDTOs;
 using Microsoft.EntityFrameworkCore;
@@ -13,9 +13,9 @@ namespace HaloBiz.Repository.Impl
 {
     public class AccountMasterRepositoryImpl : IAccountMasterRepository
     {
-        private readonly DataContext _context;
+        private readonly HalobizContext _context;
         private readonly ILogger<AccountMasterRepositoryImpl> _logger;
-        public AccountMasterRepositoryImpl(DataContext context, ILogger<AccountMasterRepositoryImpl> logger)
+        public AccountMasterRepositoryImpl(HalobizContext context, ILogger<AccountMasterRepositoryImpl> logger)
         {
             this._logger = logger;
             this._context = context;

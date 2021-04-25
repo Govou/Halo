@@ -1,4 +1,4 @@
-﻿using HaloBiz.Model.RoleManagement;
+﻿using HalobizMigrations.Models;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;

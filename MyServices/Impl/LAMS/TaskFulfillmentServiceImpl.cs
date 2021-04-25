@@ -4,13 +4,13 @@ using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using AutoMapper;
-using HaloBiz.Data;
+using HalobizMigrations.Data;
 using HaloBiz.DTOs.ApiDTOs;
 using HaloBiz.DTOs.ReceivingDTOs;
 using HaloBiz.DTOs.TransferDTOs.LAMS;
 using HaloBiz.Helpers;
-using HaloBiz.Model;
-using HaloBiz.Model.LAMS;
+using HalobizMigrations.Models;
+
 using HaloBiz.MyServices.LAMS;
 using HaloBiz.Repository;
 using HaloBiz.Repository.LAMS;
@@ -28,7 +28,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
         private readonly ITaskFulfillmentRepository _taskFulfillmentRepo;
         private readonly IOperatingEntityRepository _operatingEntityRepo;
         private readonly IUserProfileRepository _userProfileRepo;
-        private readonly DataContext _context;
+        private readonly HalobizContext _context;
         private readonly IMapper _mapper;
         private readonly IServicesRepository _servicesRepo;
 
@@ -36,7 +36,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
             ITaskFulfillmentRepository taskFulfillmentRepo, 
             IUserProfileRepository userProfileRepo,
             IOperatingEntityRepository operatingEntityRepo,
-            DataContext dataContext,
+            HalobizContext dataContext,
             ILogger<TaskFulfillmentServiceImpl> logger, IMapper mapper,
              IServicesRepository servicesRepo
             )
@@ -108,11 +108,11 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 }
 
                 if(!task.TaskCompletionStatus){
-                    acceptedTask +=  CheckIfAccepted(task.DeliverableFUlfillments);
+                    acceptedTask +=  CheckIfAccepted(task.DeliverableFulfillments);
                 }
 
                 if(!task.TaskCompletionStatus){
-                    qualifiedTasks +=  CheckIfQualified(task.DeliverableFUlfillments);
+                    qualifiedTasks +=  CheckIfQualified(task.DeliverableFulfillments);
                 }
             }
 
@@ -328,7 +328,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
             {
                 taskFulfillmentToUpdate.IsPicked = true;
             }else {
-                if(taskFulfillmentToUpdate.DeliverableFUlfillments.Any(x => x.ResponsibleId > 0))
+                if(taskFulfillmentToUpdate.DeliverableFulfillments.Any(x => x.ResponsibleId > 0))
                 {
                     return new ApiResponse(409, "Cannot drop Task. Task deliverable has been assigned");
                 }
@@ -398,8 +398,8 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 return new ApiResponse(500);
             }
 
-            var leadDivision = await _context.LeadDivisions.Where(x => x.RCNumber == customerDivision.RCNumber && x.DivisionName == customerDivision.DivisionName && x.IsDeleted == false)
-                .Include(x => x.PrimaryContact).Include(x => x.SecondaryContact).Include(x => x.LeadDivisionKeyPersons).SingleOrDefaultAsync();
+            var leadDivision = await _context.LeadDivisions.Where(x => x.Rcnumber == customerDivision.Rcnumber && x.DivisionName == customerDivision.DivisionName && x.IsDeleted == false)
+                .Include(x => x.PrimaryContact).Include(x => x.SecondaryContact).Include(x => x.LeadDivisionKeyPeople).SingleOrDefaultAsync();
 
             if (leadDivision == null)
             {
@@ -414,7 +414,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
             taskFulfillmentTransferDTOs.PrimaryContact = leadDivision.PrimaryContact;
             taskFulfillmentTransferDTOs.SecondaryContact = leadDivision.SecondaryContact;
-            taskFulfillmentTransferDTOs.LeadDivisionKeyPersons = leadDivision.LeadDivisionKeyPersons;
+            taskFulfillmentTransferDTOs.LeadDivisionKeyPersons = leadDivision.LeadDivisionKeyPeople;
             taskFulfillmentTransferDTOs.DeliverableFulfillments = _mapper.Map<IEnumerable<DeliverableFulfillmentWithouthTaskFulfillmentTransferDTO>>(deliverableFulfillments);;      
 
             return new ApiOkResponse(taskFulfillmentTransferDTOs);

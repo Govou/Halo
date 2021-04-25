@@ -3,13 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
-using HaloBiz.Data;
+using HalobizMigrations.Data;
 using HaloBiz.DTOs.ApiDTOs;
 using HaloBiz.DTOs.ReceivingDTOs.LAMS;
 using HaloBiz.DTOs.TransferDTOs.LAMS;
 using HaloBiz.Helpers;
-using HaloBiz.Model;
-using HaloBiz.Model.LAMS;
+using HalobizMigrations.Models;
+
 using HaloBiz.MyServices.LAMS;
 using HaloBiz.Repository;
 using HaloBiz.Repository.LAMS;
@@ -18,17 +18,17 @@ using Microsoft.Extensions.Logging;
 
 namespace HaloBiz.MyServices.Impl.LAMS
 {
-    public class SBUToQuoteServiceProportionsServiceImpl : ISBUToQuoteServiceProportionsService
+    public class SbutoQuoteServiceProportionsServiceImpl : ISbutoQuoteServiceProportionsService
     {
-        private readonly ISBUToQuoteServiceProportionRepository _sbuToQuotePropRepo;
+        private readonly ISbutoQuoteServiceProportionRepository _sbuToQuotePropRepo;
         private readonly IQuoteServiceRepository _quoteServiceRepository;
-        private readonly  ISBUProportionRepository _sbuRepo;
+        private readonly  ISbuproportionRepository _sbuRepo;
         private readonly IMapper _mapper;
 
-        public SBUToQuoteServiceProportionsServiceImpl(
-                                        ISBUProportionRepository sbuRepo,
+        public SbutoQuoteServiceProportionsServiceImpl(
+                                        ISbuproportionRepository sbuRepo,
                                         IQuoteServiceRepository quoteServiceRepository,
-                                        ISBUToQuoteServiceProportionRepository sbuToQuotePropRepo, 
+                                        ISbutoQuoteServiceProportionRepository sbuToQuotePropRepo, 
                                         IMapper mapper)
         {
             this._mapper = mapper;
@@ -40,36 +40,36 @@ namespace HaloBiz.MyServices.Impl.LAMS
         public async Task<ApiResponse> GetAllSBUQuoteProportionForQuoteService(long quoteServiceId)
         {
             var sbuQuoteProp = await _sbuToQuotePropRepo
-                .FindAllSBUToQuoteServiceProportionByQuoteServiceId(quoteServiceId);
+                .FindAllSbutoQuoteServiceProportionByQuoteServiceId(quoteServiceId);
             if (sbuQuoteProp == null)
             {
                 return new ApiResponse(404);
             }
-            var sbuQuotePropTransferDTOs = _mapper.Map<IEnumerable<SBUToQuoteServiceProportionTransferDTO>>(sbuQuoteProp);
+            var sbuQuotePropTransferDTOs = _mapper.Map<IEnumerable<SbutoQuoteServiceProportionTransferDTO>>(sbuQuoteProp);
             return new ApiOkResponse(sbuQuotePropTransferDTOs);
         }
 
-        public async Task<ApiResponse> SaveSBUToQuoteProp(HttpContext context, IEnumerable<SBUToQuoteServiceProportionReceivingDTO> entities)
+        public async Task<ApiResponse> SaveSBUToQuoteProp(HttpContext context, IEnumerable<SbutoQuoteServiceProportionReceivingDTO> entities)
         {
 
-            var entitiesToSave = _mapper.Map<IEnumerable<SBUToQuoteServiceProportion>>(entities);
+            var entitiesToSave = _mapper.Map<IEnumerable<SbutoQuoteServiceProportion>>(entities);
 
             entitiesToSave = await SetProportionValue(entitiesToSave, context);
 
-            var savedEntities = await _sbuToQuotePropRepo.SaveSBUToQuoteServiceProportion(entitiesToSave);
+            var savedEntities = await _sbuToQuotePropRepo.SaveSbutoQuoteServiceProportion(entitiesToSave);
             if (savedEntities == null)
             {
                 return new ApiResponse(404);
             }
             var sbuToQuoteProportionTransferDTOs = _mapper
-                                        .Map<IEnumerable<SBUToQuoteServiceProportionTransferDTO>>(savedEntities);
+                                        .Map<IEnumerable<SbutoQuoteServiceProportionTransferDTO>>(savedEntities);
             return new ApiOkResponse(sbuToQuoteProportionTransferDTOs);
         }
-        private async Task<IEnumerable<SBUToQuoteServiceProportion>> SetProportionValue(IEnumerable<SBUToQuoteServiceProportion> entities, HttpContext context) 
+        private async Task<IEnumerable<SbutoQuoteServiceProportion>> SetProportionValue(IEnumerable<SbutoQuoteServiceProportion> entities, HttpContext context) 
         {
             var quoteServiceId = entities.Select(x => x.QuoteServiceId).First();
             var quoteService = await  _quoteServiceRepository.FindQuoteServiceById(quoteServiceId);
-            var sbuProportion = await _sbuRepo.FindSBUProportionByOperatingEntityId(quoteService.Service.OperatingEntityId);
+            var sbuProportion = await _sbuRepo.FindSbuproportionByOperatingEntityId(quoteService.Service.OperatingEntityId);
             
             if(sbuProportion != null)
             {
@@ -81,7 +81,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
             foreach (var entity in entities) 
             {
-                if(entity.Status == ProportionStatusType.LeadGeneratorAndClosure)
+                if(entity.Status == (int)ProportionStatusType.LeadGeneratorAndClosure)
                 {
                     sumRatio += 2;
                 }else
@@ -93,7 +93,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
             foreach (var entity in entities)
             {
-                if(entity.Status == ProportionStatusType.LeadGeneratorAndClosure)
+                if(entity.Status == (int)ProportionStatusType.LeadGeneratorAndClosure)
                 {
                     entity.Proportion = Math.Round(2.0/sumRatio * 100.00, 2);
                 }else
@@ -105,7 +105,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
             return entities;
         }
 
-        private IEnumerable<SBUToQuoteServiceProportion> SetProportionValueFromOperatingEntity(IEnumerable<SBUToQuoteServiceProportion> entities, SBUProportion sbuProportion, HttpContext context)
+        private IEnumerable<SbutoQuoteServiceProportion> SetProportionValueFromOperatingEntity(IEnumerable<SbutoQuoteServiceProportion> entities, Sbuproportion sbuProportion, HttpContext context)
         {
             var loggedInUserId = context.GetLoggedInUserId();
             var closure = sbuProportion.LeadClosureProportion;
@@ -116,11 +116,11 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
             foreach (var entity in entities) 
             {
-                if(entity.Status == ProportionStatusType.LeadGeneratorAndClosure)
+                if(entity.Status == (int)ProportionStatusType.LeadGeneratorAndClosure)
                 {
                     closureRatio += 1;
                     generationRation += 1;
-                }else if(entity.Status == ProportionStatusType.LeadClosure)
+                }else if(entity.Status == (int)ProportionStatusType.LeadClosure)
                 {
                     closureRatio += 1;
                 }else{
@@ -133,10 +133,10 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
             foreach (var entity in entities)
             {
-                if(entity.Status == ProportionStatusType.LeadGeneratorAndClosure)
+                if(entity.Status == (int)ProportionStatusType.LeadGeneratorAndClosure)
                 {
                     entity.Proportion = percentageClosurePerUser + percentageGenerationPerUser;
-                }else if(entity.Status == ProportionStatusType.LeadClosure)
+                }else if(entity.Status == (int)ProportionStatusType.LeadClosure)
                 {
                     entity.Proportion = percentageClosurePerUser;
                 }else{

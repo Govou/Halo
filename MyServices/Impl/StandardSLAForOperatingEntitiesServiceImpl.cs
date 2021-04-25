@@ -5,75 +5,75 @@ using HaloBiz.DTOs.ApiDTOs;
 using HaloBiz.DTOs.ReceivingDTOs;
 using HaloBiz.DTOs.TransferDTOs;
 using HaloBiz.Helpers;
-using HaloBiz.Model;
+using HalobizMigrations.Models;
 using HaloBiz.Repository;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 
 namespace HaloBiz.MyServices.Impl
 {
-    public class StandardSLAForOperatingEntitiesServiceImpl : IStandardSLAForOperatingEntitiesService
+    public class StandardSlaforOperatingEntityServiceImpl : IStandardSlaforOperatingEntityService
     {
         private readonly IModificationHistoryRepository _historyRepo;
-        private readonly IStandardSLAForOperatingEntitiesRepository _standardSLAForOperatingEntitiesRepo;
+        private readonly IStandardSlaforOperatingEntityRepository _standardSLAForOperatingEntitiesRepo;
         private readonly IMapper _mapper;
 
-        public StandardSLAForOperatingEntitiesServiceImpl(IModificationHistoryRepository historyRepo, IStandardSLAForOperatingEntitiesRepository StandardSLAForOperatingEntitiesRepo, IMapper mapper)
+        public StandardSlaforOperatingEntityServiceImpl(IModificationHistoryRepository historyRepo, IStandardSlaforOperatingEntityRepository StandardSlaforOperatingEntityRepo, IMapper mapper)
         {
             this._mapper = mapper;
             this._historyRepo = historyRepo;
-            this._standardSLAForOperatingEntitiesRepo = StandardSLAForOperatingEntitiesRepo;
+            this._standardSLAForOperatingEntitiesRepo = StandardSlaforOperatingEntityRepo;
         }
 
-        public async Task<ApiResponse> AddStandardSLAForOperatingEntities(HttpContext context, StandardSLAForOperatingEntitiesReceivingDTO standardSLAForOperatingEntitiesReceivingDTO)
+        public async Task<ApiResponse> AddStandardSlaforOperatingEntity(HttpContext context, StandardSlaforOperatingEntityReceivingDTO standardSLAForOperatingEntitiesReceivingDTO)
         {
-            var standardSLAForOperatingEntities = _mapper.Map<StandardSLAForOperatingEntities>(standardSLAForOperatingEntitiesReceivingDTO);
+            var standardSLAForOperatingEntities = _mapper.Map<StandardSlaforOperatingEntity>(standardSLAForOperatingEntitiesReceivingDTO);
             standardSLAForOperatingEntities.CreatedById = context.GetLoggedInUserId();
-            var savedStandardSLAForOperatingEntities = await _standardSLAForOperatingEntitiesRepo.SaveStandardSLAForOperatingEntities(standardSLAForOperatingEntities);
-            if (savedStandardSLAForOperatingEntities == null)
+            var savedStandardSlaforOperatingEntity = await _standardSLAForOperatingEntitiesRepo.SaveStandardSlaforOperatingEntity(standardSLAForOperatingEntities);
+            if (savedStandardSlaforOperatingEntity == null)
             {
                 return new ApiResponse(500);
             }
-            var standardSLAForOperatingEntitiesTransferDTO = _mapper.Map<StandardSLAForOperatingEntitiesTransferDTO>(standardSLAForOperatingEntities);
+            var standardSLAForOperatingEntitiesTransferDTO = _mapper.Map<StandardSlaforOperatingEntityTransferDTO>(standardSLAForOperatingEntities);
             return new ApiOkResponse(standardSLAForOperatingEntitiesTransferDTO);
         }
 
-        public async Task<ApiResponse> GetAllStandardSLAForOperatingEntities()
+        public async Task<ApiResponse> GetAllStandardSlaforOperatingEntity()
         {
-            var standardSLAForOperatingEntitiess = await _standardSLAForOperatingEntitiesRepo.FindAllStandardSLAForOperatingEntities();
+            var standardSLAForOperatingEntitiess = await _standardSLAForOperatingEntitiesRepo.FindAllStandardSlaforOperatingEntity();
             if (standardSLAForOperatingEntitiess == null)
             {
                 return new ApiResponse(404);
             }
-            var standardSLAForOperatingEntitiesTransferDTO = _mapper.Map<IEnumerable<StandardSLAForOperatingEntitiesTransferDTO>>(standardSLAForOperatingEntitiess);
+            var standardSLAForOperatingEntitiesTransferDTO = _mapper.Map<IEnumerable<StandardSlaforOperatingEntityTransferDTO>>(standardSLAForOperatingEntitiess);
             return new ApiOkResponse(standardSLAForOperatingEntitiesTransferDTO);
         }
 
-        public async Task<ApiResponse> GetStandardSLAForOperatingEntitiesById(long id)
+        public async Task<ApiResponse> GetStandardSlaforOperatingEntityById(long id)
         {
-            var standardSLAForOperatingEntities = await _standardSLAForOperatingEntitiesRepo.FindStandardSLAForOperatingEntitiesById(id);
+            var standardSLAForOperatingEntities = await _standardSLAForOperatingEntitiesRepo.FindStandardSlaforOperatingEntityById(id);
             if (standardSLAForOperatingEntities == null)
             {
                 return new ApiResponse(404);
             }
-            var standardSLAForOperatingEntitiesTransferDTOs = _mapper.Map<StandardSLAForOperatingEntitiesTransferDTO>(standardSLAForOperatingEntities);
+            var standardSLAForOperatingEntitiesTransferDTOs = _mapper.Map<StandardSlaforOperatingEntityTransferDTO>(standardSLAForOperatingEntities);
             return new ApiOkResponse(standardSLAForOperatingEntitiesTransferDTOs);
         }
 
-        public async Task<ApiResponse> GetStandardSLAForOperatingEntitiesByName(string name)
+        public async Task<ApiResponse> GetStandardSlaforOperatingEntityByName(string name)
         {
-            var standardSLAForOperatingEntities = await _standardSLAForOperatingEntitiesRepo.FindStandardSLAForOperatingEntitiesByName(name);
+            var standardSLAForOperatingEntities = await _standardSLAForOperatingEntitiesRepo.FindStandardSlaforOperatingEntityByName(name);
             if (standardSLAForOperatingEntities == null)
             {
                 return new ApiResponse(404);
             }
-            var standardSLAForOperatingEntitiesTransferDTOs = _mapper.Map<StandardSLAForOperatingEntitiesTransferDTO>(standardSLAForOperatingEntities);
+            var standardSLAForOperatingEntitiesTransferDTOs = _mapper.Map<StandardSlaforOperatingEntityTransferDTO>(standardSLAForOperatingEntities);
             return new ApiOkResponse(standardSLAForOperatingEntitiesTransferDTOs);
         }
 
-        public async Task<ApiResponse> UpdateStandardSLAForOperatingEntities(HttpContext context, long id, StandardSLAForOperatingEntitiesReceivingDTO standardSLAForOperatingEntitiesReceivingDTO)
+        public async Task<ApiResponse> UpdateStandardSlaforOperatingEntity(HttpContext context, long id, StandardSlaforOperatingEntityReceivingDTO standardSLAForOperatingEntitiesReceivingDTO)
         {
-            var standardSLAForOperatingEntitiesToUpdate = await _standardSLAForOperatingEntitiesRepo.FindStandardSLAForOperatingEntitiesById(id);
+            var standardSLAForOperatingEntitiesToUpdate = await _standardSLAForOperatingEntitiesRepo.FindStandardSlaforOperatingEntityById(id);
             if (standardSLAForOperatingEntitiesToUpdate == null)
             {
                 return new ApiResponse(404);
@@ -85,37 +85,37 @@ namespace HaloBiz.MyServices.Impl
             standardSLAForOperatingEntitiesToUpdate.Description = standardSLAForOperatingEntitiesReceivingDTO.Description;
             standardSLAForOperatingEntitiesToUpdate.OperatingEntityId = standardSLAForOperatingEntitiesReceivingDTO.OperatingEntityId;
             standardSLAForOperatingEntitiesToUpdate.DocumentUrl = standardSLAForOperatingEntitiesReceivingDTO.DocumentUrl;
-            var updatedStandardSLAForOperatingEntities = await _standardSLAForOperatingEntitiesRepo.UpdateStandardSLAForOperatingEntities(standardSLAForOperatingEntitiesToUpdate);
+            var updatedStandardSlaforOperatingEntity = await _standardSLAForOperatingEntitiesRepo.UpdateStandardSlaforOperatingEntity(standardSLAForOperatingEntitiesToUpdate);
 
-            summary += $"Details after change, \n {updatedStandardSLAForOperatingEntities.ToString()} \n";
+            summary += $"Details after change, \n {updatedStandardSlaforOperatingEntity.ToString()} \n";
 
-            if (updatedStandardSLAForOperatingEntities == null)
+            if (updatedStandardSlaforOperatingEntity == null)
             {
                 return new ApiResponse(500);
             }
             ModificationHistory history = new ModificationHistory(){
-                ModelChanged = "StandardSLAForOperatingEntities",
+                ModelChanged = "StandardSlaforOperatingEntity",
                 ChangeSummary = summary,
                 ChangedById = context.GetLoggedInUserId(),
-                ModifiedModelId = updatedStandardSLAForOperatingEntities.Id
+                ModifiedModelId = updatedStandardSlaforOperatingEntity.Id
             };
 
             await _historyRepo.SaveHistory(history);
 
-            var standardSLAForOperatingEntitiesTransferDTOs = _mapper.Map<StandardSLAForOperatingEntitiesTransferDTO>(updatedStandardSLAForOperatingEntities);
+            var standardSLAForOperatingEntitiesTransferDTOs = _mapper.Map<StandardSlaforOperatingEntityTransferDTO>(updatedStandardSlaforOperatingEntity);
             return new ApiOkResponse(standardSLAForOperatingEntitiesTransferDTOs);
 
         }
 
-        public async Task<ApiResponse> DeleteStandardSLAForOperatingEntities(long id)
+        public async Task<ApiResponse> DeleteStandardSlaforOperatingEntity(long id)
         {
-            var standardSLAForOperatingEntitiesToDelete = await _standardSLAForOperatingEntitiesRepo.FindStandardSLAForOperatingEntitiesById(id);
+            var standardSLAForOperatingEntitiesToDelete = await _standardSLAForOperatingEntitiesRepo.FindStandardSlaforOperatingEntityById(id);
             if (standardSLAForOperatingEntitiesToDelete == null)
             {
                 return new ApiResponse(404);
             }
 
-            if (!await _standardSLAForOperatingEntitiesRepo.DeleteStandardSLAForOperatingEntities(standardSLAForOperatingEntitiesToDelete))
+            if (!await _standardSLAForOperatingEntitiesRepo.DeleteStandardSlaforOperatingEntity(standardSLAForOperatingEntitiesToDelete))
             {
                 return new ApiResponse(500);
             }

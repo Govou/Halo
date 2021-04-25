@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using AutoMapper;
 using HaloBiz.Adapters;
 using HaloBiz.Adapters.Impl;
-using HaloBiz.Data;
+using HalobizMigrations.Data;
 using HaloBiz.Helpers;
 using HaloBiz.MyServices;
 using HaloBiz.MyServices.Impl;
@@ -36,6 +36,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using HaloBiz.Data;
 
 namespace HaloBiz
 {
@@ -57,7 +58,7 @@ namespace HaloBiz
 
             if (env.IsDevelopment())
             {
-                services.AddDbContext<DataContext>(options =>
+                services.AddDbContext<HalobizContext>(options =>
                     options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
 
             }
@@ -68,7 +69,7 @@ namespace HaloBiz
                 var user = Configuration["DbUser"];
                 var password = Configuration["DbPassword"];
                 var database = Configuration["Database"];
-                services.AddDbContext<DataContext>(options =>
+                services.AddDbContext<HalobizContext>(options =>
                     options.UseSqlServer($"Server={server},{port};Database={database};User Id={user};Password={password};"));
 
             }
@@ -120,7 +121,7 @@ namespace HaloBiz
             services.AddScoped<IBankService, BankServiceImpl>();
             services.AddScoped<ITargetService, TargetServiceImpl>();
             services.AddScoped<IServiceTypeService, ServiceTypeServiceImpl>();
-            services.AddScoped<IStandardSLAForOperatingEntitiesService, StandardSLAForOperatingEntitiesServiceImpl>();
+            services.AddScoped<IStandardSlaforOperatingEntityService, StandardSlaforOperatingEntityServiceImpl>();
             services.AddScoped<IMeansOfIdentificationService, MeansOfIdentificationServiceImpl>();
             services.AddScoped<IAccountMasterService, AccountMasterServiceImpl>();
             services.AddScoped<IAccountDetailService, AccountDetailServiceImpl>();
@@ -144,7 +145,7 @@ namespace HaloBiz
             services.AddScoped<IQuoteServiceDocumentService, QuoteServiceDocumentServiceImpl>();
             services.AddScoped<IContractService, ContractServiceImpl>();
             services.AddScoped<IContractServiceService, ContractServiceServiceImpl>();
-            services.AddScoped<ISBUToQuoteServiceProportionsService, SBUToQuoteServiceProportionsServiceImpl>();
+            services.AddScoped<ISbutoQuoteServiceProportionsService, SbutoQuoteServiceProportionsServiceImpl>();
             services.AddScoped<IRegionService, RegionServiceImpl>();
             services.AddScoped<IZoneService, ZoneServiceImpl>();
             services.AddScoped<INegotiationDocumentService, NegotiationDocumentServiceImpl>();
@@ -164,7 +165,7 @@ namespace HaloBiz
             services.AddScoped<ICompanyService, CompanyServiceImpl>();
             services.AddScoped<IEndorsementTypeService, EndorsementTypeServiceImpl>();
             services.AddScoped<IClientBeneficiaryService, ClientBeneficiaryServiceImpl>();
-            services.AddScoped<ISBUProportionService, SBUProportionServiceImpl>();
+            services.AddScoped<ISbuproportionService, SbuproportionServiceImpl>();
             services.AddScoped<IContractServiceForEndorsementService, ContractServiceForEndorsementServiceImpl>();
             services.AddScoped<IModeOfTransportService, ModeOfTransportServiceImpl>();
             services.AddScoped<ISupplierCategoryService, SupplierCategoryServiceImpl>();
@@ -198,7 +199,7 @@ namespace HaloBiz
             services.AddScoped<IBankRepository, BankRepositoryImpl>();
             services.AddScoped<ITargetRepository, TargetRepositoryImpl>();
             services.AddScoped<IServiceTypeRepository, ServiceTypeRepositoryImpl>();
-            services.AddScoped<IStandardSLAForOperatingEntitiesRepository, StandardSLAForOperatingEntitiesRepositoryImpl>();
+            services.AddScoped<IStandardSlaforOperatingEntityRepository, StandardSlaforOperatingEntityRepositoryImpl>();
             services.AddScoped<IMeansOfIdentificationRepository, MeansOfIdentificationRepositoryImpl>();
             services.AddScoped<IAccountDetailsRepository, AccountDetailRepositoryImpl>();
             services.AddScoped<IAccountMasterRepository, AccountMasterRepositoryImpl>();
@@ -226,7 +227,7 @@ namespace HaloBiz
             services.AddScoped<IClosureDocumentRepository, ClosureDocumentRepositoryImpl>();
             services.AddScoped<IQuoteServiceDocumentRepository, QuoteServiceDocumentRepositoryImpl>();
             services.AddScoped<IContractServiceRepository, ContractServiceRepositoryImpl>();
-            services.AddScoped<ISBUToQuoteServiceProportionRepository, SBUToQuoteServiceProportionRepositoryImpl>();
+            services.AddScoped<ISbutoQuoteServiceProportionRepository, SbutoQuoteServiceProportionRepositoryImpl>();
             services.AddScoped<IRegionRepository, RegionRepositoryImpl>();
             services.AddScoped<IZoneRepository, ZoneRepositoryImpl>();
             services.AddScoped<INegotiationDocumentRepository, NegotiationDocumentRepositoryImpl>();
@@ -246,7 +247,7 @@ namespace HaloBiz
             services.AddScoped<IEndorsementTypeRepository, EndorsementTypeRepositoryImpl>();
             services.AddScoped<IClientBeneficiaryRepository, ClientBeneficiaryRepositoryImpl>();
             services.AddScoped<IGroupInvoiceTrackerRepository, GroupInvoiceTrackerRepositoryImpl>();
-            services.AddScoped<ISBUProportionRepository, SBUProportionRepositoryImpl>();
+            services.AddScoped<ISbuproportionRepository, SbuproportionRepositoryImpl>();
             services.AddScoped<IContractServiceForEndorsementRepository, ContractServiceForEndorsementRepositoryImpl>();
             services.AddScoped<IModeOfTransportRepository, ModeOfTransportRepositoryImpl>();
             services.AddScoped<ISupplierRepository, SupplierRepositoryImpl>();

@@ -2,25 +2,22 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using HaloBiz.Data;
+using HalobizMigrations.Data;
 using HaloBiz.Helpers;
-using HaloBiz.Model;
-using HaloBiz.Model.AccountsModel;
-using HaloBiz.Model.LAMS;
-using HaloBiz.Model.ManyToManyRelationship;
-using HaloBiz.MyServices.LAMS;
+using HalobizMigrations.Models;
 using halobiz_backend.Helpers;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using AutoMapper;
 using HaloBiz.Adapters;
 using Newtonsoft.Json;
+using HaloBiz.MyServices.LAMS;
 
 namespace HaloBiz.MyServices.Impl.LAMS
 {
     public class LeadConversionServiceImpl : ILeadConversionService
     {
-        private readonly DataContext _context;
+        private readonly HalobizContext _context;
         private readonly IMapper _mapper;
         private readonly IMailAdapter _mailAdapter;
         private readonly ILogger<LeadConversionServiceImpl> _logger;
@@ -36,7 +33,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
         private readonly List<string> groupInvoiceNumbers = new List<string>();
 
         public LeadConversionServiceImpl(
-                                        DataContext context, 
+                                        HalobizContext context, 
                                         ILogger<LeadConversionServiceImpl> logger,
                                         IMapper mapper,
                                         IMailAdapter mailAdapter
@@ -55,11 +52,11 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 try
                 {
                     var lead = await _context.Leads
-                        .Include(x => x.LeadKeyPersons)
+                        .Include(x => x.LeadKeyPeople)
                         .Include(x => x.LeadDivisions)
                             .ThenInclude(x => x.Quote)
                         .Include(x => x.LeadDivisions)
-                            .ThenInclude(x => x.LeadDivisionKeyPersons)
+                            .ThenInclude(x => x.LeadDivisionKeyPeople)
                         .Include(x => x.GroupType)
                         .FirstOrDefaultAsync(x => x.Id == leadId);
 
@@ -72,7 +69,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
                       var quote = await _context.Quotes
                                             .Include(x => x.QuoteServices)
-                                                .ThenInclude(x => x.SBUToQuoteServiceProportions)
+                                                .ThenInclude(x => x.SbutoQuoteServiceProportions)
                                             .FirstOrDefaultAsync(x => x.LeadDivisionId == leadDivision.Id);
 
                       Contract contract = await ConvertQuoteToContract( quote, customerDivision.Id,  _context);
@@ -109,7 +106,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
 
 
-        private async Task<Customer> ConvertLeadToCustomer(Lead lead, DataContext context)
+        private async Task<Customer> ConvertLeadToCustomer(Lead lead, HalobizContext context)
         {
             Customer customer = null;
 
@@ -131,7 +128,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
  
         }
 
-        private async Task<Customer> GetRetailCustomer(Lead lead, DataContext context)
+        private async Task<Customer> GetRetailCustomer(Lead lead, HalobizContext context)
         {
             var retailCustomer = await context.Customers
                 .FirstOrDefaultAsync(x => x.GroupName == this.RETAIL);
@@ -143,7 +140,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
             var customerEntity = await context.Customers.AddAsync( new Customer(){
                 GroupName = "Retail",
-                RCNumber = "",
+                Rcnumber = "",
                 GroupTypeId = lead.GroupTypeId,
                 Industry = "Retail",
                 LogoUrl = this.retailLogo,
@@ -154,10 +151,10 @@ namespace HaloBiz.MyServices.Impl.LAMS
             await context.SaveChangesAsync();
             return customerEntity.Entity;
         }
-        private async Task<Customer> GetOtherCustomer(Lead lead, DataContext context)
+        private async Task<Customer> GetOtherCustomer(Lead lead, HalobizContext context)
         {
             var retailCustomer = await context.Customers
-                .FirstOrDefaultAsync(x => x.GroupName == lead.GroupName || x.RCNumber == lead.RCNumber);
+                .FirstOrDefaultAsync(x => x.GroupName == lead.GroupName || x.Rcnumber == lead.Rcnumber);
 
             if(retailCustomer != null)
             {
@@ -166,7 +163,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
             var customerEntity = await context.Customers.AddAsync( new Customer(){
                 GroupName = lead.GroupName,
-                RCNumber = lead.RCNumber,
+                Rcnumber = lead.Rcnumber,
                 GroupTypeId = lead.GroupTypeId,
                 Industry = lead.Industry,
                 LogoUrl = lead.LogoUrl,
@@ -178,21 +175,21 @@ namespace HaloBiz.MyServices.Impl.LAMS
             });
             await context.SaveChangesAsync();
 
-            foreach (var keyPerson in lead.LeadKeyPersons)
+            foreach (var keyPerson in lead.LeadKeyPeople)
             {
                 keyPerson.CustomerId = customerEntity.Entity.Id;
             }
 
-            _context.LeadKeyPeople.UpdateRange(lead.LeadKeyPersons);
+            _context.LeadKeyPeople.UpdateRange(lead.LeadKeyPeople);
             await context.SaveChangesAsync();
             return customerEntity.Entity;
         }
 
 
-        private async Task<CustomerDivision> ConvertLeadDivisionToCustomerDivision(LeadDivision leadDivision, long customerId, DataContext context)
+        private async Task<CustomerDivision> ConvertLeadDivisionToCustomerDivision(LeadDivision leadDivision, long customerId, HalobizContext context)
         {
             var customerDivision = await context.CustomerDivisions
-                    .FirstOrDefaultAsync(x => x.DivisionName == leadDivision.DivisionName && x.RCNumber == leadDivision.RCNumber);
+                    .FirstOrDefaultAsync(x => x.DivisionName == leadDivision.DivisionName && x.Rcnumber == leadDivision.Rcnumber);
             
             if(customerDivision != null)
             {
@@ -201,7 +198,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
             //creates customer division from lead division and saves the customer division
             var customerDivisionEntity =  await context.CustomerDivisions.AddAsync(new CustomerDivision(){
                 Industry = leadDivision.Industry,
-                RCNumber = leadDivision.RCNumber,
+                Rcnumber = leadDivision.Rcnumber,
                 DivisionName = leadDivision.DivisionName,
                 Email = leadDivision.Email,
                 LogoUrl = leadDivision.LogoUrl,
@@ -209,7 +206,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 PhoneNumber = leadDivision.PhoneNumber,
                 Address = leadDivision.Address,
                 State = leadDivision.State,
-                LGA = leadDivision.LGA,
+                Lga = leadDivision.Lga,
                 Street = leadDivision.Street,
                 PrimaryContactId = leadDivision.PrimaryContactId,
                 SecondaryContactId = leadDivision.SecondaryContactId,
@@ -218,19 +215,19 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
             await context.SaveChangesAsync();
 
-            foreach (var keyPerson in leadDivision.LeadDivisionKeyPersons)
+            foreach (var keyPerson in leadDivision.LeadDivisionKeyPeople)
             {
                 keyPerson.CustomerDivisionId = customerDivisionEntity.Entity.Id;
             }
 
-            _context.LeadDivisionKeyPeople.UpdateRange(leadDivision.LeadDivisionKeyPersons);
+            _context.LeadDivisionKeyPeople.UpdateRange(leadDivision.LeadDivisionKeyPeople);
             await context.SaveChangesAsync();
             
             return customerDivisionEntity.Entity;
             
         }
 
-        private async Task<Contract> ConvertQuoteToContract(Quote quote, long customerDivisionId, DataContext context)
+        private async Task<Contract> ConvertQuoteToContract(Quote quote, long customerDivisionId, HalobizContext context)
         {
 
             //Create contract from quote
@@ -247,7 +244,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
         }
 
         private async Task<bool> ConvertQuoteServiceToContractService(QuoteService quoteService, 
-                                                                        DataContext context, 
+                                                                        HalobizContext context, 
                                                                         CustomerDivision customerDivision, 
                                                                         long contractId, 
                                                                         LeadDivision leadDivision)
@@ -257,7 +254,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 UnitPrice = quoteService.UnitPrice,
                 Quantity = quoteService.Quantity,
                 Discount = quoteService.Discount,
-                VAT = quoteService.VAT,
+                Vat = quoteService.Vat,
                 BillableAmount = quoteService.BillableAmount,
                 Budget = quoteService.Budget,
                 ContractStartDate = quoteService.ContractStartDate,
@@ -306,7 +303,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
             await ConvertQuoteServiceDocumentsToClosureDocuments(quoteService.Id, contractService.Id, context);
             await CreateTaskAndDeliverables(contractService, customerDivision.Id, "New");
             
-            if(contractService.InvoicingInterval != TimeCycle.Adhoc)
+            if(contractService.InvoicingInterval != (int)TimeCycle.Adhoc)
             { 
 
                 //Check if the contract service is part of a part of the bulk invoice and if also the invoice has been processed
@@ -348,19 +345,19 @@ namespace HaloBiz.MyServices.Impl.LAMS
         public async Task<ContractService> GenerateBulkContractService(ContractService contractService)
         {
             double totalVAT = 0.0 , totalBillable = 0.0;
-            var groupContractServices = await _context.QuoteServices
+            var groupContractService = await _context.QuoteServices
                 .Where(x => x.GroupInvoiceNumber == contractService.GroupInvoiceNumber && !x.IsDeleted)
                     .ToListAsync();
-            foreach (var quoteService in groupContractServices)
+            foreach (var quoteService in groupContractService)
             {
                 totalBillable += (double) quoteService.BillableAmount;
-                totalVAT += (double) quoteService.VAT;
+                totalVAT += (double) quoteService.Vat;
             }
 
             this.groupInvoiceNumbers.Add(contractService.GroupInvoiceNumber);
             var newContractService = _mapper.Map<ContractService>(contractService);
             newContractService.BillableAmount = totalBillable;
-            newContractService.VAT = totalVAT;
+            newContractService.Vat = totalVAT;
             
             return newContractService;
             
@@ -369,18 +366,18 @@ namespace HaloBiz.MyServices.Impl.LAMS
         public async Task<bool> GenerateAndSaveGroupInvoiceDetails(string groupInvoiceNumber)
         {
             var contractServices = await _context.ContractServices.Where(x => x.GroupInvoiceNumber == groupInvoiceNumber && !x.IsDeleted).ToListAsync();
-            var groupInvoiceDetails = new List<GroupInvoiceDetails>();
+            var groupInvoiceDetails = new List<GroupInvoiceDetail>();
             foreach (var contractService in contractServices)
             {
                 groupInvoiceDetails.Add(
-                    new GroupInvoiceDetails()
+                    new GroupInvoiceDetail()
                 {
                     InvoiceNumber = contractService.GroupInvoiceNumber,
                     Description = $"Invoice details for Group Invoice {contractService.GroupInvoiceNumber}",
                     UnitPrice = (double) contractService.UnitPrice,
                     Quantity =(int) contractService.Quantity,
-                    VAT  = (double) contractService.VAT,
-                    Value = (double) (contractService.BillableAmount - contractService.VAT),
+                    Vat  = (double) contractService.Vat,
+                    Value = (double) (contractService.BillableAmount - contractService.Vat),
                     BillableAmount = (double) contractService.BillableAmount,
                     ContractServiceId = contractService.Id
                 }
@@ -393,17 +390,17 @@ namespace HaloBiz.MyServices.Impl.LAMS
         }
 
 
-        private async Task<bool> ConvertSBUToQuoteServicePropToSBUToContractServiceProp(long quoteServiceId, long contractServiceId, DataContext context)
+        private async Task<bool> ConvertSBUToQuoteServicePropToSBUToContractServiceProp(long quoteServiceId, long contractServiceId, HalobizContext context)
         {
-            var sBUToContractServiceProps = new List<SBUToContractServiceProportion>();
+            var sBUToContractServiceProps = new List<SbutoContractServiceProportion>();
 
-            var sBUToQuoteServiceProps = await _context.SBUToQuoteServiceProportions
+            var sBUToQuoteServiceProps = await _context.SbutoQuoteServiceProportions
                     .Where(x => x.QuoteServiceId == quoteServiceId)
                     .ToListAsync();
             
             foreach(var sbuToQuoteServiceProp in sBUToQuoteServiceProps)
             {
-                sBUToContractServiceProps.Add(new SBUToContractServiceProportion()
+                sBUToContractServiceProps.Add(new SbutoContractServiceProportion()
                 {
                     ContractServiceId = contractServiceId,
                     Proportion = sbuToQuoteServiceProp.Proportion,
@@ -415,13 +412,13 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
             }
 
-            await context.SBUToContractServiceProportions.AddRangeAsync(sBUToContractServiceProps);
+            await context.SbutoContractServiceProportions.AddRangeAsync(sBUToContractServiceProps);
             await context.SaveChangesAsync();
             return true;
             
         }
 
-        private async Task<bool> ConvertQuoteServiceDocumentsToClosureDocuments(long quoteServiceId, long contractServiceId, DataContext context)
+        private async Task<bool> ConvertQuoteServiceDocumentsToClosureDocuments(long quoteServiceId, long contractServiceId, HalobizContext context)
         {
             var closureDocuments = new List<ClosureDocument>();
 
@@ -609,9 +606,9 @@ namespace HaloBiz.MyServices.Impl.LAMS
                     ContractServiceId = contractService.Id,
                     StartDate  = from,
                     EndDate  = to,
-                    IsReceiptedStatus = InvoiceStatus.NotReceipted,
+                    IsReceiptedStatus = (int)InvoiceStatus.NotReceipted,
                     IsFinalInvoice = true,
-                    InvoiceType = InvoiceType.New,
+                    InvoiceType = (int)InvoiceType.New,
                     CreatedById =  loggedInUserId,
                     GroupInvoiceNumber = String.IsNullOrWhiteSpace(contractService.GroupInvoiceNumber)? null :  invoiceNumber,
                     //First Accounts for first invoices are posted when a lead is converted to client
@@ -686,14 +683,14 @@ namespace HaloBiz.MyServices.Impl.LAMS
         public async Task<bool> CreateTaskAndDeliverables(ContractService contractServcie, long customerDivisionId, string endorsementType, long? loggedInUserId = null)
         {
             var createdById =  loggedInUserId?? this.LoggedInUserId; 
-            Services service = await _context.Services.FirstOrDefaultAsync(x => x.Id == contractServcie.ServiceId); 
+            Service service = await _context.Services.FirstOrDefaultAsync(x => x.Id == contractServcie.ServiceId); 
             if(service == null)
             {
                 return false;
             }
 
             IEnumerable<ServiceCategoryTask> serviceCategoryTasks = await _context.ServiceCategoryTasks
-            .Include(x => x.ServiceTaskDeliverable)
+            .Include(x => x.ServiceTaskDeliverables)
             .Where(x => x.ServiceCategoryId == service.ServiceCategoryId && x.EndorsementType.Caption == endorsementType && x.IsDeleted == false).ToListAsync();
             
             foreach (var serviceTask in serviceCategoryTasks)
@@ -713,7 +710,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                                     ServiceCategoryTask serviceTask, 
                                     ContractService contractServcie,  
                                     long customerDivisionId,
-                                    Services service,
+                                    Service service,
                                     long loggedInUserId
                                     )
         {
@@ -746,7 +743,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
             await SendNewTaskAssignedMail(taskFulfilment, contractServcie.Service.OperatingEntity.Name);
             
-            foreach (var deliverable in serviceTask.ServiceTaskDeliverable)
+            foreach (var deliverable in serviceTask.ServiceTaskDeliverables)
             {
                 await CreateDeliverableFulfillment(task.Entity.Id, deliverable, service.ServiceCode, loggedInUserId);
             }
@@ -779,7 +776,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                                     CustomerDivision customerDivision,
                                     long branchId,
                                     long officeId,
-                                    Services service,
+                                    Service service,
                                     FinanceVoucherType accountVoucherType,
                                     QuoteService quoteService,
                                     long loggedInUserId,
@@ -801,7 +798,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                                                             
             if(quoteService != null)
             {
-                //await SaveRangeSBUAccountMaster( savedAccountMaster.Id, quoteService.SBUToQuoteServiceProportions);  
+                //await SaveRangeSbuaccountMaster( savedAccountMaster.Id, quoteService.SbutoQuoteServiceProportions);  
             }
 
             await PostCustomerReceivablAccounts(
@@ -845,7 +842,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
             return true;
         }
         public async Task<bool> PostCustomerReceivablAccounts(
-                                    Services service,
+                                    Service service,
                                     long contractServiceId,
                                     CustomerDivision customerDivision,
                                     long branchId,
@@ -936,7 +933,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
         
         public async Task<bool> PostVATAccountDetails(
-                                    Services service,
+                                    Service service,
                                     long contractServiceId,
                                     CustomerDivision customerDivision,
                                     long branchId,
@@ -967,7 +964,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
         }
 
         public async Task<bool> PostIncomeAccount(
-                                    Services service,
+                                    Service service,
                                     long contractServiceId,
                                     CustomerDivision customerDivision,
                                     long branchId,
@@ -1022,7 +1019,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
            
         }
 
-        public async Task<AccountMaster> CreateAccountMaster(Services service,
+        public async Task<AccountMaster> CreateAccountMaster(Service service,
                                                         ContractService contractService,  
                                                         long accountVoucherTypeId, 
                                                         long branchId, 
@@ -1051,25 +1048,25 @@ namespace HaloBiz.MyServices.Impl.LAMS
             return savedAccountMaster.Entity;
         }
 
-        private async Task<bool> SaveRangeSBUAccountMaster(long accountMasterId, IEnumerable<SBUToQuoteServiceProportion> sBUToQuoteServicesProp)
+        private async Task<bool> SaveRangeSbuaccountMaster(long accountMasterId, IEnumerable<SbutoQuoteServiceProportion> sBUToQuoteServiceProp)
         {
-            List<SBUAccountMaster> listOfSBUAccountMaster = new List<SBUAccountMaster>();
-            foreach (var prop in sBUToQuoteServicesProp)
+            List<SbuaccountMaster> listOfSbuaccountMaster = new List<SbuaccountMaster>();
+            foreach (var prop in sBUToQuoteServiceProp)
             {
-                listOfSBUAccountMaster.Add(new SBUAccountMaster()
+                listOfSbuaccountMaster.Add(new SbuaccountMaster()
                 {
                     StrategicBusinessUnitId = prop.StrategicBusinessUnitId,
                     AccountMasterId = accountMasterId
                 });
             }
 
-            await _context.SBUAccountMasters.AddRangeAsync(listOfSBUAccountMaster);
+            await _context.SbuaccountMasters.AddRangeAsync(listOfSbuaccountMaster);
             await _context.SaveChangesAsync();
             return true;
         }
 
         private async Task<AccountDetail> PostAccountDetail(
-                                                    Services service,
+                                                    Service service,
                                                     long contractServiceId,  
                                                     long accountVoucherTypeId, 
                                                     long branchId, 
@@ -1172,7 +1169,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
             DateTime startDate =(DateTime) contractService.ContractStartDate; 
             DateTime endDate =(DateTime) contractService.ContractEndDate;
             TimeCycle cycle =(TimeCycle) contractService.InvoicingInterval;
-            double amount = isVAT ? (double) contractService.VAT : (double) contractService.BillableAmount;
+            double amount = isVAT ? (double) contractService.Vat : (double) contractService.BillableAmount;
 
             switch (cycle)
             {

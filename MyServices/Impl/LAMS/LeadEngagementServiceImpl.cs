@@ -8,14 +8,13 @@ using HaloBiz.DTOs.ApiDTOs;
 using HaloBiz.DTOs.ReceivingDTOs;
 using HaloBiz.DTOs.TransferDTOs.LAMS;
 using HaloBiz.Helpers;
-using HaloBiz.Model;
-using HaloBiz.Model.LAMS;
-using HaloBiz.Model.ManyToManyRelationship;
+using HalobizMigrations.Models;
 using HaloBiz.MyServices.LAMS;
 using HaloBiz.Repository;
 using HaloBiz.Repository.LAMS;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
+using HalobizMigrations.Models.Halobiz;
 
 namespace HaloBiz.MyServices.Impl.LAMS
 {
@@ -38,14 +37,14 @@ namespace HaloBiz.MyServices.Impl.LAMS
         {
             var leadEngagement = _mapper.Map<LeadEngagement>(leadEngagementReceivingDTO);
 
-            leadEngagement.LeadDivisionContactLeadEngagements = leadEngagementReceivingDTO.ContactsEngagedIds
+            /*leadEngagement.LeadDivisionContactLeadEngagements = leadEngagementReceivingDTO.ContactsEngagedIds
                 .Select(x => new LeadDivisionContactLeadEngagement { ContactsEngagedWithId = x }).ToList();
 
             leadEngagement.LeadDivisionKeyPersonLeadEngagements = leadEngagementReceivingDTO.KeyPersonsEngagedIds
                 .Select(x => new LeadDivisionKeyPersonLeadEngagement { KeyPersonsEngagedWithId = x }).ToList();
 
             leadEngagement.LeadEngagementUserProfiles = leadEngagementReceivingDTO.UsersEngagedIds
-                .Select(x => new LeadEngagementUserProfile { UsersEngagedWithId = x }).ToList();
+                .Select(x => new LeadEngagementUserProfile { UsersEngagedWithId = x }).ToList();*/
 
             leadEngagement.CreatedById = context.GetLoggedInUserId();
             var savedLeadEngagement = await _leadEngagementRepo.SaveLeadEngagement(leadEngagement);

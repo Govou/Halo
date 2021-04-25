@@ -1,22 +1,23 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using HaloBiz.Data;
-using HaloBiz.Model.LAMS;
+using HalobizMigrations.Data;
+
 using Microsoft.Extensions.Logging;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using HaloBiz.Repository.LAMS;
 using halobiz_backend.Helpers;
+using HalobizMigrations.Models;
 
 namespace HaloBiz.Repository.Impl.LAMS
 {
     public class ContractServiceForEndorsementRepositoryImpl : IContractServiceForEndorsementRepository
     {
-        private readonly DataContext _context;
+        private readonly HalobizContext _context;
         private readonly ILogger<ContractServiceForEndorsementRepositoryImpl> _logger;
 
-        public ContractServiceForEndorsementRepositoryImpl(DataContext context, ILogger<ContractServiceForEndorsementRepositoryImpl> logger)
+        public ContractServiceForEndorsementRepositoryImpl(HalobizContext context, ILogger<ContractServiceForEndorsementRepositoryImpl> logger)
         {
             this._context = context;
             this._logger = logger;
@@ -76,10 +77,10 @@ namespace HaloBiz.Repository.Impl.LAMS
         public async Task<IEnumerable<object>> FindAllPossibleEndorsementStartDate(long contractServiceId)
         {
             return await _context.Invoices
-                .Where(x => !x.IsReversalInvoice && !x.IsDeleted && !x.IsReversed 
+                .Where(x => !x.IsReversalInvoice.Value && !x.IsDeleted && !x.IsReversed.Value 
                         && x.StartDate > DateTime.Now && x.ContractServiceId == contractServiceId )
                 .OrderBy(x => x.StartDate)
-                .Select(x => new{startDate = x.StartDate, validDate = x.IsReceiptedStatus == InvoiceStatus.NotReceipted}).ToListAsync();
+                .Select(x => new{startDate = x.StartDate, validDate = x.IsReceiptedStatus == (int)InvoiceStatus.NotReceipted}).ToListAsync();
         }
         public async Task<ContractServiceForEndorsement> UpdateContractServiceForEndorsement(ContractServiceForEndorsement entity)
         {

@@ -15,19 +15,19 @@ namespace HaloBiz.Controllers
 {
     [Route("api/v1/[controller]")]
     [ApiController]
-    public class StandardSLAForOperatingEntitiesController : ControllerBase
+    public class StandardSlaforOperatingEntityController : ControllerBase
     {
-        private readonly IStandardSLAForOperatingEntitiesService _standardSLAForOperatingEntitiesService;
+        private readonly IStandardSlaforOperatingEntityService _standardSLAForOperatingEntitiesService;
 
-        public StandardSLAForOperatingEntitiesController(IStandardSLAForOperatingEntitiesService standardSLAForOperatingEntitiesService)
+        public StandardSlaforOperatingEntityController(IStandardSlaforOperatingEntityService standardSLAForOperatingEntitiesService)
         {
             this._standardSLAForOperatingEntitiesService = standardSLAForOperatingEntitiesService;
         }
 
         [HttpGet("")]
-        public async Task<ActionResult> GetStandardSLAForOperatingEntities()
+        public async Task<ActionResult> GetStandardSlaforOperatingEntity()
         {
-            var response = await _standardSLAForOperatingEntitiesService.GetAllStandardSLAForOperatingEntities();
+            var response = await _standardSLAForOperatingEntitiesService.GetAllStandardSlaforOperatingEntity();
             if (response.StatusCode >= 400)
                 return StatusCode(response.StatusCode, response);
             var standardSLAForOperatingEntities = ((ApiOkResponse)response).Result;
@@ -36,7 +36,7 @@ namespace HaloBiz.Controllers
         [HttpGet("caption/{name}")]
         public async Task<ActionResult> GetByCaption(string name)
         {
-            var response = await _standardSLAForOperatingEntitiesService.GetStandardSLAForOperatingEntitiesByName(name);
+            var response = await _standardSLAForOperatingEntitiesService.GetStandardSlaforOperatingEntityByName(name);
             if (response.StatusCode >= 400)
                 return StatusCode(response.StatusCode, response);
             var standardSLAForOperatingEntities = ((ApiOkResponse)response).Result;
@@ -46,7 +46,7 @@ namespace HaloBiz.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult> GetById(long id)
         {
-            var response = await _standardSLAForOperatingEntitiesService.GetStandardSLAForOperatingEntitiesById(id);
+            var response = await _standardSLAForOperatingEntitiesService.GetStandardSlaforOperatingEntityById(id);
             if (response.StatusCode >= 400)
                 return StatusCode(response.StatusCode, response);
             var standardSLAForOperatingEntities = ((ApiOkResponse)response).Result;
@@ -54,9 +54,9 @@ namespace HaloBiz.Controllers
         }
 
         [HttpPost("")]
-        public async Task<ActionResult> AddNewStandardSLAForOperatingEntities(StandardSLAForOperatingEntitiesReceivingDTO standardSLAForOperatingEntitiesReceiving)
+        public async Task<ActionResult> AddNewStandardSlaforOperatingEntity(StandardSlaforOperatingEntityReceivingDTO standardSLAForOperatingEntitiesReceiving)
         {
-            var response = await _standardSLAForOperatingEntitiesService.AddStandardSLAForOperatingEntities(HttpContext, standardSLAForOperatingEntitiesReceiving);
+            var response = await _standardSLAForOperatingEntitiesService.AddStandardSlaforOperatingEntity(HttpContext, standardSLAForOperatingEntitiesReceiving);
             if (response.StatusCode >= 400)
                 return StatusCode(response.StatusCode, response);
             var standardSLAForOperatingEntities = ((ApiOkResponse)response).Result;
@@ -64,9 +64,9 @@ namespace HaloBiz.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateById(long id, StandardSLAForOperatingEntitiesReceivingDTO standardSLAForOperatingEntitiesReceiving)
+        public async Task<IActionResult> UpdateById(long id, StandardSlaforOperatingEntityReceivingDTO standardSLAForOperatingEntitiesReceiving)
         {
-            var response = await _standardSLAForOperatingEntitiesService.UpdateStandardSLAForOperatingEntities(HttpContext, id, standardSLAForOperatingEntitiesReceiving);
+            var response = await _standardSLAForOperatingEntitiesService.UpdateStandardSlaforOperatingEntity(HttpContext, id, standardSLAForOperatingEntitiesReceiving);
             if (response.StatusCode >= 400)
                 return StatusCode(response.StatusCode, response);
             var standardSLAForOperatingEntities = ((ApiOkResponse)response).Result;
@@ -76,7 +76,7 @@ namespace HaloBiz.Controllers
         [HttpDelete("{id}")]
         public async Task<ActionResult> DeleteById(int id)
         {
-            var response = await _standardSLAForOperatingEntitiesService.DeleteStandardSLAForOperatingEntities(id);
+            var response = await _standardSLAForOperatingEntitiesService.DeleteStandardSlaforOperatingEntity(id);
             return StatusCode(response.StatusCode);
         }
     }

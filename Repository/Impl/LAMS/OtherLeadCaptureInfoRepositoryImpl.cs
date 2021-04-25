@@ -2,19 +2,20 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using HaloBiz.Data;
-using HaloBiz.Model.LAMS;
+using HalobizMigrations.Data;
+
 using HaloBiz.Repository.LAMS;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using HalobizMigrations.Models;
 
 namespace HaloBiz.Repository.Impl.LAMS
 {
     public class OtherLeadCaptureInfoRepositoryImpl : IOtherLeadCaptureInfoRepository
     {
-        private readonly DataContext _context;
+        private readonly HalobizContext _context;
         private readonly ILogger<OtherLeadCaptureInfoRepositoryImpl> _logger;
-        public OtherLeadCaptureInfoRepositoryImpl(DataContext context, ILogger<OtherLeadCaptureInfoRepositoryImpl> logger)
+        public OtherLeadCaptureInfoRepositoryImpl(HalobizContext context, ILogger<OtherLeadCaptureInfoRepositoryImpl> logger)
         {
             this._logger = logger;
             this._context = context;
@@ -46,7 +47,7 @@ namespace HaloBiz.Repository.Impl.LAMS
             }
             if(otherLeadCaptureInfo.GroupTypeId > 0)
             {
-                otherLeadCaptureInfo.GroupType = await _context.GroupType
+                otherLeadCaptureInfo.GroupType = await _context.GroupTypes
                     .FirstOrDefaultAsync(x => x.Id == otherLeadCaptureInfo.GroupTypeId && !x.IsDeleted);
             }
             otherLeadCaptureInfo.LeadDivision = null;

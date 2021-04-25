@@ -5,18 +5,18 @@ using Microsoft.AspNetCore.Http;
 
 namespace HaloBiz.MyServices
 {    
-    public interface ISBUProportionService
+    public interface ISbuproportionService
     {
-        Task<ApiResponse> AddSBUProportion(HttpContext context, SBUProportionReceivingDTO sBUProportionReceivingDTO);
+        Task<ApiResponse> AddSbuproportion(HttpContext context, SbuproportionReceivingDTO sBUProportionReceivingDTO);
 
-        Task<ApiResponse> GetAllSBUProportions();
+        Task<ApiResponse> GetAllSbuproportions();
 
-        Task<ApiResponse> GetSBUProportionById(long id);
+        Task<ApiResponse> GetSbuproportionById(long id);
 
 
-        Task<ApiResponse> UpdateSBUProportion(HttpContext context, long id, SBUProportionReceivingDTO sBUProportionReceivingDTO);
+        Task<ApiResponse> UpdateSbuproportion(HttpContext context, long id, SbuproportionReceivingDTO sBUProportionReceivingDTO);
 
-        Task<ApiResponse> DeleteSBUProportion(long id);
+        Task<ApiResponse> DeleteSbuproportion(long id);
 
     }
 }

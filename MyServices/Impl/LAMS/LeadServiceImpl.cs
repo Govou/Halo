@@ -3,14 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
-using HaloBiz.Data;
+using HalobizMigrations.Data;
 using HaloBiz.DTOs.ApiDTOs;
 using HaloBiz.DTOs.ReceivingDTOs.LAMS;
 using HaloBiz.DTOs.TransferDTOs.LAMS;
 using HaloBiz.Helpers;
-using HaloBiz.Model;
-using HaloBiz.Model.AccountsModel;
-using HaloBiz.Model.LAMS;
+using HalobizMigrations.Models;
 using HaloBiz.MyServices.LAMS;
 using HaloBiz.Repository;
 using HaloBiz.Repository.Impl;
@@ -32,7 +30,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
         private readonly ILeadConversionService _leadConversionService;
         private readonly IApprovalService _approvalService;
         private readonly IModificationHistoryRepository _modificationRepo;
-        private readonly DataContext _context;
+        private readonly HalobizContext _context;
 
         public long LoggedInUserId { get; set; }
 
@@ -45,7 +43,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                                 ILeadConversionService leadConversionService,
                                 IApprovalService approvalService,
                                 IModificationHistoryRepository modificationHistoryRepo,
-                                DataContext context
+                                HalobizContext context
                                 )
         {
             _mapper = mapper;
@@ -192,7 +190,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
             leadToUpdate.LeadTypeId = leadReceivingDTO.LeadTypeId;
             leadToUpdate.LeadOriginId = leadReceivingDTO.LeadOriginId;
             leadToUpdate.Industry = leadReceivingDTO.Industry;
-            leadToUpdate.RCNumber = leadReceivingDTO.RCNumber;
+            leadToUpdate.Rcnumber = leadReceivingDTO.RCNumber;
             leadToUpdate.GroupName = leadReceivingDTO.GroupName;
             leadToUpdate.GroupTypeId = leadReceivingDTO.GroupTypeId;
             leadToUpdate.LogoUrl = leadReceivingDTO.LogoUrl;

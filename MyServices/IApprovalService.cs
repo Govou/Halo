@@ -2,8 +2,8 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using HaloBiz.DTOs.ApiDTOs;
 using HaloBiz.DTOs.ReceivingDTOs;
-using HaloBiz.Model;
-using HaloBiz.Model.LAMS;
+using HalobizMigrations.Models;
+
 using Microsoft.AspNetCore.Http;
 
 namespace HaloBiz.MyServices
@@ -16,7 +16,7 @@ namespace HaloBiz.MyServices
         Task<ApiResponse> DeleteApproval(long id);
         Task<ApiResponse> GetPendingApprovals();
         Task<ApiResponse> GetUserPendingApprovals(HttpContext httpContext);
-        Task<bool> SetUpApprovalsForServiceCreation(Services service, HttpContext httpContext);
+        Task<bool> SetUpApprovalsForServiceCreation(Service service, HttpContext httpContext);
         Task<bool> SetUpApprovalsForClientCreation(long id, HttpContext httpContext);
         Task<bool> SetUpApprovalsForContractModificationEndorsement(ContractServiceForEndorsement contractServiceForEndorsement, HttpContext httpContext);
         Task<bool> SetUpApprovalsForContractRenewalEndorsement(List<ContractServiceForEndorsement> contractServiceForEndorsements, HttpContext httpContext);

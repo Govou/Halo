@@ -8,19 +8,19 @@ namespace HaloBiz.Controllers
 {
     [Route("api/v1/[controller]")]
     [ApiController]
-    public class SBUProportionController : ControllerBase
+    public class SbuproportionController : ControllerBase
     {
-        private readonly ISBUProportionService _sBUProportionService;
+        private readonly ISbuproportionService _sBUProportionService;
 
-        public SBUProportionController(ISBUProportionService sBUProportionService)
+        public SbuproportionController(ISbuproportionService sBUProportionService)
         {
             this._sBUProportionService = sBUProportionService;
         }
 
         [HttpGet("")]
-        public async Task<ActionResult> GetSBUProportion()
+        public async Task<ActionResult> GetSbuproportion()
         {
-            var response = await _sBUProportionService.GetAllSBUProportions();
+            var response = await _sBUProportionService.GetAllSbuproportions();
             if (response.StatusCode >= 400)
                 return StatusCode(response.StatusCode, response);
             var sBUProportion = ((ApiOkResponse)response).Result;
@@ -30,7 +30,7 @@ namespace HaloBiz.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult> GetById(long id)
         {
-            var response = await _sBUProportionService.GetSBUProportionById(id);
+            var response = await _sBUProportionService.GetSbuproportionById(id);
             if (response.StatusCode >= 400)
                 return StatusCode(response.StatusCode, response);
             var sBUProportion = ((ApiOkResponse)response).Result;
@@ -38,9 +38,9 @@ namespace HaloBiz.Controllers
         }
 
         [HttpPost("")]
-        public async Task<ActionResult> AddNewSBUProportion(SBUProportionReceivingDTO sBUProportionReceiving)
+        public async Task<ActionResult> AddNewSbuproportion(SbuproportionReceivingDTO sBUProportionReceiving)
         {
-            var response = await _sBUProportionService.AddSBUProportion(HttpContext, sBUProportionReceiving);
+            var response = await _sBUProportionService.AddSbuproportion(HttpContext, sBUProportionReceiving);
             if (response.StatusCode >= 400)
                 return StatusCode(response.StatusCode, response);
             var sBUProportion = ((ApiOkResponse)response).Result;
@@ -48,9 +48,9 @@ namespace HaloBiz.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateById(long id, SBUProportionReceivingDTO sBUProportionReceiving)
+        public async Task<IActionResult> UpdateById(long id, SbuproportionReceivingDTO sBUProportionReceiving)
         {
-            var response = await _sBUProportionService.UpdateSBUProportion(HttpContext, id, sBUProportionReceiving);
+            var response = await _sBUProportionService.UpdateSbuproportion(HttpContext, id, sBUProportionReceiving);
             if (response.StatusCode >= 400)
                 return StatusCode(response.StatusCode, response);
             var sBUProportion = ((ApiOkResponse)response).Result;
@@ -60,7 +60,7 @@ namespace HaloBiz.Controllers
         [HttpDelete("{id}")]
         public async Task<ActionResult> DeleteById(int id)
         {
-            var response = await _sBUProportionService.DeleteSBUProportion(id);
+            var response = await _sBUProportionService.DeleteSbuproportion(id);
             return StatusCode(response.StatusCode);
         }
     }

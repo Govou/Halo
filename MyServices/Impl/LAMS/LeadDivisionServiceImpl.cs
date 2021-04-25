@@ -7,8 +7,8 @@ using HaloBiz.DTOs.ApiDTOs;
 using HaloBiz.DTOs.ReceivingDTOs;
 using HaloBiz.DTOs.TransferDTOs.LAMS;
 using HaloBiz.Helpers;
-using HaloBiz.Model;
-using HaloBiz.Model.LAMS;
+using HalobizMigrations.Models;
+
 using HaloBiz.MyServices.LAMS;
 using HaloBiz.Repository;
 using HaloBiz.Repository.LAMS;
@@ -101,7 +101,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
             leadDivisionToUpdate.LeadOriginId = leadDivisionReceivingDTO.LeadOriginId;
             leadDivisionToUpdate.Industry = leadDivisionReceivingDTO.Industry;
-            leadDivisionToUpdate.RCNumber = leadDivisionReceivingDTO.RCNumber;
+            leadDivisionToUpdate.Rcnumber = leadDivisionReceivingDTO.RCNumber;
             leadDivisionToUpdate.DivisionName = leadDivisionReceivingDTO.DivisionName;
             leadDivisionToUpdate.PhoneNumber = leadDivisionReceivingDTO.PhoneNumber;
             leadDivisionToUpdate.Email = leadDivisionReceivingDTO.Email;
@@ -112,7 +112,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
             leadDivisionToUpdate.OfficeId = (Int64) leadDivisionReceivingDTO.OfficeId;
             leadDivisionToUpdate.LeadId = leadDivisionReceivingDTO.LeadId;
             leadDivisionToUpdate.StateId = (Int64)leadDivisionReceivingDTO.StateId;
-            leadDivisionToUpdate.LGAId = (Int64)leadDivisionReceivingDTO.LGAId;
+            leadDivisionToUpdate.Lgaid = (Int64)leadDivisionReceivingDTO.LGAId;
             leadDivisionToUpdate.Street = leadDivisionReceivingDTO.Street;
             leadDivisionToUpdate.Address = leadDivisionReceivingDTO.Address;
             leadDivisionToUpdate.LeadTypeId = leadDivisionReceivingDTO.LeadTypeId;

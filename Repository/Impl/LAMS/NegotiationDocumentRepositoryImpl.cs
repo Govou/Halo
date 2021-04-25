@@ -2,19 +2,20 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using HaloBiz.Data;
-using HaloBiz.Model.LAMS;
+using HalobizMigrations.Data;
+
 using HaloBiz.Repository.LAMS;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using HalobizMigrations.Models;
 
 namespace HaloBiz.Repository.Impl.LAMS
 {
     public class NegotiationDocumentRepositoryImpl : INegotiationDocumentRepository
     {
-        private readonly DataContext _context;
+        private readonly HalobizContext _context;
         private readonly ILogger<NegotiationDocumentRepositoryImpl> _logger;
-        public NegotiationDocumentRepositoryImpl(DataContext context, ILogger<NegotiationDocumentRepositoryImpl> logger)
+        public NegotiationDocumentRepositoryImpl(HalobizContext context, ILogger<NegotiationDocumentRepositoryImpl> logger)
         {
             this._logger = logger;
             this._context = context;

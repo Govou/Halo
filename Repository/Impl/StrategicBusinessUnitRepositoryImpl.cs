@@ -2,8 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using HaloBiz.Data;
-using HaloBiz.Model;
+using HalobizMigrations.Data;
+using HalobizMigrations.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
@@ -11,9 +11,9 @@ namespace HaloBiz.Repository.Impl
 {
     public class StrategicBusinessUnitRepositoryImpl : IStrategicBusinessUnitRepository
     {
-        private readonly DataContext _context;
+        private readonly HalobizContext _context;
         private readonly ILogger<StrategicBusinessUnitRepositoryImpl> _logger;
-        public StrategicBusinessUnitRepositoryImpl(DataContext context, ILogger<StrategicBusinessUnitRepositoryImpl> logger)
+        public StrategicBusinessUnitRepositoryImpl(HalobizContext context, ILogger<StrategicBusinessUnitRepositoryImpl> logger)
         {
             this._logger = logger;
             this._context = context;
@@ -46,7 +46,7 @@ namespace HaloBiz.Repository.Impl
         public async Task<IEnumerable<StrategicBusinessUnit>> FindAllStrategyBusinessUnits()
         {
             return await _context.StrategicBusinessUnits
-                .Include(sbu => sbu.Members.Where(x => x.IsDeleted == false)).AsNoTracking()
+                .Include(sbu => sbu.UserProfiles.Where(x => x.IsDeleted == false)).AsNoTracking()
                 .Include(sbu => sbu.OperatingEntity)
                 .Where(sbu => sbu.IsDeleted == false)
                 .ToListAsync();

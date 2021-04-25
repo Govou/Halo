@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using HaloBiz.Helpers;
-using HaloBiz.Model;
-using HaloBiz.Model.LAMS;
+using HalobizMigrations.Models;
+
 
 namespace HaloBiz.DTOs.TransferDTOs.LAMS
 {
@@ -12,7 +12,7 @@ namespace HaloBiz.DTOs.TransferDTOs.LAMS
         public long LeadDivisionId { get; set; }
         public LeadDivision LeadDivision { get; set; }
         public bool IsConvertedToContract { get; set; }
-        public IEnumerable<QuoteServiceTransferDTO> QuoteServices { get; set; }
+        public IEnumerable<QuoteServiceTransferDTO> QuoteService { get; set; }
         public VersionType Version { get; set; }
         public long CreatedById { get; set; }
         public virtual UserProfile CreatedBy { get; set; }
@@ -24,7 +24,7 @@ namespace HaloBiz.DTOs.TransferDTOs.LAMS
         public string ReferenceNo { get; set; }
         public long LeadDivisionId { get; set; }
         public bool IsConvertedToContract { get; set; }
-        public IEnumerable<QuoteServiceTransferDTO> QuoteServices { get; set; }
+        public IEnumerable<QuoteServiceTransferDTO> QuoteService { get; set; }
         public VersionType Version { get; set; }
         public long CreatedById { get; set; }
         public virtual UserProfile CreatedBy { get; set; }

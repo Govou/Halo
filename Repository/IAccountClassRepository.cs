@@ -1,4 +1,4 @@
-﻿using HaloBiz.Model.AccountsModel;
+﻿using HalobizMigrations.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;

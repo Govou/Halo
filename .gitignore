@@ -345,3 +345,5 @@ bin/
 appsettings.Development.json
 .env
 .DS_Store
+/ScaffoldContext
+/ScaffoldModels

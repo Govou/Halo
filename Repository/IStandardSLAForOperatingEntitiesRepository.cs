@@ -1,16 +1,16 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using HaloBiz.Model;
+using HalobizMigrations.Models;
 
 namespace HaloBiz.Repository
 {
-    public interface IStandardSLAForOperatingEntitiesRepository
+    public interface IStandardSlaforOperatingEntityRepository
     {
-        Task<StandardSLAForOperatingEntities> SaveStandardSLAForOperatingEntities(StandardSLAForOperatingEntities standardSLAForOperatingEntities);
-        Task<StandardSLAForOperatingEntities> FindStandardSLAForOperatingEntitiesById(long Id);
-        Task<StandardSLAForOperatingEntities> FindStandardSLAForOperatingEntitiesByName(string name);
-        Task<IEnumerable<StandardSLAForOperatingEntities>> FindAllStandardSLAForOperatingEntities();
-        Task<StandardSLAForOperatingEntities> UpdateStandardSLAForOperatingEntities(StandardSLAForOperatingEntities standardSLAForOperatingEntities);
-        Task<bool> DeleteStandardSLAForOperatingEntities(StandardSLAForOperatingEntities standardSLAForOperatingEntities);
+        Task<StandardSlaforOperatingEntity> SaveStandardSlaforOperatingEntity(StandardSlaforOperatingEntity standardSLAForOperatingEntities);
+        Task<StandardSlaforOperatingEntity> FindStandardSlaforOperatingEntityById(long Id);
+        Task<StandardSlaforOperatingEntity> FindStandardSlaforOperatingEntityByName(string name);
+        Task<IEnumerable<StandardSlaforOperatingEntity>> FindAllStandardSlaforOperatingEntity();
+        Task<StandardSlaforOperatingEntity> UpdateStandardSlaforOperatingEntity(StandardSlaforOperatingEntity standardSLAForOperatingEntities);
+        Task<bool> DeleteStandardSlaforOperatingEntity(StandardSlaforOperatingEntity standardSLAForOperatingEntities);
     }
 }

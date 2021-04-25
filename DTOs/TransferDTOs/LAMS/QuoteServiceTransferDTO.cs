@@ -2,8 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using HaloBiz.Helpers;
-using HaloBiz.Model;
-using HaloBiz.Model.LAMS;
+using HalobizMigrations.Models;
+
 
 namespace HaloBiz.DTOs.TransferDTOs.LAMS
 {
@@ -52,13 +52,13 @@ namespace HaloBiz.DTOs.TransferDTOs.LAMS
         public DateTime? TentativeDateOfSiteVisit { get; set; }
         public bool IsConvertedToContractService { get; set; }
         public long ServiceId { get; set; }
-        public Services Service { get; set; }
+        public Service Service { get; set; }
         public long QuoteId { get; set; }
         public string GroupInvoiceNumber { get; set; }  
 
-        public IEnumerable<ContractService> ContractServices { get; set; }
+        public IEnumerable<ContractService> ContractService { get; set; }
         public IEnumerable<QuoteServiceDocumentTransferDTO> QuoteServiceDocuments { get; set; }
-        public IEnumerable<SBUToQuoteServiceProportionTransferDTO> SBUToQuoteServiceProportions { get; set; }
+        public IEnumerable<SbutoQuoteServiceProportionTransferDTO> SbutoQuoteServiceProportions { get; set; }
         public VersionType Version { get; set; }
         public long CreatedById { get; set; }
         public virtual UserProfile CreatedBy { get; set; }

@@ -4,13 +4,13 @@ using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
 using HaloBiz.Adapters;
-using HaloBiz.Data;
+using HalobizMigrations.Data;
 using HaloBiz.DTOs.ApiDTOs;
 using HaloBiz.DTOs.ReceivingDTOs;
 using HaloBiz.DTOs.TransferDTOs;
 using HaloBiz.Helpers;
-using HaloBiz.Model;
-using HaloBiz.Model.LAMS;
+using HalobizMigrations.Models;
+
 using HaloBiz.Repository;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
@@ -21,7 +21,7 @@ namespace HaloBiz.MyServices.Impl
 {
     public class ApprovalServiceImpl : IApprovalService
     {
-        private readonly DataContext _context;
+        private readonly HalobizContext _context;
         private readonly ILogger<ApprovalServiceImpl> _logger;
         private readonly IModificationHistoryRepository _historyRepo;
         private readonly IApprovalRepository _approvalRepo;
@@ -36,7 +36,7 @@ namespace HaloBiz.MyServices.Impl
             IApprovalLimitRepository approvalLimitRepo,
             IProcessesRequiringApprovalRepository processesRequiringApprovalRepo,
             IMailAdapter mailAdapter,
-            DataContext context,
+            HalobizContext context,
             ILogger<ApprovalServiceImpl> logger, IMapper mapper)
         {
             _mapper = mapper;
@@ -201,7 +201,7 @@ namespace HaloBiz.MyServices.Impl
                     
                     foreach (var quoteService in quote.QuoteServices)
                     {
-                        quoteService.Service = await GetServicesInformationForApprovals(quoteService.ServiceId);
+                        quoteService.Service = await GetServiceInformationForApprovals(quoteService.ServiceId);
                     }
 
                     foreach (var quoteService in quote.QuoteServices)
@@ -283,7 +283,7 @@ namespace HaloBiz.MyServices.Impl
 
                 List<Approval> approvals = new List<Approval>();
 
-                contractServiceForEndorsement.Service = await GetServicesInformationForApprovals(contractServiceForEndorsement.ServiceId);
+                contractServiceForEndorsement.Service = await GetServiceInformationForApprovals(contractServiceForEndorsement.ServiceId);
                 contractServiceForEndorsement.Branch = await _context.Branches.FindAsync(contractServiceForEndorsement.BranchId);
 
                 if (!contractServiceForEndorsement.BillableAmount.HasValue) return false;
@@ -367,7 +367,7 @@ namespace HaloBiz.MyServices.Impl
 
                 foreach (var contractServiceForEndorsement in contractServiceForEndorsements)
                 {
-                    contractServiceForEndorsement.Service = await GetServicesInformationForApprovals(contractServiceForEndorsement.ServiceId);
+                    contractServiceForEndorsement.Service = await GetServiceInformationForApprovals(contractServiceForEndorsement.ServiceId);
                     contractServiceForEndorsement.Branch = await _context.Branches.FindAsync(contractServiceForEndorsement.BranchId);
                 }
 
@@ -430,11 +430,11 @@ namespace HaloBiz.MyServices.Impl
             }
         }
         
-        public async Task<bool> SetUpApprovalsForServiceCreation(Services service, HttpContext context)
+        public async Task<bool> SetUpApprovalsForServiceCreation(Service service, HttpContext context)
         {
             try
             {
-                var serviceWithExtraInfo = await GetServicesInformationForApprovals(service.Id);
+                var serviceWithExtraInfo = await GetServiceInformationForApprovals(service.Id);
                 
                 var module = await _processesRequiringApprovalRepo.FindProcessesRequiringApprovalByCaption("Service Creation");
                 if (module == null)
@@ -500,7 +500,7 @@ namespace HaloBiz.MyServices.Impl
             }
         }
 
-        private async Task<Services> GetServicesInformationForApprovals(long servicesId)
+        private async Task<Service> GetServiceInformationForApprovals(long servicesId)
         {
             var services = await _context.Services.AsNoTracking().Where(x => x.Id == servicesId)
                     .Include(x => x.Division)
@@ -512,7 +512,7 @@ namespace HaloBiz.MyServices.Impl
             return services;
         }
 
-        private long GetWhoIsResponsible(ApprovalLimit item, Services service, Branch branch)
+        private long GetWhoIsResponsible(ApprovalLimit item, Service service, Branch branch)
         {
             if (item.ApproverLevel.Caption == "Branch Head")
             {

@@ -1,12 +1,10 @@
 using System;
 using System.Collections.Generic;
-using HaloBiz.Model;
-using HaloBiz.Model.AccountsModel;
-using HaloBiz.Model.ManyToManyRelationship;
+using HalobizMigrations.Models;
 
 namespace HaloBiz.DTOs.TransferDTOs
 {
-    public class ServicesTransferDTO
+    public class ServiceTransferDTO
     {
         public long Id { get; set; }
         public string Name { get; set; }

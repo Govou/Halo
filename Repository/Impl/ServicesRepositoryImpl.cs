@@ -2,9 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using HaloBiz.Data;
+using HalobizMigrations.Data;
 using HaloBiz.DTOs.TransferDTOs.LAMS;
-using HaloBiz.Model;
+using HalobizMigrations.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
@@ -12,16 +12,16 @@ namespace HaloBiz.Repository.Impl
 {
     public class ServicesRepositoryImpl : IServicesRepository
     {
-        private readonly DataContext _context;
+        private readonly HalobizContext _context;
         private readonly ILogger<ServicesRepositoryImpl> _logger;
 
-        public ServicesRepositoryImpl(DataContext context, ILogger<ServicesRepositoryImpl> logger)
+        public ServicesRepositoryImpl(HalobizContext context, ILogger<ServicesRepositoryImpl> logger)
         {
             this._context = context;
             this._logger = logger;
         }
 
-         public async Task<Services> SaveService(Services service)
+         public async Task<Service> SaveService(Service service)
         {
             var savedEntity = await _context.Services.AddAsync(service);
             if(! await SaveChanges())
@@ -35,7 +35,7 @@ namespace HaloBiz.Repository.Impl
             return await UpdateServices(savedService);
         }
 
-        public async Task<Services> FindServicesById(long Id)
+        public async Task<Service> FindServicesById(long Id)
         {
             var service = await _context.Services
                 .FirstOrDefaultAsync( service => service.Id == Id && service.IsDeleted == false);
@@ -46,7 +46,7 @@ namespace HaloBiz.Repository.Impl
             }
             if(service.AccountId > 0)
             {
-                service.Account = await _context.Accounts.FirstOrDefaultAsync(x => x.Id == service.AccountId && x.IsActive && !x.IsDeleted);
+                service.Account = await _context.Accounts.FirstOrDefaultAsync(x => x.Id == service.AccountId.Value && x.IsActive.Value && !x.IsDeleted);
             }
             if(service.ServiceTypeId > 0)
             {
@@ -54,16 +54,16 @@ namespace HaloBiz.Repository.Impl
             }
             if (service.OperatingEntityId > 0)
             {
-                service.OperatingEntity = await _context.OperatingEntities.FirstOrDefaultAsync(x => x.Id == service.OperatingEntityId && !x.IsDeleted);
+                service.OperatingEntity = await _context.OperatingEntities.FirstOrDefaultAsync(x => x.Id == service.OperatingEntityId && !x.IsDeleted.Value);
             }
             if (service.TargetId > 0)
             {
                 service.Target = await _context.Targets.FirstOrDefaultAsync(x => x.Id == service.TargetId && !x.IsDeleted);
             }
-            service.RequiredServiceDocument = await _context.ServiceRequiredServiceDocument
+            service.ServiceRequiredServiceDocuments = await _context.ServiceRequiredServiceDocuments
                             .Include(x => x.RequiredServiceDocument)
                             .Where(x => x.ServicesId == service.Id).ToListAsync();
-            service.RequredServiceQualificationElement = await _context.ServiceRequredServiceQualificationElement
+            service.ServiceRequredServiceQualificationElements = await _context.ServiceRequredServiceQualificationElements
                             .Include(x => x.RequredServiceQualificationElement)
                             .Where(x => x.ServicesId == service.Id).ToListAsync();
 
@@ -88,34 +88,34 @@ namespace HaloBiz.Repository.Impl
             return serviceDivsionDetails;
         }
 
-        public async Task<Services> FindServiceByName(string name)
+        public async Task<Service> FindServiceByName(string name)
         {
             return await _context.Services
                 .Include(service => service.Target)
                 .Include(service => service.ServiceType)
                 .Include(service => service.Account)
-                .Include(service => service.RequiredServiceDocument.Where(row => row.IsDeleted == false))
+                .Include(service => service.ServiceRequiredServiceDocuments.Where(row => row.IsDeleted == false))
                     .ThenInclude(row => row.RequiredServiceDocument)
-                .Include(service => service.RequredServiceQualificationElement.Where(row => row.IsDeleted == false))
+                .Include(service => service.ServiceRequredServiceQualificationElements.Where(row => row.IsDeleted == false))
                     .ThenInclude(row => row.RequredServiceQualificationElement)
                 .FirstOrDefaultAsync( service => service.Name == name && service.IsDeleted == false);
         }
 
-        public async Task<IEnumerable<Services>> FindAllServices()
+        public async Task<IEnumerable<Service>> FindAllServices()
         {
             return await _context.Services
                 .Include(service => service.Target)
                 .Include(service => service.ServiceType)
                 .Include(service => service.Account)
-                .Include(service => service.RequiredServiceDocument.Where(row => row.IsDeleted == false))
+                .Include(service => service.ServiceRequiredServiceDocuments.Where(row => row.IsDeleted == false))
                     .ThenInclude(row => row.RequiredServiceDocument)
-                    .Include(service => service.RequredServiceQualificationElement.Where(row => row.IsDeleted == false))
+                    .Include(service => service.ServiceRequredServiceQualificationElements.Where(row => row.IsDeleted == false))
                     .ThenInclude(row => row.RequredServiceQualificationElement)
                 .Where(service => service.IsDeleted == false)
                     .ToListAsync();
         }
 
-        public async Task<IEnumerable<Services>> FindAllUnplishedServices()
+        public async Task<IEnumerable<Service>> FindAllUnplishedServices()
         {
             return await _context.Services
                 .Include(service => service.Target)
@@ -126,15 +126,15 @@ namespace HaloBiz.Repository.Impl
                 .Include(service => service.Division).AsNoTracking()
                 .Include(service => service.OperatingEntity).AsNoTracking()
                 .Include(service => service.CreatedBy)
-                .Include(service => service.RequiredServiceDocument.Where(row => row.IsDeleted == false))
+                .Include(service => service.ServiceRequiredServiceDocuments.Where(row => row.IsDeleted == false))
                     .ThenInclude(row => row.RequiredServiceDocument)
-                    .Include(service => service.RequredServiceQualificationElement.Where(row => row.IsDeleted == false))
+                    .Include(service => service.ServiceRequredServiceQualificationElements.Where(row => row.IsDeleted == false))
                     .ThenInclude(row => row.RequredServiceQualificationElement)
                 .Where(service => service.IsRequestedForPublish == true && service.IsPublished == false && service.IsDeleted == false)
                     .ToListAsync();
         }
 
-        public async Task<Services> UpdateServices(Services service)
+        public async Task<Service> UpdateServices(Service service)
         {
             var updatedEntity =  _context.Services.Update(service);
             if(await SaveChanges())
@@ -144,7 +144,7 @@ namespace HaloBiz.Repository.Impl
             return null;
         }
 
-        public async Task<bool> DeleteService(Services service)
+        public async Task<bool> DeleteService(Service service)
         {
             service.IsDeleted = true;
             _context.Services.Update(service);

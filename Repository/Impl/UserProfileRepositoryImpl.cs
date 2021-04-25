@@ -2,9 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using HaloBiz.Data;
+using HalobizMigrations.Data;
 using HaloBiz.Helpers;
-using HaloBiz.Model;
+using HalobizMigrations.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
@@ -12,9 +12,9 @@ namespace HaloBiz.Repository.Impl
 {
     public class UserProfileRepositoryImpl : IUserProfileRepository
     {
-        private readonly DataContext _context;
+        private readonly HalobizContext _context;
         private readonly ILogger<UserProfileRepositoryImpl> _logger;
-        public UserProfileRepositoryImpl(DataContext context, ILogger<UserProfileRepositoryImpl> logger)
+        public UserProfileRepositoryImpl(HalobizContext context, ILogger<UserProfileRepositoryImpl> logger)
         {
             _logger = logger;
             _context = context;
@@ -39,7 +39,7 @@ namespace HaloBiz.Repository.Impl
         public async Task<UserProfile> FindUserById(long Id)
         {
             return await _context.UserProfiles
-                .Include(x => x.SBU)
+                .Include(x => x.Sbu)
                 .Include(x => x.Role).ThenInclude(x => x.RoleClaims.Where(x => x.IsDeleted == false))
                 .FirstOrDefaultAsync( user => user.Id == Id && user.IsDeleted == false);
         }
@@ -47,7 +47,7 @@ namespace HaloBiz.Repository.Impl
         public async Task<UserProfile> FindUserByEmail(string email)
         {
             return await _context.UserProfiles
-                .Include(x => x.SBU)
+                .Include(x => x.Sbu)
                 .Include(x => x.Role).ThenInclude(x => x.RoleClaims.Where(x => x.IsDeleted == false))
                 .FirstOrDefaultAsync( user => user.Email == email && user.IsDeleted == false);
         }
@@ -55,7 +55,7 @@ namespace HaloBiz.Repository.Impl
         public async Task<IEnumerable<UserProfile>> FindAllUserProfile()
         {
             return await _context.UserProfiles
-                .Include(x => x.SBU)
+                .Include(x => x.Sbu)
                 .Include(x => x.Role).ThenInclude(x => x.RoleClaims.Where(x => x.IsDeleted == false))
                 .Where(user => user.IsDeleted == false)
                 .OrderBy(user => user.Email)
@@ -79,10 +79,10 @@ namespace HaloBiz.Repository.Impl
                         .Where(x => x.OperatingEntityId != operatingEntityId).Select(x => x.Id).ToListAsync();
 
             return await _context.UserProfiles
-                .Where(x => listOfSbuNotPartOfOperatingEntity.Contains((long)x.SBUId) && x.IsDeleted == false)
+                .Where(x => listOfSbuNotPartOfOperatingEntity.Contains((long)x.Sbuid) && x.IsDeleted == false)
                 .Select(x => new {
                     email = x.Email,
-                    sbuId = x.SBUId,
+                    sbuId = x.Sbuid,
                     firstName = x.FirstName,
                     lastname = x.LastName,
                     id = x.Id

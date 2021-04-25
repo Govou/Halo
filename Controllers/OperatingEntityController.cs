@@ -32,9 +32,9 @@ namespace HaloBiz.Controllers
             return Ok((IEnumerable<OperatingEntityTransferDTO>)operatingEntity);
         }
         [HttpGet("SbuProportion")]
-        public async Task<ActionResult> GetOperatingEntitiesAndSBUProportion()
+        public async Task<ActionResult> GetOperatingEntitiesAndSbuproportion()
         {
-            var response = await _operatingEntityService.GetAllOperatingEntitiesAndSBUProportion();
+            var response = await _operatingEntityService.GetAllOperatingEntitiesAndSbuproportion();
             if (response.StatusCode >= 400)
                 return StatusCode(response.StatusCode, response);
             var operatingEntity = ((ApiOkResponse)response).Result;

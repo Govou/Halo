@@ -3,17 +3,17 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
-using HaloBiz.Data;
+using HalobizMigrations.Data;
 using HaloBiz.DTOs.ApiDTOs;
 using HaloBiz.DTOs.ReceivingDTOs;
 using HaloBiz.DTOs.TransferDTOs;
 using HaloBiz.Helpers;
-using HaloBiz.Model;
-using HaloBiz.Model.ManyToManyRelationship;
+using HalobizMigrations.Models;
 using HaloBiz.Repository;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using HaloBiz.MyServices;
 
 namespace HaloBiz.MyServices.Impl
 {
@@ -26,7 +26,7 @@ namespace HaloBiz.MyServices.Impl
         private readonly IModificationHistoryRepository _modificationRepo;
         private readonly IServiceRequredServiceQualificationElementRepository _reqServiceElementRepo;
         private readonly IApprovalService _approvalService;
-        private readonly DataContext _context;
+        private readonly HalobizContext _context;
         private readonly ILogger<ServicesServiceImpl> _logger;
 
         public ServicesServiceImpl(
@@ -37,7 +37,7 @@ namespace HaloBiz.MyServices.Impl
                                 IModificationHistoryRepository modificationRepo,
                                 IServiceRequredServiceQualificationElementRepository reqServiceElementRepo,
                                 IApprovalService approvalService,
-                                DataContext context,
+                                HalobizContext context,
                                 ILogger<ServicesServiceImpl> logger
                                 )
         {
@@ -52,7 +52,7 @@ namespace HaloBiz.MyServices.Impl
             this._servicesRepository = servicesRepository;
         }
 
-        public async Task<ApiResponse> AddService(HttpContext context, ServicesReceivingDTO servicesReceivingDTO)
+        public async Task<ApiResponse> AddService(HttpContext context, ServiceReceivingDTO servicesReceivingDTO)
         {
             using(var transaction = await _context.Database.BeginTransactionAsync())
             {
@@ -62,7 +62,7 @@ namespace HaloBiz.MyServices.Impl
                     IList<ServiceRequiredServiceDocument> serviceRequiredServiceDocument = new List<ServiceRequiredServiceDocument>();
                     IList<ServiceRequredServiceQualificationElement> serviceQualificationElements = new List<ServiceRequredServiceQualificationElement>();
 
-                    var service = _mapper.Map<Services>(servicesReceivingDTO);
+                    var service = _mapper.Map<Service>(servicesReceivingDTO);
                     service.CreatedById = context.GetLoggedInUserId();
                     var savedService = await _servicesRepository.SaveService(service);
 
@@ -95,7 +95,7 @@ namespace HaloBiz.MyServices.Impl
                         return new ApiResponse(500, "Could not set up approvals for the service."); 
                     }
 
-                    var servicesTransferDTO = _mapper.Map<ServicesTransferDTO>(savedService);
+                    var servicesTransferDTO = _mapper.Map<ServiceTransferDTO>(savedService);
                     await transaction.CommitAsync();
                     return new ApiOkResponse(servicesTransferDTO);
 
@@ -116,7 +116,7 @@ namespace HaloBiz.MyServices.Impl
             {
                 return new ApiResponse(404);
             }
-            var serviceTransferDTO = _mapper.Map<IEnumerable<ServicesTransferDTO>>(services);
+            var serviceTransferDTO = _mapper.Map<IEnumerable<ServiceTransferDTO>>(services);
             return new ApiOkResponse(serviceTransferDTO);
         }
 
@@ -127,7 +127,7 @@ namespace HaloBiz.MyServices.Impl
             {
                 return new ApiResponse(404);
             }
-            var serviceTransferDTO = _mapper.Map<IEnumerable<ServicesTransferDTO>>(services);
+            var serviceTransferDTO = _mapper.Map<IEnumerable<ServiceTransferDTO>>(services);
             return new ApiOkResponse(serviceTransferDTO);
         }
 
@@ -138,7 +138,7 @@ namespace HaloBiz.MyServices.Impl
             {
                 return new ApiResponse(404);
             }
-            var serviceTransferDTO = _mapper.Map<ServicesTransferDTO>(service);
+            var serviceTransferDTO = _mapper.Map<ServiceTransferDTO>(service);
             return new ApiOkResponse(serviceTransferDTO);
         }
 
@@ -149,11 +149,11 @@ namespace HaloBiz.MyServices.Impl
             {
                 return new ApiResponse(404);
             }
-            var serviceTransferDTO = _mapper.Map<ServicesTransferDTO>(service);
+            var serviceTransferDTO = _mapper.Map<ServiceTransferDTO>(service);
             return new ApiOkResponse(serviceTransferDTO);
         }
 
-        public async Task<ApiResponse> UpdateService(HttpContext context, long id, ServicesReceivingDTO serviceReceivingDTO)
+        public async Task<ApiResponse> UpdateService(HttpContext context, long id, ServiceReceivingDTO serviceReceivingDTO)
         {
             var serviceToUpdate = await _servicesRepository.FindServicesById(id);
             if (serviceToUpdate == null)
@@ -188,11 +188,11 @@ namespace HaloBiz.MyServices.Impl
             };
 
             await _modificationRepo.SaveHistory(history);
-            var serviceTransferDTO = _mapper.Map<ServicesTransferDTO>(updatedService);
+            var serviceTransferDTO = _mapper.Map<ServiceTransferDTO>(updatedService);
             return new ApiOkResponse(serviceTransferDTO);
 
         }
-        public async Task<ApiResponse> UpdateServices(HttpContext context, long id, ServicesReceivingDTO serviceReceivingDTO)
+        public async Task<ApiResponse> UpdateServices(HttpContext context, long id, ServiceReceivingDTO serviceReceivingDTO)
         {
             using (var transaction = _context.Database.BeginTransaction())
             {
@@ -202,9 +202,9 @@ namespace HaloBiz.MyServices.Impl
                     var serviceToUpdate = await _context.Services.Include(service => service.Target)
                         .Include(service => service.ServiceType)
                         .Include(service => service.Account)
-                        .Include(service => service.RequiredServiceDocument.Where(row => row.IsDeleted == false))
+                        .Include(service => service.ServiceRequiredServiceDocuments.Where(row => row.IsDeleted == false))
                             .ThenInclude(row => row.RequiredServiceDocument)
-                        .Include(service => service.RequredServiceQualificationElement.Where(row => row.IsDeleted == false))
+                        .Include(service => service.ServiceRequredServiceQualificationElements.Where(row => row.IsDeleted == false))
                             .ThenInclude(row => row.RequredServiceQualificationElement)
                         .FirstOrDefaultAsync( service => service.Id == id && service.IsDeleted == false);
                     
@@ -219,13 +219,13 @@ namespace HaloBiz.MyServices.Impl
                     //In the incoming request, if yes, it removes the id from the incoming list because there 
                     //will be no need for creating a new one, else it removes it creates a new ServiceServiceRequiredDoc
                     //And drops it from the record
-                    foreach(var doc in serviceToUpdate.RequiredServiceDocument)
+                    foreach(var doc in serviceToUpdate.ServiceRequiredServiceDocuments)
                     {
                         if (serviceReceivingDTO.RequiredDocumentsId.Contains(doc.RequiredServiceDocumentId))
                         {
                             serviceReceivingDTO.RequiredDocumentsId.Remove(doc.RequiredServiceDocumentId);
                         }else{
-                            _context.ServiceRequiredServiceDocument.Remove(doc);
+                            _context.ServiceRequiredServiceDocuments.Remove(doc);
                         }
                     }
                     await _context.SaveChangesAsync();
@@ -241,18 +241,18 @@ namespace HaloBiz.MyServices.Impl
                         
                     
                     if(listOfDocToAdd.Count > 0)
-                        await _context.ServiceRequiredServiceDocument.AddRangeAsync(listOfDocToAdd);
+                        await _context.ServiceRequiredServiceDocuments.AddRangeAsync(listOfDocToAdd);
 
 
                     var listOfElementToAdd = new List<ServiceRequredServiceQualificationElement>(); 
 
-                    foreach(var element in serviceToUpdate.RequredServiceQualificationElement)
+                    foreach(var element in serviceToUpdate.ServiceRequredServiceQualificationElements)
                     {
                         if (serviceReceivingDTO.RequiredServiceFieldsId.Contains(element.RequredServiceQualificationElementId))
                         {
                             serviceReceivingDTO.RequiredServiceFieldsId.Remove(element.RequredServiceQualificationElementId);
                         }else{
-                           _context.ServiceRequredServiceQualificationElement.Remove(element);
+                           _context.ServiceRequredServiceQualificationElements.Remove(element);
                         }
                     }
 
@@ -268,7 +268,7 @@ namespace HaloBiz.MyServices.Impl
                     await _context.SaveChangesAsync();
                     
                     if(listOfElementToAdd.Count > 0)
-                        await _context.ServiceRequredServiceQualificationElement.AddRangeAsync(listOfElementToAdd);
+                        await _context.ServiceRequredServiceQualificationElements.AddRangeAsync(listOfElementToAdd);
                     
                     var summary = $"Initial details before change, \n {serviceToUpdate.ToString()} \n";
 
@@ -299,7 +299,7 @@ namespace HaloBiz.MyServices.Impl
 
                     var service = await _servicesRepository.FindServicesById(id);
 
-                    var serviceTransferDTO = _mapper.Map<ServicesTransferDTO>(service);
+                    var serviceTransferDTO = _mapper.Map<ServiceTransferDTO>(service);
                     return new ApiOkResponse(serviceTransferDTO);
 
                 }
@@ -359,7 +359,7 @@ namespace HaloBiz.MyServices.Impl
 
             await _modificationRepo.SaveHistory(history);
 
-            var serviceTransferDTO = _mapper.Map<ServicesTransferDTO>(updatedService);
+            var serviceTransferDTO = _mapper.Map<ServiceTransferDTO>(updatedService);
             return new ApiOkResponse(serviceTransferDTO);
         }
 
@@ -390,7 +390,7 @@ namespace HaloBiz.MyServices.Impl
 
             await _modificationRepo.SaveHistory(history);
 
-            var serviceTransferDTO = _mapper.Map<ServicesTransferDTO>(updatedService);
+            var serviceTransferDTO = _mapper.Map<ServiceTransferDTO>(updatedService);
             return new ApiOkResponse(serviceTransferDTO);
 
         }
@@ -423,7 +423,7 @@ namespace HaloBiz.MyServices.Impl
 
             await _modificationRepo.SaveHistory(history);
 
-            var serviceTransferDTO = _mapper.Map<ServicesTransferDTO>(updatedService);
+            var serviceTransferDTO = _mapper.Map<ServiceTransferDTO>(updatedService);
             return new ApiOkResponse(serviceTransferDTO);
 
         }

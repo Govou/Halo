@@ -2,8 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using HaloBiz.Data;
-using HaloBiz.Model;
+using HalobizMigrations.Data;
+using HalobizMigrations.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
@@ -11,9 +11,9 @@ namespace HaloBiz.Repository.Impl
 {
     public class OfficeRepositoryImpl : IOfficeRepository
     {
-        private readonly DataContext _context;
+        private readonly HalobizContext _context;
         private readonly ILogger<OfficeRepositoryImpl> _logger;
-        public OfficeRepositoryImpl(DataContext context, ILogger<OfficeRepositoryImpl> logger)
+        public OfficeRepositoryImpl(HalobizContext context, ILogger<OfficeRepositoryImpl> logger)
         {
             this._logger = logger;
             this._context = context;
@@ -34,7 +34,7 @@ namespace HaloBiz.Repository.Impl
             return await _context.Offices
                 .Include(office => office.Head)
                 .Include(office => office.State)
-                .Include(office => office.LGA)
+                .Include(office => office.Lga)
                 .Include(office => office.Branch)                
                 .FirstOrDefaultAsync( office => office.Id == Id && office.IsDeleted == false);
         }
@@ -44,7 +44,7 @@ namespace HaloBiz.Repository.Impl
             return await _context.Offices
                 .Include(office => office.Head)
                 .Include(office => office.State)
-                .Include(office => office.LGA)
+                .Include(office => office.Lga)
                 .Include(office => office.Branch) 
                 .FirstOrDefaultAsync( office => office.Name == name && office.IsDeleted == false);
         }
@@ -54,7 +54,7 @@ namespace HaloBiz.Repository.Impl
             return await _context.Offices.Where(division => division.IsDeleted == false)
                 .Include(office => office.Head)
                 .Include(office => office.State)
-                .Include(office => office.LGA)
+                .Include(office => office.Lga)
                 .Include(office => office.Branch)
                 .ToListAsync();
         }

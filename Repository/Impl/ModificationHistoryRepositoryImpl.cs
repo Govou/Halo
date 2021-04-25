@@ -1,8 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using HaloBiz.Data;
-using HaloBiz.Model;
+using HalobizMigrations.Data;
+using HalobizMigrations.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
@@ -10,9 +10,9 @@ namespace HaloBiz.Repository.Impl
 {
     public class ModificationHistoryRepositoryImpl : IModificationHistoryRepository
     {
-        private readonly DataContext _context;
+        private readonly HalobizContext _context;
         private readonly ILogger<ModificationHistoryRepositoryImpl> _logger;
-        public ModificationHistoryRepositoryImpl(DataContext context, ILogger<ModificationHistoryRepositoryImpl> logger)
+        public ModificationHistoryRepositoryImpl(HalobizContext context, ILogger<ModificationHistoryRepositoryImpl> logger)
         {
             this._logger = logger;
             this._context = context;

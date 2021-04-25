@@ -5,13 +5,13 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using AutoMapper;
 using HaloBiz.Adapters;
-using HaloBiz.Data;
+using HalobizMigrations.Data;
 using HaloBiz.DTOs.ApiDTOs;
 using HaloBiz.DTOs.ReceivingDTOs;
 using HaloBiz.DTOs.TransferDTOs.LAMS;
 using HaloBiz.Helpers;
-using HaloBiz.Model;
-using HaloBiz.Model.LAMS;
+using HalobizMigrations.Models;
+
 using HaloBiz.MyServices.LAMS;
 using HaloBiz.Repository;
 using HaloBiz.Repository.LAMS;
@@ -29,7 +29,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
         private readonly IQuoteServiceRepository _quoteServiceRepo;
         private readonly IMailAdapter _mailAdapter;
         private readonly IMapper _mapper;
-        private readonly DataContext _context;
+        private readonly HalobizContext _context;
 
         public QuoteServiceImpl(IModificationHistoryRepository historyRepo, 
             IQuoteRepository quoteRepo, 
@@ -37,7 +37,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
             ILogger<QuoteServiceImpl> logger, 
             IMailAdapter mailAdapter,
             IMapper mapper,
-            DataContext context)
+            HalobizContext context)
         {
             this._mapper = mapper;
             this._historyRepo = historyRepo;
@@ -59,7 +59,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                     var createdById = context.GetLoggedInUserId();
 
                     var quote = _mapper.Map<Quote>(quoteReceivingDTO);
-                    var quoteServices = quote.QuoteServices;
+                    var quoteService = quote.QuoteServices;
 
                     quote.QuoteServices = null;
                     quote.CreatedById = createdById;
@@ -70,13 +70,13 @@ namespace HaloBiz.MyServices.Impl.LAMS
                         return new ApiResponse(500);
                     }
 
-                    foreach (var item in quoteServices)
+                    foreach (var item in quoteService)
                     {
                         item.QuoteId = savedQuote.Id;
                         item.CreatedById = createdById;
                     }
 
-                    var savedSuccessfully = await _quoteServiceRepo.SaveQuoteServiceRange(quoteServices);
+                    var savedSuccessfully = await _quoteServiceRepo.SaveQuoteServiceRange(quoteService);
                     if (!savedSuccessfully)
                     {
                         return new ApiResponse(500);
@@ -157,7 +157,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                     quoteToUpdate.ReferenceNo = quoteReceivingDTO.ReferenceNo;
                     quoteToUpdate.LeadDivisionId = quoteReceivingDTO.LeadDivisionId;
                     quoteToUpdate.IsConvertedToContract = quoteReceivingDTO.IsConvertedToContract;
-                    quoteToUpdate.Version = quoteReceivingDTO.Version;
+                    quoteToUpdate.Version = (int)quoteReceivingDTO.Version;
 
                     if (quoteToUpdate.QuoteServices.Any())
                     {
@@ -169,15 +169,15 @@ namespace HaloBiz.MyServices.Impl.LAMS
                         quoteToUpdate.QuoteServices = null;
                     }                
                     
-                    var quoteServices = _mapper.Map<IEnumerable<QuoteService>>(quoteReceivingDTO.QuoteServices);
+                    var quoteService = _mapper.Map<IEnumerable<QuoteService>>(quoteReceivingDTO.QuoteService);
 
-                    foreach (var item in quoteServices)
+                    foreach (var item in quoteService)
                     {
                         item.QuoteId = id;
                         item.CreatedById = createdById;
                     }
 
-                    var savedSuccessful = await _quoteServiceRepo.SaveQuoteServiceRange(quoteServices);
+                    var savedSuccessful = await _quoteServiceRepo.SaveQuoteServiceRange(quoteService);
                     if (!savedSuccessful)
                     {
                         return new ApiResponse(500);

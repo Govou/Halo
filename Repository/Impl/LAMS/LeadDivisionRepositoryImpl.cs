@@ -2,8 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using HaloBiz.Data;
-using HaloBiz.Model.LAMS;
+using HalobizMigrations.Data;
+using HalobizMigrations.Models;
 using HaloBiz.Repository.LAMS;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -12,9 +12,9 @@ namespace HaloBiz.Repository.Impl.LAMS
 {
     public class LeadDivisionRepositoryImpl : ILeadDivisionRepository
     {
-        private readonly DataContext _context;
+        private readonly HalobizContext _context;
         private readonly ILogger<LeadDivisionRepositoryImpl> _logger;
-        public LeadDivisionRepositoryImpl(DataContext context, ILogger<LeadDivisionRepositoryImpl> logger)
+        public LeadDivisionRepositoryImpl(HalobizContext context, ILogger<LeadDivisionRepositoryImpl> logger)
         {
             this._logger = logger;
             this._context = context;
@@ -43,18 +43,18 @@ namespace HaloBiz.Repository.Impl.LAMS
 
             if(leadDivision.BranchId > 0)
             {
-                leadDivision.Branch = await _context.Branches.FirstOrDefaultAsync(x => x.Id == leadDivision.BranchId && !x.IsDeleted);
+                leadDivision.Branch = await _context.Branches.FirstOrDefaultAsync(x => x.Id == leadDivision.BranchId && !x.IsDeleted.Value);
             }
             if(leadDivision.OfficeId > 0)
             {
-                leadDivision.Office =await  _context.Offices.FirstOrDefaultAsync(x => x.Id == leadDivision.OfficeId && !x.IsDeleted);
+                leadDivision.Office =await  _context.Offices.FirstOrDefaultAsync(x => x.Id == leadDivision.OfficeId && !x.IsDeleted.Value);
             }
             if(leadDivision.PrimaryContactId > 0)
             {
                 leadDivision.PrimaryContact = await  _context.LeadDivisionContacts
                                     .FirstOrDefaultAsync(x => x.Id == leadDivision.PrimaryContactId && !x.IsDeleted);
             }
-            leadDivision.LeadDivisionKeyPersons = await _context.LeadDivisionKeyPeople
+            leadDivision.LeadDivisionKeyPeople = await _context.LeadDivisionKeyPeople
                                     .Where(x => x.LeadDivisionId == leadDivision.Id && !x.IsDeleted).ToListAsync();
             
             if(leadDivision.LeadOriginId > 0)
@@ -89,18 +89,18 @@ namespace HaloBiz.Repository.Impl.LAMS
 
             if(leadDivision.BranchId > 0)
             {
-                leadDivision.Branch = await _context.Branches.FirstOrDefaultAsync(x => x.Id == leadDivision.BranchId && !x.IsDeleted);
+                leadDivision.Branch = await _context.Branches.FirstOrDefaultAsync(x => x.Id == leadDivision.BranchId && !x.IsDeleted.Value);
             }
             if(leadDivision.OfficeId > 0)
             {
-                leadDivision.Office =await  _context.Offices.FirstOrDefaultAsync(x => x.Id == leadDivision.OfficeId && !x.IsDeleted);
+                leadDivision.Office =await  _context.Offices.FirstOrDefaultAsync(x => x.Id == leadDivision.OfficeId && !x.IsDeleted.Value);
             }
             if(leadDivision.PrimaryContactId > 0)
             {
                 leadDivision.PrimaryContact = await  _context.LeadDivisionContacts
                                     .FirstOrDefaultAsync(x => x.Id == leadDivision.PrimaryContactId && !x.IsDeleted);
             }
-            leadDivision.LeadDivisionKeyPersons = await _context.LeadDivisionKeyPeople
+            leadDivision.LeadDivisionKeyPeople = await _context.LeadDivisionKeyPeople
                                     .Where(x => x.LeadDivisionId == leadDivision.Id && !x.IsDeleted).ToListAsync();
             
             if(leadDivision.LeadOriginId > 0)
@@ -133,11 +133,11 @@ namespace HaloBiz.Repository.Impl.LAMS
                 .Include(x => x.Office)
                 .Include(x => x.PrimaryContact)
                 .Include(x => x.SecondaryContact)
-                .Include(x => x.LeadDivisionKeyPersons)
+                .Include(x => x.LeadDivisionKeyPeople)
                 .Include(x => x.LeadOrigin)
                 .Include(x => x.LeadType)
                 .Include(x => x.Quote)
-                .FirstOrDefaultAsync(leadDivision => leadDivision.RCNumber == rcNumber && leadDivision.IsDeleted == false);
+                .FirstOrDefaultAsync(leadDivision => leadDivision.Rcnumber == rcNumber && leadDivision.IsDeleted == false);
         }
 
         public async Task<IEnumerable<LeadDivision>> FindAllLeadDivision()
@@ -147,7 +147,7 @@ namespace HaloBiz.Repository.Impl.LAMS
                 .Include(x => x.Office)
                 .Include(x => x.PrimaryContact)
                 .Include(x => x.SecondaryContact)
-                .Include(x => x.LeadDivisionKeyPersons)
+                .Include(x => x.LeadDivisionKeyPeople)
                 .Include(x => x.LeadOrigin)
                 .Include(x => x.LeadType)
                 .Include(x => x.Quote)

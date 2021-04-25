@@ -45,34 +45,34 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
         public async Task<ApiResponse> GetAllContractsServcieForAContract(long contractId)
         {
-            var contractServices = await _contractServiceRepo.FindAllContractServicesForAContract(contractId);
-            if (contractServices == null)
+            var contractService = await _contractServiceRepo.FindAllContractServicesForAContract(contractId);
+            if (contractService == null)
             {
                 return new ApiResponse(404);
             }
-            var contractServiceTransferDTOs = _mapper.Map<IEnumerable<ContractServiceTransferDTO>>(contractServices);
+            var contractServiceTransferDTOs = _mapper.Map<IEnumerable<ContractServiceTransferDTO>>(contractService);
             return new ApiOkResponse(contractServiceTransferDTOs);
         }
 
         public async Task<ApiResponse> GetContractServiceByReferenceNumber(string refNo)
         {
-            var contractServices = await _contractServiceRepo.FindContractServicesByReferenceNumber(refNo);
-            if (contractServices == null)
+            var contractService = await _contractServiceRepo.FindContractServicesByReferenceNumber(refNo);
+            if (contractService == null)
             {
                 return new ApiResponse(404);
             }
-            var contractTransferDTOs = _mapper.Map<IEnumerable<ContractServiceTransferDTO>>(contractServices);
+            var contractTransferDTOs = _mapper.Map<IEnumerable<ContractServiceTransferDTO>>(contractService);
             return new ApiOkResponse(contractTransferDTOs);
         }
 
         public async Task<ApiResponse> GetContractServiceByGroupInvoiceNumber(string refNo)
         {
-            var contractServices = await _contractServiceRepo.FindContractServicesByGroupInvoiceNumber(refNo);
-            if (contractServices == null)
+            var contractService = await _contractServiceRepo.FindContractServicesByGroupInvoiceNumber(refNo);
+            if (contractService == null)
             {
                 return new ApiResponse(404);
             }
-            var contractTransferDTOs = _mapper.Map<IEnumerable<ContractServiceTransferDTO>>(contractServices);
+            var contractTransferDTOs = _mapper.Map<IEnumerable<ContractServiceTransferDTO>>(contractService);
             return new ApiOkResponse(contractTransferDTOs);
         }
 

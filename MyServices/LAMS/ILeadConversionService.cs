@@ -1,8 +1,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using HaloBiz.Model;
-using HaloBiz.Model.AccountsModel;
-using HaloBiz.Model.LAMS;
+using HalobizMigrations.Models;
+
 
 namespace HaloBiz.MyServices.LAMS
 {
@@ -17,7 +16,7 @@ namespace HaloBiz.MyServices.LAMS
                                     CustomerDivision customerDivision,
                                     long branchId,
                                     long officeId,
-                                    Services service,
+                                    Service service,
                                     FinanceVoucherType accountVoucherType,
                                     QuoteService quoteService,
                                     long loggedInUserId,

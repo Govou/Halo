@@ -1,4 +1,4 @@
-using HaloBiz.Model;
+using HalobizMigrations.Models;
 
 namespace halobiz_backend.DTOs.TransferDTOs.LAMS
 {

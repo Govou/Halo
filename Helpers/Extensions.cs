@@ -5,9 +5,7 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using HaloBiz.DTOs.ReceivingDTO;
 using HaloBiz.DTOs.TransferDTOs;
-using HaloBiz.Model;
-using HaloBiz.Model.LAMS;
-using HaloBiz.Model.ManyToManyRelationship;
+using HalobizMigrations.Models;
 using Microsoft.AspNetCore.Http;
 
 namespace HaloBiz.Helpers
@@ -80,14 +78,14 @@ namespace HaloBiz.Helpers
                 userProfile.Email.Trim().EndsWith("armadahalogen.com"));
         }
 
-        public static double GetTotalContractValue(this IEnumerable<ContractService> contractServices)
+        public static double GetTotalContractValue(this IEnumerable<ContractService> contractService)
         {
-            return contractServices.Sum( x => x.GetNumberValuePerContractService());
+            return contractService.Sum( x => x.GetNumberValuePerContractService());
         }
 
         public static double GetNumberValuePerContractService(this ContractService contractService)
         {
-            if(contractService.InvoicingInterval == TimeCycle.OneTime){
+            if(contractService.InvoicingInterval == (int)TimeCycle.OneTime){
                 return contractService.BillableAmount?? 0.0;
             }
             var startDate = (DateTime) contractService.ContractStartDate;
