@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using HaloBiz.Model.AccountsModel;
+using HalobizMigrations.Models;
 
 namespace HaloBiz.Repository
 {

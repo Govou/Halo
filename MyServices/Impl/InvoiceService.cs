@@ -5,15 +5,14 @@ using System.Threading.Tasks;
 using AutoMapper;
 using HaloBiz.Adapters;
 using HaloBiz.CustomExceptions;
-using HaloBiz.Data;
+using HalobizMigrations.Data;
 using HaloBiz.DTOs.ApiDTOs;
 using HaloBiz.DTOs.MailDTOs;
 using HaloBiz.DTOs.ReceivingDTOs;
 using HaloBiz.DTOs.TransferDTOs;
 using HaloBiz.Helpers;
-using HaloBiz.Model;
-using HaloBiz.Model.AccountsModel;
-using HaloBiz.Model.LAMS;
+using HalobizMigrations.Models;
+
 using HaloBiz.Repository;
 using HaloBiz.Repository.LAMS;
 using Microsoft.AspNetCore.Http;
@@ -29,7 +28,7 @@ namespace HaloBiz.MyServices.Impl
         private readonly IModificationHistoryRepository _historyRepo;
         private readonly IInvoiceRepository _invoiceRepo;
         private readonly IMapper _mapper;
-        private readonly DataContext _context;
+        private readonly HalobizContext _context;
         private readonly IAccountMasterRepository _accountMasterRepo;
         private readonly IAccountDetailsRepository _accountDetailsRepo;
         private readonly IServicesRepository _serviceRepo;
@@ -52,7 +51,7 @@ namespace HaloBiz.MyServices.Impl
                                 IModificationHistoryRepository historyRepo, 
                                 IInvoiceRepository invoiceRepo, 
                                 ILogger<InvoiceService> logger, 
-                                IMapper mapper, DataContext context,
+                                IMapper mapper, HalobizContext context,
                                 IAccountMasterRepository accountMasterRepo,
                                 IAccountDetailsRepository accountDetailsRepo,
                                 IServicesRepository serviceRepo,
@@ -98,7 +97,7 @@ namespace HaloBiz.MyServices.Impl
                     invoice.InvoiceNumber = $"INV{contractService.Id.ToString().PadLeft(8, '0')}";
                     invoice.ContractId = contractService.ContractId;
                     invoice.CreatedById = this.LoggedInUserId;
-                    invoice.InvoiceType = InvoiceType.New;
+                    invoice.InvoiceType = (int)InvoiceType.New;
                     invoice.IsFinalInvoice = false;
                     invoice.TransactionId = GenerateTransactionNumber(service.ServiceCode, contractService);
 
@@ -210,7 +209,7 @@ namespace HaloBiz.MyServices.Impl
                             .FirstOrDefaultAsync(x => x.Id == contractService.ServiceId);
 
                     await PostAccounts(contractService, customerDivision, accountVoucherType.Id, 
-                                    (double)contractService.VAT, (double)contractService.BillableAmount, service);
+                                    (double)contractService.Vat, (double)contractService.BillableAmount, service);
                     await GenerateAmortizations(contractService, customerDivision, 
                                     (double) contractService.BillableAmount, (double)contractService.BillableAmount, 
                                     invoice.DateToBeSent);
@@ -298,18 +297,18 @@ namespace HaloBiz.MyServices.Impl
         private async Task<bool> GenerateAndSaveGroupInvoiceDetails(string groupInvoiceNumber)
         {
             var contractServices = await _context.ContractServices.Where(x => x.GroupInvoiceNumber == groupInvoiceNumber && !x.IsDeleted).ToListAsync();
-            var groupInvoiceDetails = new List<GroupInvoiceDetails>();
+            var groupInvoiceDetails = new List<GroupInvoiceDetail>();
             foreach (var contractService in contractServices)
             {
                 groupInvoiceDetails.Add(
-                    new GroupInvoiceDetails()
+                    new GroupInvoiceDetail()
                     {
                         InvoiceNumber = contractService.GroupInvoiceNumber,
                         Description = $"Invoice details for Group Invoice {contractService.GroupInvoiceNumber}",
                         UnitPrice = (double) contractService.UnitPrice,
                         Quantity =(int) contractService.Quantity,
-                        VAT  = (double) contractService.VAT,
-                        Value = (double) (contractService.BillableAmount - contractService.VAT),
+                        Vat  = (double) contractService.Vat,
+                        Value = (double) (contractService.BillableAmount - contractService.Vat),
                         BillableAmount = (double) contractService.BillableAmount,
                         ContractServiceId = contractService.Id
                     }
@@ -325,7 +324,7 @@ namespace HaloBiz.MyServices.Impl
         {
             var newContractService = _mapper.Map<ContractService>(contractService);
             newContractService.BillableAmount = billable;
-            newContractService.VAT = VAT;
+            newContractService.Vat = VAT;
             
             return newContractService;
         }
@@ -354,7 +353,7 @@ namespace HaloBiz.MyServices.Impl
                 counter++;
             }
 
-            _context.ContractServices.UpdateRange(contractServices);
+            _context.ContractServices.UpdateRange(contractService);
             await _context.SaveChangesAsync();
 
             return contractServices[0];
@@ -377,7 +376,7 @@ namespace HaloBiz.MyServices.Impl
                 CustomerDivisionId = groupInvoiceDto.CustomerDivisionId,
                 GroupInvoiceNumber = groupInvoiceDto.GroupInvoiceNumber,
                 IsFinalInvoice = false,
-                InvoiceType = InvoiceType.AdHoc,
+                InvoiceType = (int)InvoiceType.AdHoc,
                 ContractId = contractService.ContractId,
                 ContractServiceId = contractService.Id,
                 IsAccountPosted = true,
@@ -391,7 +390,7 @@ namespace HaloBiz.MyServices.Impl
                                          long accountVoucherId,
                                          double VAT, 
                                          double billableAmount, 
-                                         Services service
+                                         Service service
                                          )
         {
 
@@ -685,7 +684,7 @@ namespace HaloBiz.MyServices.Impl
                                     long accountMasterId,
                                     double totalBillableAfterTax,
                                     string transactionId,
-                                    Services service
+                                    Service service
                                     )
         {
             
@@ -857,7 +856,7 @@ namespace HaloBiz.MyServices.Impl
                 DateTime today = DateTime.Now.Date;
                 //var today = DateTime.Parse("2021-03-24 00:00:00.0000000").Date;
                 invoices = await _context.Invoices
-                    .Where(x => x.IsFinalInvoice && !x.IsDeleted 
+                    .Where(x => x.IsFinalInvoice.Value && !x.IsDeleted 
                             && x.DateToBeSent.Date == today && !x.IsInvoiceSent).ToListAsync();
                 
                 
@@ -967,7 +966,7 @@ namespace HaloBiz.MyServices.Impl
                                 .Include(x => x.PrimaryContact)
                                 .Include(x => x.SecondaryContact)
                                 .Include(x => x.State)
-                                .Include(x => x.LGA)
+                                .Include(x => x.Lga)
                                 .FirstOrDefaultAsync(x => x.Id == invoice.CustomerDivisionId);
 
             
@@ -1002,7 +1001,7 @@ namespace HaloBiz.MyServices.Impl
                 {
                     discount += contractService.Discount;
                     subTotal += (double)contractService.UnitPrice * (double) contractService.Quantity;
-                    VAT += (double) contractService.VAT;
+                    VAT += (double) contractService.Vat;
                     unInvoicedAmount += ((double)contractService.BillableAmount - contractService.AdHocInvoicedAmount);
                     invoiceCycle = contractService.InvoicingInterval.ToString();
                     keyServiceName = contractService.Service.Name;
@@ -1024,7 +1023,7 @@ namespace HaloBiz.MyServices.Impl
                     Email = customerDivision.Email,
                     Street = customerDivision.Street,
                     State = customerDivision.State != null ? customerDivision.State.Name : "No State Provided",
-                    LGA = customerDivision.LGA != null? customerDivision.LGA.Name : "No LGA Provided"
+                    LGA = customerDivision.Lga != null? customerDivision.Lga.Name : "No LGA Provided"
                 };
                 
                 InvoiceMailDTO invoiceMailDTO = new InvoiceMailDTO()
@@ -1043,7 +1042,7 @@ namespace HaloBiz.MyServices.Impl
                     Recepients = recepients.ToArray(),
                     DaysUntilDeadline = (int) invoice.EndDate.Subtract(DateTime.Now).TotalDays,
                     ClientInfo = client,
-                    ContractServices = contractServiceMailDTOs
+                    ContractService = contractServiceMailDTOs
                 };
 
                 return invoiceMailDTO;

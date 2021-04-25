@@ -4,7 +4,7 @@ using AutoMapper;
 using HaloBiz.DTOs.ApiDTOs;
 using HaloBiz.DTOs.ReceivingDTOs;
 using HaloBiz.DTOs.TransferDTOs;
-using HaloBiz.Model;
+using HalobizMigrations.Models;
 using HaloBiz.Repository;
 
 namespace HaloBiz.MyServices.Impl
@@ -102,7 +102,7 @@ namespace HaloBiz.MyServices.Impl
                 return new ApiResponse(404);
             }
 
-            foreach(Services service in serviceCategoryToDelete.Services)
+            foreach(Service service in serviceCategoryToDelete.Services)
             {
                 await _serviceService.DeleteService(service.Id);
             }

@@ -1,5 +1,4 @@
-using HaloBiz.Model;
-using HaloBiz.Model.LAMS;
+using HalobizMigrations.Models;
 using System.ComponentModel.DataAnnotations;
 
 namespace HaloBiz.DTOs.ReceivingDTOs

@@ -59,8 +59,8 @@ namespace HaloBiz.Controllers.LAMS
             return Ok(CustomerDivision);
         }
 
-        [HttpGet("GetClientsWithSecuredMobilityContractServices")]
-        public async Task<ActionResult> GetClientsWithSecuredMobilityContractServices()
+        [HttpGet("GetClientsWithSecuredMobilityContractService")]
+        public async Task<ActionResult> GetClientsWithSecuredMobilityContractService()
         {
             var response = await _CustomerDivisionService.GetClientsWithSecuredMobilityContractServices();
             if (response.StatusCode >= 400)

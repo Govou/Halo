@@ -1,5 +1,5 @@
-﻿using HaloBiz.Model;
-using HaloBiz.Model.LAMS;
+﻿using HalobizMigrations.Models;
+
 using System;
 using System.Collections.Generic;
 using System.Linq;

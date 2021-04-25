@@ -1,5 +1,5 @@
-﻿using HaloBiz.Data;
-using HaloBiz.Model.AccountsModel;
+﻿using HalobizMigrations.Data;
+using HalobizMigrations.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using System;
@@ -11,9 +11,9 @@ namespace HaloBiz.Repository.Impl
 {
     public class AccountDetailRepositoryImpl : IAccountDetailsRepository
     {
-        private readonly DataContext _context;
+        private readonly HalobizContext _context;
         private readonly ILogger<AccountDetailRepositoryImpl> _logger;
-        public AccountDetailRepositoryImpl(DataContext context, ILogger<AccountDetailRepositoryImpl> logger)
+        public AccountDetailRepositoryImpl(HalobizContext context, ILogger<AccountDetailRepositoryImpl> logger)
         {
             this._logger = logger;
             this._context = context;

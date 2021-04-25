@@ -7,8 +7,8 @@ using HaloBiz.DTOs.ApiDTOs;
 using HaloBiz.DTOs.ReceivingDTOs;
 using HaloBiz.DTOs.TransferDTOs.LAMS;
 using HaloBiz.Helpers;
-using HaloBiz.Model;
-using HaloBiz.Model.LAMS;
+using HalobizMigrations.Models;
+
 using HaloBiz.MyServices.LAMS;
 using HaloBiz.Repository;
 using HaloBiz.Repository.LAMS;
@@ -47,12 +47,12 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
         public async Task<ApiResponse> GetAllQuoteService()
         {
-            var quoteServices = await _quoteServiceRepo.FindAllQuoteService();
-            if (quoteServices == null)
+            var quoteService = await _quoteServiceRepo.FindAllQuoteService();
+            if (quoteService == null)
             {
                 return new ApiResponse(404);
             }
-            var quoteServiceTransferDTO = _mapper.Map<IEnumerable<QuoteServiceTransferDTO>>(quoteServices);
+            var quoteServiceTransferDTO = _mapper.Map<IEnumerable<QuoteServiceTransferDTO>>(quoteService);
             return new ApiOkResponse(quoteServiceTransferDTO);
         }
 
@@ -80,15 +80,15 @@ namespace HaloBiz.MyServices.Impl.LAMS
             quoteServiceToUpdate.UnitPrice = quoteServiceReceivingDTO.UnitPrice;
             quoteServiceToUpdate.Quantity = quoteServiceReceivingDTO.Quantity;
             quoteServiceToUpdate.Discount = quoteServiceReceivingDTO.Discount;
-            quoteServiceToUpdate.VAT = quoteServiceReceivingDTO.VAT;
+            quoteServiceToUpdate.Vat = quoteServiceReceivingDTO.VAT;
             quoteServiceToUpdate.BillableAmount = quoteServiceReceivingDTO.BillableAmount;
             quoteServiceToUpdate.Budget = quoteServiceReceivingDTO.Budget;
             quoteServiceToUpdate.ContractStartDate = quoteServiceReceivingDTO.ContractStartDate;
             quoteServiceToUpdate.ContractEndDate = quoteServiceReceivingDTO.ContractEndDate;
-            quoteServiceToUpdate.PaymentCycle = quoteServiceReceivingDTO.PaymentCycle;
+            quoteServiceToUpdate.PaymentCycle = (int)quoteServiceReceivingDTO.PaymentCycle;
             quoteServiceToUpdate.PaymentCycleInDays = quoteServiceReceivingDTO.PaymentCycleInDays;
             quoteServiceToUpdate.FirstInvoiceSendDate = quoteServiceReceivingDTO.FirstInvoiceSendDate;
-            quoteServiceToUpdate.InvoicingInterval = quoteServiceReceivingDTO.InvoicingInterval;
+            quoteServiceToUpdate.InvoicingInterval = (int)quoteServiceReceivingDTO.InvoicingInterval;
             quoteServiceToUpdate.ProblemStatement = quoteServiceReceivingDTO.ProblemStatement;
             quoteServiceToUpdate.ActivationDate = quoteServiceReceivingDTO.ActivationDate;
             quoteServiceToUpdate.FulfillmentStartDate = quoteServiceReceivingDTO.FulfillmentStartDate;

@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using HaloBiz.Helpers;
-using HaloBiz.Model;
-using HaloBiz.Model.LAMS;
+using HalobizMigrations.Models;
+
 
 namespace HaloBiz.DTOs.ReceivingDTOs.LAMS
 {

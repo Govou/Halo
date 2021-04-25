@@ -3,7 +3,7 @@ using HaloBiz.DTOs.ApiDTOs;
 using HaloBiz.DTOs.ReceivingDTOs;
 using HaloBiz.DTOs.TransferDTOs;
 using HaloBiz.Helpers;
-using HaloBiz.Model.AccountsModel;
+using HalobizMigrations.Models;
 using HaloBiz.Repository;
 using halobiz_backend.DTOs.ReceivingDTOs;
 using Microsoft.AspNetCore.Http;
@@ -115,12 +115,12 @@ namespace HaloBiz.MyServices.Impl
                 account.AccountDetails = account.AccountDetails.Where(
                 x => x.TransactionDate >= accountSearchDTO.TransactionStart 
                     && x.TransactionDate <= accountSearchDTO.TransactionEnd 
-                        && accountSearchDTO.VoucherTypeIds.Contains(x.VoucherId));
+                        && accountSearchDTO.VoucherTypeIds.Contains(x.VoucherId)).ToList();
             }else{
                 account.AccountDetails = account.AccountDetails.Where(
                 x => x.TransactionDate >= accountSearchDTO.TransactionStart 
                     && x.TransactionDate <= accountSearchDTO.TransactionEnd 
-                      );
+                      ).ToList();
             }
 
             var AccountTransferDTOs = _mapper.Map<AccountTransferDTO>(account);

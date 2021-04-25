@@ -1,5 +1,5 @@
-﻿using HaloBiz.Data;
-using HaloBiz.Model.AccountsModel;
+﻿using HalobizMigrations.Data;
+using HalobizMigrations.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using System;
@@ -11,11 +11,11 @@ namespace HaloBiz.Repository.Impl
 {
     public class AccountRepositoryImpl : IAccountRepository
     {
-        private readonly DataContext _context;
+        private readonly HalobizContext _context;
         private readonly ILogger<AccountRepositoryImpl> _logger;
         private readonly string SALES_INCOME_CONTROL = "Trade Income";
         private readonly string CASH_BOOK = "CASH BOOK";
-        public AccountRepositoryImpl(DataContext context, ILogger<AccountRepositoryImpl> logger)
+        public AccountRepositoryImpl(HalobizContext context, ILogger<AccountRepositoryImpl> logger)
         {
             this._logger = logger;
             this._context = context;

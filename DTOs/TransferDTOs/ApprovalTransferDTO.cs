@@ -1,5 +1,5 @@
-using HaloBiz.Model;
-using HaloBiz.Model.LAMS;
+using HalobizMigrations.Models;
+
 using System;
 
 namespace HaloBiz.DTOs.TransferDTOs
@@ -30,8 +30,8 @@ namespace HaloBiz.DTOs.TransferDTOs
         public long? ContractServiceId { get; set; }
         public ContractService ContractService { get; set; }
 
-        public long? ServicesId { get; set; }
-        public Services Services { get; set; }
+        public long? ServiceId { get; set; }
+        public Service Service { get; set; }
 
         public long CreatedById { get; set; }
         public UserProfile CreatedBy { get; set; }

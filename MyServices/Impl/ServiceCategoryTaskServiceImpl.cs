@@ -5,7 +5,7 @@ using HaloBiz.DTOs.ApiDTOs;
 using HaloBiz.DTOs.ReceivingDTOs;
 using HaloBiz.DTOs.TransferDTOs;
 using HaloBiz.Helpers;
-using HaloBiz.Model;
+using HalobizMigrations.Models;
 using HaloBiz.Repository;
 using Microsoft.AspNetCore.Http;
 
@@ -115,7 +115,7 @@ namespace HaloBiz.MyServices.Impl
                 return new ApiResponse(404);
             }
 
-            await _serviceTaskDeliverableRepo.DeleteServiceTaskDeliverableRange(serviceCategoryTaskToDelete.ServiceTaskDeliverable);
+            await _serviceTaskDeliverableRepo.DeleteServiceTaskDeliverableRange(serviceCategoryTaskToDelete.ServiceTaskDeliverables);
 
             if (!await _serviceCategoryTaskRepo.DeleteServiceCategoryTask(serviceCategoryTaskToDelete))
             {

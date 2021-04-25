@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using AutoMapper;
 using HaloBiz.DTOs.ApiDTOs;
 using HaloBiz.DTOs.TransferDTOs;
-using HaloBiz.Model;
+using HalobizMigrations.Models;
 using HaloBiz.Repository;
 using Microsoft.Extensions.Logging;
 

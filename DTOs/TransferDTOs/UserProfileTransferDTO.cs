@@ -1,6 +1,5 @@
-using HaloBiz.Model.RoleManagement;
+using HalobizMigrations.Models;
 using System;
-using HaloBiz.Model;
 using HaloBiz.DTOs.TransferDTOs.RoleManagement;
 
 namespace HaloBiz.DTOs.TransferDTOs

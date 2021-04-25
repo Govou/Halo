@@ -2,8 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using HaloBiz.Data;
-using HaloBiz.Model;
+using HalobizMigrations.Data;
+using HalobizMigrations.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
@@ -12,9 +12,9 @@ namespace HaloBiz.Repository.Impl
 
     public class SupplierRepositoryImpl : ISupplierRepository
     {
-        private readonly DataContext _context;
+        private readonly HalobizContext _context;
         private readonly ILogger<SupplierRepositoryImpl> _logger;
-        public SupplierRepositoryImpl(DataContext context, ILogger<SupplierRepositoryImpl> logger)
+        public SupplierRepositoryImpl(HalobizContext context, ILogger<SupplierRepositoryImpl> logger)
         {
             this._logger = logger;
             this._context = context;

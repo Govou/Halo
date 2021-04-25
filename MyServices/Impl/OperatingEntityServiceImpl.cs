@@ -2,7 +2,7 @@
 using HaloBiz.DTOs.ApiDTOs;
 using HaloBiz.DTOs.ReceivingDTOs;
 using HaloBiz.Repository;
-using HaloBiz.Model;
+using HalobizMigrations.Models;
 using HaloBiz.DTOs.TransferDTOs;
 using Microsoft.Extensions.Logging;
 using System;
@@ -51,9 +51,9 @@ namespace HaloBiz.MyServices.Impl
             var operatingEntityTransferDTOs = _mapper.Map<IEnumerable<OperatingEntityTransferDTO>>(operatingEntity);
             return new ApiOkResponse(operatingEntityTransferDTOs);
         }
-        public async Task<ApiResponse> GetAllOperatingEntitiesAndSBUProportion()
+        public async Task<ApiResponse> GetAllOperatingEntitiesAndSbuproportion()
         {
-            var operatingEntity = await _operatingEntityRepo.FindAllOperatingEntityWithSBUProportion();
+            var operatingEntity = await _operatingEntityRepo.FindAllOperatingEntityWithSbuproportion();
             if (operatingEntity == null)
             {
                 return new ApiResponse(404);

@@ -1,8 +1,6 @@
 using System;
 using System.Collections.Generic;
-using HaloBiz.Model;
-using HaloBiz.Model.LAMS;
-using HaloBiz.Model.ManyToManyRelationship;
+using HalobizMigrations.Models;
 
 namespace HaloBiz.DTOs.TransferDTOs.LAMS
 {

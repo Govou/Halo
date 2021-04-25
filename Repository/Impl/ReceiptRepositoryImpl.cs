@@ -2,9 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using HaloBiz.Data;
+using HalobizMigrations.Data;
 using halobiz_backend.DTOs.ReceivingDTOs;
-using halobiz_backend.Model.AccountsModel;
+using HalobizMigrations.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
@@ -12,10 +12,10 @@ namespace HaloBiz.Repository.Impl
 {
     public class ReceiptRepositoryImpl : IReceiptRepository
     {
-        private readonly DataContext _context;
+        private readonly HalobizContext _context;
         private readonly ILogger<ReceiptRepositoryImpl> _logger;
 
-        public ReceiptRepositoryImpl(DataContext context, ILogger<ReceiptRepositoryImpl> logger)
+        public ReceiptRepositoryImpl(HalobizContext context, ILogger<ReceiptRepositoryImpl> logger)
         {
             this._context = context;
             this._logger = logger;

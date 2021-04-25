@@ -2,8 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using HaloBiz.Data;
-using HaloBiz.Model.LAMS;
+using HalobizMigrations.Data;
+using HalobizMigrations.Models;
 using HaloBiz.Repository.LAMS;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -12,9 +12,9 @@ namespace HaloBiz.Repository.Impl.LAMS
 {
     public class ContractServiceRepositoryImpl : IContractServiceRepository
     {
-        private readonly DataContext _context;
+        private readonly HalobizContext _context;
         private readonly ILogger<ContractServiceRepositoryImpl> _logger;
-        public ContractServiceRepositoryImpl(DataContext context, ILogger<ContractServiceRepositoryImpl> logger)
+        public ContractServiceRepositoryImpl(HalobizContext context, ILogger<ContractServiceRepositoryImpl> logger)
         {
             this._logger = logger;
             this._context = context;
@@ -37,7 +37,7 @@ namespace HaloBiz.Repository.Impl.LAMS
                 .Include(x => x.Contract)
                 .Include(x => x.QuoteService)
                 .Include(x => x.Service)
-                .Include(x => x.SBUToContractServiceProportions)
+                .Include(x => x.SbutoContractServiceProportions)
                 .Include(x => x.ClosureDocuments)
                 .FirstOrDefaultAsync(x => x.Id == Id && x.IsDeleted == false);
         }
@@ -48,7 +48,7 @@ namespace HaloBiz.Repository.Impl.LAMS
                 .Include(x => x.Contract)
                 .Include(x => x.QuoteService)
                 .Include(x => x.Service)
-                .Include(x => x.SBUToContractServiceProportions)
+                .Include(x => x.SbutoContractServiceProportions)
                 .Include(x => x.ClosureDocuments)
                 .Where( x => x.ContractId == contractId && x.IsDeleted == false)
                 .ToListAsync();
@@ -59,7 +59,7 @@ namespace HaloBiz.Repository.Impl.LAMS
                 .Include(x => x.Contract)
                 .Include(x => x.QuoteService)
                 .Include(x => x.Service)
-                .Include(x => x.SBUToContractServiceProportions)
+                .Include(x => x.SbutoContractServiceProportions)
                 .Include(x => x.ClosureDocuments)
                 .Where(x => x.ReferenceNo == refNo && x.IsDeleted == false)
                 .ToListAsync();

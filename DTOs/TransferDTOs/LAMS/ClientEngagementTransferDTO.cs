@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
-using HaloBiz.Model;
-using HaloBiz.Model.LAMS;
+using HalobizMigrations.Models;
+
 
 namespace HaloBiz.DTOs.TransferDTOs.LAMS
 {
@@ -20,6 +20,6 @@ namespace HaloBiz.DTOs.TransferDTOs.LAMS
         public long CustomerDivisionId { get; set; }
         public CustomerDivision CustomerDivision { get; set; }
         public string EngagementOutcome { get; set; }
-        public string ContractServicesDiscussed { get; set; }
+        public string ContractServiceDiscussed { get; set; }
     }
 }

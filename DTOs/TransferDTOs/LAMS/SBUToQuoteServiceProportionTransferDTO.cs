@@ -1,10 +1,10 @@
 using HaloBiz.Helpers;
-using HaloBiz.Model;
-using HaloBiz.Model.LAMS;
+using HalobizMigrations.Models;
+
 
 namespace HaloBiz.DTOs.TransferDTOs.LAMS
 {
-    public class SBUToQuoteServiceProportionTransferDTO
+    public class SbutoQuoteServiceProportionTransferDTO
     {
         public long Id { get; set; }
         public double Proportion { get; set; }

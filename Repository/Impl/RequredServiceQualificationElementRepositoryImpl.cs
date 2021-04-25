@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using HaloBiz.Data;
-using HaloBiz.Model;
+using HalobizMigrations.Data;
+using HalobizMigrations.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
@@ -11,10 +11,10 @@ namespace HaloBiz.Repository.Impl
 {
     public class RequredServiceQualificationElementRepositoryImpl : IRequredServiceQualificationElementRepository
     {
-        private readonly DataContext _context;
+        private readonly HalobizContext _context;
         private readonly ILogger<RequredServiceQualificationElementRepositoryImpl> _logger;
         private readonly IServiceCategoryRepository _serviceCategoryRepository;
-        public RequredServiceQualificationElementRepositoryImpl(DataContext context, ILogger<RequredServiceQualificationElementRepositoryImpl> logger, IServiceCategoryRepository serviceCategoryRepository)
+        public RequredServiceQualificationElementRepositoryImpl(HalobizContext context, ILogger<RequredServiceQualificationElementRepositoryImpl> logger, IServiceCategoryRepository serviceCategoryRepository)
         {
             this._logger = logger;
             this._context = context;

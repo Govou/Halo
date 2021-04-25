@@ -2,8 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using HaloBiz.Data;
-using HaloBiz.Model;
+using HalobizMigrations.Data;
+using HalobizMigrations.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
@@ -11,10 +11,10 @@ namespace HaloBiz.Repository.Impl
 {
     public class ServiceTaskDeliverableRepositoryImpl : IServiceTaskDeliverableRepository
     {
-        private readonly DataContext _context;
+        private readonly HalobizContext _context;
         private readonly ILogger<ServiceTaskDeliverableRepositoryImpl> _logger;
         private readonly IServiceCategoryRepository _serviceCategoryRepository;
-        public ServiceTaskDeliverableRepositoryImpl(DataContext context, ILogger<ServiceTaskDeliverableRepositoryImpl> logger, IServiceCategoryRepository serviceCategoryRepository)
+        public ServiceTaskDeliverableRepositoryImpl(HalobizContext context, ILogger<ServiceTaskDeliverableRepositoryImpl> logger, IServiceCategoryRepository serviceCategoryRepository)
         {
             this._logger = logger;
             this._context = context;

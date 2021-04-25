@@ -2,8 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using HaloBiz.Data;
-using HaloBiz.Model.LAMS;
+using HalobizMigrations.Data;
+using HalobizMigrations.Models;
 using HaloBiz.Repository.LAMS;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -12,9 +12,9 @@ namespace HaloBiz.Repository.Impl.LAMS
 {
     public class ClosureDocumentRepositoryImpl : IClosureDocumentRepository
     {
-        private readonly DataContext _context;
+        private readonly HalobizContext _context;
         private readonly ILogger<ClosureDocumentRepositoryImpl> _logger;
-        public ClosureDocumentRepositoryImpl(DataContext context, ILogger<ClosureDocumentRepositoryImpl> logger)
+        public ClosureDocumentRepositoryImpl(HalobizContext context, ILogger<ClosureDocumentRepositoryImpl> logger)
         {
             this._logger = logger;
             this._context = context;

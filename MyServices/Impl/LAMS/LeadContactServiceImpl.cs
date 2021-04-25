@@ -2,32 +2,32 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using AutoMapper;
-using HaloBiz.Data;
+using HalobizMigrations.Data;
 using HaloBiz.DTOs.ApiDTOs;
 using HaloBiz.DTOs.ReceivingDTOs.LAMS;
 using HaloBiz.DTOs.TransferDTOs.LAMS;
 using HaloBiz.Helpers;
-using HaloBiz.Model;
-using HaloBiz.Model.LAMS;
+using HalobizMigrations.Models;
 using HaloBiz.MyServices.LAMS;
 using HaloBiz.Repository;
 using HaloBiz.Repository.LAMS;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using HaloBiz.Model.LAMS;
 
 namespace HaloBiz.MyServices.Impl.LAMS
 {
     public class LeadContactServiceImpl : ILeadContactService
     {
-        private readonly DataContext _context;
+        private readonly HalobizContext _context;
         private readonly IModificationHistoryRepository _historyRepo;
         private readonly ILeadContactRepository _leadContactRepo;
         private readonly ILogger<LeadContactServiceImpl> _logger;
         private readonly IMapper _mapper;
 
         public LeadContactServiceImpl(
-                                        DataContext context, 
+                                        HalobizContext context, 
                                         IModificationHistoryRepository historyRepo,  
                                         IMapper mapper, 
                                         ILeadContactRepository leadContactRepo,

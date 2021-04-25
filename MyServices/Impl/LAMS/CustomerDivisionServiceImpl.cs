@@ -5,8 +5,7 @@ using HaloBiz.DTOs.ReceivingDTOs.LAMS;
 using HaloBiz.DTOs.TransferDTOs;
 using HaloBiz.DTOs.TransferDTOs.LAMS;
 using HaloBiz.Helpers;
-using HaloBiz.Model;
-using HaloBiz.Model.LAMS;
+using HalobizMigrations.Models;
 using HaloBiz.MyServices.LAMS;
 using HaloBiz.Repository;
 using HaloBiz.Repository.LAMS;
@@ -164,7 +163,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
             CustomerDivisionToUpdate.DivisionName = CustomerDivisionReceivingDTO.DivisionName;
             CustomerDivisionToUpdate.CustomerId = CustomerDivisionReceivingDTO.CustomerId;
             CustomerDivisionToUpdate.PhoneNumber = CustomerDivisionReceivingDTO.PhoneNumber;
-            CustomerDivisionToUpdate.RCNumber = CustomerDivisionReceivingDTO.RCNumber;
+            CustomerDivisionToUpdate.Rcnumber = CustomerDivisionReceivingDTO.RCNumber;
             CustomerDivisionToUpdate.Email = CustomerDivisionReceivingDTO.Email;
             CustomerDivisionToUpdate.Industry = CustomerDivisionReceivingDTO.Industry;
             CustomerDivisionToUpdate.LogoUrl = CustomerDivisionReceivingDTO.LogoUrl;

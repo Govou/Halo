@@ -2,8 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using HaloBiz.Data;
-using HaloBiz.Model;
+using HalobizMigrations.Data;
+using HalobizMigrations.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
@@ -11,9 +11,9 @@ namespace HaloBiz.Repository.Impl
 {
     public class ServiceCategoryRepositoryImpl : IServiceCategoryRepository
     {
-        private readonly DataContext _context;
+        private readonly HalobizContext _context;
         private readonly ILogger<ServiceCategoryRepositoryImpl> _logger;
-        public ServiceCategoryRepositoryImpl( DataContext context, ILogger<ServiceCategoryRepositoryImpl> logger)
+        public ServiceCategoryRepositoryImpl( HalobizContext context, ILogger<ServiceCategoryRepositoryImpl> logger)
         {
             this._logger = logger;
             this._context = context;
@@ -50,8 +50,8 @@ namespace HaloBiz.Repository.Impl
             if(serviceCategory != null){
                     serviceCategory.Services = await _context.Services
                     .Include(x => x.ServiceType)
-                    .Where( service => service.ServiceCategoryId == serviceCategory.Id && !service.IsDeleted  && service.IsPublished)
-                    .Select( x => new Services() {
+                    .Where( service => service.ServiceCategoryId == serviceCategory.Id && !service.IsDeleted.Value && service.IsPublished.Value)
+                    .Select( x => new Service() {
                         Id = x.Id ,
                         ServiceCode = x.ServiceCode,
                         Name = x.Name,
@@ -87,8 +87,8 @@ namespace HaloBiz.Repository.Impl
 
                 if(serviceCategory != null){
                     serviceCategory.Services = await _context.Services
-                    .Include(x => x.RequiredServiceDocument).ThenInclude(x => x.RequiredServiceDocument)
-                    .Include(x => x.RequredServiceQualificationElement).ThenInclude(x => x.RequredServiceQualificationElement)
+                    .Include(x => x.ServiceRequiredServiceDocuments).ThenInclude(x => x.RequiredServiceDocument)
+                    .Include(x => x.ServiceRequredServiceQualificationElements).ThenInclude(x => x.RequredServiceQualificationElement)
                     .Where( service => service.ServiceCategoryId == serviceCategory.Id && service.IsDeleted == false)
                     .ToListAsync();
                 }
@@ -104,7 +104,7 @@ namespace HaloBiz.Repository.Impl
                     .Where(service => service.IsDeleted == false))
                 .Include(serviceCategory => serviceCategory.ServiceCategoryTasks
                     .Where(serviceCategoryTask => serviceCategoryTask.IsDeleted == false))
-                    .ThenInclude(serviceCategoryTask => serviceCategoryTask.ServiceTaskDeliverable)
+                    .ThenInclude(serviceCategoryTask => serviceCategoryTask.ServiceTaskDeliverables)
                 .ToListAsync();
         }
 

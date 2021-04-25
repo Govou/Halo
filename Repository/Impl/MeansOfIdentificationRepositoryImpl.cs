@@ -2,8 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using HaloBiz.Data;
-using HaloBiz.Model;
+using HalobizMigrations.Data;
+using HalobizMigrations.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
@@ -11,9 +11,9 @@ namespace HaloBiz.Repository.Impl
 {
     public class MeansOfIdentificationRepositoryImpl : IMeansOfIdentificationRepository
     {
-        private readonly DataContext _context;
+        private readonly HalobizContext _context;
         private readonly ILogger<MeansOfIdentificationRepositoryImpl> _logger;
-        public MeansOfIdentificationRepositoryImpl(DataContext context, ILogger<MeansOfIdentificationRepositoryImpl> logger)
+        public MeansOfIdentificationRepositoryImpl(HalobizContext context, ILogger<MeansOfIdentificationRepositoryImpl> logger)
         {
             this._logger = logger;
             this._context = context;
@@ -21,7 +21,7 @@ namespace HaloBiz.Repository.Impl
 
         public async Task<MeansOfIdentification> SaveMeansOfIdentification(MeansOfIdentification meansOfIdentification)
         {
-            var meansOfIdentificationEntity = await _context.MeansOfIdentification.AddAsync(meansOfIdentification);
+            var meansOfIdentificationEntity = await _context.MeansOfIdentifications.AddAsync(meansOfIdentification);
             if(await SaveChanges())
             {
                 return meansOfIdentificationEntity.Entity;
@@ -31,19 +31,19 @@ namespace HaloBiz.Repository.Impl
 
         public async Task<MeansOfIdentification> FindMeansOfIdentificationById(long Id)
         {
-            return await _context.MeansOfIdentification
+            return await _context.MeansOfIdentifications
                 .FirstOrDefaultAsync( meansOfIdentification => meansOfIdentification.Id == Id && meansOfIdentification.IsDeleted == false);
         }
 
         public async Task<MeansOfIdentification> FindMeansOfIdentificationByName(string name)
         {
-            return await _context.MeansOfIdentification
+            return await _context.MeansOfIdentifications
                 .FirstOrDefaultAsync( meansOfIdentification => meansOfIdentification.Caption == name && meansOfIdentification.IsDeleted == false);
         }
 
         public async Task<IEnumerable<MeansOfIdentification>> FindAllMeansOfIdentification()
         {
-            return await _context.MeansOfIdentification
+            return await _context.MeansOfIdentifications
                 .Where(meansOfIdentification => meansOfIdentification.IsDeleted == false)
                 .OrderBy(meansOfIdentification => meansOfIdentification.CreatedAt)
                 .ToListAsync();
@@ -51,7 +51,7 @@ namespace HaloBiz.Repository.Impl
 
         public async Task<MeansOfIdentification> UpdateMeansOfIdentification(MeansOfIdentification meansOfIdentification)
         {
-            var meansOfIdentificationEntity =  _context.MeansOfIdentification.Update(meansOfIdentification);
+            var meansOfIdentificationEntity =  _context.MeansOfIdentifications.Update(meansOfIdentification);
             if(await SaveChanges())
             {
                 return meansOfIdentificationEntity.Entity;
@@ -62,7 +62,7 @@ namespace HaloBiz.Repository.Impl
         public async Task<bool> DeleteMeansOfIdentification(MeansOfIdentification meansOfIdentification)
         {
             meansOfIdentification.IsDeleted = true;
-            _context.MeansOfIdentification.Update(meansOfIdentification);
+            _context.MeansOfIdentifications.Update(meansOfIdentification);
             return await SaveChanges();
         }
         private async Task<bool> SaveChanges()

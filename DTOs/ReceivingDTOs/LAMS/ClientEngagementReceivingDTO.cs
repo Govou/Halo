@@ -13,6 +13,6 @@ namespace HaloBiz.DTOs.ReceivingDTOs
         public DateTime Date { get; set; }
         public long CustomerDivisionId { get; set; }
         public string EngagementOutcome { get; set; }
-        public string ContractServicesDiscussed { get; set; }
+        public string ContractServiceDiscussed { get; set; }
     }
 }

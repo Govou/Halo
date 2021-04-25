@@ -1,6 +1,6 @@
 using HaloBiz.Helpers;
-using HaloBiz.Model;
-using HaloBiz.Model.LAMS;
+using HalobizMigrations.Models;
+
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -16,6 +16,6 @@ namespace HaloBiz.DTOs.ReceivingDTOs
         public long LeadDivisionId { get; set; }
         public bool IsConvertedToContract { get; set; } = true;
         public VersionType Version { get; set; } = VersionType.Latest;
-        public IEnumerable<QuoteServiceReceivingDTO> QuoteServices { get; set; }
+        public IEnumerable<QuoteServiceReceivingDTO> QuoteService { get; set; }
     }
 }

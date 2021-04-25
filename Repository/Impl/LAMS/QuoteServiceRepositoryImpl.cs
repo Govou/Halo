@@ -2,19 +2,20 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using HaloBiz.Data;
-using HaloBiz.Model.LAMS;
+using HalobizMigrations.Data;
+
 using HaloBiz.Repository.LAMS;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using HalobizMigrations.Models;
 
 namespace HaloBiz.Repository.Impl.LAMS
 {
     public class QuoteServiceRepositoryImpl : IQuoteServiceRepository
     {
-        private readonly DataContext _context;
+        private readonly HalobizContext _context;
         private readonly ILogger<QuoteServiceRepositoryImpl> _logger;
-        public QuoteServiceRepositoryImpl(DataContext context, ILogger<QuoteServiceRepositoryImpl> logger)
+        public QuoteServiceRepositoryImpl(HalobizContext context, ILogger<QuoteServiceRepositoryImpl> logger)
         {
             this._logger = logger;
             this._context = context;
@@ -40,7 +41,7 @@ namespace HaloBiz.Repository.Impl.LAMS
         {
             var quoteService = await _context.QuoteServices
                 .Include(x => x.QuoteServiceDocuments)
-                .Include(x => x.SBUToQuoteServiceProportions).ThenInclude(x => x.UserInvolved)
+                .Include(x => x.SbutoQuoteServiceProportions).ThenInclude(x => x.UserInvolved)
                 .Include(x => x.ContractServices)
                 .Include(x => x.CreatedBy)
                 .FirstOrDefaultAsync( quoteService => quoteService.Id == Id && quoteService.IsDeleted == false);
@@ -48,7 +49,7 @@ namespace HaloBiz.Repository.Impl.LAMS
             {
                 return null;
             }
-            quoteService.Service = await _context.Services.FirstOrDefaultAsync(x => x.Id == quoteService.ServiceId && !x.IsDeleted);
+            quoteService.Service = await _context.Services.FirstOrDefaultAsync(x => x.Id == quoteService.ServiceId && !x.IsDeleted.Value);
             return quoteService;
         }
 
@@ -56,7 +57,7 @@ namespace HaloBiz.Repository.Impl.LAMS
         {
             return await _context.QuoteServices
                 .Include(x => x.QuoteServiceDocuments)
-                .Include(x => x.SBUToQuoteServiceProportions)
+                .Include(x => x.SbutoQuoteServiceProportions)
                 .Include(x => x.ContractServices)
                 .Where(quoteService => quoteService.IsDeleted == false)
                 .OrderBy(quoteService => quoteService.CreatedAt)

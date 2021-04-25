@@ -2,8 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using HaloBiz.Data;
-using HaloBiz.Model;
+using HalobizMigrations.Data;
+using HalobizMigrations.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
@@ -11,10 +11,10 @@ namespace HaloBiz.Repository.Impl
 {
     public class ServiceCategoryTaskRepositoryImpl : IServiceCategoryTaskRepository
     {
-        private readonly DataContext _context;
+        private readonly HalobizContext _context;
         private readonly ILogger<ServiceCategoryTaskRepositoryImpl> _logger;
         private readonly IServiceTaskDeliverableRepository _serviceTaskDeliverableRepository;
-        public ServiceCategoryTaskRepositoryImpl(DataContext context, ILogger<ServiceCategoryTaskRepositoryImpl> logger, IServiceTaskDeliverableRepository serviceTaskDeliverableRepository)
+        public ServiceCategoryTaskRepositoryImpl(HalobizContext context, ILogger<ServiceCategoryTaskRepositoryImpl> logger, IServiceTaskDeliverableRepository serviceTaskDeliverableRepository)
         {
             this._logger = logger;
             this._context = context;
@@ -35,7 +35,7 @@ namespace HaloBiz.Repository.Impl
         {
             return await _context.ServiceCategoryTasks
                 .Include(serviceCategoryTask => serviceCategoryTask.ServiceCategory)
-                .Include(serviceCategoryTask => serviceCategoryTask.ServiceTaskDeliverable)
+                .Include(serviceCategoryTask => serviceCategoryTask.ServiceTaskDeliverables)
                 .FirstOrDefaultAsync( serviceCategoryTask => serviceCategoryTask.Id == Id && serviceCategoryTask.IsDeleted == false);
         }
 
@@ -43,7 +43,7 @@ namespace HaloBiz.Repository.Impl
         {
             return await _context.ServiceCategoryTasks
                 .Include(serviceCategoryTask => serviceCategoryTask.ServiceCategory) 
-                .Include(serviceCategoryTask => serviceCategoryTask.ServiceTaskDeliverable)
+                .Include(serviceCategoryTask => serviceCategoryTask.ServiceTaskDeliverables)
                 .FirstOrDefaultAsync( serviceCategoryTask => serviceCategoryTask.Caption == caption && serviceCategoryTask.IsDeleted == false);
         }
 
@@ -52,7 +52,7 @@ namespace HaloBiz.Repository.Impl
             return await _context.ServiceCategoryTasks.Where(serviceCategoryTask => serviceCategoryTask.IsDeleted == false)
                 .Include(serviceCategoryTask => serviceCategoryTask.ServiceCategory)
                 .Include(serviceCategoryTask => serviceCategoryTask.EndorsementType)
-                .Include(serviceCategoryTask => serviceCategoryTask.ServiceTaskDeliverable)
+                .Include(serviceCategoryTask => serviceCategoryTask.ServiceTaskDeliverables)
                 .ToListAsync();
         }
 
@@ -68,7 +68,7 @@ namespace HaloBiz.Repository.Impl
 
         public async Task<bool> DeleteServiceCategoryTask(ServiceCategoryTask serviceCategoryTask)
         {
-            await _serviceTaskDeliverableRepository.DeleteServiceTaskDeliverableRange(serviceCategoryTask.ServiceTaskDeliverable);
+            await _serviceTaskDeliverableRepository.DeleteServiceTaskDeliverableRange(serviceCategoryTask.ServiceTaskDeliverables);
             serviceCategoryTask.IsDeleted = true;
             _context.ServiceCategoryTasks.Update(serviceCategoryTask);
             return await SaveChanges();
@@ -89,7 +89,7 @@ namespace HaloBiz.Repository.Impl
         {
             foreach (var serviceTaskDeliverable in serviceCategoryTasks)
             {
-                await _serviceTaskDeliverableRepository.DeleteServiceTaskDeliverableRange(serviceTaskDeliverable.ServiceTaskDeliverable);
+                await _serviceTaskDeliverableRepository.DeleteServiceTaskDeliverableRange(serviceTaskDeliverable.ServiceTaskDeliverables);
                 serviceTaskDeliverable.IsDeleted = true;
             }
             _context.ServiceCategoryTasks.UpdateRange(serviceCategoryTasks);

@@ -2,8 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using HaloBiz.Data;
-using HaloBiz.Model.LAMS;
+using HalobizMigrations.Data;
+using HalobizMigrations.Models;
 using HaloBiz.Repository.LAMS;
 using halobiz_backend.DTOs.TransferDTOs.LAMS;
 using Microsoft.EntityFrameworkCore;
@@ -13,9 +13,9 @@ namespace HaloBiz.Repository.Impl.LAMS
 {
     public class DeliverableFulfillmentRepositoryImpl : IDeliverableFulfillmentRepository
     {
-        private readonly DataContext _context;
+        private readonly HalobizContext _context;
         private readonly ILogger<DeliverableFulfillmentRepositoryImpl> _logger;
-        public DeliverableFulfillmentRepositoryImpl(DataContext context, ILogger<DeliverableFulfillmentRepositoryImpl> logger)
+        public DeliverableFulfillmentRepositoryImpl(HalobizContext context, ILogger<DeliverableFulfillmentRepositoryImpl> logger)
         {
             this._logger = logger;
             this._context = context;
@@ -54,10 +54,10 @@ namespace HaloBiz.Repository.Impl.LAMS
         {
             var year = DateTime.Now.Year;
             var taskMasterTasks = await _context.TaskFulfillments
-                        .Include(x => x.DeliverableFUlfillments.Where(x => !x.WasReassigned && x.ResponsibleId != null)).ThenInclude(x => x.Responsible)
+                        .Include(x => x.DeliverableFulfillments.Where(x => !x.WasReassigned && x.ResponsibleId != null)).ThenInclude(x => x.Responsible)
                         .Where(x => x.ResponsibleId == taskMasterId && x.CreatedAt.Year == year && x.IsDeleted == false)
                         .ToListAsync();
-            var listOFDeliverable =  taskMasterTasks.Select(x => x.DeliverableFUlfillments);
+            var listOFDeliverable =  taskMasterTasks.Select(x => x.DeliverableFulfillments);
             var deliverables = new List<DeliverableFulfillment>();
             foreach (var deliverable in listOFDeliverable)
             {

@@ -4,7 +4,7 @@ using AutoMapper;
 using HaloBiz.DTOs.ApiDTOs;
 using HaloBiz.DTOs.ReceivingDTOs;
 using HaloBiz.DTOs.TransferDTOs;
-using HaloBiz.Model;
+using HalobizMigrations.Models;
 using HaloBiz.Repository;
 
 namespace HaloBiz.MyServices.Impl
@@ -80,7 +80,7 @@ namespace HaloBiz.MyServices.Impl
             officeToUpdate.Name = branchReceivingDTO.Name;
             officeToUpdate.BranchId = branchReceivingDTO.BranchId;
             officeToUpdate.PhoneNumber = branchReceivingDTO.PhoneNumber;
-            officeToUpdate.LGAId = branchReceivingDTO.LGAId;
+            officeToUpdate.Lgaid = branchReceivingDTO.LGAId;
             officeToUpdate.StateId = branchReceivingDTO.StateId;
             officeToUpdate.Description = branchReceivingDTO.Description;
             officeToUpdate.HeadId = branchReceivingDTO.HeadId;

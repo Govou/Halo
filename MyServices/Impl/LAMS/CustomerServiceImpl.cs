@@ -5,8 +5,8 @@ using HaloBiz.DTOs.ReceivingDTOs.LAMS;
 using HaloBiz.DTOs.TransferDTOs;
 using HaloBiz.DTOs.TransferDTOs.LAMS;
 using HaloBiz.Helpers;
-using HaloBiz.Model;
-using HaloBiz.Model.LAMS;
+using HalobizMigrations.Models;
+
 using HaloBiz.MyServices.LAMS;
 using HaloBiz.Repository;
 using Microsoft.AspNetCore.Http;
@@ -118,7 +118,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
             CustomerToUpdate.GroupName = CustomerReceivingDTO.GroupName;
             CustomerToUpdate.GroupTypeId = CustomerReceivingDTO.GroupTypeId;
             CustomerToUpdate.PhoneNumber = CustomerReceivingDTO.PhoneNumber;
-            CustomerToUpdate.RCNumber = CustomerReceivingDTO.RCNumber;
+            CustomerToUpdate.Rcnumber = CustomerReceivingDTO.RCNumber;
             CustomerToUpdate.Email = CustomerReceivingDTO.Email;
             var updatedCustomer = await _CustomerRepo.UpdateCustomer(CustomerToUpdate);
             summary += $"Details after change, \n {CustomerToUpdate.ToString()} \n";

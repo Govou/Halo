@@ -1,12 +1,10 @@
 ﻿using AutoMapper;
-using HaloBiz.Data;
+using HalobizMigrations.Data;
 using HaloBiz.DTOs.ApiDTOs;
 using HaloBiz.DTOs.ReceivingDTOs;
 using HaloBiz.DTOs.TransferDTOs;
 using HaloBiz.Helpers;
-using HaloBiz.Model;
-using HaloBiz.Model.AccountsModel;
-using HaloBiz.Model.LAMS;
+using HalobizMigrations.Models;
 using HaloBiz.Repository;
 using halobiz_backend.DTOs.QueryParamsDTOs;
 using halobiz_backend.DTOs.ReceivingDTOs;
@@ -27,7 +25,7 @@ namespace HaloBiz.MyServices.Impl
         private readonly IAccountMasterRepository _accountMasterRepo;
         private readonly IMapper _mapper;
         private readonly  IInvoiceRepository _invoiceRepo;
-        private readonly  DataContext _context;
+        private readonly  HalobizContext _context;
         private readonly  IConfiguration _configuration;
         private readonly  string RETAIL = "retail";
 
@@ -43,7 +41,7 @@ namespace HaloBiz.MyServices.Impl
                     ILogger<AccountMasterServiceImpl> logger, 
                     IMapper mapper,
                     IInvoiceRepository invoiceRepo,
-                    DataContext context)
+                    HalobizContext context)
         {
             this._configuration = configuration;
             this._mapper = mapper;
@@ -194,7 +192,7 @@ namespace HaloBiz.MyServices.Impl
             AccountMasterToUpdate.OfficeId = accountMasterReceivingDTO.OfficeId;
             AccountMasterToUpdate.BranchId = accountMasterReceivingDTO.BranchId;
             AccountMasterToUpdate.CustomerDivisionId = accountMasterReceivingDTO.CustomerDivisionId;
-            AccountMasterToUpdate.DTrackJournalCode = accountMasterReceivingDTO.DTrackJournalCode;
+            AccountMasterToUpdate.DtrackJournalCode = accountMasterReceivingDTO.DTrackJournalCode;
             var updatedAccountMaster = await _accountMasterRepo.UpdateAccountMaster(AccountMasterToUpdate);
 
             if (updatedAccountMaster == null)
@@ -218,12 +216,12 @@ namespace HaloBiz.MyServices.Impl
                     //var today = DateTime.Parse("2021-04-01");
 
                     var invoices = await queryable
-                        .Where(x => !x.IsAccountPosted && x.IsFinalInvoice && x.StartDate.Date == today.Date)
+                        .Where(x => !x.IsAccountPosted.Value && x.IsFinalInvoice.Value && x.StartDate.Date == today.Date)
                             .ToListAsync();
 
                     ContractService contractService;
                     CustomerDivision customerDivision;
-                    Services service;
+                    Service service;
                     double VAT;
 
                     if(invoices.Count() == 0)
@@ -284,7 +282,7 @@ namespace HaloBiz.MyServices.Impl
                                          long accountVoucherId,
                                          double VAT, 
                                          double billableAmount, 
-                                         Services service
+                                         Service service
                                          )
         {
 
@@ -494,7 +492,7 @@ namespace HaloBiz.MyServices.Impl
                                     long accountMasterId,
                                     double totalBillableAfterTax,
                                     string transactionId,
-                                    Services service
+                                    Service service
                                     )
         {
             

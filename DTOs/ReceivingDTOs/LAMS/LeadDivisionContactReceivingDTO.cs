@@ -1,4 +1,5 @@
-﻿using HaloBiz.Model.LAMS;
+﻿
+using HaloBiz.Model.LAMS;
 using System;
 using System.Collections.Generic;
 using System.Linq;

@@ -2,20 +2,20 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using HaloBiz.Data;
+using HalobizMigrations.Data;
 using HaloBiz.DTOs.TransferDTOs.LAMS;
-using HaloBiz.Model.LAMS;
 using HaloBiz.Repository.LAMS;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using HalobizMigrations.Models;
 
 namespace HaloBiz.Repository.Impl.LAMS
 {
     public class CustomerDivisionRepositoryImpl : ICustomerDivisionRepository
     {
-        private readonly DataContext _context;
+        private readonly HalobizContext _context;
         private readonly ILogger<CustomerDivisionRepositoryImpl> _logger;
-        public CustomerDivisionRepositoryImpl(DataContext context, ILogger<CustomerDivisionRepositoryImpl> logger)
+        public CustomerDivisionRepositoryImpl(HalobizContext context, ILogger<CustomerDivisionRepositoryImpl> logger)
         {
             this._logger = logger;
             this._context = context;
@@ -36,14 +36,14 @@ namespace HaloBiz.Repository.Impl.LAMS
         {
             var client = await _context.CustomerDivisions
                 .Include(x => x.Customer)
-                .Include(x => x.AccountMaster)
+                .Include(x => x.AccountMasters)
                 .FirstOrDefaultAsync(entity => entity.Id == Id && entity.IsDeleted == false);
             if(client == null)
             {
                 return null;
             }
             client.Contracts = await _context.Contracts
-                .Include(x => x.ContractServices.Where(x => x.Version == Helpers.VersionType.Latest))
+                .Include(x => x.ContractServices.Where(x => x.Version == (int)Helpers.VersionType.Latest))
                     .ThenInclude(x => x.Service)
                 .Where(x => x.CustomerDivisionId == client.Id).ToListAsync();
             
@@ -66,9 +66,9 @@ namespace HaloBiz.Repository.Impl.LAMS
                 .Include(x => x.Informed)
                 .Include(x => x.Responsible)
                 .Include(x => x.Support)
-                .Include(x => x.DeliverableFUlfillments.Where(x => x.IsDeleted == false))
+                .Include(x => x.DeliverableFulfillments.Where(x => x.IsDeleted == false))
                     .ThenInclude(x => x.Responsible)
-                .Include(x => x.DeliverableFUlfillments.Where(x => x.IsDeleted == false))
+                .Include(x => x.DeliverableFulfillments.Where(x => x.IsDeleted == false))
                     .ThenInclude(x => x.CreatedBy)
                     .ToListAsync();
 
@@ -164,7 +164,7 @@ namespace HaloBiz.Repository.Impl.LAMS
         {
             return await _context.CustomerDivisions
                 .Include(x => x.Customer)
-                .Include(x => x.AccountMaster)
+                .Include(x => x.AccountMasters)
                 .FirstOrDefaultAsync(entity => entity.DivisionName == name && entity.IsDeleted == false);
         }
 

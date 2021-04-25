@@ -1,18 +1,19 @@
+using HalobizMigrations.Models;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using HaloBiz.Model.LAMS;
+
 
 namespace HaloBiz.Repository.LAMS
 {
-    public interface ISBUToQuoteServiceProportionRepository
+    public interface ISbutoQuoteServiceProportionRepository
     {
-        Task<SBUToQuoteServiceProportion> FindSBUToQuoteServiceProportionById(long Id);
-        Task<SBUToQuoteServiceProportion> SaveSBUToQuoteServiceProportion(SBUToQuoteServiceProportion entity);
-        Task<IEnumerable<SBUToQuoteServiceProportion>> FindAllSBUToQuoteServiceProportionByQuoteServiceId(long quoteServiceId);
-        Task<SBUToQuoteServiceProportion> UpdateSBUToQuoteServiceProportion(SBUToQuoteServiceProportion entity);
-        Task<bool> DeleteSBUToQuoteServiceProportion(SBUToQuoteServiceProportion entity);
-        Task<IEnumerable<SBUToQuoteServiceProportion>> SaveSBUToQuoteServiceProportion(IEnumerable<SBUToQuoteServiceProportion> entities);
-        Task<bool> DeleteSBUToQuoteServiceProportion(IEnumerable<SBUToQuoteServiceProportion> entities);
-        Task<IEnumerable<SBUToQuoteServiceProportion>> UpdateSBUToQuoteServiceProportion(IEnumerable<SBUToQuoteServiceProportion> entities);
+        Task<SbutoQuoteServiceProportion> FindSbutoQuoteServiceProportionById(long Id);
+        Task<SbutoQuoteServiceProportion> SaveSbutoQuoteServiceProportion(SbutoQuoteServiceProportion entity);
+        Task<IEnumerable<SbutoQuoteServiceProportion>> FindAllSbutoQuoteServiceProportionByQuoteServiceId(long quoteServiceId);
+        Task<SbutoQuoteServiceProportion> UpdateSbutoQuoteServiceProportion(SbutoQuoteServiceProportion entity);
+        Task<bool> DeleteSbutoQuoteServiceProportion(SbutoQuoteServiceProportion entity);
+        Task<IEnumerable<SbutoQuoteServiceProportion>> SaveSbutoQuoteServiceProportion(IEnumerable<SbutoQuoteServiceProportion> entities);
+        Task<bool> DeleteSbutoQuoteServiceProportion(IEnumerable<SbutoQuoteServiceProportion> entities);
+        Task<IEnumerable<SbutoQuoteServiceProportion>> UpdateSbutoQuoteServiceProportion(IEnumerable<SbutoQuoteServiceProportion> entities);
     }
 }

@@ -10,9 +10,4 @@ namespace HaloBiz.Model.LAMS
     {
         Primary, Secondary
     }
-    public class LeadContact : Contact
-    {
-        [Required]
-        public ContactType Type { get; set; }
-    }
 }

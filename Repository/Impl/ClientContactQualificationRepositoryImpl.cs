@@ -2,8 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using HaloBiz.Data;
-using HaloBiz.Model;
+using HalobizMigrations.Data;
+using HalobizMigrations.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
@@ -12,9 +12,9 @@ namespace HaloBiz.Repository.Impl
 
     public class ClientContactQualificationRepositoryImpl : IClientContactQualificationRepository
     {
-        private readonly DataContext _context;
+        private readonly HalobizContext _context;
         private readonly ILogger<ClientContactQualificationRepositoryImpl> _logger;
-        public ClientContactQualificationRepositoryImpl(DataContext context, ILogger<ClientContactQualificationRepositoryImpl> logger)
+        public ClientContactQualificationRepositoryImpl(HalobizContext context, ILogger<ClientContactQualificationRepositoryImpl> logger)
         {
             this._logger = logger;
             this._context = context;

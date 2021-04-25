@@ -8,10 +8,10 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using HaloBiz.DTOs.MailDTOs;
 using Newtonsoft.Json;
-using HaloBiz.Model;
+using HalobizMigrations.Models;
 using Microsoft.Extensions.Configuration;
-using HaloBiz.Model.LAMS;
-using HaloBiz.Data;
+
+using HalobizMigrations.Data;
 using Microsoft.EntityFrameworkCore;
 
 namespace HaloBiz.Adapters.Impl
@@ -19,10 +19,10 @@ namespace HaloBiz.Adapters.Impl
     public class MailAdapter : IMailAdapter
     {
         private readonly ILogger<MailAdapter> _logger;
-        private readonly DataContext _context;
+        private readonly HalobizContext _context;
         private readonly IConfiguration _configuration;
         private readonly string _mailBaseUrl;
-        public MailAdapter(ILogger<MailAdapter> logger, DataContext context, IConfiguration configuration)
+        public MailAdapter(ILogger<MailAdapter> logger, HalobizContext context, IConfiguration configuration)
         {
             _logger = logger;
             _configuration = configuration;
@@ -305,7 +305,7 @@ namespace HaloBiz.Adapters.Impl
         //           .PostJsonAsync(new
         //           {
         //               nameOfContact = quotesDetails.LeadDivision?.PrimaryContact?.FirstName,
-        //               quoteservices = JsonConvert.SerializeObject(quotesDetails.QuoteServices.Select(x => x.Service.Name)),
+        //               quoteservices = JsonConvert.SerializeObject(quotesDetails.QuoteService.Select(x => x.Service.Name)),
         //               emailAddress = quotesDetails.LeadDivision?.PrimaryContact?.Email
         //           }).ReceiveJson();
 

@@ -15,6 +15,6 @@ namespace HaloBiz.MyServices
         Task<ApiResponse> GetAllOperatingEntities();
         Task<ApiResponse> UpdateOperatingEntity(long id, OperatingEntityReceivingDTO operatingEntityReceivingDTO);
         Task<ApiResponse> DeleteOperatingEntity(long id);
-        Task<ApiResponse> GetAllOperatingEntitiesAndSBUProportion();
+        Task<ApiResponse> GetAllOperatingEntitiesAndSbuproportion();
     }
 }

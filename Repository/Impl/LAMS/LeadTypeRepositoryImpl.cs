@@ -2,19 +2,19 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using HaloBiz.Data;
-using HaloBiz.Model.LAMS;
+using HalobizMigrations.Data;
 using HaloBiz.Repository.LAMS;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using HalobizMigrations.Models;
 
 namespace HaloBiz.Repository.Impl.LAMS
 {
     public class LeadTypeRepositoryImpl : ILeadTypeRepository
     {
-        private readonly DataContext _context;
+        private readonly HalobizContext _context;
         private readonly ILogger<LeadTypeRepositoryImpl> _logger;
-        public LeadTypeRepositoryImpl(DataContext context, ILogger<LeadTypeRepositoryImpl> logger)
+        public LeadTypeRepositoryImpl(HalobizContext context, ILogger<LeadTypeRepositoryImpl> logger)
         {
             this._logger = logger;
             this._context = context;

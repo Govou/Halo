@@ -1,5 +1,5 @@
 using System.Collections.Generic;
-using HaloBiz.Model;
+using HalobizMigrations.Models;
 
 namespace HaloBiz.DTOs.TransferDTOs
 {
@@ -12,7 +12,7 @@ namespace HaloBiz.DTOs.TransferDTOs
         public ServiceGroupWithoutServiceCategoryDTO ServiceGroup { get; set; }
         public long OperatingEntityId { get; set; }
         public long DivisionId { get; set; }
-        public IEnumerable<ServicesTransferDTO> Services { get; set; }
+        public IEnumerable<ServiceTransferDTO> Service { get; set; }
         public IEnumerable<ServiceCategoryTaskTransferDTO> ServiceCategoryTasks { get; set; }
     }
 }

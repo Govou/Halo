@@ -2,8 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using HaloBiz.Data;
-using HaloBiz.Model;
+using HalobizMigrations.Data;
+using HalobizMigrations.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
@@ -11,10 +11,10 @@ namespace HaloBiz.Repository.Impl
 {
     public class OperatingEntityRepositoryImpl : IOperatingEntityRepository
     {
-        private readonly DataContext _context;
+        private readonly HalobizContext _context;
         private readonly ILogger<OperatingEntityRepositoryImpl> _logger;
         private readonly IServiceGroupRepository _serviceGroupRepository;
-        public OperatingEntityRepositoryImpl(DataContext context, ILogger<OperatingEntityRepositoryImpl> logger, IServiceGroupRepository serviceGroupRepository)
+        public OperatingEntityRepositoryImpl(HalobizContext context, ILogger<OperatingEntityRepositoryImpl> logger, IServiceGroupRepository serviceGroupRepository)
         {
             this._logger = logger;
             this._context = context;
@@ -66,14 +66,14 @@ namespace HaloBiz.Repository.Impl
                 .ToListAsync();
         }
 
-        public async Task<IEnumerable<OperatingEntity>> FindAllOperatingEntityWithSBUProportion()
+        public async Task<IEnumerable<OperatingEntity>> FindAllOperatingEntityWithSbuproportion()
         {
             var operatingEntites =  await _context.OperatingEntities
-                            .Where(x => !x.IsDeleted).ToListAsync();
+                            .Where(x => !x.IsDeleted.Value).ToListAsync();
 
             foreach (var operatingEntity in operatingEntites)
             {
-                operatingEntity.SBUProportion = await _context.SBUProportions
+                operatingEntity.Sbuproportion = await _context.Sbuproportions
                     .FirstOrDefaultAsync(x => x.OperatingEntityId == operatingEntity.Id && !x.IsDeleted);
             }
             return operatingEntites;

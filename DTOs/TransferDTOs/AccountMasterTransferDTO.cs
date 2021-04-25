@@ -1,7 +1,4 @@
-﻿using HaloBiz.Model;
-using HaloBiz.Model.AccountsModel;
-using HaloBiz.Model.LAMS;
-using HaloBiz.Model.ManyToManyRelationship;
+﻿using HalobizMigrations.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -27,7 +24,7 @@ namespace HaloBiz.DTOs.TransferDTOs
         public long CustomerDivisionId { get; set; }
         public CustomerDivisionWithoutObjectsTransferDTO CustomerDivision { get; set; }
 
-        public IEnumerable<SBUAccountMaster> SBUAccountMaster { get; set; }
+        public IEnumerable<SbuaccountMaster> SbuaccountMaster { get; set; }
         public IEnumerable<AccountDetailWithoutAccountMasterTransferDTO> AccountDetails { get; set; }
     }
 }

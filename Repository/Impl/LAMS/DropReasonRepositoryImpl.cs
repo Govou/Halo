@@ -2,19 +2,20 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using HaloBiz.Data;
-using HaloBiz.Model.LAMS;
+using HalobizMigrations.Data;
+
 using HaloBiz.Repository.LAMS;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using HalobizMigrations.Models;
 
 namespace HaloBiz.Repository.Impl.LAMS
 {
     public class DropReasonRepositoryImpl : IDropReasonRepository
     {
-        private readonly DataContext _context;
+        private readonly HalobizContext _context;
         private readonly ILogger<DropReasonRepositoryImpl> _logger;
-        public DropReasonRepositoryImpl(DataContext context, ILogger<DropReasonRepositoryImpl> logger)
+        public DropReasonRepositoryImpl(HalobizContext context, ILogger<DropReasonRepositoryImpl> logger)
         {
             this._logger = logger;
             this._context = context;

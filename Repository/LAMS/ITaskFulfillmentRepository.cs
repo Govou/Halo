@@ -1,8 +1,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using HaloBiz.Model.LAMS;
 using halobiz_backend.DTOs.TransferDTOs;
+using HalobizMigrations.Models;
 
 namespace HaloBiz.Repository.LAMS
 {

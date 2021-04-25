@@ -5,13 +5,13 @@ using Microsoft.AspNetCore.Http;
 
 namespace HaloBiz.MyServices
 {
-    public interface IStandardSLAForOperatingEntitiesService
+    public interface IStandardSlaforOperatingEntityService
     {
-        Task<ApiResponse> AddStandardSLAForOperatingEntities(HttpContext context, StandardSLAForOperatingEntitiesReceivingDTO standardSLAForOperatingEntitiesReceivingDTO);
-        Task<ApiResponse> GetAllStandardSLAForOperatingEntities();
-        Task<ApiResponse> GetStandardSLAForOperatingEntitiesById(long id);
-        Task<ApiResponse> GetStandardSLAForOperatingEntitiesByName(string name);
-        Task<ApiResponse> UpdateStandardSLAForOperatingEntities(HttpContext context, long id, StandardSLAForOperatingEntitiesReceivingDTO standardSLAForOperatingEntitiesReceivingDTO);
-        Task<ApiResponse> DeleteStandardSLAForOperatingEntities(long id);
+        Task<ApiResponse> AddStandardSlaforOperatingEntity(HttpContext context, StandardSlaforOperatingEntityReceivingDTO standardSLAForOperatingEntitiesReceivingDTO);
+        Task<ApiResponse> GetAllStandardSlaforOperatingEntity();
+        Task<ApiResponse> GetStandardSlaforOperatingEntityById(long id);
+        Task<ApiResponse> GetStandardSlaforOperatingEntityByName(string name);
+        Task<ApiResponse> UpdateStandardSlaforOperatingEntity(HttpContext context, long id, StandardSlaforOperatingEntityReceivingDTO standardSLAForOperatingEntitiesReceivingDTO);
+        Task<ApiResponse> DeleteStandardSlaforOperatingEntity(long id);
     }
 }

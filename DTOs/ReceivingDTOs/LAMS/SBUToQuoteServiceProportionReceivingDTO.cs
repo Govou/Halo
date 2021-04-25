@@ -1,9 +1,9 @@
 using HaloBiz.Helpers;
-using HaloBiz.Model;
+using HalobizMigrations.Models;
 
 namespace HaloBiz.DTOs.ReceivingDTOs.LAMS
 {
-    public class SBUToQuoteServiceProportionReceivingDTO
+    public class SbutoQuoteServiceProportionReceivingDTO
     {
         public double Proportion { get; set; }
         public ProportionStatusType Status { get; set; }

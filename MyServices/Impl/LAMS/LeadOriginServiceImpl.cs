@@ -5,8 +5,8 @@ using HaloBiz.DTOs.ApiDTOs;
 using HaloBiz.DTOs.ReceivingDTOs;
 using HaloBiz.DTOs.TransferDTOs.LAMS;
 using HaloBiz.Helpers;
-using HaloBiz.Model;
-using HaloBiz.Model.LAMS;
+using HalobizMigrations.Models;
+
 using HaloBiz.MyServices.LAMS;
 using HaloBiz.Repository;
 using HaloBiz.Repository.LAMS;

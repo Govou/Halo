@@ -5,7 +5,7 @@ using HaloBiz.DTOs.ApiDTOs;
 using HaloBiz.DTOs.ReceivingDTOs;
 using HaloBiz.DTOs.TransferDTOs;
 using HaloBiz.Helpers;
-using HaloBiz.Model;
+using HalobizMigrations.Models;
 using HaloBiz.Repository;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;

@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace HaloBiz.DTOs.ReceivingDTOs
 {
-    public class ServicesReceivingDTO
+    public class ServiceReceivingDTO
     {
         [Required, MinLength(3), MaxLength(50)]
         public string Name { get; set; }

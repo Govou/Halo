@@ -1,5 +1,5 @@
 using System.Collections.Generic;
-using HaloBiz.Model;
+using HalobizMigrations.Models;
 
 namespace HaloBiz.DTOs.TransferDTOs
 {
@@ -13,7 +13,7 @@ namespace HaloBiz.DTOs.TransferDTOs
         public long StateId { get; set; }
         public State State { get; set; }
         public long LGAId { get; set; }
-        public LGA LGA { get; set; }
+        public Lga LGA { get; set; }
         public long RegionId { get; set; }
         public Region Region { get; set; }
 
