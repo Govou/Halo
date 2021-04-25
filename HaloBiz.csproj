@@ -60,7 +60,7 @@
 
   <ItemGroup>
     <Reference Include="HalobizMigrations">
-      <HintPath>..\HalobizMigrations.dll</HintPath>
+      <HintPath>HalobizMigrations.dll</HintPath>
     </Reference>
   </ItemGroup>
 
