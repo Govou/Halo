@@ -29,6 +29,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Remove="HalobizMigrations.dll" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Compile Include="Model\Contact.cs" />
     <Compile Include="Model\LAMS\LeadContact.cs" />
     <Compile Include="Model\RoleManagement\Claim.cs" />
