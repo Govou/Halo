@@ -27,7 +27,7 @@ namespace HaloBiz.Controllers
             return Ok(services);
         }
 
-        [HttpGet("GetUnpublishedService")]
+        [HttpGet("GetUnpublishedServices")]
         public async Task<ActionResult> GetUnpublishedService()
         {
             var response = await _servicesService.GetUnpublishedServices();
