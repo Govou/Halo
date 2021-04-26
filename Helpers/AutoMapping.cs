@@ -230,6 +230,10 @@ namespace HaloBiz.Helpers
             CreateMap<LeadEngagementUserProfile, LeadEngagementUserProfileTransferDTO>();
             CreateMap<EngagementReasonReceivingDTO, EngagementReason>();
             CreateMap<EngagementReason, EngagementReasonTransferDTO>();
+            CreateMap<ProspectReceivingDTO, Prospect>();
+            CreateMap<Prospect, ProspectTransferDTO>();
+            CreateMap<ServicePricingReceivingDTO, ServicePricing>();
+            CreateMap<ServicePricing, ServicePricingTransferDTO>();
         }
     }
 }
