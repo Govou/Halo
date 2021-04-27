@@ -8,11 +8,11 @@ namespace HaloBiz.Controllers
 {
     [Route("api/v1/[controller]")]
     [ApiController]
-    public class ServiceController : ControllerBase
+    public class ServicesController : ControllerBase
     {
         private readonly IServicesService _servicesService;
 
-        public ServiceController(IServicesService servicesService)
+        public ServicesController(IServicesService servicesService)
         {
             this._servicesService = servicesService;
         }

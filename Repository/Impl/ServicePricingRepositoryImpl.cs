@@ -29,6 +29,8 @@ namespace HaloBiz.Repository.Impl
         public async Task<IEnumerable<ServicePricing>> FindAllServicePricings()
         {
             return await _context.ServicePricings
+               .Include(x => x.Service)
+               .Include(x => x.Branch)
                .Where(serviceType => serviceType.IsDeleted == false)
                .OrderBy(serviceType => serviceType.CreatedAt)
                .ToListAsync();
