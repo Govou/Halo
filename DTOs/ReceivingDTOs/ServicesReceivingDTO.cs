@@ -31,6 +31,8 @@ namespace HaloBiz.DTOs.ReceivingDTOs
         [Required]
         public long DivisionId { get; set; }
         [Required]
+        public bool IsVatable { get; set; }
+        [Required]
         public IList<Int64> RequiredDocumentsId { get; set; }
         public IList<Int64> RequiredServiceFieldsId { get; set; }
     }
