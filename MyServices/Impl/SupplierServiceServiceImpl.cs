@@ -16,37 +16,38 @@ namespace HaloBiz.MyServices.Impl
     {
         private readonly ILogger<SupplierServiceServiceImpl> _logger;
         private readonly IModificationHistoryRepository _historyRepo;
-        private readonly ISupplierServiceRepository _supplierCategoryRepo;
+        private readonly ISupplierServiceRepository _supplierServiceRepo;
         private readonly IMapper _mapper;
 
-        public SupplierServiceServiceImpl(IModificationHistoryRepository historyRepo, ISupplierServiceRepository supplierCategoryRepo, ILogger<SupplierServiceServiceImpl> logger, IMapper mapper)
+        public SupplierServiceServiceImpl(IModificationHistoryRepository historyRepo, ISupplierServiceRepository supplierServiceRepo, ILogger<SupplierServiceServiceImpl> logger, IMapper mapper)
         {
             this._mapper = mapper;
             this._historyRepo = historyRepo;
-            this._supplierCategoryRepo = supplierCategoryRepo;
+            this._supplierServiceRepo = supplierServiceRepo;
             this._logger = logger;
         }
-        public async  Task<ApiResponse> AddSupplierService(HttpContext context, SupplierServiceReceivingDTO supplierCategoryReceivingDTO)
+        public async  Task<ApiResponse> AddSupplierService(HttpContext context, SupplierServiceReceivingDTO supplierServiceReceivingDTO)
         {
-            var supplierCategory = _mapper.Map<SupplierService>(supplierCategoryReceivingDTO);
-            supplierCategory.CreatedById = context.GetLoggedInUserId();
-            var savedSupplierService = await _supplierCategoryRepo.SaveSupplierService(supplierCategory);
+            var supplierService = _mapper.Map<SupplierService>(supplierServiceReceivingDTO);
+            supplierService.CreatedById = context.GetLoggedInUserId();
+            supplierService.IsAvailable = true;
+            var savedSupplierService = await _supplierServiceRepo.SaveSupplierService(supplierService);
             if (savedSupplierService == null)
             {
                 return new ApiResponse(500);
             }
-            var supplierCategoryTransferDTO = _mapper.Map<SupplierServiceTransferDTO>(supplierCategory);
-            return new ApiOkResponse(supplierCategoryTransferDTO);
+            var supplierServiceTransferDTO = _mapper.Map<SupplierServiceTransferDTO>(supplierService);
+            return new ApiOkResponse(supplierServiceTransferDTO);
         }
 
         public async Task<ApiResponse> DeleteSupplierService(long id)
         {
-            var supplierCategoryToDelete = await _supplierCategoryRepo.FindSupplierServiceById(id);
-            if(supplierCategoryToDelete == null)
+            var supplierServiceToDelete = await _supplierServiceRepo.FindSupplierServiceById(id);
+            if(supplierServiceToDelete == null)
             {
                 return new ApiResponse(404);
             }
-            if (!await _supplierCategoryRepo.DeleteSupplierService(supplierCategoryToDelete))
+            if (!await _supplierServiceRepo.DeleteSupplierService(supplierServiceToDelete))
             {
                 return new ApiResponse(500);
             }
@@ -55,7 +56,7 @@ namespace HaloBiz.MyServices.Impl
         }
         public async Task<ApiResponse> GetSupplierServiceById(long id)
         {
-            var SupplierService = await _supplierCategoryRepo.FindSupplierServiceById(id);
+            var SupplierService = await _supplierServiceRepo.FindSupplierServiceById(id);
             if (SupplierService == null)
             {
                 return new ApiResponse(404);
@@ -65,28 +66,28 @@ namespace HaloBiz.MyServices.Impl
         }
         public async Task<ApiResponse> GetAllSupplierServiceCategories()
         {
-            var supplierCategory = await _supplierCategoryRepo.GetSupplierServices();
-            if (supplierCategory == null)
+            var supplierService = await _supplierServiceRepo.GetSupplierServices();
+            if (supplierService == null)
             {
                 return new ApiResponse(404);
             }
-            var supplierCategoryTransferDTO = _mapper.Map<IEnumerable<SupplierServiceTransferDTO>>(supplierCategory);
-            return new ApiOkResponse(supplierCategoryTransferDTO);
+            var supplierServiceTransferDTO = _mapper.Map<IEnumerable<SupplierServiceTransferDTO>>(supplierService);
+            return new ApiOkResponse(supplierServiceTransferDTO);
         }
 
-        public  async Task<ApiResponse> UpdateSupplierService(HttpContext context, long id, SupplierServiceReceivingDTO supplierCategoryReceivingDTO)
+        public  async Task<ApiResponse> UpdateSupplierService(HttpContext context, long id, SupplierServiceReceivingDTO supplierServiceReceivingDTO)
         {
-            var supplierCategoryToUpdate = await _supplierCategoryRepo.FindSupplierServiceById(id);
-            if (supplierCategoryToUpdate == null)
+            var supplierServiceToUpdate = await _supplierServiceRepo.FindSupplierServiceById(id);
+            if (supplierServiceToUpdate == null)
             {
                 return new ApiResponse(404);
             }
             
-            var summary = $"Initial details before change, \n {supplierCategoryToUpdate.ToString()} \n" ;
+            var summary = $"Initial details before change, \n {supplierServiceToUpdate.ToString()} \n" ;
 
-            // supplierCategoryToUpdate.CategoryName = supplierCategoryReceivingDTO.CategoryName;
-            supplierCategoryToUpdate.Description = supplierCategoryReceivingDTO.Description;
-            var updatedSupplierService = await _supplierCategoryRepo.UpdateSupplierService(supplierCategoryToUpdate);
+            // supplierServiceToUpdate.CategoryName = supplierServiceReceivingDTO.CategoryName;
+            supplierServiceToUpdate.Description = supplierServiceReceivingDTO.Description;
+            var updatedSupplierService = await _supplierServiceRepo.UpdateSupplierService(supplierServiceToUpdate);
 
             summary += $"Details after change, \n {updatedSupplierService.ToString()} \n";
 
@@ -103,8 +104,8 @@ namespace HaloBiz.MyServices.Impl
 
             await _historyRepo.SaveHistory(history);
 
-            var supplierCategoryTransferDTOs = _mapper.Map<SupplierServiceTransferDTO>(updatedSupplierService);
-            return new ApiOkResponse(supplierCategoryTransferDTOs);
+            var supplierServiceTransferDTOs = _mapper.Map<SupplierServiceTransferDTO>(updatedSupplierService);
+            return new ApiOkResponse(supplierServiceTransferDTOs);
         }
     }
 }
