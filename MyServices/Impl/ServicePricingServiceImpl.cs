@@ -11,6 +11,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using HalobizMigrations.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace HaloBiz.MyServices.Impl
 {
@@ -19,18 +21,31 @@ namespace HaloBiz.MyServices.Impl
         private readonly ILogger<ServicePricingServiceImpl> _logger;
         private readonly IModificationHistoryRepository _historyRepo;
         private readonly IServicePricingRepository _servicePricingRepo;
+        private readonly HalobizContext _context;
         private readonly IMapper _mapper;
 
-        public ServicePricingServiceImpl(IModificationHistoryRepository historyRepo, IServicePricingRepository ServicePricingRepo, ILogger<ServicePricingServiceImpl> logger, IMapper mapper)
+        public ServicePricingServiceImpl(IModificationHistoryRepository historyRepo,
+            IServicePricingRepository ServicePricingRepo,
+            HalobizContext context,
+            ILogger<ServicePricingServiceImpl> logger, 
+            IMapper mapper)
         {
             this._mapper = mapper;
             this._historyRepo = historyRepo;
             this._servicePricingRepo = ServicePricingRepo;
+            _context = context;
             this._logger = logger;
         }
 
         public async Task<ApiResponse> AddServicePricing(HttpContext context, ServicePricingReceivingDTO servicePricingReceivingDTO)
         {
+            var servicePricingInDb = await _context.ServicePricings.Where(x => x.ServiceId == servicePricingReceivingDTO.ServiceId && x.BranchId == servicePricingReceivingDTO.BranchId)
+                .ToListAsync();
+
+            if(servicePricingInDb.Count > 0)
+            {
+                return new ApiResponse(400, "Service Pricing already configured.");
+            }
 
             var servicePricing = _mapper.Map<ServicePricing>(servicePricingReceivingDTO);
             servicePricing.CreatedById = context.GetLoggedInUserId();
@@ -81,16 +96,16 @@ namespace HaloBiz.MyServices.Impl
             return new ApiOkResponse(servicePricingTransferDTOs);
         }
 
-        /*public async Task<ApiResponse> GetServicePricingByName(string name)
+        public async Task<ApiResponse> GetServicePricingByServiceId(long serviceId)
         {
-            var servicePricing = await _servicePricingRepo.FindServicePricingByName(name);
-            if (servicePricing == null)
+            var servicePricings = await _servicePricingRepo.FindServicePricingByServiceId(serviceId);
+            if (servicePricings == null)
             {
                 return new ApiResponse(404);
             }
-            var servicePricingTransferDTOs = _mapper.Map<ServicePricingTransferDTO>(servicePricing);
+            var servicePricingTransferDTOs = _mapper.Map<IEnumerable<ServicePricingTransferDTO>>(servicePricings);
             return new ApiOkResponse(servicePricingTransferDTOs);
-        }*/
+        }
 
         public async Task<ApiResponse> UpdateServicePricing(HttpContext context, long id, ServicePricingReceivingDTO servicePricingReceivingDTO)
         {
@@ -100,6 +115,14 @@ namespace HaloBiz.MyServices.Impl
                 return new ApiResponse(404);
             }
 
+            var servicePricingInDb = await _context.ServicePricings.Where(x => x.ServiceId == servicePricingReceivingDTO.ServiceId && x.BranchId == servicePricingReceivingDTO.BranchId)
+                .ToListAsync();
+
+            if (servicePricingInDb.Count > 0)
+            {
+                return new ApiResponse(400, "Service Pricing already configured.");
+            }
+            
             var summary = $"Initial details before change, \n {servicePricingToUpdate.ToString()} \n";
 
             servicePricingToUpdate.BranchId = servicePricingReceivingDTO.BranchId;
@@ -117,7 +140,7 @@ namespace HaloBiz.MyServices.Impl
             }
             ModificationHistory history = new ModificationHistory()
             {
-                ModelChanged = "servicePricing",
+                ModelChanged = "ServicePricing",
                 ChangeSummary = summary,
                 ChangedById = context.GetLoggedInUserId(),
                 ModifiedModelId = updatedservicePricing.Id

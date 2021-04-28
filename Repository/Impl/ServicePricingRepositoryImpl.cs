@@ -19,10 +19,10 @@ namespace HaloBiz.Repository.Impl
             this._context = context;
         }
 
-        public async Task<bool> DeleteServicePricing(ServicePricing serviceType)
+        public async Task<bool> DeleteServicePricing(ServicePricing servicePricing)
         {
-            serviceType.IsDeleted = true;
-            _context.ServicePricings.Update(serviceType);
+            servicePricing.IsDeleted = true;
+            _context.ServicePricings.Update(servicePricing);
             return await SaveChanges();
         }
 
@@ -31,43 +31,43 @@ namespace HaloBiz.Repository.Impl
             return await _context.ServicePricings
                .Include(x => x.Service)
                .Include(x => x.Branch)
-               .Where(serviceType => serviceType.IsDeleted == false)
-               .OrderBy(serviceType => serviceType.CreatedAt)
+               .Where(servicePricing => servicePricing.IsDeleted == false)
+               .OrderBy(servicePricing => servicePricing.CreatedAt)
                .ToListAsync();
         }
 
         public async Task<ServicePricing> FindServicePricingById(long Id)
         {
             return await _context.ServicePricings
-                .Where(serviceType => serviceType.IsDeleted == false)
-                .FirstOrDefaultAsync(serviceType => serviceType.Id == Id && serviceType.IsDeleted == false);
+                .Where(servicePricing => servicePricing.IsDeleted == false)
+                .FirstOrDefaultAsync(servicePricing => servicePricing.Id == Id && servicePricing.IsDeleted == false);
 
         }
 
-        /*public async Task<ServicePricing> FindServicePricingByName(string name)
+        public async Task<IEnumerable<ServicePricing>> FindServicePricingByServiceId(long serviceId)
         {
             return await _context.ServicePricings
-                 .Where(serviceType => serviceType.IsDeleted == false)
-                 .FirstOrDefaultAsync(serviceType => serviceType.Caption == name && serviceType.IsDeleted == false);
+                 .Include(x => x.Branch)
+                 .Where(x => x.ServiceId == serviceId && x.IsDeleted == false)
+                 .ToListAsync();
+        }
 
-        }*/
-
-        public async Task<ServicePricing> SaveServicePricing(ServicePricing serviceType)
+        public async Task<ServicePricing> SaveServicePricing(ServicePricing servicePricing)
         {
-            var serviceTypeEntity = await _context.ServicePricings.AddAsync(serviceType);
+            var servicePricingEntity = await _context.ServicePricings.AddAsync(servicePricing);
             if (await SaveChanges())
             {
-                return serviceTypeEntity.Entity;
+                return servicePricingEntity.Entity;
             }
             return null;
         }
 
-        public async Task<ServicePricing> UpdateServicePricing(ServicePricing serviceType)
+        public async Task<ServicePricing> UpdateServicePricing(ServicePricing servicePricing)
         {
-            var serviceTypeEntity = _context.ServicePricings.Update(serviceType);
+            var servicePricingEntity = _context.ServicePricings.Update(servicePricing);
             if (await SaveChanges())
             {
-                return serviceTypeEntity.Entity;
+                return servicePricingEntity.Entity;
             }
             return null;
         }
