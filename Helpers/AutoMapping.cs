@@ -14,6 +14,7 @@ using halobiz_backend.DTOs.ReceivingDTOs;
 using halobiz_backend.DTOs.TransferDTOs;
 using HalobizMigrations.Models.Halobiz;
 using HaloBiz.Model;
+using HalobizMigrations.Models.Complaints;
 
 namespace HaloBiz.Helpers
 {
@@ -234,6 +235,14 @@ namespace HaloBiz.Helpers
             CreateMap<Prospect, ProspectTransferDTO>();
             CreateMap<ServicePricingReceivingDTO, ServicePricing>();
             CreateMap<ServicePricing, ServicePricingTransferDTO>();
+            CreateMap<ComplaintTypeReceivingDTO, ComplaintType>();
+            CreateMap<ComplaintType, ComplaintTypeTransferDTO>();
+            CreateMap<ComplaintOriginReceivingDTO, ComplaintOrigin>();
+            CreateMap<ComplaintOrigin, ComplaintOriginTransferDTO>();
+            CreateMap<EscalationLevelReceivingDTO, EscalationLevel>();
+            CreateMap<EscalationLevel, EscalationLevelTransferDTO>();
+            CreateMap<ProfileEscalationLevelReceivingDTO, ProfileEscalationLevel>();
+            CreateMap<ProfileEscalationLevel, ProfileEscalationLevelTransferDTO>();
         }
     }
 }
