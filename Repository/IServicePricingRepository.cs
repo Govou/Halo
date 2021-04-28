@@ -10,7 +10,7 @@ namespace HaloBiz.Repository
     {
         Task<ServicePricing> SaveServicePricing(ServicePricing servicePricing);
         Task<ServicePricing> FindServicePricingById(long Id);
-        //Task<ServicePricing> FindServicePricingByName(string name);
+        Task<IEnumerable<ServicePricing>> FindServicePricingByServiceId(long serviceId);
         Task<IEnumerable<ServicePricing>> FindAllServicePricings();
         Task<ServicePricing> UpdateServicePricing(ServicePricing servicePricing);
         Task<bool> DeleteServicePricing(ServicePricing servicePricing);

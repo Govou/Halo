@@ -13,7 +13,7 @@ namespace HaloBiz.MyServices
         Task<ApiResponse> AddServicePricing(HttpContext context, ServicePricingReceivingDTO servicePricingReceivingDTO);
         Task<ApiResponse> GetAllServicePricing();
         Task<ApiResponse> GetServicePricingById(long id);
-        //Task<ApiResponse> GetServicePricingByName(string name);
+        Task<ApiResponse> GetServicePricingByServiceId(long serviceId);
         Task<ApiResponse> UpdateServicePricing(HttpContext context, long id, ServicePricingReceivingDTO servicePricingReceivingDTO);
         Task<ApiResponse> DeleteServicePricing(long id);
     }

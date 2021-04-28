@@ -31,15 +31,16 @@ namespace HaloBiz.Controllers
             var ServicePricing = ((ApiOkResponse)response).Result;
             return Ok(ServicePricing);
         }
-        /*[HttpGet("caption/{name}")]
-        public async Task<ActionResult> GetByCaption(string name)
+
+        [HttpGet("ServiceId/{serviceId}")]
+        public async Task<ActionResult> GetByServiceId(long serviceId)
         {
-            var response = await _ServicePricingService.GetServicePricingByName(name);
+            var response = await _ServicePricingService.GetServicePricingByServiceId(serviceId);
             if (response.StatusCode >= 400)
                 return StatusCode(response.StatusCode, response);
             var ServicePricing = ((ApiOkResponse)response).Result;
             return Ok(ServicePricing);
-        }*/
+        }
 
         [HttpGet("{id}")]
         public async Task<ActionResult> GetById(long id)
