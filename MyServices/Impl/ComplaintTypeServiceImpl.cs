@@ -105,7 +105,6 @@ namespace HaloBiz.MyServices.Impl
 
             complaintTypeToUpdate.Caption = complaintTypeReceivingDTO.Caption;
             complaintTypeToUpdate.Description = complaintTypeReceivingDTO.Description;
-            complaintTypeToUpdate.Code = complaintTypeReceivingDTO.Code;
             var updatedcomplaintType = await _complaintTypeRepo.UpdateComplaintType(complaintTypeToUpdate);
 
             summary += $"Details after change, \n {updatedcomplaintType.ToString()} \n";

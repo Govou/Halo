@@ -31,6 +31,17 @@ namespace HaloBiz.Controllers
             var EscalationMatrix = ((ApiOkResponse)response).Result;
             return Ok(EscalationMatrix);
         }
+
+        [HttpGet("GetHandlers/{complaintTypeId}")]
+        public async Task<ActionResult> GetHandlers(long complaintTypeId)
+        {
+            var response = await _EscalationMatrixService.GetHandlers(complaintTypeId);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var EscalationMatrix = ((ApiOkResponse)response).Result;
+            return Ok(EscalationMatrix);
+        }
+
         /*[HttpGet("caption/{name}")]
         public async Task<ActionResult> GetByCaption(string name)
         {

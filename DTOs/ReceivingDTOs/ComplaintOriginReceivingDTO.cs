@@ -7,6 +7,5 @@ namespace HaloBiz.DTOs.ReceivingDTOs
 {
     public class ComplaintOriginReceivingDTO : BaseSetupDTO
     {
-        public string Code { get; set; }
     }
 }

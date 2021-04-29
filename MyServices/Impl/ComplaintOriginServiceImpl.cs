@@ -105,7 +105,6 @@ namespace HaloBiz.MyServices.Impl
 
             complaintOriginToUpdate.Caption = complaintOriginReceivingDTO.Caption;
             complaintOriginToUpdate.Description = complaintOriginReceivingDTO.Description;
-            complaintOriginToUpdate.Code = complaintOriginReceivingDTO.Code;
             var updatedcomplaintOrigin = await _complaintOriginRepo.UpdateComplaintOrigin(complaintOriginToUpdate);
 
             summary += $"Details after change, \n {updatedcomplaintOrigin.ToString()} \n";

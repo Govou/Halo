@@ -31,6 +31,17 @@ namespace HaloBiz.Controllers
             var Complaint = ((ApiOkResponse)response).Result;
             return Ok(Complaint);
         }
+
+        [HttpGet("GetComplaintsStats")]
+        public async Task<ActionResult> GetComplaintsStats()
+        {
+            var response = await _ComplaintService.GetComplaintsStats(HttpContext);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var Complaint = ((ApiOkResponse)response).Result;
+            return Ok(Complaint);
+        }
+
         /*[HttpGet("caption/{name}")]
         public async Task<ActionResult> GetByCaption(string name)
         {

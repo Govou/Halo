@@ -30,6 +30,9 @@ namespace HaloBiz.Repository.Impl
         public async Task<IEnumerable<Complaint>> FindAllComplaints()
         {
             return await _context.Complaints
+               .Include(x => x.ComplaintType)
+               .Include(x => x.ComplaintOrigin)
+               .Include(x => x.ComplaintSource)
                .Where(complaint => complaint.IsDeleted == false)
                .OrderBy(complaint => complaint.CreatedAt)
                .ToListAsync();
