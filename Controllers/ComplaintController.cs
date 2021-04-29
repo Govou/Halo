@@ -31,7 +31,7 @@ namespace HaloBiz.Controllers
             var Complaint = ((ApiOkResponse)response).Result;
             return Ok(Complaint);
         }
-        [HttpGet("caption/{name}")]
+        /*[HttpGet("caption/{name}")]
         public async Task<ActionResult> GetByCaption(string name)
         {
             var response = await _ComplaintService.GetComplaintByName(name);
@@ -39,7 +39,7 @@ namespace HaloBiz.Controllers
                 return StatusCode(response.StatusCode, response);
             var Complaint = ((ApiOkResponse)response).Result;
             return Ok(Complaint);
-        }
+        }*/
 
         [HttpGet("{id}")]
         public async Task<ActionResult> GetById(long id)
