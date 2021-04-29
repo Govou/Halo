@@ -12,6 +12,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using HalobizMigrations.Models.Complaints;
+using HalobizMigrations.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace HaloBiz.MyServices.Impl
 {
@@ -20,13 +22,19 @@ namespace HaloBiz.MyServices.Impl
         private readonly ILogger<EscalationMatrixServiceImpl> _logger;
         private readonly IModificationHistoryRepository _historyRepo;
         private readonly IEscalationMatrixRepository _escalationMatrixRepo;
+        private readonly HalobizContext _context;
         private readonly IMapper _mapper;
 
-        public EscalationMatrixServiceImpl(IModificationHistoryRepository historyRepo, IEscalationMatrixRepository EscalationMatrixRepo, ILogger<EscalationMatrixServiceImpl> logger, IMapper mapper)
+        public EscalationMatrixServiceImpl(IModificationHistoryRepository historyRepo, 
+            IEscalationMatrixRepository EscalationMatrixRepo, 
+            HalobizContext context,
+            ILogger<EscalationMatrixServiceImpl> logger, 
+            IMapper mapper)
         {
             this._mapper = mapper;
             this._historyRepo = historyRepo;
             this._escalationMatrixRepo = EscalationMatrixRepo;
+            _context = context;
             this._logger = logger;
         }
 
@@ -42,6 +50,25 @@ namespace HaloBiz.MyServices.Impl
             }
             var escalationMatrixTransferDTO = _mapper.Map<EscalationMatrixTransferDTO>(escalationMatrix);
             return new ApiOkResponse(escalationMatrixTransferDTO);
+        }
+
+        public async Task<ApiResponse> GetHandlers(long complaintTypeId)
+        {
+            var handlers = new List<UserProfile>();
+            var matrix = _context.EscalationMatrices.SingleOrDefault(x => x.ComplaintTypeId == complaintTypeId);
+            if(matrix == null)
+            {
+                return new ApiOkResponse(handlers);
+            }
+
+            handlers = await _context.EscalationMatrixUserProfiles
+                .Where(x => x.EscalationMatrixId == matrix.Id && x.EscalationLevel.Caption == "Handler")
+                .Include(x => x.UserProfile)
+                .Select(x => x.UserProfile)
+                .ToListAsync();
+
+            var handlersTransferDTO = _mapper.Map<UserProfileTransferDTO>(handlers);
+            return new ApiOkResponse(handlersTransferDTO);
         }
 
         public async Task<ApiResponse> DeleteEscalationMatrix(long id)

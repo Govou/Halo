@@ -25,12 +25,14 @@ namespace HaloBiz.DTOs.ReceivingDTOs
         public long ComplaintSourceId { get; set; }
         public long ComplainantId { get; set; }
         public string ComplaintDescription { get; set; }
-        /*public DateTime DateCreated { get; set; }
-        public DateTime DateRegistered { get; set; }
+        public DateTime DateCreated { get; set; }
+        /*public DateTime DateRegistered { get; set; }
         public bool? IsRegistered { get; set; }
         public long RegisteredById { get; set; }
         public string TrackingId { get; set; }
         public bool? IsAssesed { get; set; }
         public DateTime? DateAssesmentsConcluded { get; set; }*/
+
+        public List<EvidenceReceivingDTO> Evidences { get; set; }
     }
 }
