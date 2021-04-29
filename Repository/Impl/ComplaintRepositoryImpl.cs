@@ -43,13 +43,13 @@ namespace HaloBiz.Repository.Impl
 
         }
 
-        public async Task<Complaint> FindComplaintByName(string name)
+        /*public async Task<Complaint> FindComplaintByName(string name)
         {
             return await _context.Complaints
                  .Where(complaint => complaint.IsDeleted == false)
                  .FirstOrDefaultAsync(complaint => complaint.Caption == name && complaint.IsDeleted == false);
 
-        }
+        }*/
 
         public async Task<Complaint> SaveComplaint(Complaint complaint)
         {

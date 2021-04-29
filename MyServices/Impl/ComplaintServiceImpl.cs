@@ -11,6 +11,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using HalobizMigrations.Models.Complaints;
 
 namespace HaloBiz.MyServices.Impl
 {
@@ -81,7 +82,7 @@ namespace HaloBiz.MyServices.Impl
             return new ApiOkResponse(complaintTransferDTOs);
         }
 
-        public async Task<ApiResponse> GetComplaintByName(string name)
+        /*public async Task<ApiResponse> GetComplaintByName(string name)
         {
             var complaint = await _complaintRepo.FindComplaintByName(name);
             if (complaint == null)
@@ -90,7 +91,7 @@ namespace HaloBiz.MyServices.Impl
             }
             var complaintTransferDTOs = _mapper.Map<ComplaintTransferDTO>(complaint);
             return new ApiOkResponse(complaintTransferDTOs);
-        }
+        }*/
 
         public async Task<ApiResponse> UpdateComplaint(HttpContext context, long id, ComplaintReceivingDTO complaintReceivingDTO)
         {

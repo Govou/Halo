@@ -13,7 +13,7 @@ namespace HaloBiz.MyServices
         Task<ApiResponse> AddComplaint(HttpContext context, ComplaintReceivingDTO complaintReceivingDTO);
         Task<ApiResponse> GetAllComplaint();
         Task<ApiResponse> GetComplaintById(long id);
-        Task<ApiResponse> GetComplaintByName(string name);
+        //Task<ApiResponse> GetComplaintByName(string name);
         Task<ApiResponse> UpdateComplaint(HttpContext context, long id, ComplaintReceivingDTO complaintReceivingDTO);
         Task<ApiResponse> DeleteComplaint(long id);
     }
