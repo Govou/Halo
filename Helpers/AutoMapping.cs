@@ -42,7 +42,10 @@ namespace HaloBiz.Helpers
             CreateMap<State, StateWithoutLGATransferDto>();
             CreateMap<OfficeReceivingDTO, Office>();
             CreateMap<Office, OfficeTransferDTO>();
-            CreateMap<StrategicBusinessUnit, StrategicBusinessUnitTransferDTO>();
+            CreateMap<StrategicBusinessUnit, StrategicBusinessUnitTransferDTO>().AfterMap((x, y) => 
+            {
+                y.Members = x.UserProfiles;
+            });
             CreateMap<StrategicBusinessUnit, SBUWithoutOperatingEntityTransferDTO>();
             CreateMap<StrategicBusinessUnitReceivingDTO, StrategicBusinessUnit>();
             CreateMap<ServiceGroup, ServiceGroupTransferDTO>();
@@ -242,7 +245,15 @@ namespace HaloBiz.Helpers
             CreateMap<EscalationLevelReceivingDTO, EscalationLevel>();
             CreateMap<EscalationLevel, EscalationLevelTransferDTO>();
             CreateMap<ProfileEscalationLevelReceivingDTO, ProfileEscalationLevel>();
-            CreateMap<ProfileEscalationLevel, ProfileEscalationLevelTransferDTO>();
+            CreateMap<ProfileEscalationLevel, ProfileEscalationLevelTransferDTO>();      
+            CreateMap<ComplaintReceivingDTO, Complaint>();
+            CreateMap<Complaint, ComplaintTransferDTO>();
+            CreateMap<ComplaintSourceReceivingDTO, ComplaintSource>();
+            CreateMap<ComplaintSource, ComplaintSourceTransferDTO>();
+            CreateMap<EscalationMatrixReceivingDTO, EscalationMatrix>();
+            CreateMap<EscalationMatrix, EscalationMatrixTransferDTO>();
+            CreateMap<EvidenceReceivingDTO, Evidence>();
+            CreateMap<Evidence, EvidenceTransferDTO>();
         }
     }
 }

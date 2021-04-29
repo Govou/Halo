@@ -182,6 +182,10 @@ namespace HaloBiz
             services.AddScoped<IComplaintTypeService, ComplaintTypeServiceImpl>();
             services.AddScoped<IEscalationLevelService, EscalationLevelServiceImpl>();
             services.AddScoped<IProfileEscalationLevelService, ProfileEscalationLevelServiceImpl>();
+            services.AddScoped<IComplaintService, ComplaintServiceImpl>();
+            services.AddScoped<IComplaintSourceService, ComplaintSourceServiceImpl>();
+            services.AddScoped<IEscalationMatrixService, EscalationMatrixServiceImpl>();
+            services.AddScoped<IEvidenceService, EvidenceServiceImpl>();
 
             //repositories
             services.AddScoped<IStateRepository, StateRepositoryImpl>();
@@ -270,6 +274,10 @@ namespace HaloBiz
             services.AddScoped<IComplaintOriginRepository, ComplaintOriginRepositoryImpl>();
             services.AddScoped<IEscalationLevelRepository, EscalationLevelRepositoryImpl>();
             services.AddScoped<IProfileEscalationLevelRepository, ProfileEscalationLevelRepositoryImpl>();
+            services.AddScoped<IComplaintRepository, ComplaintRepositoryImpl>();
+            services.AddScoped<IComplaintSourceRepository, ComplaintSourceRepositoryImpl>();
+            services.AddScoped<IEscalationMatrixRepository, EscalationMatrixRepositoryImpl>();
+            services.AddScoped<IEvidenceRepository, EvidenceRepositoryImpl>();
             // Adapters
             services.AddScoped<IMailAdapter, MailAdapter>();
 
