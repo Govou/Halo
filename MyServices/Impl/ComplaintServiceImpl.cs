@@ -77,6 +77,8 @@ namespace HaloBiz.MyServices.Impl
                     foreach (var evidence in evidences)
                     {
                         evidence.ComplaintId = savedcomplaint.Id;
+                        evidence.CreatedById = loggedInUserId;
+                        evidence.EvidenceCaptureById = loggedInUserId;
                     }
 
                     await _context.Evidences.AddRangeAsync(evidences);
