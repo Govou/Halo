@@ -12,6 +12,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using HalobizMigrations.Models.Complaints;
+using HalobizMigrations.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace HaloBiz.MyServices.Impl
 {
@@ -20,21 +22,37 @@ namespace HaloBiz.MyServices.Impl
         private readonly ILogger<ComplaintTypeServiceImpl> _logger;
         private readonly IModificationHistoryRepository _historyRepo;
         private readonly IComplaintTypeRepository _complaintTypeRepo;
+        private readonly HalobizContext _context;
         private readonly IMapper _mapper;
 
-        public ComplaintTypeServiceImpl(IModificationHistoryRepository historyRepo, IComplaintTypeRepository ComplaintTypeRepo, ILogger<ComplaintTypeServiceImpl> logger, IMapper mapper)
+        public ComplaintTypeServiceImpl(IModificationHistoryRepository historyRepo, 
+            IComplaintTypeRepository ComplaintTypeRepo,
+            HalobizContext context,
+            ILogger<ComplaintTypeServiceImpl> logger, 
+            IMapper mapper)
         {
             this._mapper = mapper;
             this._historyRepo = historyRepo;
             this._complaintTypeRepo = ComplaintTypeRepo;
+            _context = context;
             this._logger = logger;
         }
 
         public async Task<ApiResponse> AddComplaintType(HttpContext context, ComplaintTypeReceivingDTO complaintTypeReceivingDTO)
         {
+            long code = 1;
+            var lastComplaintType = await _context.ComplaintTypes.OrderByDescending(x => x.Id).FirstOrDefaultAsync();
+
+            if (lastComplaintType != null)
+            {
+                var complaintCode = lastComplaintType.Code.Split('-')[1];
+                code = Convert.ToInt64(complaintCode) + 1;
+            }
 
             var complaintType = _mapper.Map<ComplaintType>(complaintTypeReceivingDTO);
             complaintType.CreatedById = context.GetLoggedInUserId();
+            complaintType.Code = $"CT-{Convert.ToString(code).PadLeft(5, '0')}";
+
             var savedcomplaintType = await _complaintTypeRepo.SaveComplaintType(complaintType);
             if (savedcomplaintType == null)
             {

@@ -104,42 +104,58 @@ namespace HaloBiz.MyServices.Impl
                 .Where(x => x.RegisteredById == loggedInUserId)
                 .ToListAsync();
 
-            var registeredOnlyComplaints = userComplaints
-                .Where(x => x.IsRegistered != null && x.IsResolved == null && x.IsInvestigated == null 
-                        && x.IsAssesed == null && x.IsClosed == null).ToList();
-            
-            var assesedOnlyComplaints = userComplaints
-                .Where(x => x.IsRegistered != null && x.IsResolved == null && x.IsInvestigated == null
-                        && x.IsAssesed != null && x.IsClosed == null).ToList();
-
-            var investigatedOnlyComplaints = userComplaints
-                .Where(x => x.IsRegistered != null && x.IsResolved == null && x.IsInvestigated != null
-                        && x.IsAssesed != null && x.IsClosed == null).ToList();
-
-            var resolvedOnlyComplaints = userComplaints
-                .Where(x => x.IsRegistered != null && x.IsResolved != null && x.IsInvestigated != null
-                        && x.IsAssesed != null && x.IsClosed == null).ToList();
-
-            var closedOnlyComplaints = userComplaints
-                .Where(x => x.IsRegistered != null && x.IsResolved != null && x.IsInvestigated != null
-                        && x.IsAssesed != null && x.IsClosed != null).ToList();
-
-            var registeredPercentage = registeredOnlyComplaints.Count / userComplaints.Count * 100;
-            var assesedPercentage = assesedOnlyComplaints.Count / userComplaints.Count * 100;
-            var investigatedPercentage = investigatedOnlyComplaints.Count / userComplaints.Count * 100;
-            var resolvedPercentage = resolvedOnlyComplaints.Count / userComplaints.Count * 100;
-            var closedPercentage = closedOnlyComplaints.Count / userComplaints.Count * 100;
-
-            var response = new 
+            if(userComplaints.Count > 0)
             {
-                ResgisteredPercentage = registeredPercentage,
-                AssesedPercentage = assesedPercentage,
-                InvestigatedPercentage = investigatedPercentage,
-                ResolvedPercentage = resolvedPercentage,
-                ClosedPercentage = closedPercentage,
-            };
+                var registeredOnlyComplaints = userComplaints
+                    .Where(x => x.IsRegistered != null && x.IsResolved == null && x.IsInvestigated == null
+                            && x.IsAssesed == null && x.IsClosed == null).ToList();
 
-            return new ApiOkResponse(response);
+                var assesedOnlyComplaints = userComplaints
+                    .Where(x => x.IsRegistered != null && x.IsResolved == null && x.IsInvestigated == null
+                            && x.IsAssesed != null && x.IsClosed == null).ToList();
+
+                var investigatedOnlyComplaints = userComplaints
+                    .Where(x => x.IsRegistered != null && x.IsResolved == null && x.IsInvestigated != null
+                            && x.IsAssesed != null && x.IsClosed == null).ToList();
+
+                var resolvedOnlyComplaints = userComplaints
+                    .Where(x => x.IsRegistered != null && x.IsResolved != null && x.IsInvestigated != null
+                            && x.IsAssesed != null && x.IsClosed == null).ToList();
+
+                var closedOnlyComplaints = userComplaints
+                    .Where(x => x.IsRegistered != null && x.IsResolved != null && x.IsInvestigated != null
+                            && x.IsAssesed != null && x.IsClosed != null).ToList();
+
+                var registeredPercentage = registeredOnlyComplaints.Count / userComplaints.Count * 100;
+                var assesedPercentage = assesedOnlyComplaints.Count / userComplaints.Count * 100;
+                var investigatedPercentage = investigatedOnlyComplaints.Count / userComplaints.Count * 100;
+                var resolvedPercentage = resolvedOnlyComplaints.Count / userComplaints.Count * 100;
+                var closedPercentage = closedOnlyComplaints.Count / userComplaints.Count * 100;
+
+                var response = new
+                {
+                    ResgisteredPercentage = registeredPercentage,
+                    AssesedPercentage = assesedPercentage,
+                    InvestigatedPercentage = investigatedPercentage,
+                    ResolvedPercentage = resolvedPercentage,
+                    ClosedPercentage = closedPercentage,
+                };
+
+                return new ApiOkResponse(response);
+            }
+            else
+            {
+                var response = new
+                {
+                    ResgisteredPercentage = 0,
+                    AssesedPercentage = 0,
+                    InvestigatedPercentage = 0,
+                    ResolvedPercentage = 0,
+                    ClosedPercentage = 0,
+                };
+
+                return new ApiOkResponse(response);
+            }
         }
 
         public async Task<ApiResponse> DeleteComplaint(long id)
