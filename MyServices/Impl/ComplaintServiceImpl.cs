@@ -64,7 +64,7 @@ namespace HaloBiz.MyServices.Impl
                 }
 
                 var complaintType = await _context.ComplaintTypes.FindAsync(savedcomplaint.ComplaintTypeId);
-                var complaintOrigin = await _context.ComplaintTypes.FindAsync(savedcomplaint.ComplaintOriginId);
+                var complaintOrigin = await _context.ComplaintOrigins.FindAsync(savedcomplaint.ComplaintOriginId);
 
                 savedcomplaint.TrackingId = $"#COMPL{savedcomplaint.Id}-{complaintType.Code}-{complaintOrigin.Code}";
                 _context.Complaints.Update(savedcomplaint);
