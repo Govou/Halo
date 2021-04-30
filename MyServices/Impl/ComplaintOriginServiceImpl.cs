@@ -12,6 +12,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using HalobizMigrations.Models.Complaints;
+using HalobizMigrations.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace HaloBiz.MyServices.Impl
 {
@@ -20,21 +22,37 @@ namespace HaloBiz.MyServices.Impl
         private readonly ILogger<ComplaintOriginServiceImpl> _logger;
         private readonly IModificationHistoryRepository _historyRepo;
         private readonly IComplaintOriginRepository _complaintOriginRepo;
+        private readonly HalobizContext _context;
         private readonly IMapper _mapper;
 
-        public ComplaintOriginServiceImpl(IModificationHistoryRepository historyRepo, IComplaintOriginRepository ComplaintOriginRepo, ILogger<ComplaintOriginServiceImpl> logger, IMapper mapper)
+        public ComplaintOriginServiceImpl(IModificationHistoryRepository historyRepo, 
+            IComplaintOriginRepository ComplaintOriginRepo, 
+            HalobizContext context,
+            ILogger<ComplaintOriginServiceImpl> logger, 
+            IMapper mapper)
         {
             this._mapper = mapper;
             this._historyRepo = historyRepo;
             this._complaintOriginRepo = ComplaintOriginRepo;
+            _context = context;
             this._logger = logger;
         }
 
         public async Task<ApiResponse> AddComplaintOrigin(HttpContext context, ComplaintOriginReceivingDTO complaintOriginReceivingDTO)
         {
+            long code = 1;
+            var lastComplaintOrigin = await _context.ComplaintOrigins.OrderByDescending(x => x.Id).FirstOrDefaultAsync();
+
+            if (lastComplaintOrigin != null)
+            {
+                var complaintCode = lastComplaintOrigin.Code.Split('-')[1];
+                code = Convert.ToInt64(complaintCode) + 1;
+            }
 
             var complaintOrigin = _mapper.Map<ComplaintOrigin>(complaintOriginReceivingDTO);
             complaintOrigin.CreatedById = context.GetLoggedInUserId();
+            complaintOrigin.Code = $"CO-{Convert.ToString(code).PadLeft(5, '0')}";
+
             var savedcomplaintOrigin = await _complaintOriginRepo.SaveComplaintOrigin(complaintOrigin);
             if (savedcomplaintOrigin == null)
             {

@@ -85,8 +85,18 @@ namespace HaloBiz.MyServices.Impl
             
             var summary = $"Initial details before change, \n {supplierServiceToUpdate.ToString()} \n" ;
 
-            // supplierServiceToUpdate.CategoryName = supplierServiceReceivingDTO.CategoryName;
+            supplierServiceToUpdate.AveragePrice = supplierServiceReceivingDTO.AveragePrice;
+            supplierServiceToUpdate.SupplierId = supplierServiceReceivingDTO.SupplierId;
+            supplierServiceToUpdate.StandardDiscount = supplierServiceReceivingDTO.StandardDiscount;
+            supplierServiceToUpdate.UnitCostPrice = supplierServiceReceivingDTO.UnitCostPrice;
+            supplierServiceToUpdate.IdentificationNumber = supplierServiceReceivingDTO.IdentificationNumber;
+            supplierServiceToUpdate.SerialNumber = supplierServiceReceivingDTO.SerialNumber;
+            supplierServiceToUpdate.ImageUrl = supplierServiceReceivingDTO.ImageUrl;
+            supplierServiceToUpdate.ModelNumber = supplierServiceReceivingDTO.ModelNumber;
+            supplierServiceToUpdate.Model = supplierServiceReceivingDTO.Model;
+            supplierServiceToUpdate.Make = supplierServiceReceivingDTO.Make;
             supplierServiceToUpdate.Description = supplierServiceReceivingDTO.Description;
+            supplierServiceToUpdate.ServiceName = supplierServiceReceivingDTO.ServiceName;
             var updatedSupplierService = await _supplierServiceRepo.UpdateSupplierService(supplierServiceToUpdate);
 
             summary += $"Details after change, \n {updatedSupplierService.ToString()} \n";
