@@ -23,5 +23,6 @@ namespace HaloBiz.Repository
         Task<IEnumerable<object>> FindCustomerDivisionsByGroupType(long groupTypeId);
         Task<IEnumerable<object>> GetClientsUnAssignedToRMSbu();
         Task<IEnumerable<object>> GetClientsAttachedToRMSbu(long sbuId);
+        Task<IEnumerable<object>> GetRMSbuClientsByGroupType(long sbuId, long clientTypeId);
     }
 }

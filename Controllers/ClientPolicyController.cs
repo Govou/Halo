@@ -52,6 +52,26 @@ namespace HaloBiz.Controllers
             return Ok(ClientPolicy);
         }
 
+        [HttpGet("{contractId}")]
+        public async Task<ActionResult> FindClientPolicyByContractId(long contractId)
+        {
+            var response = await _ClientPolicyService.FindClientPolicyByContractId(contractId);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var ClientPolicy = ((ApiOkResponse)response).Result;
+            return Ok(ClientPolicy);
+        }
+
+        [HttpGet("{contractServiceId}")]
+        public async Task<ActionResult> FindClientPolicyByContractServiceId(long contractServiceId)
+        {
+            var response = await _ClientPolicyService.FindClientPolicyByContractServiceId(contractServiceId);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var ClientPolicy = ((ApiOkResponse)response).Result;
+            return Ok(ClientPolicy);
+        }
+
         [HttpPost("")]
         public async Task<ActionResult> AddNewClientPolicy(ClientPolicyReceivingDTO ClientPolicyReceiving)
         {

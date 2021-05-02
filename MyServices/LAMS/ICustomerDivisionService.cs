@@ -24,5 +24,7 @@ namespace HaloBiz.MyServices.LAMS
         Task<ApiResponse> GetCustomerDivisionBreakDownById(long id);
         Task<ApiResponse> GetClientsUnAssignedToRMSbu();
         Task<ApiResponse> GetClientsAttachedToRMSbu(long sbuId);
+        Task<ApiResponse> GetRMSbuClientsByGroupType(long sbuId, long groupTypeId);
+        Task<ApiResponse> AttachClientToRMSbu(HttpContext context, long id, long sbuId);
     }
 }

@@ -13,6 +13,8 @@ namespace HaloBiz.MyServices
         Task<ApiResponse> GetStrategicBusinessUnitById(long id);
         Task<ApiResponse> GetStrategicBusinessUnitByName(string name);
         Task<ApiResponse> GetAllStrategicBusinessUnit();
+        Task<ApiResponse> GetRMSbusWithClientsInfo();
+        Task<ApiResponse> GetRMSbus();
         Task<ApiResponse> UpdateStrategicBusinessUnit(long id, StrategicBusinessUnitReceivingDTO strategicBusinessUnitReceivingDTO);
         Task<ApiResponse> DeleteStrategicBusinessUnit(long id);
     }

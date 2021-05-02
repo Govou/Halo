@@ -13,6 +13,8 @@ namespace HaloBiz.Repository
         Task<StrategicBusinessUnit> FindStrategyBusinessUnitByName(string name);
 
         Task<IEnumerable<StrategicBusinessUnit>> FindAllStrategyBusinessUnits();
+        Task<IEnumerable<object>> GetRMSbusWithClientsInfo();
+        Task<IEnumerable<object>> GetRMSbus();
 
         Task<StrategicBusinessUnit> UpdateStrategyBusinessUnit(StrategicBusinessUnit sbu);
 

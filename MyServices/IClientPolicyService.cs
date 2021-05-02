@@ -13,6 +13,8 @@ namespace HaloBiz.MyServices
         Task<ApiResponse> AddClientPolicy(HttpContext context, ClientPolicyReceivingDTO clientPolicyReceivingDTO);
         Task<ApiResponse> GetAllClientPolicies();
         Task<ApiResponse> GetClientPolicyById(long id);
+        Task<ApiResponse> FindClientPolicyByContractServiceId(long id);
+        Task<ApiResponse> FindClientPolicyByContractId(long id);
         //Task<ApiResponse> GetClientPolicyByName(string name);
         Task<ApiResponse> UpdateClientPolicy(HttpContext context, long id, ClientPolicyReceivingDTO clientPolicyReceivingDTO);
         Task<ApiResponse> DeleteClientPolicy(long id);

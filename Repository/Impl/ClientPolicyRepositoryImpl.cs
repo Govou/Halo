@@ -43,6 +43,24 @@ namespace HaloBiz.Repository.Impl
 
         }
 
+        public async Task<ClientPolicy> FindClientPolicyByContractId(long contractId)
+        {
+            return await _context.ClientPolicies
+                .SingleOrDefaultAsync(clientPolicy => 
+                        clientPolicy.ContractId == contractId 
+                        && clientPolicy.ContractServiceId == null
+                        && !clientPolicy.IsDeleted);
+        }
+
+        public async Task<ClientPolicy> FindClientPolicyByContractServiceId(long contractServiceId)
+        {
+            return await _context.ClientPolicies
+                .SingleOrDefaultAsync(clientPolicy =>
+                        clientPolicy.ContractServiceId == contractServiceId
+                        && clientPolicy.ContractId == null
+                        && !clientPolicy.IsDeleted);
+        }
+
         /*public async Task<ClientPolicy> FindClientPolicyByName(string name)
         {
             return await _context.ClientPolicies

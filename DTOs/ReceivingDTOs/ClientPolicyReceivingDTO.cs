@@ -10,5 +10,8 @@ namespace HaloBiz.DTOs.ReceivingDTOs
         public long CustomerDivisionId { get; set; }
         public long? ContractId { get; set; }
         public long? ContractServiceId { get; set; }
+        public bool AutoRenew { get; set; }
+        public long? RateReviewInterval { get; set; }
+        public DateTime? NextRateReviewDate { get; set; }
     }
 }

@@ -82,6 +82,28 @@ namespace HaloBiz.MyServices.Impl
             return new ApiOkResponse(clientPolicyTransferDTOs);
         }
 
+        public async Task<ApiResponse> FindClientPolicyByContractId(long id)
+        {
+            var clientPolicy = await _clientPolicyRepo.FindClientPolicyByContractId(id);
+            if (clientPolicy == null)
+            {
+                return new ApiResponse(404);
+            }
+            var clientPolicyTransferDTOs = _mapper.Map<ClientPolicyTransferDTO>(clientPolicy);
+            return new ApiOkResponse(clientPolicyTransferDTOs);
+        }
+
+        public async Task<ApiResponse> FindClientPolicyByContractServiceId(long id)
+        {
+            var clientPolicy = await _clientPolicyRepo.FindClientPolicyByContractServiceId(id);
+            if (clientPolicy == null)
+            {
+                return new ApiResponse(404);
+            }
+            var clientPolicyTransferDTOs = _mapper.Map<ClientPolicyTransferDTO>(clientPolicy);
+            return new ApiOkResponse(clientPolicyTransferDTOs);
+        }
+
         /*public async Task<ApiResponse> GetClientPolicyByName(string name)
         {
             var clientPolicy = await _clientPolicyRepo.FindClientPolicyByName(name);
@@ -106,10 +128,13 @@ namespace HaloBiz.MyServices.Impl
             clientPolicyToUpdate.ContractId = clientPolicyReceivingDTO.ContractId;
             clientPolicyToUpdate.ContractServiceId = clientPolicyReceivingDTO.ContractServiceId;
             clientPolicyToUpdate.CustomerDivisionId = clientPolicyReceivingDTO.CustomerDivisionId;
+            clientPolicyToUpdate.AutoRenew = clientPolicyReceivingDTO.AutoRenew;
+            clientPolicyToUpdate.RateReviewInterval = clientPolicyReceivingDTO.RateReviewInterval;
+            clientPolicyToUpdate.NextRateReviewDate = clientPolicyReceivingDTO.NextRateReviewDate;
 
             var updatedclientPolicy = await _clientPolicyRepo.UpdateClientPolicy(clientPolicyToUpdate);
 
-            summary += $"Details after change, \n {updatedclientPolicy.ToString()} \n";
+            summary += $"Details after change, \n {updatedclientPolicy} \n";
 
             if (updatedclientPolicy == null)
             {

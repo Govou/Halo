@@ -79,5 +79,53 @@ namespace HaloBiz.Repository.Impl
                return false;
            }
         }
+
+        public async Task<IEnumerable<object>> GetRMSbus()
+        {
+            var sbus = await _context.StrategicBusinessUnits
+                .Where(x => !x.IsDeleted.Value && x.OperatingEntity.Name == "Client Retention")
+                .Select(x => new
+                {
+                    x.Name,                  
+                })
+                .ToListAsync();
+
+            return sbus;
+        }
+
+        public async Task<IEnumerable<object>> GetRMSbusWithClientsInfo()
+        {
+            var sbus = await _context.StrategicBusinessUnits
+                .Include(x => x.CustomerDivisions)
+                .ThenInclude(x => x.Customer)
+                .ThenInclude(x => x.GroupType)
+                .Where(x => !x.IsDeleted.Value && x.OperatingEntity.Name == "Client Retention")
+                .Select(x => new 
+                {
+                    SbuName = x.Name,
+                    x.CustomerDivisions
+                })
+                .ToListAsync();
+
+            var outputs = new List<object>();
+            foreach (var sbu in sbus)
+            {
+                var perGroupTypeBreakDown = sbu.CustomerDivisions
+                        .GroupBy(x => x.Customer.GroupType.Caption)
+                        .Select(x => 
+                            new Dictionary<string, List<CustomerDivision>> {  
+                                { x.Key, x.ToList() }
+                            })
+                        .ToList();
+
+                outputs.Add(new
+                {
+                    sbu.SbuName,
+                    Clients = perGroupTypeBreakDown
+                });
+            }
+
+            return outputs;
+        }
     }
 }

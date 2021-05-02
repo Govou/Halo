@@ -31,6 +31,28 @@ namespace HaloBiz.Controllers
             var strategicBusinessUnit = ((ApiOkResponse)response).Result;
             return Ok((IEnumerable<StrategicBusinessUnitTransferDTO>)strategicBusinessUnit);
         }
+
+        [HttpGet("GetRMSbus")]
+        public async Task<ActionResult> GetRMSbus()
+        {
+            var response = await _strategicBusinessUnitService.GetRMSbus();
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var strategicBusinessUnit = ((ApiOkResponse)response).Result;
+            return Ok(strategicBusinessUnit);
+        }
+
+        [HttpGet("GetRMSbusWithClientsInfo")]
+        public async Task<ActionResult> GetRMSbusWithClientsInfo()
+        {
+            var response = await _strategicBusinessUnitService.GetRMSbusWithClientsInfo();
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var strategicBusinessUnit = ((ApiOkResponse)response).Result;
+            return Ok(strategicBusinessUnit);
+        }
+
+
         [HttpGet("name/{name}")]
         public async Task<ActionResult> GetByName(string name)
         {

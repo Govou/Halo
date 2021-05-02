@@ -89,6 +89,26 @@ namespace HaloBiz.Controllers.LAMS
             return Ok(CustomerDivision);
         }
 
+        [HttpGet("GetRMSbuClientsByGroupType/{sbuId}/{clientTypeId}")]
+        public async Task<ActionResult> GetRMSbuClientsByGroupType(long sbuId, long clientTypeId)
+        {
+            var response = await _CustomerDivisionService.GetRMSbuClientsByGroupType(sbuId, clientTypeId);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var CustomerDivision = ((ApiOkResponse)response).Result;
+            return Ok(CustomerDivision);
+        }
+
+        [HttpPut("AttachClientToRMSbu/{customerDivisionId}")]
+        public async Task<ActionResult> AttachClientToRMSbu(long customerDivisionId, long sbuId)
+        {
+            var response = await _CustomerDivisionService.AttachClientToRMSbu(HttpContext, customerDivisionId, sbuId);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var CustomerDivision = ((ApiOkResponse)response).Result;
+            return Ok(CustomerDivision);
+        }
+
         [HttpGet("ContractsBreakDown/{customerDivsionId}")]
         public async Task<ActionResult> GetContractBreakDownId(long customerDivsionId)
         {
