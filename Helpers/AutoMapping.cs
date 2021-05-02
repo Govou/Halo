@@ -10,8 +10,6 @@ using HaloBiz.DTOs.TransferDTOs;
 using HaloBiz.DTOs.TransferDTOs.LAMS;
 using HaloBiz.DTOs.TransferDTOs.RoleManagement;
 using HalobizMigrations.Models;
-using halobiz_backend.DTOs.ReceivingDTOs;
-using halobiz_backend.DTOs.TransferDTOs;
 using HalobizMigrations.Models.Halobiz;
 using HaloBiz.Model;
 using HalobizMigrations.Models.Complaints;
@@ -254,6 +252,8 @@ namespace HaloBiz.Helpers
             CreateMap<EscalationMatrix, EscalationMatrixTransferDTO>();
             CreateMap<EvidenceReceivingDTO, Evidence>();
             CreateMap<Evidence, EvidenceTransferDTO>();
+            CreateMap<ClientPolicyReceivingDTO, ClientPolicy>();
+            CreateMap<ClientPolicy, ClientPolicyTransferDTO>();
         }
     }
 }

@@ -183,8 +183,25 @@ namespace HaloBiz.MyServices.Impl
             {
                 return new ApiResponse(404);
             }
-            var complaintTransferDTO = _mapper.Map<IEnumerable<ComplaintTransferDTO>>(complaints);
-            return new ApiOkResponse(complaintTransferDTO);
+            var complaintTransferDTOs = _mapper.Map<IEnumerable<ComplaintTransferDTO>>(complaints);
+
+            foreach (var complaint in complaintTransferDTOs)
+            {
+                switch (complaint.ComplaintOrigin.Caption.ToLower())
+                {
+                    case "supplier":
+                        complaint.Complainant = await _context.Suppliers.FindAsync(complaint.ComplainantId);
+                        break;
+                    case "staff":
+                        complaint.Complainant = await _context.UserProfiles.FindAsync(complaint.ComplainantId);
+                        break;
+                    case "client":
+                        complaint.Complainant = await _context.CustomerDivisions.FindAsync(complaint.ComplainantId);
+                        break;
+                }
+            }
+
+            return new ApiOkResponse(complaintTransferDTOs);
         }
 
         public async Task<ApiResponse> GetComplaintById(long id)

@@ -48,6 +48,28 @@ namespace HaloBiz.MyServices.Impl
             return new ApiOkResponse(strategicBusinessUnitTransferDTOs);
         }
 
+        public async Task<ApiResponse> GetRMSbus()
+        {
+            var strategicBusinessUnits = await _strategicBusinessUnitRepo.GetRMSbus();
+            if (strategicBusinessUnits == null)
+            {
+                return new ApiResponse(404);
+            }
+
+            return new ApiOkResponse(strategicBusinessUnits);
+        }
+
+        public async Task<ApiResponse> GetRMSbusWithClientsInfo()
+        {
+            var strategicBusinessUnits = await _strategicBusinessUnitRepo.GetRMSbusWithClientsInfo();
+            if (strategicBusinessUnits == null)
+            {
+                return new ApiResponse(404);
+            }
+
+            return new ApiOkResponse(strategicBusinessUnits);
+        }
+
         public async Task<ApiResponse> GetStrategicBusinessUnitById(long id)
         {
             var strategicBusinessUnit = await _strategicBusinessUnitRepo.FindStrategyBusinessUnitById(id);

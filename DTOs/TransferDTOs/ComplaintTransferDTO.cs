@@ -35,6 +35,7 @@ namespace HaloBiz.DTOs.TransferDTOs
         public long ComplaintSourceId { get; set; }
         public virtual ComplaintSource ComplaintSource { get; set; }
         public long ComplainantId { get; set; }
+        public object Complainant { get; set; }
         public string ComplaintDescription { get; set; }
         public DateTime DateCreated { get; set; }
         public DateTime DateRegistered { get; set; }

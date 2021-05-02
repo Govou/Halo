@@ -199,5 +199,95 @@ namespace HaloBiz.MyServices.Impl.LAMS
             var CustomerDivisionTransferDTOs = _mapper.Map<IEnumerable<CustomerDivisionTransferDTO>>(CustomerDivisions);
             return new ApiOkResponse(CustomerDivisionTransferDTOs);
         }
+
+        public async Task<ApiResponse> GetClientsUnAssignedToRMSbu()
+        {
+            try
+            {
+                var clients = await _CustomerDivisionRepo.GetClientsUnAssignedToRMSbu();
+                if (clients == null)
+                {
+                    return new ApiResponse(404);
+                }
+                return new ApiOkResponse(clients);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e.Message);
+                _logger.LogError(e.StackTrace);
+                return new ApiResponse(500);
+            }
+        }
+
+        public async Task<ApiResponse> GetClientsAttachedToRMSbu(long sbuId)
+        {
+            try
+            {
+                var clients = await _CustomerDivisionRepo.GetClientsAttachedToRMSbu(sbuId);
+                if (clients == null)
+                {
+                    return new ApiResponse(404);
+                }
+                return new ApiOkResponse(clients);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e.Message);
+                _logger.LogError(e.StackTrace);
+                return new ApiResponse(500);
+            }
+        }
+
+        public async Task<ApiResponse> AttachClientToRMSbu(HttpContext context, long clientId, long sbuId)
+        {
+            var customerDivisionToUpdate = await _CustomerDivisionRepo.FindCustomerDivisionById(clientId);
+            if (customerDivisionToUpdate == null)
+            {
+                return new ApiResponse(404);
+            }
+
+            var summary = $"Initial details before change, \n {customerDivisionToUpdate} \n";
+
+            customerDivisionToUpdate.SbuId = sbuId;
+
+            var updatedCustomerDivision = await _CustomerDivisionRepo.UpdateCustomerDivision(customerDivisionToUpdate);
+            summary += $"Details after change, \n {customerDivisionToUpdate} \n";
+
+            if (updatedCustomerDivision == null)
+            {
+                return new ApiResponse(500);
+            }
+
+            ModificationHistory history = new ModificationHistory()
+            {
+                ModelChanged = "CustomerDivision",
+                ChangeSummary = summary,
+                ChangedById = context.GetLoggedInUserId(),
+                ModifiedModelId = updatedCustomerDivision.Id
+            };
+
+            await _historyRepo.SaveHistory(history);
+            var CustomerDivisionTransferDTOs = _mapper.Map<CustomerDivisionTransferDTO>(updatedCustomerDivision);
+            return new ApiOkResponse(CustomerDivisionTransferDTOs);
+        }
+
+        public async Task<ApiResponse> GetRMSbuClientsByGroupType(long sbuId, long groupTypeId)
+        {
+            try
+            {
+                var clients = await _CustomerDivisionRepo.GetRMSbuClientsByGroupType(sbuId, groupTypeId);
+                if (clients == null)
+                {
+                    return new ApiResponse(404);
+                }
+                return new ApiOkResponse(clients);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e.Message);
+                _logger.LogError(e.StackTrace);
+                return new ApiResponse(500);
+            }
+        }
     }
 }

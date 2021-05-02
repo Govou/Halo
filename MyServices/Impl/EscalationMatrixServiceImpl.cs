@@ -40,9 +40,17 @@ namespace HaloBiz.MyServices.Impl
 
         public async Task<ApiResponse> AddEscalationMatrix(HttpContext context, EscalationMatrixReceivingDTO escalationMatrixReceivingDTO)
         {
+            var matrix = _context.EscalationMatrices.SingleOrDefaultAsync(x => x.ComplaintTypeId == escalationMatrixReceivingDTO.ComplaintTypeId);
+
+            if(matrix != null)
+            {
+                return new ApiResponse(400, "Matrix already exists for complaint type.");
+            }
 
             var escalationMatrix = _mapper.Map<EscalationMatrix>(escalationMatrixReceivingDTO);
+
             escalationMatrix.CreatedById = context.GetLoggedInUserId();
+
             var savedescalationMatrix = await _escalationMatrixRepo.SaveEscalationMatrix(escalationMatrix);
             if (savedescalationMatrix == null)
             {
@@ -55,7 +63,7 @@ namespace HaloBiz.MyServices.Impl
         public async Task<ApiResponse> GetHandlers(long complaintTypeId)
         {
             var handlers = new List<UserProfile>();
-            var matrix = _context.EscalationMatrices.SingleOrDefault(x => x.ComplaintTypeId == complaintTypeId);
+            var matrix = _context.EscalationMatrices.SingleOrDefaultAsync(x => x.ComplaintTypeId == complaintTypeId);
             if(matrix == null)
             {
                 return new ApiOkResponse(handlers);
@@ -144,7 +152,7 @@ namespace HaloBiz.MyServices.Impl
             }
             ModificationHistory history = new ModificationHistory()
             {
-                ModelChanged = "escalationMatrix",
+                ModelChanged = "EscalationMatrix",
                 ChangeSummary = summary,
                 ChangedById = context.GetLoggedInUserId(),
                 ModifiedModelId = updatedescalationMatrix.Id

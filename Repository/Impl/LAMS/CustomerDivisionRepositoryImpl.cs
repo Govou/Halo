@@ -77,17 +77,12 @@ namespace HaloBiz.Repository.Impl.LAMS
 
         public async Task<IEnumerable<object>> FindAllCustomerDivision()
         {
-            /*return await _context.CustomerDivisions
-                .Include(x => x.Customer)
-                .Where(entity => entity.IsDeleted == false)
-                .OrderByDescending(entity => entity.DivisionName)
-                .ToListAsync();*/
-
             return await _context.CustomerDivisions.Where(x => !x.IsDeleted)
                 .OrderBy(x => x.DivisionName)
                 .Select(x => new { Id = x.Id, DivisionName = x.DivisionName })
                 .ToListAsync();
         }
+
         public async Task<IEnumerable<object>> FindCustomerDivisionsByGroupType(long groupTypeId)
         {
            return await _context.Customers.Join(
@@ -207,6 +202,60 @@ namespace HaloBiz.Repository.Impl.LAMS
                 .ToListAsync();
 
             return clients;
+        }
+
+        public async Task<IEnumerable<object>> GetClientsUnAssignedToRMSbu()
+        {
+            var customerDivisions = await _context.CustomerDivisions
+                .Include(x => x.Customer)
+                .ThenInclude(x => x.GroupType)
+                .Where(x => !x.IsDeleted && x.SbuId == null).Select(x => new 
+                {
+                    x.Id,
+                    x.DivisionName,
+                    x.Customer.GroupName,
+                    GroupType = x.Customer.GroupType.Caption
+                })
+                .ToListAsync();
+
+            return customerDivisions;
+        }
+
+        public async Task<IEnumerable<object>> GetClientsAttachedToRMSbu(long sbuId)
+        {
+            var customerDivisions = await _context.CustomerDivisions
+                .Include(x => x.Customer)
+                .ThenInclude(x => x.GroupType)
+                .Where(x => !x.IsDeleted && x.SbuId == sbuId).Select(x => new
+                {
+                    x.Id,
+                    x.DivisionName,
+                    x.Customer.GroupName,
+                    GroupType = x.Customer.GroupType.Caption
+                })
+                .ToListAsync();
+
+            return customerDivisions;
+        }
+
+        public async Task<IEnumerable<object>> GetRMSbuClientsByGroupType(long sbuId, long clientTypeId)
+        {
+            var customerDivisions = await _context.CustomerDivisions
+                .Include(x => x.Customer)
+                .ThenInclude(x => x.GroupType)
+                .Where(x => !x.IsDeleted && x.SbuId == sbuId && x.Customer.GroupTypeId == clientTypeId)
+                .Select(x => new
+                {
+                    x.Id,
+                    x.DivisionName,
+                    x.Customer.GroupName,
+                    GroupType = x.Customer.GroupType.Caption,
+                    x.CreatedAt
+                })
+                .OrderBy(x => x.CreatedAt)
+                .ToListAsync();
+
+            return customerDivisions;
         }
     }
 }
