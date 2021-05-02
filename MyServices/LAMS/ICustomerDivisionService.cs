@@ -22,5 +22,7 @@ namespace HaloBiz.MyServices.LAMS
         Task<ApiResponse> DeleteCustomerDivision(long id);
         Task<ApiResponse> GetCustomerDivisionsByGroupType(long groupTypeId);
         Task<ApiResponse> GetCustomerDivisionBreakDownById(long id);
+        Task<ApiResponse> GetClientsUnAssignedToRMSbu();
+        Task<ApiResponse> GetClientsAttachedToRMSbu(long sbuId);
     }
 }

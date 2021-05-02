@@ -199,5 +199,43 @@ namespace HaloBiz.MyServices.Impl.LAMS
             var CustomerDivisionTransferDTOs = _mapper.Map<IEnumerable<CustomerDivisionTransferDTO>>(CustomerDivisions);
             return new ApiOkResponse(CustomerDivisionTransferDTOs);
         }
+
+        public async Task<ApiResponse> GetClientsUnAssignedToRMSbu()
+        {
+            try
+            {
+                var clients = await _CustomerDivisionRepo.GetClientsUnAssignedToRMSbu();
+                if (clients == null)
+                {
+                    return new ApiResponse(404);
+                }
+                return new ApiOkResponse(clients);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e.Message);
+                _logger.LogError(e.StackTrace);
+                return new ApiResponse(500);
+            }
+        }
+
+        public async Task<ApiResponse> GetClientsAttachedToRMSbu(long sbuId)
+        {
+            try
+            {
+                var clients = await _CustomerDivisionRepo.GetClientsAttachedToRMSbu(sbuId);
+                if (clients == null)
+                {
+                    return new ApiResponse(404);
+                }
+                return new ApiOkResponse(clients);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e.Message);
+                _logger.LogError(e.StackTrace);
+                return new ApiResponse(500);
+            }
+        }
     }
 }
