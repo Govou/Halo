@@ -37,6 +37,16 @@ namespace HaloBiz.Controllers
             return Ok(services);
         }
 
+        [HttpGet("GetOnlinePortalServices")]
+        public async Task<ActionResult> GetOnlinePortalServices()
+        {
+            var response = await _servicesService.GetOnlinePortalServices();
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var services = ((ApiOkResponse)response).Result;
+            return Ok(services);
+        }
+
         [HttpGet("name/{name}")]
         public async Task<ActionResult> GetByName(string name)
         {
