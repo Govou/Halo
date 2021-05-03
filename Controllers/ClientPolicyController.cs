@@ -52,7 +52,7 @@ namespace HaloBiz.Controllers
             return Ok(ClientPolicy);
         }
 
-        [HttpGet("{contractId}")]
+        [HttpGet("GetByContractId/{contractId}")]
         public async Task<ActionResult> FindClientPolicyByContractId(long contractId)
         {
             var response = await _ClientPolicyService.FindClientPolicyByContractId(contractId);
@@ -62,7 +62,7 @@ namespace HaloBiz.Controllers
             return Ok(ClientPolicy);
         }
 
-        [HttpGet("{contractServiceId}")]
+        [HttpGet("GetByContractServiceId/{contractServiceId}")]
         public async Task<ActionResult> FindClientPolicyByContractServiceId(long contractServiceId)
         {
             var response = await _ClientPolicyService.FindClientPolicyByContractServiceId(contractServiceId);
