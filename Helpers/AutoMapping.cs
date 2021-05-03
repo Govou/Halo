@@ -227,9 +227,6 @@ namespace HaloBiz.Helpers
             CreateMap<ClientContactQualification, ClientContactQualificationTransferDTO>();
             CreateMap<EngagementTypeReceivingDTO, EngagementType>();
             CreateMap<EngagementType, EngagementTypeTransferDTO>();
-            CreateMap<LeadDivisionContactLeadEngagement, LeadDivisionContactLeadEngagementTransferDTO>();
-            CreateMap<LeadDivisionKeyPersonLeadEngagement, LeadDivisionKeyPersonLeadEngagementTransferDTO>();
-            CreateMap<LeadEngagementUserProfile, LeadEngagementUserProfileTransferDTO>();
             CreateMap<EngagementReasonReceivingDTO, EngagementReason>();
             CreateMap<EngagementReason, EngagementReasonTransferDTO>();
             CreateMap<ProspectReceivingDTO, Prospect>();
