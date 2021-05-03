@@ -30,12 +30,12 @@ namespace HaloBiz.DTOs.TransferDTOs.LAMS
         public long BranchId { get; set; }
         public BranchTransferDTO Branch { get; set; }
         public long OfficeId { get; set; }
-        public virtual OfficeTransferDTO Office { get; set; }
+        public OfficeTransferDTO Office { get; set; }
         public long LeadId { get; set; }
         public LeadTransferDTO Lead { get; set; }
         public QuoteWithoutLeadDivisionTransferDTO Quote { get; set; }
-        public IEnumerable<LeadDivisionKeyPersonTransferDTO> LeadDivisionKeyPersons { get; set; }
+        public IEnumerable<LeadDivisionKeyPersonTransferDTO> LeadDivisionKeyPeople { get; set; }
         public long CreatedById { get; set; }
-        public virtual UserProfile CreatedBy { get; set; }
+        public UserProfile CreatedBy { get; set; }
     }
 }
