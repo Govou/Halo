@@ -12,6 +12,6 @@ namespace HaloBiz.DTOs.ReceivingDTOs
         public long Level1MaxResolutionTimeInHrs { get; set; }
         public long Level2MaxResolutionTimeInHrs { get; set; }
         public long Level3MaxResolutionTimeInHrs { get; set; }
-        public ICollection<EscalationMatrixUserProfile> ComplaintAttendants { get; set; }
+        public ICollection<EscalationLevelUserProfileReceivingDTO> ComplaintAttendants { get; set; }
     }
 }

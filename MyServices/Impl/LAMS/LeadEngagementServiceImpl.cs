@@ -15,6 +15,8 @@ using HaloBiz.Repository.LAMS;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using HalobizMigrations.Models.Halobiz;
+using HalobizMigrations.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace HaloBiz.MyServices.Impl.LAMS
 {
@@ -22,14 +24,20 @@ namespace HaloBiz.MyServices.Impl.LAMS
     {
         private readonly ILogger<LeadEngagementServiceImpl> _logger;
         private readonly IModificationHistoryRepository _historyRepo;
+        private readonly HalobizContext _context;
         private readonly ILeadEngagementRepository _leadEngagementRepo;
         private readonly IMapper _mapper;
 
-        public LeadEngagementServiceImpl(IModificationHistoryRepository historyRepo, ILeadEngagementRepository leadEngagementRepo, ILogger<LeadEngagementServiceImpl> logger, IMapper mapper)
+        public LeadEngagementServiceImpl(IModificationHistoryRepository historyRepo, 
+            HalobizContext context,
+            ILeadEngagementRepository leadEngagementRepo, 
+            ILogger<LeadEngagementServiceImpl> logger, 
+            IMapper mapper)
         {
             this._mapper = mapper;
             this._historyRepo = historyRepo;
             this._leadEngagementRepo = leadEngagementRepo;
+            _context = context;
             this._logger = logger;
         }
 
@@ -37,15 +45,10 @@ namespace HaloBiz.MyServices.Impl.LAMS
         {
             var leadEngagement = _mapper.Map<LeadEngagement>(leadEngagementReceivingDTO);
 
-            /*leadEngagement.LeadDivisionContactLeadEngagements = leadEngagementReceivingDTO.ContactsEngagedIds
-                .Select(x => new LeadDivisionContactLeadEngagement { ContactsEngagedWithId = x }).ToList();
-
-            leadEngagement.LeadDivisionKeyPersonLeadEngagements = leadEngagementReceivingDTO.KeyPersonsEngagedIds
-                .Select(x => new LeadDivisionKeyPersonLeadEngagement { KeyPersonsEngagedWithId = x }).ToList();
-
-            leadEngagement.LeadEngagementUserProfiles = leadEngagementReceivingDTO.UsersEngagedIds
-                .Select(x => new LeadEngagementUserProfile { UsersEngagedWithId = x }).ToList();*/
-
+            leadEngagement.ContactsEngagedWith = await _context.LeadDivisionContacts.Where(x => !x.IsDeleted && leadEngagementReceivingDTO.ContactsEngagedIds.Contains(x.Id)).ToListAsync();
+            leadEngagement.KeyPersonsEngagedWith = await _context.LeadDivisionKeyPeople.Where(x => !x.IsDeleted && leadEngagementReceivingDTO.KeyPersonsEngagedIds.Contains(x.Id)).ToListAsync();
+            leadEngagement.UsersEngagedWith = await _context.UserProfiles.Where(x => !x.IsDeleted.Value && leadEngagementReceivingDTO.UsersEngagedIds.Contains(x.Id)).ToListAsync();
+            
             leadEngagement.CreatedById = context.GetLoggedInUserId();
             var savedLeadEngagement = await _leadEngagementRepo.SaveLeadEngagement(leadEngagement);
             if (savedLeadEngagement == null)
