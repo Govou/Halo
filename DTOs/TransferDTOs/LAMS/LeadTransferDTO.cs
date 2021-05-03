@@ -9,9 +9,9 @@ namespace HaloBiz.DTOs.TransferDTOs.LAMS
     {
         public long Id { get; set; }
         public string ReferenceNo { get; set; }
-        public virtual LeadTypeWithoutOriginDTO LeadType { get; set; }
+        public LeadTypeWithoutOriginDTO LeadType { get; set; }
         public long LeadOriginId { get; set; }
-        public virtual LeadOriginTransferDTO LeadOrigin { get; set; }
+        public LeadOriginTransferDTO LeadOrigin { get; set; }
         public string Industry { get; set; }
         public string RCNumber { get; set; }
         public string GroupName { get; set; }
@@ -25,10 +25,10 @@ namespace HaloBiz.DTOs.TransferDTOs.LAMS
         public bool IsLeadDropped { get; set; }
         public string DropLearning { get; set; }
         public string LeadCaptureDocumentUrl { get; set; }
-        public  DropReasonTransferDTO DropReason { get; set; }
-        public  LeadContactTransferDTO PrimaryContact { get; set; }
+        public DropReasonTransferDTO DropReason { get; set; }
+        public LeadContactTransferDTO PrimaryContact { get; set; }
         public LeadContactTransferDTO SecondaryContact { get; set; }
-        public IEnumerable<LeadKeyPersonTransferDTO> LeadKeyPersons { get; set; }
+        public IEnumerable<LeadKeyPersonTransferDTO> LeadKeyPeople { get; set; }
         public IEnumerable<LeadDivisionTransferDTO> LeadDivisions { get; set; }
         public UserProfileTransferDTO CreatedBy { get; set; }
         
@@ -52,8 +52,8 @@ namespace HaloBiz.DTOs.TransferDTOs.LAMS
         public bool LeadConversionStatus { get; set; } 
         public bool IsLeadDropped { get; set; }
         public string DropLearning { get; set; }
-        public  DropReasonTransferDTO DropReason { get; set; }
-        public  LeadContactTransferDTO PrimaryContact { get; set; }
+        public DropReasonTransferDTO DropReason { get; set; }
+        public LeadContactTransferDTO PrimaryContact { get; set; }
         public LeadContactTransferDTO SecondaryContact { get; set; }
         public UserProfileTransferDTO CreatedBy { get; set; }
         
