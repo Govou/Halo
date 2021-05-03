@@ -19,8 +19,8 @@ namespace HaloBiz.DTOs.TransferDTOs.LAMS
         public string LeadCaptureStage { get; set; }
         public string EngagementOutcome { get; set; }
         public string DocumentsUrl { get; set; }
-        public ICollection<LeadDivisionContactLeadEngagementTransferDTO> LeadDivisionContactLeadEngagements { get; set; }
-        public ICollection<LeadDivisionKeyPersonLeadEngagementTransferDTO> LeadDivisionKeyPersonLeadEngagements { get; set; }
-        public ICollection<LeadEngagementUserProfileTransferDTO> LeadEngagementUserProfiles { get; set; }
+        public ICollection<UserProfileTransferDTO> UsersEngagedWith { get; set; }
+        public ICollection<LeadDivisionContactTransferDTO> ContactsEngagedWith { get; set; }
+        public ICollection<LeadDivisionKeyPersonTransferDTO> KeyPersonsEngagedWith { get; set; }
     }
 }
