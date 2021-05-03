@@ -131,6 +131,17 @@ namespace HaloBiz.MyServices.Impl
             return new ApiOkResponse(serviceTransferDTO);
         }
 
+        public async Task<ApiResponse> GetOnlinePortalServices()
+        {
+            var services = await _servicesRepository.FindOnlinePortalServices();
+            if (services == null)
+            {
+                return new ApiResponse(404);
+            }
+            var serviceTransferDTO = _mapper.Map<IEnumerable<ServiceTransferDTO>>(services);
+            return new ApiOkResponse(serviceTransferDTO);
+        }
+
         public async Task<ApiResponse> GetServiceById(long id)
         {
             var service = await _servicesRepository.FindServicesById(id);

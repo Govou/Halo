@@ -134,6 +134,12 @@ namespace HaloBiz.Repository.Impl
                     .ToListAsync();
         }
 
+        public async Task<IEnumerable<Service>> FindOnlinePortalServices()
+        {
+            var services = await _context.Services.Where(x => !x.IsDeleted.Value && x.CanBeSoldOnline == true).ToListAsync();
+            return services;
+        }
+
         public async Task<Service> UpdateServices(Service service)
         {
             var updatedEntity =  _context.Services.Update(service);
