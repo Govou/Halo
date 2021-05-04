@@ -99,7 +99,7 @@ namespace HaloBiz.Controllers.LAMS
             return Ok(CustomerDivision);
         }
 
-        [HttpPut("AttachClientToRMSbu/{customerDivisionId}")]
+        [HttpPut("AttachClientToRMSbu/{customerDivisionId}/{sbuId}")]
         public async Task<ActionResult> AttachClientToRMSbu(long customerDivisionId, long sbuId)
         {
             var response = await _CustomerDivisionService.AttachClientToRMSbu(HttpContext, customerDivisionId, sbuId);
