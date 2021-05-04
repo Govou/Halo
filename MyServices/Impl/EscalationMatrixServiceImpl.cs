@@ -75,7 +75,7 @@ namespace HaloBiz.MyServices.Impl
                 .Select(x => x.UserProfile)
                 .ToListAsync();
 
-            var handlersTransferDTO = _mapper.Map<UserProfileTransferDTO>(handlers);
+            var handlersTransferDTO = _mapper.Map<IEnumerable<UserProfileTransferDTO>>(handlers);
             return new ApiOkResponse(handlersTransferDTO);
         }
 

@@ -15,6 +15,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using HalobizMigrations.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace HaloBiz.MyServices.Impl.LAMS
 {
@@ -23,17 +25,20 @@ namespace HaloBiz.MyServices.Impl.LAMS
         private readonly ILogger<CustomerDivisionServiceImpl> _logger;
         private readonly IModificationHistoryRepository _historyRepo;
         private readonly ICustomerDivisionRepository _CustomerDivisionRepo;
+        private readonly HalobizContext _context;
         private readonly IMapper _mapper;
         private readonly ITaskFulfillmentRepository _taskRepo;
 
-        public CustomerDivisionServiceImpl(IModificationHistoryRepository historyRepo, 
-                        ICustomerDivisionRepository CustomerDivisionRepo, 
+        public CustomerDivisionServiceImpl(IModificationHistoryRepository historyRepo,
+                        ICustomerDivisionRepository CustomerDivisionRepo,
+                        HalobizContext context,
                         ILogger<CustomerDivisionServiceImpl> logger, 
                         IMapper mapper, ITaskFulfillmentRepository taskRepo)
         {
             this._mapper = mapper;
             this._taskRepo = taskRepo;
             this._historyRepo = historyRepo;
+            _context = context;
             this._CustomerDivisionRepo = CustomerDivisionRepo;
             this._logger = logger;
         }
@@ -240,7 +245,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
         public async Task<ApiResponse> AttachClientToRMSbu(HttpContext context, long clientId, long sbuId)
         {
-            var customerDivisionToUpdate = await _CustomerDivisionRepo.FindCustomerDivisionById(clientId);
+            var customerDivisionToUpdate = await _context.CustomerDivisions.SingleOrDefaultAsync(x => x.Id == clientId && !x.IsDeleted);
             if (customerDivisionToUpdate == null)
             {
                 return new ApiResponse(404);
