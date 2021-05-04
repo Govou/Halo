@@ -86,7 +86,8 @@ namespace HaloBiz.Repository.Impl
                 .Where(x => !x.IsDeleted.Value && x.OperatingEntity.Name == "Client Retention")
                 .Select(x => new
                 {
-                    x.Name,                  
+                    x.Id,
+                    x.Name                  
                 })
                 .ToListAsync();
 
@@ -102,6 +103,7 @@ namespace HaloBiz.Repository.Impl
                 .Where(x => !x.IsDeleted.Value && x.OperatingEntity.Name == "Client Retention")
                 .Select(x => new 
                 {
+                    x.Id,
                     SbuName = x.Name,
                     x.CustomerDivisions
                 })
@@ -120,6 +122,7 @@ namespace HaloBiz.Repository.Impl
 
                 outputs.Add(new
                 {
+                    sbu.Id,
                     sbu.SbuName,
                     Clients = perGroupTypeBreakDown
                 });
