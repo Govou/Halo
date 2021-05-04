@@ -83,11 +83,13 @@ namespace HaloBiz.Repository.Impl
         public async Task<IEnumerable<object>> GetRMSbus()
         {
             var sbus = await _context.StrategicBusinessUnits
+                .Include(x => x.UserProfiles)
                 .Where(x => !x.IsDeleted.Value && x.OperatingEntity.Name == "Client Retention")
                 .Select(x => new
                 {
                     x.Id,
-                    x.Name                  
+                    x.Name,
+                    Members = x.UserProfiles
                 })
                 .ToListAsync();
 
