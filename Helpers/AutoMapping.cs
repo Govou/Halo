@@ -251,6 +251,7 @@ namespace HaloBiz.Helpers
             CreateMap<Evidence, EvidenceTransferDTO>();
             CreateMap<ClientPolicyReceivingDTO, ClientPolicy>();
             CreateMap<ClientPolicy, ClientPolicyTransferDTO>();
+            CreateMap<EscalationLevelUserProfileReceivingDTO, EscalationMatrixUserProfile>();
         }
     }
 }
