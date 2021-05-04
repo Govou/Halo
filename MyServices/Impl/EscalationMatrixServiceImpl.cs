@@ -63,7 +63,7 @@ namespace HaloBiz.MyServices.Impl
         public async Task<ApiResponse> GetHandlers(long complaintTypeId)
         {
             var handlers = new List<UserProfile>();
-            var matrix = _context.EscalationMatrices.SingleOrDefaultAsync(x => x.ComplaintTypeId == complaintTypeId);
+            var matrix = await _context.EscalationMatrices.SingleOrDefaultAsync(x => x.ComplaintTypeId == complaintTypeId);
             if(matrix == null)
             {
                 return new ApiOkResponse(handlers);
