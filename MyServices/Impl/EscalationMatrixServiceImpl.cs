@@ -136,15 +136,22 @@ namespace HaloBiz.MyServices.Impl
                 return new ApiResponse(404);
             }
 
-            var summary = $"Initial details before change, \n {escalationMatrixToUpdate.ToString()} \n";
+            if(escalationMatrixToUpdate.ComplaintTypeId != escalationMatrixReceivingDTO.ComplaintTypeId)
+            {
+                return new ApiResponse(400, "You cannot update complaint type of an escalation matrix.");
+            }
 
-            escalationMatrixToUpdate.ComplaintTypeId = escalationMatrixReceivingDTO.ComplaintTypeId;
+            var summary = $"Initial details before change, \n {escalationMatrixToUpdate} \n";
+
+            //escalationMatrixToUpdate.ComplaintTypeId = escalationMatrixReceivingDTO.ComplaintTypeId;
             escalationMatrixToUpdate.Level1MaxResolutionTimeInHrs = escalationMatrixReceivingDTO.Level1MaxResolutionTimeInHrs;
             escalationMatrixToUpdate.Level2MaxResolutionTimeInHrs = escalationMatrixReceivingDTO.Level2MaxResolutionTimeInHrs;
             escalationMatrixToUpdate.Level3MaxResolutionTimeInHrs = escalationMatrixReceivingDTO.Level3MaxResolutionTimeInHrs;
+            escalationMatrixToUpdate.ComplaintAttendants = _mapper.Map<ICollection<EscalationMatrixUserProfile>>(escalationMatrixReceivingDTO.ComplaintAttendants);
+
             var updatedescalationMatrix = await _escalationMatrixRepo.UpdateEscalationMatrix(escalationMatrixToUpdate);
 
-            summary += $"Details after change, \n {updatedescalationMatrix.ToString()} \n";
+            summary += $"Details after change, \n {updatedescalationMatrix} \n";
 
             if (updatedescalationMatrix == null)
             {

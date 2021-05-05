@@ -169,7 +169,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                         quoteToUpdate.QuoteServices = null;
                     }                
                     
-                    var quoteService = _mapper.Map<IEnumerable<QuoteService>>(quoteReceivingDTO.QuoteService);
+                    var quoteService = _mapper.Map<IEnumerable<QuoteService>>(quoteReceivingDTO.QuoteServices);
 
                     foreach (var item in quoteService)
                     {
