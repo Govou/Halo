@@ -16,6 +16,6 @@ namespace HaloBiz.DTOs.ReceivingDTOs
         public long LeadDivisionId { get; set; }
         public bool IsConvertedToContract { get; set; } = true;
         public VersionType Version { get; set; } = VersionType.Latest;
-        public IEnumerable<QuoteServiceReceivingDTO> QuoteService { get; set; }
+        public IEnumerable<QuoteServiceReceivingDTO> QuoteServices { get; set; }
     }
 }
