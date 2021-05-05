@@ -136,9 +136,14 @@ namespace HaloBiz.MyServices.Impl
                 return new ApiResponse(404);
             }
 
+            if(escalationMatrixToUpdate.ComplaintTypeId != escalationMatrixReceivingDTO.ComplaintTypeId)
+            {
+                return new ApiResponse(400, "You cannot update complaint type of an escalation matrix.");
+            }
+
             var summary = $"Initial details before change, \n {escalationMatrixToUpdate} \n";
 
-            escalationMatrixToUpdate.ComplaintTypeId = escalationMatrixReceivingDTO.ComplaintTypeId;
+            //escalationMatrixToUpdate.ComplaintTypeId = escalationMatrixReceivingDTO.ComplaintTypeId;
             escalationMatrixToUpdate.Level1MaxResolutionTimeInHrs = escalationMatrixReceivingDTO.Level1MaxResolutionTimeInHrs;
             escalationMatrixToUpdate.Level2MaxResolutionTimeInHrs = escalationMatrixReceivingDTO.Level2MaxResolutionTimeInHrs;
             escalationMatrixToUpdate.Level3MaxResolutionTimeInHrs = escalationMatrixReceivingDTO.Level3MaxResolutionTimeInHrs;
