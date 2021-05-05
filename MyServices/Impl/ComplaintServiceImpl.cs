@@ -215,32 +215,6 @@ namespace HaloBiz.MyServices.Impl
             return new ApiOkResponse(complaintTransferDTOs);
         }
 
-        #region new baby boys to be reviewed
-        public async Task<ApiResponse> SetHandler(HttpContext context, long complaintId)
-        {
-            var loggedInUserId = context.GetLoggedInUserId();
-            var complaintToUpdate = await _complaintRepo.FindComplaintById(complaintId);
-            if (complaintToUpdate == null)
-            {
-                return new ApiResponse(404);
-            }
-            complaintToUpdate.AssesedLedById = loggedInUserId;
-            var updatedcomplaint = await _complaintRepo.UpdateComplaint(complaintToUpdate);
-            var complaintTransferDTOs = _mapper.Map<ComplaintTransferDTO>(updatedcomplaint);
-            return new ApiOkResponse(complaintTransferDTOs);
-        }
-
-        public async Task<ApiResponse> GetHandlerWorkbench(HttpContext context)
-        {
-            var loggedInUserId = context.GetLoggedInUserId();
-
-            var complaints = await _context.Complaints.Where(x => !x.IsDeleted && x.AssesedLedById == loggedInUserId).ToListAsync();
-
-            var complaintTransferDTOs = _mapper.Map<IEnumerable<ComplaintTransferDTO>>(complaints);
-            return new ApiOkResponse(complaintTransferDTOs);
-        }
-        #endregion
-
         /*public async Task<ApiResponse> GetComplaintByName(string name)
         {
             var complaint = await _complaintRepo.FindComplaintByName(name);
