@@ -1,4 +1,5 @@
-﻿using System;
+﻿using HalobizMigrations.Models.Complaints;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -10,8 +11,12 @@ namespace HaloBiz.DTOs.TransferDTOs
     }
     public class ComplaintHandlingDTO
     {
-        public List<ComplaintDTO> assignedComplaints { get; set; }
-        public List<ComplaintDTO> workbenchComplaints { get; set; }
+        public List<ComplaintTransferDTO> assignedComplaints { get; set; }
+        public List<ComplaintTransferDTO> workbenchComplaints { get; set; }
+        public int TotalComplaintsAssigned { get; set; }
+        public int TotalComplaintsInWorkbench { get; set; }
+        public int TotalComplaintsBeingHandled { get; set; }
+        public int TotalComplaintsClosed { get; set; }
     }
 
     public class ComplaintHandlingStatsDTO
@@ -19,6 +24,6 @@ namespace HaloBiz.DTOs.TransferDTOs
         public int TotalComplaintsAssigned { get; set; }
         public int TotalComplaintsInWorkbench { get; set; }
         public int TotalComplaintsBeingHandled { get; set; }
-        public int ToalComplaintsClosed { get; set; }
+        public int TotalComplaintsClosed { get; set; }
     }
 }

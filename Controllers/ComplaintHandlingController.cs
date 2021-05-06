@@ -15,10 +15,30 @@ namespace HaloBiz.Controllers
     [ApiController]
     public class ComplaintHandlingController : ControllerBase
     {
-        //private readonly iCOMPLAINTHA
-        public ComplaintHandlingController()
+        private readonly IComplaintHandlingService _complaintHandlingService;
+        public ComplaintHandlingController(IComplaintHandlingService complaintHandlingService)
         {
+            _complaintHandlingService = complaintHandlingService;
+        }
 
+        [HttpGet("GetComplaintHandlingStats/{userProfileid}")]
+        public async Task<ActionResult> GetComplaintHandlingStats(long userProfileid)
+        {
+            var response = await _complaintHandlingService.GetComplaintHandlingStats(HttpContext, userProfileid);
+            if (response.StatusCode != 200)
+                return StatusCode(response.StatusCode, response);
+            var Complaint = ((ApiOkResponse)response).Result;
+            return Ok(Complaint);
+        }
+
+        [HttpGet("{userProfileid}")]
+        public async Task<ActionResult> GetComplaintsHandling(long userProfileid)
+        {
+            var response = await _complaintHandlingService.GetComplaintsHandling(HttpContext, userProfileid);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var Complaint = ((ApiOkResponse)response).Result;
+            return Ok(Complaint);
         }
     }
 }
