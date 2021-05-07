@@ -99,7 +99,7 @@ namespace HaloBiz.MyServices.Impl
                     TotalComplaintsAssigned = complaintTransferDTOs.Count(),
                     TotalComplaintsClosed = complaintTransferDTOs.Where(x => x.IsClosed != null).ToList().Count(),
                     TotalComplaintsBeingHandled = complaintTransferDTOs.Where(x => (x.IsAssesed != null || x.IsInvestigated != null || x.IsResolved != null) && x.IsClosed == null).ToList().Count(),
-                    TotalComplaintsInWorkbench = complaintTransferDTOs.Count(),
+                    TotalComplaintsInWorkbench = 0,
                     assignedComplaints = complaintTransferDTOs.ToList(),
                     workbenchComplaints = new List<ComplaintTransferDTO>()
                 };
