@@ -49,7 +49,7 @@ namespace HaloBiz.MyServices.Impl
                     TotalComplaintsAssigned = allCoplaintsAssigned.Count(),
                     TotalComplaintsClosed = allCoplaintsAssigned.Where(x => x.IsClosed != null).ToList().Count(),
                     TotalComplaintsBeingHandled = allCoplaintsAssigned.Where(x => (x.IsAssesed != null || x.IsInvestigated != null || x.IsResolved != null) && x.IsClosed == null).ToList().Count(),
-                    TotalComplaintsInWorkbench = allCoplaintsAssigned.Count()
+                    TotalComplaintsInWorkbench = allCoplaintsAssigned.Where(x => x.PickedById == userProfileID).Count()
                 };
                 return new ApiOkResponse(resultObject);
             }
@@ -99,9 +99,9 @@ namespace HaloBiz.MyServices.Impl
                     TotalComplaintsAssigned = complaintTransferDTOs.Count(),
                     TotalComplaintsClosed = complaintTransferDTOs.Where(x => x.IsClosed != null).ToList().Count(),
                     TotalComplaintsBeingHandled = complaintTransferDTOs.Where(x => (x.IsAssesed != null || x.IsInvestigated != null || x.IsResolved != null) && x.IsClosed == null).ToList().Count(),
-                    TotalComplaintsInWorkbench = 0,
-                    assignedComplaints = complaintTransferDTOs.ToList(),
-                    workbenchComplaints = new List<ComplaintTransferDTO>()
+                    TotalComplaintsInWorkbench = complaintTransferDTOs.Where(x => x.PickedById == userProfileID).ToList().Count(),
+                    assignedComplaints = complaintTransferDTOs.Where(x => x.PickedById == null).ToList(),
+                    workbenchComplaints = complaintTransferDTOs.Where(x => x.PickedById == userProfileID).ToList()
                 };
                 return new ApiOkResponse(resultObject);
             }

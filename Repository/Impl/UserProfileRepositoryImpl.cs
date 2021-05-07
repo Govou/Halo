@@ -126,6 +126,15 @@ namespace HaloBiz.Repository.Impl
               .Where(user => user.Role.Name == ClaimConstants.SuperAdmin && user.IsDeleted == false).AsNoTracking()
               .ToListAsync();
         }
+
+        public async Task<IEnumerable<UserProfile>> FetchAllUserProfilesWithEscalationLevelConfiguration()
+        {
+            return await _context.ProfileEscalationLevels
+                .Include(x => x.UserProfile)
+                .Where(x => x.IsDeleted == false)
+                .Select(x => x.UserProfile)
+                .ToListAsync();
+        }
     }
     
 }

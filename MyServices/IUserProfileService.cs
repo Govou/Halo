@@ -16,5 +16,6 @@ namespace HaloBiz.MyServices
         Task<ApiResponse> UpdateUserRole(long userId, long roleId);
         Task<ApiResponse> AssignUserToSBU(long userId, long SBUId);
         Task<ApiResponse> DetachUserFromSBU(long id);
+        Task<ApiResponse> FetchAllUserProfilesWithEscalationLevelConfiguration();
     }
 }

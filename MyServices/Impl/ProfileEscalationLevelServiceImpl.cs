@@ -32,6 +32,11 @@ namespace HaloBiz.MyServices.Impl
 
         public async Task<ApiResponse> AddProfileEscalationLevel(HttpContext context, ProfileEscalationLevelReceivingDTO profileEscalationLevelReceivingDTO)
         {
+            //Check If User already is already configured for profile escalation level
+           if(await _profileEscalationLevelRepo.AlreadyHasProfileEscalationConfigured(profileEscalationLevelReceivingDTO.UserProfileId))
+            {
+                return new ApiResponse(500, "User already has an active profile escalation level configured");
+            }
 
             var profileEscalationLevel = _mapper.Map<ProfileEscalationLevel>(profileEscalationLevelReceivingDTO);
             profileEscalationLevel.CreatedById = context.GetLoggedInUserId();
