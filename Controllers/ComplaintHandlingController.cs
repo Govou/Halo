@@ -21,21 +21,41 @@ namespace HaloBiz.Controllers
             _complaintHandlingService = complaintHandlingService;
         }
 
-        [HttpGet("GetComplaintHandlingStats/{userProfileid}")]
-        public async Task<ActionResult> GetComplaintHandlingStats(long userProfileid)
+        [HttpGet("GetComplaintHandlingStats")]
+        public async Task<ActionResult> GetComplaintHandlingStats()
         {
-            var response = await _complaintHandlingService.GetComplaintHandlingStats(HttpContext, userProfileid);
+            var response = await _complaintHandlingService.GetComplaintHandlingStats(HttpContext);
             if (response.StatusCode != 200)
                 return StatusCode(response.StatusCode, response);
             var Complaint = ((ApiOkResponse)response).Result;
             return Ok(Complaint);
         }
 
-        [HttpGet("{userProfileid}")]
-        public async Task<ActionResult> GetComplaintsHandling(long userProfileid)
+        [HttpGet]
+        public async Task<ActionResult> GetComplaintsHandling()
         {
-            var response = await _complaintHandlingService.GetComplaintsHandling(HttpContext, userProfileid);
-            if (response.StatusCode >= 400)
+            var response = await _complaintHandlingService.GetComplaintsHandling(HttpContext);
+            if (response.StatusCode != 200)
+                return StatusCode(response.StatusCode, response);
+            var Complaint = ((ApiOkResponse)response).Result;
+            return Ok(Complaint);
+        }
+
+        [HttpPost]
+        public async Task<ActionResult> PickComplaint(PickComplaintDTO model)
+        {
+            var response = await _complaintHandlingService.PickComplaint(HttpContext, model);
+            if (response.StatusCode != 200)
+                return StatusCode(response.StatusCode, response);
+            var Complaint = ((ApiOkResponse)response).Result;
+            return Ok(Complaint);
+        }
+
+        [HttpPost("MoveComplaintToNextStage")]
+        public async Task<ActionResult> MoveComplaintToNextStage(MoveComplaintToNextStageDTO model)
+        {
+            var response = await _complaintHandlingService.MoveComplaintToNextStage(HttpContext, model);
+            if (response.StatusCode != 200)
                 return StatusCode(response.StatusCode, response);
             var Complaint = ((ApiOkResponse)response).Result;
             return Ok(Complaint);

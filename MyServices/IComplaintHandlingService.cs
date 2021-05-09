@@ -10,7 +10,9 @@ namespace HaloBiz.MyServices
 {
     public interface IComplaintHandlingService
     {
-        Task<ApiResponse> GetComplaintHandlingStats(HttpContext context, long userProfileID);
-        Task<ApiResponse> GetComplaintsHandling(HttpContext context, long userProfileID);
+        Task<ApiResponse> GetComplaintHandlingStats(HttpContext context);
+        Task<ApiResponse> GetComplaintsHandling(HttpContext context);
+        Task<ApiResponse> PickComplaint(HttpContext context, PickComplaintDTO model);
+        Task<ApiResponse> MoveComplaintToNextStage(HttpContext context, MoveComplaintToNextStageDTO model);
     }
 }
