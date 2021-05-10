@@ -128,19 +128,19 @@ namespace HaloBiz.MyServices.Impl
                     .Where(x => x.IsRegistered != null && x.IsResolved != null && x.IsInvestigated != null
                             && x.IsAssesed != null && x.IsClosed != null).ToList();
 
-                var registeredPercentage = (Convert.ToDecimal(registeredOnlyComplaints.Count) / Convert.ToDecimal(userComplaints.Count)) * 100;
-                var assesedPercentage = (Convert.ToDecimal(assesedOnlyComplaints.Count) / Convert.ToDecimal(userComplaints.Count)) * 100;
-                var investigatedPercentage = (Convert.ToDecimal(investigatedOnlyComplaints.Count) / Convert.ToDecimal(userComplaints.Count)) * 100;
-                var resolvedPercentage = (Convert.ToDecimal(resolvedOnlyComplaints.Count) / Convert.ToDecimal(userComplaints.Count)) * 100;
-                var closedPercentage = (Convert.ToDecimal(closedOnlyComplaints.Count) / Convert.ToDecimal(userComplaints.Count)) * 100;
+                var registeredPercentage = (Convert.ToDecimal(registeredOnlyComplaints.Count) / Convert.ToDecimal(userComplaints.Count)) * 100m;
+                var assesedPercentage = (Convert.ToDecimal(assesedOnlyComplaints.Count) / Convert.ToDecimal(userComplaints.Count)) * 100m;
+                var investigatedPercentage = (Convert.ToDecimal(investigatedOnlyComplaints.Count) / Convert.ToDecimal(userComplaints.Count)) * 100m;
+                var resolvedPercentage = (Convert.ToDecimal(resolvedOnlyComplaints.Count) / Convert.ToDecimal(userComplaints.Count)) * 100m;
+                var closedPercentage = (Convert.ToDecimal(closedOnlyComplaints.Count) / Convert.ToDecimal(userComplaints.Count)) * 100m;
 
                 var response = new
                 {
-                    ResgisteredPercentage = Math.Round(registeredPercentage),
-                    AssesedPercentage = Math.Round(assesedPercentage),
-                    InvestigatedPercentage = Math.Round(investigatedPercentage),
-                    ResolvedPercentage = Math.Round(resolvedPercentage),
-                    ClosedPercentage = Math.Round(closedPercentage),
+                    ResgisteredPercentage = Math.Round(registeredPercentage, 2),
+                    AssesedPercentage = Math.Round(assesedPercentage, 2),
+                    InvestigatedPercentage = Math.Round(investigatedPercentage, 2),
+                    ResolvedPercentage = Math.Round(resolvedPercentage, 2),
+                    ClosedPercentage = Math.Round(closedPercentage, 2),
                 };
 
                 return new ApiOkResponse(response);

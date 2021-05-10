@@ -60,5 +60,15 @@ namespace HaloBiz.Controllers
             var Complaint = ((ApiOkResponse)response).Result;
             return Ok(Complaint);
         }
+
+        [HttpPost("TrackComplaint")]
+        public async Task<ActionResult> TrackComplaint(ComplaintTrackingRecievingDTO model)
+        {
+            var response = await _complaintHandlingService.TrackComplaint(model);
+            if (response.StatusCode != 200)
+                return StatusCode(response.StatusCode, response);
+            var Complaint = ((ApiOkResponse)response).Result;
+            return Ok(Complaint);
+        }
     }
 }

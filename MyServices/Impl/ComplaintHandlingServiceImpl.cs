@@ -187,20 +187,20 @@ namespace HaloBiz.MyServices.Impl
                         complaint.ClosedById = userProfileID;
                         complaint.DateClosed = DateTime.Now;
                         complaint.IsConfirmedResolved = true;
-                        ComplaintResolution complaintClosed = new ComplaintResolution()
-                        {
-                            ResolutionDetails = model.details,
-                            RootCause = model.findings,
-                            Complaint = complaint,
-                            ComplaintId = complaint.Id,
-                            CapturedDateTime = DateTime.Now,
-                            Caption = "Complaint Closure has been done",
-                            CapturedById = userProfileID,
-                            CreatedById = userProfileID,
-                            CreatedAt = DateTime.Now,
-                            Learnings = String.IsNullOrEmpty(model.findings) ? "None" : model.findings
-                        };
-                        await _context.ComplaintResolutions.AddAsync(complaintClosed);
+                        //ComplaintResolution complaintClosed = new ComplaintResolution()
+                        //{
+                        //    ResolutionDetails = model.details,
+                        //    RootCause = model.findings,
+                        //    Complaint = complaint,
+                        //    ComplaintId = complaint.Id,
+                        //    CapturedDateTime = DateTime.Now,
+                        //    Caption = "Complaint Closure has been done",
+                        //    CapturedById = userProfileID,
+                        //    CreatedById = userProfileID,
+                        //    CreatedAt = DateTime.Now,
+                        //    Learnings = String.IsNullOrEmpty(model.findings) ? "None" : model.findings
+                        //};
+                        //await _context.ComplaintResolutions.AddAsync(complaintClosed);
                         break;
                     default:
                         return new ApiResponse(500, "Current Stage Passed is invalid");
@@ -250,6 +250,64 @@ namespace HaloBiz.MyServices.Impl
                 _context.Complaints.Update(complaint);
                 await _context.SaveChangesAsync();
                 return new ApiOkResponse(true);
+            }
+            catch(Exception error)
+            {
+                return new ApiResponse(500, error.Message);
+            }
+        }
+
+        public async Task<ApiResponse> TrackComplaint(ComplaintTrackingRecievingDTO model)
+        {
+            try
+            {
+                Complaint complaint = await _context.Complaints
+                    .Include(x => x.ComplaintOrigin)
+                    .Include(x => x.ComplaintType)
+                    .Include(x => x.ComplaintSource)
+                    .Include(x => x.PickedBy)
+                    .FirstOrDefaultAsync(x => x.TrackingId == model.TrackingNo);
+
+                if(complaint == null) return new ApiResponse(500, "No Complaint with the passed tracking number exists.");
+
+                var complaintTransferDTOs = _mapper.Map<ComplaintTransferDTO>(complaint);
+                switch (complaintTransferDTOs.ComplaintOrigin.Caption.ToLower())
+                {
+                    case "supplier":
+                        complaintTransferDTOs.Complainant = await _context.Suppliers.FindAsync(complaint.ComplainantId);
+                        break;
+                    case "staff":
+                        complaintTransferDTOs.Complainant = await _context.UserProfiles.FindAsync(complaint.ComplainantId);
+                        break;
+                    case "client":
+                        complaintTransferDTOs.Complainant = await _context.CustomerDivisions.FindAsync(complaint.ComplainantId);
+                        break;
+                }
+                ComplaintAssesment complaintAssesment = await _context.ComplaintAssesments.FirstOrDefaultAsync(x => x.ComplaintId == complaint.Id);
+                ComplaintInvestigation complaintInvestigation = await _context.ComplaintInvestigations.FirstOrDefaultAsync(x => x.ComplaintId == complaint.Id);
+                ComplaintResolution complaintResolution = await _context.ComplaintResolutions.FirstOrDefaultAsync(x => x.ComplaintId == complaint.Id);
+                List<string> registrationEvidences = await _context.Evidences.Where(x => x.ComplaintId == complaint.Id && x.ComplaintStage == ComplaintStage.Registration).Select(x => x.ImageUrl).ToListAsync();
+                List<string> assessmentEvidences = await _context.Evidences.Where(x => x.ComplaintId == complaint.Id && x.ComplaintStage == ComplaintStage.Assesment).Select(x => x.ImageUrl).ToListAsync();
+                List<string> investiagtionEvidences = await _context.Evidences.Where(x => x.ComplaintId == complaint.Id && x.ComplaintStage == ComplaintStage.Investigation).Select(x => x.ImageUrl).ToListAsync();
+                List<string> resolutionEvidences = await _context.Evidences.Where(x => x.ComplaintId == complaint.Id && x.ComplaintStage == ComplaintStage.Resolution).Select(x => x.ImageUrl).ToListAsync();
+                var totalHandlerCases = await _context.Complaints.Where(x => x.PickedById == complaint.PickedById && x.IsDeleted == false).ToListAsync();
+
+                var resultObject = new ComplaintTrackingTransferDTO()
+                {
+                    Complaint = complaintTransferDTOs,
+                    Assessment = _mapper.Map<ComplaintAssessmentTransferDTO>(complaintAssesment),
+                    Investigation = _mapper.Map<ComplaintInvestigationTransferDTO>(complaintInvestigation),
+                    Resolution = _mapper.Map<ComplaintResolutionTransferDTO>(complaintResolution),
+                    RegistrationEvidenceUrls = registrationEvidences,
+                    AssessmentEvidenceUrls = assessmentEvidences,
+                    InvestigationEvidenceUrls = investiagtionEvidences,
+                    ResolutionEvidenceUrls = resolutionEvidences,
+                    UserProfileImageUrl = complaint.PickedBy.ImageUrl,
+                    TotalHandlerCases = totalHandlerCases.Count(),
+                    TotalHandlerCasesResolved = (Convert.ToDecimal(totalHandlerCases.Where(x => x.IsResolved == true).Count()) / Convert.ToDecimal(totalHandlerCases.Count())) * 100m,
+                    TotalHanlderCasesUnresolved = (Convert.ToDecimal(totalHandlerCases.Where(x => x.IsResolved == null).Count()) / Convert.ToDecimal(totalHandlerCases.Count())) * 100m,
+                };
+                return new ApiOkResponse(resultObject);
             }
             catch(Exception error)
             {

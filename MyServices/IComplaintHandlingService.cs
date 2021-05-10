@@ -14,5 +14,6 @@ namespace HaloBiz.MyServices
         Task<ApiResponse> GetComplaintsHandling(HttpContext context);
         Task<ApiResponse> PickComplaint(HttpContext context, PickComplaintDTO model);
         Task<ApiResponse> MoveComplaintToNextStage(HttpContext context, MoveComplaintToNextStageDTO model);
+        Task<ApiResponse> TrackComplaint(ComplaintTrackingRecievingDTO model);
     }
 }
