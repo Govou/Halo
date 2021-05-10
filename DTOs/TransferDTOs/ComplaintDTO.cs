@@ -41,6 +41,8 @@ namespace HaloBiz.DTOs.TransferDTOs
         public decimal TotalHanlderCasesUnresolved { get; set; }
         public int TotalHandlerCases { get; set; }
         public string UserProfileImageUrl { get; set; }
+        public DateTime EstimatedDateResolved { get; set; }
+        public string HandlerName { get; set; }
     }
 
     public class ComplaintAssessmentTransferDTO

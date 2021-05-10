@@ -33,6 +33,7 @@ namespace HaloBiz.Repository.Impl
                .Include(x => x.ComplaintType)
                .Include(x => x.ComplaintOrigin)
                .Include(x => x.ComplaintSource)
+               .Include(x => x.PickedBy)
                .Where(complaint => complaint.IsDeleted == false)
                .OrderByDescending   (complaint => complaint.CreatedAt)
                .ToListAsync();
