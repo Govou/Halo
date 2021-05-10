@@ -20,6 +20,11 @@ namespace HaloBiz.Repository.Impl
             this._context = context;
         }
 
+        public async Task<bool> AlreadyHasProfileEscalationConfigured(long userProfileId)
+        {
+            return await _context.ProfileEscalationLevels.AnyAsync(x => x.UserProfileId == userProfileId && x.IsDeleted == false);
+        }
+
         public async Task<bool> DeleteProfileEscalationLevel(ProfileEscalationLevel profileEscalationLevel)
         {
             profileEscalationLevel.IsDeleted = true;
@@ -30,6 +35,7 @@ namespace HaloBiz.Repository.Impl
         public async Task<IEnumerable<ProfileEscalationLevel>> FindAllProfileEscalationLevels()
         {
             return await _context.ProfileEscalationLevels
+               .Include(x => x.UserProfile)
                .Where(profileEscalationLevel => profileEscalationLevel.IsDeleted == false)
                .OrderBy(profileEscalationLevel => profileEscalationLevel.CreatedAt)
                .ToListAsync();

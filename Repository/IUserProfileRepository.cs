@@ -23,6 +23,7 @@ namespace HaloBiz.Repository
         Task<UserProfile> UpdateUserProfile(UserProfile userProfile);
 
         Task<bool> RemoveUserProfile(UserProfile userProfile);
+        Task<IEnumerable<UserProfile>> FetchAllUserProfilesWithEscalationLevelConfiguration();
 
     }
 }
