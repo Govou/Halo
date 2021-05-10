@@ -35,4 +35,9 @@ namespace HaloBiz.DTOs.ReceivingDTOs
 
         public List<EvidenceReceivingDTO> Evidences { get; set; }
     }
+
+    public class ComplaintTrackingRecievingDTO
+    {
+        public string TrackingNo { get; set; }
+    }
 }

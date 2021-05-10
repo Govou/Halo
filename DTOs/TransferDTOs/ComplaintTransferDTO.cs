@@ -46,5 +46,9 @@ namespace HaloBiz.DTOs.TransferDTOs
         public bool? IsAssesed { get; set; }
         public DateTime? DateAssesmentsConcluded { get; set; }
         public UserProfile AssesedLedBy { get; set; }
+        public bool? IsPicked { get; set; }
+        public DateTime? DatePicked { get; set; }
+        public long? PickedById { get; set; }
+        public UserProfile PickedBy { get; set; }
     }
 }

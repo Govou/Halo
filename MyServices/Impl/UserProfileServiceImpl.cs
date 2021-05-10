@@ -349,5 +349,11 @@ namespace HaloBiz.MyServices.Impl
         {
             Task.Run(action);
         }
+
+        public async Task<ApiResponse> FetchAllUserProfilesWithEscalationLevelConfiguration()
+        {
+            var resultObject = await _userRepo.FetchAllUserProfilesWithEscalationLevelConfiguration();
+            return new ApiOkResponse(resultObject);
+        }
     }
 }

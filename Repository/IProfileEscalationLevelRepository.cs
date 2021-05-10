@@ -15,5 +15,6 @@ namespace HaloBiz.Repository
         Task<IEnumerable<ProfileEscalationLevel>> FindAllProfileEscalationLevels();
         Task<ProfileEscalationLevel> UpdateProfileEscalationLevel(ProfileEscalationLevel profileEscalationLevel);
         Task<bool> DeleteProfileEscalationLevel(ProfileEscalationLevel profileEscalationLevel);
+        Task<bool> AlreadyHasProfileEscalationConfigured(long userProfileId);
     }
 }

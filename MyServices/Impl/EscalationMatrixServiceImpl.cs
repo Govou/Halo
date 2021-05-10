@@ -146,7 +146,6 @@ namespace HaloBiz.MyServices.Impl
             //escalationMatrixToUpdate.ComplaintTypeId = escalationMatrixReceivingDTO.ComplaintTypeId;
             escalationMatrixToUpdate.Level1MaxResolutionTimeInHrs = escalationMatrixReceivingDTO.Level1MaxResolutionTimeInHrs;
             escalationMatrixToUpdate.Level2MaxResolutionTimeInHrs = escalationMatrixReceivingDTO.Level2MaxResolutionTimeInHrs;
-            escalationMatrixToUpdate.Level3MaxResolutionTimeInHrs = escalationMatrixReceivingDTO.Level3MaxResolutionTimeInHrs;
             escalationMatrixToUpdate.ComplaintAttendants = _mapper.Map<ICollection<EscalationMatrixUserProfile>>(escalationMatrixReceivingDTO.ComplaintAttendants);
 
             var updatedescalationMatrix = await _escalationMatrixRepo.UpdateEscalationMatrix(escalationMatrixToUpdate);

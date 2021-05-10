@@ -252,6 +252,10 @@ namespace HaloBiz.Helpers
             CreateMap<ClientPolicyReceivingDTO, ClientPolicy>();
             CreateMap<ClientPolicy, ClientPolicyTransferDTO>();
             CreateMap<EscalationLevelUserProfileReceivingDTO, EscalationMatrixUserProfile>();
+            CreateMap<ComplaintDTO, Complaint>();
+            CreateMap<ComplaintAssesment, ComplaintAssessmentTransferDTO>();
+            CreateMap<ComplaintInvestigation, ComplaintInvestigationTransferDTO>();
+            CreateMap<ComplaintResolution, ComplaintResolutionTransferDTO>();
         }
     }
 }
