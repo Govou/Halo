@@ -291,6 +291,9 @@ namespace HaloBiz.MyServices.Impl
                 List<string> investiagtionEvidences = await _context.Evidences.Where(x => x.ComplaintId == complaint.Id && x.ComplaintStage == ComplaintStage.Investigation).Select(x => x.ImageUrl).ToListAsync();
                 List<string> resolutionEvidences = await _context.Evidences.Where(x => x.ComplaintId == complaint.Id && x.ComplaintStage == ComplaintStage.Resolution).Select(x => x.ImageUrl).ToListAsync();
                 var totalHandlerCases = await _context.Complaints.Where(x => x.PickedById == complaint.PickedById && x.IsDeleted == false).ToListAsync();
+                EscalationMatrix escalationMatrix = await _context.EscalationMatrices.FirstOrDefaultAsync(x => x.ComplaintTypeId == complaint.ComplaintTypeId && x.IsDeleted == false);
+                decimal totalCasesResolvedPercentage = (Convert.ToDecimal(totalHandlerCases.Where(x => x.IsResolved == true).Count()) / Convert.ToDecimal(totalHandlerCases.Count())) * 100m;
+                decimal totalCasesUnresolvedPercentage = (Convert.ToDecimal(totalHandlerCases.Where(x => x.IsResolved == null).Count()) / Convert.ToDecimal(totalHandlerCases.Count())) * 100m;
 
                 var resultObject = new ComplaintTrackingTransferDTO()
                 {
@@ -302,10 +305,12 @@ namespace HaloBiz.MyServices.Impl
                     AssessmentEvidenceUrls = assessmentEvidences,
                     InvestigationEvidenceUrls = investiagtionEvidences,
                     ResolutionEvidenceUrls = resolutionEvidences,
-                    UserProfileImageUrl = complaint.PickedBy.ImageUrl,
-                    TotalHandlerCases = totalHandlerCases.Count(),
-                    TotalHandlerCasesResolved = (Convert.ToDecimal(totalHandlerCases.Where(x => x.IsResolved == true).Count()) / Convert.ToDecimal(totalHandlerCases.Count())) * 100m,
-                    TotalHanlderCasesUnresolved = (Convert.ToDecimal(totalHandlerCases.Where(x => x.IsResolved == null).Count()) / Convert.ToDecimal(totalHandlerCases.Count())) * 100m,
+                    UserProfileImageUrl = complaint.PickedBy == null ? String.Empty : complaint.PickedBy.ImageUrl,
+                    TotalHandlerCases = complaint.PickedById == null ? 0 : totalHandlerCases.Count(),
+                    TotalHandlerCasesResolved = complaint.PickedById == null ? 0 : Math.Round(totalCasesResolvedPercentage, 2),
+                    TotalHanlderCasesUnresolved = complaint.PickedById == null ? 0 : Math.Round(totalCasesUnresolvedPercentage, 2),
+                    EstimatedDateResolved = escalationMatrix == null ? complaint.DateRegistered : complaint.DateRegistered.AddHours(escalationMatrix.Level1MaxResolutionTimeInHrs),
+                    HandlerName = complaint.PickedBy == null ? String.Empty : complaint.PickedBy.LastName + " " + complaint.PickedBy.FirstName,
                 };
                 return new ApiOkResponse(resultObject);
             }
