@@ -256,6 +256,12 @@ namespace HaloBiz.Helpers
             CreateMap<ComplaintAssesment, ComplaintAssessmentTransferDTO>();
             CreateMap<ComplaintInvestigation, ComplaintInvestigationTransferDTO>();
             CreateMap<ComplaintResolution, ComplaintResolutionTransferDTO>();
+            CreateMap<SuspectReceivingDTO, Suspect>();
+            CreateMap<Suspect, SuspectTransferDTO>();
+            CreateMap<SuspectQualificationReceivingDTO, SuspectQualification>();
+            CreateMap<SuspectQualification, SuspectQualificationTransferDTO>();
+            CreateMap<ServiceQualificationReceivingDTO, ServiceQualification>();
+            CreateMap<ServiceQualification, ServiceQualificationTransferDTO>();
         }
     }
 }
