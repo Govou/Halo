@@ -40,7 +40,7 @@ namespace HaloBiz.MyServices.Impl
 
         public async Task<ApiResponse> AddEscalationMatrix(HttpContext context, EscalationMatrixReceivingDTO escalationMatrixReceivingDTO)
         {
-            var matrix = await _context.EscalationMatrices.SingleOrDefaultAsync(x => x.ComplaintTypeId == escalationMatrixReceivingDTO.ComplaintTypeId);
+            var matrix = await _context.EscalationMatrices.SingleOrDefaultAsync(x => x.ComplaintTypeId == escalationMatrixReceivingDTO.ComplaintTypeId && x.IsDeleted == false);
 
             if(matrix != null)
             {

@@ -30,6 +30,7 @@ namespace HaloBiz.Repository.Impl
         public async Task<IEnumerable<EscalationMatrix>> FindAllEscalationMatrixs()
         {
             return await _context.EscalationMatrices
+                .Include(escalationMatrix => escalationMatrix.ComplaintAttendants)
                .Where(escalationMatrix => escalationMatrix.IsDeleted == false)
                .OrderBy(escalationMatrix => escalationMatrix.CreatedAt)
                .ToListAsync();
@@ -38,6 +39,7 @@ namespace HaloBiz.Repository.Impl
         public async Task<EscalationMatrix> FindEscalationMatrixById(long Id)
         {
             return await _context.EscalationMatrices
+                .Include(escalationMatrix => escalationMatrix.ComplaintAttendants)
                 .Where(escalationMatrix => escalationMatrix.IsDeleted == false)
                 .FirstOrDefaultAsync(escalationMatrix => escalationMatrix.Id == Id && escalationMatrix.IsDeleted == false);
 
