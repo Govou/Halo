@@ -113,6 +113,29 @@ namespace HaloBiz.MyServices.Impl
             }
         }
 
+        public async Task<ApiResponse> GetUserEscalationLevelDetails(HttpContext context)
+        {
+            try
+            {
+                long userProfileID = context.GetLoggedInUserId();
+                if (userProfileID <= 0) return new ApiResponse(500, "Unable to retrieve user's details");
+                ProfileEscalationLevel profileEscalationLevel = await _context.ProfileEscalationLevels.FirstOrDefaultAsync(x => x.UserProfileId == userProfileID);
+                if (profileEscalationLevel == null) return new ApiResponse(500, "User has no profile level escalation configured for user profile");
+                List<EscalationMatrix> escalationMatrices = await _context.EscalationMatrices
+                    .Include(x => x.ComplaintAttendants)
+                    .Where(x => x.ComplaintAttendants
+                          .Any(y => y.EscalationLevelId == profileEscalationLevel.EscalationLevelId))
+                    .ToListAsync();
+
+
+                return new ApiOkResponse(true);
+            }
+            catch(Exception error)
+            {
+                return new ApiResponse(500, error.Message);
+            }
+        }
+
         public async Task<ApiResponse> MoveComplaintToNextStage(HttpContext context, MoveComplaintToNextStageDTO model)
         {
             try
@@ -178,7 +201,7 @@ namespace HaloBiz.MyServices.Impl
                             CapturedById = userProfileID,
                             CreatedById = userProfileID,
                             CreatedAt = DateTime.Now,
-                            Learnings = String.IsNullOrEmpty(model.findings) ? "None" : model.findings
+                            Learnings = "None"
                         };
                         await _context.ComplaintResolutions.AddAsync(complaintResolved);
                         break;
@@ -186,21 +209,10 @@ namespace HaloBiz.MyServices.Impl
                         complaint.IsClosed = true;
                         complaint.ClosedById = userProfileID;
                         complaint.DateClosed = DateTime.Now;
-                        complaint.IsConfirmedResolved = true;
-                        //ComplaintResolution complaintClosed = new ComplaintResolution()
-                        //{
-                        //    ResolutionDetails = model.details,
-                        //    RootCause = model.findings,
-                        //    Complaint = complaint,
-                        //    ComplaintId = complaint.Id,
-                        //    CapturedDateTime = DateTime.Now,
-                        //    Caption = "Complaint Closure has been done",
-                        //    CapturedById = userProfileID,
-                        //    CreatedById = userProfileID,
-                        //    CreatedAt = DateTime.Now,
-                        //    Learnings = String.IsNullOrEmpty(model.findings) ? "None" : model.findings
-                        //};
-                        //await _context.ComplaintResolutions.AddAsync(complaintClosed);
+                        //complaint.IsConfirmedResolved = true;     ~Will be updated either by the user clicking on confirmation link or by the cron job.
+                        ComplaintResolution complaintClosed = await _context.ComplaintResolutions.FirstOrDefaultAsync(x => x.ComplaintId == complaint.Id);
+                        complaintClosed.Learnings = model.findings;
+                        _context.ComplaintResolutions.Update(complaintClosed);
                         break;
                     default:
                         return new ApiResponse(500, "Current Stage Passed is invalid");

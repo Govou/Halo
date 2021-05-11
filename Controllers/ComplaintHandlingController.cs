@@ -27,8 +27,8 @@ namespace HaloBiz.Controllers
             var response = await _complaintHandlingService.GetComplaintHandlingStats(HttpContext);
             if (response.StatusCode != 200)
                 return StatusCode(response.StatusCode, response);
-            var Complaint = ((ApiOkResponse)response).Result;
-            return Ok(Complaint);
+            var returnData = ((ApiOkResponse)response).Result;
+            return Ok(returnData);
         }
 
         [HttpGet]
@@ -37,8 +37,8 @@ namespace HaloBiz.Controllers
             var response = await _complaintHandlingService.GetComplaintsHandling(HttpContext);
             if (response.StatusCode != 200)
                 return StatusCode(response.StatusCode, response);
-            var Complaint = ((ApiOkResponse)response).Result;
-            return Ok(Complaint);
+            var returnData = ((ApiOkResponse)response).Result;
+            return Ok(returnData);
         }
 
         [HttpPost]
@@ -47,8 +47,8 @@ namespace HaloBiz.Controllers
             var response = await _complaintHandlingService.PickComplaint(HttpContext, model);
             if (response.StatusCode != 200)
                 return StatusCode(response.StatusCode, response);
-            var Complaint = ((ApiOkResponse)response).Result;
-            return Ok(Complaint);
+            var returnData = ((ApiOkResponse)response).Result;
+            return Ok(returnData);
         }
 
         [HttpPost("MoveComplaintToNextStage")]
@@ -57,8 +57,8 @@ namespace HaloBiz.Controllers
             var response = await _complaintHandlingService.MoveComplaintToNextStage(HttpContext, model);
             if (response.StatusCode != 200)
                 return StatusCode(response.StatusCode, response);
-            var Complaint = ((ApiOkResponse)response).Result;
-            return Ok(Complaint);
+            var returnData = ((ApiOkResponse)response).Result;
+            return Ok(returnData);
         }
 
         [HttpPost("TrackComplaint")]
@@ -67,8 +67,18 @@ namespace HaloBiz.Controllers
             var response = await _complaintHandlingService.TrackComplaint(model);
             if (response.StatusCode != 200)
                 return StatusCode(response.StatusCode, response);
-            var Complaint = ((ApiOkResponse)response).Result;
-            return Ok(Complaint);
+            var returnData = ((ApiOkResponse)response).Result;
+            return Ok(returnData);
+        }
+
+        [HttpGet("GetUserEscalationLevelDetails")]
+        public async Task<ActionResult> GetUserEscalationLevelDetails()
+        {
+            var response = await _complaintHandlingService.GetUserEscalationLevelDetails(HttpContext);
+            if (response.StatusCode != 200)
+                return StatusCode(response.StatusCode, response);
+            var returnData = ((ApiOkResponse)response).Result;
+            return Ok(returnData);
         }
     }
 }
