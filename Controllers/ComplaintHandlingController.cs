@@ -80,5 +80,15 @@ namespace HaloBiz.Controllers
             var returnData = ((ApiOkResponse)response).Result;
             return Ok(returnData);
         }
+
+        [HttpGet("ConfirmComplaintResolved/{id}")]
+        public async Task<ActionResult> ConfirmComplaintResolved(long id)
+        {
+            var response = await _complaintHandlingService.ConfirmComplaintResolved(id);
+            if (response.StatusCode != 200)
+                return StatusCode(response.StatusCode, response);
+            var returnData = ((ApiOkResponse)response).Result;
+            return Ok(returnData);
+        }
     }
 }

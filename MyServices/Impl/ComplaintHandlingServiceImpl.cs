@@ -349,7 +349,7 @@ namespace HaloBiz.MyServices.Impl
                     .Include(x => x.ComplaintType)
                     .Include(x => x.ComplaintSource)
                     .Include(x => x.PickedBy)
-                    .FirstOrDefaultAsync(x => x.TrackingId == model.TrackingNo);
+                    .FirstOrDefaultAsync(x => x.TrackingId == model.TrackingNo || x.Id == model.ComplaintId);
 
                 if(complaint == null) return new ApiResponse(500, "No Complaint with the passed tracking number exists.");
 
@@ -400,6 +400,23 @@ namespace HaloBiz.MyServices.Impl
             catch(Exception error)
             {
                 _logger.LogError("Exception occurred in  TrackComplaint " + error);
+                return new ApiResponse(500, error.Message);
+            }
+        }
+
+        public async Task<ApiResponse> ConfirmComplaintResolved(long complaintId)
+        {
+            try
+            {
+                Complaint complaint = await _context.Complaints.FirstOrDefaultAsync(x => x.Id == complaintId);
+                complaint.IsConfirmedResolved = true;
+                _context.Complaints.Update(complaint);
+                await _context.SaveChangesAsync();
+                return new ApiOkResponse(true);
+            }
+            catch(Exception error)
+            {
+                _logger.LogError("Exception occurred in  ConfirmComplaintResolved " + error);
                 return new ApiResponse(500, error.Message);
             }
         }

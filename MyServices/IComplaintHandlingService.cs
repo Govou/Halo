@@ -16,5 +16,6 @@ namespace HaloBiz.MyServices
         Task<ApiResponse> MoveComplaintToNextStage(HttpContext context, MoveComplaintToNextStageDTO model);
         Task<ApiResponse> TrackComplaint(ComplaintTrackingRecievingDTO model);
         Task<ApiResponse> GetUserEscalationLevelDetails(HttpContext context);
+        Task<ApiResponse> ConfirmComplaintResolved(long complaintId);
     }
 }
