@@ -51,5 +51,6 @@ namespace HaloBiz.DTOs.TransferDTOs
         public long? PickedById { get; set; }
         public UserProfile PickedBy { get; set; }
         public List<string> EvidenceUrls { get; set; }
+        public DateTime? DateComplaintReported { get; set; }
     }
 }

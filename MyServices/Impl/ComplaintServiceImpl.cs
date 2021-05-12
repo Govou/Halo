@@ -52,7 +52,8 @@ namespace HaloBiz.MyServices.Impl
 
                 complaint.CreatedById = loggedInUserId;
                 complaint.RegisteredById = loggedInUserId;
-
+                complaint.DateComplaintReported = complaintReceivingDTO.DateCreated;
+                complaint.DateCreated = DateTime.Now;
                 complaint.DateRegistered = DateTime.Now;
 
                 complaint.IsRegistered = true;

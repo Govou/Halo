@@ -18,5 +18,6 @@ namespace HaloBiz.Adapters
         Task<ApiResponse> ApproveNewQuoteService(string serializedApprovals);
         Task<ApiResponse> SendQuoteNotification(string serializedQuote);
         Task<ApiResponse> SendPeriodicInvoice(InvoiceMailDTO invoiceMailDTO);
+        Task<ApiResponse> SendComplaintResolutionConfirmationMail(ConfirmComplaintResolutionMailDTO model);
     }
 }

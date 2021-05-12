@@ -14,6 +14,7 @@ using System.Threading.Tasks;
 using HalobizMigrations.Models.Complaints;
 using HalobizMigrations.Data;
 using Microsoft.EntityFrameworkCore;
+using HaloBiz.DTOs.MailDTOs;
 
 namespace HaloBiz.MyServices.Impl
 {
@@ -22,11 +23,13 @@ namespace HaloBiz.MyServices.Impl
         private readonly HalobizContext _context;
         private readonly ILogger<ComplaintHandlingServiceImpl> _logger;
         private readonly IMapper _mapper;
-        public ComplaintHandlingServiceImpl(HalobizContext context, ILogger<ComplaintHandlingServiceImpl> logger, IMapper mapper)
+        private readonly Adapters.IMailAdapter _mailAdapter;
+        public ComplaintHandlingServiceImpl(HalobizContext context, ILogger<ComplaintHandlingServiceImpl> logger, IMapper mapper, Adapters.IMailAdapter mailAdapter)
         {
             _context = context;
             _logger = logger;
             _mapper = mapper;
+            _mailAdapter = mailAdapter;
         }
 
         public async Task<ApiResponse> GetComplaintHandlingStats(HttpContext context)
@@ -56,6 +59,7 @@ namespace HaloBiz.MyServices.Impl
             }
             catch(Exception error)
             {
+                _logger.LogError("Exception occurred in  GetComplaintHandlingStats " + error);
                 return new ApiResponse(500, error.Message);
             }
         }
@@ -109,6 +113,7 @@ namespace HaloBiz.MyServices.Impl
             }
             catch(Exception error)
             {
+                _logger.LogError("Exception occurred in  GetComplaintsHandling " + error);
                 return new ApiResponse(500, error.Message);
             }
         }
@@ -132,6 +137,7 @@ namespace HaloBiz.MyServices.Impl
             }
             catch(Exception error)
             {
+                _logger.LogError("Exception occurred in  GetUserEscalationLevelDetails " + error);
                 return new ApiResponse(500, error.Message);
             }
         }
@@ -141,7 +147,10 @@ namespace HaloBiz.MyServices.Impl
             try
             {
                 long userProfileID = context.GetLoggedInUserId();
-                Complaint complaint = await _context.Complaints.FirstOrDefaultAsync(x => x.Id == model.complaintID);
+                Complaint complaint = await _context.Complaints
+                    .Include(x => x.PickedBy)
+                    .Include(x => x.ComplaintOrigin)
+                    .FirstOrDefaultAsync(x => x.Id == model.complaintID);
                 ComplaintStage currentComplaintStage = (ComplaintStage)model.currentStage;
 
                 switch (currentComplaintStage)
@@ -212,7 +221,14 @@ namespace HaloBiz.MyServices.Impl
                         //complaint.IsConfirmedResolved = true;     ~Will be updated either by the user clicking on confirmation link or by the cron job.
                         ComplaintResolution complaintClosed = await _context.ComplaintResolutions.FirstOrDefaultAsync(x => x.ComplaintId == complaint.Id);
                         complaintClosed.Learnings = model.findings;
-                        _context.ComplaintResolutions.Update(complaintClosed);
+                        if (await SendComplaintConfirmationMail(complaint))
+                        {
+                            _context.ComplaintResolutions.Update(complaintClosed);
+                        }
+                        else
+                        {
+                            return new ApiResponse(500, "Error, unable to send complaint confirmation mail");
+                        }
                         break;
                     default:
                         return new ApiResponse(500, "Current Stage Passed is invalid");
@@ -244,8 +260,62 @@ namespace HaloBiz.MyServices.Impl
             }
             catch(Exception error)
             {
+                _logger.LogError("Exception occurred in  MoveComplaintToNextStage " + error);
                 return new ApiResponse(500, error.Message);
             }
+        }
+
+        public async Task<bool> SendComplaintConfirmationMail(Complaint complaint)
+        {
+            bool result = false;
+
+            try
+            {
+                if (complaint == null)
+                {
+                    _logger.LogError("Complaint data is null");
+                    return result;
+                }
+
+                Supplier complainantSupplier = null;
+                UserProfile complainantStaff = null;
+                CustomerDivision complainantClient = null;
+                switch (complaint.ComplaintOrigin.Caption.ToLower())
+                {
+                    case "supplier":
+                        complainantSupplier = await _context.Suppliers.FindAsync(complaint.ComplainantId);
+                        break;
+                    case "staff":
+                        complainantStaff = await _context.UserProfiles.FindAsync(complaint.ComplainantId);
+                        break;
+                    case "client":
+                        complainantClient = await _context.CustomerDivisions.FindAsync(complaint.ComplainantId);
+                        break;
+                }
+
+                string receipentEmail = complainantSupplier != null ? complainantSupplier.SupplierEmail : complainantStaff != null ? complainantStaff.Email : complainantClient.Email;
+
+                ConfirmComplaintResolutionMailDTO model = new ConfirmComplaintResolutionMailDTO()
+                {
+                    Username = complainantSupplier != null ? complainantSupplier.SupplierName : complainantStaff != null ? complainantStaff.LastName : complainantClient.DivisionName,
+                    Subject = "Confirmation of complaint resolution",
+                    ComplaintId = complaint.Id,
+                    ConfirmationLink = "http://localhost:4200/#/confirm-complaint/" + complaint.Id,
+                    DateComplaintReported = complaint.DateComplaintReported.Value,
+                    HandlerName = complaint.PickedBy.LastName,
+                    ReceipentEmailAddress = new string[1],
+                };
+                model.ReceipentEmailAddress[0] = receipentEmail;
+                var response = await _mailAdapter.SendComplaintResolutionConfirmationMail(model);
+                if (response.StatusCode == 200) result = true;
+            }
+            catch (Exception err) 
+            {
+                _logger.LogError("Exception occurred in  SendComplaintConfirmationMail " + err);
+                result = false; 
+            }
+
+            return result;
         }
 
         public async Task<ApiResponse> PickComplaint(HttpContext context, PickComplaintDTO model)
@@ -265,6 +335,7 @@ namespace HaloBiz.MyServices.Impl
             }
             catch(Exception error)
             {
+                _logger.LogError("Exception occurred in  PickComplaint " + error);
                 return new ApiResponse(500, error.Message);
             }
         }
@@ -328,6 +399,7 @@ namespace HaloBiz.MyServices.Impl
             }
             catch(Exception error)
             {
+                _logger.LogError("Exception occurred in  TrackComplaint " + error);
                 return new ApiResponse(500, error.Message);
             }
         }
