@@ -124,16 +124,102 @@ namespace HaloBiz.MyServices.Impl
             {
                 long userProfileID = context.GetLoggedInUserId();
                 if (userProfileID <= 0) return new ApiResponse(500, "Unable to retrieve user's details");
-                ProfileEscalationLevel profileEscalationLevel = await _context.ProfileEscalationLevels.FirstOrDefaultAsync(x => x.UserProfileId == userProfileID);
+                ProfileEscalationLevel profileEscalationLevel = await _context.ProfileEscalationLevels.Include(x => x.EscalationLevel).FirstOrDefaultAsync(x => x.UserProfileId == userProfileID && x.IsDeleted == false);
                 if (profileEscalationLevel == null) return new ApiResponse(500, "User has no profile level escalation configured for user profile");
+                if (profileEscalationLevel.EscalationLevel.Caption.ToLower().Contains("handler")) return new ApiResponse(500, "Currently logged in user is an hanler. You need to either be a supervisor or manager.");
                 List<EscalationMatrix> escalationMatrices = await _context.EscalationMatrices
                     .Include(x => x.ComplaintAttendants)
-                    .Where(x => x.ComplaintAttendants
-                          .Any(y => y.EscalationLevelId == profileEscalationLevel.EscalationLevelId))
+                    .Include(x => x.ComplaintType)
+                    .Where(x => x.ComplaintAttendants.Any(y => y.EscalationLevelId == profileEscalationLevel.EscalationLevelId && y.UserProfileId == userProfileID) == true && x.IsDeleted == false)
                     .ToListAsync();
 
+                List<Complaint> assignedComplaints = new();
+                List<Complaint> unassignedComplaints = new();
+                List<Complaint> allComplaints = await _context.Complaints
+                    .Include(x => x.PickedBy)
+                    .Include(x => x.ComplaintOrigin)
+                    .Include(x => x.ComplaintType)
+                    .Where(x => x.IsDeleted == false).ToListAsync();
 
-                return new ApiOkResponse(true);
+                //Calculate Complaint Distributions
+                List<ComplaintType> allComplaintTypes = await _context.ComplaintTypes.Where(x => x.IsDeleted == false).ToListAsync();
+                List<decimal> complaintDistributionPercentages = new();
+                List<decimal> complaintDistributionValues = new();
+                double totalComplaints = 0;
+                foreach(var complaintType in allComplaintTypes)
+                {
+                    int complaintCount = allComplaints.Where(x => x.ComplaintTypeId == complaintType.Id).Count();
+                    complaintDistributionValues.Add(complaintCount);
+                    totalComplaints += complaintCount;
+                }
+                foreach(var complaintDistribution in complaintDistributionValues)
+                {
+                    var resultValue = (Convert.ToDecimal(complaintDistribution) / Convert.ToDecimal(totalComplaints)) * 100m;
+                    complaintDistributionPercentages.Add(resultValue);
+                }
+
+                List<Complaint> complaints = allComplaints.Where(y => escalationMatrices.Select(x => x.ComplaintTypeId).ToList().Contains(y.ComplaintTypeId) && y.IsResolved == null).ToList();
+                if(!profileEscalationLevel.EscalationLevel.Caption.ToLower().Contains("supervisor") && !profileEscalationLevel.EscalationLevel.Caption.ToLower().Contains("supervisor")) return new ApiResponse(500, "No configuration created for users escalation level " + profileEscalationLevel.EscalationLevel.Caption);
+                foreach (var escalation in escalationMatrices)
+                {
+                    long compareTime = profileEscalationLevel.EscalationLevel.Caption.ToLower().Contains("supervisor") ? escalation.Level2MaxResolutionTimeInHrs : escalation.Level1MaxResolutionTimeInHrs;
+                    foreach (var complaint in complaints.Where(x => x.ComplaintTypeId == escalation.ComplaintTypeId).ToList())
+                    {
+                        TimeSpan duration = DateTime.Now - complaint.DateRegistered;
+                        if (duration.TotalHours >= compareTime)
+                        {
+                            if(complaint.PickedBy == null)
+                            {
+                                unassignedComplaints.Add(complaint);
+                            }
+                            else
+                            {
+                                assignedComplaints.Add(complaint);
+                            }
+                        }
+                    }
+                }
+
+                EscalationManagementDTO returnObject = new()
+                {
+                    assignedComplaints = _mapper.Map<IEnumerable<ComplaintTransferDTO>>(assignedComplaints).ToList(),
+                    unassignedComplaints = _mapper.Map<IEnumerable<ComplaintTransferDTO>>(unassignedComplaints).ToList(),
+                    totalEscalatedComplaints = assignedComplaints.Count + unassignedComplaints.Count,
+                    complaintTypes = _mapper.Map<IEnumerable<ComplaintTypeTransferDTO>>(allComplaintTypes).ToList(),
+                    complaintsDistribution = complaintDistributionPercentages
+                };
+
+                foreach (var complaint in returnObject.assignedComplaints)
+                {
+                    switch (complaint.ComplaintOrigin.Caption.ToLower())
+                    {
+                        case "supplier":
+                            complaint.Complainant = await _context.Suppliers.FindAsync(complaint.ComplainantId);
+                            break;
+                        case "staff":
+                            complaint.Complainant = await _context.UserProfiles.FindAsync(complaint.ComplainantId);
+                            break;
+                        case "client":
+                            complaint.Complainant = await _context.CustomerDivisions.FindAsync(complaint.ComplainantId);
+                            break;
+                    }
+                }
+                foreach (var complaint in returnObject.unassignedComplaints)
+                {
+                    switch (complaint.ComplaintOrigin.Caption.ToLower())
+                    {
+                        case "supplier":
+                            complaint.Complainant = await _context.Suppliers.FindAsync(complaint.ComplainantId);
+                            break;
+                        case "staff":
+                            complaint.Complainant = await _context.UserProfiles.FindAsync(complaint.ComplainantId);
+                            break;
+                        case "client":
+                            complaint.Complainant = await _context.CustomerDivisions.FindAsync(complaint.ComplainantId);
+                            break;
+                    }
+                }
+                return new ApiOkResponse(returnObject);
             }
             catch(Exception error)
             {
@@ -411,6 +497,37 @@ namespace HaloBiz.MyServices.Impl
                 Complaint complaint = await _context.Complaints.FirstOrDefaultAsync(x => x.Id == complaintId);
                 complaint.IsConfirmedResolved = true;
                 _context.Complaints.Update(complaint);
+                await _context.SaveChangesAsync();
+                return new ApiOkResponse(true);
+            }
+            catch(Exception error)
+            {
+                _logger.LogError("Exception occurred in  ConfirmComplaintResolved " + error);
+                return new ApiResponse(500, error.Message);
+            }
+        }
+
+        public async Task<ApiResponse> RunComplaintConfirmationCronJob()
+        {
+            try
+            {
+                List<Complaint> allComplaints = await _context.Complaints
+                    .Where(
+                        x => x.IsConfirmedResolved == false && 
+                        x.IsDeleted == false &&
+                        x.IsClosed == true
+                        )
+                    .ToListAsync();
+
+                foreach(var complaint in allComplaints)
+                {
+                    if(complaint.DateClosed.Value.Hour > 48)
+                    {
+                        complaint.IsConfirmedResolved = true;
+                        _context.Complaints.Update(complaint);
+                    }
+                }
+
                 await _context.SaveChangesAsync();
                 return new ApiOkResponse(true);
             }

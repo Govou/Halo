@@ -90,5 +90,15 @@ namespace HaloBiz.Controllers
             var returnData = ((ApiOkResponse)response).Result;
             return Ok(returnData);
         }
+
+        [HttpGet("RunComplaintConfirmationCronJob")]
+        public async Task<ActionResult> RunComplaintConfirmationCronJob()
+        {
+            var response = await _complaintHandlingService.RunComplaintConfirmationCronJob();
+            if (response.StatusCode != 200)
+                return StatusCode(response.StatusCode, response);
+            var returnData = ((ApiOkResponse)response).Result;
+            return Ok(returnData);
+        }
     }
 }
