@@ -18,5 +18,7 @@ namespace HaloBiz.MyServices
         Task<ApiResponse> GetUserEscalationLevelDetails(HttpContext context);
         Task<ApiResponse> ConfirmComplaintResolved(long complaintId);
         Task<ApiResponse> RunComplaintConfirmationCronJob();
+        Task<ApiResponse> AssignComplaintToUser(AssignComplaintReceivingDTO model);
+        Task<ApiResponse> MiniTrackComplaint(long ComplaintId);
     }
 }
