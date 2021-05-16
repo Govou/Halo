@@ -7,6 +7,7 @@ namespace HaloBiz.DTOs.ReceivingDTOs
 {
     public class ServiceQualificationReceivingDTO
     {
+        public long Id { get; set; }
         public long ServiceId { get; set; }
         public DateTime? DateToStart { get; set; }
         public long SuspectQualificationId { get; set; }

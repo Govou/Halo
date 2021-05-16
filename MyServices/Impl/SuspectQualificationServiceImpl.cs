@@ -66,6 +66,7 @@ namespace HaloBiz.MyServices.Impl
 
             suspectQualification.CreatedById = loggedInUserId;   
             suspectQualification.IsActive = true;
+            suspectQualification.ChallengeCompleted = true;
 
             var savedsuspectQualification = await _suspectQualificationRepo.SaveSuspectQualification(suspectQualification);
             if (savedsuspectQualification == null)
@@ -127,7 +128,11 @@ namespace HaloBiz.MyServices.Impl
 
         public async Task<ApiResponse> UpdateSuspectQualification(HttpContext context, long id, SuspectQualificationReceivingDTO suspectQualificationReceivingDTO)
         {
-            var suspectQualificationToUpdate = await _suspectQualificationRepo.FindSuspectQualificationById(id);
+            var suspectQualificationToUpdate = await _context.SuspectQualifications
+                                                        .Include(x => x.ServiceQualifications)
+                                                        .Where(x => !x.IsDeleted && x.Id == id)
+                                                        .SingleOrDefaultAsync();
+            
             if (suspectQualificationToUpdate == null)
             {
                 return new ApiResponse(404);
@@ -152,7 +157,19 @@ namespace HaloBiz.MyServices.Impl
 
             if(suspectQualificationReceivingDTO.ServiceQualifications != null && suspectQualificationReceivingDTO.ServiceQualifications.Count > 1)
             {
-                suspectQualificationToUpdate.ServiceQualifications = _mapper.Map<ICollection<ServiceQualification>>(suspectQualificationReceivingDTO.ServiceQualifications);
+                var serviceQualifications = await _context.ServiceQualifications
+                                                    .Where(x => !x.IsDeleted && x.SuspectQualificationId == suspectQualificationToUpdate.Id)
+                                                    .ToListAsync();
+
+                foreach (var serviceQualificationToUpdate in suspectQualificationToUpdate.ServiceQualifications)
+                {
+                    var serviceQualificationDTO = suspectQualificationReceivingDTO.ServiceQualifications.SingleOrDefault(x => x.Id == serviceQualificationToUpdate.Id);
+
+                    serviceQualificationToUpdate.DateToStart = serviceQualificationDTO.DateToStart;
+                    serviceQualificationToUpdate.QuantityEstimate = serviceQualificationDTO.QuantityEstimate;
+                    serviceQualificationToUpdate.EstimatedDurationInMonths = serviceQualificationDTO.EstimatedDurationInMonths;
+                    serviceQualificationToUpdate.Budget = serviceQualificationDTO.Budget;
+                }
             }
 
             var updatedsuspectQualification = await _suspectQualificationRepo.UpdateSuspectQualification(suspectQualificationToUpdate);
