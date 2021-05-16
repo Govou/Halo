@@ -51,6 +51,8 @@ namespace HaloBiz.Repository.Impl
                 .Include(x => x.Industry)
                 .Include(x => x.LeadType)
                 .Include(x => x.SuspectQualifications.Where(x => !x.IsDeleted && x.IsActive))
+                .ThenInclude(x => x.ServiceQualifications)
+                .ThenInclude(x => x.Service)
                 .FirstOrDefaultAsync(suspect => !suspect.IsDeleted && suspect.Id == Id);
         }
 
