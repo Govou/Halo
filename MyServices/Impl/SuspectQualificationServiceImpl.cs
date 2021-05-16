@@ -12,6 +12,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using HalobizMigrations.Models.Halobiz;
+using HalobizMigrations.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace HaloBiz.MyServices.Impl
 {
@@ -20,21 +22,51 @@ namespace HaloBiz.MyServices.Impl
         private readonly ILogger<SuspectQualificationServiceImpl> _logger;
         private readonly IModificationHistoryRepository _historyRepo;
         private readonly ISuspectQualificationRepository _suspectQualificationRepo;
+        private readonly HalobizContext _context;
         private readonly IMapper _mapper;
 
-        public SuspectQualificationServiceImpl(IModificationHistoryRepository historyRepo, ISuspectQualificationRepository SuspectQualificationRepo, ILogger<SuspectQualificationServiceImpl> logger, IMapper mapper)
+        public SuspectQualificationServiceImpl(IModificationHistoryRepository historyRepo,
+            ISuspectQualificationRepository SuspectQualificationRepo, 
+            HalobizContext context,
+            ILogger<SuspectQualificationServiceImpl> logger, 
+            IMapper mapper)
         {
             this._mapper = mapper;
             this._historyRepo = historyRepo;
             this._suspectQualificationRepo = SuspectQualificationRepo;
+            _context = context;
             this._logger = logger;
         }
 
         public async Task<ApiResponse> AddSuspectQualification(HttpContext context, SuspectQualificationReceivingDTO suspectQualificationReceivingDTO)
         {
 
+            var existingQualifications = await _context.SuspectQualifications
+                                            .Where(x => x.SuspectId == suspectQualificationReceivingDTO.SuspectId && !x.IsDeleted)
+                                            .ToListAsync();
+            
+            if(existingQualifications != null && existingQualifications.Count > 1)
+            {
+                foreach (var existingQualification in existingQualifications)
+                {
+                    existingQualification.IsActive = false;
+                }
+
+                _context.SuspectQualifications.UpdateRange(existingQualifications);
+            }
+
+            var loggedInUserId = context.GetLoggedInUserId();
+
             var suspectQualification = _mapper.Map<SuspectQualification>(suspectQualificationReceivingDTO);
-            suspectQualification.CreatedById = context.GetLoggedInUserId();
+
+            foreach (var service in suspectQualification.ServiceQualifications)
+            {
+                service.CreatedById = loggedInUserId;
+            }
+
+            suspectQualification.CreatedById = loggedInUserId;   
+            suspectQualification.IsActive = true;
+
             var savedsuspectQualification = await _suspectQualificationRepo.SaveSuspectQualification(suspectQualification);
             if (savedsuspectQualification == null)
             {
@@ -103,8 +135,26 @@ namespace HaloBiz.MyServices.Impl
 
             var summary = $"Initial details before change, \n {suspectQualificationToUpdate.ToString()} \n";
 
-            suspectQualificationToUpdate.Plan = suspectQualificationReceivingDTO.Plan;
-            suspectQualificationToUpdate.Goal = suspectQualificationReceivingDTO.Goal;
+            suspectQualificationToUpdate.EmotionalDisposition = suspectQualificationReceivingDTO.EmotionalDisposition;
+            suspectQualificationToUpdate.AuthorityScore = suspectQualificationReceivingDTO.AuthorityScore;
+            suspectQualificationToUpdate.BudgetScore = suspectQualificationReceivingDTO.BudgetScore;
+            suspectQualificationToUpdate.TimingScore = suspectQualificationReceivingDTO.TimingScore;
+            suspectQualificationToUpdate.ChallengeScore = suspectQualificationReceivingDTO.ChallengeScore;
+            suspectQualificationToUpdate.AuthorityCompleted = suspectQualificationReceivingDTO.AuthorityCompleted;
+            suspectQualificationToUpdate.BudgetCompleted = suspectQualificationReceivingDTO.BudgetCompleted;
+            suspectQualificationToUpdate.TimingCompleted = suspectQualificationReceivingDTO.TimingCompleted;
+            suspectQualificationToUpdate.ChallengeCompleted = suspectQualificationReceivingDTO.ChallengeCompleted;
+            suspectQualificationToUpdate.OwnersExists = suspectQualificationReceivingDTO.OwnersExists;
+            suspectQualificationToUpdate.GateKeeperExists = suspectQualificationReceivingDTO.GateKeeperExists;
+            suspectQualificationToUpdate.InfluencerExists = suspectQualificationReceivingDTO.InfluencerExists;
+            suspectQualificationToUpdate.DecisionMakerExists = suspectQualificationReceivingDTO.DecisionMakerExists;           
+            suspectQualificationToUpdate.UpcomingEvents = suspectQualificationReceivingDTO.UpcomingEvents;
+
+            if(suspectQualificationReceivingDTO.ServiceQualifications != null && suspectQualificationReceivingDTO.ServiceQualifications.Count > 1)
+            {
+                suspectQualificationToUpdate.ServiceQualifications = _mapper.Map<ICollection<ServiceQualification>>(suspectQualificationReceivingDTO.ServiceQualifications);
+            }
+
             var updatedsuspectQualification = await _suspectQualificationRepo.UpdateSuspectQualification(suspectQualificationToUpdate);
 
             summary += $"Details after change, \n {updatedsuspectQualification.ToString()} \n";

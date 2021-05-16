@@ -50,7 +50,7 @@ namespace HaloBiz.Repository.Impl
                 .Include(x => x.Lga)
                 .Include(x => x.Industry)
                 .Include(x => x.LeadType)
-                .Include(x => x.SuspectQualifications.Where(x => !x.IsDeleted))
+                .Include(x => x.SuspectQualifications.Where(x => !x.IsDeleted && x.IsActive))
                 .FirstOrDefaultAsync(suspect => !suspect.IsDeleted && suspect.Id == Id);
         }
 
