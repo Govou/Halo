@@ -41,4 +41,9 @@ namespace HaloBiz.DTOs.ReceivingDTOs
         public string TrackingNo { get; set; }
         public long ComplaintId { get; set; }
     }
+
+    public class HandlersRatingReceivingDTO
+    {
+        public List<long> HandlersIDs { get; set; }
+    }
 }

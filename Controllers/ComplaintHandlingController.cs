@@ -22,6 +22,7 @@ namespace HaloBiz.Controllers
         public ComplaintHandlingController(IComplaintHandlingService complaintHandlingService, IConfiguration configuration)
         {
             _complaintHandlingService = complaintHandlingService;
+            _configuration = configuration;
             _applicationUrl = _configuration["ApplicationURL"] ?? _configuration.GetSection("AppSettings:ApplicationURL").Value;
         }
 
@@ -120,6 +121,16 @@ namespace HaloBiz.Controllers
         public async Task<ActionResult> TrackComplaint(long complaintId)
         {
             var response = await _complaintHandlingService.MiniTrackComplaint(complaintId);
+            if (response.StatusCode != 200)
+                return StatusCode(response.StatusCode, response);
+            var returnData = ((ApiOkResponse)response).Result;
+            return Ok(returnData);
+        }
+
+        [HttpPost("HandlersRating")]
+        public async Task<ActionResult> HandlersRatings(HandlersRatingReceivingDTO model)
+        {
+            var response = await _complaintHandlingService.GetHandlersRatings(model);
             if (response.StatusCode != 200)
                 return StatusCode(response.StatusCode, response);
             var returnData = ((ApiOkResponse)response).Result;

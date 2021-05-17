@@ -20,5 +20,6 @@ namespace HaloBiz.MyServices
         Task<ApiResponse> RunComplaintConfirmationCronJob();
         Task<ApiResponse> AssignComplaintToUser(AssignComplaintReceivingDTO model);
         Task<ApiResponse> MiniTrackComplaint(long ComplaintId);
+        Task<ApiResponse> GetHandlersRatings(HandlersRatingReceivingDTO model);
     }
 }

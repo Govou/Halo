@@ -600,5 +600,31 @@ namespace HaloBiz.MyServices.Impl
                 return new ApiResponse(500, error.Message);
             }
         }
+
+        public async Task<ApiResponse> GetHandlersRatings(HandlersRatingReceivingDTO model)
+        {
+            try
+            {
+                List<HandlersRatingTransferDTO> returnObject = new();
+                List<UserProfile> handlers = await _context.UserProfiles.Where(x => model.HandlersIDs.Any(y => y == x.Id) && x.IsDeleted == false).ToListAsync();
+                List<Complaint> handlersComplaint = await _context.Complaints.Where(x => model.HandlersIDs.Any(y => y == x.PickedById.Value) && (x.IsClosed != null || x.IsResolved != null) && x.IsDeleted == false).ToListAsync();
+                foreach(var handler in handlers)
+                {
+                    HandlersRatingTransferDTO handlerRating = new HandlersRatingTransferDTO()
+                    {
+                        Username = handler.LastName,
+                        Score = handlersComplaint.Where(x => x.PickedById == handler.Id).ToList().Count
+                    };
+                    returnObject.Add(handlerRating);
+                }
+
+                return new ApiOkResponse(returnObject);
+            }
+            catch(Exception error)
+            {
+                _logger.LogError("Exception occurred in  GetHandlersRatings " + error);
+                return new ApiResponse(500, error.Message);
+            }
+        }
     }
 }

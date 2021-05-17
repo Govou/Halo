@@ -97,4 +97,10 @@ namespace HaloBiz.DTOs.TransferDTOs
         public List<decimal> complaintsDistribution { get; set; }
         public long handlerEscalationLevelID { get; set; }
     }
+
+    public class HandlersRatingTransferDTO
+    {
+        public string Username { get; set; }
+        public int Score { get; set; }
+    }
 }
