@@ -144,7 +144,8 @@ namespace HaloBiz.MyServices.Impl
                     .Where(x => x.IsDeleted == false).ToListAsync();
 
                 //Calculate Complaint Distributions
-                List<ComplaintType> allComplaintTypes = await _context.ComplaintTypes.Where(x => x.IsDeleted == false).ToListAsync();
+                //List<ComplaintType> allComplaintTypes = await _context.ComplaintTypes.Where(x => x.IsDeleted == false).ToListAsync();
+                List<ComplaintType> allComplaintTypes = escalationMatrices.Select(x => x.ComplaintType).Where(x => x.IsDeleted == false).ToList(); 
                 List<decimal> complaintDistributionPercentages = new();
                 List<decimal> complaintDistributionValues = new();
                 double totalComplaints = 0;
