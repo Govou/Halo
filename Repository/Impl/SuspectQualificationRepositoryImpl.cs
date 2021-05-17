@@ -29,18 +29,25 @@ namespace HaloBiz.Repository.Impl
 
         public async Task<IEnumerable<SuspectQualification>> FindAllSuspectQualifications()
         {
-            return await _context.SuspectQualifications
-               .Where(suspectQualification => suspectQualification.IsDeleted == false)
+            return await _context.SuspectQualifications.AsNoTracking()
+               .Include(x => x.Suspect)
+               .ThenInclude(x => x.Branch)
+               .Include(x => x.Suspect)
+               .ThenInclude(x => x.Office)
+               .Where(suspectQualification => !suspectQualification.IsDeleted && suspectQualification.IsActive)
                .OrderBy(suspectQualification => suspectQualification.CreatedAt)
                .ToListAsync();
         }
 
         public async Task<SuspectQualification> FindSuspectQualificationById(long Id)
         {
-            return await _context.SuspectQualifications
-                .Where(suspectQualification => suspectQualification.IsDeleted == false)
+            return await _context.SuspectQualifications.AsNoTracking()
+                .Include(x => x.Suspect)
+                .ThenInclude(x => x.Branch)
+                .Include(x => x.Suspect)
+                .ThenInclude(x => x.Office)
+                .Where(suspectQualification => !suspectQualification.IsDeleted)
                 .FirstOrDefaultAsync(suspectQualification => suspectQualification.Id == Id && suspectQualification.IsDeleted == false);
-
         }
 
         /*public async Task<SuspectQualification> FindSuspectQualificationByName(string name)
@@ -48,7 +55,6 @@ namespace HaloBiz.Repository.Impl
             return await _context.SuspectQualifications
                  .Where(suspectQualification => suspectQualification.IsDeleted == false)
                  .FirstOrDefaultAsync(suspectQualification => suspectQualification.Caption == name && suspectQualification.IsDeleted == false);
-
         }*/
 
         public async Task<SuspectQualification> SaveSuspectQualification(SuspectQualification suspectQualification)

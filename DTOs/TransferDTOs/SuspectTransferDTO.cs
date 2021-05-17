@@ -8,12 +8,12 @@ namespace HaloBiz.DTOs.TransferDTOs
 {
     public class SuspectTransferDTO
     {
-        public GroupType GroupType { get; set; }
+        public GroupTypeTransferDTO GroupType { get; set; }
         public long GroupTypeId { get; set; }
         public string Tier { get; set; }
         public string RCNumber { get; set; }
         public string BusinessName { get; set; }
-        public Industry Industry { get; set; }
+        public IndustryTransferDTO Industry { get; set; }
         public long? IndustryId { get; set; }
         public string MobileNumber { get; set; }
         public string Email { get; set; }
@@ -21,13 +21,13 @@ namespace HaloBiz.DTOs.TransferDTOs
         public string LastName { get; set; }
         public string FirstName { get; set; }
         public string Street { get; set; }
-        public Lga Lga { get; set; }
+        public LGATransferDTO Lga { get; set; }
         public long? LgaId { get; set; }
-        public State State { get; set; }
+        public StateTransferDTO State { get; set; }
         public long? StateId { get; set; }
-        public Office Office { get; set; }
+        public OfficeTransferDTO Office { get; set; }
         public long? OfficeId { get; set; }
-        public Branch Branch { get; set; }
+        public BranchTransferDTO Branch { get; set; }
         public long? BranchId { get; set; }
         public LeadType LeadType { get; set; }
         public long? LeadTypeId { get; set; }
@@ -35,5 +35,6 @@ namespace HaloBiz.DTOs.TransferDTOs
         public long? LeadOriginId { get; set; }
         public long Id { get; set; }
         public string Address { get; set; }
+        public ICollection<SuspectQualificationTransferDTO> SuspectQualifications { get; set; }
     }
 }
