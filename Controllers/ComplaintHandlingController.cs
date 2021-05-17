@@ -8,6 +8,7 @@ using HaloBiz.DTOs.TransferDTOs.LAMS;
 using HaloBiz.MyServices;
 using HaloBiz.MyServices.LAMS;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 
 namespace HaloBiz.Controllers
 {
@@ -16,9 +17,12 @@ namespace HaloBiz.Controllers
     public class ComplaintHandlingController : ControllerBase
     {
         private readonly IComplaintHandlingService _complaintHandlingService;
-        public ComplaintHandlingController(IComplaintHandlingService complaintHandlingService)
+        private readonly IConfiguration _configuration;
+        private readonly string _applicationUrl;
+        public ComplaintHandlingController(IComplaintHandlingService complaintHandlingService, IConfiguration configuration)
         {
             _complaintHandlingService = complaintHandlingService;
+            _applicationUrl = _configuration["ApplicationURL"] ?? _configuration.GetSection("AppSettings:ApplicationURL").Value;
         }
 
         [HttpGet("GetComplaintHandlingStats")]
@@ -27,8 +31,8 @@ namespace HaloBiz.Controllers
             var response = await _complaintHandlingService.GetComplaintHandlingStats(HttpContext);
             if (response.StatusCode != 200)
                 return StatusCode(response.StatusCode, response);
-            var Complaint = ((ApiOkResponse)response).Result;
-            return Ok(Complaint);
+            var returnData = ((ApiOkResponse)response).Result;
+            return Ok(returnData);
         }
 
         [HttpGet]
@@ -37,8 +41,8 @@ namespace HaloBiz.Controllers
             var response = await _complaintHandlingService.GetComplaintsHandling(HttpContext);
             if (response.StatusCode != 200)
                 return StatusCode(response.StatusCode, response);
-            var Complaint = ((ApiOkResponse)response).Result;
-            return Ok(Complaint);
+            var returnData = ((ApiOkResponse)response).Result;
+            return Ok(returnData);
         }
 
         [HttpPost]
@@ -47,18 +51,19 @@ namespace HaloBiz.Controllers
             var response = await _complaintHandlingService.PickComplaint(HttpContext, model);
             if (response.StatusCode != 200)
                 return StatusCode(response.StatusCode, response);
-            var Complaint = ((ApiOkResponse)response).Result;
-            return Ok(Complaint);
+            var returnData = ((ApiOkResponse)response).Result;
+            return Ok(returnData);
         }
 
         [HttpPost("MoveComplaintToNextStage")]
         public async Task<ActionResult> MoveComplaintToNextStage(MoveComplaintToNextStageDTO model)
         {
+            model.applicationUrl = _applicationUrl;
             var response = await _complaintHandlingService.MoveComplaintToNextStage(HttpContext, model);
             if (response.StatusCode != 200)
                 return StatusCode(response.StatusCode, response);
-            var Complaint = ((ApiOkResponse)response).Result;
-            return Ok(Complaint);
+            var returnData = ((ApiOkResponse)response).Result;
+            return Ok(returnData);
         }
 
         [HttpPost("TrackComplaint")]
@@ -67,8 +72,58 @@ namespace HaloBiz.Controllers
             var response = await _complaintHandlingService.TrackComplaint(model);
             if (response.StatusCode != 200)
                 return StatusCode(response.StatusCode, response);
-            var Complaint = ((ApiOkResponse)response).Result;
-            return Ok(Complaint);
+            var returnData = ((ApiOkResponse)response).Result;
+            return Ok(returnData);
+        }
+
+        [HttpGet("GetUserEscalationLevelDetails")]
+        public async Task<ActionResult> GetUserEscalationLevelDetails()
+        {
+            var response = await _complaintHandlingService.GetUserEscalationLevelDetails(HttpContext);
+            if (response.StatusCode != 200)
+                return StatusCode(response.StatusCode, response);
+            var returnData = ((ApiOkResponse)response).Result;
+            return Ok(returnData);
+        }
+
+        [HttpGet("ConfirmComplaintResolved/{id}")]
+        public async Task<ActionResult> ConfirmComplaintResolved(long id)
+        {
+            var response = await _complaintHandlingService.ConfirmComplaintResolved(id);
+            if (response.StatusCode != 200)
+                return StatusCode(response.StatusCode, response);
+            var returnData = ((ApiOkResponse)response).Result;
+            return Ok(returnData);
+        }
+
+        [HttpGet("RunComplaintConfirmationCronJob")]
+        public async Task<ActionResult> RunComplaintConfirmationCronJob()
+        {
+            var response = await _complaintHandlingService.RunComplaintConfirmationCronJob();
+            if (response.StatusCode != 200)
+                return StatusCode(response.StatusCode, response);
+            var returnData = ((ApiOkResponse)response).Result;
+            return Ok(returnData);
+        }
+
+        [HttpPost("AssignComplaintToUser")]
+        public async Task<ActionResult> AssignComplaintToUser(AssignComplaintReceivingDTO model)
+        {
+            var response = await _complaintHandlingService.AssignComplaintToUser(model);
+            if (response.StatusCode != 200)
+                return StatusCode(response.StatusCode, response);
+            var returnData = ((ApiOkResponse)response).Result;
+            return Ok(returnData);
+        }
+
+        [HttpGet("TrackComplaint/{complaintId}")]
+        public async Task<ActionResult> TrackComplaint(long complaintId)
+        {
+            var response = await _complaintHandlingService.MiniTrackComplaint(complaintId);
+            if (response.StatusCode != 200)
+                return StatusCode(response.StatusCode, response);
+            var returnData = ((ApiOkResponse)response).Result;
+            return Ok(returnData);
         }
     }
 }

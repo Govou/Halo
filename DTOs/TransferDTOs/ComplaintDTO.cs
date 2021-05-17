@@ -86,4 +86,15 @@ namespace HaloBiz.DTOs.TransferDTOs
         public bool IsDeleted { get; set; }
         public DateTime CreatedAt { get; set; }
     }
+
+    public class EscalationManagementDTO
+    {
+        public List<ComplaintTransferDTO> assignedComplaints { get; set; }
+        public List<ComplaintTransferDTO> unassignedComplaints { get; set; }
+        public List<ComplaintTypeTransferDTO> complaintTypes { get; set; }
+        public List<EscalationMatrixTransferDTO> escalationLevelHandlers { get; set; }
+        public int totalEscalatedComplaints { get; set; }
+        public List<decimal> complaintsDistribution { get; set; }
+        public long handlerEscalationLevelID { get; set; }
+    }
 }

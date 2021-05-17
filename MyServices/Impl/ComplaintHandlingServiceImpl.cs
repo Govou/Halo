@@ -14,6 +14,7 @@ using System.Threading.Tasks;
 using HalobizMigrations.Models.Complaints;
 using HalobizMigrations.Data;
 using Microsoft.EntityFrameworkCore;
+using HaloBiz.DTOs.MailDTOs;
 
 namespace HaloBiz.MyServices.Impl
 {
@@ -22,11 +23,13 @@ namespace HaloBiz.MyServices.Impl
         private readonly HalobizContext _context;
         private readonly ILogger<ComplaintHandlingServiceImpl> _logger;
         private readonly IMapper _mapper;
-        public ComplaintHandlingServiceImpl(HalobizContext context, ILogger<ComplaintHandlingServiceImpl> logger, IMapper mapper)
+        private readonly Adapters.IMailAdapter _mailAdapter;
+        public ComplaintHandlingServiceImpl(HalobizContext context, ILogger<ComplaintHandlingServiceImpl> logger, IMapper mapper, Adapters.IMailAdapter mailAdapter)
         {
             _context = context;
             _logger = logger;
             _mapper = mapper;
+            _mailAdapter = mailAdapter;
         }
 
         public async Task<ApiResponse> GetComplaintHandlingStats(HttpContext context)
@@ -56,6 +59,7 @@ namespace HaloBiz.MyServices.Impl
             }
             catch(Exception error)
             {
+                _logger.LogError("Exception occurred in  GetComplaintHandlingStats " + error);
                 return new ApiResponse(500, error.Message);
             }
         }
@@ -109,8 +113,129 @@ namespace HaloBiz.MyServices.Impl
             }
             catch(Exception error)
             {
+                _logger.LogError("Exception occurred in  GetComplaintsHandling " + error);
                 return new ApiResponse(500, error.Message);
             }
+        }
+
+        public async Task<ApiResponse> GetUserEscalationLevelDetails(HttpContext context)
+        {
+            try
+            {
+                long userProfileID = context.GetLoggedInUserId();
+                if (userProfileID <= 0) return new ApiResponse(500, "Unable to retrieve user's details");
+                ProfileEscalationLevel profileEscalationLevel = await _context.ProfileEscalationLevels.Include(x => x.EscalationLevel).FirstOrDefaultAsync(x => x.UserProfileId == userProfileID && x.IsDeleted == false);
+                if (profileEscalationLevel == null) return new ApiResponse(500, "User has no profile level escalation configured for user profile");
+                if (profileEscalationLevel.EscalationLevel.Caption.ToLower().Contains("handler")) return new ApiResponse(500, "Currently logged in user is an hanler. You need to either be a supervisor or manager.");
+                List<EscalationMatrix> escalationMatrices = await _context.EscalationMatrices
+                    .Include(x => x.ComplaintAttendants)
+                    .Include(x => x.ComplaintType)
+                    .Where(x => x.ComplaintAttendants.Any(y => y.EscalationLevelId == profileEscalationLevel.EscalationLevelId && y.UserProfileId == userProfileID) == true && x.IsDeleted == false)
+                    .ToListAsync();
+
+                long handlerEscalationLevelID = await GetHandlerEscalationLevelID();
+                List<Complaint> assignedComplaints = new();
+                List<Complaint> unassignedComplaints = new();
+                List<Complaint> allComplaints = await _context.Complaints
+                    .Include(x => x.PickedBy)
+                    .Include(x => x.ComplaintOrigin)
+                    .Include(x => x.ComplaintSource)
+                    .Include(x => x.ComplaintType)
+                    .Where(x => x.IsDeleted == false).ToListAsync();
+
+                //Calculate Complaint Distributions
+                List<ComplaintType> allComplaintTypes = await _context.ComplaintTypes.Where(x => x.IsDeleted == false).ToListAsync();
+                List<decimal> complaintDistributionPercentages = new();
+                List<decimal> complaintDistributionValues = new();
+                double totalComplaints = 0;
+                foreach(var complaintType in allComplaintTypes)
+                {
+                    int complaintCount = allComplaints.Where(x => x.ComplaintTypeId == complaintType.Id).Count();
+                    complaintDistributionValues.Add(complaintCount);
+                    totalComplaints += complaintCount;
+                }
+                foreach(var complaintDistribution in complaintDistributionValues)
+                {
+                    var resultValue = (Convert.ToDecimal(complaintDistribution) / Convert.ToDecimal(totalComplaints)) * 100m;
+                    complaintDistributionPercentages.Add(Math.Round(resultValue, 2));
+                }
+
+                List<Complaint> complaints = allComplaints.Where(y => escalationMatrices.Select(x => x.ComplaintTypeId).ToList().Contains(y.ComplaintTypeId) && y.IsResolved == null).ToList();
+                if(!profileEscalationLevel.EscalationLevel.Caption.ToLower().Contains("supervisor") && !profileEscalationLevel.EscalationLevel.Caption.ToLower().Contains("supervisor")) return new ApiResponse(500, "No configuration created for users escalation level " + profileEscalationLevel.EscalationLevel.Caption);
+                foreach (var escalation in escalationMatrices)
+                {
+                    long compareTime = profileEscalationLevel.EscalationLevel.Caption.ToLower().Contains("supervisor") ? escalation.Level2MaxResolutionTimeInHrs : escalation.Level1MaxResolutionTimeInHrs;
+                    foreach (var complaint in complaints.Where(x => x.ComplaintTypeId == escalation.ComplaintTypeId).ToList())
+                    {
+                        TimeSpan duration = DateTime.Now - complaint.DateRegistered;
+                        if (duration.TotalHours >= compareTime)
+                        {
+                            if(complaint.PickedBy == null)
+                            {
+                                unassignedComplaints.Add(complaint);
+                            }
+                            else
+                            {
+                                assignedComplaints.Add(complaint);
+                            }
+                        }
+                    }
+                }
+
+                EscalationManagementDTO returnObject = new()
+                {
+                    assignedComplaints = _mapper.Map<IEnumerable<ComplaintTransferDTO>>(assignedComplaints).ToList(),
+                    unassignedComplaints = _mapper.Map<IEnumerable<ComplaintTransferDTO>>(unassignedComplaints).ToList(),
+                    totalEscalatedComplaints = assignedComplaints.Count + unassignedComplaints.Count,
+                    complaintTypes = _mapper.Map<IEnumerable<ComplaintTypeTransferDTO>>(allComplaintTypes).ToList(),
+                    escalationLevelHandlers = _mapper.Map<IEnumerable<EscalationMatrixTransferDTO>>(escalationMatrices.Where(x => x.ComplaintAttendants.Any(x => x.EscalationLevelId == handlerEscalationLevelID))).ToList(),
+                    complaintsDistribution = complaintDistributionPercentages,
+                    handlerEscalationLevelID = handlerEscalationLevelID,
+                };
+
+                foreach (var complaint in returnObject.assignedComplaints)
+                {
+                    switch (complaint.ComplaintOrigin.Caption.ToLower())
+                    {
+                        case "supplier":
+                            complaint.Complainant = await _context.Suppliers.FindAsync(complaint.ComplainantId);
+                            break;
+                        case "staff":
+                            complaint.Complainant = await _context.UserProfiles.FindAsync(complaint.ComplainantId);
+                            break;
+                        case "client":
+                            complaint.Complainant = await _context.CustomerDivisions.FindAsync(complaint.ComplainantId);
+                            break;
+                    }
+                }
+                foreach (var complaint in returnObject.unassignedComplaints)
+                {
+                    switch (complaint.ComplaintOrigin.Caption.ToLower())
+                    {
+                        case "supplier":
+                            complaint.Complainant = await _context.Suppliers.FindAsync(complaint.ComplainantId);
+                            break;
+                        case "staff":
+                            complaint.Complainant = await _context.UserProfiles.FindAsync(complaint.ComplainantId);
+                            break;
+                        case "client":
+                            complaint.Complainant = await _context.CustomerDivisions.FindAsync(complaint.ComplainantId);
+                            break;
+                    }
+                }
+                return new ApiOkResponse(returnObject);
+            }
+            catch(Exception error)
+            {
+                _logger.LogError("Exception occurred in  GetUserEscalationLevelDetails " + error);
+                return new ApiResponse(500, error.Message);
+            }
+        }
+
+        public async Task<long> GetHandlerEscalationLevelID()
+        {
+            var data = await _context.EscalationLevels.FirstOrDefaultAsync(x => x.Caption.ToLower().Contains("handler") && x.IsDeleted == false);
+            return data == null ? 0 : data.Id;
         }
 
         public async Task<ApiResponse> MoveComplaintToNextStage(HttpContext context, MoveComplaintToNextStageDTO model)
@@ -118,7 +243,10 @@ namespace HaloBiz.MyServices.Impl
             try
             {
                 long userProfileID = context.GetLoggedInUserId();
-                Complaint complaint = await _context.Complaints.FirstOrDefaultAsync(x => x.Id == model.complaintID);
+                Complaint complaint = await _context.Complaints
+                    .Include(x => x.PickedBy)
+                    .Include(x => x.ComplaintOrigin)
+                    .FirstOrDefaultAsync(x => x.Id == model.complaintID);
                 ComplaintStage currentComplaintStage = (ComplaintStage)model.currentStage;
 
                 switch (currentComplaintStage)
@@ -178,7 +306,7 @@ namespace HaloBiz.MyServices.Impl
                             CapturedById = userProfileID,
                             CreatedById = userProfileID,
                             CreatedAt = DateTime.Now,
-                            Learnings = String.IsNullOrEmpty(model.findings) ? "None" : model.findings
+                            Learnings = "None"
                         };
                         await _context.ComplaintResolutions.AddAsync(complaintResolved);
                         break;
@@ -186,21 +314,11 @@ namespace HaloBiz.MyServices.Impl
                         complaint.IsClosed = true;
                         complaint.ClosedById = userProfileID;
                         complaint.DateClosed = DateTime.Now;
-                        complaint.IsConfirmedResolved = true;
-                        //ComplaintResolution complaintClosed = new ComplaintResolution()
-                        //{
-                        //    ResolutionDetails = model.details,
-                        //    RootCause = model.findings,
-                        //    Complaint = complaint,
-                        //    ComplaintId = complaint.Id,
-                        //    CapturedDateTime = DateTime.Now,
-                        //    Caption = "Complaint Closure has been done",
-                        //    CapturedById = userProfileID,
-                        //    CreatedById = userProfileID,
-                        //    CreatedAt = DateTime.Now,
-                        //    Learnings = String.IsNullOrEmpty(model.findings) ? "None" : model.findings
-                        //};
-                        //await _context.ComplaintResolutions.AddAsync(complaintClosed);
+                        //complaint.IsConfirmedResolved = true;     ~Will be updated either by the user clicking on confirmation link or by the cron job.
+                        ComplaintResolution complaintClosed = await _context.ComplaintResolutions.FirstOrDefaultAsync(x => x.ComplaintId == complaint.Id);
+                        complaintClosed.Learnings = model.findings;
+                        await SendComplaintConfirmationMail(complaint, model.applicationUrl);
+                        _context.ComplaintResolutions.Update(complaintClosed);
                         break;
                     default:
                         return new ApiResponse(500, "Current Stage Passed is invalid");
@@ -232,8 +350,67 @@ namespace HaloBiz.MyServices.Impl
             }
             catch(Exception error)
             {
+                _logger.LogError("Exception occurred in  MoveComplaintToNextStage " + error);
                 return new ApiResponse(500, error.Message);
             }
+        }
+
+        public async Task<bool> SendComplaintConfirmationMail(Complaint complaint, string applicationUrl)
+        {
+            bool result = false;
+
+            try
+            {
+                if (complaint == null)
+                {
+                    _logger.LogError("Complaint data is null");
+                    return result;
+                }
+
+                if (String.IsNullOrWhiteSpace(applicationUrl))
+                {
+                    applicationUrl = "http://localhost:4200";
+                }
+
+                Supplier complainantSupplier = null;
+                UserProfile complainantStaff = null;
+                CustomerDivision complainantClient = null;
+                switch (complaint.ComplaintOrigin.Caption.ToLower())
+                {
+                    case "supplier":
+                        complainantSupplier = await _context.Suppliers.FindAsync(complaint.ComplainantId);
+                        break;
+                    case "staff":
+                        complainantStaff = await _context.UserProfiles.FindAsync(complaint.ComplainantId);
+                        break;
+                    case "client":
+                        complainantClient = await _context.CustomerDivisions.FindAsync(complaint.ComplainantId);
+                        break;
+                }
+
+                string receipentEmail = complainantSupplier != null ? complainantSupplier.SupplierEmail : complainantStaff != null ? complainantStaff.Email : complainantClient.Email;
+
+                ConfirmComplaintResolutionMailDTO model = new ConfirmComplaintResolutionMailDTO()
+                {
+                    Username = complainantSupplier != null ? complainantSupplier.SupplierName : complainantStaff != null ? complainantStaff.LastName : complainantClient.DivisionName,
+                    Subject = "Confirmation of complaint resolution",
+                    ComplaintId = complaint.Id,
+                    ConfirmationLink = applicationUrl + "/#/confirm-complaint/" + complaint.Id,
+                    DateComplaintReported = complaint.DateComplaintReported.Value,
+                    HandlerName = complaint.PickedBy.LastName,
+                    ReceipentEmailAddress = new string[1],
+                };
+                model.ReceipentEmailAddress[0] = receipentEmail;
+                var response = await _mailAdapter.SendComplaintResolutionConfirmationMail(model);
+                if (response.StatusCode == 200) result = true;
+            }
+            catch (Exception err) 
+            {
+                _logger.LogError("Exception occurred in  SendComplaintConfirmationMail " + err);
+                result = false; 
+            }
+
+            return result;
         }
 
         public async Task<ApiResponse> PickComplaint(HttpContext context, PickComplaintDTO model)
@@ -253,6 +430,7 @@ namespace HaloBiz.MyServices.Impl
             }
             catch(Exception error)
             {
+                _logger.LogError("Exception occurred in  PickComplaint " + error);
                 return new ApiResponse(500, error.Message);
             }
         }
@@ -266,7 +444,7 @@ namespace HaloBiz.MyServices.Impl
                     .Include(x => x.ComplaintType)
                     .Include(x => x.ComplaintSource)
                     .Include(x => x.PickedBy)
-                    .FirstOrDefaultAsync(x => x.TrackingId == model.TrackingNo);
+                    .FirstOrDefaultAsync(x => x.TrackingId == model.TrackingNo || x.Id == model.ComplaintId);
 
                 if(complaint == null) return new ApiResponse(500, "No Complaint with the passed tracking number exists.");
 
@@ -316,6 +494,109 @@ namespace HaloBiz.MyServices.Impl
             }
             catch(Exception error)
             {
+                _logger.LogError("Exception occurred in  TrackComplaint " + error);
+                return new ApiResponse(500, error.Message);
+            }
+        }
+
+        public async Task<ApiResponse> ConfirmComplaintResolved(long complaintId)
+        {
+            try
+            {
+                Complaint complaint = await _context.Complaints.FirstOrDefaultAsync(x => x.Id == complaintId);
+                complaint.IsConfirmedResolved = true;
+                _context.Complaints.Update(complaint);
+                await _context.SaveChangesAsync();
+                return new ApiOkResponse(true);
+            }
+            catch(Exception error)
+            {
+                _logger.LogError("Exception occurred in  ConfirmComplaintResolved " + error);
+                return new ApiResponse(500, error.Message);
+            }
+        }
+
+        public async Task<ApiResponse> RunComplaintConfirmationCronJob()
+        {
+            try
+            {
+                List<Complaint> allComplaints = await _context.Complaints
+                    .Where(
+                        x => x.IsConfirmedResolved == false && 
+                        x.IsDeleted == false &&
+                        x.IsClosed == true
+                        )
+                    .ToListAsync();
+
+                foreach(var complaint in allComplaints)
+                {
+                    TimeSpan duration = DateTime.Now - complaint.DateClosed.Value;
+                    if(duration.TotalHours > 48)
+                    {
+                        complaint.IsConfirmedResolved = true;
+                        _context.Complaints.Update(complaint);
+                    }
+                }
+
+                await _context.SaveChangesAsync();
+                return new ApiOkResponse(true);
+            }
+            catch(Exception error)
+            {
+                _logger.LogError("Exception occurred in  ConfirmComplaintResolved " + error);
+                return new ApiResponse(500, error.Message);
+            }
+        }
+
+        public async Task<ApiResponse> AssignComplaintToUser(AssignComplaintReceivingDTO model)
+        {
+            try
+            {
+                UserProfile userProfile = await _context.UserProfiles.FirstOrDefaultAsync(x => x.Id == model.UserId && x.IsDeleted == false);
+                if (userProfile == null) return new ApiResponse(500, "No user with the passed ID exists");
+                Complaint complaint = await _context.Complaints.FirstOrDefaultAsync(x => x.Id == model.ComplaintId && x.IsDeleted == false);
+                if (complaint == null) return new ApiResponse(500, "No complaint with the passed ID exists");
+                complaint.IsPicked = true;
+                complaint.PickedById = userProfile.Id;
+                complaint.DatePicked = DateTime.Now;
+                _context.Complaints.Update(complaint);
+                await _context.SaveChangesAsync();
+                return new ApiOkResponse(true);
+            }
+            catch(Exception error)
+            {
+                _logger.LogError("Exception occurred in  AssignComplaintToUser " + error);
+                return new ApiResponse(500, error.Message);
+            }
+        }
+
+        public async Task<ApiResponse> MiniTrackComplaint(long ComplaintId)
+        {
+            try
+            {
+                ComplaintAssesment complaintAssesment = await _context.ComplaintAssesments.FirstOrDefaultAsync(x => x.ComplaintId == ComplaintId);
+                ComplaintInvestigation complaintInvestigation = await _context.ComplaintInvestigations.FirstOrDefaultAsync(x => x.ComplaintId == ComplaintId);
+                ComplaintResolution complaintResolution = await _context.ComplaintResolutions.FirstOrDefaultAsync(x => x.ComplaintId == ComplaintId);
+                List<string> registrationEvidences = await _context.Evidences.Where(x => x.ComplaintId == ComplaintId && x.ComplaintStage == ComplaintStage.Registration).Select(x => x.ImageUrl).ToListAsync();
+                List<string> assessmentEvidences = await _context.Evidences.Where(x => x.ComplaintId == ComplaintId && x.ComplaintStage == ComplaintStage.Assesment).Select(x => x.ImageUrl).ToListAsync();
+                List<string> investiagtionEvidences = await _context.Evidences.Where(x => x.ComplaintId == ComplaintId && x.ComplaintStage == ComplaintStage.Investigation).Select(x => x.ImageUrl).ToListAsync();
+                List<string> resolutionEvidences = await _context.Evidences.Where(x => x.ComplaintId == ComplaintId && x.ComplaintStage == ComplaintStage.Resolution).Select(x => x.ImageUrl).ToListAsync();
+
+                var resultObject = new ComplaintTrackingTransferDTO()
+                {
+                    Assessment = _mapper.Map<ComplaintAssessmentTransferDTO>(complaintAssesment),
+                    Investigation = _mapper.Map<ComplaintInvestigationTransferDTO>(complaintInvestigation),
+                    Resolution = _mapper.Map<ComplaintResolutionTransferDTO>(complaintResolution),
+                    RegistrationEvidenceUrls = registrationEvidences,
+                    AssessmentEvidenceUrls = assessmentEvidences,
+                    InvestigationEvidenceUrls = investiagtionEvidences,
+                    ResolutionEvidenceUrls = resolutionEvidences,
+                };
+                return new ApiOkResponse(resultObject);
+            }
+            catch(Exception error)
+            {
+                _logger.LogError("Exception occurred in  MiniTrackComplaint " + error);
                 return new ApiResponse(500, error.Message);
             }
         }

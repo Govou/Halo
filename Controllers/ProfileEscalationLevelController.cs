@@ -31,6 +31,16 @@ namespace HaloBiz.Controllers
             var ProfileEscalationLevel = ((ApiOkResponse)response).Result;
             return Ok(ProfileEscalationLevel);
         }
+
+        [HttpGet("GetAllHandlers")]
+        public async Task<ActionResult> GetAllHandlers()
+        {
+            var response = await _ProfileEscalationLevelService.GetAllHandlerProfileEscalationLevel();
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var ProfileEscalationLevel = ((ApiOkResponse)response).Result;
+            return Ok(ProfileEscalationLevel);
+        }
         /*[HttpGet("caption/{name}")]
         public async Task<ActionResult> GetByCaption(string name)
         {
