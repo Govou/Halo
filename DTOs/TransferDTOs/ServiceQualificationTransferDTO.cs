@@ -10,7 +10,7 @@ namespace HaloBiz.DTOs.TransferDTOs
         public long Id { get; set; }
         public long ServiceId { get; set; }
         public ServiceTransferDTO Service { get; set; }
-        public DateTime DateToStart { get; set; }
+        public DateTime? DateToStart { get; set; }
         public long SuspectQualificationId { get; set; }
         public SuspectQualificationTransferDTO SuspectQualification { get; set; }
         public long? QuantityEstimate { get; set; }

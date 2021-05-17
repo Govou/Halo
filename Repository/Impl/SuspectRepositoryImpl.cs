@@ -29,7 +29,7 @@ namespace HaloBiz.Repository.Impl
 
         public async Task<IEnumerable<Suspect>> FindAllSuspects()
         {
-            return await _context.Suspects
+            return await _context.Suspects.AsNoTracking()
                .Include(x => x.LeadOrigin)
                .Include(x => x.GroupType)
                .Include(x => x.Branch)
@@ -41,7 +41,7 @@ namespace HaloBiz.Repository.Impl
 
         public async Task<Suspect> FindSuspectById(long Id)
         {
-            return await _context.Suspects
+            return await _context.Suspects.AsNoTracking()
                 .Include(x => x.LeadOrigin)
                 .Include(x => x.GroupType)
                 .Include(x => x.Branch)
@@ -50,7 +50,9 @@ namespace HaloBiz.Repository.Impl
                 .Include(x => x.Lga)
                 .Include(x => x.Industry)
                 .Include(x => x.LeadType)
-                .Include(x => x.SuspectQualifications.Where(x => !x.IsDeleted))
+                .Include(x => x.SuspectQualifications.Where(x => !x.IsDeleted && x.IsActive))
+                .ThenInclude(x => x.ServiceQualifications)
+                .ThenInclude(x => x.Service)
                 .FirstOrDefaultAsync(suspect => !suspect.IsDeleted && suspect.Id == Id);
         }
 

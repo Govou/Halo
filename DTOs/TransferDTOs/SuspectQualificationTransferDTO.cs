@@ -16,7 +16,7 @@ namespace HaloBiz.DTOs.TransferDTOs
         public string UpcomingEvents { get; set; }
         public string ProductSuggestion { get; set; }
         public ICollection<ServiceQualificationTransferDTO> ServiceQualifications { get; set; }
-        public long Priority { get; set; }
+        public long? Priority { get; set; }
         public bool IsPriority { get; set; }
         public string Plans { get; set; }
         public bool ToBeAddressed { get; set; }
@@ -27,5 +27,14 @@ namespace HaloBiz.DTOs.TransferDTOs
         public long SuspectId { get; set; }
         public long Id { get; set; }
         public bool CanBeSolved { get; set; }
+        public long AuthorityScore { get; set; }
+        public long BudgetScore { get; set; }
+        public long TimingScore { get; set; }
+        public long ChallengeScore { get; set; }
+        public bool AuthorityCompleted { get; set; }
+        public bool BudgetCompleted { get; set; }
+        public bool TimingCompleted { get; set; }
+        public bool ChallengeCompleted { get; set; }
+        public string Rank { get; set; }
     }
 }
