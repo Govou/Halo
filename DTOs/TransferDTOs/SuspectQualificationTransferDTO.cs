@@ -35,5 +35,6 @@ namespace HaloBiz.DTOs.TransferDTOs
         public bool BudgetCompleted { get; set; }
         public bool TimingCompleted { get; set; }
         public bool ChallengeCompleted { get; set; }
+        public string Rank { get; set; }
     }
 }

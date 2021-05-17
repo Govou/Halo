@@ -101,6 +101,29 @@ namespace HaloBiz.MyServices.Impl
                 return new ApiResponse(404);
             }
             var suspectQualificationTransferDTO = _mapper.Map<IEnumerable<SuspectQualificationTransferDTO>>(suspectQualifications);
+
+            foreach (var qualification in suspectQualificationTransferDTO)
+            {
+                if (qualification.AuthorityCompleted)
+                {
+                    var totalScore = qualification.ChallengeScore + qualification.TimingScore +
+                        qualification.BudgetScore + qualification.AuthorityScore;
+
+                    if (totalScore == 10)
+                    {
+                        qualification.Rank = "Encourage";
+                    }
+                    else if (totalScore == 30)
+                    {
+                        qualification.Rank = "Target";
+                    }
+                    else if (totalScore == 20)
+                    {
+                        qualification.Rank = "KIV";
+                    }
+                }
+            }
+
             return new ApiOkResponse(suspectQualificationTransferDTO);
         }
 
