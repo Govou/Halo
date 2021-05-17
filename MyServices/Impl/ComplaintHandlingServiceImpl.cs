@@ -317,7 +317,7 @@ namespace HaloBiz.MyServices.Impl
                         //complaint.IsConfirmedResolved = true;     ~Will be updated either by the user clicking on confirmation link or by the cron job.
                         ComplaintResolution complaintClosed = await _context.ComplaintResolutions.FirstOrDefaultAsync(x => x.ComplaintId == complaint.Id);
                         complaintClosed.Learnings = model.findings;
-                        await SendComplaintConfirmationMail(complaint);
+                        await SendComplaintConfirmationMail(complaint, model.applicationUrl);
                         _context.ComplaintResolutions.Update(complaintClosed);
                         break;
                     default:
@@ -355,7 +355,7 @@ namespace HaloBiz.MyServices.Impl
             }
         }
 
-        public async Task<bool> SendComplaintConfirmationMail(Complaint complaint)
+        public async Task<bool> SendComplaintConfirmationMail(Complaint complaint, string applicationUrl)
         {
             bool result = false;
 
@@ -365,6 +365,11 @@ namespace HaloBiz.MyServices.Impl
                 {
                     _logger.LogError("Complaint data is null");
                     return result;
+                }
+
+                if (String.IsNullOrWhiteSpace(applicationUrl))
+                {
+                    applicationUrl = "http://localhost:4200";
                 }
 
                 Supplier complainantSupplier = null;
@@ -390,7 +395,7 @@ namespace HaloBiz.MyServices.Impl
                     Username = complainantSupplier != null ? complainantSupplier.SupplierName : complainantStaff != null ? complainantStaff.LastName : complainantClient.DivisionName,
                     Subject = "Confirmation of complaint resolution",
                     ComplaintId = complaint.Id,
-                    ConfirmationLink = "http://localhost:4200/#/confirm-complaint/" + complaint.Id,
+                    ConfirmationLink = applicationUrl + "/#/confirm-complaint/" + complaint.Id,
                     DateComplaintReported = complaint.DateComplaintReported.Value,
                     HandlerName = complaint.PickedBy.LastName,
                     ReceipentEmailAddress = new string[1],

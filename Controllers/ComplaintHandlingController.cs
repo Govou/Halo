@@ -8,6 +8,7 @@ using HaloBiz.DTOs.TransferDTOs.LAMS;
 using HaloBiz.MyServices;
 using HaloBiz.MyServices.LAMS;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 
 namespace HaloBiz.Controllers
 {
@@ -16,9 +17,12 @@ namespace HaloBiz.Controllers
     public class ComplaintHandlingController : ControllerBase
     {
         private readonly IComplaintHandlingService _complaintHandlingService;
-        public ComplaintHandlingController(IComplaintHandlingService complaintHandlingService)
+        private readonly IConfiguration _configuration;
+        private readonly string _applicationUrl;
+        public ComplaintHandlingController(IComplaintHandlingService complaintHandlingService, IConfiguration configuration)
         {
             _complaintHandlingService = complaintHandlingService;
+            _applicationUrl = _configuration["ApplicationURL"] ?? _configuration.GetSection("AppSettings:ApplicationURL").Value;
         }
 
         [HttpGet("GetComplaintHandlingStats")]
@@ -54,6 +58,7 @@ namespace HaloBiz.Controllers
         [HttpPost("MoveComplaintToNextStage")]
         public async Task<ActionResult> MoveComplaintToNextStage(MoveComplaintToNextStageDTO model)
         {
+            model.applicationUrl = _applicationUrl;
             var response = await _complaintHandlingService.MoveComplaintToNextStage(HttpContext, model);
             if (response.StatusCode != 200)
                 return StatusCode(response.StatusCode, response);
