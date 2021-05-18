@@ -45,7 +45,7 @@ namespace HaloBiz.MyServices.Impl
                                             .Where(x => x.SuspectId == suspectQualificationReceivingDTO.SuspectId && !x.IsDeleted)
                                             .ToListAsync();
             
-            if(existingQualifications != null && existingQualifications.Count > 1)
+            if(existingQualifications != null && existingQualifications.Count > 0)
             {
                 foreach (var existingQualification in existingQualifications)
                 {
