@@ -80,7 +80,7 @@ namespace HaloBiz.MyServices.Impl
             }
             var suspectTransferDTOs = _mapper.Map<SuspectTransferDTO>(suspect);
 
-            if(suspectTransferDTOs.SuspectQualifications != null && suspectTransferDTOs.SuspectQualifications.Count > 1)
+            if(suspectTransferDTOs.SuspectQualifications != null && suspectTransferDTOs.SuspectQualifications.Count > 0)
             {
                 var qualification = suspectTransferDTOs.SuspectQualifications.First();
                 if (qualification.AuthorityCompleted)
@@ -92,13 +92,13 @@ namespace HaloBiz.MyServices.Impl
                     {
                         qualification.Rank = "Encourage";
                     }
-                    else if(totalScore == 30)
-                    {
-                        qualification.Rank = "Target";
-                    }
                     else if (totalScore == 20)
                     {
                         qualification.Rank = "KIV";
+                    }
+                    else if(totalScore >= 30)
+                    {
+                        qualification.Rank = "Target";
                     }
                 }
             }
