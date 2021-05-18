@@ -110,7 +110,7 @@ namespace HaloBiz.Controllers
         [HttpPost("AssignComplaintToUser")]
         public async Task<ActionResult> AssignComplaintToUser(AssignComplaintReceivingDTO model)
         {
-            var response = await _complaintHandlingService.AssignComplaintToUser(model);
+            var response = await _complaintHandlingService.AssignComplaintToUser(HttpContext, model);
             if (response.StatusCode != 200)
                 return StatusCode(response.StatusCode, response);
             var returnData = ((ApiOkResponse)response).Result;

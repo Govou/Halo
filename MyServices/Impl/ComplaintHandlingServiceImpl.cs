@@ -549,14 +549,52 @@ namespace HaloBiz.MyServices.Impl
             }
         }
 
-        public async Task<ApiResponse> AssignComplaintToUser(AssignComplaintReceivingDTO model)
+        public async Task<ApiResponse> AssignComplaintToUser(HttpContext context, AssignComplaintReceivingDTO model)
         {
             try
             {
+                long userProfileID = context.GetLoggedInUserId();
                 UserProfile userProfile = await _context.UserProfiles.FirstOrDefaultAsync(x => x.Id == model.UserId && x.IsDeleted == false);
                 if (userProfile == null) return new ApiResponse(500, "No user with the passed ID exists");
                 Complaint complaint = await _context.Complaints.FirstOrDefaultAsync(x => x.Id == model.ComplaintId && x.IsDeleted == false);
                 if (complaint == null) return new ApiResponse(500, "No complaint with the passed ID exists");
+
+                //Log re-assignment info
+                if(complaint.PickedById != null)
+                {
+                    ComplaintStage complaintStage = ComplaintStage.Registration;
+                    if (complaint.IsClosed.HasValue)
+                    {
+                        complaintStage = ComplaintStage.Closure;
+                    }
+                    else if (complaint.IsResolved.HasValue)
+                    {
+                        complaintStage = ComplaintStage.Resolution;
+                    }
+                    else if (complaint.IsInvestigated.HasValue)
+                    {
+                        complaintStage = ComplaintStage.Investigation;
+                    }
+                    else if (complaint.IsAssesed.HasValue)
+                    {
+                        complaintStage = ComplaintStage.Assesment;
+                    }
+
+                    ComplaintReassignment complaintReassignment = new ComplaintReassignment()
+                    {
+                        ComplaintId = complaint.Id,
+                        AssignedFromId = complaint.PickedById.Value,
+                        IsDeleted = false,
+                        AssignedToId = model.UserId,
+                        CreatedAt = DateTime.Now,
+                        Remarks = "Re-assignment of complaint to user",
+                        CreatedById = userProfileID,
+                        DateAssigned = DateTime.Now,
+                        ComplaintStage = complaintStage
+                    };
+                    await _context.ComplaintReassignments.AddAsync(complaintReassignment);
+                }
+
                 complaint.IsPicked = true;
                 complaint.PickedById = userProfile.Id;
                 complaint.DatePicked = DateTime.Now;
@@ -582,6 +620,7 @@ namespace HaloBiz.MyServices.Impl
                 List<string> assessmentEvidences = await _context.Evidences.Where(x => x.ComplaintId == ComplaintId && x.ComplaintStage == ComplaintStage.Assesment).Select(x => x.ImageUrl).ToListAsync();
                 List<string> investiagtionEvidences = await _context.Evidences.Where(x => x.ComplaintId == ComplaintId && x.ComplaintStage == ComplaintStage.Investigation).Select(x => x.ImageUrl).ToListAsync();
                 List<string> resolutionEvidences = await _context.Evidences.Where(x => x.ComplaintId == ComplaintId && x.ComplaintStage == ComplaintStage.Resolution).Select(x => x.ImageUrl).ToListAsync();
+                List<ComplaintReassignment> complaintReassignments = await _context.ComplaintReassignments.Include(x => x.CreatedBy).Include(x => x.AssignedFrom).Include(x => x.AssignedTo).Where(x => x.ComplaintId == ComplaintId && x.IsDeleted == false).ToListAsync();
 
                 var resultObject = new ComplaintTrackingTransferDTO()
                 {
@@ -592,6 +631,7 @@ namespace HaloBiz.MyServices.Impl
                     AssessmentEvidenceUrls = assessmentEvidences,
                     InvestigationEvidenceUrls = investiagtionEvidences,
                     ResolutionEvidenceUrls = resolutionEvidences,
+                    ComplaintsReassignments = _mapper.Map<IEnumerable<ComplaintReassignmentTransferDTO>>(complaintReassignments).ToList(),
                 };
                 return new ApiOkResponse(resultObject);
             }
