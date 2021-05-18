@@ -65,7 +65,6 @@ namespace HaloBiz.MyServices.Impl
             }
 
             suspectQualification.CreatedById = loggedInUserId;   
-            suspectQualification.IsActive = true;
             suspectQualification.ChallengeCompleted = true;
 
             var savedsuspectQualification = await _suspectQualificationRepo.SaveSuspectQualification(suspectQualification);
@@ -113,14 +112,14 @@ namespace HaloBiz.MyServices.Impl
                     {
                         qualification.Rank = "Encourage";
                     }
-                    else if (totalScore == 30)
-                    {
-                        qualification.Rank = "Target";
-                    }
                     else if (totalScore == 20)
                     {
                         qualification.Rank = "KIV";
                     }
+                    else if (totalScore >= 30)
+                    {
+                        qualification.Rank = "Target";
+                    }         
                 }
             }
 
