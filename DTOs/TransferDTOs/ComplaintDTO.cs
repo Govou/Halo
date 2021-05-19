@@ -38,6 +38,7 @@ namespace HaloBiz.DTOs.TransferDTOs
         public List<string> AssessmentEvidenceUrls { get; set; }
         public List<string> InvestigationEvidenceUrls { get; set; }
         public List<string> ResolutionEvidenceUrls { get; set; }
+        public List<string> ClosureEvidenceUrls { get; set; }
         public decimal TotalHandlerCasesResolved { get; set; }
         public decimal TotalHanlderCasesUnresolved { get; set; }
         public int TotalHandlerCases { get; set; }

@@ -465,10 +465,12 @@ namespace HaloBiz.MyServices.Impl
                 ComplaintAssesment complaintAssesment = await _context.ComplaintAssesments.FirstOrDefaultAsync(x => x.ComplaintId == complaint.Id);
                 ComplaintInvestigation complaintInvestigation = await _context.ComplaintInvestigations.FirstOrDefaultAsync(x => x.ComplaintId == complaint.Id);
                 ComplaintResolution complaintResolution = await _context.ComplaintResolutions.FirstOrDefaultAsync(x => x.ComplaintId == complaint.Id);
-                List<string> registrationEvidences = await _context.Evidences.Where(x => x.ComplaintId == complaint.Id && x.ComplaintStage == ComplaintStage.Registration).Select(x => x.ImageUrl).ToListAsync();
-                List<string> assessmentEvidences = await _context.Evidences.Where(x => x.ComplaintId == complaint.Id && x.ComplaintStage == ComplaintStage.Assesment).Select(x => x.ImageUrl).ToListAsync();
-                List<string> investiagtionEvidences = await _context.Evidences.Where(x => x.ComplaintId == complaint.Id && x.ComplaintStage == ComplaintStage.Investigation).Select(x => x.ImageUrl).ToListAsync();
-                List<string> resolutionEvidences = await _context.Evidences.Where(x => x.ComplaintId == complaint.Id && x.ComplaintStage == ComplaintStage.Resolution).Select(x => x.ImageUrl).ToListAsync();
+                List<Evidence> complaintEvidences = await _context.Evidences.Where(x => x.ComplaintId == complaint.Id).ToListAsync();
+                List<string> registrationEvidences = complaintEvidences.Where(x => x.ComplaintStage == ComplaintStage.Registration).Select(x => x.ImageUrl).ToList();
+                List<string> assessmentEvidences = complaintEvidences.Where(x => x.ComplaintStage == ComplaintStage.Assesment).Select(x => x.ImageUrl).ToList();
+                List<string> investiagtionEvidences = complaintEvidences.Where(x => x.ComplaintStage == ComplaintStage.Investigation).Select(x => x.ImageUrl).ToList();
+                List<string> resolutionEvidences = complaintEvidences.Where(x => x.ComplaintStage == ComplaintStage.Resolution).Select(x => x.ImageUrl).ToList();
+                List<string> closureEvidences = complaintEvidences.Where(x => x.ComplaintStage == ComplaintStage.Closure).Select(x => x.ImageUrl).ToList();
                 var totalHandlerCases = await _context.Complaints.Where(x => x.PickedById == complaint.PickedById && x.IsDeleted == false).ToListAsync();
                 EscalationMatrix escalationMatrix = await _context.EscalationMatrices.FirstOrDefaultAsync(x => x.ComplaintTypeId == complaint.ComplaintTypeId && x.IsDeleted == false);
                 decimal totalCasesResolvedPercentage = (Convert.ToDecimal(totalHandlerCases.Where(x => x.IsResolved == true).Count()) / Convert.ToDecimal(totalHandlerCases.Count())) * 100m;
@@ -484,6 +486,7 @@ namespace HaloBiz.MyServices.Impl
                     AssessmentEvidenceUrls = assessmentEvidences,
                     InvestigationEvidenceUrls = investiagtionEvidences,
                     ResolutionEvidenceUrls = resolutionEvidences,
+                    ClosureEvidenceUrls = closureEvidences,
                     UserProfileImageUrl = complaint.PickedBy == null ? String.Empty : complaint.PickedBy.ImageUrl,
                     TotalHandlerCases = complaint.PickedById == null ? 0 : totalHandlerCases.Count(),
                     TotalHandlerCasesResolved = complaint.PickedById == null ? 0 : Math.Round(totalCasesResolvedPercentage, 2),
