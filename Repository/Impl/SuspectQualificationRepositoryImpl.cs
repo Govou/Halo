@@ -36,7 +36,8 @@ namespace HaloBiz.Repository.Impl
                .ThenInclude(x => x.Office)
                .Include(x => x.Suspect)
                .ThenInclude(x => x.GroupType)
-               .Where(suspectQualification => !suspectQualification.IsDeleted && suspectQualification.IsActive)
+               .Where(suspectQualification => !suspectQualification.IsDeleted 
+                        && suspectQualification.IsActive && !suspectQualification.Suspect.IsConverted)
                .OrderBy(suspectQualification => suspectQualification.CreatedAt)
                .ToListAsync();
         }

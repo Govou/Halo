@@ -181,15 +181,15 @@ namespace HaloBiz.MyServices.Impl
             using var transaction = await _context.Database.BeginTransactionAsync();
             try
             {
-                var suspectName = suspect.BusinessName == null ? suspect.BusinessName : (suspect.FirstName + ' ' + suspect.LastName);
+                var suspectName = suspect.BusinessName ?? (suspect.FirstName + ' ' + suspect.LastName);
 
                 var leadSaveResponse = await _leadService.AddLead(context, new LeadReceivingDTO
                 {
                     GroupName = suspectName,
                     GroupTypeId = suspect.GroupTypeId,
-                    Industry = suspect.Industry.Caption,
+                    Industry = suspect.Industry?.Caption,
                     LeadOriginId = suspect.LeadOriginId.Value,
-                    LeadTypeId = suspect.LeadTypeId.Value,
+                    LeadTypeId = suspect.LeadTypeId ?? 1,
                     LogoUrl = suspect.ImageUrl,
                     RCNumber = "",
                 });
@@ -205,10 +205,10 @@ namespace HaloBiz.MyServices.Impl
                         CreatedById = loggedInUserId,
                         DivisionName = suspectName,
                         Email = suspect.Email,
-                        Industry = suspect.Industry.Caption,
+                        Industry = suspect.Industry?.Caption,
                         LeadId = lead.Id,
                         LeadOriginId = suspect.LeadOriginId.Value,
-                        LeadTypeId = suspect.LeadTypeId,
+                        LeadTypeId = suspect.LeadTypeId ?? 1,
                         Lgaid = suspect.LgaId,
                         LogoUrl = suspect.ImageUrl,
                         OfficeId = suspect.OfficeId,
@@ -227,9 +227,10 @@ namespace HaloBiz.MyServices.Impl
                     suspect.IsConverted = true;
 
                     _context.Suspects.Update(suspect);
+                    await _context.SaveChangesAsync();
 
                     await transaction.CommitAsync();
-                    return new ApiOkResponse(suspect);
+                    return new ApiOkResponse(lead.ReferenceNo);
                 }
                 else
                 {
