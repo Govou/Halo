@@ -12,6 +12,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using HalobizMigrations.Models.Halobiz;
+using HaloBiz.MyServices.LAMS;
+using HaloBiz.DTOs.ReceivingDTOs.LAMS;
+using HaloBiz.DTOs.TransferDTOs.LAMS;
+using HalobizMigrations.Data;
+using HaloBiz.Repository.LAMS;
 
 namespace HaloBiz.MyServices.Impl
 {
@@ -20,13 +25,25 @@ namespace HaloBiz.MyServices.Impl
         private readonly ILogger<SuspectServiceImpl> _logger;
         private readonly IModificationHistoryRepository _historyRepo;
         private readonly ISuspectRepository _suspectRepo;
+        private readonly ILeadService _leadService;
+        private readonly ILeadDivisionRepository _leadDivisionRepo;
+        private readonly HalobizContext _context;
         private readonly IMapper _mapper;
 
-        public SuspectServiceImpl(IModificationHistoryRepository historyRepo, ISuspectRepository SuspectRepo, ILogger<SuspectServiceImpl> logger, IMapper mapper)
+        public SuspectServiceImpl(IModificationHistoryRepository historyRepo, 
+            ISuspectRepository SuspectRepo, 
+            ILogger<SuspectServiceImpl> logger, 
+            ILeadService leadService,
+            HalobizContext context,
+            ILeadDivisionRepository leadDivisionRepo,
+            IMapper mapper)
         {
             this._mapper = mapper;
             this._historyRepo = historyRepo;
             this._suspectRepo = SuspectRepo;
+            _leadService = leadService;
+            _leadDivisionRepo = leadDivisionRepo;
+            _context = context;
             this._logger = logger;
         }
 
@@ -149,6 +166,83 @@ namespace HaloBiz.MyServices.Impl
 
             var suspectTransferDTOs = _mapper.Map<SuspectTransferDTO>(updatedsuspect);
             return new ApiOkResponse(suspectTransferDTOs);
+        }
+
+        public async Task<ApiResponse> ConvertSuspect(HttpContext context, long suspectId)
+        {
+            var suspect = await _suspectRepo.FindSuspectById(suspectId);
+            if (suspect == null)
+            {
+                return new ApiResponse(404);
+            }
+
+            var loggedInUserId = context.GetLoggedInUserId();
+
+            using var transaction = await _context.Database.BeginTransactionAsync();
+            try
+            {
+                var suspectName = suspect.BusinessName == null ? suspect.BusinessName : (suspect.FirstName + ' ' + suspect.LastName);
+
+                var leadSaveResponse = await _leadService.AddLead(context, new LeadReceivingDTO
+                {
+                    GroupName = suspectName,
+                    GroupTypeId = suspect.GroupTypeId,
+                    Industry = suspect.Industry.Caption,
+                    LeadOriginId = suspect.LeadOriginId.Value,
+                    LeadTypeId = suspect.LeadTypeId.Value,
+                    LogoUrl = suspect.ImageUrl,
+                    RCNumber = "",
+                });
+
+                if (leadSaveResponse is ApiOkResponse response)
+                {
+                    var lead = (LeadTransferDTO)response.Result;
+
+                    var savedLeadDivision = await _leadDivisionRepo.SaveLeadDivision(new LeadDivision 
+                    {
+                        Address = suspect.Address,     
+                        BranchId = suspect.BranchId,
+                        CreatedById = loggedInUserId,
+                        DivisionName = suspectName,
+                        Email = suspect.Email,
+                        Industry = suspect.Industry.Caption,
+                        LeadId = lead.Id,
+                        LeadOriginId = suspect.LeadOriginId.Value,
+                        LeadTypeId = suspect.LeadTypeId,
+                        Lgaid = suspect.LgaId,
+                        LogoUrl = suspect.ImageUrl,
+                        OfficeId = suspect.OfficeId,
+                        PhoneNumber = suspect.MobileNumber,
+                        Rcnumber = "",
+                        StateId = suspect.StateId,
+                        Street = suspect.Street
+                    });
+
+                    if (savedLeadDivision == null)
+                    {
+                        return new ApiResponse(500);
+                    }
+
+                    suspect.LeadId = lead.Id;
+                    suspect.IsConverted = true;
+
+                    _context.Suspects.Update(suspect);
+
+                    await transaction.CommitAsync();
+                    return new ApiOkResponse(suspect);
+                }
+                else
+                {
+                    return new ApiResponse(leadSaveResponse.StatusCode, leadSaveResponse.Message);
+                }
+            }
+            catch (Exception ex)
+            {
+                await transaction.RollbackAsync();
+                _logger.LogError(ex.Message);
+                _logger.LogError(ex.StackTrace);
+                return new ApiResponse(500, ex.Message);
+            }      
         }
     }
 }
