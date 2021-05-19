@@ -36,5 +36,7 @@ namespace HaloBiz.DTOs.TransferDTOs
         public long Id { get; set; }
         public string Address { get; set; }
         public ICollection<SuspectQualificationTransferDTO> SuspectQualifications { get; set; }
+        public string ImageUrl { get; set; }
+        public bool IsConverted { get; set; }
     }
 }

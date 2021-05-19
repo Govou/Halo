@@ -33,5 +33,6 @@ namespace HaloBiz.DTOs.ReceivingDTOs
         public bool BudgetCompleted { get; set; }
         public bool TimingCompleted { get; set; }
         public bool ChallengeCompleted { get; set; }
+        public bool IsActive { get; set; }
     }
 }
