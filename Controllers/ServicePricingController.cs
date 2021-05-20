@@ -42,6 +42,16 @@ namespace HaloBiz.Controllers
             return Ok(ServicePricing);
         }
 
+        [HttpGet("BranchId/{branchId}")]
+        public async Task<ActionResult> GetByBranchId(long branchId)
+        {
+            var response = await _ServicePricingService.GetServicePricingByBranchId(branchId);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var ServicePricing = ((ApiOkResponse)response).Result;
+            return Ok(ServicePricing);
+        }
+
         [HttpGet("{id}")]
         public async Task<ActionResult> GetById(long id)
         {

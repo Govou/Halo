@@ -52,6 +52,16 @@ namespace HaloBiz.Controllers
             return Ok(Suspect);
         }
 
+        [HttpPost("ConvertSuspect/{suspectId}")]
+        public async Task<ActionResult> ConvertSuspect(long suspectId)
+        {
+            var response = await _SuspectService.ConvertSuspect(HttpContext, suspectId);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var Suspect = ((ApiOkResponse)response).Result;
+            return Ok(Suspect);
+        }
+
         [HttpPost("")]
         public async Task<ActionResult> AddNewSuspect(SuspectReceivingDTO SuspectReceiving)
         {
