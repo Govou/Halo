@@ -191,7 +191,7 @@ namespace HaloBiz.MyServices.Impl
                     LeadOriginId = suspect.LeadOriginId.Value,
                     LeadTypeId = suspect.LeadTypeId ?? 1,
                     LogoUrl = suspect.ImageUrl,
-                    RCNumber = "",
+                    RCNumber = suspect?.RCNumber,
                 });
 
                 if (leadSaveResponse is ApiOkResponse response)
@@ -213,7 +213,7 @@ namespace HaloBiz.MyServices.Impl
                         LogoUrl = suspect.ImageUrl,
                         OfficeId = suspect.OfficeId,
                         PhoneNumber = suspect.MobileNumber,
-                        Rcnumber = "",
+                        Rcnumber = suspect?.RCNumber,
                         StateId = suspect.StateId,
                         Street = suspect.Street
                     });
