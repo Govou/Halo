@@ -144,7 +144,8 @@ namespace HaloBiz.MyServices.Impl
                     .Where(x => x.IsDeleted == false).ToListAsync();
 
                 //Calculate Complaint Distributions
-                List<ComplaintType> allComplaintTypes = await _context.ComplaintTypes.Where(x => x.IsDeleted == false).ToListAsync();
+                //List<ComplaintType> allComplaintTypes = await _context.ComplaintTypes.Where(x => x.IsDeleted == false).ToListAsync();
+                List<ComplaintType> allComplaintTypes = escalationMatrices.Select(x => x.ComplaintType).Where(x => x.IsDeleted == false).ToList(); 
                 List<decimal> complaintDistributionPercentages = new();
                 List<decimal> complaintDistributionValues = new();
                 double totalComplaints = 0;
@@ -464,10 +465,12 @@ namespace HaloBiz.MyServices.Impl
                 ComplaintAssesment complaintAssesment = await _context.ComplaintAssesments.FirstOrDefaultAsync(x => x.ComplaintId == complaint.Id);
                 ComplaintInvestigation complaintInvestigation = await _context.ComplaintInvestigations.FirstOrDefaultAsync(x => x.ComplaintId == complaint.Id);
                 ComplaintResolution complaintResolution = await _context.ComplaintResolutions.FirstOrDefaultAsync(x => x.ComplaintId == complaint.Id);
-                List<string> registrationEvidences = await _context.Evidences.Where(x => x.ComplaintId == complaint.Id && x.ComplaintStage == ComplaintStage.Registration).Select(x => x.ImageUrl).ToListAsync();
-                List<string> assessmentEvidences = await _context.Evidences.Where(x => x.ComplaintId == complaint.Id && x.ComplaintStage == ComplaintStage.Assesment).Select(x => x.ImageUrl).ToListAsync();
-                List<string> investiagtionEvidences = await _context.Evidences.Where(x => x.ComplaintId == complaint.Id && x.ComplaintStage == ComplaintStage.Investigation).Select(x => x.ImageUrl).ToListAsync();
-                List<string> resolutionEvidences = await _context.Evidences.Where(x => x.ComplaintId == complaint.Id && x.ComplaintStage == ComplaintStage.Resolution).Select(x => x.ImageUrl).ToListAsync();
+                List<Evidence> complaintEvidences = await _context.Evidences.Where(x => x.ComplaintId == complaint.Id).ToListAsync();
+                List<string> registrationEvidences = complaintEvidences.Where(x => x.ComplaintStage == ComplaintStage.Registration).Select(x => x.ImageUrl).ToList();
+                List<string> assessmentEvidences = complaintEvidences.Where(x => x.ComplaintStage == ComplaintStage.Assesment).Select(x => x.ImageUrl).ToList();
+                List<string> investiagtionEvidences = complaintEvidences.Where(x => x.ComplaintStage == ComplaintStage.Investigation).Select(x => x.ImageUrl).ToList();
+                List<string> resolutionEvidences = complaintEvidences.Where(x => x.ComplaintStage == ComplaintStage.Resolution).Select(x => x.ImageUrl).ToList();
+                List<string> closureEvidences = complaintEvidences.Where(x => x.ComplaintStage == ComplaintStage.Closure).Select(x => x.ImageUrl).ToList();
                 var totalHandlerCases = await _context.Complaints.Where(x => x.PickedById == complaint.PickedById && x.IsDeleted == false).ToListAsync();
                 EscalationMatrix escalationMatrix = await _context.EscalationMatrices.FirstOrDefaultAsync(x => x.ComplaintTypeId == complaint.ComplaintTypeId && x.IsDeleted == false);
                 decimal totalCasesResolvedPercentage = (Convert.ToDecimal(totalHandlerCases.Where(x => x.IsResolved == true).Count()) / Convert.ToDecimal(totalHandlerCases.Count())) * 100m;
@@ -483,6 +486,7 @@ namespace HaloBiz.MyServices.Impl
                     AssessmentEvidenceUrls = assessmentEvidences,
                     InvestigationEvidenceUrls = investiagtionEvidences,
                     ResolutionEvidenceUrls = resolutionEvidences,
+                    ClosureEvidenceUrls = closureEvidences,
                     UserProfileImageUrl = complaint.PickedBy == null ? String.Empty : complaint.PickedBy.ImageUrl,
                     TotalHandlerCases = complaint.PickedById == null ? 0 : totalHandlerCases.Count(),
                     TotalHandlerCasesResolved = complaint.PickedById == null ? 0 : Math.Round(totalCasesResolvedPercentage, 2),
@@ -548,14 +552,52 @@ namespace HaloBiz.MyServices.Impl
             }
         }
 
-        public async Task<ApiResponse> AssignComplaintToUser(AssignComplaintReceivingDTO model)
+        public async Task<ApiResponse> AssignComplaintToUser(HttpContext context, AssignComplaintReceivingDTO model)
         {
             try
             {
+                long userProfileID = context.GetLoggedInUserId();
                 UserProfile userProfile = await _context.UserProfiles.FirstOrDefaultAsync(x => x.Id == model.UserId && x.IsDeleted == false);
                 if (userProfile == null) return new ApiResponse(500, "No user with the passed ID exists");
                 Complaint complaint = await _context.Complaints.FirstOrDefaultAsync(x => x.Id == model.ComplaintId && x.IsDeleted == false);
                 if (complaint == null) return new ApiResponse(500, "No complaint with the passed ID exists");
+
+                //Log re-assignment info
+                if(complaint.PickedById != null)
+                {
+                    ComplaintStage complaintStage = ComplaintStage.Registration;
+                    if (complaint.IsClosed.HasValue)
+                    {
+                        complaintStage = ComplaintStage.Closure;
+                    }
+                    else if (complaint.IsResolved.HasValue)
+                    {
+                        complaintStage = ComplaintStage.Resolution;
+                    }
+                    else if (complaint.IsInvestigated.HasValue)
+                    {
+                        complaintStage = ComplaintStage.Investigation;
+                    }
+                    else if (complaint.IsAssesed.HasValue)
+                    {
+                        complaintStage = ComplaintStage.Assesment;
+                    }
+
+                    ComplaintReassignment complaintReassignment = new ComplaintReassignment()
+                    {
+                        ComplaintId = complaint.Id,
+                        AssignedFromId = complaint.PickedById.Value,
+                        IsDeleted = false,
+                        AssignedToId = model.UserId,
+                        CreatedAt = DateTime.Now,
+                        Remarks = "Re-assignment of complaint to user",
+                        CreatedById = userProfileID,
+                        DateAssigned = DateTime.Now,
+                        ComplaintStage = complaintStage
+                    };
+                    await _context.ComplaintReassignments.AddAsync(complaintReassignment);
+                }
+
                 complaint.IsPicked = true;
                 complaint.PickedById = userProfile.Id;
                 complaint.DatePicked = DateTime.Now;
@@ -581,6 +623,7 @@ namespace HaloBiz.MyServices.Impl
                 List<string> assessmentEvidences = await _context.Evidences.Where(x => x.ComplaintId == ComplaintId && x.ComplaintStage == ComplaintStage.Assesment).Select(x => x.ImageUrl).ToListAsync();
                 List<string> investiagtionEvidences = await _context.Evidences.Where(x => x.ComplaintId == ComplaintId && x.ComplaintStage == ComplaintStage.Investigation).Select(x => x.ImageUrl).ToListAsync();
                 List<string> resolutionEvidences = await _context.Evidences.Where(x => x.ComplaintId == ComplaintId && x.ComplaintStage == ComplaintStage.Resolution).Select(x => x.ImageUrl).ToListAsync();
+                List<ComplaintReassignment> complaintReassignments = await _context.ComplaintReassignments.Include(x => x.CreatedBy).Include(x => x.AssignedFrom).Include(x => x.AssignedTo).Where(x => x.ComplaintId == ComplaintId && x.IsDeleted == false).ToListAsync();
 
                 var resultObject = new ComplaintTrackingTransferDTO()
                 {
@@ -591,12 +634,39 @@ namespace HaloBiz.MyServices.Impl
                     AssessmentEvidenceUrls = assessmentEvidences,
                     InvestigationEvidenceUrls = investiagtionEvidences,
                     ResolutionEvidenceUrls = resolutionEvidences,
+                    ComplaintsReassignments = _mapper.Map<IEnumerable<ComplaintReassignmentTransferDTO>>(complaintReassignments).ToList(),
                 };
                 return new ApiOkResponse(resultObject);
             }
             catch(Exception error)
             {
                 _logger.LogError("Exception occurred in  MiniTrackComplaint " + error);
+                return new ApiResponse(500, error.Message);
+            }
+        }
+
+        public async Task<ApiResponse> GetHandlersRatings(HandlersRatingReceivingDTO model)
+        {
+            try
+            {
+                List<HandlersRatingTransferDTO> returnObject = new();
+                List<UserProfile> handlers = await _context.UserProfiles.Where(x => model.HandlersIDs.Any(y => y == x.Id) && x.IsDeleted == false).ToListAsync();
+                List<Complaint> handlersComplaint = await _context.Complaints.Where(x => model.HandlersIDs.Any(y => y == x.PickedById.Value) && (x.IsClosed != null || x.IsResolved != null) && x.IsDeleted == false).ToListAsync();
+                foreach(var handler in handlers)
+                {
+                    HandlersRatingTransferDTO handlerRating = new HandlersRatingTransferDTO()
+                    {
+                        Username = handler.LastName,
+                        Score = handlersComplaint.Where(x => x.PickedById == handler.Id).ToList().Count
+                    };
+                    returnObject.Add(handlerRating);
+                }
+
+                return new ApiOkResponse(returnObject);
+            }
+            catch(Exception error)
+            {
+                _logger.LogError("Exception occurred in  GetHandlersRatings " + error);
                 return new ApiResponse(500, error.Message);
             }
         }
