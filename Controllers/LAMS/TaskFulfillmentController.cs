@@ -62,7 +62,17 @@ namespace Controllers.Controllers
             var taskFulfillment = ((ApiOkResponse)response).Result;
             return Ok(taskFulfillment);
         }
-        
+
+        [HttpGet("AllTaskFulfillmentForTaskOwner/{taskOwnerId}")]
+        public async Task<ActionResult> GetAllTaskFulfillmentForTaskMaster(long taskOwnerId)
+        {
+            var response = await _taskFulfillmentService.GetAllTaskFulfillmentForTaskOwner(taskOwnerId);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var taskFulfillment = ((ApiOkResponse)response).Result;
+            return Ok(taskFulfillment);
+        }
+
         [HttpGet("caption/{name}")]
         public async Task<ActionResult> GetByCaption(string name)
         {

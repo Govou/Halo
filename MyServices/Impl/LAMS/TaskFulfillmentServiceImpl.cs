@@ -87,6 +87,17 @@ namespace HaloBiz.MyServices.Impl.LAMS
             return new ApiOkResponse(taskFulfillmentTransferDTO);
         }
 
+        public async Task<ApiResponse> GetAllTaskFulfillmentForTaskOwner(long taskOwnerId)
+        {
+            var taskFulfillments = await _taskFulfillmentRepo.FindAllTaskFulfillmentForTaskOwner(taskOwnerId);
+            if (taskFulfillments == null)
+            {
+                return new ApiResponse(404);
+            }
+            var taskFulfillmentTransferDTO = _mapper.Map<IEnumerable<TaskFulfillmentTransferDTO>>(taskFulfillments);
+            return new ApiOkResponse(taskFulfillmentTransferDTO);
+        }
+
         public async Task<ApiResponse> GetPMWidgetStatistics(long taskOwnerId)
         {
             var taskFulfillments = await _taskFulfillmentRepo.FindAllTaskFulfillmentForTaskOwner(taskOwnerId);
