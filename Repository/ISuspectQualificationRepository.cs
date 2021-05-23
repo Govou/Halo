@@ -13,6 +13,7 @@ namespace HaloBiz.Repository
         Task<SuspectQualification> FindSuspectQualificationById(long Id);
         //Task<SuspectQualification> FindSuspectQualificationByName(string name);
         Task<IEnumerable<SuspectQualification>> FindAllSuspectQualifications();
+        Task<IEnumerable<SuspectQualification>> FindUserSuspectQualifications(long userId);
         Task<SuspectQualification> UpdateSuspectQualification(SuspectQualification suspectQualification);
         Task<bool> DeleteSuspectQualification(SuspectQualification suspectQualification);
     }

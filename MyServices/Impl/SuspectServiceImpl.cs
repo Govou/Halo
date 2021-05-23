@@ -88,6 +88,17 @@ namespace HaloBiz.MyServices.Impl
             return new ApiOkResponse(suspectTransferDTO);
         }
 
+        public async Task<ApiResponse> GetUserSuspects(HttpContext context)
+        {
+            var suspects = await _suspectRepo.FindAllUserSuspects(context.GetLoggedInUserId());
+            if (suspects == null)
+            {
+                return new ApiResponse(404);
+            }
+            var suspectTransferDTO = _mapper.Map<IEnumerable<SuspectTransferDTO>>(suspects);
+            return new ApiOkResponse(suspectTransferDTO);
+        }
+
         public async Task<ApiResponse> GetSuspectById(long id)
         {
             var suspect = await _suspectRepo.FindSuspectById(id);

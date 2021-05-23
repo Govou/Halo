@@ -12,6 +12,7 @@ namespace HaloBiz.MyServices
     {
         Task<ApiResponse> AddSuspectQualification(HttpContext context, SuspectQualificationReceivingDTO suspectQualificationReceivingDTO);
         Task<ApiResponse> GetAllSuspectQualification();
+        Task<ApiResponse> GetUserSuspectQualification(HttpContext context);
         Task<ApiResponse> GetSuspectQualificationById(long id);
         //Task<ApiResponse> GetSuspectQualificationByName(string name);
         Task<ApiResponse> UpdateSuspectQualification(HttpContext context, long id, SuspectQualificationReceivingDTO suspectQualificationReceivingDTO);

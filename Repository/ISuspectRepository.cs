@@ -13,6 +13,7 @@ namespace HaloBiz.Repository
         Task<Suspect> FindSuspectById(long Id);
         //Task<Suspect> FindSuspectByName(string name);
         Task<IEnumerable<Suspect>> FindAllSuspects();
+        Task<IEnumerable<Suspect>> FindAllUserSuspects(long userId);
         Task<Suspect> UpdateSuspect(Suspect suspect);
         Task<bool> DeleteSuspect(Suspect suspect);
     }

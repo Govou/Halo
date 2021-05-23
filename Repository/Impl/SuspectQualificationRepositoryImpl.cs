@@ -53,6 +53,21 @@ namespace HaloBiz.Repository.Impl
                 .FirstOrDefaultAsync(suspectQualification => suspectQualification.Id == Id && suspectQualification.IsDeleted == false);
         }
 
+        public async Task<IEnumerable<SuspectQualification>> FindUserSuspectQualifications(long userId)
+        {
+            return await _context.SuspectQualifications.AsNoTracking()
+               .Include(x => x.Suspect)
+               .ThenInclude(x => x.Branch)
+               .Include(x => x.Suspect)
+               .ThenInclude(x => x.Office)
+               .Include(x => x.Suspect)
+               .ThenInclude(x => x.GroupType)
+               .Where(suspectQualification => !suspectQualification.IsDeleted
+                        && suspectQualification.IsActive && !suspectQualification.Suspect.IsConverted && suspectQualification.CreatedById == userId)
+               .OrderBy(suspectQualification => suspectQualification.CreatedAt)
+               .ToListAsync();
+        }
+
         /*public async Task<SuspectQualification> FindSuspectQualificationByName(string name)
         {
             return await _context.SuspectQualifications

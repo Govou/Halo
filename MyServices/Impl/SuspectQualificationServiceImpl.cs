@@ -126,6 +126,40 @@ namespace HaloBiz.MyServices.Impl
             return new ApiOkResponse(suspectQualificationTransferDTO);
         }
 
+        public async Task<ApiResponse> GetUserSuspectQualification(HttpContext context)
+        {
+            var suspectQualifications = await _suspectQualificationRepo.FindUserSuspectQualifications(context.GetLoggedInUserId());
+            if (suspectQualifications == null)
+            {
+                return new ApiResponse(404);
+            }
+            var suspectQualificationTransferDTO = _mapper.Map<IEnumerable<SuspectQualificationTransferDTO>>(suspectQualifications);
+
+            foreach (var qualification in suspectQualificationTransferDTO)
+            {
+                if (qualification.AuthorityCompleted)
+                {
+                    var totalScore = qualification.ChallengeScore + qualification.TimingScore +
+                        qualification.BudgetScore + qualification.AuthorityScore;
+
+                    if (totalScore == 10)
+                    {
+                        qualification.Rank = "Encourage";
+                    }
+                    else if (totalScore == 20)
+                    {
+                        qualification.Rank = "KIV";
+                    }
+                    else if (totalScore >= 30)
+                    {
+                        qualification.Rank = "Target";
+                    }
+                }
+            }
+
+            return new ApiOkResponse(suspectQualificationTransferDTO);
+        }
+
         public async Task<ApiResponse> GetSuspectQualificationById(long id)
         {
             var suspectQualification = await _suspectQualificationRepo.FindSuspectQualificationById(id);
