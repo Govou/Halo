@@ -32,6 +32,16 @@ namespace HaloBiz.Controllers
             return Ok(SuspectQualification);
         }
 
+        [HttpGet("GetUserSuspectQualification")]
+        public async Task<ActionResult> GetUserSuspectQualification()
+        {
+            var response = await _SuspectQualificationService.GetUserSuspectQualification(HttpContext);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var SuspectQualification = ((ApiOkResponse)response).Result;
+            return Ok(SuspectQualification);
+        }
+
         /*[HttpGet("caption/{name}")]
         public async Task<ActionResult> GetByCaption(string name)
         {

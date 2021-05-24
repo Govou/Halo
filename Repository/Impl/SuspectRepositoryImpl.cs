@@ -39,6 +39,18 @@ namespace HaloBiz.Repository.Impl
                .ToListAsync();
         }
 
+        public async Task<IEnumerable<Suspect>> FindAllUserSuspects(long userId)
+        {
+            return await _context.Suspects.AsNoTracking()
+               .Include(x => x.LeadOrigin)
+               .Include(x => x.GroupType)
+               .Include(x => x.Branch)
+               .Include(x => x.Office)
+               .Where(suspect => !suspect.IsDeleted && !suspect.IsConverted && suspect.CreatedById == userId)
+               .OrderBy(suspect => suspect.CreatedAt)
+               .ToListAsync();
+        }
+
         public async Task<Suspect> FindSuspectById(long Id)
         {
             return await _context.Suspects.AsNoTracking()
