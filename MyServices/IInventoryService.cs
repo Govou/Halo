@@ -10,7 +10,5 @@ namespace HaloBiz.MyServices
 {
     public interface IInventoryService
     {
-        Task<ApiResponse> CreateInventoryItem(HttpContext context);
-        Task<ApiResponse> CreateInventoryItemGroup(HttpContext context);
     }
 }

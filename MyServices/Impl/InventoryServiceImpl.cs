@@ -23,7 +23,7 @@ namespace HaloBiz.MyServices.Impl
         private readonly HalobizContext _context;
         private readonly ILogger<InventoryServiceImpl> _logger;
         private readonly IMapper _mapper;
-        public InventoryServiceImpl(HalobizContext context, ILogger<ComplaintHandlingServiceImpl> logger, IMapper mapper)
+        public InventoryServiceImpl(HalobizContext context, ILogger<InventoryServiceImpl> logger, IMapper mapper)
         {
             _context = context;
             _logger = logger;
