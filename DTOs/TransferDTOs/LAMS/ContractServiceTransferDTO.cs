@@ -97,6 +97,8 @@ namespace HaloBiz.DTOs.TransferDTOs.LAMS
         public ServiceTransferDTO Service { get; set; }
         public string GroupInvoiceNumber { get; set; }
         public double AdHocInvoicedAmount { get; set; }
-    
+
+        public long? BranchId { get; set; }
+        public long? OfficeId { get; set; }
     }
 }
