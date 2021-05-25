@@ -451,7 +451,8 @@ namespace HaloBiz.MyServices.Impl.LAMS
                                                                     ContractServiceForEndorsement contractServiceForEndorsement
                                                                     )
         {
-            var contractServcieDifference = GetContractServiceDifference(newContractService, retiredContractService);
+            // switched up parameters here for "GetContractServiceDifference" to match topup
+            var contractServcieDifference = GetContractServiceDifference(retiredContractService, newContractService);
 
             var salesReductionVoucher = this._configuration.GetSection("VoucherTypes:SalesReductionVoucher").Value;
 
