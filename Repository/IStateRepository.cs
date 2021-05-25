@@ -9,6 +9,6 @@ namespace HaloBiz.Repository
         Task<State> FindStateById(long Id);
         Task<State> FindStateByName(string name);
         Task<IEnumerable<State>> FindAllStates();
-        
+        Task<IEnumerable<Lga>> FindAllLgas();
     }
 }

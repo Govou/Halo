@@ -12,4 +12,11 @@ namespace HaloBiz.DTOs.TransferDTOs
         public string  Slogan { get; set; }
         public IEnumerable<LGATransferDTO> LGAs { get; set; }
     }
+
+    public class LgasTransferDTO
+    {
+        public long Id { get; set; }
+        public string Name { get; set; }
+        public long StateId { get; set; }
+    }
 }

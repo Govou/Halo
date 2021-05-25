@@ -55,5 +55,16 @@ namespace HaloBiz.MyServices.Impl
             var statesTransferDto = _mapper.Map<IEnumerable<StateTransferDTO>>(states);
             return new ApiOkResponse(statesTransferDto);
         }
+
+        public async Task<ApiResponse> GetAllLgas()
+        {
+            var lgas = await _stateRepo.FindAllLgas();
+            if(lgas == null)
+            {
+                return new ApiResponse(404);
+            }
+            var lgasTransferDto = _mapper.Map<IEnumerable<LgasTransferDTO>>(lgas);
+            return new ApiOkResponse(lgasTransferDto);
+        }
     }
 }

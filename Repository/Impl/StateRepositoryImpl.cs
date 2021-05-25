@@ -34,5 +34,9 @@ namespace HaloBiz.Repository.Impl
                 .ToListAsync();
         }
 
+        public async Task<IEnumerable<Lga>> FindAllLgas()
+        {
+            return await _context.Lgas.ToListAsync();
+        }
     }
 }
