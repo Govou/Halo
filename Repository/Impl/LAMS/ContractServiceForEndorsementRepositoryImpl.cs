@@ -76,11 +76,26 @@ namespace HaloBiz.Repository.Impl.LAMS
         }
         public async Task<IEnumerable<object>> FindAllPossibleEndorsementStartDate(long contractServiceId)
         {
-            return await _context.Invoices
-                .Where(x => !x.IsReversalInvoice.Value && !x.IsDeleted && !x.IsReversed.Value 
-                        && x.StartDate > DateTime.Now && x.ContractServiceId == contractServiceId )
+            var contractService = await _context.ContractServices.FindAsync(contractServiceId);
+
+            if (contractService == null) return Array.Empty<object>();
+
+            if(contractService.GroupInvoiceNumber == null)
+            {
+                return await _context.Invoices
+                .Where(x => !x.IsReversalInvoice.Value && !x.IsDeleted && !x.IsReversed.Value
+                        && x.StartDate > DateTime.Now && x.ContractServiceId == contractServiceId)
                 .OrderBy(x => x.StartDate)
-                .Select(x => new{startDate = x.StartDate, validDate = x.IsReceiptedStatus == (int)InvoiceStatus.NotReceipted}).ToListAsync();
+                .Select(x => new { startDate = x.StartDate, validDate = x.IsReceiptedStatus == (int)InvoiceStatus.NotReceipted }).ToListAsync();
+            }
+            else
+            {
+                return await _context.Invoices
+                .Where(x => !x.IsReversalInvoice.Value && !x.IsDeleted && !x.IsReversed.Value
+                        && x.StartDate > DateTime.Now && x.GroupInvoiceNumber == contractService.GroupInvoiceNumber)
+                .OrderBy(x => x.StartDate)
+                .Select(x => new { startDate = x.StartDate, validDate = x.IsReceiptedStatus == (int)InvoiceStatus.NotReceipted }).ToListAsync();
+            }   
         }
         public async Task<ContractServiceForEndorsement> UpdateContractServiceForEndorsement(ContractServiceForEndorsement entity)
         {
