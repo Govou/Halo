@@ -69,8 +69,9 @@ namespace HaloBiz.Repository.Impl.LAMS
 
         public async Task<IEnumerable<ContractServiceForEndorsement>> FindAllUnApprovedContractServicesForEndorsement()
         {
-            return await _context.ContractServiceForEndorsements
+            return await _context.ContractServiceForEndorsements.AsNoTracking()
                 .Include(x => x.EndorsementType)
+                .Include(x => x.CustomerDivision)
                 .Where(x => x.IsRequestedForApproval && !x.IsApproved && !x.IsDeclined)
                 .ToListAsync();
         }
