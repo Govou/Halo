@@ -73,9 +73,28 @@ namespace HaloBiz
                 })
                 .UseSerilog((hostContext, loggerConfig) =>
                 {
+                    var configuration = hostContext.Configuration;
+
+                    var connectionString = string.Empty;
+
+                    if (hostContext.HostingEnvironment.IsDevelopment())
+                    {
+                        connectionString = configuration.GetConnectionString("DefaultConnection");
+                    }
+                    else
+                    {
+                        var server = configuration["DbServer"];
+                        var port = configuration["DbPort"];
+                        var user = configuration["DbUser"];
+                        var password = configuration["DbPassword"];
+                        var database = configuration["Database"];
+
+                        connectionString = $"Server={server},{port};Database={database};User Id={user};Password={password};";
+                    }
+                    
                     loggerConfig
-                        .ReadFrom.Configuration(hostContext.Configuration)
-                        .WriteTo.MSSqlServer(hostContext.Configuration.GetConnectionString("DefaultConnection"),
+                        .ReadFrom.Configuration(configuration)
+                        .WriteTo.MSSqlServer(connectionString,
                             sinkOptions: new MSSqlServerSinkOptions { TableName = "HalobizLogs" }, null, null,
                             LogEventLevel.Information, null, null, null, null)
                         .Enrich.WithProperty("ApplicationName", hostContext.HostingEnvironment.ApplicationName);
