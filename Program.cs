@@ -8,6 +8,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Serilog;
+using Serilog.Events;
+using Serilog.Sinks.MSSqlServer;
 
 namespace HaloBiz
 {
@@ -18,7 +20,7 @@ namespace HaloBiz
             var configuration = GetConfiguration(args);
 
             Log.Logger = new LoggerConfiguration()
-                .ReadFrom.Configuration(configuration)
+                .ReadFrom.Configuration(configuration)       
                 .CreateLogger();
 
             try
@@ -53,6 +55,7 @@ namespace HaloBiz
                 {
                     var configurationRoot = configApp.Build();
 
+                    configApp.AddJsonFile("appsettings.json", optional: true, reloadOnChange: true);
                     configApp.AddJsonFile("serilog.json", optional: true, reloadOnChange: true);
 
                     configApp.AddEnvironmentVariables();
@@ -72,7 +75,9 @@ namespace HaloBiz
                 {
                     loggerConfig
                         .ReadFrom.Configuration(hostContext.Configuration)
-                        .Enrich.FromLogContext()
+                        .WriteTo.MSSqlServer(hostContext.Configuration.GetConnectionString("DefaultConnection"),
+                            sinkOptions: new MSSqlServerSinkOptions { TableName = "HalobizLogs" }, null, null,
+                            LogEventLevel.Information, null, null, null, null)
                         .Enrich.WithProperty("ApplicationName", hostContext.HostingEnvironment.ApplicationName);
                 });
     }
