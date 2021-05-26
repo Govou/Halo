@@ -1,0 +1,36 @@
+{
+  "Serilog": {
+    "MinimumLevel": {
+      "Default": "Information",
+      "Override": {
+        "Microsoft": "Warning",
+        "Microsoft.Hosting.Lifetime": "Information",
+        "Microsoft.EntityFrameworkCore.Database.Command": "Information",
+        "System": "Warning"
+      }
+    },
+    "WriteTo": [
+      {
+        "Name": "Console"
+      },
+      {
+        "Name": "File",
+        "Args": {
+          "path": "Log/halobiz_api.txt",
+          "rollingInterval": "Day"
+        }
+      },
+      {
+        "Name": "MSSqlServer",
+        "Args": {
+          "connectionString": "Data Source=halobiz-db.northeurope.cloudapp.azure.com,1433;Initial Catalog=halobiz-tes_2021-02-04T18-50Z;User ID=halobiz;Password=A87HBG@#&&&;Connect Timeout=30;Encrypt=True;TrustServerCertificate=True;ApplicationIntent=ReadWrite;MultiSubnetFailover=False",
+          "tableName": "HalobizLogs",
+          "columnOptionsSection": {
+            "addStandardColumns": [ "LogEvent" ],
+            "removeStandardColumns": [ "Properties" ]
+          }
+        }
+      }
+    ]
+  }
+}
