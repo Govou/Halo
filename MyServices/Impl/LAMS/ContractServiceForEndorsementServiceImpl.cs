@@ -595,7 +595,8 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 {
                     invoice.Value += billbalbleForInvoicingPeriod;
                 }else if(!isTopUp){
-                    invoice.Value += billbalbleForInvoicingPeriod;
+                    // the contract service difference values come in as negative.
+                    invoice.Value -= Math.Abs(billbalbleForInvoicingPeriod);
                 }
 
                 if(!isGroupInvoice)
