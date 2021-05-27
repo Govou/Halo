@@ -46,10 +46,10 @@ namespace HaloBiz.MyServices.Impl.LAMS
             this._logger = logger;
         }
 
-        public async Task<ApiResponse> AddNewRetentionContractServiceForEndorsement (HttpContext httpContext, List<ContractServiceForEndorsementReceivingDto> contractServiceForEndorsementDtos)
+        public async Task<ApiResponse> AddNewRetentionContractServiceForEndorsement(HttpContext httpContext, List<ContractServiceForEndorsementReceivingDto> contractServiceForEndorsementDtos)
         {
-            try{
-
+            try
+            {
                 var entityToSave = _mapper.Map<List<ContractServiceForEndorsement>>(contractServiceForEndorsementDtos);
 
                 foreach (var entity in entityToSave)
@@ -94,7 +94,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
             }
         }
 
-        public async Task<ApiResponse> AddNewContractServiceForEndorsement (HttpContext httpContext, ContractServiceForEndorsementReceivingDto contractServiceForEndorsementReceiving)
+        public async Task<ApiResponse> AddNewContractServiceForEndorsement(HttpContext httpContext, ContractServiceForEndorsementReceivingDto contractServiceForEndorsementReceiving)
         {
             var  entityToSave = _mapper.Map<ContractServiceForEndorsement>(contractServiceForEndorsementReceiving);
             var endorsementType = await _context.EndorsementTypes
@@ -136,7 +136,6 @@ namespace HaloBiz.MyServices.Impl.LAMS
             }
         }
 
-
         private async Task<bool> ValidateContractToRenew(ContractServiceForEndorsement contractServiceForEndorsement)
         {
             if (contractServiceForEndorsement.PreviousContractServiceId == null || contractServiceForEndorsement.PreviousContractServiceId == 0)
@@ -161,8 +160,6 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
             return true;
         }
-
-
 
         public async Task<ApiResponse> GetUnApprovedContractServiceForEndorsement()
         {
@@ -351,7 +348,6 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
         }
 
-
         private async Task<bool> AddServiceEndorsement(ContractService contractService,ContractServiceForEndorsement contractServiceForEndorsement, Service service, CustomerDivision customerDivision)
         {
             var salesVoucherName = this._configuration.GetSection("VoucherTypes:SalesInvoiceVoucher").Value;
@@ -373,7 +369,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
             {
                 await  _leadConversionService.GenerateInvoices(contractService,customerDivision.Id, service.ServiceCode, this.loggedInUserId);
             }else {
-                await  UpdateInvoices( contractService, contractServiceForEndorsement, true, true);
+                await  UpdateInvoices(contractService, contractServiceForEndorsement, true, true);
             }
             await _leadConversionService.GenerateAmortizations(contractService, customerDivision);
 
@@ -422,7 +418,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
             {
                 await  UpdateInvoices(contractServcieDifference,contractServiceForEndorsement, true,  false);
             }else {
-                await UpdateInvoices( contractServcieDifference, contractServiceForEndorsement, true, true);
+                await UpdateInvoices(contractServcieDifference, contractServiceForEndorsement, true, true);
             }
 
             var description = $"Service Topup for {service.Name} with serviceId: {service.Id} for client: {customerDivision.DivisionName}. quantity increase of {newContractService.Quantity - retiredContractService.Quantity}";
@@ -467,7 +463,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
             {
                 await  UpdateInvoices(contractServcieDifference,contractServiceForEndorsement, false,  false);
             }else {
-                await UpdateInvoices( contractServcieDifference, contractServiceForEndorsement, false, true);
+                await UpdateInvoices(contractServcieDifference, contractServiceForEndorsement, false, true);
             }
 
 
@@ -552,7 +548,6 @@ namespace HaloBiz.MyServices.Impl.LAMS
             return true;
         }
 
-
         private ContractService GetContractServiceDifference(ContractService retiredContractService, ContractService newContractService)
         {
             var contractServcie = _mapper.Map<ContractService>(newContractService);
@@ -600,7 +595,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 {
                     invoice.Value += billbalbleForInvoicingPeriod;
                 }else if(!isTopUp){
-                    invoice.Value -= billbalbleForInvoicingPeriod;
+                    invoice.Value += billbalbleForInvoicingPeriod;
                 }
 
                 if(!isGroupInvoice)
@@ -632,7 +627,6 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
             return true;
         }
-
 
         private async Task<bool> GenerateGroupInvoiceDetails(ContractService contractService)
         {
@@ -682,7 +676,6 @@ namespace HaloBiz.MyServices.Impl.LAMS
             await _context.SaveChangesAsync();
             return false;
         }
-
 
         private Invoice GenerateReverselInvoice(Invoice invoice)
         {
@@ -737,7 +730,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
             return amountToPay;
         }
 
-        private double CalculateTotalBillableForPeriod(ContractService contractService )
+        private double CalculateTotalBillableForPeriod(ContractService contractService)
         {
             int interval = 0;
             DateTime startDate =(DateTime) contractService.ContractStartDate;
@@ -775,14 +768,13 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
             if(cycle == TimeCycle.Weekly || cycle == TimeCycle.BiWeekly)
             {
-                return GenerateWeeklyAmount( startDate, endDate,  amount,  cycle);
+                return GenerateWeeklyAmount(startDate, endDate,  amount,  cycle);
 
-            }else if(cycle == TimeCycle.OneTime ){
+            }else if(cycle == TimeCycle.OneTime){
                 return amount;
             }else{
-                return amount * (double) interval ;
+                return amount * (double) interval;
             }
         }
-
     }
 }
