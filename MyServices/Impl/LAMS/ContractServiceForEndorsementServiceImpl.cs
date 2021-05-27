@@ -50,6 +50,21 @@ namespace HaloBiz.MyServices.Impl.LAMS
         {
             try
             {
+                // check that we dont already have a request to renew the contract service/ contract service(s)
+                foreach (var item in contractServiceForEndorsementDtos)
+                {
+                    var alreadyExists = await _context.ContractServiceForEndorsements
+                        .AnyAsync(x => x.PreviousContractServiceId == item.PreviousContractServiceId && x.ContractId == item.ContractId 
+                                    && x.CustomerDivisionId == item.CustomerDivisionId && x.ServiceId == item.ServiceId
+                                    && !x.IsApproved && !x.IsDeclined && x.IsConvertedToContractService != true
+                                    && x.EndorsementTypeId == item.EndorsementTypeId && !x.IsDeleted);
+
+                    if (alreadyExists)
+                    {
+                        return new ApiResponse(400, "There is a rention request already for a contract service in the rentention list.");
+                    }
+                }
+
                 var entityToSave = _mapper.Map<List<ContractServiceForEndorsement>>(contractServiceForEndorsementDtos);
 
                 foreach (var entity in entityToSave)
@@ -96,7 +111,20 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
         public async Task<ApiResponse> AddNewContractServiceForEndorsement(HttpContext httpContext, ContractServiceForEndorsementReceivingDto contractServiceForEndorsementReceiving)
         {
-            var  entityToSave = _mapper.Map<ContractServiceForEndorsement>(contractServiceForEndorsementReceiving);
+            var item = contractServiceForEndorsementReceiving;
+            
+            var alreadyExists = await _context.ContractServiceForEndorsements
+                        .AnyAsync(x => x.ContractId == item.ContractId
+                                    && x.CustomerDivisionId == item.CustomerDivisionId && x.ServiceId == item.ServiceId
+                                    && !x.IsApproved && !x.IsDeclined && x.IsConvertedToContractService != true
+                                    && x.EndorsementTypeId == item.EndorsementTypeId && !x.IsDeleted);
+
+            if (alreadyExists)
+            {
+                return new ApiResponse(400, "There is already an endorsement request for the contract service specified.");
+            }
+
+            var entityToSave = _mapper.Map<ContractServiceForEndorsement>(contractServiceForEndorsementReceiving);
             var endorsementType = await _context.EndorsementTypes
                         .FirstOrDefaultAsync(x => x.Id == entityToSave.EndorsementTypeId);
             if(endorsementType.Caption.ToLower().Contains("renew")
