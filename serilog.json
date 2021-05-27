@@ -5,7 +5,6 @@
       "Override": {
         "Microsoft": "Warning",
         "Microsoft.Hosting.Lifetime": "Information",
-        "Microsoft.EntityFrameworkCore.Database.Command": "Information",
         "System": "Warning"
       }
     },
