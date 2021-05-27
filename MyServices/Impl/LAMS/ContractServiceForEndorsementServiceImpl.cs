@@ -71,7 +71,12 @@ namespace HaloBiz.MyServices.Impl.LAMS
                     return new ApiResponse(500);
                 }
 
-                bool successful = await _approvalService.SetUpApprovalsForContractRenewalEndorsement(entityToSave, httpContext);
+                var endorsementIds = entityToSave.Select(x => x.Id).ToList();
+                var contractRenewEndorsements = await _context.ContractServiceForEndorsements.AsNoTracking()
+                                                         .Where(x => endorsementIds.Contains(x.Id))
+                                                         .ToListAsync();
+
+                bool successful = await _approvalService.SetUpApprovalsForContractRenewalEndorsement(contractRenewEndorsements, httpContext);
                 if (!successful)
                 {
                     await transaction.RollbackAsync();
@@ -134,11 +139,10 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
         private async Task<bool> ValidateContractToRenew(ContractServiceForEndorsement contractServiceForEndorsement)
         {
-            // Changes to allow new service(s) to be added to the renewal.
-            //if (contractServiceForEndorsement.PreviousContractServiceId == null || contractServiceForEndorsement.PreviousContractServiceId == 0)
-            //{
-            //    return false;
-            //}
+            if (contractServiceForEndorsement.PreviousContractServiceId == null || contractServiceForEndorsement.PreviousContractServiceId == 0)
+            {
+                return false;
+            }
 
             if(contractServiceForEndorsement.PreviousContractServiceId != null && contractServiceForEndorsement.PreviousContractServiceId > 0)
             {
@@ -613,6 +617,17 @@ namespace HaloBiz.MyServices.Impl.LAMS
             if(isGroupInvoice)
             {
                 await GenerateGroupInvoiceDetails(contractService);
+            }
+            else
+            {
+                // for a contract that is not grouped, update all the invoices that are still tied to the previous contract service id.
+                var invoicesToUpdate = await _context.Invoices.Where(x => x.ContractServiceId == contractServiceForEndorsement.PreviousContractServiceId && !x.IsDeleted).ToListAsync();
+                foreach (var invoice in invoicesToUpdate)
+                {
+                    invoice.ContractServiceId = contractService.Id;
+                }
+                _context.Invoices.UpdateRange(invoicesToUpdate);
+                await _context.SaveChangesAsync();
             }
 
             return true;
