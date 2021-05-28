@@ -36,6 +36,7 @@ namespace HaloBiz.Repository.Impl
         {
             return await _context.ProfileEscalationLevels
                .Include(x => x.UserProfile)
+               .Include(x => x.EscalationLevel)
                .Where(profileEscalationLevel => profileEscalationLevel.IsDeleted == false)
                .OrderBy(profileEscalationLevel => profileEscalationLevel.CreatedAt)
                .ToListAsync();

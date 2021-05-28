@@ -243,6 +243,7 @@ namespace HaloBiz.Helpers
             CreateMap<ProfileEscalationLevel, ProfileEscalationLevelTransferDTO>();      
             CreateMap<ComplaintReceivingDTO, Complaint>();
             CreateMap<Complaint, ComplaintTransferDTO>();
+            CreateMap<ComplaintTransferDTO, Complaint>();
             CreateMap<ComplaintSourceReceivingDTO, ComplaintSource>();
             CreateMap<ComplaintSource, ComplaintSourceTransferDTO>();
             CreateMap<EscalationMatrixReceivingDTO, EscalationMatrix>();
@@ -262,6 +263,7 @@ namespace HaloBiz.Helpers
             CreateMap<SuspectQualification, SuspectQualificationTransferDTO>();
             CreateMap<ServiceQualificationReceivingDTO, ServiceQualification>();
             CreateMap<ServiceQualification, ServiceQualificationTransferDTO>();
+            CreateMap<ComplaintReassignment, ComplaintReassignmentTransferDTO>();
         }
     }
 }

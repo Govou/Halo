@@ -10,7 +10,7 @@ namespace HaloBiz.DTOs.TransferDTOs
         public string Make { get; set; }
         public string Model { get; set; }
         public string ModelNumber { get; set; }
-        public string SerailNumber { get; set; }
+        public string SerialNumber { get; set; }
         public string IdentificationNumber { get; set; }
         public string ReferenceNumber1 { get; set; }
         public string ReferenceNumber2 { get; set; }
