@@ -42,6 +42,16 @@ namespace HaloBiz.Controllers
             return Ok(Prospect);
         }
 
+        [HttpGet("{email}")]
+        public async Task<ActionResult> GetByEmail(string email)
+        {
+            var response = await _ProspectService.GetProspectByEmail(email);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var Prospect = ((ApiOkResponse)response).Result;
+            return Ok(Prospect);
+        }
+
         [HttpPost("")]
         public async Task<ActionResult> AddNewProspect(ProspectReceivingDTO ProspectReceiving)
         {

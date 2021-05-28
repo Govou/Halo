@@ -42,6 +42,13 @@ namespace HaloBiz.Repository.Impl
 
         }
 
+        public async Task<Prospect> FindProspectByEmail(string email)
+        {
+            return await _context.Prospects
+                .Where(prospect => !prospect.IsDeleted && prospect.Email.ToLower() == email.ToLower())
+                .FirstOrDefaultAsync();
+        }
+
         public async Task<Prospect> SaveProspect(Prospect prospect)
         {
             var prospectEntity = await _context.Prospects.AddAsync(prospect);
