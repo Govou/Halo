@@ -1042,7 +1042,7 @@ namespace HaloBiz.MyServices.Impl
                     Recepients = recepients.ToArray(),
                     DaysUntilDeadline = (int) invoice.EndDate.Subtract(DateTime.Now).TotalDays,
                     ClientInfo = client,
-                    ContractService = contractServiceMailDTOs
+                    ContractServices = contractServiceMailDTOs
                 };
 
                 return invoiceMailDTO;
