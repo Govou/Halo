@@ -14,6 +14,7 @@ namespace HaloBiz.MyServices
         Task<ApiResponse> GetAllServicePricing();
         Task<ApiResponse> GetServicePricingById(long id);
         Task<ApiResponse> GetServicePricingByServiceId(long serviceId);
+        Task<ApiResponse> GetServicePricingByBranchId(long branchId);
         Task<ApiResponse> UpdateServicePricing(HttpContext context, long id, ServicePricingReceivingDTO servicePricingReceivingDTO);
         Task<ApiResponse> DeleteServicePricing(long id);
     }

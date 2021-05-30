@@ -34,6 +34,11 @@ namespace HaloBiz.Repository.Impl.LAMS
 
         }
 
+        public async Task<IEnumerable<Lead>> FindUserLeads(long userId)
+        {
+            return await _context.Leads.Where(lead => !lead.IsDeleted && !lead.LeadConversionStatus && lead.CreatedById == userId).ToListAsync();
+        }
+
         public async Task<IEnumerable<Lead>> FindAllUnApprovedLeads()
         {
             return await _context.Leads.Where(lead => lead.LeadCaptureStatus && lead.LeadQualificationStatus && lead.LeadOpportunityStatus && lead.LeadClosureStatus.Value

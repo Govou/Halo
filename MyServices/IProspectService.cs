@@ -13,6 +13,7 @@ namespace HaloBiz.MyServices
         Task<ApiResponse> AddProspect(HttpContext context, ProspectReceivingDTO prospectReceivingDTO);
         Task<ApiResponse> GetAllProspect();
         Task<ApiResponse> GetProspectById(long id);
+        Task<ApiResponse> GetProspectByEmail(string email);
         Task<ApiResponse> UpdateProspect(HttpContext context, long id, ProspectReceivingDTO prospectReceivingDTO);
         Task<ApiResponse> DeleteProspect(long id);
     }

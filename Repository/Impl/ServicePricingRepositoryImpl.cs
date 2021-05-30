@@ -28,7 +28,7 @@ namespace HaloBiz.Repository.Impl
 
         public async Task<IEnumerable<ServicePricing>> FindAllServicePricings()
         {
-            return await _context.ServicePricings
+            return await _context.ServicePricings.AsNoTracking()
                .Include(x => x.Service)
                .Include(x => x.Branch)
                .Where(servicePricing => servicePricing.IsDeleted == false)
@@ -41,14 +41,21 @@ namespace HaloBiz.Repository.Impl
             return await _context.ServicePricings
                 .Where(servicePricing => servicePricing.IsDeleted == false)
                 .FirstOrDefaultAsync(servicePricing => servicePricing.Id == Id && servicePricing.IsDeleted == false);
-
         }
 
         public async Task<IEnumerable<ServicePricing>> FindServicePricingByServiceId(long serviceId)
         {
-            return await _context.ServicePricings
+            return await _context.ServicePricings.AsNoTracking()
                  .Include(x => x.Branch)
                  .Where(x => x.ServiceId == serviceId && x.IsDeleted == false)
+                 .ToListAsync();
+        }
+
+        public async Task<IEnumerable<ServicePricing>> FindServicePricingByBranchId(long branchId)
+        {
+            return await _context.ServicePricings.AsNoTracking()
+                 .Include(x => x.Branch)
+                 .Where(x => x.BranchId == branchId && !x.IsDeleted)
                  .ToListAsync();
         }
 

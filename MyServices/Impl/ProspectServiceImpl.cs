@@ -81,6 +81,17 @@ namespace HaloBiz.MyServices.Impl
             return new ApiOkResponse(prospectTransferDTOs);
         }
 
+        public async Task<ApiResponse> GetProspectByEmail(string email)
+        {
+            var prospect = await _prospectRepo.FindProspectByEmail(email);
+            if (prospect == null)
+            {
+                return new ApiResponse(404);
+            }
+            var prospectTransferDTOs = _mapper.Map<ProspectTransferDTO>(prospect);
+            return new ApiOkResponse(prospectTransferDTOs);
+        }
+
         public async Task<ApiResponse> UpdateProspect(HttpContext context, long id, ProspectReceivingDTO prospectReceivingDTO)
         {
             var prospectToUpdate = await _prospectRepo.FindProspectById(id);

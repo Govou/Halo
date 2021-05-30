@@ -12,9 +12,11 @@ namespace HaloBiz.MyServices
     {
         Task<ApiResponse> AddSuspect(HttpContext context, SuspectReceivingDTO suspectReceivingDTO);
         Task<ApiResponse> GetAllSuspect();
+        Task<ApiResponse> GetUserSuspects(HttpContext context);
         Task<ApiResponse> GetSuspectById(long id);
         //Task<ApiResponse> GetSuspectByName(string name);
         Task<ApiResponse> UpdateSuspect(HttpContext context, long id, SuspectReceivingDTO suspectReceivingDTO);
         Task<ApiResponse> DeleteSuspect(long id);
+        Task<ApiResponse> ConvertSuspect(HttpContext context, long suspectId);
     }
 }

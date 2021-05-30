@@ -52,6 +52,16 @@ namespace HaloBiz.MyServices.Impl.LAMS
         {
             Quote savedQuote = null;
 
+            foreach (var quoteService in quoteReceivingDTO.QuoteServices)
+            {
+                if(quoteService.ContractStartDate == null || quoteService.ContractEndDate == null
+                    || quoteService.InvoicingInterval == null || quoteService.PaymentCycle == null || quoteService.FirstInvoiceSendDate == null
+                    || quoteService.FulfillmentStartDate == null || quoteService.FulfillmentEndDate == null)
+                {
+                    return new ApiResponse(400, "Missing Quote Service Parameters");
+                }
+            }
+
             using (var transaction = await _context.Database.BeginTransactionAsync())
             {
                 try

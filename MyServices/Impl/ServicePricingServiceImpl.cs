@@ -107,6 +107,17 @@ namespace HaloBiz.MyServices.Impl
             return new ApiOkResponse(servicePricingTransferDTOs);
         }
 
+        public async Task<ApiResponse> GetServicePricingByBranchId(long branchId)
+        {
+            var servicePricings = await _servicePricingRepo.FindServicePricingByBranchId(branchId);
+            if (servicePricings == null)
+            {
+                return new ApiResponse(404);
+            }
+            var servicePricingTransferDTOs = _mapper.Map<IEnumerable<ServicePricingTransferDTO>>(servicePricings);
+            return new ApiOkResponse(servicePricingTransferDTOs);
+        }
+
         public async Task<ApiResponse> UpdateServicePricing(HttpContext context, long id, ServicePricingReceivingDTO servicePricingReceivingDTO)
         {
             var servicePricingToUpdate = await _servicePricingRepo.FindServicePricingById(id);

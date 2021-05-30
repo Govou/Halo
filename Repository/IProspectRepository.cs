@@ -10,6 +10,7 @@ namespace HaloBiz.Repository
     {
         Task<Prospect> SaveProspect(Prospect prospect);
         Task<Prospect> FindProspectById(long Id);
+        Task<Prospect> FindProspectByEmail(string email);
         Task<IEnumerable<Prospect>> FindAllProspects();
         Task<Prospect> UpdateProspect(Prospect prospect);
         Task<bool> DeleteProspect(Prospect prospect);

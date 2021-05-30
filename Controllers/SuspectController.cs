@@ -32,6 +32,16 @@ namespace HaloBiz.Controllers
             return Ok(Suspect);
         }
 
+        [HttpGet("GetUserSuspects")]
+        public async Task<ActionResult> GetUserSuspects()
+        {
+            var response = await _SuspectService.GetUserSuspects(HttpContext);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var Suspect = ((ApiOkResponse)response).Result;
+            return Ok(Suspect);
+        }
+
         /*[HttpGet("caption/{name}")]
         public async Task<ActionResult> GetByCaption(string name)
         {
@@ -46,6 +56,16 @@ namespace HaloBiz.Controllers
         public async Task<ActionResult> GetById(long id)
         {
             var response = await _SuspectService.GetSuspectById(id);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var Suspect = ((ApiOkResponse)response).Result;
+            return Ok(Suspect);
+        }
+
+        [HttpPost("ConvertSuspect/{suspectId}")]
+        public async Task<ActionResult> ConvertSuspect(long suspectId)
+        {
+            var response = await _SuspectService.ConvertSuspect(HttpContext, suspectId);
             if (response.StatusCode >= 400)
                 return StatusCode(response.StatusCode, response);
             var Suspect = ((ApiOkResponse)response).Result;
