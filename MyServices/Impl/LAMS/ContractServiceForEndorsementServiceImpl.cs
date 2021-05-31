@@ -153,9 +153,9 @@ namespace HaloBiz.MyServices.Impl.LAMS
                     return new ApiResponse(500, "Could not set up approvals for service endorsement.");
                 }
 
-                var contractServiceToEndorseTransferDto = _mapper.Map<ContractServiceForEndorsementTransferDto>(savedEntity);
+                //var contractServiceToEndorseTransferDto = _mapper.Map<ContractServiceForEndorsementTransferDto>(savedEntity);
                 await transaction.CommitAsync();
-                return new ApiOkResponse(contractServiceToEndorseTransferDto);
+                return new ApiOkResponse(true);
             }
             catch (Exception ex)
             {
