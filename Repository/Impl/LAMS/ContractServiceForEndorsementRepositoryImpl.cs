@@ -32,7 +32,7 @@ namespace HaloBiz.Repository.Impl.LAMS
 
         public async Task<ContractServiceForEndorsement> GetEndorsementDetailsById(long endorsementId)
         {
-            return await _context.ContractServiceForEndorsements.AsNoTracking()
+            return await _context.ContractServiceForEndorsements.AsNoTracking().AsSplitQuery()
                 .Include(x => x.EndorsementType)
                 .Include(x => x.Service)
                 .ThenInclude(x => x.OperatingEntity)
