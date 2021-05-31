@@ -125,8 +125,10 @@ namespace HaloBiz.MyServices.Impl.LAMS
             }
 
             var entityToSave = _mapper.Map<ContractServiceForEndorsement>(contractServiceForEndorsementReceiving);
+
             var endorsementType = await _context.EndorsementTypes
                         .FirstOrDefaultAsync(x => x.Id == entityToSave.EndorsementTypeId);
+
             if(endorsementType.Caption.ToLower().Contains("renew")
                         && !await ValidateContractToRenew(entityToSave))
             {
@@ -376,7 +378,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
         }
 
-        private async Task<bool> AddServiceEndorsement(ContractService contractService,ContractServiceForEndorsement contractServiceForEndorsement, Service service, CustomerDivision customerDivision)
+        private async Task<bool> AddServiceEndorsement(ContractService contractService, ContractServiceForEndorsement contractServiceForEndorsement, Service service, CustomerDivision customerDivision)
         {
             var salesVoucherName = this._configuration.GetSection("VoucherTypes:SalesInvoiceVoucher").Value;
             var financialVoucherType = await _context.FinanceVoucherTypes

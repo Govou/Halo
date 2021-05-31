@@ -288,10 +288,22 @@ namespace HaloBiz.MyServices.Impl
 
                 if (!contractServiceForEndorsement.BillableAmount.HasValue) return false;
 
+                double amountChangeValue = contractServiceForEndorsement.BillableAmount.Value;
+
+                var edType = endorsementType.Caption.ToLower();
+                if (edType.Contains("topup") || edType.Contains("reduction"))
+                {
+                    var prevContractService = await _context.ContractServices.AsNoTracking()
+                                                    .Where(x => x.Id == contractServiceForEndorsement.PreviousContractServiceId)
+                                                    .SingleOrDefaultAsync();
+
+                    amountChangeValue = Math.Abs(contractServiceForEndorsement.BillableAmount.Value - prevContractService.BillableAmount.Value);
+                }
+
                 var orderedList = approvalLimits
-                    .Where(x => contractServiceForEndorsement.BillableAmount.Value > x.UpperlimitValue ||
-                                (contractServiceForEndorsement.BillableAmount.Value <= x.UpperlimitValue && 
-                                contractServiceForEndorsement.BillableAmount.Value >= x.LowerlimitValue))
+                    .Where(x => amountChangeValue > x.UpperlimitValue ||
+                                (amountChangeValue <= x.UpperlimitValue &&
+                                amountChangeValue >= x.LowerlimitValue))
                     .OrderBy(x => x.Sequence);
 
                 var customerDivision = await _context.CustomerDivisions.Where(x => x.Id == contractServiceForEndorsement.CustomerDivisionId)

@@ -62,10 +62,13 @@ namespace HaloBiz.DTOs.TransferDTOs.LAMS
         public long CustomerDivisionId { get; set; }
         public CustomerDivision CustomerDivision { get; set; }
         public long BranchId { get; set; }
+        public Branch Branch { get; set; }
         public long OfficeId { get; set; }
+        public Office Office { get; set; }
         public long PreviousContractServiceId { get; set; }
         public DateTime DateForNewContractToTakeEffect { get; set; }
         public DateTime CreatedAt { get; set; }
         public string EndorsementDescription { get; set; }
+        public string DocumentUrl { get; set; }
     }
 }
