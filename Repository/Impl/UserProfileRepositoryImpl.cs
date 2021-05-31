@@ -54,7 +54,7 @@ namespace HaloBiz.Repository.Impl
 
         public async Task<IEnumerable<UserProfile>> FindAllUserProfile()
         {
-            return await _context.UserProfiles
+            return await _context.UserProfiles.AsNoTracking()
                 .Include(x => x.Sbu)
                 .Include(x => x.Role).ThenInclude(x => x.RoleClaims.Where(x => x.IsDeleted == false))
                 .Where(user => user.IsDeleted == false)
