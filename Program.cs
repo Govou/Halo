@@ -63,13 +63,13 @@ namespace HaloBiz
                 })
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
-                    //webBuilder.UseStartup<Startup>();       //To run locally
+                    webBuilder.UseStartup<Startup>();       //To run locally
 
-                    webBuilder.UseStartup<Startup>()        //When pushing
-                    .UseKestrel(options =>
-                    {
-                        options.ListenAnyIP(Int32.Parse(System.Environment.GetEnvironmentVariable("PORT") ?? "5050"));
-                    });
+                    //webBuilder.UseStartup<Startup>()        //When pushing
+                    //.UseKestrel(options =>
+                    //{
+                    //    options.ListenAnyIP(Int32.Parse(System.Environment.GetEnvironmentVariable("PORT") ?? "5050"));
+                    //});
                 })
                 .UseSerilog((hostContext, loggerConfig) =>
                 {
