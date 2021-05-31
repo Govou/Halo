@@ -43,6 +43,13 @@ namespace HaloBiz.Repository.Impl.LAMS
                 .Include(x => x.Contract)
                 .Include(x => x.CreatedBy)
                 .Include(x => x.CustomerDivision)
+                .ThenInclude(x => x.PrimaryContact)
+                .Include(x => x.CustomerDivision)
+                .ThenInclude(x => x.SecondaryContact)
+                .Include(x => x.CustomerDivision)
+                .ThenInclude(x => x.Customer)
+                .Include(x => x.Branch)
+                .Include(x => x.Office)
                 .FirstOrDefaultAsync(x => x.Id == endorsementId && x.IsDeleted == false);
         }
 
