@@ -78,35 +78,54 @@ namespace HaloBiz.MyServices.Impl
 
         public  async Task<ApiResponse> UpdateSupplier(HttpContext context, long id, SupplierReceivingDTO supplierCategoryReceivingDTO)
         {
-            var supplierCategoryToUpdate = await _supplierCategoryRepo.FindSupplierById(id);
-            if (supplierCategoryToUpdate == null)
+            try
             {
-                return new ApiResponse(404);
+                var supplierCategoryToUpdate = await _supplierCategoryRepo.FindSupplierById(id);
+                if (supplierCategoryToUpdate == null)
+                {
+                    return new ApiResponse(404);
+                }
+
+                var summary = $"Initial details before change, \n {supplierCategoryToUpdate.ToString()} \n";
+
+                supplierCategoryToUpdate.SupplierName = supplierCategoryReceivingDTO.SupplierName;
+                supplierCategoryToUpdate.SupplierCategoryId = supplierCategoryReceivingDTO.SupplierCategoryId;
+                supplierCategoryToUpdate.SupplierEmail = supplierCategoryReceivingDTO.SupplierEmail;
+                supplierCategoryToUpdate.MobileNumber = supplierCategoryReceivingDTO.MobileNumber;
+                supplierCategoryToUpdate.StateId = supplierCategoryReceivingDTO.StateId;
+                supplierCategoryToUpdate.Lgaid = supplierCategoryReceivingDTO.LGAId;
+                supplierCategoryToUpdate.Street = supplierCategoryReceivingDTO.Street;
+                supplierCategoryToUpdate.Address = supplierCategoryReceivingDTO.Address;
+                supplierCategoryToUpdate.ImageUrl = System.String.IsNullOrWhiteSpace(supplierCategoryReceivingDTO.Description) ? supplierCategoryToUpdate.ImageUrl : supplierCategoryReceivingDTO.ImageUrl;
+                supplierCategoryToUpdate.PrimaryContactName = supplierCategoryReceivingDTO.PrimaryContactName;
+                supplierCategoryToUpdate.PrimaryContactEmail = supplierCategoryReceivingDTO.PrimaryContactEmail;
+                supplierCategoryToUpdate.PrimaryContactMobile = supplierCategoryReceivingDTO.PrimaryContactMobile;
+                supplierCategoryToUpdate.PrimaryContactGender = supplierCategoryReceivingDTO.PrimaryContactGender;
+                var updatedSupplier = await _supplierCategoryRepo.UpdateSupplier(supplierCategoryToUpdate);
+
+                summary += $"Details after change, \n {updatedSupplier.ToString()} \n";
+
+                if (updatedSupplier == null)
+                {
+                    return new ApiResponse(500);
+                }
+                ModificationHistory history = new ModificationHistory()
+                {
+                    ModelChanged = "Supplier",
+                    ChangeSummary = summary,
+                    ChangedById = context.GetLoggedInUserId(),
+                    ModifiedModelId = updatedSupplier.Id
+                };
+
+                await _historyRepo.SaveHistory(history);
+
+                var supplierCategoryTransferDTOs = _mapper.Map<SupplierTransferDTO>(updatedSupplier);
+                return new ApiOkResponse(supplierCategoryTransferDTOs);
             }
-            
-            var summary = $"Initial details before change, \n {supplierCategoryToUpdate.ToString()} \n" ;
-
-            // supplierCategoryToUpdate.CategoryName = supplierCategoryReceivingDTO.CategoryName;
-            supplierCategoryToUpdate.Description = supplierCategoryReceivingDTO.Description;
-            var updatedSupplier = await _supplierCategoryRepo.UpdateSupplier(supplierCategoryToUpdate);
-
-            summary += $"Details after change, \n {updatedSupplier.ToString()} \n";
-
-            if (updatedSupplier == null)
+            catch(System.Exception error)
             {
-                return new ApiResponse(500);
+                return new ApiResponse(500, error.Message);
             }
-            ModificationHistory history = new ModificationHistory(){
-                ModelChanged = "Supplier",
-                ChangeSummary = summary,
-                ChangedById = context.GetLoggedInUserId(),
-                ModifiedModelId = updatedSupplier.Id
-            };
-
-            await _historyRepo.SaveHistory(history);
-
-            var supplierCategoryTransferDTOs = _mapper.Map<SupplierTransferDTO>(updatedSupplier);
-            return new ApiOkResponse(supplierCategoryTransferDTOs);
         }
     }
 }

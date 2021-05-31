@@ -52,7 +52,8 @@ namespace HaloBiz.MyServices.Impl
 
                 complaint.CreatedById = loggedInUserId;
                 complaint.RegisteredById = loggedInUserId;
-
+                complaint.DateComplaintReported = complaintReceivingDTO.DateCreated;
+                complaint.DateCreated = DateTime.Now;
                 complaint.DateRegistered = DateTime.Now;
 
                 complaint.IsRegistered = true;
@@ -199,6 +200,8 @@ namespace HaloBiz.MyServices.Impl
                         complaint.Complainant = await _context.CustomerDivisions.FindAsync(complaint.ComplainantId);
                         break;
                 }
+
+                complaint.EvidenceUrls = await _context.Evidences.Where(x => x.ComplaintId == complaint.Id).Select(x => x.ImageUrl).ToListAsync();
             }
 
             return new ApiOkResponse(complaintTransferDTOs);

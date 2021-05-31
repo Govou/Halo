@@ -16,5 +16,6 @@ namespace HaloBiz.DTOs.ReceivingDTOs
         [Range(1, 5)]
         public int currentStage { get; set; }       //Uses ComplaintStage
         public string[] evidences { get; set; }
+        public string applicationUrl { get; set; }
     }
 }

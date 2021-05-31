@@ -65,6 +65,18 @@ namespace HaloBiz.MyServices.Impl
             return new ApiOkResponse(true);
         }
 
+        public async Task<ApiResponse> GetAllHandlerProfileEscalationLevel()
+        {
+            var profileEscalationLevels = await _profileEscalationLevelRepo.FindAllProfileEscalationLevels();
+            var handlersOnly = profileEscalationLevels.Where(x => x.EscalationLevel.Caption.ToLower().Contains("handler")).ToList();
+            if (handlersOnly == null)
+            {
+                return new ApiResponse(404);
+            }
+            var profileEscalationLevelTransferDTO = _mapper.Map<IEnumerable<ProfileEscalationLevelTransferDTO>>(handlersOnly);
+            return new ApiOkResponse(profileEscalationLevelTransferDTO);
+        }
+
         public async Task<ApiResponse> GetAllProfileEscalationLevel()
         {
             var profileEscalationLevels = await _profileEscalationLevelRepo.FindAllProfileEscalationLevels();
