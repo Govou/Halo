@@ -18,7 +18,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 
-namespace HaloBiz.Controllers 
+namespace HaloBiz.Controllers
 {
     [Route("api/v1/[controller]")]
     [ApiController]
@@ -53,7 +53,7 @@ namespace HaloBiz.Controllers
                 }
                 catch (InvalidJwtException invalidJwtException)
                 {
-                    _logger.LogWarning($"Could not validate Google Id Token {loginReceiving.IdToken} => {invalidJwtException.Message}");
+                    _logger.LogWarning($"Could not validate Google Id Token [{loginReceiving.IdToken}] => {invalidJwtException.Message}");
                     return StatusCode(404, invalidJwtException.Message);
                 }
 
@@ -71,7 +71,7 @@ namespace HaloBiz.Controllers
                     _logger.LogWarning($"Could not find user [{email}] => {response.Message}");
                     return StatusCode(response.StatusCode, response);
                 }
-                    
+
                 var user = ((ApiOkResponse)response).Result;
                 var userProfile = (UserProfileTransferDTO)user;
 
@@ -82,8 +82,8 @@ namespace HaloBiz.Controllers
             {
                 _logger.LogError(ex.Message);
                 _logger.LogError(ex.StackTrace);
-                return StatusCode(500, $"An error occured, {ex.Message}");
-            }       
+                return StatusCode(500, $"An error occured => {ex.Message}");
+            }
         }
 
         [AllowAnonymous]
@@ -101,7 +101,7 @@ namespace HaloBiz.Controllers
                 catch (InvalidJwtException invalidJwtException)
                 {
                     _logger.LogWarning(JsonConvert.SerializeObject(authUserProfileReceivingDTO));
-                    _logger.LogWarning($"Could not validate Google Id Token {authUserProfileReceivingDTO.IdToken} => {invalidJwtException.Message}");
+                    _logger.LogWarning($"Could not validate Google Id Token [{authUserProfileReceivingDTO.IdToken}] => {invalidJwtException.Message}");
                     return StatusCode(404, invalidJwtException.Message);
                 }
 
@@ -121,7 +121,7 @@ namespace HaloBiz.Controllers
                 {
                     _logger.LogWarning($"Could not create user [{userProfileDTO.Email}] => {response.Message}");
                     return StatusCode(response.StatusCode, response);
-                }               
+                }
 
                 var user = ((ApiOkResponse)response).Result;
                 var userProfile = (UserProfileTransferDTO)user;
@@ -139,12 +139,12 @@ namespace HaloBiz.Controllers
             {
                 _logger.LogError(ex.Message);
                 _logger.LogError(ex.StackTrace);
-                return StatusCode(500, $"An error occured, {ex.Message}");
-            }          
+                return StatusCode(500, $"An error occured => {ex.Message}");
+            }
         }
 
         private string GenerateToken(UserProfileTransferDTO userProfile)
-        {        
+        {
             List<Claim> claims = new List<Claim>()
             {
                 new Claim(ClaimTypes.NameIdentifier, userProfile.Id.ToString()),
