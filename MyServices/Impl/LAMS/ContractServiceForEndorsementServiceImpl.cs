@@ -114,7 +114,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
             var item = contractServiceForEndorsementReceiving;
             
             var alreadyExists = await _context.ContractServiceForEndorsements
-                        .AnyAsync(x => x.ContractId == item.ContractId
+                        .AnyAsync(x => x.ContractId == item.ContractId && x.PreviousContractServiceId == item.PreviousContractServiceId
                                     && x.CustomerDivisionId == item.CustomerDivisionId && x.ServiceId == item.ServiceId
                                     && !x.IsApproved && !x.IsDeclined && x.IsConvertedToContractService != true
                                     && x.EndorsementTypeId == item.EndorsementTypeId && !x.IsDeleted);
