@@ -154,6 +154,11 @@ namespace HaloBiz.MyServices.Impl.LAMS
             using var transaction = await _context.Database.BeginTransactionAsync();
             try
             {
+                if (quoteReceivingDTO.QuoteServices.Count() < 1)
+                {
+                    return new ApiResponse(400, "There should be at least 1 quote service for an update.");
+                }
+
                 var createdById = context.GetLoggedInUserId();
                 var quote = await _quoteRepo.FindQuoteById(id);
                 if (quote == null)
@@ -175,7 +180,6 @@ namespace HaloBiz.MyServices.Impl.LAMS
                     {
                         return new ApiResponse(500);
                     }
-                    quote.QuoteServices = null;
                 }
 
                 var quoteServices = _mapper.Map<IEnumerable<QuoteService>>(quoteReceivingDTO.QuoteServices);
@@ -193,12 +197,13 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 }
 
                 var updatedQuote = await _quoteRepo.FindQuoteById(id);
-                summary += $"Details after change, \n {updatedQuote} \n";
 
-                if (quote == null)
+                if (updatedQuote == null)
                 {
                     return new ApiResponse(500);
                 }
+
+                summary += $"Details after change, \n {updatedQuote} \n";          
 
                 ModificationHistory history = new ModificationHistory()
                 {
