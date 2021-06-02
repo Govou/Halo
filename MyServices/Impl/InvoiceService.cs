@@ -533,12 +533,12 @@ namespace HaloBiz.MyServices.Impl
             if(this.isRetail)
             {
                 accountId = await GetRetailAccount(customerDivision);
-            }else if(customerDivision.AccountId > 0){
-                accountId = (long) customerDivision.AccountId;
+            }else if(customerDivision.ReceivableAccountId > 0){
+                accountId = (long) customerDivision.ReceivableAccountId;
             }else{
                 //Create Customer Account, Account master and account details
                 var customerAccountId = await CreateCustomerAccount(customerDivision);
-                customerDivision.AccountId = customerAccountId;
+                customerDivision.ReceivableAccountId = customerAccountId;
                 accountId = customerAccountId;
                 _context.CustomerDivisions.Update(customerDivision);
                 await _context.SaveChangesAsync();
@@ -598,7 +598,7 @@ namespace HaloBiz.MyServices.Impl
                 };
                 var savedAccount = await SaveAccount(account);
 
-                customerDivision.AccountId = savedAccount.Id;
+                customerDivision.ReceivableAccountId = savedAccount.Id;
                 _context.CustomerDivisions.Update(customerDivision);
                 await _context.SaveChangesAsync();
                 accountId = savedAccount.Id;

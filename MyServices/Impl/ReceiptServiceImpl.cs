@@ -122,7 +122,7 @@ namespace HaloBiz.MyServices.Impl
             }
             //Post to client account 
             await PostAccountDetail(invoice, receipt , receiptVoucherType.Id, 
-                                       true, accountMaster.Id,(long)  invoice.CustomerDivision.AccountId, amount, branch.Id, office.Id);
+                                       true, accountMaster.Id,(long)  invoice.CustomerDivision.ReceivableAccountId, amount, branch.Id, office.Id);
             return true;
         }
 

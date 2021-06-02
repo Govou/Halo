@@ -7,7 +7,6 @@ using HaloBiz.DTOs.ReceivingDTOs;
 using HaloBiz.DTOs.TransferDTOs.LAMS;
 using HaloBiz.MyServices.LAMS;
 using Microsoft.AspNetCore.Mvc;
-//using Controllers.Models;
 
 namespace Controllers.Controllers
 {

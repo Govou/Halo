@@ -426,7 +426,7 @@ namespace HaloBiz.MyServices.Impl
             {
                 accountId = await GetRetailAccount(customerDivision);
             }else{
-                accountId = (long) customerDivision.AccountId;
+                accountId = (long) customerDivision.ReceivableAccountId;
             }
             await PostAccountDetail(description, 
                                     contractServiceId, 
