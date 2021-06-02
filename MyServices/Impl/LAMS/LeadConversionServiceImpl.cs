@@ -68,7 +68,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                       CustomerDivision customerDivision = await  ConvertLeadDivisionToCustomerDivision(leadDivision, customer.Id, _context);
 
                       var quote = await _context.Quotes
-                                            .Include(x => x.QuoteServices)
+                                            .Include(x => x.QuoteServices.Where(x => !x.IsDeleted))
                                                 .ThenInclude(x => x.SbutoQuoteServiceProportions)
                                             .FirstOrDefaultAsync(x => x.LeadDivisionId == leadDivision.Id);
 
