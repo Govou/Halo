@@ -180,7 +180,6 @@ namespace HaloBiz.MyServices.Impl.LAMS
                     {
                         return new ApiResponse(500);
                     }
-                    quote.QuoteServices = null;
                 }
 
                 var quoteServices = _mapper.Map<IEnumerable<QuoteService>>(quoteReceivingDTO.QuoteServices);
@@ -198,12 +197,13 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 }
 
                 var updatedQuote = await _quoteRepo.FindQuoteById(id);
-                summary += $"Details after change, \n {updatedQuote} \n";
 
-                if (quote == null)
+                if (updatedQuote == null)
                 {
                     return new ApiResponse(500);
                 }
+
+                summary += $"Details after change, \n {updatedQuote} \n";          
 
                 ModificationHistory history = new ModificationHistory()
                 {

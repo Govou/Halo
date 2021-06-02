@@ -34,19 +34,22 @@ namespace HaloBiz.Repository.Impl.LAMS
 
         public async Task<Quote> FindQuoteById(long Id)
         {
-            return await _context.Quotes.Include(a => a.QuoteServices.Where(a => a.IsDeleted == false))
-                .FirstOrDefaultAsync( quote => quote.Id == Id && quote.IsDeleted == false);
+            return await _context.Quotes.AsNoTracking()
+                            .Include(a => a.QuoteServices.Where(a => a.IsDeleted == false))
+                            .FirstOrDefaultAsync(quote => quote.Id == Id && quote.IsDeleted == false);
         }
 
         public async Task<Quote> FindQuoteByReferenceNumber(string referenceNumber)
         {
-            return await _context.Quotes.Include(a => a.QuoteServices.Where(a => a.IsDeleted == false))
-                .FirstOrDefaultAsync( quote => quote.ReferenceNo == referenceNumber && quote.IsDeleted == false);
+            return await _context.Quotes.AsNoTracking()
+                .Include(a => a.QuoteServices.Where(a => a.IsDeleted == false))
+                .FirstOrDefaultAsync(quote => quote.ReferenceNo == referenceNumber && quote.IsDeleted == false);
         }
 
         public async Task<IEnumerable<Quote>> FindAllQuote()
         {
-            return await _context.Quotes.Include(a => a.QuoteServices.Where(a => a.IsDeleted == false))
+            return await _context.Quotes.AsNoTracking()
+                .Include(a => a.QuoteServices.Where(a => a.IsDeleted == false))
                 .Where(quote => quote.IsDeleted == false)
                 .OrderBy(quote => quote.CreatedAt)
                 .ToListAsync();
