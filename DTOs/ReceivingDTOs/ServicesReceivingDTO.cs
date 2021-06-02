@@ -25,13 +25,16 @@ namespace HaloBiz.DTOs.ReceivingDTOs
         [Required]
         public long ServiceGroupId { get; set; }
         [Required]
-        public long AccountId { get; set; }
+        public long ControlAccountId { get; set; }
         [Required]
         public long OperatingEntityId { get; set; }
         [Required]
         public long DivisionId { get; set; }
         [Required]
         public bool IsVatable { get; set; }
+        public bool? CanBeSoldOnline { get; set; }
+        public bool HasAdminComponent { get; set; }
+        public long? AdminServiceId { get; set; }
         [Required]
         public IList<Int64> RequiredDocumentsId { get; set; }
         public IList<Int64> RequiredServiceFieldsId { get; set; }

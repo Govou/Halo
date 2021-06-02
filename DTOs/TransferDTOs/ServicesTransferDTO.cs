@@ -26,10 +26,14 @@ namespace HaloBiz.DTOs.TransferDTOs
         public bool IsRequestedForPublish { get; set; }
         public bool PublishedApprovedStatus { get; set; }
         public TargetTransferDTO Target { get; set; }
-        public AccountTransferDTO Account { get; set; }
-        public long AccountId { get; set; }
+        public ControlAccountTransferDTO ControlAccount { get; set; }
+        public long ControlAccountId { get; set; }
         public ServiceTypeTransferDTO ServiceType { get; set; }
         public bool IsVatable { get; set; }
+        public bool? CanBeSoldOnline { get; set; }
+        public bool HasAdminComponent { get; set; }
+        public long? AdminServiceId { get; set; }
+        public ServiceTransferDTO AdminService { get; set; }
         public DateTime CreatedAt { get; set; }
         public IList<RequiredServiceDocumentTransferDTO> RequiredServiceDocument { get; set; }
         public IList<RequredServiceQualificationElementTransferDTO> RequiredServiceFields { get; set; }

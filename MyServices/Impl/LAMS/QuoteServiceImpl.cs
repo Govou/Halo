@@ -154,6 +154,11 @@ namespace HaloBiz.MyServices.Impl.LAMS
             using var transaction = await _context.Database.BeginTransactionAsync();
             try
             {
+                if (quoteReceivingDTO.QuoteServices.Count() < 1)
+                {
+                    return new ApiResponse(400, "There should be at least 1 quote service for an update.");
+                }
+
                 var createdById = context.GetLoggedInUserId();
                 var quote = await _quoteRepo.FindQuoteById(id);
                 if (quote == null)
