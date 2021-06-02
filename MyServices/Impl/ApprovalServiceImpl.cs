@@ -191,7 +191,7 @@ namespace HaloBiz.MyServices.Impl
                 foreach (var leadDivision in lead.LeadDivisions)
                 {
                     var quote = await _context.Quotes.AsNoTracking()
-                                            .Include(x => x.QuoteServices)
+                                            .Include(x => x.QuoteServices.Where(x => !x.IsDeleted))
                                             .FirstOrDefaultAsync(x => x.LeadDivisionId == leadDivision.Id);
 
                     if(quote == null)
