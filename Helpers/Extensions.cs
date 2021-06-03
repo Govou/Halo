@@ -103,5 +103,117 @@ namespace HaloBiz.Helpers
         {
             Task.Run(action);
         }
+
+        public static string GetStateShortName(string stateName)
+        {
+            switch (stateName.ToUpper())
+            {
+                case "ABA":
+                    return "ABA";
+                case "ABUJA":
+                    return "ABJ";
+                case "ABEOKUTA":
+                    return "ABK";
+                case "ASABA":
+                    return "ASA";
+                case "BAUCHI":
+                    return "BCH";
+                case "BENIN":
+                    return "BEN";
+                case "BIRNIN-KEBBI":
+                    return "BKB";
+                case "CALABAR":
+                    return "CAL";
+                case "ENUGU":
+                    return "ENU";
+                case "GUSAU":
+                    return "GUA";
+                case "IBADAN":
+                    return "IBA";
+                case "ILORIN":
+                    return "ILR";
+                case "JIGAWA":
+                    return "JGW";
+                case "JOS":
+                    return "JOS";
+                case "KADUNA":
+                    return "KD";
+                case "KANO":
+                    return "KN";
+                case "KASTINA":
+                    return "KST";
+                case "LAGOS":
+                    return "LA";
+                case "MAIDUGURI":
+                    return "MDG";
+                case "MINNA":
+                    return "MIN";
+                case "ONITSHA":
+                    return "ONT";
+                case "OSOGBO":
+                    return "OSO";
+                case "OWERRI":
+                    return "OWR";
+                case "PORTHARCOURT":
+                    return "PH";
+                case "SOKOTO":
+                    return "SKT";
+                default:
+                    return stateName.ToUpper().Substring(0, 4);
+            }
+        }
+
+        public static string GetIndustryShortName(string industry)
+        {
+            switch (industry.ToUpper())
+            {
+                case "SERVICE INDUSTRY":
+                    return "01";
+                case "MANUFACTURING":
+                    return "02";
+                case "TELECOMMUNICATIONS":
+                    return "03";
+                case "OIL AND GAS INDUSTRY":
+                    return "04";
+                case "FINANCIAL SECTOR":
+                    return "05";
+                case "INDIVIDUAL":
+                    return "06";
+                case "PUBLIC SECTOR":
+                    return "07";
+                case "OTHERS":
+                    return "08";
+                case "UNIFORMS":
+                    return "09";
+                case "BOOTS AND OTHERS":
+                    return "10";
+                case "STATIONERIES":
+                    return "11";
+                case "COMPUTER ASSESSORIES":
+                    return "12";
+                case "COMPUTER HARDWARE":
+                    return "13";
+                case "FURNITURE":
+                    return "14";
+                case "OFFICE EQUIPMENT":
+                    return "15";
+                case "MAINTENANCE":
+                    return "16";
+                case "TECHNOLOGY ACCESSORIES":
+                    return "17";
+                case "INTERNET SUBCRIPTION":
+                    return "18";
+                case "COMMUNICATION":
+                    return "19";
+                case "MEDICAL":
+                    return "20";
+                case "WALKIE TALKIE":
+                    return "21";
+                case "GENERAL BUSINESS":
+                    return "XXX";
+                default:
+                    return industry.ToUpper().Substring(0, 4); ;
+            }
+        }
     }
 }

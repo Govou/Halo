@@ -16,8 +16,10 @@ namespace HaloBiz.Helpers
                 .Where(x => x.Name.EndsWith("RepositoryImpl") 
                     || x.Name.EndsWith("Repository")
                     || x.Name.EndsWith("ServiceImpl")
+                    || x.Name.EndsWith("ServiceImplV2")
                     || x.Name.EndsWith("Service")
                     || x.Name.EndsWith("Adapter"))
+                .Where(x => x.Name != "LeadConversionServiceImpl")
                 .AsPublicImplementedInterfaces(ServiceLifetime.Scoped);
 
             //put any non-standard DI registration, e.g. generic types, here
