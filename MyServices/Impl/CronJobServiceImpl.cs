@@ -41,7 +41,6 @@ namespace HaloBiz.MyServices.Impl
 
         public async Task<ApiResponse> MigrateNewCustomersToDTRACK(HttpContext context)
         {
-            return new ApiOkResponse(true);
             try
             {
                 _logger.LogInformation("Running Customer Creation Job");
@@ -63,89 +62,91 @@ namespace HaloBiz.MyServices.Impl
 
                 foreach (var account in customerAccountsThatHaveNotBeenIntegrated)
                 {
-                    #region Get CustomerDivision, State, Primary Contact, Customer and ControlAccount
-                    var customerDivision = await _context.CustomerDivisions.SingleOrDefaultAsync(x => x.ReceivableAccountId == account.Id);
-                    if (customerDivision == null)
-                    {
-                        _logger.LogInformation($"Customer account {account.Name} does not have customer division");
-                        continue;
-                    }
-
-                    /*if(!customerDivision.StateId.HasValue)
-                    {
-                        _logger.LogInformation($"Customer account {account.Name} does not have state");
-                        continue;
-                    };*/
-
-                    var state = await _context.States.FindAsync(customerDivision.StateId ?? 1);
-
-                    if (state == null)
-                    {
-                        _logger.LogInformation($"Customer account {account.Name} does not have state");
-                        continue;
-                    }
-                    else customerDivision.State = state;
-
-                    if (!customerDivision.PrimaryContactId.HasValue)
-                    {
-                        _logger.LogInformation($"Customer account {account.Name} does not have primary contact");
-                        continue;
-                    };
-                    var primaryContact = await _context.LeadDivisionContacts.FindAsync(customerDivision.PrimaryContactId.Value);
-                    if (primaryContact == null)
-                    {
-                        _logger.LogInformation($"Customer account {account.Name} does not have primary contact");
-                        continue;
-                    };
-
-                    var customer = await _context.Customers.FindAsync(customerDivision.CustomerId);
-                    if (customer == null)
-                    {
-                        _logger.LogInformation($"Customer account {account.Name} does not have customer");
-                        continue;
-                    };
-
-                    if (account.ControlAccountId == 0)
-                    {
-                        _logger.LogInformation($"Customer account {account.Name} does not have control account");
-                        continue;
-                    };
                     var controlAccount = await _context.ControlAccounts.FindAsync(account.ControlAccountId);
                     if (controlAccount == null)
                     {
                         _logger.LogInformation($"Customer account {account.Name} does not have control account");
                         continue;
                     }
-                    #endregion
 
-                    var tokenResponse = await _dTrackBaseUrl.AppendPathSegment("token")
-                        .PostUrlEncodedAsync(new
-                        {
-                            grant_type = "password",
-                            username = _dTrackUsername,
-                            password = _dTrackPassword
-                        })
-                        .ReceiveJson();
+                    object requestBody;
 
-                    string token = tokenResponse.access_token;
-                    _logger.LogInformation($"The token => {token}");
-
-                    var requestBody = new
+                    if (account.Name == "RETAIL RECEIVABLE ACCOUNT")
                     {
-                        CustomerNumber = $"{account.Alias}_{customerDivision.DivisionName.Substring(0, 1)}{customerDivision.Rcnumber.Substring(0, 2)}",
-                        Name = customerDivision.DivisionName,
-                        GLAccount = controlAccount.Alias, // "180101",
-                        ShortName = $"{customerDivision.DivisionName.Substring(0, 3)}{customerDivision.DivisionName.Substring(customerDivision.DivisionName.Length - 4, 3)}{customerDivision.Rcnumber.Substring(customerDivision.Rcnumber.Length - 4, 3)}",
-                        AddressLine1 = customerDivision.Address.Length > 30 ? customerDivision.Address.Substring(0, 30) : customerDivision.Address,
-                        EmailAddress = customerDivision.Email,
-                        TelephoneNumber = customerDivision.PhoneNumber,
-                        Location = $"{Extensions.GetStateShortName(customerDivision.State.Capital)}",
-                        BusinessSector = Extensions.GetIndustryShortName(customerDivision.Industry),
-                        OtherInfo = $"{customerDivision.DivisionName}-{customer.Rcnumber}-{customer.CreatedAt}",
-                        Contact = $"{primaryContact.FirstName} {primaryContact.LastName}"
-                    };
+                        requestBody = new
+                        {
+                            CustomerNumber = "HA_RET",
+                            Name = "Retail",
+                            GLAccount = controlAccount.Alias, // "180101",
+                            ShortName = "RETAIL",
+                            AddressLine1 = "19B Mobolaji Anthony",
+                            EmailAddress = "developers@halogen-group.com",
+                            TelephoneNumber = "08123456789",
+                            Location = "LA",
+                            BusinessSector = "RET",
+                            OtherInfo = $"RECEIVABLE FOR ALL RETAIL",
+                            Contact = "HALOGEN GROUP"
+                        };
+                    
+                    }
+                    else
+                    {
+                        #region Get CustomerDivision, State, Primary Contact, Customer and ControlAccount
+                        var customerDivision = await _context.CustomerDivisions.SingleOrDefaultAsync(x => x.ReceivableAccountId == account.Id);
+                        if (customerDivision == null)
+                        {
+                            _logger.LogInformation($"Customer account {account.Name} does not have customer division");
+                            continue;
+                        }
+
+                        var state = await _context.States.FindAsync(customerDivision.StateId ?? 1);
+
+                        if (state == null)
+                        {
+                            _logger.LogInformation($"Customer division {customerDivision.DivisionName} does not have state");
+                            continue;
+                        }
+                        else customerDivision.State = state;
+
+                        if (!customerDivision.PrimaryContactId.HasValue)
+                        {
+                            _logger.LogInformation($"Customer division {customerDivision.DivisionName} does not have primary contact");
+                            continue;
+                        };
+                        var primaryContact = await _context.LeadDivisionContacts.FindAsync(customerDivision.PrimaryContactId.Value);
+                        if (primaryContact == null)
+                        {
+                            _logger.LogInformation($"Customer division {customerDivision.DivisionName} does not have primary contact");
+                            continue;
+                        };
+
+                        var customer = await _context.Customers.FindAsync(customerDivision.CustomerId);
+                        if (customer == null)
+                        {
+                            _logger.LogInformation($"Customer division {customerDivision.DivisionName} does not have customer");
+                            continue;
+                        };
+                        #endregion
+
+                        requestBody = new
+                        {
+                            CustomerNumber = customerDivision.DTrackCustomerNumber,
+                            Name = customerDivision.DivisionName,
+                            GLAccount = controlAccount.Alias, // "180101",
+                            ShortName = $"{customerDivision.DivisionName.Substring(0, 3)}{customerDivision.DivisionName.Substring(customerDivision.DivisionName.Length - 4, 3)}{customerDivision.Rcnumber.Substring(customerDivision.Rcnumber.Length - 4, 3)}",
+                            AddressLine1 = customerDivision.Address.Length > 30 ? customerDivision.Address.Substring(0, 30) : customerDivision.Address,
+                            EmailAddress = customerDivision.Email,
+                            TelephoneNumber = customerDivision.PhoneNumber,
+                            Location = $"{Extensions.GetStateShortName(customerDivision.State.Capital)}",
+                            BusinessSector = Extensions.GetIndustryShortName(customerDivision.Industry),
+                            OtherInfo = $"{customerDivision.DivisionName}-{customer.Rcnumber}-{customer.CreatedAt}",
+                            Contact = $"{primaryContact.FirstName} {primaryContact.LastName}"
+                        };
+                    }
 
                     _logger.LogInformation($"Request|{JsonConvert.SerializeObject(requestBody)}");
+
+                    string token = await GetAPIToken();
 
                     var response = await _dTrackBaseUrl.AllowAnyHttpStatus()
                         .AppendPathSegment("api/Customers/Create")
@@ -180,7 +181,6 @@ namespace HaloBiz.MyServices.Impl
 
         public async Task<ApiResponse> PostNewAccountingRecordsToDTRACK(HttpContext context)
         {
-            return new ApiOkResponse(true);
             try
             {
                 _logger.LogInformation("Running Account Posting Job");
@@ -206,12 +206,6 @@ namespace HaloBiz.MyServices.Impl
                     {
                         _logger.LogInformation($"No customer division tied to account => [{account.Id}]");
                         return new ApiResponse(500, $"No customer division tied to account => [{ account.Id }]");
-                    }
-
-                    if (customerDivisions.Count() > 1)
-                    {
-                        _logger.LogInformation($"There is a lot of customer divisions for {account.Name}. Skipping..");
-                        continue;
                     }
 
                     var customerDivision = customerDivisions.FirstOrDefault();
@@ -262,13 +256,7 @@ namespace HaloBiz.MyServices.Impl
 
                             string costCenter = string.Empty;
                             var caption = controlAccount.Caption.ToLower();
-                            if (caption.Contains("revenue") || caption.Contains("income")) costCenter = "05";
-
-                            var alias = detailAccount.Alias;
-                            if (caption.ToLower().Equals("receivable") && customerDivision.Rcnumber != null)
-                            {
-                                alias = $"{alias}_{customerDivision.DivisionName.Substring(0, 1)}{customerDivision.Rcnumber.Substring(0, 2)}";
-                            }
+                            if (caption.Contains("revenue") || caption.Contains("income")) costCenter = "05";                        
 
                             var journalLine = new
                             {
@@ -279,7 +267,7 @@ namespace HaloBiz.MyServices.Impl
                                 Amount = Math.Abs(accountDetail.Credit - accountDetail.Debit),
                                 Factor = (accountDetail.Credit > 0 && accountDetail.Debit == 0) ? -1 : 1,
                                 Details = accountDetail.Description,
-                                SourceCode = alias
+                                SourceCode = customerDivision.DTrackCustomerNumber
                             };
 
                             journalLines.Add(journalLine);
