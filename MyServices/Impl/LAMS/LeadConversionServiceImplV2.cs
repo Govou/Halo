@@ -92,11 +92,6 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
                 await _context.SaveChangesAsync();
 
-                /*foreach (var groupInvoiceNumber in groupInvoiceNumbers)
-                {
-                    await GenerateAndSaveGroupInvoiceDetails(groupInvoiceNumber);
-                }*/
-
                 await transaction.CommitAsync();
                 return true;
             }
@@ -202,7 +197,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 return customerDivision;
             }
 
-            var dTrackCustomerNumber = $"{GenerateClientAlias(leadDivision.DivisionName)}_{await GenerateNextCustomerNumberSequence()}";
+            
 
             //creates customer division from lead division and saves the customer division
             var customerDivisionEntity = await context.CustomerDivisions.AddAsync(new CustomerDivision()
@@ -221,7 +216,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 PrimaryContactId = leadDivision.PrimaryContactId,
                 SecondaryContactId = leadDivision.SecondaryContactId,
                 CreatedById = LoggedInUserId,
-                DTrackCustomerNumber = dTrackCustomerNumber
+                DTrackCustomerNumber = isRetail ? null : await GetDtrackCustomerNumber(leadDivision)
             });
 
             await context.SaveChangesAsync();
@@ -236,6 +231,12 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
             return customerDivisionEntity.Entity;
 
+        }
+
+        private async Task<string> GetDtrackCustomerNumber(LeadDivision leadDivision)
+        {
+            var dTrackCustomerNumber = $"{GenerateClientAlias(leadDivision.DivisionName)}_{await GenerateNextCustomerNumberSequence()}";
+            return dTrackCustomerNumber;
         }
 
         private async Task<Contract> ConvertQuoteToContract(Quote quote, long customerDivisionId, HalobizContext context)
@@ -316,22 +317,6 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
             if (contractService.InvoicingInterval != (int)TimeCycle.Adhoc)
             {
-
-                /*//Check if the contract service is part of a part of the bulk invoice and if also the invoice has been processed
-                //if it has been processed, it skips it
-                if (!string.IsNullOrWhiteSpace(contractService.GroupInvoiceNumber) && groupInvoiceNumbers.Contains(contractService.GroupInvoiceNumber))
-                {
-                    return true;
-                }
-
-                //If the invoice is bulk and has not been processed, it sends it for processing.
-                if (!string.IsNullOrWhiteSpace(contractService.GroupInvoiceNumber) && !groupInvoiceNumbers.Contains(contractService.GroupInvoiceNumber))
-                {
-                    //returns an accumulation of all the contractService in the bulk invoice and 
-                    //invoices at once
-                    contractService = await GenerateBulkContractService(contractService);
-                }*/
-
                 FinanceVoucherType accountVoucherType = await _context.FinanceVoucherTypes
                     .FirstOrDefaultAsync(x => x.VoucherType == SALESINVOICEVOUCHER);
 
@@ -352,52 +337,6 @@ namespace HaloBiz.MyServices.Impl.LAMS
             }
             return true;
 
-        }
-
-        public async Task<ContractService> GenerateBulkContractService(ContractService contractService)
-        {
-            double totalVAT = 0.0, totalBillable = 0.0;
-            var groupContractService = await _context.QuoteServices
-                .Where(x => x.GroupInvoiceNumber == contractService.GroupInvoiceNumber && !x.IsDeleted)
-                    .ToListAsync();
-            foreach (var quoteService in groupContractService)
-            {
-                totalBillable += (double)quoteService.BillableAmount;
-                totalVAT += (double)quoteService.Vat;
-            }
-
-            groupInvoiceNumbers.Add(contractService.GroupInvoiceNumber);
-            var newContractService = _mapper.Map<ContractService>(contractService);
-            newContractService.BillableAmount = totalBillable;
-            newContractService.Vat = totalVAT;
-
-            return newContractService;
-        }
-
-        public async Task<bool> GenerateAndSaveGroupInvoiceDetails(string groupInvoiceNumber)
-        {
-            var contractServices = await _context.ContractServices.Where(x => x.GroupInvoiceNumber == groupInvoiceNumber && !x.IsDeleted).ToListAsync();
-            var groupInvoiceDetails = new List<GroupInvoiceDetail>();
-            foreach (var contractService in contractServices)
-            {
-                groupInvoiceDetails.Add(
-                    new GroupInvoiceDetail()
-                    {
-                        InvoiceNumber = contractService.GroupInvoiceNumber,
-                        Description = $"Invoice details for Group Invoice {contractService.GroupInvoiceNumber}",
-                        UnitPrice = (double)contractService.UnitPrice,
-                        Quantity = (int)contractService.Quantity,
-                        Vat = (double)contractService.Vat,
-                        Value = (double)(contractService.BillableAmount - contractService.Vat),
-                        BillableAmount = (double)contractService.BillableAmount,
-                        ContractServiceId = contractService.Id
-                    }
-                );
-            }
-
-            await _context.GroupInvoiceDetails.AddRangeAsync(groupInvoiceDetails);
-            await _context.SaveChangesAsync();
-            return true;
         }
 
         private async Task<bool> ConvertSBUToQuoteServicePropToSBUToContractServiceProp(long quoteServiceId, long contractServiceId, HalobizContext context)
