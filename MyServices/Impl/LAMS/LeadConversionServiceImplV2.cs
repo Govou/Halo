@@ -1217,7 +1217,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 sequenceTracker = new SequenceTracker { CustomerNumber = 1 };
                 await _context.SequenceTrackers.AddAsync(sequenceTracker);
                 await _context.SaveChangesAsync();
-                return sequenceTracker.CustomerNumber.ToString().PadLeft(3);
+                return sequenceTracker.CustomerNumber.ToString().PadLeft(3, '0');
             }
             else
             {
@@ -1225,7 +1225,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 sequenceTracker.CustomerNumber = nextSequence;
                 _context.SequenceTrackers.Update(sequenceTracker);
                 await _context.SaveChangesAsync();
-                return sequenceTracker.CustomerNumber.ToString().PadLeft(3);
+                return sequenceTracker.CustomerNumber.ToString().PadLeft(3, '0');
             }
         }
 
