@@ -27,6 +27,7 @@ namespace HaloBiz.MyServices.Impl
         private readonly string _dTrackPassword;
 
         private readonly string ReceivableControlAccount = "Receivable";
+
         private readonly string RETAIL_RECEIVABLE_ACCOUNT = "RETAIL RECEIVABLE ACCOUNT";
 
         public CronJobServiceImpl(
@@ -255,7 +256,7 @@ namespace HaloBiz.MyServices.Impl
                                 .Where(x => x.AccountMasterId == accountMaster.Id && !x.IntegrationFlag && x.AccountId.HasValue)
                                 .ToListAsync();
 
-                            if (accountDetails.Count() < 1)
+                            if (accountDetails.Count < 1)
                             {
                                 _logger.LogInformation($"No account details tied to account master => [{accountMaster.Id}]");
                                 return new ApiResponse(500, $"No account details tied to account master => [{accountMaster.Id}]");
