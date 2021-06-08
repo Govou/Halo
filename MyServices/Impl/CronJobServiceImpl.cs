@@ -164,6 +164,7 @@ namespace HaloBiz.MyServices.Impl
                     {
                         account.IntegrationFlag = true;
                         _context.Accounts.Update(account);
+                        await _context.SaveChangesAsync();
                         _logger.LogInformation($"Successfully integrated [{account.Name}] with Id [{account.Id}].");
                     }
                     else
@@ -222,6 +223,7 @@ namespace HaloBiz.MyServices.Impl
 
                     foreach (var customerDivision in customerDivisions)
                     {
+                        _logger.LogInformation($"Processing Customer Division => [{customerDivision.DivisionName}]");
                         string sourceCode;
 
                         if(isRetail && customerDivision.DTrackCustomerNumber == null)
@@ -237,13 +239,13 @@ namespace HaloBiz.MyServices.Impl
                         .Where(x => x.CustomerDivisionId == customerDivision.Id && x.IntegrationFlag != true)
                         .ToListAsync();
 
-                        _logger.LogInformation($"Total number of account masters => {accountMasters.Count()}");
+                        _logger.LogInformation($"Total number of unintegrated account masters => {accountMasters.Count()}");
                         #endregion
 
                         foreach (var accountMaster in accountMasters)
                         {
                             #region Get Voucher Type and Account Details
-                            _logger.LogInformation($"Processing account master => [{accountMaster.Id}]");
+                            _logger.LogInformation($"Processing account master with id => [{accountMaster.Id}]");
 
                             var voucherType = await _context.FinanceVoucherTypes.FindAsync(accountMaster.VoucherId);
                             if (voucherType == null)
@@ -280,6 +282,12 @@ namespace HaloBiz.MyServices.Impl
                                 string costCenter = string.Empty;
                                 var caption = controlAccount.Caption.ToLower();
                                 if (caption.Contains("revenue") || caption.Contains("income")) costCenter = "05";
+
+                                if(detailAccount.Name.ToLower().Contains("income") 
+                                    && detailAccount.Name.Contains(controlAccount.Caption))
+                                {
+                                    costCenter = "05";
+                                }
 
                                 var journalLine = new
                                 {
@@ -344,7 +352,7 @@ namespace HaloBiz.MyServices.Impl
                                 }
 
                                 _context.AccountDetails.UpdateRange(accountDetails);
-
+                                await _context.SaveChangesAsync();
                                 _logger.LogInformation($"Successfully integrated account master [{accountMaster.Id}] with details count [{accountDetails.Count()}].");
                             }
                             else

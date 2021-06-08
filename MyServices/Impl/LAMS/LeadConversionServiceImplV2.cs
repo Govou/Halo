@@ -871,6 +871,9 @@ namespace HaloBiz.MyServices.Impl.LAMS
             }
             else
             {
+                customerDivision.ReceivableAccountId = retailAccount.Id;
+                _context.CustomerDivisions.Update(customerDivision);
+                await _context.SaveChangesAsync();
                 accountId = retailAccount.Id;
             }
 
@@ -906,6 +909,9 @@ namespace HaloBiz.MyServices.Impl.LAMS
             }
             else
             {
+                customerDivision.VatAccountId = vatAccount.Id;
+                _context.CustomerDivisions.Update(customerDivision);
+                await _context.SaveChangesAsync();
                 accountId = vatAccount.Id;
             }
 
