@@ -540,17 +540,17 @@ namespace HaloBiz.MyServices.Impl.LAMS
                              $"TRS{serviceCode}/{contractService.Id}"
                                     : $"{contractService.GroupInvoiceNumber.Replace("GINV", "TRS")}/{contractService.Id}";
 
-            var unitPrice = String.IsNullOrWhiteSpace(contractService.GroupInvoiceNumber)
-                                ? contractService.UnitPrice : 0;
+            /*var unitPrice = String.IsNullOrWhiteSpace(contractService.GroupInvoiceNumber)
+                                ? contractService.UnitPrice : 0;*/
 
-            var quantity = String.IsNullOrWhiteSpace(contractService.GroupInvoiceNumber) ?
-                                contractService.Quantity : 0;
+            /*var quantity = String.IsNullOrWhiteSpace(contractService.GroupInvoiceNumber) ?
+                                contractService.Quantity : 0;*/
 
             return new Invoice()
             {
                 InvoiceNumber = $"{invoiceNumber}/{invoiceIndex}",
-                UnitPrice = (double)unitPrice,
-                Quantity = quantity,
+                UnitPrice = (double)contractService.UnitPrice,
+                Quantity = contractService.Quantity,
                 Discount = contractService.Discount,
                 Value = amount,
                 TransactionId = transactionId,

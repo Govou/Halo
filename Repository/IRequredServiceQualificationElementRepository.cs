@@ -8,11 +8,12 @@ namespace HaloBiz.Repository
     {
         Task<RequredServiceQualificationElement> SaveRequredServiceQualificationElement(RequredServiceQualificationElement RequredServiceQualificationElement);
 
-        Task<RequredServiceQualificationElement> FindRequredServiceQualificationElementById(long Id);
+        Task<RequredServiceQualificationElement> FindRequredServiceQualificationElementById(long serviceCategoryId);
 
         Task<RequredServiceQualificationElement> FindRequredServiceQualificationElementByName(string name);
 
         Task<IEnumerable<RequredServiceQualificationElement>> FindAllRequredServiceQualificationElements();
+        Task<IEnumerable<RequredServiceQualificationElement>> FindAllRequredServiceQualificationElementsByServiceCategory(long serviceCategoryId);
 
         Task<RequredServiceQualificationElement> UpdateRequredServiceQualificationElement(RequredServiceQualificationElement RequredServiceQualificationElement);
 

@@ -48,6 +48,17 @@ namespace HaloBiz.MyServices.Impl
             return new ApiOkResponse(requredServiceQualificationElementTransferDTO);
         }
 
+        public async Task<ApiResponse> GetAllRequredServiceQualificationElementsByServiceCategory(long serviceCategoryId)
+        {
+            var requredServiceQualificationElements = await _RequredServiceQualificationElementRepo.FindAllRequredServiceQualificationElementsByServiceCategory(serviceCategoryId);
+            if (requredServiceQualificationElements == null)
+            {
+                return new ApiResponse(404);
+            }
+            var requredServiceQualificationElementTransferDTO = _mapper.Map<IEnumerable<RequredServiceQualificationElementTransferDTO>>(requredServiceQualificationElements);
+            return new ApiOkResponse(requredServiceQualificationElementTransferDTO);
+        }
+
         public async Task<ApiResponse> GetRequredServiceQualificationElementById(long id)
         {
             var requredServiceQualificationElement = await _RequredServiceQualificationElementRepo.FindRequredServiceQualificationElementById(id);

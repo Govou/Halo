@@ -49,6 +49,12 @@ namespace HaloBiz.Repository.Impl
                 .ToListAsync();
         }
 
+        public async Task<IEnumerable<RequredServiceQualificationElement>> FindAllRequredServiceQualificationElementsByServiceCategory(long serviceCategoryId)
+        {
+            return await _context.RequredServiceQualificationElements.Where(x => x.ServiceCategoryId == serviceCategoryId && !x.IsDeleted)
+                .ToListAsync();
+        }
+
         public async Task<RequredServiceQualificationElement> UpdateRequredServiceQualificationElement(RequredServiceQualificationElement RequredServiceQualificationElement)
         {
             var updatedEntity = _context.RequredServiceQualificationElements.Update(RequredServiceQualificationElement);
