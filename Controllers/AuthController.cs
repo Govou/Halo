@@ -71,7 +71,7 @@ namespace HaloBiz.Controllers
                     _logger.LogWarning($"Could not find user [{email}] => {response.Message}");
                     return StatusCode(response.StatusCode, response);
                 }
-
+                    
                 var user = ((ApiOkResponse)response).Result;
                 var userProfile = (UserProfileTransferDTO)user;
 
