@@ -212,7 +212,7 @@ namespace HaloBiz.Helpers
                 case "GENERAL BUSINESS":
                     return "XXX";
                 default:
-                    return industry.ToUpper().Substring(0, 4); ;
+                    return industry.ToUpper().Substring(0, 4);
             }
         }
     }

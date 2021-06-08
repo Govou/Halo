@@ -59,7 +59,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
             using var transaction = await _context.Database.BeginTransactionAsync();
             try
             {
-                var lead = await _context.Leads
+                var lead = await _context.Leads.AsNoTracking()
                     .Include(x => x.LeadKeyPeople)
                     .Include(x => x.LeadDivisions)
                         .ThenInclude(x => x.Quote)
@@ -92,22 +92,16 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
                 await _context.SaveChangesAsync();
 
-                foreach (var groupInvoiceNumber in groupInvoiceNumbers)
-                {
-                    await GenerateAndSaveGroupInvoiceDetails(groupInvoiceNumber);
-                }
-
                 await transaction.CommitAsync();
                 return true;
             }
-            catch (System.Exception e)
+            catch (Exception e)
             {
                 await transaction.RollbackAsync();
                 _logger.LogError(e.Message);
                 _logger.LogError(e.StackTrace);
                 return false;
             }
-
         }
 
         private async Task<Customer> ConvertLeadToCustomer(Lead lead, HalobizContext context)
@@ -202,6 +196,9 @@ namespace HaloBiz.MyServices.Impl.LAMS
             {
                 return customerDivision;
             }
+
+            
+
             //creates customer division from lead division and saves the customer division
             var customerDivisionEntity = await context.CustomerDivisions.AddAsync(new CustomerDivision()
             {
@@ -219,6 +216,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 PrimaryContactId = leadDivision.PrimaryContactId,
                 SecondaryContactId = leadDivision.SecondaryContactId,
                 CreatedById = LoggedInUserId,
+                DTrackCustomerNumber = isRetail ? null : await GetDtrackCustomerNumber(leadDivision)
             });
 
             await context.SaveChangesAsync();
@@ -235,6 +233,12 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
         }
 
+        private async Task<string> GetDtrackCustomerNumber(LeadDivision leadDivision)
+        {
+            var dTrackCustomerNumber = $"{GenerateClientAlias(leadDivision.DivisionName)}_{await GenerateNextCustomerNumberSequence()}";
+            return dTrackCustomerNumber;
+        }
+
         private async Task<Contract> ConvertQuoteToContract(Quote quote, long customerDivisionId, HalobizContext context)
         {
 
@@ -247,9 +251,8 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 CreatedById = LoggedInUserId,
             });
 
-            await context.SaveChangesAsync();
+            await context.SaveChangesAsync();            
             return entity.Entity;
-
         }
 
         private async Task<bool> ConvertQuoteServiceToContractService(QuoteService quoteService,
@@ -314,22 +317,6 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
             if (contractService.InvoicingInterval != (int)TimeCycle.Adhoc)
             {
-
-                //Check if the contract service is part of a part of the bulk invoice and if also the invoice has been processed
-                //if it has been processed, it skips it
-                if (!string.IsNullOrWhiteSpace(contractService.GroupInvoiceNumber) && groupInvoiceNumbers.Contains(contractService.GroupInvoiceNumber))
-                {
-                    return true;
-                }
-
-                //If the invoice is bulk and has not been processed, it sends it for processing.
-                if (!string.IsNullOrWhiteSpace(contractService.GroupInvoiceNumber) && !groupInvoiceNumbers.Contains(contractService.GroupInvoiceNumber))
-                {
-                    //returns an accumulation of all the contractService in the bulk invoice and 
-                    //invoices at once
-                    contractService = await GenerateBulkContractService(contractService);
-                }
-
                 FinanceVoucherType accountVoucherType = await _context.FinanceVoucherTypes
                     .FirstOrDefaultAsync(x => x.VoucherType == SALESINVOICEVOUCHER);
 
@@ -352,58 +339,11 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
         }
 
-        public async Task<ContractService> GenerateBulkContractService(ContractService contractService)
-        {
-            double totalVAT = 0.0, totalBillable = 0.0;
-            var groupContractService = await _context.QuoteServices
-                .Where(x => x.GroupInvoiceNumber == contractService.GroupInvoiceNumber && !x.IsDeleted)
-                    .ToListAsync();
-            foreach (var quoteService in groupContractService)
-            {
-                totalBillable += (double)quoteService.BillableAmount;
-                totalVAT += (double)quoteService.Vat;
-            }
-
-            groupInvoiceNumbers.Add(contractService.GroupInvoiceNumber);
-            var newContractService = _mapper.Map<ContractService>(contractService);
-            newContractService.BillableAmount = totalBillable;
-            newContractService.Vat = totalVAT;
-
-            return newContractService;
-        }
-
-        public async Task<bool> GenerateAndSaveGroupInvoiceDetails(string groupInvoiceNumber)
-        {
-            var contractServices = await _context.ContractServices.Where(x => x.GroupInvoiceNumber == groupInvoiceNumber && !x.IsDeleted).ToListAsync();
-            var groupInvoiceDetails = new List<GroupInvoiceDetail>();
-            foreach (var contractService in contractServices)
-            {
-                groupInvoiceDetails.Add(
-                    new GroupInvoiceDetail()
-                    {
-                        InvoiceNumber = contractService.GroupInvoiceNumber,
-                        Description = $"Invoice details for Group Invoice {contractService.GroupInvoiceNumber}",
-                        UnitPrice = (double)contractService.UnitPrice,
-                        Quantity = (int)contractService.Quantity,
-                        Vat = (double)contractService.Vat,
-                        Value = (double)(contractService.BillableAmount - contractService.Vat),
-                        BillableAmount = (double)contractService.BillableAmount,
-                        ContractServiceId = contractService.Id
-                    }
-                );
-            }
-
-            await _context.GroupInvoiceDetails.AddRangeAsync(groupInvoiceDetails);
-            await _context.SaveChangesAsync();
-            return true;
-        }
-
-
         private async Task<bool> ConvertSBUToQuoteServicePropToSBUToContractServiceProp(long quoteServiceId, long contractServiceId, HalobizContext context)
         {
             var sBUToContractServiceProps = new List<SbutoContractServiceProportion>();
 
-            var sBUToQuoteServiceProps = await _context.SbutoQuoteServiceProportions
+            var sBUToQuoteServiceProps = await _context.SbutoQuoteServiceProportions.AsNoTracking()
                     .Where(x => x.QuoteServiceId == quoteServiceId)
                     .ToListAsync();
 
@@ -424,14 +364,13 @@ namespace HaloBiz.MyServices.Impl.LAMS
             await context.SbutoContractServiceProportions.AddRangeAsync(sBUToContractServiceProps);
             await context.SaveChangesAsync();
             return true;
-
         }
 
         private async Task<bool> ConvertQuoteServiceDocumentsToClosureDocuments(long quoteServiceId, long contractServiceId, HalobizContext context)
         {
             var closureDocuments = new List<ClosureDocument>();
 
-            var QuoteServiceDocuments = await context.QuoteServiceDocuments
+            var QuoteServiceDocuments = await context.QuoteServiceDocuments.AsNoTracking()
                     .Where(x => x.QuoteServiceId == quoteServiceId)
                     .ToListAsync();
 
@@ -626,7 +565,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 IsFinalInvoice = true,
                 InvoiceType = (int)InvoiceType.New,
                 CreatedById = loggedInUserId,
-                GroupInvoiceNumber = String.IsNullOrWhiteSpace(contractService.GroupInvoiceNumber) ? null : invoiceNumber,
+                GroupInvoiceNumber = string.IsNullOrWhiteSpace(contractService.GroupInvoiceNumber) ? null : invoiceNumber,
                 //First Accounts for first invoices are posted when a lead is converted to client
                 IsAccountPosted = invoiceIndex == 1
             };
@@ -654,6 +593,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                     ContractId = contractService.ContractId,
                     ContractServiceId = contractService.Id,
                     ContractValue = (double)totalContractBillable,
+                    GroupInvoiceNumber = string.IsNullOrWhiteSpace(contractService.GroupInvoiceNumber) ? null : contractService.GroupInvoiceNumber,
                     January = DateTime.Parse($"{i}/01/31") > startDate && DateTime.Parse($"{i}/01/31") <= endDate ? (double)contractService.BillableAmount : 0,
                     February = DateTime.Parse($"{i}/02/28") > startDate && DateTime.Parse($"{i}/02/28") <= endDate ? (double)contractService.BillableAmount : 0,
                     March = DateTime.Parse($"{i}/03/31") > startDate && DateTime.Parse($"{i}/03/31") <= endDate ? (double)contractService.BillableAmount : 0,
@@ -871,7 +811,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 {
                     Name = $"{customerDivision.DivisionName} Receivable",
                     Description = $"Receivable Account of {customerDivision.DivisionName}",
-                    Alias = GenerateClientAlias(customerDivision.DivisionName),
+                    Alias = customerDivision.DTrackCustomerNumber,
                     IsDebitBalance = true,
                     ControlAccountId = controlAccount.Id,
                     CreatedById = createdById
@@ -917,7 +857,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 {
                     Name = RETAIL_RECEIVABLE_ACCOUNT,
                     Description = $"Receivable Account of Retail Clients",
-                    Alias = "H_RA",
+                    Alias = "HA_RET",
                     IsDebitBalance = true,
                     ControlAccountId = controlAccount.Id,
                     CreatedById = this.LoggedInUserId
@@ -931,6 +871,9 @@ namespace HaloBiz.MyServices.Impl.LAMS
             }
             else
             {
+                customerDivision.ReceivableAccountId = retailAccount.Id;
+                _context.CustomerDivisions.Update(customerDivision);
+                await _context.SaveChangesAsync();
                 accountId = retailAccount.Id;
             }
 
@@ -952,7 +895,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 {
                     Name = RETAIL_VAT_ACCOUNT,
                     Description = $"VAT Account of Retail Clients",
-                    Alias = "RVA",
+                    Alias = "HA_RET",
                     IsDebitBalance = true,
                     ControlAccountId = controlAccount.Id,
                     CreatedById = LoggedInUserId
@@ -966,6 +909,9 @@ namespace HaloBiz.MyServices.Impl.LAMS
             }
             else
             {
+                customerDivision.VatAccountId = vatAccount.Id;
+                _context.CustomerDivisions.Update(customerDivision);
+                await _context.SaveChangesAsync();
                 accountId = vatAccount.Id;
             }
 
@@ -987,7 +933,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 {
                     Name = serviceClientIncomeAccountName,
                     Description = $"{service.Name} Income Account for {customerDivision.DivisionName}",
-                    Alias = GenerateClientAlias(customerDivision.DivisionName),
+                    Alias = customerDivision.DTrackCustomerNumber,
                     IsDebitBalance = true,
                     ControlAccountId = (long)service.ControlAccountId,
                     CreatedById = LoggedInUserId
@@ -1018,7 +964,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 {
                     Name = serviceClientIncomeAccountName,
                     Description = $"{service.Name} Income Account for {RETAIL}",
-                    Alias = "H_RA",
+                    Alias = "HA_RET",
                     IsDebitBalance = true,
                     ControlAccountId = (long)service.ControlAccountId,
                     CreatedById = LoggedInUserId
@@ -1069,7 +1015,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 {
                     Name = $"{customerDivision.DivisionName} VAT",
                     Description = $"VAT Account of {customerDivision.DivisionName}",
-                    Alias = GenerateClientAlias(customerDivision.DivisionName),
+                    Alias = customerDivision.DTrackCustomerNumber,
                     IsDebitBalance = true,
                     ControlAccountId = controlAccount.Id,
                     CreatedById = loggedInUserId
@@ -1267,6 +1213,26 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 initial += name.Substring(0, 1).ToUpper();
             }
             return initial;
+        }
+
+        private async Task<string> GenerateNextCustomerNumberSequence()
+        {
+            var sequenceTracker = await _context.SequenceTrackers.SingleOrDefaultAsync();
+            if(sequenceTracker == null)
+            {
+                sequenceTracker = new SequenceTracker { CustomerNumber = 1 };
+                await _context.SequenceTrackers.AddAsync(sequenceTracker);
+                await _context.SaveChangesAsync();
+                return sequenceTracker.CustomerNumber.ToString().PadLeft(3, '0');
+            }
+            else
+            {
+                long nextSequence = (sequenceTracker.CustomerNumber + 1) > 999 ? 1 : (sequenceTracker.CustomerNumber + 1);
+                sequenceTracker.CustomerNumber = nextSequence;
+                _context.SequenceTrackers.Update(sequenceTracker);
+                await _context.SaveChangesAsync();
+                return sequenceTracker.CustomerNumber.ToString().PadLeft(3, '0');
+            }
         }
 
         private double CalculateTotalAmountForContract(double priceOfService, DateTime contractStartDate, DateTime contractEndDate, TimeCycle timeCycle)

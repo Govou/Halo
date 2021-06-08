@@ -979,7 +979,9 @@ namespace HaloBiz.MyServices.Impl
                 }else{
                     contractServices = await _context.ContractServices
                             .Include(x => x.Service)
-                            .Where(x => x.GroupInvoiceNumber == invoice.GroupInvoiceNumber && !x.IsDeleted).ToListAsync();
+                            .Where(x => x.GroupInvoiceNumber == invoice.GroupInvoiceNumber 
+                                && x.Version == (int)VersionType.Latest && !x.IsDeleted)
+                            .ToListAsync();
                 }
 
                 double discount = 0.0;

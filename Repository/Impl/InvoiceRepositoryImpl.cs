@@ -89,6 +89,26 @@ namespace HaloBiz.Repository.Impl
                             .Where(x => x.InvoiceNumber == invoice.GroupInvoiceNumber && !x.IsDeleted).ToListAsync();
                 }
 
+                #region Changes based on new group invoice implementation
+                var groupInvoices = new List<Invoice>();
+                var groupedInvoices = invoices.GroupBy(x => $"{x.StartDate.Month}-{x.StartDate.Year}");
+                foreach (var group in groupedInvoices)
+                {
+                    var key = group.Key;
+
+                    double totalAmount = 0;
+                    foreach (var item in group)
+                    {
+                        totalAmount += item.Value;
+                    }
+
+                    var singleInvoice = group.FirstOrDefault();
+                    singleInvoice.Value = totalAmount;
+                    groupInvoices.Add(singleInvoice);
+                }
+
+                invoices = groupInvoices;
+                #endregion
             }
 
             return invoices;

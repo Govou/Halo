@@ -12,6 +12,7 @@ namespace HaloBiz.Repository
         Task<ControlAccount> FindControlAccountByAlias(string alias);
         Task<ControlAccount> FindControlAccountByName(string name);
         Task<IEnumerable<ControlAccount>> FindAllControlAccount();
+        Task<IEnumerable<ControlAccount>> FindAllIncomeControlAccount();
         IQueryable<ControlAccount> GetControlAccountQueryable();
         Task<ControlAccount> UpdateControlAccount(ControlAccount controlAccount);
         Task<bool> DeleteControlAccount(ControlAccount controlAccount);
