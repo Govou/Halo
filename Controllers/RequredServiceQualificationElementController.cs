@@ -27,6 +27,16 @@ namespace HaloBiz.Controllers
             return Ok(RequredServiceQualificationElement);
         }
 
+        [HttpGet("GetByServiceCategory")]
+        public async Task<ActionResult> GetRequredServiceQualificationElementByServiceCategory(long serviceCategoryId)
+        {
+            var response = await _RequredServiceQualificationElementService.GetAllRequredServiceQualificationElementsByServiceCategory(serviceCategoryId);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var RequredServiceQualificationElement = ((ApiOkResponse)response).Result;
+            return Ok(RequredServiceQualificationElement);
+        }
+
         [HttpGet("name/{name}")]
         public async Task<ActionResult> GetByCaption(string name)
         {
