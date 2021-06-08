@@ -27,6 +27,16 @@ namespace HaloBiz.Controllers.AccountsModel
             return Ok(controlAccount);
         }
 
+        [HttpGet("GetIncomeControlAccounts")]
+        public async Task<ActionResult> GetIncomeControlAccounts()
+        {
+            var response = await _controlAccountService.GetAllIncomeControlAccounts();
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var controlAccount = ((ApiOkResponse)response).Result;
+            return Ok(controlAccount);
+        }
+
         [HttpGet("alias/{alias}")]
         public async Task<ActionResult> GetByAlias(string alias)
         {

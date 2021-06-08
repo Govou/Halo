@@ -98,6 +98,15 @@ namespace HaloBiz.Repository.Impl
                 .ToListAsync();
         }
 
+        public async Task<IEnumerable<ControlAccount>> FindAllIncomeControlAccount()
+        {
+            return await _context.ControlAccounts
+                .Where(controlAccount => controlAccount.AccountClass.Caption.ToLower() == "revenue" 
+                        && !controlAccount.IsDeleted)
+                .OrderByDescending(controlAccount => controlAccount.CreatedAt)
+                .ToListAsync();
+        }
+
         public async Task<ControlAccount> UpdateControlAccount(ControlAccount controlAccount)
         {
             var controlAccountEntity =  _context.ControlAccounts.Update(controlAccount);

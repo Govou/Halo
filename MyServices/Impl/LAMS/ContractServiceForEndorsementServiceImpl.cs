@@ -394,12 +394,12 @@ namespace HaloBiz.MyServices.Impl.LAMS
                                                          this.loggedInUserId,
                                                          false);
 
-            if(string.IsNullOrWhiteSpace(contractService.GroupInvoiceNumber))
-            {
+            /*if(string.IsNullOrWhiteSpace(contractService.GroupInvoiceNumber))
+            {*/
                 await  _leadConversionService.GenerateInvoices(contractService,customerDivision.Id, service.ServiceCode, this.loggedInUserId);
-            }else {
+            /*}else {
                 await  UpdateInvoices(contractService, contractServiceForEndorsement, true, true);
-            }
+            }*/
             await _leadConversionService.GenerateAmortizations(contractService, customerDivision);
 
             return true;
@@ -545,7 +545,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
             var invoiceExists = String.IsNullOrWhiteSpace(newContractService.GroupInvoiceNumber) ?
                     false : await _context.Invoices.AnyAsync(x => x.GroupInvoiceNumber == newContractService.GroupInvoiceNumber);
 
-            if(invoiceExists)
+            if(invoiceExists && false)
             {
                 await  UpdateInvoices(newContractService, contractServiceForEndorsement, true,  true);
             }else{
@@ -572,7 +572,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
             if(!String.IsNullOrWhiteSpace(newContractService.GroupInvoiceNumber))
             {
-                await GenerateGroupInvoiceDetails(newContractService);
+                //await GenerateGroupInvoiceDetails(newContractService);
             }
             return true;
         }
@@ -609,7 +609,9 @@ namespace HaloBiz.MyServices.Impl.LAMS
             IEnumerable<Invoice> invoices = null;
 
             invoices = isGroupInvoice?  await _context.Invoices
-                                    .Where(x => x.GroupInvoiceNumber == contractServiceForEndorsement.GroupInvoiceNumber && x.StartDate >= contractServiceForEndorsement.DateForNewContractToTakeEffect && !x.IsDeleted)
+                                    .Where(x => x.GroupInvoiceNumber == contractServiceForEndorsement.GroupInvoiceNumber 
+                                                    && x.ContractServiceId == contractServiceForEndorsement.PreviousContractServiceId
+                                                    && x.StartDate >= contractServiceForEndorsement.DateForNewContractToTakeEffect && !x.IsDeleted)
                                     .ToListAsync()
                     :
                     await _context.Invoices
@@ -628,10 +630,10 @@ namespace HaloBiz.MyServices.Impl.LAMS
                     invoice.Value -= Math.Abs(billbalbleForInvoicingPeriod);
                 }
 
-                if(!isGroupInvoice)
-                {
+                /*if(!isGroupInvoice)
+                {*/
                     invoice.Quantity = invoice.Quantity + contractService.Quantity;
-                }
+                /*}*/
 
                 invoice.ContractServiceId = contractService.Id;
             }
@@ -639,9 +641,9 @@ namespace HaloBiz.MyServices.Impl.LAMS
             _context.Invoices.UpdateRange(invoices);
             await _context.SaveChangesAsync();
 
-            if(isGroupInvoice)
+            if(isGroupInvoice && false)
             {
-                await GenerateGroupInvoiceDetails(contractService);
+                // await GenerateGroupInvoiceDetails(contractService);
             }
             else
             {
