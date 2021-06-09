@@ -24,16 +24,19 @@ namespace HaloBiz.MyServices.Impl
         private readonly ILogger<AccountMasterServiceImpl> _logger;
         private readonly IAccountMasterRepository _accountMasterRepo;
         private readonly IMapper _mapper;
-        private readonly  IInvoiceRepository _invoiceRepo;
-        private readonly  HalobizContext _context;
-        private readonly  IConfiguration _configuration;
-        private readonly  string RETAIL = "retail";
+        private readonly IInvoiceRepository _invoiceRepo;
+        private readonly HalobizContext _context;
+        private readonly IConfiguration _configuration;
+        private readonly string RETAIL = "retail";
 
-        private string VALUE_ADDED_TAX;
+        //private string VALUE_ADDED_TAX;
         private bool isRetail;
-        private string RETAIL_RECEIVABLE_ACCOUNT;
+        //private string RETAIL_RECEIVABLE_ACCOUNT;
         private long LoggedInUserId;
         private string SALES_INVOICE_VOUCHER;
+
+        private readonly string RETAIL_RECEIVABLE_ACCOUNT = "RETAIL RECEIVABLE ACCOUNT";
+        private readonly string RETAIL_VAT_ACCOUNT = "RETAIL VAT ACCOUNT";
 
         public AccountMasterServiceImpl(
                     IConfiguration configuration,
@@ -49,9 +52,9 @@ namespace HaloBiz.MyServices.Impl
             this._logger = logger;
             this._invoiceRepo = invoiceRepo;
             this._context = context;
-            this.RETAIL_RECEIVABLE_ACCOUNT = _configuration.GetSection("AccountsInformation:RetailReceivableAccount").Value;
+            // this.RETAIL_RECEIVABLE_ACCOUNT = _configuration.GetSection("AccountsInformation:RetailReceivableAccount").Value;
             this.SALES_INVOICE_VOUCHER = _configuration.GetSection("VoucherTypes:SalesInvoiceVoucher").Value;
-            this.VALUE_ADDED_TAX = _configuration.GetSection("AccountsInformation:ValueAddedTask").Value;
+            //this.VALUE_ADDED_TAX = _configuration.GetSection("AccountsInformation:ValueAddedTask").Value;
         }
 
         public async Task<ApiResponse> AddAccountMaster(HttpContext context, AccountMasterReceivingDTO accountMasterReceivingDTO)
@@ -421,8 +424,8 @@ namespace HaloBiz.MyServices.Impl
                                     string transactionId
                                     )
         {
-            long accountId = 0;
-            if(this.isRetail)
+            long accountId;
+            if(isRetail)
             {
                 accountId = await GetRetailAccount(customerDivision);
             }else{
@@ -445,15 +448,16 @@ namespace HaloBiz.MyServices.Impl
 
         private async Task<long> GetRetailAccount(CustomerDivision customerDivision )
         {
-            
-            Account retailAccount  = await _context.Accounts.FirstOrDefaultAsync(x => x.Name == this.RETAIL_RECEIVABLE_ACCOUNT);
-        
+            Account retailAccount  = await _context.Accounts.FirstOrDefaultAsync(x => x.Name == RETAIL_RECEIVABLE_ACCOUNT);
             return retailAccount.Id;
+        }
 
-        } 
+        private async Task<long> GetRetailVATAccount(CustomerDivision customerDivision)
+        {
+            Account retailAccount = await _context.Accounts.FirstOrDefaultAsync(x => x.Name == RETAIL_VAT_ACCOUNT);
+            return retailAccount.Id;
+        }
 
-
-        
         private async Task<bool> PostVATAccountDetails(
                                     string description,
                                     long contractServiceId,
@@ -466,7 +470,17 @@ namespace HaloBiz.MyServices.Impl
                                     string transactionId
                                     )
         {
-            var vatAccount = await _context.Accounts.FirstOrDefaultAsync(x => x.Name == this.VALUE_ADDED_TAX);
+            long vatAccountId;
+            if (isRetail)
+            {
+                vatAccountId = await GetRetailVATAccount(customerDivision);
+            }
+            else
+            {
+                vatAccountId = (long)customerDivision.VatAccountId;
+            }
+
+            //var vatAccount = await _context.Accounts.FirstOrDefaultAsync(x => x.Name == this.VALUE_ADDED_TAX);
  
             await PostAccountDetail(description, 
                                     contractServiceId, 
@@ -476,7 +490,7 @@ namespace HaloBiz.MyServices.Impl
                                     totalVAT, 
                                     true,
                                     accountMasterId,
-                                    vatAccount.Id,
+                                    vatAccountId,
                                     transactionId);
             
             return true;
@@ -495,7 +509,16 @@ namespace HaloBiz.MyServices.Impl
                                     Service service
                                     )
         {
-            
+            long accountId;
+
+            if (isRetail)
+            {
+                accountId = await GetServiceIncomeAccountForRetailClient(service);
+            }
+            else
+            {
+                accountId = await GetServiceIncomeAccountForClient(customerDivision, service);
+            }
 
             await PostAccountDetail(description, 
                                     contractServiceId, 
@@ -505,11 +528,31 @@ namespace HaloBiz.MyServices.Impl
                                     totalBillableAfterTax, 
                                     true,
                                     accountMasterId,
-                                    (long) service.AccountId,
+                                    accountId,
                                     transactionId
                                     );
             
             return true;
         }
+
+        private async Task<long> GetServiceIncomeAccountForRetailClient(Service service)
+        {
+            string serviceClientIncomeAccountName = $"{service.Name} Income for {RETAIL}";
+
+            Account serviceClientIncomeAccount = await _context.Accounts
+                .FirstOrDefaultAsync(x => x.ControlAccountId == (long)service.ControlAccountId && x.Name == serviceClientIncomeAccountName);
+
+            return serviceClientIncomeAccount.Id;
+        }
+
+        private async Task<long> GetServiceIncomeAccountForClient(CustomerDivision customerDivision, Service service)
+        {
+            string serviceClientIncomeAccountName = $"{service.Name} Income for {customerDivision.DivisionName}";
+
+            Account serviceClientIncomeAccount = await _context.Accounts
+                .FirstOrDefaultAsync(x => x.ControlAccountId == (long)service.ControlAccountId && x.Name == serviceClientIncomeAccountName);
+
+            return serviceClientIncomeAccount.Id;
+        }
     }
-    }
+}
