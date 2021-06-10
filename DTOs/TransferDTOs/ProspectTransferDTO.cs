@@ -38,5 +38,6 @@ namespace HaloBiz.DTOs.TransferDTOs
         public long? Lgaid { get; set; }
         public string Email { get; set; }
         public LGATransferDTO Lga { get; set; }
+        public string IdentityUserId { get; set; }
     }
 }
