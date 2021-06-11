@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AutoMapper;
+using halobiz_backend.Helpers;
 using HalobizMigrations.Data;
 using HalobizMigrations.Models;
 using Microsoft.EntityFrameworkCore;
@@ -12,11 +14,15 @@ namespace HaloBiz.Repository.Impl
     public class InvoiceRepositoryImpl : IInvoiceRepository
     {
         private readonly HalobizContext _context;
+        private readonly IMapper _mapper;
         private readonly ILogger<InvoiceRepositoryImpl> _logger;
-        public InvoiceRepositoryImpl(HalobizContext context, ILogger<InvoiceRepositoryImpl> logger)
+        public InvoiceRepositoryImpl(HalobizContext context, 
+            IMapper mapper,
+            ILogger<InvoiceRepositoryImpl> logger)
         {
             this._logger = logger;
             this._context = context;
+            _mapper = mapper;
         }
         public async Task<Invoice> SaveInvoice(Invoice invoice)
         {
@@ -91,19 +97,36 @@ namespace HaloBiz.Repository.Impl
 
                 #region Changes based on new group invoice implementation
                 var groupInvoices = new List<Invoice>();
-                var groupedInvoices = invoices.GroupBy(x => $"{x.StartDate.Month}-{x.StartDate.Year}");
+                var groupedInvoices = invoices.GroupBy(x => x.StartDate);
                 foreach (var group in groupedInvoices)
                 {
                     var key = group.Key;
 
                     double totalAmount = 0;
+                    var allReceipts = new List<Receipt>();
                     foreach (var item in group)
                     {
                         totalAmount += item.Value;
+                        allReceipts.AddRange(item.Receipts);
                     }
 
-                    var singleInvoice = group.FirstOrDefault();
+                    var singleInvoice = _mapper.Map<Invoice>(group.FirstOrDefault());
+                    
                     singleInvoice.Value = totalAmount;
+                    singleInvoice.Receipts = allReceipts;
+                    if(group.All(x => x.IsReceiptedStatus == (int)InvoiceStatus.CompletelyReceipted))
+                    {
+                        singleInvoice.IsReceiptedStatus = (int)InvoiceStatus.CompletelyReceipted;
+                    }
+                    else if (group.All(x => x.IsReceiptedStatus == (int)InvoiceStatus.NotReceipted))
+                    {
+                        singleInvoice.IsReceiptedStatus = (int)InvoiceStatus.NotReceipted;
+                    }
+                    else
+                    {
+                        singleInvoice.IsReceiptedStatus = (int)InvoiceStatus.PartlyReceipted;
+                    }
+
                     groupInvoices.Add(singleInvoice);
                 }
 
