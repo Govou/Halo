@@ -82,6 +82,7 @@ namespace HaloBiz.MyServices.Impl
             serviceCategoryToUpdate.ServiceGroupId = serviceCategoryReceivingDTO.ServiceGroupId;
             serviceCategoryToUpdate.DivisionId = serviceCategoryReceivingDTO.DivisionId;
             serviceCategoryToUpdate.OperatingEntityId = serviceCategoryReceivingDTO.OperatingEntityId;
+            serviceCategoryToUpdate.ImageUrl = serviceCategoryReceivingDTO.ImageUrl;
             var updatedServiceCategory = await _serviceCategoryRepo.UpdateServiceCategory(serviceCategoryToUpdate);
 
             if (updatedServiceCategory == null)

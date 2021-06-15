@@ -851,12 +851,13 @@ namespace HaloBiz.MyServices.Impl
         public async Task<ApiResponse> SendPeriodicInvoices()
         {
             List<Invoice> invoices = new List<Invoice>();
+            List<Invoice> theGroupInvoices = new List<Invoice>();
             try
             {
                 DateTime today = DateTime.Now.Date;
-                //var today = DateTime.Parse("2021-03-24 00:00:00.0000000").Date;
+
                 invoices = await _context.Invoices
-                    .Where(x => x.IsFinalInvoice.Value && !x.IsDeleted 
+                    .Where(x => x.IsFinalInvoice.Value && !x.IsDeleted && x.GroupInvoiceNumber == null
                             && x.DateToBeSent.Date == today && !x.IsInvoiceSent).ToListAsync();
                 
                 
@@ -866,6 +867,28 @@ namespace HaloBiz.MyServices.Impl
                 }
 
                 await _context.SaveChangesAsync();
+
+                #region special case for group invoice
+                theGroupInvoices = await _context.Invoices
+                    .Where(x => x.IsFinalInvoice.Value && !x.IsDeleted && x.GroupInvoiceNumber != null
+                            && x.DateToBeSent.Date == today && !x.IsInvoiceSent).ToListAsync();
+
+                var groupings = theGroupInvoices.GroupBy(x => x.GroupInvoiceNumber);
+                foreach (var group in groupings)
+                {
+                    var invoiceSent = await SendInvoice(group.FirstOrDefault());
+                    if (invoiceSent)
+                    {
+                        foreach (var invoice in group)
+                        {
+                            invoice.IsInvoiceSent = true;
+                        }
+                    }                 
+                }
+
+                await _context.SaveChangesAsync();
+                #endregion
+
                 return new ApiOkResponse(true);
             }
             catch (System.Exception e)
@@ -878,6 +901,9 @@ namespace HaloBiz.MyServices.Impl
                 {
                     if(invoices.Count() > 0)
                         _context.Invoices.UpdateRange(invoices);
+
+                    if (theGroupInvoices.Count() > 0)
+                        _context.Invoices.UpdateRange(theGroupInvoices);
                 }
                 catch (System.Exception e)
                 {

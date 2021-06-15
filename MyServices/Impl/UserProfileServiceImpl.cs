@@ -49,6 +49,11 @@ namespace HaloBiz.MyServices.Impl
                 return new ApiResponse(400, "Invalid email address");
             }
 
+            if(userProfileReceivingDTO.ImageUrl.Length > 255)
+            {
+                userProfileReceivingDTO.ImageUrl = userProfileReceivingDTO.ImageUrl.Substring(0, 255);
+            }
+
             var userProfile = _mapper.Map<UserProfile>(userProfileReceivingDTO);
             var savedUserProfile = await _userRepo.SaveUserProfile(userProfile);
             if(savedUserProfile == null)
