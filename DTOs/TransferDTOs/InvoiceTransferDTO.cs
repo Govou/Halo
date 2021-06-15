@@ -27,5 +27,7 @@ namespace HaloBiz.DTOs.TransferDTOs
         public long ContractId { get; set; }
         public long ContractServiceId { get; set; }
         public bool IsFinalInvoice { get; set; }
+
+        public double ToReceiptValue { get; set; }
     }
 }

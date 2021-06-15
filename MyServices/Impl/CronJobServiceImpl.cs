@@ -316,7 +316,7 @@ namespace HaloBiz.MyServices.Impl
                                 ExchangeRate = 1,
                                 TranDate = accountMaster.CreatedAt.ToString("s"),
                                 DocumentDate = accountMaster.CreatedAt.ToString("s"),
-                                TranType = voucherType.Alias ?? "SALE",
+                                TranType = voucherType.Alias ?? "JV",
                                 Module = $"HaloBiz"
                             };
 

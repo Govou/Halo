@@ -48,7 +48,7 @@ namespace HaloBiz.MyServices.Impl
 
         public async Task<ApiResponse> AddReceipt(HttpContext context, ReceiptReceivingDTO receiptReceivingDTO)
         {
-
+            LoggedInUserId = context.GetLoggedInUserId();
             if (receiptReceivingDTO.InvoiceNumber.ToUpper().Contains("GINV"))
             {
                 // do special receipting for group invoice.            
@@ -180,9 +180,15 @@ namespace HaloBiz.MyServices.Impl
                             && x.StartDate == singleInvoice.StartDate && !x.IsDeleted)
                     .ToListAsync();
 
-            foreach (var invoice in invoicesGrouped)
+            var invoiceTransferDTOS = _mapper.Map<List<InvoiceTransferDTO>>(invoicesGrouped);
+
+            foreach (var invoice in invoiceTransferDTOS)
             {
-                if (invoice.IsReceiptedStatus == (int)InvoiceStatus.CompletelyReceipted) continue;
+                if (invoice.IsReceiptedStatus == InvoiceStatus.CompletelyReceipted) 
+                {
+                    invoice.ToReceiptValue = 0;
+                    continue; 
+                }
 
                 try
                 {
@@ -191,17 +197,20 @@ namespace HaloBiz.MyServices.Impl
 
                     if (totalReceiptAmount < invoiceValueBeforeReceipting)
                     {
-                        invoice.IsReceiptedStatus = (int)InvoiceStatus.PartlyReceipted;
+                        invoice.IsReceiptedStatus = InvoiceStatus.PartlyReceipted;
+                        invoice.ToReceiptValue = totalReceiptAmount;
                         break;
                     }
                     else if (totalReceiptAmount == invoiceValueBeforeReceipting)
                     {
-                        invoice.IsReceiptedStatus = (int)InvoiceStatus.CompletelyReceipted;
+                        invoice.IsReceiptedStatus = InvoiceStatus.CompletelyReceipted;
+                        invoice.ToReceiptValue = totalReceiptAmount;
                         break;
                     }
                     else
                     {
-                        invoice.IsReceiptedStatus = (int)InvoiceStatus.CompletelyReceipted;                   
+                        invoice.IsReceiptedStatus = InvoiceStatus.CompletelyReceipted;
+                        invoice.ToReceiptValue = invoiceValueBeforeReceipting;
                         totalReceiptAmount -= invoiceValueBeforeReceipting;
                     }
                 }
@@ -212,8 +221,7 @@ namespace HaloBiz.MyServices.Impl
                     return new ApiResponse(500);
                 }
             }
-
-            var invoiceTransferDTOS = _mapper.Map<List<InvoiceTransferDTO>>(invoicesGrouped);
+            
             return new ApiOkResponse(invoiceTransferDTOS);
         }
 
