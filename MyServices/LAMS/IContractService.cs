@@ -12,5 +12,6 @@ namespace HaloBiz.MyServices.LAMS
         Task<ApiResponse> GetContractByReferenceNumber(string refNo);
 
         Task<ApiResponse> GetContractById(long id);
+        Task<ApiResponse> GetContractsByLeadId(long leadId);
     }
 }
