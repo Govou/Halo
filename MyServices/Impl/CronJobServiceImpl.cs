@@ -289,6 +289,8 @@ namespace HaloBiz.MyServices.Impl
                                     costCenter = "05";
                                 }
 
+                                bool isCashBook = controlAccount.Alias == "15020201";
+
                                 var journalLine = new
                                 {
                                     GLAccount = controlAccount.Alias,
@@ -298,7 +300,7 @@ namespace HaloBiz.MyServices.Impl
                                     Amount = Math.Abs(accountDetail.Credit - accountDetail.Debit),
                                     Factor = (accountDetail.Credit > 0 && accountDetail.Debit == 0) ? -1 : 1,
                                     Details = accountDetail.Description,
-                                    SourceCode = sourceCode
+                                    SourceCode = isCashBook ? detailAccount.Alias : sourceCode
                                 };
 
                                 journalLines.Add(journalLine);
