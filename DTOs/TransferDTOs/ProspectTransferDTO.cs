@@ -39,5 +39,6 @@ namespace HaloBiz.DTOs.TransferDTOs
         public string Email { get; set; }
         public LGATransferDTO Lga { get; set; }
         public string IdentityUserId { get; set; }
+        public string RCNumber { get; set; }
     }
 }
