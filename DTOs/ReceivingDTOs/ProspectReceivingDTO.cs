@@ -31,5 +31,6 @@ namespace HaloBiz.DTOs.ReceivingDTOs
         public long? Lgaid { get; set; }
         public string Email { get; set; }
         public string IdentityUserId { get; set; }
+        public string RCNumber { get; set; }
     }
 }

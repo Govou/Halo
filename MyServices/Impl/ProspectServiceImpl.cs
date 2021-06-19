@@ -123,6 +123,7 @@ namespace HaloBiz.MyServices.Impl
             prospectToUpdate.Street = prospectReceivingDTO.Street;
             prospectToUpdate.TentativeBugdet = prospectReceivingDTO.TentativeBugdet;
             prospectToUpdate.TentativeBusinessStartDate = prospectReceivingDTO.TentativeBusinessStartDate;
+            prospectToUpdate.RCNumber = prospectReceivingDTO.RCNumber;
 
             var updatedprospect = await _prospectRepo.UpdateProspect(prospectToUpdate);
 
