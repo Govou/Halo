@@ -986,7 +986,7 @@ namespace HaloBiz.MyServices.Impl
         }
 
 
-        private async Task<InvoiceMailDTO> GenerateInvoiceMailDTO(Invoice invoice)
+        /*private async Task<InvoiceMailDTO> GenerateInvoiceMailDTO(Invoice invoice)
         {
                 var customerDivision = await _context.CustomerDivisions
                                 .Include(x => x.PrimaryContact)
@@ -1074,6 +1074,99 @@ namespace HaloBiz.MyServices.Impl
                 };
 
                 return invoiceMailDTO;
+        }*/
+
+        private async Task<InvoiceMailDTO> GenerateInvoiceMailDTO(Invoice invoice)
+        {
+            var customerDivision = await _context.CustomerDivisions
+                            .Include(x => x.PrimaryContact)
+                            .Include(x => x.SecondaryContact)
+                            .Include(x => x.State)
+                            .Include(x => x.Lga)
+                            .FirstOrDefaultAsync(x => x.Id == invoice.CustomerDivisionId);
+
+
+            IEnumerable<Invoice> invoices;
+            if (String.IsNullOrWhiteSpace(invoice.GroupInvoiceNumber))
+            {
+                invoices = await _context.Invoices.AsNoTracking()
+                        .Include(x => x.ContractService)
+                        .ThenInclude(x => x.Service)
+                        .Where(x => x.Id == invoice.ContractServiceId && x.StartDate == invoice.StartDate && !x.IsDeleted).ToListAsync();
+            }
+            else
+            {
+                invoices = await _context.Invoices.AsNoTracking()
+                        .Include(x => x.ContractService)
+                        .ThenInclude(x => x.Service)
+                        .Where(x => x.GroupInvoiceNumber == invoice.GroupInvoiceNumber && x.StartDate == invoice.StartDate && !x.IsDeleted)
+                        .ToListAsync();
+            }
+
+            double discount = 0.0;
+            double subTotal = 0.0;
+            double unInvoicedAmount = 0.0;
+            double VAT = 0.0;
+            string invoiceCycle = null;
+            string keyServiceName = "";
+            List<string> recepients = new List<string>();
+            recepients.Add(customerDivision.Email);
+            if (customerDivision.SecondaryContact != null)
+                recepients.Add(customerDivision.SecondaryContact.Email);
+
+            if (customerDivision.PrimaryContact != null)
+                recepients.Add(customerDivision.PrimaryContact.Email);
+            List<ContractServiceMailDTO> contractServiceMailDTOs = new List<ContractServiceMailDTO>();
+
+            foreach (var theInvoice in invoices)
+            {
+                discount += theInvoice.Discount;
+                subTotal += (double)theInvoice.UnitPrice * (double)theInvoice.Quantity;
+                VAT += (double)theInvoice.ContractService.Vat;
+                unInvoicedAmount += (double)(theInvoice.ContractService.BillableAmount - theInvoice.ContractService.AdHocInvoicedAmount);
+                invoiceCycle = theInvoice.ContractService.InvoicingInterval.ToString();
+                keyServiceName = theInvoice.ContractService.Service.Name;
+
+                contractServiceMailDTOs.Add(new ContractServiceMailDTO()
+                {
+                    Description = theInvoice.ContractService.Service.Name,
+                    UnitPrice = theInvoice.UnitPrice,
+                    Quantity = theInvoice.Quantity,
+                    Total = theInvoice.Quantity * theInvoice.UnitPrice,
+                    Discount = theInvoice.Discount,
+                });
+
+            }
+
+            ClientInfoMailDTO client = new ClientInfoMailDTO()
+            {
+                Name = customerDivision.DivisionName,
+                Email = customerDivision.Email,
+                Street = customerDivision.Street,
+                State = customerDivision.State != null ? customerDivision.State.Name : "No State Provided",
+                LGA = customerDivision.Lga != null ? customerDivision.Lga.Name : "No LGA Provided"
+            };
+
+            InvoiceMailDTO invoiceMailDTO = new InvoiceMailDTO()
+            {
+                Id = invoice.Id,
+                InvoiceNumber = invoice.InvoiceNumber,
+                Total = invoice.Value,
+                SubTotal = subTotal,
+                VAT = subTotal * (7.5 / 100),
+                UnInvoicedAmount = unInvoicedAmount,
+                Discount = discount,
+                InvoicingCycle = invoiceCycle,
+                StartDate = invoice.StartDate,
+                EndDate = invoice.EndDate,
+                Subject = $"Invoice {invoice.InvoiceNumber} for {keyServiceName} due {invoice.EndDate.ToString("dddd, dd MMMM yyyy")}",
+                Recepients = recepients.ToArray(),
+                DaysUntilDeadline = (int)invoice.EndDate.Subtract(DateTime.Now).TotalDays,
+                ClientInfo = client,
+                ContractServices = contractServiceMailDTOs
+            };
+
+            return invoiceMailDTO;
         }
 
     }
