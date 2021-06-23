@@ -100,14 +100,14 @@ namespace HaloBiz.Repository.Impl.LAMS
             }
             else
             {
-                return await _context.Invoices
+                var invoices = await _context.Invoices
                 .Where(x => !x.IsReversalInvoice.Value && !x.IsDeleted && !x.IsReversed.Value
                         && x.StartDate > DateTime.Now && x.GroupInvoiceNumber == contractService.GroupInvoiceNumber)
-                //.OrderBy(x => x.StartDate)
-                .GroupBy(x => x.StartDate)
-                .Select(x => new { startDate = x.Key, validDate = x.All(y => y.IsReceiptedStatus == (int)InvoiceStatus.NotReceipted) })
-                .OrderBy(x => x.startDate)
                 .ToListAsync();
+                //.OrderBy(x => x.StartDate)
+                return invoices.GroupBy(x => x.StartDate)
+                .Select(x => new { startDate = x.Key, validDate = x.All(y => y.IsReceiptedStatus == (int)InvoiceStatus.NotReceipted) })
+                .OrderBy(x => x.startDate).ToList();
                 //.Select(x => new { startDate = x.StartDate, validDate = x.IsReceiptedStatus == (int)InvoiceStatus.NotReceipted }).ToListAsync();
             }   
         }
