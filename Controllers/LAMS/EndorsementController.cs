@@ -103,5 +103,15 @@ namespace Controllers.Controllers
             var endorsements = ((ApiOkResponse)response).Result;
             return Ok(endorsements);
         }
+
+        [HttpPut("ConvertDebitCreditNote/{contractServiceForEndorsementId}")]
+        public async Task<ActionResult> ConvertDebitCreditNote(long contractServiceForEndorsementId)
+        {
+            var response = await _contractServiceForEndorsementService.ConvertDebitCreditNoteEndorsement(HttpContext, contractServiceForEndorsementId);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var endorsements = ((ApiOkResponse)response).Result;
+            return Ok(endorsements);
+        }
     }
 }
