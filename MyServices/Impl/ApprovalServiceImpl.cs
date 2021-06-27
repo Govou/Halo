@@ -291,7 +291,7 @@ namespace HaloBiz.MyServices.Impl
                 double amountChangeValue = contractServiceForEndorsement.BillableAmount.Value;
 
                 var edType = endorsementType.Caption.ToLower();
-                if (edType.Contains("topup") || edType.Contains("reduction"))
+                if (edType.Contains("topup") || edType.Contains("reduction") || edType.Contains("credit") || edType.Contains("debit"))
                 {
                     var prevContractService = await _context.ContractServices.AsNoTracking()
                                                     .Where(x => x.Id == contractServiceForEndorsement.PreviousContractServiceId)

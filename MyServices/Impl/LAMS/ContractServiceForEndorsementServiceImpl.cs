@@ -377,6 +377,75 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
         }
 
+        public async Task<ApiResponse> ConvertDebitCreditNoteEndorsement(HttpContext httpContext, long id)
+        {
+            using (var transaction = await _context.Database.BeginTransactionAsync())
+            {
+                try
+                {
+                    loggedInUserId = httpContext.GetLoggedInUserId();
+                    var contractServiceForEndorsement = await _cntServiceForEndorsemntRepo
+                                                .FindContractServiceForEndorsementById(id);
+
+                    if (contractServiceForEndorsement == null)
+                    {
+                        return new ApiResponse(404);
+                    }
+
+                    contractServiceForEndorsement.IsConvertedToContractService = true;
+                    _context.ContractServiceForEndorsements.Update(contractServiceForEndorsement);
+                    await _context.SaveChangesAsync();
+
+                    var contract = await _context.Contracts
+                                .Include(x => x.CustomerDivision)
+                                .FirstOrDefaultAsync(x => x.Id == contractServiceForEndorsement.ContractId);
+
+                    var customerDivision = contract.CustomerDivision;
+
+                    var service = await _context.Services
+                                .FirstOrDefaultAsync(x => x.Id == contractServiceForEndorsement.ServiceId);
+
+                    string endorsementType = contractServiceForEndorsement.EndorsementType.Caption;
+
+                    if (endorsementType.ToLower().Contains("credit"))
+                    {
+                        var currentContractService = await _context.ContractServices
+                            .FirstOrDefaultAsync(x => x.Id == contractServiceForEndorsement.PreviousContractServiceId);
+
+                        await CreditNoteEndorsement(currentContractService,
+                                                    customerDivision,
+                                                    service,
+                                                    contractServiceForEndorsement);
+                    }
+                    else if (endorsementType.ToLower().Contains("debit"))
+                    {
+                        var currentContractService = await _context.ContractServices
+                            .FirstOrDefaultAsync(x => x.Id == contractServiceForEndorsement.PreviousContractServiceId);
+
+                        await DebitNoteEndorsement(currentContractService,
+                                                   customerDivision,
+                                                   service,
+                                                   contractServiceForEndorsement);
+                    }
+                    else
+                    {
+                        throw new Exception("Invalid Endorsement Type");
+                    }
+
+                    await transaction.CommitAsync();
+
+                    return new ApiOkResponse(true);
+                }
+                catch (Exception ex)
+                {
+                    await transaction.RollbackAsync();
+                    _logger.LogError(ex.Message);
+                    _logger.LogError(ex.StackTrace);
+                    return new ApiResponse(500);
+                }
+            }
+        }
+
         private async Task<bool> AddServiceEndorsement(ContractService contractService, ContractServiceForEndorsement contractServiceForEndorsement, Service service, CustomerDivision customerDivision)
         {
             var salesVoucherName = this._configuration.GetSection("VoucherTypes:SalesInvoiceVoucher").Value;
@@ -574,6 +643,63 @@ namespace HaloBiz.MyServices.Impl.LAMS
             {
                 //await GenerateGroupInvoiceDetails(newContractService);
             }
+            return true;
+        }
+
+        private async Task<bool> CreditNoteEndorsement(ContractService currentContractService,
+                                                        CustomerDivision customerDivision,
+                                                        Service service,
+                                                        ContractServiceForEndorsement contractServiceForEndorsement)
+        {
+
+            var financialVoucherType = await _context.FinanceVoucherTypes
+                            .FirstOrDefaultAsync(x => x.VoucherType.ToLower() == "Credit Note".ToLower());
+
+            var contractServiceDifference = _mapper.Map<ContractService>(currentContractService);
+
+            contractServiceDifference.BillableAmount = currentContractService.BillableAmount - contractServiceForEndorsement.BillableAmount;
+            contractServiceDifference.Vat = currentContractService.Vat - contractServiceForEndorsement.Vat;
+
+            await _leadConversionService.CreateAccounts(
+                                            contractServiceDifference,
+                                            customerDivision,
+                                            (long)contractServiceForEndorsement.BranchId,
+                                            (long)contractServiceForEndorsement.OfficeId,
+                                            service,
+                                            financialVoucherType,
+                                            null,
+                                            loggedInUserId,
+                                            true);
+
+            return true;
+        }
+
+        private async Task<bool> DebitNoteEndorsement(ContractService currentContractService,
+                                                        CustomerDivision customerDivision,
+                                                        Service service,
+                                                        ContractServiceForEndorsement contractServiceForEndorsement)
+        {
+            //var salesTopUpVoucher = this._configuration.GetSection("VoucherTypes:SalesTopupVoucher").Value;
+
+            var financialVoucherType = await _context.FinanceVoucherTypes
+                            .FirstOrDefaultAsync(x => x.VoucherType.ToLower() == "Debit Note".ToLower());
+
+            var contractServiceDifference = _mapper.Map<ContractService>(currentContractService);
+
+            contractServiceDifference.BillableAmount = contractServiceForEndorsement.BillableAmount - currentContractService.BillableAmount;
+            contractServiceDifference.Vat = contractServiceForEndorsement.Vat - currentContractService.Vat;
+
+            await _leadConversionService.CreateAccounts(
+                                            contractServiceDifference,
+                                            customerDivision,
+                                            (long)contractServiceForEndorsement.BranchId,
+                                            (long)contractServiceForEndorsement.OfficeId,
+                                            service,
+                                            financialVoucherType,
+                                            null,
+                                            loggedInUserId,
+                                            false);
+
             return true;
         }
 
