@@ -726,7 +726,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
             var totalAfterTax = totalContractBillable - totalVAT;
             var savedAccountMaster = await CreateAccountMaster(service,
                                                          contractService,
-                                                         accountVoucherType.Id,
+                                                         accountVoucherType,
                                                          branchId,
                                                          officeId,
                                                          totalContractBillable,
@@ -745,7 +745,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                                      customerDivision,
                                      branchId,
                                      officeId,
-                                     accountVoucherType.Id,
+                                     accountVoucherType,
                                      totalContractBillable,
                                      savedAccountMaster.Id,
                                      loggedInUserId,
@@ -758,7 +758,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                                      customerDivision,
                                      branchId,
                                      officeId,
-                                     accountVoucherType.Id,
+                                     accountVoucherType,
                                      savedAccountMaster.Id,
                                      totalVAT,
                                     loggedInUserId,
@@ -770,7 +770,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                                     customerDivision,
                                     branchId,
                                     officeId,
-                                    accountVoucherType.Id,
+                                    accountVoucherType,
                                     savedAccountMaster.Id,
                                     totalAfterTax,
                                     loggedInUserId,
@@ -785,7 +785,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                                     CustomerDivision customerDivision,
                                     long branchId,
                                     long officeId,
-                                    long accountVoucherTypeId,
+                                    FinanceVoucherType accountVoucherType,
                                     double totalContractBillable,
                                     long accountMasterId,
                                     long createdById,
@@ -829,7 +829,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
             await PostAccountDetail(service,
                                     contractServiceId,
-                                    accountVoucherTypeId,
+                                    accountVoucherType,
                                     branchId,
                                     officeId,
                                     totalContractBillable,
@@ -988,7 +988,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                                     CustomerDivision customerDivision,
                                     long branchId,
                                     long officeId,
-                                    long accountVoucherTypeId,
+                                    FinanceVoucherType accountVoucherType,
                                     long accountMasterId,
                                     double totalVAT,
                                     long loggedInUserId,
@@ -1033,7 +1033,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
             await PostAccountDetail(service,
                                     contractServiceId,
-                                    accountVoucherTypeId,
+                                    accountVoucherType,
                                     branchId,
                                     officeId,
                                     totalVAT,
@@ -1053,7 +1053,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                                     CustomerDivision customerDivision,
                                     long branchId,
                                     long officeId,
-                                    long accountVoucherTypeId,
+                                    FinanceVoucherType accountVoucherType,
                                     long accountMasterId,
                                     double totalBillableAfterTax,
                                     long loggedInUserId,
@@ -1074,7 +1074,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
             await PostAccountDetail(service,
                                     contractServiceId,
-                                    accountVoucherTypeId,
+                                    accountVoucherType,
                                     branchId,
                                     officeId,
                                     totalBillableAfterTax,
@@ -1122,7 +1122,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
         public async Task<AccountMaster> CreateAccountMaster(Service service,
                                                         ContractService contractService,
-                                                        long accountVoucherTypeId,
+                                                        FinanceVoucherType accountVoucherType,
                                                         long branchId,
                                                         long officeId,
                                                         double amount,
@@ -1135,9 +1135,9 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
             AccountMaster accountMaster = new AccountMaster()
             {
-                Description = $"Sales of {service.Name} with service ID: {service.Id} to {customerDivision.DivisionName}",
+                Description = GetAccountMasterDescription(accountVoucherType, service, customerDivision),
                 IntegrationFlag = false,
-                VoucherId = accountVoucherTypeId,
+                VoucherId = accountVoucherType.Id,
                 BranchId = branchId,
                 OfficeId = officeId,
                 Value = amount,
@@ -1148,6 +1148,24 @@ namespace HaloBiz.MyServices.Impl.LAMS
             var savedAccountMaster = await _context.AccountMasters.AddAsync(accountMaster);
             await _context.SaveChangesAsync();
             return savedAccountMaster.Entity;
+        }
+
+        private string GetAccountMasterDescription(FinanceVoucherType financeVoucherType, Service service, CustomerDivision customerDivision)
+        {
+            var fvt = financeVoucherType.VoucherType.ToLower();
+
+            var description = $"Sales of {service.Name} with service ID: {service.Id} to {customerDivision.DivisionName}";
+
+            if(fvt == "debit note")
+            {
+                description = $"Debit Note on {service.Name} to {customerDivision.DivisionName}";
+            }
+            else if(fvt == "credit note")
+            {
+                description = $"Credit Note on {service.Name} to {customerDivision.DivisionName}";
+            }
+
+            return description;
         }
 
         private async Task<bool> SaveRangeSbuaccountMaster(long accountMasterId, IEnumerable<SbutoQuoteServiceProportion> sBUToQuoteServiceProp)
@@ -1170,7 +1188,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
         private async Task<AccountDetail> PostAccountDetail(
                                                     Service service,
                                                     long contractServiceId,
-                                                    long accountVoucherTypeId,
+                                                    FinanceVoucherType accountVoucherType,
                                                     long branchId,
                                                     long officeId,
                                                     double amount,
@@ -1184,9 +1202,9 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
             AccountDetail accountDetail = new AccountDetail()
             {
-                Description = $"Sales of {service.Name}  with service ID: {service.Id} to {customerDivision.DivisionName}",
+                Description = GetAccountMasterDescription(accountVoucherType, service, customerDivision),
                 IntegrationFlag = false,
-                VoucherId = accountVoucherTypeId,
+                VoucherId = accountVoucherType.Id,
                 TransactionId = $"{service.ServiceCode}/{contractServiceId}",
                 TransactionDate = DateTime.Now,
                 Credit = isCredit ? amount : 0,

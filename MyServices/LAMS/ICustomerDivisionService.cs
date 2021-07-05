@@ -15,6 +15,7 @@ namespace HaloBiz.MyServices.LAMS
         Task<ApiResponse> AddCustomerDivision(HttpContext context, CustomerDivisionReceivingDTO CustomerDivisionReceivingDTO);
         Task<ApiResponse> GetAllCustomerDivisions();
         Task<ApiResponse> GetCustomerDivisionById(long id);
+        Task<ApiResponse> GetCustomerDivisionByDTrackCustomerNumber(string dTrackCustomerNumber);
         Task<ApiResponse> GetTaskAndFulfillmentsByCustomerDivisionId(long customerDivisionId);
         Task<ApiResponse> GetClientsWithSecuredMobilityContractServices();
         Task<ApiResponse> GetCustomerDivisionByName(string name);

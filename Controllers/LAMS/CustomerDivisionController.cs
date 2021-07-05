@@ -145,5 +145,15 @@ namespace HaloBiz.Controllers.LAMS
             var response = await _CustomerDivisionService.DeleteCustomerDivision(id);
             return StatusCode(response.StatusCode);
         }
+
+        [HttpGet("GetByCustomerNumber/{dTrackCustomerNumber}")]
+        public async Task<ActionResult> GetByDTrackCustomerNumber(string dTrackCustomerNumber)
+        {
+            var response = await _CustomerDivisionService.GetCustomerDivisionByDTrackCustomerNumber(dTrackCustomerNumber);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var CustomerDivision = ((ApiOkResponse)response).Result;
+            return Ok(CustomerDivision);
+        }
     }
 }

@@ -49,6 +49,7 @@ namespace HaloBiz.Repository.Impl
             }
             if(serviceCategory != null){
                     serviceCategory.Services = await _context.Services
+                    .Include(x => x.AdminService)
                     .Include(x => x.ServiceType)
                     .Where( service => service.ServiceCategoryId == serviceCategory.Id && !service.IsDeleted.Value && service.IsPublished.Value)
                     .Select( x => new Service() {
@@ -69,7 +70,9 @@ namespace HaloBiz.Repository.Impl
                         OperatingEntityId = x.OperatingEntityId,
                         DivisionId = x.DivisionId,
                         AccountId = x.AccountId,
-                        CreatedById = x.CreatedById
+                        CreatedById = x.CreatedById,
+                        HasAdminComponent = x.HasAdminComponent,
+                        AdminService = x.AdminService
                     })
                     .ToListAsync();
                 }

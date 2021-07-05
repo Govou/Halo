@@ -58,6 +58,22 @@ namespace HaloBiz.Repository.Impl.LAMS
             return client;
         }
 
+        public async Task<CustomerDivision> FindCustomerDivisionByDTrackCustomerNumber(string dTrackCustomerNumber)
+        {
+            var client = await _context.CustomerDivisions.AsNoTracking()
+                .Include(x => x.Customer)
+                .FirstOrDefaultAsync(entity => entity.DTrackCustomerNumber == dTrackCustomerNumber && !entity.IsDeleted);
+            
+            if (client == null)
+            {
+                return null;
+            }
+
+            client.Customer.CustomerDivisions = null;
+
+            return client;
+        }
+
         public async Task<List<TaskFulfillment>> FindTaskAndFulfillmentsByCustomerDivisionId(long customerDivisionId)
         {
             var taskFulfillments = await _context.TaskFulfillments.Where(x => x.CustomerDivisionId == customerDivisionId && x.IsDeleted == false)

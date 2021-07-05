@@ -65,17 +65,17 @@ namespace HaloBiz.Repository.Impl
 
         public async Task<IEnumerable<Invoice>> GetInvoiceByContractServiceId(long contractServiceId) 
         {
-            var contractServcie = await _context.ContractServices
+            var contractService = await _context.ContractServices
                     .FirstOrDefaultAsync(x => x.Id == contractServiceId && !x.IsDeleted);
 
-            if(contractServcie == null)
+            if(contractService == null)
             {
                 return new List<Invoice>();
             }
 
             List<Invoice> invoices;
 
-            if(String.IsNullOrWhiteSpace(contractServcie.GroupInvoiceNumber))
+            if(String.IsNullOrWhiteSpace(contractService.GroupInvoiceNumber))
             {
                 invoices = await _context.Invoices
                 .Include(x => x.Receipts)
@@ -85,7 +85,7 @@ namespace HaloBiz.Repository.Impl
             }else{
                 invoices = await _context.Invoices
                 .Include(x => x.Receipts)
-                    .Where(x => x.GroupInvoiceNumber == contractServcie.GroupInvoiceNumber && !x.IsDeleted)
+                    .Where(x => x.GroupInvoiceNumber == contractService.GroupInvoiceNumber && !x.IsDeleted)
                     .OrderBy(x => x.StartDate)
                     .ToListAsync();
                 

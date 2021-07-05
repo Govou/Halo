@@ -653,12 +653,12 @@ namespace HaloBiz.MyServices.Impl.LAMS
         {
 
             var financialVoucherType = await _context.FinanceVoucherTypes
-                            .FirstOrDefaultAsync(x => x.VoucherType.ToLower() == "Credit Note".ToLower());
+                            .FirstOrDefaultAsync(x => x.VoucherType == "Credit Note");
 
             var contractServiceDifference = _mapper.Map<ContractService>(currentContractService);
 
-            contractServiceDifference.BillableAmount = currentContractService.BillableAmount - contractServiceForEndorsement.BillableAmount;
-            contractServiceDifference.Vat = currentContractService.Vat - contractServiceForEndorsement.Vat;
+            contractServiceDifference.BillableAmount = contractServiceForEndorsement.BillableAmount;
+            contractServiceDifference.Vat = contractServiceForEndorsement.Vat;
 
             await _leadConversionService.CreateAccounts(
                                             contractServiceDifference,
@@ -682,12 +682,12 @@ namespace HaloBiz.MyServices.Impl.LAMS
             //var salesTopUpVoucher = this._configuration.GetSection("VoucherTypes:SalesTopupVoucher").Value;
 
             var financialVoucherType = await _context.FinanceVoucherTypes
-                            .FirstOrDefaultAsync(x => x.VoucherType.ToLower() == "Debit Note".ToLower());
+                            .FirstOrDefaultAsync(x => x.VoucherType == "Debit Note");
 
             var contractServiceDifference = _mapper.Map<ContractService>(currentContractService);
 
-            contractServiceDifference.BillableAmount = contractServiceForEndorsement.BillableAmount - currentContractService.BillableAmount;
-            contractServiceDifference.Vat = contractServiceForEndorsement.Vat - currentContractService.Vat;
+            contractServiceDifference.BillableAmount = contractServiceForEndorsement.BillableAmount;
+            contractServiceDifference.Vat = contractServiceForEndorsement.Vat;
 
             await _leadConversionService.CreateAccounts(
                                             contractServiceDifference,
