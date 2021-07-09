@@ -20,7 +20,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
         private readonly HalobizContext _context;
         private readonly IMapper _mapper;
         private readonly IMailAdapter _mailAdapter;
-        private readonly ILogger<LeadConversionServiceImpl> _logger;
+        private readonly ILogger<LeadConversionServiceImplV2> _logger;
         public long LoggedInUserId;
 
         private readonly string ReceivableControlAccount = "Receivable";
@@ -41,7 +41,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
         public LeadConversionServiceImplV2(
                                         HalobizContext context,
-                                        ILogger<LeadConversionServiceImpl> logger,
+                                        ILogger<LeadConversionServiceImplV2> logger,
                                         IMapper mapper,
                                         IMailAdapter mailAdapter
                                         )

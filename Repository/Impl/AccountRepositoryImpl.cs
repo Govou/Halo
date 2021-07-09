@@ -35,7 +35,7 @@ namespace HaloBiz.Repository.Impl
 
         public async Task<Account> FindAccountById(long Id)
         {
-            return await _context.Accounts
+            return await _context.Accounts.AsNoTracking()
                 .Include(x => x.AccountDetails)
                 .FirstOrDefaultAsync(Account => Account.Id == Id && Account.IsDeleted == false);
         }

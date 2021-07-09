@@ -97,7 +97,7 @@ namespace HaloBiz.Repository.Impl
 
                 #region Changes based on new group invoice implementation
                 var groupInvoices = new List<Invoice>();
-                var groupedInvoices = invoices.GroupBy(x => x.StartDate);
+                var groupedInvoices = invoices.GroupBy(x => x.StartDate.ToShortDateString());
                 foreach (var group in groupedInvoices)
                 {
                     var key = group.Key;
