@@ -8,6 +8,7 @@ namespace HaloBiz.DTOs.TransferDTOs
         public long Id { get; set; }
         public string Name { get; set; }
         public string Description { get; set; }
+        public string ImageUrl { get; set; }
         public long ServiceGroupId { get; set; }
         public ServiceGroupWithoutServiceCategoryDTO ServiceGroup { get; set; }
         public long OperatingEntityId { get; set; }

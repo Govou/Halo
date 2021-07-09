@@ -114,10 +114,9 @@ namespace HaloBiz.MyServices.Impl.LAMS
             var item = contractServiceForEndorsementReceiving;
             
             var alreadyExists = await _context.ContractServiceForEndorsements
-                        .AnyAsync(x => x.ContractId == item.ContractId
+                        .AnyAsync(x => x.ContractId == item.ContractId && x.PreviousContractServiceId == item.PreviousContractServiceId
                                     && x.CustomerDivisionId == item.CustomerDivisionId && x.ServiceId == item.ServiceId
-                                    && !x.IsApproved && !x.IsDeclined && x.IsConvertedToContractService != true
-                                    && x.EndorsementTypeId == item.EndorsementTypeId && !x.IsDeleted);
+                                    && !x.IsApproved && !x.IsDeclined && x.IsConvertedToContractService != true && !x.IsDeleted);
 
             if (alreadyExists)
             {
@@ -125,8 +124,10 @@ namespace HaloBiz.MyServices.Impl.LAMS
             }
 
             var entityToSave = _mapper.Map<ContractServiceForEndorsement>(contractServiceForEndorsementReceiving);
+
             var endorsementType = await _context.EndorsementTypes
                         .FirstOrDefaultAsync(x => x.Id == entityToSave.EndorsementTypeId);
+
             if(endorsementType.Caption.ToLower().Contains("renew")
                         && !await ValidateContractToRenew(entityToSave))
             {
@@ -151,9 +152,9 @@ namespace HaloBiz.MyServices.Impl.LAMS
                     return new ApiResponse(500, "Could not set up approvals for service endorsement.");
                 }
 
-                var contractServiceToEndorseTransferDto = _mapper.Map<ContractServiceForEndorsementTransferDto>(savedEntity);
+                //var contractServiceToEndorseTransferDto = _mapper.Map<ContractServiceForEndorsementTransferDto>(savedEntity);
                 await transaction.CommitAsync();
-                return new ApiOkResponse(contractServiceToEndorseTransferDto);
+                return new ApiOkResponse(true);
             }
             catch (Exception ex)
             {
@@ -376,7 +377,76 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
         }
 
-        private async Task<bool> AddServiceEndorsement(ContractService contractService,ContractServiceForEndorsement contractServiceForEndorsement, Service service, CustomerDivision customerDivision)
+        public async Task<ApiResponse> ConvertDebitCreditNoteEndorsement(HttpContext httpContext, long id)
+        {
+            using (var transaction = await _context.Database.BeginTransactionAsync())
+            {
+                try
+                {
+                    loggedInUserId = httpContext.GetLoggedInUserId();
+                    var contractServiceForEndorsement = await _cntServiceForEndorsemntRepo
+                                                .FindContractServiceForEndorsementById(id);
+
+                    if (contractServiceForEndorsement == null)
+                    {
+                        return new ApiResponse(404);
+                    }
+
+                    contractServiceForEndorsement.IsConvertedToContractService = true;
+                    _context.ContractServiceForEndorsements.Update(contractServiceForEndorsement);
+                    await _context.SaveChangesAsync();
+
+                    var contract = await _context.Contracts
+                                .Include(x => x.CustomerDivision)
+                                .FirstOrDefaultAsync(x => x.Id == contractServiceForEndorsement.ContractId);
+
+                    var customerDivision = contract.CustomerDivision;
+
+                    var service = await _context.Services
+                                .FirstOrDefaultAsync(x => x.Id == contractServiceForEndorsement.ServiceId);
+
+                    string endorsementType = contractServiceForEndorsement.EndorsementType.Caption;
+
+                    if (endorsementType.ToLower().Contains("credit"))
+                    {
+                        var currentContractService = await _context.ContractServices
+                            .FirstOrDefaultAsync(x => x.Id == contractServiceForEndorsement.PreviousContractServiceId);
+
+                        await CreditNoteEndorsement(currentContractService,
+                                                    customerDivision,
+                                                    service,
+                                                    contractServiceForEndorsement);
+                    }
+                    else if (endorsementType.ToLower().Contains("debit"))
+                    {
+                        var currentContractService = await _context.ContractServices
+                            .FirstOrDefaultAsync(x => x.Id == contractServiceForEndorsement.PreviousContractServiceId);
+
+                        await DebitNoteEndorsement(currentContractService,
+                                                   customerDivision,
+                                                   service,
+                                                   contractServiceForEndorsement);
+                    }
+                    else
+                    {
+                        throw new Exception("Invalid Endorsement Type");
+                    }
+
+                    await transaction.CommitAsync();
+
+                    return new ApiOkResponse(true);
+                }
+                catch (Exception ex)
+                {
+                    await transaction.RollbackAsync();
+                    _logger.LogError(ex.Message);
+                    _logger.LogError(ex.StackTrace);
+                    return new ApiResponse(500);
+                }
+            }
+        }
+
+        private async Task<bool> AddServiceEndorsement(ContractService contractService, ContractServiceForEndorsement contractServiceForEndorsement, Service service, CustomerDivision customerDivision)
         {
             var salesVoucherName = this._configuration.GetSection("VoucherTypes:SalesInvoiceVoucher").Value;
             var financialVoucherType = await _context.FinanceVoucherTypes
@@ -393,12 +463,12 @@ namespace HaloBiz.MyServices.Impl.LAMS
                                                          this.loggedInUserId,
                                                          false);
 
-            if(string.IsNullOrWhiteSpace(contractService.GroupInvoiceNumber))
-            {
+            /*if(string.IsNullOrWhiteSpace(contractService.GroupInvoiceNumber))
+            {*/
                 await  _leadConversionService.GenerateInvoices(contractService,customerDivision.Id, service.ServiceCode, this.loggedInUserId);
-            }else {
+            /*}else {
                 await  UpdateInvoices(contractService, contractServiceForEndorsement, true, true);
-            }
+            }*/
             await _leadConversionService.GenerateAmortizations(contractService, customerDivision);
 
             return true;
@@ -544,7 +614,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
             var invoiceExists = String.IsNullOrWhiteSpace(newContractService.GroupInvoiceNumber) ?
                     false : await _context.Invoices.AnyAsync(x => x.GroupInvoiceNumber == newContractService.GroupInvoiceNumber);
 
-            if(invoiceExists)
+            if(invoiceExists && false)
             {
                 await  UpdateInvoices(newContractService, contractServiceForEndorsement, true,  true);
             }else{
@@ -571,8 +641,65 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
             if(!String.IsNullOrWhiteSpace(newContractService.GroupInvoiceNumber))
             {
-                await GenerateGroupInvoiceDetails(newContractService);
+                //await GenerateGroupInvoiceDetails(newContractService);
             }
+            return true;
+        }
+
+        private async Task<bool> CreditNoteEndorsement(ContractService currentContractService,
+                                                        CustomerDivision customerDivision,
+                                                        Service service,
+                                                        ContractServiceForEndorsement contractServiceForEndorsement)
+        {
+
+            var financialVoucherType = await _context.FinanceVoucherTypes
+                            .FirstOrDefaultAsync(x => x.VoucherType.ToLower() == "Credit Note".ToLower());
+
+            var contractServiceDifference = _mapper.Map<ContractService>(currentContractService);
+
+            contractServiceDifference.BillableAmount = currentContractService.BillableAmount - contractServiceForEndorsement.BillableAmount;
+            contractServiceDifference.Vat = currentContractService.Vat - contractServiceForEndorsement.Vat;
+
+            await _leadConversionService.CreateAccounts(
+                                            contractServiceDifference,
+                                            customerDivision,
+                                            (long)contractServiceForEndorsement.BranchId,
+                                            (long)contractServiceForEndorsement.OfficeId,
+                                            service,
+                                            financialVoucherType,
+                                            null,
+                                            loggedInUserId,
+                                            true);
+
+            return true;
+        }
+
+        private async Task<bool> DebitNoteEndorsement(ContractService currentContractService,
+                                                        CustomerDivision customerDivision,
+                                                        Service service,
+                                                        ContractServiceForEndorsement contractServiceForEndorsement)
+        {
+            //var salesTopUpVoucher = this._configuration.GetSection("VoucherTypes:SalesTopupVoucher").Value;
+
+            var financialVoucherType = await _context.FinanceVoucherTypes
+                            .FirstOrDefaultAsync(x => x.VoucherType.ToLower() == "Debit Note".ToLower());
+
+            var contractServiceDifference = _mapper.Map<ContractService>(currentContractService);
+
+            contractServiceDifference.BillableAmount = contractServiceForEndorsement.BillableAmount - currentContractService.BillableAmount;
+            contractServiceDifference.Vat = contractServiceForEndorsement.Vat - currentContractService.Vat;
+
+            await _leadConversionService.CreateAccounts(
+                                            contractServiceDifference,
+                                            customerDivision,
+                                            (long)contractServiceForEndorsement.BranchId,
+                                            (long)contractServiceForEndorsement.OfficeId,
+                                            service,
+                                            financialVoucherType,
+                                            null,
+                                            loggedInUserId,
+                                            false);
+
             return true;
         }
 
@@ -608,7 +735,9 @@ namespace HaloBiz.MyServices.Impl.LAMS
             IEnumerable<Invoice> invoices = null;
 
             invoices = isGroupInvoice?  await _context.Invoices
-                                    .Where(x => x.GroupInvoiceNumber == contractServiceForEndorsement.GroupInvoiceNumber && x.StartDate >= contractServiceForEndorsement.DateForNewContractToTakeEffect && !x.IsDeleted)
+                                    .Where(x => x.GroupInvoiceNumber == contractServiceForEndorsement.GroupInvoiceNumber 
+                                                    && x.ContractServiceId == contractServiceForEndorsement.PreviousContractServiceId
+                                                    && x.StartDate >= contractServiceForEndorsement.DateForNewContractToTakeEffect && !x.IsDeleted)
                                     .ToListAsync()
                     :
                     await _context.Invoices
@@ -627,10 +756,10 @@ namespace HaloBiz.MyServices.Impl.LAMS
                     invoice.Value -= Math.Abs(billbalbleForInvoicingPeriod);
                 }
 
-                if(!isGroupInvoice)
-                {
+                /*if(!isGroupInvoice)
+                {*/
                     invoice.Quantity = invoice.Quantity + contractService.Quantity;
-                }
+                /*}*/
 
                 invoice.ContractServiceId = contractService.Id;
             }
@@ -638,9 +767,9 @@ namespace HaloBiz.MyServices.Impl.LAMS
             _context.Invoices.UpdateRange(invoices);
             await _context.SaveChangesAsync();
 
-            if(isGroupInvoice)
+            if(isGroupInvoice && false)
             {
-                await GenerateGroupInvoiceDetails(contractService);
+                // await GenerateGroupInvoiceDetails(contractService);
             }
             else
             {

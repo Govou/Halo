@@ -64,5 +64,6 @@ namespace HaloBiz.DTOs.ReceivingDTOs.LAMS
         public long PreviousContractServiceId { get; set; }
         public DateTime DateForNewContractToTakeEffect { get; set; }
         public string EndorsementDescription { get; set; }
+        public string DocumentUrl { get; set; }
     }
 }

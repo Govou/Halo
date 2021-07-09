@@ -14,5 +14,6 @@ namespace HaloBiz.DTOs.ReceivingDTOs
         public long OperatingEntityId { get; set; }
         [Required]
         public long DivisionId { get; set; }
+        public string ImageUrl { get; set; }
     }
 }

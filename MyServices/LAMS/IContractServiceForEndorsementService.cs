@@ -13,6 +13,7 @@ namespace HaloBiz.MyServices.LAMS
         Task<ApiResponse> GetEndorsementDetailsById(long endorsementId);
         Task<ApiResponse> ApproveContractServiceForEndorsement(long Id, long sequence, bool isApproved);
         Task<ApiResponse> ConvertContractServiceForEndorsement(HttpContext httpContext, long Id);
+        Task<ApiResponse> ConvertDebitCreditNoteEndorsement(HttpContext httpContext, long Id);
         Task<ApiResponse> GetAllPossibleEndorsementStartDate(long contractServiceId);
         Task<ApiResponse> AddNewRetentionContractServiceForEndorsement (HttpContext httpContext, List<ContractServiceForEndorsementReceivingDto> contractServiceForEndorsementDtos);
     }

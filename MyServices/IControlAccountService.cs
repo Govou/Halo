@@ -13,6 +13,7 @@ namespace HaloBiz.MyServices
         Task<ApiResponse> GetControlAccountByCaption(string caption);
         Task<ApiResponse> GetControlAccountById(long id);
         Task<ApiResponse> GetAllControlAccounts();
+        Task<ApiResponse> GetAllIncomeControlAccounts();
         Task<ApiResponse> UpdateControlAccount(long id, ControlAccountReceivingDTO controlAccountReceivingDTO);
     }
 }

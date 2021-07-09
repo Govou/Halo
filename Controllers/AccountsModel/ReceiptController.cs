@@ -27,5 +27,15 @@ namespace HaloBiz.Controllers.AccountsModel
             var receipt = ((ApiOkResponse)response).Result;
             return Ok(receipt);
         }
+
+        [HttpGet("ReceiptBreakDown/{invoiceId}/{totalReceiptAmount}")]
+        public async Task<ActionResult> GetReceiptBreakDown(long invoiceId, double totalReceiptAmount)
+        {
+            var response = await _receiptService.GetReceiptBreakDown(invoiceId, totalReceiptAmount);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var invoices = ((ApiOkResponse)response).Result;
+            return Ok(invoices);
+        }
     }
 }

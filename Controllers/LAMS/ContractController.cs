@@ -48,6 +48,16 @@ namespace HaloBiz.Controllers.LAMS
             return Ok(contract);
         }
 
+        [HttpGet("GetContractsByLeadId/{leadId}")]
+        public async Task<ActionResult> GetContractsByLeadId(long leadId)
+        {
+            var response = await _contractService.GetContractsByLeadId(leadId);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var contract = ((ApiOkResponse)response).Result;
+            return Ok(contract);
+        }
+
         [HttpGet("{id}")]
         public async Task<ActionResult> GetById(long id)
         {

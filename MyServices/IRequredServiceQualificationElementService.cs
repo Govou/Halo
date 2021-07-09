@@ -12,6 +12,7 @@ namespace HaloBiz.MyServices
     {
         Task<ApiResponse> AddRequredServiceQualificationElement(HttpContext context, RequredServiceQualificationElementReceivingDTO RequredServiceQualificationElementReceivingDTO);
         Task<ApiResponse> GetAllRequredServiceQualificationElements();
+        Task<ApiResponse> GetAllRequredServiceQualificationElementsByServiceCategory(long serviceCategoryId);
         Task<ApiResponse> GetRequredServiceQualificationElementById(long id);
         Task<ApiResponse> GetRequredServiceQualificationElementByName(string name);
         Task<ApiResponse> UpdateRequredServiceQualificationElement(HttpContext context, long id, RequredServiceQualificationElementReceivingDTO RequredServiceQualificationElementReceivingDTO);

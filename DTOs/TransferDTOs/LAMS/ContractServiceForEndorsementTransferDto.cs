@@ -53,19 +53,22 @@ namespace HaloBiz.DTOs.TransferDTOs.LAMS
         public ContractTransferDTO Contract { get; set; }
         public string GroupInvoiceNumber { get; set; }
         public long EndorsementTypeId { get; set; }        
-        public EndorsementType EndorsementType { get; set; }
+        public EndorsementTypeTransferDTO EndorsementType { get; set; }
         public long CreatedById { get; set; }
-        public UserProfile CreatedBy { get; set; }
+        public UserProfileTransferDTO CreatedBy { get; set; }
         public bool IsRequestedForApproval { get; set; } = true;
         public bool IsApproved { get; set; } = false;
         public bool IsDeclined { get; set; } = false;
         public long CustomerDivisionId { get; set; }
-        public CustomerDivision CustomerDivision { get; set; }
+        public CustomerDivisionTransferDTO CustomerDivision { get; set; }
         public long BranchId { get; set; }
+        public BranchTransferDTO Branch { get; set; }
         public long OfficeId { get; set; }
+        public OfficeTransferDTO Office { get; set; }
         public long PreviousContractServiceId { get; set; }
         public DateTime DateForNewContractToTakeEffect { get; set; }
         public DateTime CreatedAt { get; set; }
         public string EndorsementDescription { get; set; }
+        public string DocumentUrl { get; set; }
     }
 }

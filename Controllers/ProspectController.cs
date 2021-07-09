@@ -42,7 +42,7 @@ namespace HaloBiz.Controllers
             return Ok(Prospect);
         }
 
-        [HttpGet("{email}")]
+        [HttpGet("GetByEmail/{email}")]
         public async Task<ActionResult> GetByEmail(string email)
         {
             var response = await _ProspectService.GetProspectByEmail(email);

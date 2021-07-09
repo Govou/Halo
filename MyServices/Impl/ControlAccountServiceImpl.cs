@@ -103,6 +103,16 @@ namespace HaloBiz.MyServices.Impl
             var controlAccountTransferDTOs = _mapper.Map<IEnumerable<ControlAccountTransferDTO>>(controlAccountes);
             return new ApiOkResponse(controlAccountTransferDTOs);
         }
+        public async Task<ApiResponse> GetAllIncomeControlAccounts()
+        {
+            var controlAccounts = await _controlAccountRepo.FindAllIncomeControlAccount();
+            if (controlAccounts == null)
+            {
+                return new ApiResponse(404);
+            }
+            var controlAccountTransferDTOs = _mapper.Map<IEnumerable<ControlAccountTransferDTO>>(controlAccounts);
+            return new ApiOkResponse(controlAccountTransferDTOs);
+        }
 
         public async Task<ApiResponse> UpdateControlAccount(long id, ControlAccountReceivingDTO controlAccountReceivingDTO)
         {

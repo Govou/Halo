@@ -151,77 +151,80 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
         public async Task<ApiResponse> UpdateQuote(HttpContext context, long id, QuoteReceivingDTO quoteReceivingDTO)
         {
-            using (var transaction = await _context.Database.BeginTransactionAsync())
+            using var transaction = await _context.Database.BeginTransactionAsync();
+            try
             {
-                try
+                if (quoteReceivingDTO.QuoteServices.Count() < 1)
                 {
-                    var createdById = context.GetLoggedInUserId();
-                    var quoteToUpdate = await _quoteRepo.FindQuoteById(id);
-                    if (quoteToUpdate == null)
-                    {
-                        return new ApiResponse(404);
-                    }
-
-                    var summary = $"Initial details before change, \n {quoteToUpdate.ToString()} \n";
-
-                    quoteToUpdate.ReferenceNo = quoteReceivingDTO.ReferenceNo;
-                    quoteToUpdate.LeadDivisionId = quoteReceivingDTO.LeadDivisionId;
-                    quoteToUpdate.IsConvertedToContract = quoteReceivingDTO.IsConvertedToContract;
-                    quoteToUpdate.Version = (int)quoteReceivingDTO.Version;
-
-                    if (quoteToUpdate.QuoteServices.Any())
-                    {
-                        var deleteSuccessful = await _quoteServiceRepo.DeleteQuoteServiceRange(quoteToUpdate.QuoteServices);
-                        if (!deleteSuccessful)
-                        {
-                            return new ApiResponse(500);
-                        }
-                        quoteToUpdate.QuoteServices = null;
-                    }                
-                    
-                    var quoteService = _mapper.Map<IEnumerable<QuoteService>>(quoteReceivingDTO.QuoteServices);
-
-                    foreach (var item in quoteService)
-                    {
-                        item.QuoteId = id;
-                        item.CreatedById = createdById;
-                    }
-
-                    var savedSuccessful = await _quoteServiceRepo.SaveQuoteServiceRange(quoteService);
-                    if (!savedSuccessful)
-                    {
-                        return new ApiResponse(500);
-                    }
-
-                    var updatedQuote = await _quoteRepo.UpdateQuote(quoteToUpdate);
-
-                    summary += $"Details after change, \n {updatedQuote.ToString()} \n";
-
-                    if (updatedQuote == null)
-                    {
-                        return new ApiResponse(500);
-                    }
-                    ModificationHistory history = new ModificationHistory()
-                    {
-                        ModelChanged = "Quote",
-                        ChangeSummary = summary,
-                        ChangedById = context.GetLoggedInUserId(),
-                        ModifiedModelId = updatedQuote.Id
-                    };
-
-                    await _historyRepo.SaveHistory(history);
-
-                    await transaction.CommitAsync();
-
-                    var quoteTransferDTOs = _mapper.Map<QuoteTransferDTO>(updatedQuote);
-                    return new ApiOkResponse(quoteTransferDTOs);
+                    return new ApiResponse(400, "There should be at least 1 quote service for an update.");
                 }
-                catch (Exception e)
+
+                var createdById = context.GetLoggedInUserId();
+                var quote = await _quoteRepo.FindQuoteById(id);
+                if (quote == null)
                 {
-                    _logger.LogError(e.Message);
-                    await transaction.RollbackAsync();
+                    return new ApiResponse(404);
+                }
+
+                var summary = $"Initial details before change, \n {quote} \n";
+
+                //quoteToUpdate.ReferenceNo = quoteReceivingDTO.ReferenceNo;
+                //quoteToUpdate.LeadDivisionId = quoteReceivingDTO.LeadDivisionId;
+                //quoteToUpdate.IsConvertedToContract = quoteReceivingDTO.IsConvertedToContract;
+                //quoteToUpdate.Version = (int)quoteReceivingDTO.Version;
+
+                if (quote.QuoteServices.Any())
+                {
+                    var deleteSuccessful = await _quoteServiceRepo.DeleteQuoteServiceRange(quote.QuoteServices);
+                    if (!deleteSuccessful)
+                    {
+                        return new ApiResponse(500);
+                    }
+                }
+
+                var quoteServices = _mapper.Map<IEnumerable<QuoteService>>(quoteReceivingDTO.QuoteServices);
+
+                foreach (var item in quoteServices)
+                {
+                    item.QuoteId = id;
+                    item.CreatedById = createdById;
+                }
+
+                var savedSuccessful = await _quoteServiceRepo.SaveQuoteServiceRange(quoteServices);
+                if (!savedSuccessful)
+                {
                     return new ApiResponse(500);
                 }
+
+                var updatedQuote = await _quoteRepo.FindQuoteById(id);
+
+                if (updatedQuote == null)
+                {
+                    return new ApiResponse(500);
+                }
+
+                summary += $"Details after change, \n {updatedQuote} \n";          
+
+                ModificationHistory history = new ModificationHistory()
+                {
+                    ModelChanged = "Quote",
+                    ChangeSummary = summary,
+                    ChangedById = context.GetLoggedInUserId(),
+                    ModifiedModelId = updatedQuote.Id
+                };
+
+                await _historyRepo.SaveHistory(history);
+                var quoteTransferDTOs = _mapper.Map<QuoteTransferDTO>(updatedQuote);
+
+                await transaction.CommitAsync();
+                return new ApiOkResponse(quoteTransferDTOs);
+            }
+            catch (Exception e)
+            {
+                await transaction.RollbackAsync();
+                _logger.LogError(e.Message);
+                _logger.LogError(e.StackTrace);
+                return new ApiResponse(500);
             }
         }
 

@@ -68,7 +68,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                       CustomerDivision customerDivision = await  ConvertLeadDivisionToCustomerDivision(leadDivision, customer.Id, _context);
 
                       var quote = await _context.Quotes
-                                            .Include(x => x.QuoteServices)
+                                            .Include(x => x.QuoteServices.Where(x => !x.IsDeleted))
                                                 .ThenInclude(x => x.SbutoQuoteServiceProportions)
                                             .FirstOrDefaultAsync(x => x.LeadDivisionId == leadDivision.Id);
 
@@ -858,8 +858,8 @@ namespace HaloBiz.MyServices.Impl.LAMS
             if(this.isRetail)
             {
                 accountId = await GetRetailAccount(customerDivision);
-            }else if(customerDivision.AccountId > 0){
-                accountId = (long) customerDivision.AccountId;
+            }else if(customerDivision.ReceivableAccountId > 0){
+                accountId = (long) customerDivision.ReceivableAccountId;
             }else{
                 //Create Customer Account, Account master and account details
                 ControlAccount controlAccount = await _context.ControlAccounts
@@ -875,7 +875,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 };
                 var savedAccount = await SaveAccount(account);
 
-                customerDivision.AccountId = savedAccount.Id;
+                customerDivision.ReceivableAccountId = savedAccount.Id;
                 accountId = savedAccount.Id;
 
                 _context.CustomerDivisions.Update(customerDivision);
@@ -919,7 +919,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 };
                 var savedAccount = await SaveAccount(account);
 
-                customerDivision.AccountId = savedAccount.Id;
+                customerDivision.ReceivableAccountId = savedAccount.Id;
                 _context.CustomerDivisions.Update(customerDivision);
                 await _context.SaveChangesAsync();
                 accountId = savedAccount.Id;

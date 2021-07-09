@@ -83,5 +83,25 @@ namespace HaloBiz.Repository.Impl.LAMS
                 return false;
             }
         }
+
+        public async Task<IEnumerable<Contract>> FindContractsByLeadId(long leadId)
+        {
+            var lead = await _context.Divisions.FindAsync(leadId);
+
+            var customer = await _context.Customers.AsNoTracking()
+                                        .Where(x => x.GroupName.ToLower() == lead.Name.ToLower())
+                                        .FirstOrDefaultAsync();
+
+            var customerDivisionIds = await _context.CustomerDivisions.AsNoTracking()
+                                        .Where(x => x.CustomerId == customer.Id)
+                                        .Select(x => x.Id)
+                                        .ToListAsync();
+
+            return await _context.Contracts.AsNoTracking()
+                    .Include(x => x.ContractServices)
+                    .Include(x => x.CustomerDivision)
+                    .Where(x => !x.IsDeleted && customerDivisionIds.Contains(x.CustomerDivisionId))
+                    .ToListAsync();
+        }
     }
 }
