@@ -10,6 +10,7 @@ namespace HaloBiz.Repository
         Task<Contract> FindContractById(long Id);
         Task<IEnumerable<Contract>> FindAllContract();
         Task<IEnumerable<Contract>> FindContractsByLeadId(long leadId);
+        Task<IEnumerable<Contract>> FindContractsByCustomerId(long customerId);
         Task<Contract> FindContractByReferenceNumber(string refNo);
         Task<Contract> UpdateContract(Contract entity);
         Task<bool> DeleteContract(Contract entity);

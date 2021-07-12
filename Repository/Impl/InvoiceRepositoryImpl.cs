@@ -65,27 +65,29 @@ namespace HaloBiz.Repository.Impl
 
         public async Task<IEnumerable<Invoice>> GetInvoiceByContractServiceId(long contractServiceId) 
         {
-            var contractServcie = await _context.ContractServices
+            var contractService = await _context.ContractServices
                     .FirstOrDefaultAsync(x => x.Id == contractServiceId && !x.IsDeleted);
 
-            if(contractServcie == null)
+            if(contractService == null)
             {
                 return new List<Invoice>();
             }
 
             List<Invoice> invoices;
 
-            if(String.IsNullOrWhiteSpace(contractServcie.GroupInvoiceNumber))
+            if(String.IsNullOrWhiteSpace(contractService.GroupInvoiceNumber))
             {
                 invoices = await _context.Invoices
                 .Include(x => x.Receipts)
-                    .Where(x => x.ContractServiceId == contractServiceId && x.IsDeleted == false)
+                    .Where(x => x.ContractServiceId == contractServiceId 
+                                && (bool)x.IsFinalInvoice && x.IsDeleted == false)
                     .OrderBy(x => x.StartDate)
                     .ToListAsync();
             }else{
                 invoices = await _context.Invoices
                 .Include(x => x.Receipts)
-                    .Where(x => x.GroupInvoiceNumber == contractServcie.GroupInvoiceNumber && !x.IsDeleted)
+                    .Where(x => x.GroupInvoiceNumber == contractService.GroupInvoiceNumber 
+                                && (bool)x.IsFinalInvoice && !x.IsDeleted)
                     .OrderBy(x => x.StartDate)
                     .ToListAsync();
                 
@@ -97,7 +99,7 @@ namespace HaloBiz.Repository.Impl
 
                 #region Changes based on new group invoice implementation
                 var groupInvoices = new List<Invoice>();
-                var groupedInvoices = invoices.GroupBy(x => x.StartDate);
+                var groupedInvoices = invoices.GroupBy(x => x.StartDate.ToShortDateString());
                 foreach (var group in groupedInvoices)
                 {
                     var key = group.Key;

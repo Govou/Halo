@@ -1092,15 +1092,17 @@ namespace HaloBiz.MyServices.Impl
                 invoices = await _context.Invoices.AsNoTracking()
                         .Include(x => x.ContractService)
                         .ThenInclude(x => x.Service)
-                        .Where(x => x.Id == invoice.ContractServiceId && x.StartDate == invoice.StartDate && !x.IsDeleted).ToListAsync();
+                        .Where(x => x.Id == invoice.Id && x.StartDate == invoice.StartDate && !x.IsDeleted).ToListAsync();
             }
             else
             {
                 invoices = await _context.Invoices.AsNoTracking()
                         .Include(x => x.ContractService)
                         .ThenInclude(x => x.Service)
-                        .Where(x => x.GroupInvoiceNumber == invoice.GroupInvoiceNumber && x.StartDate == invoice.StartDate && !x.IsDeleted)
+                        .Where(x => x.GroupInvoiceNumber == invoice.GroupInvoiceNumber && !x.IsDeleted)
                         .ToListAsync();
+
+                invoices = invoices.Where(x => x.StartDate.ToShortDateString() == invoice.StartDate.ToShortDateString());
             }
 
             double discount = 0.0;

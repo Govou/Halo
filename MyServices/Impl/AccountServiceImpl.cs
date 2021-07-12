@@ -110,18 +110,39 @@ namespace HaloBiz.MyServices.Impl
                 return new ApiResponse(404);
             }
 
+            double balance;
             if( accountSearchDTO.VoucherTypeIds.Count() > 0)
             {
+                balance = account.AccountDetails
+                    .Where(x => x.TransactionDate < accountSearchDTO.TransactionStart
+                                && accountSearchDTO.VoucherTypeIds.Contains(x.VoucherId))
+                    .Sum(x => x.Debit - x.Credit);
+
                 account.AccountDetails = account.AccountDetails.Where(
                 x => x.TransactionDate >= accountSearchDTO.TransactionStart 
                     && x.TransactionDate <= accountSearchDTO.TransactionEnd 
                         && accountSearchDTO.VoucherTypeIds.Contains(x.VoucherId)).ToList();
             }else{
+                balance = account.AccountDetails
+                    .Where(x => x.TransactionDate < accountSearchDTO.TransactionStart)
+                    .Sum(x => x.Debit - x.Credit);
+
                 account.AccountDetails = account.AccountDetails.Where(
                 x => x.TransactionDate >= accountSearchDTO.TransactionStart 
                     && x.TransactionDate <= accountSearchDTO.TransactionEnd 
                       ).ToList();
             }
+
+            var openingBalanceAccountDetail = new AccountDetail
+            {
+                 TransactionDate = accountSearchDTO.TransactionStart,
+                 TransactionId = "NIL",
+                 Description = "Opening Balance",
+                 Debit = balance,
+                 Credit = 0
+            };
+
+            account.AccountDetails = account.AccountDetails.Prepend(openingBalanceAccountDetail).ToList();
 
             var AccountTransferDTOs = _mapper.Map<AccountTransferDTO>(account);
             return new ApiOkResponse(AccountTransferDTOs);

@@ -97,9 +97,10 @@ namespace HaloBiz.Repository.Impl
                                                 .Select(x => x.AccountMasterId).ToListAsync();
                 }
 
-                return  await _context.AccountMasters 
+                return  await _context.AccountMasters.AsNoTracking()
                             .Include(x => x.AccountDetails)
                             .ThenInclude(x => x.Account)
+                            .Include(x => x.Voucher)
                             .Where(x => accountMasterIds.Contains(x.Id)).ToArrayAsync();
         }
 
