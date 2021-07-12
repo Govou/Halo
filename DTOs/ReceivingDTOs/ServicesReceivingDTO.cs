@@ -35,6 +35,8 @@ namespace HaloBiz.DTOs.ReceivingDTOs
         public bool? CanBeSoldOnline { get; set; }
         public bool HasAdminComponent { get; set; }
         public long? AdminServiceId { get; set; }
+        public bool HasDirectComponent { get; set; }
+        public long? DirectServiceId { get; set; }
         [Required]
         public IList<Int64> RequiredDocumentsId { get; set; }
         public IList<Int64> RequiredServiceFieldsId { get; set; }
