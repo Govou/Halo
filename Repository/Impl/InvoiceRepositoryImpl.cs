@@ -79,13 +79,15 @@ namespace HaloBiz.Repository.Impl
             {
                 invoices = await _context.Invoices
                 .Include(x => x.Receipts)
-                    .Where(x => x.ContractServiceId == contractServiceId && x.IsDeleted == false)
+                    .Where(x => x.ContractServiceId == contractServiceId 
+                                && (bool)x.IsFinalInvoice && x.IsDeleted == false)
                     .OrderBy(x => x.StartDate)
                     .ToListAsync();
             }else{
                 invoices = await _context.Invoices
                 .Include(x => x.Receipts)
-                    .Where(x => x.GroupInvoiceNumber == contractService.GroupInvoiceNumber && !x.IsDeleted)
+                    .Where(x => x.GroupInvoiceNumber == contractService.GroupInvoiceNumber 
+                                && (bool)x.IsFinalInvoice && !x.IsDeleted)
                     .OrderBy(x => x.StartDate)
                     .ToListAsync();
                 
