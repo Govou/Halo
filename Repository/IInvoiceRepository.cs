@@ -14,6 +14,7 @@ namespace HaloBiz.Repository
         Task<Invoice> FindInvoiceById(long Id);
         IQueryable<Invoice> GetInvoiceQueryiable();
         Task<IEnumerable<Invoice>> GetInvoiceByContractServiceId(long contactDivisionId);
+        Task<IEnumerable<Invoice>> GetProformaInvoiceByContractServiceId(long contactDivisionId);
 
     }
 }
