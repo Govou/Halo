@@ -12,7 +12,6 @@ using HaloBiz.DTOs.ReceivingDTOs;
 using HaloBiz.DTOs.TransferDTOs;
 using HaloBiz.Helpers;
 using HalobizMigrations.Models;
-
 using HaloBiz.Repository;
 using HaloBiz.Repository.LAMS;
 using Microsoft.AspNetCore.Http;
@@ -38,9 +37,10 @@ namespace HaloBiz.MyServices.Impl
         private bool isRetail = false;
         private readonly string SALESINVOICEVOUCHER = "Sales Invoice";
         private readonly string ReceivableControlAccount = "Receivable";
-        private readonly string VALUEADDEDTAX = "VALUE ADDED TAX";
         private readonly string RETAIL_RECEIVABLE_ACCOUNT = "RETAIL RECEIVABLE ACCOUNT";
         private readonly string RETAIL = "RETAIL";
+        private readonly string VatControlAccount = "VAT";
+        private readonly string RETAIL_VAT_ACCOUNT = "RETAIL VAT ACCOUNT";
 
         public long LoggedInUserId;
         public long branchId;
@@ -73,14 +73,14 @@ namespace HaloBiz.MyServices.Impl
             this._serviceRepo = serviceRepo;
             this._mailAdapter = mailAdapter;
         }
-        
 
         public async  Task<ApiResponse> AddInvoice(HttpContext context, InvoiceReceivingDTO invoiceReceivingDTO)
         {
             using(var transaction  = await _context.Database.BeginTransactionAsync())
             {
-                try{
-                    this.LoggedInUserId = context.GetLoggedInUserId();
+                try
+                {
+                    LoggedInUserId = context.GetLoggedInUserId();
 
                     var invoice = _mapper.Map<Invoice>(invoiceReceivingDTO);
                     var contractService = await _context.ContractServices
@@ -121,30 +121,98 @@ namespace HaloBiz.MyServices.Impl
                     return new ApiResponse(500);
                 }
             }
-           
         }
-
 
         public async Task<ApiResponse> AddGroupInvoice(HttpContext httpContext, GroupInvoiceDto groupInvoiceDto)
         {
-            using(var transaction  = await _context.Database.BeginTransactionAsync())
+            var currentDate = DateTime.Now;
+
+            using (var transaction  = await _context.Database.BeginTransactionAsync())
             {
                 try{
                     this.LoggedInUserId = httpContext.GetLoggedInUserId();
 
-                    var primaryContractService = await  _context.ContractServices
+                    // we need to do a generation of invoices per contract service going forward
+                    #region Old Implementation
+                    /*var primaryContractService = await  _context.ContractServices
                                 .FirstOrDefaultAsync(x => x.GroupInvoiceNumber == groupInvoiceDto.GroupInvoiceNumber && !x.IsDeleted);
-                    
                     var contractService = GenerateBulkContractService(primaryContractService, groupInvoiceDto.TotalBillable, groupInvoiceDto.VAT);
+                    Invoice invoice = await GenerateInvoice(groupInvoiceDto, contractService);*/
+                    #endregion
 
-                    Invoice invoice = await GenerateInvoice(groupInvoiceDto, contractService);
+                    #region New Implementation
+                    var contractServices = await _context.ContractServices
+                                .Where(x => x.GroupInvoiceNumber == groupInvoiceDto.GroupInvoiceNumber && !x.IsDeleted)
+                                .ToListAsync();
 
-                    var savedInvoice = await _context.Invoices.AddAsync(invoice);
-                    await _context.SaveChangesAsync();
-                    var invoiceTransferDTO = _mapper.Map<InvoiceTransferDTO>(savedInvoice.Entity);
-                    
+                    var billable = groupInvoiceDto.TotalBillable;
+                    foreach (var contractService in contractServices)
+                    {
+                        double amountToInvoice;
+
+                        var amountAvaliableToInvoice = (double)contractService.BillableAmount - contractService.AdHocInvoicedAmount;
+
+                        if (amountAvaliableToInvoice == 0) continue;
+
+                        if (billable >= amountAvaliableToInvoice)
+                        {
+                            amountToInvoice = amountAvaliableToInvoice;
+                        }
+                        else
+                        {
+                            amountToInvoice = billable;
+                        }
+
+                        var service = await _context.Services
+                                    .FirstOrDefaultAsync(x => x.Id == contractService.ServiceId);
+
+                        var index = await _context.Invoices
+                            .Where(x => x.GroupInvoiceNumber == groupInvoiceDto.GroupInvoiceNumber && x.ContractServiceId == contractService.Id)
+                            .CountAsync();
+
+                        var invoice = new Invoice
+                        {                            
+                            ContractId = contractService.ContractId,
+                            CreatedById = LoggedInUserId,    
+                            IsFinalInvoice = false,
+                            Value =  amountToInvoice,
+                            ContractServiceId = contractService.Id,
+                            CustomerDivisionId = groupInvoiceDto.CustomerDivisionId,
+                            InvoiceNumber = $"{groupInvoiceDto.GroupInvoiceNumber}/{index + 1}",
+                            TransactionId = $"{groupInvoiceDto.GroupInvoiceNumber.Replace("GINV", "TRS")}/{contractService.Id}",
+                            UnitPrice = (double)contractService.UnitPrice,
+                            Quantity = contractService.Quantity,
+                            Discount = contractService.Discount,
+                            DateToBeSent = groupInvoiceDto.DateToBeSent,
+                            //StartDate = (DateTime)contractService.ContractStartDate,
+                            StartDate = currentDate,
+                            //EndDate = (DateTime)contractService.ContractEndDate,                            
+                            EndDate = currentDate,                            
+                            GroupInvoiceNumber = groupInvoiceDto.GroupInvoiceNumber,                            
+                            InvoiceType = (int)InvoiceType.AdHoc,
+                            IsAccountPosted = false,                            
+                        };
+
+                        await _context.Invoices.AddAsync(invoice);
+                        await _context.SaveChangesAsync();
+
+                        billable -= amountToInvoice;
+                        if(billable <= 0)
+                        {
+                            break;
+                        }
+                    }
+
+                    if(billable > 0)
+                    {
+                        _logger.LogError("Total Billable is far too much for the group invoice");
+                        await transaction.RollbackAsync();
+                        return new ApiResponse(400, "Billable is more than the group amount not invoiced");
+                    }
+                    #endregion
+
                     await transaction.CommitAsync();
-                    return new ApiOkResponse(invoiceTransferDTO);
+                    return new ApiOkResponse(true);
                 }
                 catch(Exception e)
                 {
@@ -154,7 +222,6 @@ namespace HaloBiz.MyServices.Impl
                     return new ApiResponse(500);
                 }
             }
-
         }
 
         public async Task<ApiResponse> ConvertProformaInvoiceToFinalInvoice(HttpContext httpContext, long invoiceId)
@@ -175,77 +242,87 @@ namespace HaloBiz.MyServices.Impl
              {
                  return await ConvertGroupInvoiceToFinalInvoice(invoiceToUpdate);
              }
-
         }
-
-        
-
-
         
         private async Task<ApiResponse> ConvertGroupInvoiceToFinalInvoice(Invoice invoice)
         {
             using(var transaction  = await _context.Database.BeginTransactionAsync())
             {
-                try{
+                try
+                {
+                    var invoices = await _context.Invoices
+                                    .Where(x => (bool)x.IsFinalInvoice == false && !x.IsDeleted
+                                             && x.GroupInvoiceNumber == invoice.GroupInvoiceNumber)
+                                    .ToListAsync();
 
-                    var primaryContractService = await _context.ContractServices.FirstOrDefaultAsync(x => x.Id == invoice.ContractServiceId && !x.IsDeleted);
-                    
-                    await UpdateEachAndGeneratePrimaryContractService(invoice.GroupInvoiceNumber, invoice.Value);
+                    invoices = invoices.Where(x => x.StartDate.ToString("G") == invoice.StartDate.ToString("G")).ToList();
 
-                    var VAT =  invoice.Value * (7.5 / 107.5);
-
-                    var contractService = GenerateBulkContractService(primaryContractService, invoice.Value, VAT);                    
-
-                    var customerDivision = await _context.CustomerDivisions
-                                        .Include(x => x.Customer)
-                                        .FirstOrDefaultAsync(x => x.Id == invoice.CustomerDivisionId);
-
-                    this.isRetail = customerDivision.Customer.GroupName == RETAIL;
-
-                    FinanceVoucherType accountVoucherType = await _context.FinanceVoucherTypes
-                            .FirstOrDefaultAsync(x => x.VoucherType == this.SALESINVOICEVOUCHER);
-
-                    var service = await _context.Services
-                            .FirstOrDefaultAsync(x => x.Id == contractService.ServiceId);
-
-                    await PostAccounts(contractService, customerDivision, accountVoucherType.Id, 
-                                    (double)contractService.Vat, (double)contractService.BillableAmount, service);
-                    await GenerateAmortizations(contractService, customerDivision, 
-                                    (double) contractService.BillableAmount, (double)contractService.BillableAmount, 
-                                    invoice.DateToBeSent);
-
-                    if(!await _context.GroupInvoiceDetails.AnyAsync(x => x.InvoiceNumber == invoice.GroupInvoiceNumber))
+                    foreach (var proformaInvoice in invoices)
                     {
-                        await GenerateAndSaveGroupInvoiceDetails(invoice.GroupInvoiceNumber);
+                        var contractService = await _context.ContractServices
+                                .Include(x => x.QuoteService)
+                                .FirstOrDefaultAsync(x => x.Id == proformaInvoice.ContractServiceId);
+
+                        contractService.AdHocInvoicedAmount += proformaInvoice.Value;
+
+                        if(contractService.AdHocInvoicedAmount > contractService.BillableAmount)
+                        {
+                            await transaction.RollbackAsync();
+                            return new ApiResponse(400, "The adhoc invoice will be greater than the billable amount.");
+                        }
+
+                        _context.ContractServices.Update(contractService);
+                        await _context.SaveChangesAsync();
+
+                        // post the accounts for each of the invoice
+                        var VAT = proformaInvoice.Value * (7.5 / 107.5);
+
+                        var customerDivision = await _context.CustomerDivisions
+                                            .Include(x => x.Customer)
+                                            .FirstOrDefaultAsync(x => x.Id == proformaInvoice.CustomerDivisionId);
+
+                        isRetail = customerDivision.Customer.GroupName == RETAIL;
+
+                        FinanceVoucherType accountVoucherType = await _context.FinanceVoucherTypes
+                                .FirstOrDefaultAsync(x => x.VoucherType == this.SALESINVOICEVOUCHER);
+
+                        var service = await _context.Services
+                                .FirstOrDefaultAsync(x => x.Id == contractService.ServiceId);
+
+                        await PostAccounts(contractService, customerDivision, accountVoucherType.Id,
+                                        VAT, (double)proformaInvoice.Value, service);
+                        await GenerateAmortizations(contractService, customerDivision,
+                                        (double)contractService.BillableAmount, (double)proformaInvoice.Value,
+                                        proformaInvoice.DateToBeSent);
+
+                        proformaInvoice.IsAccountPosted = true;
+                        proformaInvoice.IsFinalInvoice = true;
+                        _context.Invoices.Update(proformaInvoice);
+                        await _context.SaveChangesAsync();
                     }
-                    invoice.IsFinalInvoice = true;
-                    _context.Invoices.Update(invoice);
-                    await _context.SaveChangesAsync();
+                    
                     var invoiceTransferDTO = _mapper.Map<InvoiceTransferDTO>(invoice);
                     
                     await transaction.CommitAsync();
                     return new ApiOkResponse(invoice);
 
-                }catch(Exception e)
+                }
+                catch(Exception e)
                 {
                     _logger.LogError(e.Message);
                     _logger.LogError(e.StackTrace);
                     await transaction.RollbackAsync();
                     return new ApiResponse(500);
                 }
-            }
-            
+            }        
         }
-
-
-
-
 
         private async Task<ApiResponse> ConvertInvoiceToFinalInvoice(Invoice invoice)
         {
             using(var transaction  = await _context.Database.BeginTransactionAsync())
             {
-                try{
+                try
+                {
                     var contractService = await _context.ContractServices
                                 .Include(x => x.QuoteService)
                                 .FirstOrDefaultAsync(x => x.Id == invoice.ContractServiceId);
@@ -282,19 +359,18 @@ namespace HaloBiz.MyServices.Impl
                     await _context.SaveChangesAsync();
                     await transaction.CommitAsync();
                     return new ApiOkResponse(invoiceTransferDTO);
-                    }catch(Exception e)
-                    {
-                        _logger.LogError(e.Message);
-                        _logger.LogError(e.StackTrace);
-                        await transaction.RollbackAsync();
-                        return new ApiResponse(500);
-                    }
+                }
+                catch(Exception e)
+                {
+                    _logger.LogError(e.Message);
+                    _logger.LogError(e.StackTrace);
+                    await transaction.RollbackAsync();
+                    return new ApiResponse(500);
+                }
             }
-
         }
 
-
-        private async Task<bool> GenerateAndSaveGroupInvoiceDetails(string groupInvoiceNumber)
+/*        private async Task<bool> GenerateAndSaveGroupInvoiceDetails(string groupInvoiceNumber)
         {
             var contractServices = await _context.ContractServices.Where(x => x.GroupInvoiceNumber == groupInvoiceNumber && !x.IsDeleted).ToListAsync();
             var groupInvoiceDetails = new List<GroupInvoiceDetail>();
@@ -318,16 +394,16 @@ namespace HaloBiz.MyServices.Impl
             await _context.GroupInvoiceDetails.AddRangeAsync(groupInvoiceDetails);
             await _context.SaveChangesAsync();
             return true;
-        }
+        }*/
 
-        private  ContractService GenerateBulkContractService(ContractService contractService, double billable, double VAT)
+/*        private  ContractService GenerateBulkContractService(ContractService contractService, double billable, double VAT)
         {
             var newContractService = _mapper.Map<ContractService>(contractService);
             newContractService.BillableAmount = billable;
             newContractService.Vat = VAT;
             
             return newContractService;
-        }
+        }*/
 
         private async Task<ContractService> UpdateEachAndGeneratePrimaryContractService(string groupInvoiceNumber, double billableAmount)
         {
@@ -383,7 +459,6 @@ namespace HaloBiz.MyServices.Impl
                 CreatedById = this.LoggedInUserId
             };
         }
-
 
         private async Task<bool>  PostAccounts(ContractService contractService,
                                          CustomerDivision customerDivision,
@@ -482,10 +557,9 @@ namespace HaloBiz.MyServices.Impl
             return savedAccountMaster;
         }
 
-
         private async Task<AccountDetail> PostAccountDetail(
                                                     string description,
-                                                    long contractServiceId,  
+                                                    long contractServiceId,
                                                     long accountVoucherTypeId, 
                                                     long branchId, 
                                                     long officeId,
@@ -558,7 +632,6 @@ namespace HaloBiz.MyServices.Impl
             
             return true;
         }
-
 
         private async Task<long> CreateCustomerAccount(CustomerDivision customerDivision)
         {
@@ -645,7 +718,6 @@ namespace HaloBiz.MyServices.Impl
             return initial;
         }
 
-        
         private async Task<bool> PostVATAccountDetails(
                                     string description,
                                     long contractServiceId,
@@ -658,8 +730,42 @@ namespace HaloBiz.MyServices.Impl
                                     string transactionId
                                     )
         {
-            var vatAccount = await _context.Accounts.FirstOrDefaultAsync(x => x.Name == this.VALUEADDEDTAX);
- 
+            long accountId = 0;
+
+            if (isRetail)
+            {
+                accountId = await GetRetailVATAccount(customerDivision);
+            }
+            else if (customerDivision.VatAccountId > 0)
+            {
+                accountId = (long)customerDivision.VatAccountId;
+            }
+            else
+            {
+                //Create customer vat account
+                ControlAccount controlAccount = await _context.ControlAccounts
+                        .FirstOrDefaultAsync(x => x.Caption == VatControlAccount);
+
+                Account account = new Account()
+                {
+                    Name = $"{customerDivision.DivisionName} VAT",
+                    Description = $"VAT Account of {customerDivision.DivisionName}",
+                    Alias = customerDivision.DTrackCustomerNumber,
+                    IsDebitBalance = true,
+                    ControlAccountId = controlAccount.Id,
+                    CreatedById = LoggedInUserId
+                };
+
+                var savedAccount = await SaveAccount(account);
+
+                customerDivision.VatAccountId = savedAccount.Id;
+                accountId = savedAccount.Id;
+
+                _context.CustomerDivisions.Update(customerDivision);
+                await _context.SaveChangesAsync();
+
+            }
+
             await PostAccountDetail(description, 
                                     contractServiceId, 
                                     accountVoucherTypeId, 
@@ -668,10 +774,48 @@ namespace HaloBiz.MyServices.Impl
                                     totalVAT, 
                                     true,
                                     accountMasterId,
-                                    vatAccount.Id,
+                                    accountId,
                                     transactionId);
             
             return true;
+        }
+
+        private async Task<long> GetRetailVATAccount(CustomerDivision customerDivision)
+        {
+
+            Account vatAccount = await _context.Accounts.FirstOrDefaultAsync(x => x.Name == RETAIL_VAT_ACCOUNT);
+            long accountId = 0;
+            if (vatAccount == null)
+            {
+                ControlAccount controlAccount = await _context.ControlAccounts
+                        .FirstOrDefaultAsync(x => x.Caption == VatControlAccount);
+
+                Account account = new Account()
+                {
+                    Name = RETAIL_VAT_ACCOUNT,
+                    Description = $"VAT Account of Retail Clients",
+                    Alias = "HA_RET",
+                    IsDebitBalance = true,
+                    ControlAccountId = controlAccount.Id,
+                    CreatedById = LoggedInUserId
+                };
+                var savedAccount = await SaveAccount(account);
+
+                customerDivision.VatAccountId = savedAccount.Id;
+                _context.CustomerDivisions.Update(customerDivision);
+                await _context.SaveChangesAsync();
+                accountId = savedAccount.Id;
+            }
+            else
+            {
+                customerDivision.VatAccountId = vatAccount.Id;
+                _context.CustomerDivisions.Update(customerDivision);
+                await _context.SaveChangesAsync();
+                accountId = vatAccount.Id;
+            }
+
+            return accountId;
+
         }
 
         private async Task<bool> PostIncomeAccountMasterAndDetails(
@@ -687,7 +831,17 @@ namespace HaloBiz.MyServices.Impl
                                     Service service
                                     )
         {
-            
+
+            long accountId;
+
+            if (isRetail)
+            {
+                accountId = await GetServiceIncomeAccountForRetailClient(service);
+            }
+            else
+            {
+                accountId = await GetServiceIncomeAccountForClient(customerDivision, service);
+            }
 
             await PostAccountDetail(description, 
                                     contractServiceId, 
@@ -697,7 +851,7 @@ namespace HaloBiz.MyServices.Impl
                                     totalBillableAfterTax, 
                                     true,
                                     accountMasterId,
-                                    (long) service.AccountId,
+                                    accountId,
                                     transactionId
                                     );
             
@@ -740,7 +894,7 @@ namespace HaloBiz.MyServices.Impl
             return true;
         }
 
-         private double CalculateTotalAmountForContract(double priceOfService, DateTime contractStartDate, DateTime contractEndDate, TimeCycle timeCycle )
+        private double CalculateTotalAmountForContract(double priceOfService, DateTime contractStartDate, DateTime contractEndDate, TimeCycle timeCycle )
         {
             int numberOfMonth = 0;
 
@@ -757,6 +911,7 @@ namespace HaloBiz.MyServices.Impl
             
             return priceOfService * numberOfMonth;
         }
+        
         public async Task<ApiResponse> DeleteInvoice(long id)
         {
             var invoiceToDelete = await _invoiceRepo.FindInvoiceById(id);
@@ -782,9 +937,21 @@ namespace HaloBiz.MyServices.Impl
             var invoiceTransferDTO = _mapper.Map<IEnumerable<InvoiceTransferDTO>>(invoice);
             return new ApiOkResponse(invoiceTransferDTO);
         }
+
         public async Task<ApiResponse> GetAllInvoicesByContactserviceId(long contractServiceId)
         {
             var invoice = await _invoiceRepo.GetInvoiceByContractServiceId(contractServiceId);
+            if (invoice == null)
+            {
+                return new ApiResponse(404);
+            }
+            var invoiceTransferDTO = _mapper.Map<IEnumerable<InvoiceTransferDTO>>(invoice);
+            return new ApiOkResponse(invoiceTransferDTO);
+        }
+
+        public async Task<ApiResponse> GetAllProformaInvoicesByContactserviceId(long contractServiceId)
+        {
+            var invoice = await _invoiceRepo.GetProformaInvoiceByContractServiceId(contractServiceId);
             if (invoice == null)
             {
                 return new ApiResponse(404);
@@ -803,7 +970,6 @@ namespace HaloBiz.MyServices.Impl
             var invoiceTransferDTO = _mapper.Map<InvoiceTransferDTO>(invoice);
             return new ApiOkResponse(invoiceTransferDTO);
         }
-
 
         public  async Task<ApiResponse> UpdateInvoice(HttpContext context, long id, InvoiceReceivingDTO invoiceReceivingDTO)
         {
@@ -846,7 +1012,6 @@ namespace HaloBiz.MyServices.Impl
             var invoiceTransferDTOs = _mapper.Map<InvoiceTransferDTO>(updatedInvoice);
             return new ApiOkResponse(invoiceTransferDTOs);
         }
-
 
         public async Task<ApiResponse> SendPeriodicInvoices()
         {
@@ -913,6 +1078,7 @@ namespace HaloBiz.MyServices.Impl
             }
             
         }
+
         private async Task<bool> SendInvoice(Invoice invoice)
         {
             try
@@ -930,6 +1096,7 @@ namespace HaloBiz.MyServices.Impl
             }
 
         }
+
         public async Task<ApiResponse> GetInvoiceDetails(long invoiceId)
         {
             try
@@ -984,7 +1151,6 @@ namespace HaloBiz.MyServices.Impl
             }
 
         }
-
 
         /*private async Task<InvoiceMailDTO> GenerateInvoiceMailDTO(Invoice invoice)
         {
@@ -1078,6 +1244,8 @@ namespace HaloBiz.MyServices.Impl
 
         private async Task<InvoiceMailDTO> GenerateInvoiceMailDTO(Invoice invoice)
         {
+            bool isProforma = invoice.IsFinalInvoice == false;
+
             var customerDivision = await _context.CustomerDivisions
                             .Include(x => x.PrimaryContact)
                             .Include(x => x.SecondaryContact)
@@ -1092,17 +1260,26 @@ namespace HaloBiz.MyServices.Impl
                 invoices = await _context.Invoices.AsNoTracking()
                         .Include(x => x.ContractService)
                         .ThenInclude(x => x.Service)
-                        .Where(x => x.Id == invoice.Id && x.StartDate == invoice.StartDate && !x.IsDeleted).ToListAsync();
+                        .Where(x => x.Id == invoice.Id && x.StartDate == invoice.StartDate && ((bool)x.IsFinalInvoice || isProforma)
+                                    && !x.IsDeleted).ToListAsync();
             }
             else
             {
                 invoices = await _context.Invoices.AsNoTracking()
                         .Include(x => x.ContractService)
                         .ThenInclude(x => x.Service)
-                        .Where(x => x.GroupInvoiceNumber == invoice.GroupInvoiceNumber && !x.IsDeleted)
+                        .Where(x => x.GroupInvoiceNumber == invoice.GroupInvoiceNumber && !x.IsDeleted && ((bool)x.IsFinalInvoice || isProforma))
                         .ToListAsync();
 
-                invoices = invoices.Where(x => x.StartDate.ToShortDateString() == invoice.StartDate.ToShortDateString());
+                var contractService = await _context.ContractServices.FindAsync(invoice.ContractServiceId);
+                if(contractService.InvoicingInterval == (int)TimeCycle.Adhoc)
+                {
+                    invoices = invoices.Where(x => x.StartDate.ToString("G") == invoice.StartDate.ToString("G"));
+                }
+                else
+                {
+                    invoices = invoices.Where(x => x.StartDate.ToShortDateString() == invoice.StartDate.ToShortDateString());
+                }
             }
 
             double discount = 0.0;
@@ -1123,8 +1300,11 @@ namespace HaloBiz.MyServices.Impl
             foreach (var theInvoice in invoices)
             {
                 discount += theInvoice.Discount;
-                subTotal += (double)theInvoice.UnitPrice * (double)theInvoice.Quantity;
-                VAT += (double)theInvoice.ContractService.Vat;
+                subTotal += (double)theInvoice.Value;
+                if(!contractServiceMailDTOs.Any(x => x.Description == theInvoice.ContractService.Service.Name))
+                {
+                    VAT += (double)theInvoice.ContractService.Vat;
+                }           
                 unInvoicedAmount += (double)(theInvoice.ContractService.BillableAmount - theInvoice.ContractService.AdHocInvoicedAmount);
                 invoiceCycle = theInvoice.ContractService.InvoicingInterval.ToString();
                 keyServiceName = theInvoice.ContractService.Service.Name;
@@ -1134,7 +1314,7 @@ namespace HaloBiz.MyServices.Impl
                     Description = theInvoice.ContractService.Service.Name,
                     UnitPrice = theInvoice.UnitPrice,
                     Quantity = theInvoice.Quantity,
-                    Total = theInvoice.Quantity * theInvoice.UnitPrice,
+                    Total = theInvoice.Value,
                     Discount = theInvoice.Discount,
                 });
 
@@ -1155,7 +1335,7 @@ namespace HaloBiz.MyServices.Impl
                 InvoiceNumber = invoice.InvoiceNumber,
                 Total = invoice.Value,
                 SubTotal = subTotal,
-                VAT = subTotal * (7.5 / 100),
+                VAT = VAT, //subTotal * (7.5 / 100),
                 UnInvoicedAmount = unInvoicedAmount,
                 Discount = discount,
                 InvoicingCycle = invoiceCycle,
@@ -1171,5 +1351,66 @@ namespace HaloBiz.MyServices.Impl
             return invoiceMailDTO;
         }
 
+        private async Task<long> GetServiceIncomeAccountForRetailClient(Service service)
+        {
+            string serviceClientIncomeAccountName = $"{service.Name} Income for {RETAIL}";
+
+            Account serviceClientIncomeAccount = await _context.Accounts
+                .FirstOrDefaultAsync(x => x.ControlAccountId == (long)service.ControlAccountId && x.Name == serviceClientIncomeAccountName);
+
+            long accountId = 0;
+            if (serviceClientIncomeAccount == null)
+            {
+                Account account = new Account()
+                {
+                    Name = serviceClientIncomeAccountName,
+                    Description = $"{service.Name} Income Account for {RETAIL}",
+                    Alias = "HA_RET",
+                    IsDebitBalance = true,
+                    ControlAccountId = (long)service.ControlAccountId,
+                    CreatedById = LoggedInUserId
+                };
+                var savedAccount = await SaveAccount(account);
+                accountId = savedAccount.Id;
+                await _context.SaveChangesAsync();
+            }
+            else
+            {
+                accountId = serviceClientIncomeAccount.Id;
+            }
+
+            return accountId;
+        }
+
+        private async Task<long> GetServiceIncomeAccountForClient(CustomerDivision customerDivision, Service service)
+        {
+            string serviceClientIncomeAccountName = $"{service.Name} Income for {customerDivision.DivisionName}";
+
+            Account serviceClientIncomeAccount = await _context.Accounts
+                .FirstOrDefaultAsync(x => x.ControlAccountId == (long)service.ControlAccountId && x.Name == serviceClientIncomeAccountName);
+
+            long accountId = 0;
+            if (serviceClientIncomeAccount == null)
+            {
+                Account account = new Account()
+                {
+                    Name = serviceClientIncomeAccountName,
+                    Description = $"{service.Name} Income Account for {customerDivision.DivisionName}",
+                    Alias = customerDivision.DTrackCustomerNumber,
+                    IsDebitBalance = true,
+                    ControlAccountId = (long)service.ControlAccountId,
+                    CreatedById = LoggedInUserId
+                };
+                var savedAccount = await SaveAccount(account);
+                accountId = savedAccount.Id;
+                await _context.SaveChangesAsync();
+            }
+            else
+            {
+                accountId = serviceClientIncomeAccount.Id;
+            }
+
+            return accountId;
+        }
     }
 }

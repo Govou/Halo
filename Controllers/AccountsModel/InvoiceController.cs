@@ -38,6 +38,16 @@ namespace HaloBiz.Controllers.AccountsModel
             return Ok(invoices);
         }
 
+        [HttpGet("Proforma/ContractDivision/{contractDivisionId}")]
+        public async Task<ActionResult> GetProformaInvoicesByContractDivisionId(long contractDivisionId)
+        {
+            var response = await _invoiceService.GetAllProformaInvoicesByContactserviceId(contractDivisionId);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var invoices = ((ApiOkResponse)response).Result;
+            return Ok(invoices);
+        }
+
         [HttpGet("{id}")]
         public async Task<ActionResult> GetById(long id)
         {
