@@ -12,6 +12,5 @@ namespace HaloBiz.DTOs.ReceivingDTOs
         public string FeedbackType { get; set; }
         public string Description { get; set; }
         public string DocumentsUrl { get; set; }
-        public long CreatedById { get; set; }
     }
 }
