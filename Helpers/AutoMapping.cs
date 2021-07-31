@@ -268,6 +268,10 @@ namespace HaloBiz.Helpers
             CreateMap<AppReview, AppReviewTransferDTO>();
             CreateMap<AppFeedbackReceivingDTO, AppFeedback>();
             CreateMap<AppFeedback, AppFeedbackTransferDTO>();
+            CreateMap<NoteReceivingDTO, Note>();
+            CreateMap<Note, NoteTransferDTO>();
+            CreateMap<ActivityReceivingDTO, Activity>();
+            CreateMap<Activity, ActivityTransferDTO>();
         }
     }
 }
