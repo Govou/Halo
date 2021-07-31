@@ -264,6 +264,10 @@ namespace HaloBiz.Helpers
             CreateMap<ServiceQualificationReceivingDTO, ServiceQualification>();
             CreateMap<ServiceQualification, ServiceQualificationTransferDTO>();
             CreateMap<ComplaintReassignment, ComplaintReassignmentTransferDTO>();
+            CreateMap<AppReviewReceivingDTO, AppReview>();
+            CreateMap<AppReview, AppReviewTransferDTO>();
+            CreateMap<AppFeedbackReceivingDTO, AppFeedback>();
+            CreateMap<AppFeedback, AppFeedbackTransferDTO>();
         }
     }
 }
