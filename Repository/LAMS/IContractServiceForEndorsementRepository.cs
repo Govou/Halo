@@ -13,6 +13,7 @@ namespace HaloBiz.Repository.LAMS
         Task<ContractServiceForEndorsement> UpdateContractServiceForEndorsement(ContractServiceForEndorsement entity);
         Task<ContractServiceForEndorsement> FindContractServiceForEndorsementById(long Id);
         Task<IEnumerable<object>> FindAllPossibleEndorsementStartDate(long contractServiceId);
+        Task<IEnumerable<object>> GetEndorsementHistory(long contractServiceId);
         Task<bool> SaveRangeContractServiceForEndorsement(IEnumerable<ContractServiceForEndorsement> entity);
     }
 }
