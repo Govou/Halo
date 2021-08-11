@@ -111,6 +111,27 @@ namespace HaloBiz.Repository.Impl.LAMS
                 //.Select(x => new { startDate = x.StartDate, validDate = x.IsReceiptedStatus == (int)InvoiceStatus.NotReceipted }).ToListAsync();
             }   
         }
+
+        public async Task<IEnumerable<object>> GetEndorsementHistory(long contractServiceId)
+        {
+            var contractService = await _context.ContractServices.FindAsync(contractServiceId);
+
+            if (contractService == null) return Array.Empty<object>();
+
+            return await _context.ContractServiceForEndorsements
+                            .Include(x => x.EndorsementType)
+                            .Where(x => x.PreviousContractServiceId == contractServiceId)
+                            .OrderBy(x => x.CreatedAt)
+                            .Select(x => new 
+                            {
+                                ContractServiceId = x.PreviousContractServiceId,
+                                x.EndorsementDescription,
+                                x.EndorsementType,
+                                x.BillableAmount
+                            })
+                            .ToListAsync();
+        }
+
         public async Task<ContractServiceForEndorsement> UpdateContractServiceForEndorsement(ContractServiceForEndorsement entity)
         {
             var contractServiceEntityForEndorsement = _context.ContractServiceForEndorsements.Update(entity);

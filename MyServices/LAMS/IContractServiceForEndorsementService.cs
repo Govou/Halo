@@ -15,6 +15,7 @@ namespace HaloBiz.MyServices.LAMS
         Task<ApiResponse> ConvertContractServiceForEndorsement(HttpContext httpContext, long Id);
         Task<ApiResponse> ConvertDebitCreditNoteEndorsement(HttpContext httpContext, long Id);
         Task<ApiResponse> GetAllPossibleEndorsementStartDate(long contractServiceId);
+        Task<ApiResponse> GetEndorsementHistory(long contractServiceId);
         Task<ApiResponse> AddNewRetentionContractServiceForEndorsement (HttpContext httpContext, List<ContractServiceForEndorsementReceivingDto> contractServiceForEndorsementDtos);
     }
 }

@@ -43,6 +43,16 @@ namespace Controllers.Controllers
             return Ok(endorsements);
         }
 
+        [HttpGet("GetEndorsementHistory/{contractServiceId}")]
+        public async Task<ActionResult> GetEndorsementHistory(long contractServiceId)
+        {
+            var response = await _contractServiceForEndorsementService.GetEndorsementHistory(contractServiceId);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var endorsements = ((ApiOkResponse)response).Result;
+            return Ok(endorsements);
+        }
+
         [HttpGet("EndorsementPossibleStartDates/{contractServiceId}")]
         public async Task<ActionResult> GetEndorsementPossibleStartDates(long contractServiceId)
         {
