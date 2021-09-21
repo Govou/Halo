@@ -272,6 +272,7 @@ namespace HaloBiz.Helpers
             CreateMap<Note, NoteTransferDTO>();
             CreateMap<ActivityReceivingDTO, Activity>();
             CreateMap<Activity, ActivityTransferDTO>();
+            CreateMap<Lga, LgasTransferDTO>();
         }
     }
 }
