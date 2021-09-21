@@ -114,7 +114,7 @@ namespace HaloBiz.Repository.Impl.LAMS
                 .Where(x => x.CustomerDivisionId == customerDivsionId && x.IsDeleted == false).ToListAsync();
         }
 
-         public async Task<IEnumerable<TaskFulfillment>> FindAllTaskFulfillmentForTaskOwner(long taskOwnerId)
+        public async Task<IEnumerable<TaskFulfillment>> FindAllTaskFulfillmentForTaskOwner(long taskOwnerId)
         {
             return await _context.TaskFulfillments
                 .Where(taskFulfillment => taskFulfillment.IsDeleted == false 

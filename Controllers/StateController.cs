@@ -37,6 +37,13 @@ namespace HaloBiz.Controllers
             var response = await stateService.GetStateById(id);
             return StatusCode(response.StatusCode, response);
         }
+
+        [HttpGet("GetAllLgas")]
+        public async Task<ActionResult> GetAllLGAs()
+        {
+            var response = await stateService.GetAllLgas();
+            return StatusCode(response.StatusCode, response);
+        }
         
     }
 }

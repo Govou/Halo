@@ -8,5 +8,6 @@ namespace HaloBiz.MyServices
         Task<ApiResponse> GetStateById(long id);
         Task<ApiResponse> GetStateByName(string name);
         Task<ApiResponse> GetAllStates();
+        Task<ApiResponse> GetAllLgas();
     }
 }
