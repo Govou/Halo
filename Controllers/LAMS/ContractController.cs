@@ -59,6 +59,7 @@ namespace HaloBiz.Controllers.LAMS
         }
 
         [HttpGet("GetContractsByCustomerId/{customerId}")]
+        [Microsoft.AspNetCore.Authorization.AllowAnonymous]
         public async Task<ActionResult> GetContractsByCustomerId(long customerId)
         {
             var response = await _contractService.GetContractsByCustomerId(customerId);
