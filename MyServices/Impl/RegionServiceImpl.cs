@@ -83,7 +83,7 @@ namespace HaloBiz.MyServices.Impl
             regionToUpdate.Name = regionReceivingDTO.Name;
             regionToUpdate.Description = regionReceivingDTO.Description;
             regionToUpdate.HeadId = regionReceivingDTO.HeadId;
-            regionToUpdate.BranchId = regionReceivingDTO.BranchId;
+            //regionToUpdate.BranchId = regionReceivingDTO.BranchId;
             var updatedRegion = await _regionRepo.UpdateRegion(regionToUpdate);
 
             summary += $"Details after change, \n {updatedRegion.ToString()} \n";
