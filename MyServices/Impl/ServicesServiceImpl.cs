@@ -171,6 +171,7 @@ namespace HaloBiz.MyServices.Impl
             {
                 return new ApiResponse(404);
             }
+
             var summary = $"Initial details before change, \n {serviceToUpdate.ToString()} \n";
 
 

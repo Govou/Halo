@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace HaloBiz.DTOs.ReceivingDTOs
 {
@@ -33,12 +34,18 @@ namespace HaloBiz.DTOs.ReceivingDTOs
         [Required]
         public bool IsVatable { get; set; }
         public bool? CanBeSoldOnline { get; set; }
-        public bool HasAdminComponent { get; set; }
-        public long? AdminServiceId { get; set; }
-        public bool HasDirectComponent { get; set; }
-        public long? DirectServiceId { get; set; }
+
+        public int ServiceRelationshipEnum { get; set; }
+        //public bool HasAdminComponent { get; set; }
+        //public long? AdminServiceId { get; set; }
+        //public bool HasDirectComponent { get; set; }
+
         [Required]
         public IList<Int64> RequiredDocumentsId { get; set; }
         public IList<Int64> RequiredServiceFieldsId { get; set; }
+
+        [NotMapped]
+        public long? DirectServiceId { get; set; }
+
     }
 }

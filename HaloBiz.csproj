@@ -36,6 +36,7 @@
     <Compile Include="Model\Contact.cs" />
     <Compile Include="Model\LAMS\LeadContact.cs" />
     <Compile Include="Model\RoleManagement\Claim.cs" />
+    <Compile Include="Model\ServiceRelationships.cs" />
   </ItemGroup>
 
   <ItemGroup>
