@@ -7,6 +7,8 @@ using HaloBiz.DTOs.TransferDTOs.LAMS;
 using HalobizMigrations.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using HaloBiz.Helpers;
+using HalobizMigrations.Models.Halobiz;
 
 namespace HaloBiz.Repository.Impl
 {
@@ -28,7 +30,26 @@ namespace HaloBiz.Repository.Impl
             {
                 return null;
             }
+
             var savedService = savedEntity.Entity;
+
+            //check if this is an admin and if the direct service is specified
+            if (service.ServiceRelationshipEnum == (int)ServiceRelationshipEnum.Admin)
+            {
+                //map this relationship to the ServiceRelationships
+                await _context.ServiceRelationships.AddAsync(new ServiceRelationship
+                {
+                    ServiceAdminId = savedService.Id,
+                    ServiceDirectId = (long)service.DirectServiceId,
+                    CreatedAt = DateTime.Now,
+                    CreatedById = savedService.CreatedById,
+                    IsDeleted = false                    
+                }); 
+
+                await _context.SaveChangesAsync();
+            }
+            
+
             var serviceCode = $"{savedService.DivisionId}/{savedService.OperatingEntityId}/{savedService.ServiceGroupId}/{savedService.ServiceCategoryId}/{savedService.Id}";
             savedService.ServiceCode = serviceCode;
             

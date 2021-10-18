@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace HaloBiz.Helpers
 {
-    public enum ServiceRelationships
+    public enum ServiceRelationshipEnum
     {
         Standalone = 1, Direct, Admin
     }
