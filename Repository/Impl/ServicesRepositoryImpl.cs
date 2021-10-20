@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using HaloBiz.Helpers;
 using HalobizMigrations.Models.Halobiz;
+using HalobizMigrations.Models.Shared;
 
 namespace HaloBiz.Repository.Impl
 {
@@ -34,13 +35,13 @@ namespace HaloBiz.Repository.Impl
             var savedService = savedEntity.Entity;
 
             //check if this is an admin and if the direct service is specified
-            if (service.ServiceRelationshipEnum == (int)ServiceRelationshipEnum.Admin)
+            if (service.ServiceRelationshipEnum == ServiceRelationshipEnum.Admin)
             {
                 //map this relationship to the ServiceRelationships
                 await _context.ServiceRelationships.AddAsync(new ServiceRelationship
                 {
-                    ServiceAdminId = savedService.Id,
-                    ServiceDirectId = (long)service.DirectServiceId,
+                    AdminServiceId = savedService.Id,
+                    DirectServiceId = service.DirectServiceId,
                     CreatedAt = DateTime.Now,
                     CreatedById = savedService.CreatedById,
                     IsDeleted = false                    

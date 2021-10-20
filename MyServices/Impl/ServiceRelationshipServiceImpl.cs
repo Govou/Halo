@@ -22,16 +22,20 @@ namespace HaloBiz.MyServices.Impl
         private readonly IServiceRelationshipRepository _servicesRepository;
         private readonly HalobizContext _context;
         private readonly ILogger<ServiceRelationshipServiceImpl> _logger;
+        private readonly IMapper _mapper;
+
 
         public ServiceRelationshipServiceImpl(
                                 IServiceRelationshipRepository servicesRepository,                              
                                 HalobizContext context,
+                                IMapper mapper,
                                 ILogger<ServiceRelationshipServiceImpl> logger
                                 )
         {
             _context = context;
             _logger = logger;
             _servicesRepository = servicesRepository;
+            _mapper = mapper;
         }
 
         public async Task<ApiResponse> FindAllUnmappedDirects()
@@ -39,7 +43,14 @@ namespace HaloBiz.MyServices.Impl
             try
             {
                 var services = await _servicesRepository.FindAllUnmappedDirects();
-                return services == null ? new ApiResponse(404) : new ApiOkResponse(services);
+
+                if (services == null)
+                {
+                    return new ApiResponse(404);
+                }
+                
+                var leanformatService = _mapper.Map<IEnumerable<ServicesLeanformatDTO>>(services);
+                return new ApiOkResponse(leanformatService);
             }
             catch (Exception ex)
             {

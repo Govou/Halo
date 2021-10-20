@@ -1,4 +1,6 @@
-﻿using HalobizMigrations.Models.Halobiz;
+﻿using HaloBiz.DTOs.TransferDTOs;
+using HalobizMigrations.Models;
+using HalobizMigrations.Models.Halobiz;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,7 +15,7 @@ namespace HaloBiz.Repository
         Task<ServiceRelationship> SaveService(ServiceRelationship service);
         Task<ServiceRelationship> FindServiceRelationshipByAdminId(long Id);
         Task<ServiceRelationship> FindServiceRelationshipByDirectId(long Id);
-        Task<IEnumerable<ServiceRelationship>> FindAllUnmappedDirects();
+        Task<IEnumerable<Service>> FindAllUnmappedDirects();
         Task<IEnumerable<ServiceRelationship>> FindAllRelationships();
     }
 }

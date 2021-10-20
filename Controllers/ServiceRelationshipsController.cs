@@ -10,121 +10,56 @@ namespace HaloBiz.Controllers
     [ApiController]
     public class ServiceRelationshipsController : ControllerBase
     {
-        private readonly IServiceRelationships _servicesService;
+        private readonly IServiceRelationshipService _servicesService;
 
-        public ServiceRelationshipsController(IServicesService servicesService)
+        public ServiceRelationshipsController(IServiceRelationshipService servicesService)
         {
-            this._servicesService = servicesService;
+            _servicesService = servicesService;
         }
 
-        [HttpGet("")]
-        public async Task<ActionResult> GetService()
+        [HttpGet]
+        [Route("FindAllUnmappedDirects")]
+        public async Task<ActionResult> FindAllUnmappedDirects()
         {
-            var response = await _servicesService.GetAllServices();
+            var response = await _servicesService.FindAllUnmappedDirects();
             if (response.StatusCode >= 400)
                 return StatusCode(response.StatusCode, response);
             var services = ((ApiOkResponse)response).Result;
             return Ok(services);
         }
 
-        [HttpGet("GetUnpublishedServices")]
-        public async Task<ActionResult> GetUnpublishedService()
+        [HttpGet]
+        [Route("FindAllRelationships")]
+        public async Task<ActionResult> FindAllRelationships()
         {
-            var response = await _servicesService.GetUnpublishedServices();
+            var response = await _servicesService.FindAllRelationships();
             if (response.StatusCode >= 400)
                 return StatusCode(response.StatusCode, response);
             var services = ((ApiOkResponse)response).Result;
             return Ok(services);
         }
 
-        [HttpGet("GetOnlinePortalServices")]
-        public async Task<ActionResult> GetOnlinePortalServices()
-        {
-            var response = await _servicesService.GetOnlinePortalServices();
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var services = ((ApiOkResponse)response).Result;
-            return Ok(services);
-        }
 
-        [HttpGet("name/{name}")]
-        public async Task<ActionResult> GetByName(string name)
+        [HttpGet("FindByAdminId/{id}")]
+        public async Task<ActionResult> FindServiceRelationshipByAdminId(long id)
         {
-            var response = await _servicesService.GetServiceByName(name);
+            var response = await _servicesService.FindServiceRelationshipByAdminId(id);
             if (response.StatusCode >= 400)
                 return StatusCode(response.StatusCode, response);
             var service = ((ApiOkResponse)response).Result;
             return Ok(service);
         }
 
-        [HttpGet("{id}")]
-        public async Task<ActionResult> GetById(long id)
+        [HttpGet("FindByDirectId/{id}")]
+        public async Task<ActionResult> FindServiceRelationshipByDirectId(long id)
         {
-            var response = await _servicesService.GetServiceById(id);
+            var response = await _servicesService.FindServiceRelationshipByDirectId(id);
             if (response.StatusCode >= 400)
                 return StatusCode(response.StatusCode, response);
             var service = ((ApiOkResponse)response).Result;
             return Ok(service);
         }
 
-        [HttpPost("")]
-        public async Task<ActionResult> AddNew(ServiceReceivingDTO servicesReceivingDTO)
-        {
-            var response = await _servicesService.AddService(HttpContext, servicesReceivingDTO);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var service = ((ApiOkResponse)response).Result;
-            return Ok(service);
-        }
 
-        [HttpPut("approve-service/{serviceId}/{sequence}")]
-        public async Task<IActionResult> ApproveServiceById(long serviceId, long sequence)
-        {
-            var response = await _servicesService.ApproveService(HttpContext, serviceId, sequence);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var serviceGroup = ((ApiOkResponse)response).Result;
-            return Ok(serviceGroup);
-        }
-
-        [HttpPut("disapprove-service/{serviceId}/{sequence}")]
-        public async Task<IActionResult> DisapproveServiceById(long serviceId, long sequence)
-        {
-            var response = await _servicesService.DisapproveService(HttpContext, serviceId, sequence);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var serviceGroup = ((ApiOkResponse)response).Result;
-            return Ok(serviceGroup);
-        }
-
-        [HttpPut("{id}/request-service-publish")]
-        public async Task<IActionResult> RequestPublishServiceById(long id)
-        {
-            var response = await _servicesService.RequestPublishService(HttpContext, id);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var serviceGroup = ((ApiOkResponse)response).Result;
-            return Ok(serviceGroup);
-        }
-
-        [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateById(long id, ServiceReceivingDTO servicesReceivingDTO)
-        {
-            var response = await _servicesService.UpdateServices(HttpContext, id, servicesReceivingDTO);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var serviceGroup = ((ApiOkResponse)response).Result;
-            return Ok(serviceGroup);
-        }
-
-
-
-        [HttpDelete("{id}")]
-        public async Task<ActionResult> DeleteById(int id)
-        {
-            var response = await _servicesService.DeleteService(id);
-            return StatusCode(response.StatusCode);
-        }
-        
     }
 }

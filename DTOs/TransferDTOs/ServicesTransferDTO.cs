@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using HalobizMigrations.Models;
+using HalobizMigrations.Models.Shared;
 
 namespace HaloBiz.DTOs.TransferDTOs
 {
@@ -30,16 +31,13 @@ namespace HaloBiz.DTOs.TransferDTOs
         public long ControlAccountId { get; set; }
         public ServiceTypeTransferDTO ServiceType { get; set; }
         public bool IsVatable { get; set; }
-        public bool? CanBeSoldOnline { get; set; }
-        public bool HasAdminComponent { get; set; }
-        public bool HasDirectComponent { get; set; }
-        public long? AdminServiceId { get; set; }
-        public long? DirectServiceId { get; set; }
+        public bool? CanBeSoldOnline { get; set; }       
         public ServiceTransferDTO AdminService { get; set; }
         public ServiceTransferDTO DirectService { get; set; }
         public DateTime CreatedAt { get; set; }
         public IList<RequiredServiceDocumentTransferDTO> RequiredServiceDocument { get; set; }
         public IList<RequredServiceQualificationElementTransferDTO> RequiredServiceFields { get; set; }
-       
+        public ServiceRelationshipEnum ServiceRelationshipEnum { get; set; }
+
     }
 }

@@ -21,6 +21,7 @@ namespace HaloBiz.Helpers
         public AutoMapping()
         {
             CreateMap<ServiceRelationship, ServiceRelationshipDTO>();
+            CreateMap<Service, ServicesLeanformatDTO>();
             CreateMap<State, StateTransferDTO>();    
             CreateMap<Lga, LGATransferDTO>();
             CreateMap<UserProfileReceivingDTO, UserProfile>()

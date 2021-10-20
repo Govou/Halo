@@ -14,6 +14,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using HaloBiz.MyServices;
+using HalobizMigrations.Models.Shared;
 
 namespace HaloBiz.MyServices.Impl
 {
@@ -55,7 +56,7 @@ namespace HaloBiz.MyServices.Impl
         public async Task<ApiResponse> AddService(HttpContext context, ServiceReceivingDTO servicesReceivingDTO)
         {
             //check if this is an admin and if the direct service is specified
-            if (servicesReceivingDTO.ServiceRelationshipEnum == (int)ServiceRelationshipEnum.Admin)
+            if (servicesReceivingDTO.ServiceRelationshipEnum == ServiceRelationshipEnum.Admin)
             {
                 //check if the direct service is specified
                 if(servicesReceivingDTO.DirectServiceId == null)

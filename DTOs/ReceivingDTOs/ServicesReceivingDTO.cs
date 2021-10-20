@@ -1,3 +1,4 @@
+using HalobizMigrations.Models.Shared;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -35,10 +36,7 @@ namespace HaloBiz.DTOs.ReceivingDTOs
         public bool IsVatable { get; set; }
         public bool? CanBeSoldOnline { get; set; }
 
-        public int ServiceRelationshipEnum { get; set; }
-        //public bool HasAdminComponent { get; set; }
-        //public long? AdminServiceId { get; set; }
-        //public bool HasDirectComponent { get; set; }
+        public ServiceRelationshipEnum ServiceRelationshipEnum { get; set; }
 
         [Required]
         public IList<Int64> RequiredDocumentsId { get; set; }

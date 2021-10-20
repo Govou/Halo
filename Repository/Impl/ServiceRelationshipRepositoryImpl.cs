@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using HaloBiz.Helpers;
 using HalobizMigrations.Models.Halobiz;
+using HalobizMigrations.Models.Shared;
 
 namespace HaloBiz.Repository.Impl
 {
@@ -34,25 +35,36 @@ namespace HaloBiz.Repository.Impl
         public async Task<ServiceRelationship> FindServiceRelationshipByAdminId(long Id)
         {
             return await _context.ServiceRelationships
-                           .Where(x => x.ServiceAdminId == Id && x.IsDeleted == false).FirstOrDefaultAsync();
+                           .Where(x => x.AdminServiceId == Id && x.IsDeleted == false)
+                           .Include(x=>x.AdminService)
+                           .Include(x=>x.DirectService)
+                           .FirstOrDefaultAsync();
         }
 
         public async Task<ServiceRelationship> FindServiceRelationshipByDirectId(long Id)
         {
             return await _context.ServiceRelationships
-                           .Where(x => x.ServiceDirectId == Id && x.IsDeleted == false).FirstOrDefaultAsync();
+                           .Where(x => x.DirectServiceId == Id && x.IsDeleted == false)
+                            .Include(x => x.AdminService)
+                           .Include(x => x.DirectService)
+                           .FirstOrDefaultAsync();
         }
 
-        public async Task<IEnumerable<ServiceRelationship>> FindAllUnmappedDirects()
+        public async Task<IEnumerable<Service>> FindAllUnmappedDirects()
         {
-            throw new NotImplementedException();
+            return await _context.Services
+                          .Where(x => x.IsDeleted == false 
+                                && x.ServiceRelationshipEnum == ServiceRelationshipEnum.Direct
+                                && !_context.ServiceRelationships.Any(z => z.DirectServiceId == x.Id))                        
+                          .ToListAsync();
         }
 
         public async Task<IEnumerable<ServiceRelationship>> FindAllRelationships()
         {
             return await _context.ServiceRelationships
                            .Where(x=>x.IsDeleted == false)
-                          // .Include(x=>x.)
+                           .Include(x => x.AdminService)
+                           .Include(x => x.DirectService)
                            .ToListAsync();
         }
     }
