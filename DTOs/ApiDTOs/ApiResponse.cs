@@ -19,6 +19,8 @@ namespace HaloBiz.DTOs.ApiDTOs
                     return "Resource not found";
                 case 500:
                     return "An unhandled error occurred";
+                case 409:
+                    return "This user cannot be assigned to a different market area or the same service category";
                 default:
                     return null;
             }
