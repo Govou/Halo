@@ -305,7 +305,8 @@ namespace HaloBiz.MyServices.Impl
                     serviceToUpdate.ServiceTypeId = serviceReceivingDTO.ServiceTypeId;
                     serviceToUpdate.IsVatable = serviceReceivingDTO.IsVatable;
                     serviceToUpdate.CanBeSoldOnline = serviceReceivingDTO.CanBeSoldOnline;
-                    serviceToUpdate.ServiceRelationshipEnum = serviceReceivingDTO.ServiceRelationshipEnum;
+                    serviceToUpdate.HasAdminComponent = serviceReceivingDTO.HasAdminComponent;
+                    serviceToUpdate.AdminServiceId = serviceReceivingDTO.AdminServiceId;
 
                     var updatedService =  _context.Services.Update(serviceToUpdate).Entity;
                     await _context.SaveChangesAsync();
