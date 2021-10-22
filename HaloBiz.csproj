@@ -39,8 +39,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Dapper" Version="2.0.90" />
-    <PackageReference Include="Dapper.Contrib" Version="2.0.78" />
     <PackageReference Include="DinkToPdf" Version="1.0.8" />
     <PackageReference Include="Flurl" Version="3.0.1" />
     <PackageReference Include="Flurl.Http" Version="3.0.1" />

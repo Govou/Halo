@@ -25,5 +25,9 @@ namespace HaloBiz.DTOs.TransferDTOs
         public bool IsVatable { get; set; }
         public bool? CanBeSoldOnline { get; set; }
         public ServiceRelationshipEnum ServiceRelationshipEnum { get; set; }
+        public virtual ServiceRelationship DirectRelationship { get; set; }
+        public virtual ServiceRelationship AdminRelationship { get; set; }
+
+
     }
 }

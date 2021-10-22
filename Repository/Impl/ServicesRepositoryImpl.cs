@@ -60,7 +60,10 @@ namespace HaloBiz.Repository.Impl
         public async Task<Service> FindServicesById(long Id)
         {
             var service = await _context.Services
-                .FirstOrDefaultAsync( service => service.Id == Id && service.IsDeleted == false);
+                 .Where(service => service.Id == Id && service.IsDeleted == false)
+                 .Include(service => service.DirectRelationship)
+                 .Include(service => service.AdminRelationship)
+                .FirstOrDefaultAsync( );
             
             if(service == null)
             {
@@ -115,6 +118,8 @@ namespace HaloBiz.Repository.Impl
             return await _context.Services
                 .Include(service => service.Target)
                 .Include(service => service.ServiceType)
+                 .Include(x => x.DirectRelationship)
+                .Include(x => x.AdminRelationship)
                 .Include(service => service.Account)
                 .Include(service => service.ServiceRequiredServiceDocuments.Where(row => row.IsDeleted == false))
                     .ThenInclude(row => row.RequiredServiceDocument)
@@ -126,14 +131,14 @@ namespace HaloBiz.Repository.Impl
         public async Task<IEnumerable<Service>> FindAllServices()
         {
             return await _context.Services
-                .Include(service => service.Target)
+                .Include(service => service.Target)               
                 .Include(service => service.ServiceType)
                 .Include(service => service.Account)
                 .Include(service => service.ServiceRequiredServiceDocuments.Where(row => row.IsDeleted == false))
                     .ThenInclude(row => row.RequiredServiceDocument)
                     .Include(service => service.ServiceRequredServiceQualificationElements.Where(row => row.IsDeleted == false))
-                    .ThenInclude(row => row.RequredServiceQualificationElement)
-                .Where(service => service.IsDeleted == false)
+                    .ThenInclude(row => row.RequredServiceQualificationElement)                  
+                .Where(service => service.IsDeleted == false)               
                     .ToListAsync();
         }
 

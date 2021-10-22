@@ -31,9 +31,10 @@ namespace HaloBiz.DTOs.TransferDTOs
         public long ControlAccountId { get; set; }
         public ServiceTypeTransferDTO ServiceType { get; set; }
         public bool IsVatable { get; set; }
-        public bool? CanBeSoldOnline { get; set; }       
-        public ServiceTransferDTO AdminService { get; set; }
-        public ServiceTransferDTO DirectService { get; set; }
+        public bool? CanBeSoldOnline { get; set; }
+        public virtual ServiceRelationship DirectRelationship { get; set; }
+        public virtual ServiceRelationship AdminRelationship { get; set; }
+
         public DateTime CreatedAt { get; set; }
         public IList<RequiredServiceDocumentTransferDTO> RequiredServiceDocument { get; set; }
         public IList<RequredServiceQualificationElementTransferDTO> RequiredServiceFields { get; set; }
