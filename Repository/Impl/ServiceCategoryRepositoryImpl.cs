@@ -32,7 +32,14 @@ namespace HaloBiz.Repository.Impl
         public async Task<ServiceCategory> FindServiceCategoryById(long Id)
         {
             var serviceCategory = await _context.ServiceCategories
-                .FirstOrDefaultAsync( category => category.Id == Id && category.IsDeleted == false);
+                .Where(category => category.Id == Id && category.IsDeleted == false)
+                .Include(x => x.Services
+                    .Where(x => x.IsDeleted == false && x.IsPublished == true))
+                .ThenInclude(x=>x.AdminRelationship)
+                .Include(x => x.Services
+                    .Where(x => x.IsDeleted == false && x.IsPublished == true))
+                .ThenInclude(x=>x.DirectRelationship)
+                .FirstOrDefaultAsync();
             
             if(serviceCategory == null)
             {
@@ -46,41 +53,7 @@ namespace HaloBiz.Repository.Impl
             {
                 serviceCategory.ServiceGroup = await _context.ServiceGroups
                         .FirstOrDefaultAsync(x => x.Id == serviceCategory.ServiceGroupId);
-            }
-            if(serviceCategory != null){
-                    serviceCategory.Services = await _context.Services
-                    //.Include(x => x.AdminService)
-                    //.Include(x => x.DirectService)
-                    .Include(x => x.ServiceType)
-                    .Where( service => service.ServiceCategoryId == serviceCategory.Id && !service.IsDeleted.Value && service.IsPublished.Value)
-                    .Select( x => new Service() {
-                        Id = x.Id ,
-                        ServiceCode = x.ServiceCode,
-                        Name = x.Name,
-                        Description = x.Description,
-                        ImageUrl = x.ImageUrl,
-                        UnitPrice = x.UnitPrice,
-                        IsPublished = x.IsPublished,
-                        IsRequestedForPublish = x.IsRequestedForPublish,
-                        PublishedApprovedStatus = x.PublishedApprovedStatus,
-                        TargetId = x.TargetId,
-                        ServiceType = x.ServiceType,
-                        ServiceTypeId = x.ServiceTypeId,
-                        ServiceCategoryId = x.ServiceCategoryId,
-                        ServiceGroupId = x.ServiceGroupId,
-                        OperatingEntityId = x.OperatingEntityId,
-                        DivisionId = x.DivisionId,
-                        AccountId = x.AccountId,
-                        CreatedById = x.CreatedById,
-                        //HasAdminComponent = x.HasAdminComponent,
-                        //AdminService = x.AdminService,
-                        //AdminServiceId = x.AdminServiceId,
-                        //HasDirectComponent = x.HasDirectComponent,
-                        //DirectService = x.DirectService,
-                        DirectServiceId = x.DirectServiceId
-                    })
-                    .ToListAsync();
-                }
+            }          
 
             return serviceCategory;
         }
