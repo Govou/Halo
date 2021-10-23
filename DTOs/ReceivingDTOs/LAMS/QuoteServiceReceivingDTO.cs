@@ -1,6 +1,8 @@
 using HaloBiz.Helpers;
+using HalobizMigrations.Models;
 using System;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace HaloBiz.DTOs.ReceivingDTOs
 {
@@ -50,6 +52,14 @@ namespace HaloBiz.DTOs.ReceivingDTOs
         public DateTime? TentativeDateOfSiteVisit { get; set; }
         public bool IsConvertedToContractService { get; set; } = false;
         public long ServiceId { get; set; }
-        public string GroupInvoiceNumber { get; set; }      
+        public string GroupInvoiceNumber { get; set; }
+
+        public int BranchId { get; set; }
+        [ForeignKey("BranchId")]
+        public Branch Branch { get; set; }
+        public string UniqueTag { get; set; }
+        public string? AdminDirectTie { get; set; }
     }
+
+
 }

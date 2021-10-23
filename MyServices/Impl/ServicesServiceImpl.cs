@@ -14,6 +14,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using HaloBiz.MyServices;
+using HalobizMigrations.Models.Shared;
 
 namespace HaloBiz.MyServices.Impl
 {
@@ -54,11 +55,18 @@ namespace HaloBiz.MyServices.Impl
 
         public async Task<ApiResponse> AddService(HttpContext context, ServiceReceivingDTO servicesReceivingDTO)
         {
-            using(var transaction = await _context.Database.BeginTransactionAsync())
+            //check if this is an admin and if the direct service is specified
+            if (servicesReceivingDTO.ServiceRelationshipEnum == ServiceRelationshipEnum.Admin)
+            {
+                //check if the direct service is specified
+                if(servicesReceivingDTO.DirectServiceId == null)
+                    return new ApiResponse(400, "The direct service is not specified for this admin service.");
+            }
+
+            using (var transaction = await _context.Database.BeginTransactionAsync())
             {
                 try
                 {
-
                     IList<ServiceRequiredServiceDocument> serviceRequiredServiceDocument = new List<ServiceRequiredServiceDocument>();
                     IList<ServiceRequredServiceQualificationElement> serviceQualificationElements = new List<ServiceRequredServiceQualificationElement>();
 
@@ -83,6 +91,8 @@ namespace HaloBiz.MyServices.Impl
                             RequiredServiceDocumentId = id
                         });
                     }
+
+                    
 
                     var isFieldsSaved = await _reqServiceElementRepo.SaveRangeServiceRequredServiceQualificationElement(serviceQualificationElements);
 
@@ -171,6 +181,7 @@ namespace HaloBiz.MyServices.Impl
             {
                 return new ApiResponse(404);
             }
+
             var summary = $"Initial details before change, \n {serviceToUpdate.ToString()} \n";
 
 
@@ -182,8 +193,7 @@ namespace HaloBiz.MyServices.Impl
             serviceToUpdate.ServiceTypeId = serviceReceivingDTO.ServiceTypeId;
             serviceToUpdate.IsVatable = serviceReceivingDTO.IsVatable;
             serviceToUpdate.CanBeSoldOnline = serviceReceivingDTO.CanBeSoldOnline;
-            //serviceToUpdate.HasAdminComponent = serviceReceivingDTO.HasAdminComponent;
-            //serviceToUpdate.AdminServiceId = serviceReceivingDTO.AdminServiceId;
+            serviceToUpdate.ServiceRelationshipEnum = serviceReceivingDTO.ServiceRelationshipEnum;
 
             var updatedService = await _servicesRepository.UpdateServices(serviceToUpdate);
 
@@ -295,8 +305,8 @@ namespace HaloBiz.MyServices.Impl
                     serviceToUpdate.ServiceTypeId = serviceReceivingDTO.ServiceTypeId;
                     serviceToUpdate.IsVatable = serviceReceivingDTO.IsVatable;
                     serviceToUpdate.CanBeSoldOnline = serviceReceivingDTO.CanBeSoldOnline;
-                    //serviceToUpdate.HasAdminComponent = serviceReceivingDTO.HasAdminComponent;
-                    //serviceToUpdate.AdminServiceId = serviceReceivingDTO.AdminServiceId;
+                    serviceToUpdate.ServiceRelationshipEnum = serviceReceivingDTO.ServiceRelationshipEnum;
+                    serviceToUpdate.DirectServiceId = serviceReceivingDTO.DirectServiceId;
 
                     var updatedService =  _context.Services.Update(serviceToUpdate).Entity;
                     await _context.SaveChangesAsync();
