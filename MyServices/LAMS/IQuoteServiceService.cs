@@ -9,7 +9,8 @@ namespace HaloBiz.MyServices.LAMS
     {
         Task<ApiResponse> AddQuoteService(HttpContext context, QuoteServiceReceivingDTO quoteServiceReceivingDTO);
         Task<ApiResponse> GetAllQuoteService();
-        Task<ApiResponse> GetQuoteServiceById(long id);
+        Task<ApiResponse> GetQuoteServiceById(long id); //GetQuoteServiceByTag
+        Task<ApiResponse> GetQuoteServiceByTag(string tag);
         Task<ApiResponse> UpdateQuoteService(HttpContext context, long id, QuoteServiceReceivingDTO quoteServiceReceivingDTO);
         Task<ApiResponse> DeleteQuoteService(long id);
 
