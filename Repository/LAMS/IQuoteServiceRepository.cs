@@ -9,6 +9,8 @@ namespace HaloBiz.Repository.LAMS
     {
         Task<QuoteService> SaveQuoteService(QuoteService quoteService);
         Task<QuoteService> FindQuoteServiceById(long Id);
+        Task<QuoteService> FindQuoteServiceByTag(string tag);
+
         Task<IEnumerable<QuoteService>> FindAllQuoteService();
         Task<QuoteService> UpdateQuoteService(QuoteService quoteService);
         Task<bool> DeleteQuoteService(QuoteService quoteService);

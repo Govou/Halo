@@ -41,6 +41,16 @@ namespace Controllers.Controllers
             return Ok(quoteService);
         }
 
+        [HttpGet("ByTag/{tag}")]
+        public async Task<ActionResult> GetByTag(string tag)
+        {
+            var response = await _quoteServiceService.GetQuoteServiceByTag(tag);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var quoteService = ((ApiOkResponse)response).Result;
+            return Ok(quoteService);
+        }
+
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateById(long id, QuoteServiceReceivingDTO quoteServiceReceivingDTO)
         {
