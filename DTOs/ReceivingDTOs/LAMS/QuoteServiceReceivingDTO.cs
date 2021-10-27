@@ -8,8 +8,8 @@ namespace HaloBiz.DTOs.ReceivingDTOs
 {
     public class QuoteServiceReceivingDTO
     {
-        public long Id { get; set; }
-        [Required]
+        public long? Id { get; set; }
+       // [Required]
         public string ReferenceNumber { get; set; }
         public double? UnitPrice { get; set; }
         public long Quantity { get; set; }
@@ -24,7 +24,7 @@ namespace HaloBiz.DTOs.ReceivingDTOs
         public long? InvoiceCycleInDays {get ; set; }
         public DateTime? FirstInvoiceSendDate { get; set; }
         public TimeCycle? InvoicingInterval { get; set; }
-        [StringLength(2000)]
+      //  [StringLength(2000)]
         public string ProblemStatement { get; set; }
         public DateTime? ActivationDate { get; set; }
         public DateTime? FulfillmentStartDate { get; set; }
@@ -34,13 +34,13 @@ namespace HaloBiz.DTOs.ReceivingDTOs
         public DateTime? DropoffDateTime { get; set; }
         [StringLength(1000)]
         public string PickupLocation { get; set; }
-        [StringLength(1000)]
+        //[StringLength(1000)]
         public string Dropofflocation { get; set; }
-        [StringLength(200)]
+       // [StringLength(200)]
         public string BeneficiaryName { get; set; }
-        [StringLength(200)]
+      //  [StringLength(200)]
         public string BeneficiaryIdentificationType { get; set; }
-        [StringLength(200)]
+       // [StringLength(200)]
         public string BenificiaryIdentificationNumber { get; set; }
 
         public DateTime? TentativeProofOfConceptStartDate { get; set; }
@@ -58,7 +58,7 @@ namespace HaloBiz.DTOs.ReceivingDTOs
         [ForeignKey("BranchId")]
         public Branch Branch { get; set; }
         public string UniqueTag { get; set; }
-        public string? AdminDirectTie { get; set; }
+        public string AdminDirectTie { get; set; }
     }
 
 

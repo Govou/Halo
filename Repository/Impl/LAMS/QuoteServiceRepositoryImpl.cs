@@ -57,10 +57,16 @@ namespace HaloBiz.Repository.Impl.LAMS
         {
             return await _context.QuoteServices
                 .Where(quoteService => quoteService.UniqueTag == tag)
-                .FirstOrDefaultAsync();            
+                .FirstOrDefaultAsync();
+        }
+        public async Task<IEnumerable<QuoteService>> FindAllQuoteServiceByQuoteId(long id)
+        {
+            return await _context.QuoteServices
+                .Where(quoteService => quoteService.QuoteId == id)
+                .ToListAsync();
         }
 
-    public async Task<IEnumerable<QuoteService>> FindAllQuoteService()
+        public async Task<IEnumerable<QuoteService>> FindAllQuoteService()
         {
             return await _context.QuoteServices
                 .Include(x => x.QuoteServiceDocuments)
@@ -79,6 +85,61 @@ namespace HaloBiz.Repository.Impl.LAMS
                 return quoteServiceEntity.Entity;
             }
             return null;
+        }
+
+        public async Task<bool> UpdateQuoteServicesByQuoteId(long quoteId, IEnumerable<QuoteService> quoteServices)
+        {
+            try
+            {
+
+                //check first that this quote exist
+                var exist = _context.Quotes.Any(x => x.Id == quoteId);
+                if (!exist)
+                    return false;
+
+                //find all the services that are new
+                var newServices = quoteServices.Where(x => x.Id==0).ToList();
+
+                foreach (var item in newServices)
+                {
+                    item.QuoteId = quoteId;
+                    item.CreatedById = 47;
+                    item.CreatedAt = DateTime.Now;
+                    item.UpdatedAt = DateTime.Now;
+                }
+
+                var oldServices = await _context.QuoteServices
+                                .Where(quoteService => quoteService.QuoteId == quoteId)
+                                .ToListAsync();
+
+                //check which services
+                List<QuoteService> toDelete = new List<QuoteService>();
+                List<QuoteService> toUpdate = new List<QuoteService>();
+                foreach (var service in oldServices)
+                {
+                    if (quoteServices.Any(x => x.Id == service.Id))
+                        toUpdate.Add(service);
+                    else
+                        toDelete.Add(service);
+                }
+
+                var p = toUpdate;
+                var y = toDelete;
+
+                //update the services to update
+                _context.QuoteServices.UpdateRange(toUpdate);
+                _context.QuoteServices.AddRange(newServices);
+                _context.QuoteServices.RemoveRange(toDelete);
+
+                //await _context.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("Error updating services", ex);
+                return false;
+            }
+
+            return true;
         }
 
         public async Task<bool> DeleteQuoteService(QuoteService quoteService)

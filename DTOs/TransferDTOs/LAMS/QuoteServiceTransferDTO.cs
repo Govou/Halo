@@ -64,5 +64,6 @@ namespace HaloBiz.DTOs.TransferDTOs.LAMS
         public virtual UserProfile CreatedBy { get; set; }
         public string UniqueTag { get; set; }
         public string AdminDirectTie { get; set; }
+        public long BranchId { get; set; }
     }
 }
