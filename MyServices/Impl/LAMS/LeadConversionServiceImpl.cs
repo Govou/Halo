@@ -232,7 +232,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
             //Create contract from quote
             var entity = await context.Contracts.AddAsync( new Contract(){
-                ReferenceNo = quote.ReferenceNo,
+                //ReferenceNo = quote.ReferenceNo,
                 CustomerDivisionId = customerDivisionId,
                 QuoteId = quote.Id,
                 CreatedById = this.LoggedInUserId,
@@ -286,8 +286,8 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 ContractId = contractId,
                 CreatedById = this.LoggedInUserId,
                 ServiceId = quoteService.ServiceId,
-                ReferenceNo = quoteService.ReferenceNumber,
-                GroupInvoiceNumber = quoteService.GroupInvoiceNumber,
+                //ReferenceNo = quoteService.ReferenceNumber,
+                //GroupInvoiceNumber = quoteService.GroupInvoiceNumber,
                 OfficeId = leadDivision.OfficeId,
                 BranchId = leadDivision.BranchId
             };
@@ -346,7 +346,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
         {
             double totalVAT = 0.0 , totalBillable = 0.0;
             var groupContractService = await _context.QuoteServices
-                .Where(x => x.GroupInvoiceNumber == contractService.GroupInvoiceNumber && !x.IsDeleted)
+                //.Where(x => x.GroupInvoiceNumber == contractService.GroupInvoiceNumber && !x.IsDeleted)
                     .ToListAsync();
             foreach (var quoteService in groupContractService)
             {
