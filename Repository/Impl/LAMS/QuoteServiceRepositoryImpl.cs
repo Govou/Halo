@@ -89,16 +89,17 @@ namespace HaloBiz.Repository.Impl.LAMS
 
         public async Task<bool> UpdateQuoteServicesByQuoteId(long quoteId, IEnumerable<QuoteService> quoteServices)
         {
+            using var transaction = _context.Database.BeginTransaction();
+
             try
             {
-
                 //check first that this quote exist
                 var exist = _context.Quotes.Any(x => x.Id == quoteId);
                 if (!exist)
                     return false;
 
                 //find all the services that are new
-                var newServices = quoteServices.Where(x => x.Id==0).ToList();
+                var newServices = quoteServices.Where(x => x.Id == 0).ToList();
 
                 foreach (var item in newServices)
                 {
@@ -110,32 +111,43 @@ namespace HaloBiz.Repository.Impl.LAMS
 
                 var oldServices = await _context.QuoteServices
                                 .Where(quoteService => quoteService.QuoteId == quoteId)
+                                .AsNoTracking()
                                 .ToListAsync();
 
                 //check which services
                 List<QuoteService> toDelete = new List<QuoteService>();
                 List<QuoteService> toUpdate = new List<QuoteService>();
+
                 foreach (var service in oldServices)
                 {
-                    if (quoteServices.Any(x => x.Id == service.Id))
-                        toUpdate.Add(service);
+                    var forEdit = quoteServices.Where(x => x.Id == service.Id).FirstOrDefault();
+                    if (forEdit != null)
+                    {
+                        forEdit.QuoteId = quoteId;
+                        forEdit.CreatedById = 47;
+                        toUpdate.Add(forEdit);
+                    }
                     else
                         toDelete.Add(service);
                 }
 
-                var p = toUpdate;
-                var y = toDelete;
 
                 //update the services to update
                 _context.QuoteServices.UpdateRange(toUpdate);
                 _context.QuoteServices.AddRange(newServices);
                 _context.QuoteServices.RemoveRange(toDelete);
 
-                //await _context.SaveChangesAsync();
+                await _context.SaveChangesAsync();
+
+                // Commit transaction if all commands succeed, transaction will auto-rollback
+                // when disposed if either commands fails
+                transaction.Commit();
             }
             catch (Exception ex)
             {
+                // TODO: Handle failure
                 _logger.LogError("Error updating services", ex);
+                transaction.Rollback();
                 return false;
             }
 

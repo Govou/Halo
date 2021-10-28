@@ -10,8 +10,6 @@ namespace HaloBiz.DTOs.TransferDTOs.LAMS
     public class QuoteServiceTransferDTO
     {
         public long Id { get; set; }
-        [Required]
-        public string ReferenceNumber { get; set; }
         public double? UnitPrice { get; set; }
         public long Quantity { get; set; }
         public double Discount { get; set; }
@@ -54,7 +52,6 @@ namespace HaloBiz.DTOs.TransferDTOs.LAMS
         public long ServiceId { get; set; }
         public Service Service { get; set; }
         public long QuoteId { get; set; }
-        public string GroupInvoiceNumber { get; set; }  
 
         public IEnumerable<ContractService> ContractService { get; set; }
         public IEnumerable<QuoteServiceDocumentTransferDTO> QuoteServiceDocuments { get; set; }

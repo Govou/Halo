@@ -21,7 +21,7 @@ namespace HaloBiz.DTOs.TransferDTOs.LAMS
     public class QuoteWithoutLeadDivisionTransferDTO
     {
         public long Id { get; set; }
-        public string ReferenceNo { get; set; }
+        public string GroupInvoiceNumber { get; set; }
         public long LeadDivisionId { get; set; }
         public bool IsConvertedToContract { get; set; }
         public IEnumerable<QuoteServiceTransferDTO> QuoteServices { get; set; }

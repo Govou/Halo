@@ -92,6 +92,7 @@ namespace HaloBiz.Repository.Impl.LAMS
                 .Include(lead => lead.LeadType)
                 .Include(lead => lead.LeadOrigin)
                 .FirstOrDefaultAsync(lead => lead.ReferenceNo == refNo);
+
             if(lead == null)
             {
                 return null;

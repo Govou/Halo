@@ -232,7 +232,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
             //Create contract from quote
             var entity = await context.Contracts.AddAsync( new Contract(){
-                ReferenceNo = quote.ReferenceNo,
+               // ReferenceNo = quote.ReferenceNo,
                 CustomerDivisionId = customerDivisionId,
                 QuoteId = quote.Id,
                 CreatedById = this.LoggedInUserId,
@@ -286,8 +286,6 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 ContractId = contractId,
                 CreatedById = this.LoggedInUserId,
                 ServiceId = quoteService.ServiceId,
-                ReferenceNo = quoteService.ReferenceNumber,
-                GroupInvoiceNumber = quoteService.GroupInvoiceNumber,
                 OfficeId = leadDivision.OfficeId,
                 BranchId = leadDivision.BranchId
             };
@@ -344,22 +342,24 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
         public async Task<ContractService> GenerateBulkContractService(ContractService contractService)
         {
-            double totalVAT = 0.0 , totalBillable = 0.0;
-            var groupContractService = await _context.QuoteServices
-                .Where(x => x.GroupInvoiceNumber == contractService.GroupInvoiceNumber && !x.IsDeleted)
-                    .ToListAsync();
-            foreach (var quoteService in groupContractService)
-            {
-                totalBillable += (double) quoteService.BillableAmount;
-                totalVAT += (double) quoteService.Vat;
-            }
+            //todo refactor
+            //double totalVAT = 0.0 , totalBillable = 0.0;
+            //var groupContractService = await _context.QuoteServices
+            //    .Where(x => x.GroupInvoiceNumber == contractService.GroupInvoiceNumber && !x.IsDeleted)
+            //        .ToListAsync();
+            //foreach (var quoteService in groupContractService)
+            //{
+            //    totalBillable += (double) quoteService.BillableAmount;
+            //    totalVAT += (double) quoteService.Vat;
+            //}
 
-            this.groupInvoiceNumbers.Add(contractService.GroupInvoiceNumber);
-            var newContractService = _mapper.Map<ContractService>(contractService);
-            newContractService.BillableAmount = totalBillable;
-            newContractService.Vat = totalVAT;
-            
-            return newContractService;
+            //this.groupInvoiceNumbers.Add(contractService.GroupInvoiceNumber);
+            //var newContractService = _mapper.Map<ContractService>(contractService);
+            //newContractService.BillableAmount = totalBillable;
+            //newContractService.Vat = totalVAT;
+
+            //return newContractService;
+            return null;
             
         }
 
