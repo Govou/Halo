@@ -37,7 +37,7 @@ namespace HaloBiz.Repository.Impl.LAMS
         public async Task<IEnumerable<Lead>> FindUserLeads(long userId)
         {
             //todo remove hardcooded id
-            userId = 47;
+            //userId = 47;
             return await _context.Leads.Where(lead => !lead.IsDeleted && !lead.LeadConversionStatus && lead.CreatedById == userId).ToListAsync();
         }
 
@@ -92,6 +92,7 @@ namespace HaloBiz.Repository.Impl.LAMS
                 .Include(lead => lead.LeadType)
                 .Include(lead => lead.LeadOrigin)
                 .FirstOrDefaultAsync(lead => lead.ReferenceNo == refNo);
+
             if(lead == null)
             {
                 return null;
