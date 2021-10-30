@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using HaloBiz.Helpers;
 using HalobizMigrations.Models;
-
+using HalobizMigrations.Models.Shared;
 
 namespace HaloBiz.DTOs.TransferDTOs.LAMS
 {
@@ -22,6 +22,7 @@ namespace HaloBiz.DTOs.TransferDTOs.LAMS
     {
         public long Id { get; set; }
         public string GroupInvoiceNumber { get; set; }
+        public GroupQuoteCategory GroupQuoteCategory { get; set; }
         public long LeadDivisionId { get; set; }
         public bool IsConvertedToContract { get; set; }
         public IEnumerable<QuoteServiceTransferDTO> QuoteServices { get; set; }

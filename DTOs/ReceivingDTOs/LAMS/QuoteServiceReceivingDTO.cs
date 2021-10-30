@@ -30,11 +30,8 @@ namespace HaloBiz.DTOs.ReceivingDTOs
         public DateTime? TentativeDateForSiteSurvey { get; set; }
         public DateTime? PickupDateTime { get; set; }
         public DateTime? DropoffDateTime { get; set; }
-        [StringLength(1000)]
         public string PickupLocation { get; set; }
-        //[StringLength(1000)]
         public string Dropofflocation { get; set; }
-       // [StringLength(200)]
         public string BeneficiaryName { get; set; }
         public string BeneficiaryIdentificationType { get; set; }
         public string BenificiaryIdentificationNumber { get; set; }
