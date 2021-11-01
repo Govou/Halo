@@ -61,7 +61,7 @@ namespace HaloBiz.Repository.Impl.LAMS
                 .Include(x => x.Service)
                 .Include(x => x.SbutoContractServiceProportions)
                 .Include(x => x.ClosureDocuments)
-                .Where(x => x.ReferenceNo == refNo && x.IsDeleted == false)
+                //.Where(x => x.ReferenceNo == refNo && x.IsDeleted == false)
                 .ToListAsync();
         }
 
