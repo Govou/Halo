@@ -78,6 +78,14 @@ namespace HaloBiz.MyServices.Impl.LAMS
             return new ApiOkResponse(quoteServiceTransferDTOs);
         }
 
+        public async Task<ApiResponse> UpdateQuoteServicesByQuoteId(HttpContext context, long quoteId, IEnumerable<QuoteServiceReceivingDTO> quoteServices)
+        {
+            var userId = context.GetLoggedInUserId();
+            var _quoteServices = _mapper.Map<IEnumerable<QuoteService>>(quoteServices);
+            var response = await _quoteServiceRepo.UpdateQuoteServicesByQuoteId(quoteId, _quoteServices);
+            return new ApiOkResponse(response);
+
+        }
         public async Task<ApiResponse> UpdateQuoteService(HttpContext context, long id, QuoteServiceReceivingDTO quoteServiceReceivingDTO)
         {
             var quoteServiceToUpdate = await _quoteServiceRepo.FindQuoteServiceById(id);

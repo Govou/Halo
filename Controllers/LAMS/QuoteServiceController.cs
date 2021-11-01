@@ -52,9 +52,9 @@ namespace Controllers.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateById(long id, QuoteServiceReceivingDTO quoteServiceReceivingDTO)
+        public async Task<IActionResult> UpdateById(long id, List<QuoteServiceReceivingDTO> quoteServices)
         {
-            var response = await _quoteServiceService.UpdateQuoteService(HttpContext, id, quoteServiceReceivingDTO);
+            var response = await _quoteServiceService.UpdateQuoteServicesByQuoteId(HttpContext, id, quoteServices);
             if (response.StatusCode >= 400)
                 return StatusCode(response.StatusCode, response);
             var quoteService = ((ApiOkResponse)response).Result;
