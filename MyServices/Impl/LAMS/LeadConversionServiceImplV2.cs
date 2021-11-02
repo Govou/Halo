@@ -245,7 +245,6 @@ namespace HaloBiz.MyServices.Impl.LAMS
             //Create contract from quote
             var entity = await context.Contracts.AddAsync(new Contract()
             {
-                //ReferenceNo = quote.ReferenceNo,
                 CustomerDivisionId = customerDivisionId,
                 QuoteId = quote.Id,
                 CreatedById = LoggedInUserId,
@@ -297,9 +296,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 QuoteServiceId = quoteService.Id,
                 ContractId = contractId,
                 CreatedById = LoggedInUserId,
-                ServiceId = quoteService.ServiceId,
-                //ReferenceNo = quoteService.ReferenceNumber,
-                //GroupInvoiceNumber = quoteService.GroupInvoiceNumber,
+                ServiceId = quoteService.ServiceId,   
                 OfficeId = leadDivision.OfficeId,
                 BranchId = leadDivision.BranchId
             };

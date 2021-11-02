@@ -44,7 +44,7 @@ namespace HaloBiz.Repository.Impl.LAMS
                  .Include(x => x.ContractServices)
                 .Include(x => x.CustomerDivision)
                 .Where(entity => entity.IsDeleted == false)
-                .OrderByDescending(entity => entity.ReferenceNo)
+                //.OrderByDescending(entity => entity.ReferenceNo)
                 .ToListAsync();
         }
         public async Task<Contract> FindContractByReferenceNumber(string refNo)
@@ -52,7 +52,8 @@ namespace HaloBiz.Repository.Impl.LAMS
             return await _context.Contracts
                 .Include(x => x.ContractServices)
                 .Include(x => x.CustomerDivision)
-                .FirstOrDefaultAsync(x => x.ReferenceNo == refNo && x.IsDeleted == false);
+                //.FirstOrDefaultAsync(x => x.ReferenceNo == refNo && x.IsDeleted == false);
+                .FirstOrDefaultAsync(x => x.IsDeleted == false);
         }
 
         public async Task<Contract> UpdateContract(Contract entity)

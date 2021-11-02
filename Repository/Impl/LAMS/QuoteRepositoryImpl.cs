@@ -41,10 +41,13 @@ namespace HaloBiz.Repository.Impl.LAMS
 
         public async Task<Quote> FindQuoteByReferenceNumber(string referenceNumber)
         {
-            return await _context.Quotes.AsNoTracking()
-                .Include(a => a.QuoteServices.Where(a => a.IsDeleted == false))
-                .FirstOrDefaultAsync(quote => quote.IsDeleted == false);
-                //.FirstOrDefaultAsync(quote => quote.ReferenceNo == referenceNumber && quote.IsDeleted == false);
+            //todo
+            //return await _context.Quotes
+            //    .Where(quote => quote.ReferenceNo == referenceNumber && quote.IsDeleted == false)
+            //    .AsNoTracking()
+            //    .Include(a => a.QuoteServices.Where(a => a.IsDeleted == false))
+            //    .FirstOrDefaultAsync();
+            return null;
         }
 
         public async Task<IEnumerable<Quote>> FindAllQuote()

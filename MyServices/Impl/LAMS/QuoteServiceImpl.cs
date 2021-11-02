@@ -163,15 +163,20 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 var quote = await _quoteRepo.FindQuoteById(id);
                 if (quote == null)
                 {
-                    return new ApiResponse(404);
+                    return new ApiResponse(404, "Quote was not found");
                 }
 
                 var summary = $"Initial details before change, \n {quote} \n";
 
-                //quoteToUpdate.ReferenceNo = quoteReceivingDTO.ReferenceNo;
-                //quoteToUpdate.LeadDivisionId = quoteReceivingDTO.LeadDivisionId;
-                //quoteToUpdate.IsConvertedToContract = quoteReceivingDTO.IsConvertedToContract;
-                //quoteToUpdate.Version = (int)quoteReceivingDTO.Version;
+                var quoteServices = _mapper.Map<IEnumerable<QuoteService>>(quoteReceivingDTO.QuoteServices);
+
+                foreach (var item in quoteServices)
+                {
+                    item.QuoteId = id;
+                    item.CreatedById = createdById;
+                }
+
+               
 
                 if (quote.QuoteServices.Any())
                 {
@@ -182,13 +187,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                     }
                 }
 
-                var quoteServices = _mapper.Map<IEnumerable<QuoteService>>(quoteReceivingDTO.QuoteServices);
-
-                foreach (var item in quoteServices)
-                {
-                    item.QuoteId = id;
-                    item.CreatedById = createdById;
-                }
+               
 
                 var savedSuccessful = await _quoteServiceRepo.SaveQuoteServiceRange(quoteServices);
                 if (!savedSuccessful)
