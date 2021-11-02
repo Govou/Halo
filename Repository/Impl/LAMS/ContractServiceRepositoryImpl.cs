@@ -69,7 +69,7 @@ namespace HaloBiz.Repository.Impl.LAMS
         {
             return await _context.ContractServices
                 .Include(x => x.Service)
-                .Where(x => x.GroupInvoiceNumber == groupInvoiceNumber && x.IsDeleted == false)
+                //.Where(x => x.GroupInvoiceNumber == groupInvoiceNumber && x.IsDeleted == false)
                 .ToListAsync();
         }
 

@@ -530,12 +530,12 @@ namespace HaloBiz.MyServices.Impl.LAMS
                                 int invoiceIndex,
                                 long loggedInUserId)
         {
-            string invoiceNumber = String.IsNullOrWhiteSpace(contractService.GroupInvoiceNumber) ?
-                            $"INV{contractService.Id.ToString().PadLeft(8, '0')}"
-                                    : contractService.GroupInvoiceNumber;
-            string transactionId = String.IsNullOrWhiteSpace(contractService.GroupInvoiceNumber) ?
-                             $"TRS{serviceCode}/{contractService.Id}"
-                                    : $"{contractService.GroupInvoiceNumber.Replace("GINV", "TRS")}/{contractService.Id}";
+            //string invoiceNumber = String.IsNullOrWhiteSpace(contractService.GroupInvoiceNumber) ?
+            //                $"INV{contractService.Id.ToString().PadLeft(8, '0')}"
+            //                        : contractService.GroupInvoiceNumber;
+            //string transactionId = String.IsNullOrWhiteSpace(contractService.GroupInvoiceNumber) ?
+            //                 $"TRS{serviceCode}/{contractService.Id}"
+            //                        : $"{contractService.GroupInvoiceNumber.Replace("GINV", "TRS")}/{contractService.Id}";
 
             /*var unitPrice = String.IsNullOrWhiteSpace(contractService.GroupInvoiceNumber)
                                 ? contractService.UnitPrice : 0;*/
@@ -543,29 +543,30 @@ namespace HaloBiz.MyServices.Impl.LAMS
             /*var quantity = String.IsNullOrWhiteSpace(contractService.GroupInvoiceNumber) ?
                                 contractService.Quantity : 0;*/
 
-            return new Invoice()
-            {
-                InvoiceNumber = $"{invoiceNumber}/{invoiceIndex}",
-                UnitPrice = (double)contractService.UnitPrice,
-                Quantity = contractService.Quantity,
-                Discount = contractService.Discount,
-                Value = amount,
-                TransactionId = transactionId,
-                DateToBeSent = sendDate,
-                IsInvoiceSent = false,
-                CustomerDivisionId = customerDivisionId,
-                ContractId = contractService.ContractId,
-                ContractServiceId = contractService.Id,
-                StartDate = from,
-                EndDate = to,
-                IsReceiptedStatus = (int)InvoiceStatus.NotReceipted,
-                IsFinalInvoice = true,
-                InvoiceType = (int)InvoiceType.New,
-                CreatedById = loggedInUserId,
-                GroupInvoiceNumber = string.IsNullOrWhiteSpace(contractService.GroupInvoiceNumber) ? null : invoiceNumber,
-                //First Accounts for first invoices are posted when a lead is converted to client
-                IsAccountPosted = invoiceIndex == 1
-            };
+            //return new Invoice()
+            //{
+            //    InvoiceNumber = $"{invoiceNumber}/{invoiceIndex}",
+            //    UnitPrice = (double)contractService.UnitPrice,
+            //    Quantity = contractService.Quantity,
+            //    Discount = contractService.Discount,
+            //    Value = amount,
+            //    TransactionId = transactionId,
+            //    DateToBeSent = sendDate,
+            //    IsInvoiceSent = false,
+            //    CustomerDivisionId = customerDivisionId,
+            //    ContractId = contractService.ContractId,
+            //    ContractServiceId = contractService.Id,
+            //    StartDate = from,
+            //    EndDate = to,
+            //    IsReceiptedStatus = (int)InvoiceStatus.NotReceipted,
+            //    IsFinalInvoice = true,
+            //    InvoiceType = (int)InvoiceType.New,
+            //    CreatedById = loggedInUserId,
+            //    GroupInvoiceNumber = string.IsNullOrWhiteSpace(contractService.GroupInvoiceNumber) ? null : invoiceNumber,
+            //    //First Accounts for first invoices are posted when a lead is converted to client
+            //    IsAccountPosted = invoiceIndex == 1
+            //};
+            return null;
         }
 
         public async Task<bool> GenerateAmortizations(ContractService contractService, CustomerDivision customerDivision)
@@ -590,7 +591,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                     ContractId = contractService.ContractId,
                     ContractServiceId = contractService.Id,
                     ContractValue = (double)totalContractBillable,
-                    GroupInvoiceNumber = string.IsNullOrWhiteSpace(contractService.GroupInvoiceNumber) ? null : contractService.GroupInvoiceNumber,
+                    //GroupInvoiceNumber = string.IsNullOrWhiteSpace(contractService.GroupInvoiceNumber) ? null : contractService.GroupInvoiceNumber,
                     January = DateTime.Parse($"{i}/01/31") > startDate && DateTime.Parse($"{i}/01/31") <= endDate ? (double)contractService.BillableAmount : 0,
                     February = DateTime.Parse($"{i}/02/28") > startDate && DateTime.Parse($"{i}/02/28") <= endDate ? (double)contractService.BillableAmount : 0,
                     March = DateTime.Parse($"{i}/03/31") > startDate && DateTime.Parse($"{i}/03/31") <= endDate ? (double)contractService.BillableAmount : 0,
@@ -1126,9 +1127,9 @@ namespace HaloBiz.MyServices.Impl.LAMS
                                                         CustomerDivision customerDivision,
                                                         long createdById)
         {
-            string transactionId = String.IsNullOrWhiteSpace(contractService.GroupInvoiceNumber) ?
-                             $"TRS{service.ServiceCode}/{contractService.Id}"
-                                    : $"{contractService.GroupInvoiceNumber.Replace("GINV", "TRS")}/{contractService.Id}";
+            //string transactionId = String.IsNullOrWhiteSpace(contractService.GroupInvoiceNumber) ?
+            //                 $"TRS{service.ServiceCode}/{contractService.Id}"
+            //                        : $"{contractService.GroupInvoiceNumber.Replace("GINV", "TRS")}/{contractService.Id}";
 
             AccountMaster accountMaster = new AccountMaster()
             {
@@ -1138,7 +1139,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 BranchId = branchId,
                 OfficeId = officeId,
                 Value = amount,
-                TransactionId = transactionId,
+                //TransactionId = transactionId,
                 CreatedById = createdById,
                 CustomerDivisionId = customerDivision.Id
             };
