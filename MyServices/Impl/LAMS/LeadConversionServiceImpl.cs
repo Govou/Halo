@@ -306,17 +306,17 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
                 //Check if the contract service is part of a part of the bulk invoice and if also the invoice has been processed
                 //if it has been processed, it skips it
-                if(!String.IsNullOrWhiteSpace(contractService.GroupInvoiceNumber) && groupInvoiceNumbers.Contains(contractService.GroupInvoiceNumber))
-                {
-                    return true;
-                }
-                //If the invoice is bulk and has not been processed, it sends it for processing.
-                if(!String.IsNullOrWhiteSpace(contractService.GroupInvoiceNumber) &&  !groupInvoiceNumbers.Contains(contractService.GroupInvoiceNumber))
-                {
-                    //returns an accumulation of all the contractService in the bulk invoice and 
-                    //invoices at once
-                    contractService = await GenerateBulkContractService(contractService);
-                }
+                //if(!String.IsNullOrWhiteSpace(contractService.GroupInvoiceNumber) && groupInvoiceNumbers.Contains(contractService.GroupInvoiceNumber))
+                //{
+                //    return true;
+                //}
+                ////If the invoice is bulk and has not been processed, it sends it for processing.
+                //if(!String.IsNullOrWhiteSpace(contractService.GroupInvoiceNumber) &&  !groupInvoiceNumbers.Contains(contractService.GroupInvoiceNumber))
+                //{
+                //    //returns an accumulation of all the contractService in the bulk invoice and 
+                //    //invoices at once
+                //    contractService = await GenerateBulkContractService(contractService);
+                //}
 
                 FinanceVoucherType accountVoucherType = await _context.FinanceVoucherTypes
                     .FirstOrDefaultAsync(x => x.VoucherType == this.SALESINVOICEVOUCHER);
@@ -365,15 +365,16 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
         public async Task<bool> GenerateAndSaveGroupInvoiceDetails(string groupInvoiceNumber)
         {
-            var contractServices = await _context.ContractServices.Where(x => x.GroupInvoiceNumber == groupInvoiceNumber && !x.IsDeleted).ToListAsync();
+            var contractServices = await _context.ContractServices.ToListAsync();
+                //.Where(x => x.GroupInvoiceNumber == groupInvoiceNumber && !x.IsDeleted).ToListAsync();
             var groupInvoiceDetails = new List<GroupInvoiceDetail>();
             foreach (var contractService in contractServices)
             {
                 groupInvoiceDetails.Add(
                     new GroupInvoiceDetail()
                 {
-                    InvoiceNumber = contractService.GroupInvoiceNumber,
-                    Description = $"Invoice details for Group Invoice {contractService.GroupInvoiceNumber}",
+                    //InvoiceNumber = contractService.GroupInvoiceNumber,
+                    //Description = $"Invoice details for Group Invoice {contractService.GroupInvoiceNumber}",
                     UnitPrice = (double) contractService.UnitPrice,
                     Quantity =(int) contractService.Quantity,
                     Vat  = (double) contractService.Vat,
@@ -579,41 +580,42 @@ namespace HaloBiz.MyServices.Impl.LAMS
                                 int invoiceIndex,
                                 long loggedInUserId)
         {
-            string invoiceNumber = String.IsNullOrWhiteSpace(contractService.GroupInvoiceNumber) ?  
-                            $"INV{contractService.Id.ToString().PadLeft(8, '0')}"
-                                    : contractService.GroupInvoiceNumber ;
-            string transactionId = String.IsNullOrWhiteSpace(contractService.GroupInvoiceNumber) ?  
-                             $"TRS{serviceCode}/{contractService.Id}"
-                                    :  $"{contractService.GroupInvoiceNumber.Replace("GINV", "TRS")}/{contractService.Id}" ;
+            //string invoiceNumber = String.IsNullOrWhiteSpace(contractService.GroupInvoiceNumber) ?  
+            //                $"INV{contractService.Id.ToString().PadLeft(8, '0')}"
+            //                        : contractService.GroupInvoiceNumber ;
+            //string transactionId = String.IsNullOrWhiteSpace(contractService.GroupInvoiceNumber) ?  
+            //                 $"TRS{serviceCode}/{contractService.Id}"
+            //                        :  $"{contractService.GroupInvoiceNumber.Replace("GINV", "TRS")}/{contractService.Id}" ;
 
-            var unitPrice = String.IsNullOrWhiteSpace(contractService.GroupInvoiceNumber) 
-                                ? contractService.UnitPrice : 0;
+            //var unitPrice = String.IsNullOrWhiteSpace(contractService.GroupInvoiceNumber) 
+            //                    ? contractService.UnitPrice : 0;
 
-            var quantity = String.IsNullOrWhiteSpace(contractService.GroupInvoiceNumber) ?
-                                contractService.Quantity : 0;
+            //var quantity = String.IsNullOrWhiteSpace(contractService.GroupInvoiceNumber) ?
+            //                    contractService.Quantity : 0;
 
-            return new Invoice(){
-                    InvoiceNumber = $"{invoiceNumber}/{invoiceIndex}",
-                    UnitPrice =   (double) unitPrice,
-                    Quantity = quantity,
-                    Discount = contractService.Discount,
-                    Value  = amount,
-                    TransactionId = transactionId,
-                    DateToBeSent = sendDate,
-                    IsInvoiceSent = false,
-                    CustomerDivisionId = customerDivisionId,
-                    ContractId = contractService.ContractId,
-                    ContractServiceId = contractService.Id,
-                    StartDate  = from,
-                    EndDate  = to,
-                    IsReceiptedStatus = (int)InvoiceStatus.NotReceipted,
-                    IsFinalInvoice = true,
-                    InvoiceType = (int)InvoiceType.New,
-                    CreatedById =  loggedInUserId,
-                    GroupInvoiceNumber = String.IsNullOrWhiteSpace(contractService.GroupInvoiceNumber)? null :  invoiceNumber,
-                    //First Accounts for first invoices are posted when a lead is converted to client
-                    IsAccountPosted = invoiceIndex == 1
-            };
+            //return new Invoice(){
+            //        InvoiceNumber = $"{invoiceNumber}/{invoiceIndex}",
+            //        UnitPrice =   (double) unitPrice,
+            //        Quantity = quantity,
+            //        Discount = contractService.Discount,
+            //        Value  = amount,
+            //        TransactionId = transactionId,
+            //        DateToBeSent = sendDate,
+            //        IsInvoiceSent = false,
+            //        CustomerDivisionId = customerDivisionId,
+            //        ContractId = contractService.ContractId,
+            //        ContractServiceId = contractService.Id,
+            //        StartDate  = from,
+            //        EndDate  = to,
+            //        IsReceiptedStatus = (int)InvoiceStatus.NotReceipted,
+            //        IsFinalInvoice = true,
+            //        InvoiceType = (int)InvoiceType.New,
+            //        CreatedById =  loggedInUserId,
+            //        GroupInvoiceNumber = String.IsNullOrWhiteSpace(contractService.GroupInvoiceNumber)? null :  invoiceNumber,
+            //        //First Accounts for first invoices are posted when a lead is converted to client
+            //        IsAccountPosted = invoiceIndex == 1
+            //};
+            return null;
         }
 
         public async  Task<bool> GenerateAmortizations(ContractService contractService, CustomerDivision customerDivision)
@@ -1028,9 +1030,9 @@ namespace HaloBiz.MyServices.Impl.LAMS
                                                         CustomerDivision customerDivision ,
                                                         long createdById )
         {
-            string transactionId = String.IsNullOrWhiteSpace(contractService.GroupInvoiceNumber) ?  
-                             $"TRS{service.ServiceCode}/{contractService.Id}"
-                                    :  $"{contractService.GroupInvoiceNumber.Replace("GINV", "TRS")}/{contractService.Id}" ;
+            //string transactionId = String.IsNullOrWhiteSpace(contractService.GroupInvoiceNumber) ?  
+            //                 $"TRS{service.ServiceCode}/{contractService.Id}"
+            //                        :  $"{contractService.GroupInvoiceNumber.Replace("GINV", "TRS")}/{contractService.Id}" ;
             
             AccountMaster accountMaster = new AccountMaster(){
                 Description = $"Sales of {service.Name} with service ID: {service.Id} to {customerDivision.DivisionName}",
@@ -1039,7 +1041,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 BranchId = branchId,
                 OfficeId = officeId,
                 Value = amount,
-                TransactionId = transactionId,
+                //TransactionId = transactionId,
                 CreatedById = createdById,
                 CustomerDivisionId = customerDivision.Id
             };     

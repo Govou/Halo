@@ -347,9 +347,10 @@ namespace HaloBiz.MyServices.Impl
 
         private string GenerateTransactionNumber(string serviceCode, ContractService contractService)
         {
-            return String.IsNullOrWhiteSpace(contractService.GroupInvoiceNumber) ?  $"{serviceCode}/{contractService.Id}"
-            : $"{contractService.GroupInvoiceNumber.Replace("GINV", "TRS")}/{contractService.Id}" ;
-                    
+            //return String.IsNullOrWhiteSpace(contractService.GroupInvoiceNumber) ?  $"{serviceCode}/{contractService.Id}"
+            //: $"{contractService.GroupInvoiceNumber.Replace("GINV", "TRS")}/{contractService.Id}" ;
+
+            return "";
         } 
 
         public async  Task<AccountMaster> CreateAccountMaster(double value,
