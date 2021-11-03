@@ -67,6 +67,7 @@ namespace HaloBiz.Repository.Impl
         public async Task<IEnumerable<Invoice>> GetInvoiceByContractServiceId(long contractServiceId) 
         {
             var contractService = await _context.ContractServices
+                    .Include(x=>x.Contract)
                     .FirstOrDefaultAsync(x => x.Id == contractServiceId && !x.IsDeleted);
 
             if(contractService == null)
@@ -76,21 +77,21 @@ namespace HaloBiz.Repository.Impl
 
             List<Invoice> invoices;
 
-            //if(String.IsNullOrWhiteSpace(contractService.GroupInvoiceNumber))
-            //{
-            //    invoices = await _context.Invoices
-            //    .Include(x => x.Receipts)
-            //        .Where(x => x.ContractServiceId == contractServiceId 
-            //                    && (bool)x.IsFinalInvoice && x.IsDeleted == false)
-            //        .OrderBy(x => x.StartDate)
-            //        .ToListAsync();
-            //}else{
-            //    invoices = await _context.Invoices
-            //    .Include(x => x.Receipts)
-            //        .Where(x => x.GroupInvoiceNumber == contractService.GroupInvoiceNumber 
-            //                    && (bool)x.IsFinalInvoice && !x.IsDeleted)
-            //        .OrderBy(x => x.StartDate)
-            //        .ToListAsync();
+            if(String.IsNullOrWhiteSpace(contractService.Contract?.GroupInvoiceNumber))
+            {
+                invoices = await _context.Invoices
+                .Include(x => x.Receipts)
+                    .Where(x => x.ContractServiceId == contractServiceId 
+                                && (bool)x.IsFinalInvoice && x.IsDeleted == false)
+                    .OrderBy(x => x.StartDate)
+                    .ToListAsync();
+            }else{
+                invoices = await _context.Invoices
+                .Include(x => x.Receipts)
+                    .Where(x => x.GroupInvoiceNumber == contractService.Contract.GroupInvoiceNumber 
+                                && (bool)x.IsFinalInvoice && !x.IsDeleted)
+                    .OrderBy(x => x.StartDate)
+                    .ToListAsync();
                 
             //    foreach (var invoice in invoices)
             //    {
@@ -152,6 +153,7 @@ namespace HaloBiz.Repository.Impl
         public async Task<IEnumerable<Invoice>> GetProformaInvoiceByContractServiceId(long contractServiceId)
         {
             var contractService = await _context.ContractServices
+                    .Include(x=>x.Contract)
                     .FirstOrDefaultAsync(x => x.Id == contractServiceId && !x.IsDeleted);
 
             if (contractService == null)
@@ -161,23 +163,23 @@ namespace HaloBiz.Repository.Impl
 
             //List<Invoice> invoices;
 
-            //if (String.IsNullOrWhiteSpace(contractService.GroupInvoiceNumber))
-            //{
-            //    invoices = await _context.Invoices
-            //    .Include(x => x.Receipts)
-            //        .Where(x => x.ContractServiceId == contractServiceId
-            //                    && (bool)x.IsFinalInvoice == false && x.IsDeleted == false)
-            //        .OrderBy(x => x.StartDate)
-            //        .ToListAsync();
-            //}
-            //else
-            //{
-            //    invoices = await _context.Invoices
-            //    .Include(x => x.Receipts)
-            //        //.Where(x => x.GroupInvoiceNumber == contractService.GroupInvoiceNumber
-            //        //            && (bool)x.IsFinalInvoice == false && !x.IsDeleted)
-            //        .OrderBy(x => x.StartDate)
-            //        .ToListAsync();
+            if (String.IsNullOrWhiteSpace(contractService.Contract?.GroupInvoiceNumber))
+            {
+                invoices = await _context.Invoices
+                .Include(x => x.Receipts)
+                    .Where(x => x.ContractServiceId == contractServiceId
+                                && (bool)x.IsFinalInvoice == false && x.IsDeleted == false)
+                    .OrderBy(x => x.StartDate)
+                    .ToListAsync();
+            }
+            else
+            {
+                invoices = await _context.Invoices
+                .Include(x => x.Receipts)
+                    .Where(x => x.GroupInvoiceNumber == contractService.Contract.GroupInvoiceNumber
+                                && (bool)x.IsFinalInvoice == false && !x.IsDeleted)
+                    .OrderBy(x => x.StartDate)
+                    .ToListAsync();
 
             //    var groupInvoices = new List<Invoice>();
             //    var groupedInvoices = invoices.GroupBy(x => x.StartDate.ToString("G"));
