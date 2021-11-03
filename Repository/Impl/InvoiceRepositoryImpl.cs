@@ -145,7 +145,7 @@ namespace HaloBiz.Repository.Impl
 
             //    invoices = groupInvoices;
             //    #endregion
-            //}
+            }
 
             return new List<Invoice>();
         }
@@ -161,25 +161,25 @@ namespace HaloBiz.Repository.Impl
                 return new List<Invoice>();
             }
 
-            //List<Invoice> invoices;
+            List<Invoice> invoices = new List<Invoice>();
 
-            if (String.IsNullOrWhiteSpace(contractService.Contract?.GroupInvoiceNumber))
-            {
-                invoices = await _context.Invoices
-                .Include(x => x.Receipts)
-                    .Where(x => x.ContractServiceId == contractServiceId
-                                && (bool)x.IsFinalInvoice == false && x.IsDeleted == false)
-                    .OrderBy(x => x.StartDate)
-                    .ToListAsync();
-            }
-            else
-            {
-                invoices = await _context.Invoices
-                .Include(x => x.Receipts)
-                    .Where(x => x.GroupInvoiceNumber == contractService.Contract.GroupInvoiceNumber
-                                && (bool)x.IsFinalInvoice == false && !x.IsDeleted)
-                    .OrderBy(x => x.StartDate)
-                    .ToListAsync();
+            //if (String.IsNullOrWhiteSpace(contractService.Contract?.GroupInvoiceNumber))
+            //{
+            //    invoices = await _context.Invoices
+            //    .Include(x => x.Receipts)
+            //        .Where(x => x.ContractServiceId == contractServiceId
+            //                    && (bool)x.IsFinalInvoice == false && x.IsDeleted == false)
+            //        .OrderBy(x => x.StartDate)
+            //        .ToListAsync();
+            //}
+            //else
+            //{
+            //    invoices = await _context.Invoices
+            //    .Include(x => x.Receipts)
+            //        .Where(x => x.GroupInvoiceNumber == contractService.Contract.GroupInvoiceNumber
+            //                    && (bool)x.IsFinalInvoice == false && !x.IsDeleted)
+            //        .OrderBy(x => x.StartDate)
+            //        .ToListAsync();
 
             //    var groupInvoices = new List<Invoice>();
             //    var groupedInvoices = invoices.GroupBy(x => x.StartDate.ToString("G"));
