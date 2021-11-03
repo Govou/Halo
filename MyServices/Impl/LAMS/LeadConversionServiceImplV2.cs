@@ -241,17 +241,25 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
         private async Task<Contract> ConvertQuoteToContract(Quote quote, long customerDivisionId, HalobizContext context)
         {
-
-            //Create contract from quote
-            var entity = await context.Contracts.AddAsync(new Contract()
+            try
             {
-                CustomerDivisionId = customerDivisionId,
-                QuoteId = quote.Id,
-                CreatedById = LoggedInUserId,
-            });
+                //Create contract from quote
+                var entity = await context.Contracts.AddAsync(new Contract()
+                {
+                    CustomerDivisionId = customerDivisionId,
+                    QuoteId = quote.Id,
+                    CreatedById = LoggedInUserId,
+                });
 
-            await context.SaveChangesAsync();            
-            return entity.Entity;
+                await context.SaveChangesAsync();
+                return entity.Entity;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("Error in converting", ex);
+            }
+
+            return null;
         }
 
         private async Task<bool> ConvertQuoteServiceToContractService(QuoteService quoteService,
@@ -260,80 +268,91 @@ namespace HaloBiz.MyServices.Impl.LAMS
                                                                         long contractId,
                                                                         LeadDivision leadDivision)
         {
-            var contractServiceToSave = new ContractService()
+            try
             {
-                UnitPrice = quoteService.UnitPrice,
-                Quantity = quoteService.Quantity,
-                Discount = quoteService.Discount,
-                Vat = quoteService.Vat,
-                BillableAmount = quoteService.BillableAmount,
-                Budget = quoteService.Budget,
-                ContractStartDate = quoteService.ContractStartDate,
-                ContractEndDate = quoteService.ContractEndDate,
-                PaymentCycle = quoteService.PaymentCycle,
-                PaymentCycleInDays = quoteService.PaymentCycleInDays,
-                FirstInvoiceSendDate = quoteService.FirstInvoiceSendDate,
-                InvoicingInterval = quoteService.InvoicingInterval,
-                ProblemStatement = quoteService.ProblemStatement,
-                ActivationDate = quoteService.ActivationDate,
-                FulfillmentStartDate = quoteService.FulfillmentStartDate,
-                FulfillmentEndDate = quoteService.FulfillmentEndDate,
-                TentativeDateForSiteSurvey = quoteService.TentativeDateForSiteSurvey,
-                PickupDateTime = quoteService.PickupDateTime,
-                DropoffDateTime = quoteService.DropoffDateTime,
-                PickupLocation = quoteService.PickupLocation,
-                Dropofflocation = quoteService.Dropofflocation,
-                BeneficiaryName = quoteService.BeneficiaryName,
-                BeneficiaryIdentificationType = quoteService.BeneficiaryIdentificationType,
-                BenificiaryIdentificationNumber = quoteService.BenificiaryIdentificationNumber,
-                TentativeProofOfConceptStartDate = quoteService.TentativeProofOfConceptStartDate,
-                TentativeProofOfConceptEndDate = quoteService.TentativeProofOfConceptEndDate,
-                TentativeFulfillmentDate = quoteService.TentativeFulfillmentDate,
-                ProgramCommencementDate = quoteService.ProgramCommencementDate,
-                ProgramDuration = quoteService.ProgramDuration,
-                ProgramEndDate = quoteService.ProgramEndDate,
-                TentativeDateOfSiteVisit = quoteService.TentativeDateOfSiteVisit,
-                QuoteServiceId = quoteService.Id,
-                ContractId = contractId,
-                CreatedById = LoggedInUserId,
-                ServiceId = quoteService.ServiceId,   
-                OfficeId = leadDivision.OfficeId,
-                BranchId = leadDivision.BranchId
-            };
 
-            var entity = await context.ContractServices.AddAsync(contractServiceToSave);
-            await context.SaveChangesAsync();
-            quoteService.IsConvertedToContractService = true;
-            context.Update(quoteService);
-            await context.SaveChangesAsync();
-            var contractService = entity.Entity;
+                var contractServiceToSave = new ContractService()
+                {
+                    UnitPrice = quoteService.UnitPrice,
+                    Quantity = quoteService.Quantity,
+                    Discount = quoteService.Discount,
+                    Vat = quoteService.Vat,
+                    BillableAmount = quoteService.BillableAmount,
+                    Budget = quoteService.Budget,
+                    ContractStartDate = quoteService.ContractStartDate,
+                    ContractEndDate = quoteService.ContractEndDate,
+                    PaymentCycle = quoteService.PaymentCycle,
+                    PaymentCycleInDays = quoteService.PaymentCycleInDays,
+                    FirstInvoiceSendDate = quoteService.FirstInvoiceSendDate,
+                    InvoicingInterval = quoteService.InvoicingInterval,
+                    ProblemStatement = quoteService.ProblemStatement,
+                    ActivationDate = quoteService.ActivationDate,
+                    FulfillmentStartDate = quoteService.FulfillmentStartDate,
+                    FulfillmentEndDate = quoteService.FulfillmentEndDate,
+                    TentativeDateForSiteSurvey = quoteService.TentativeDateForSiteSurvey,
+                    PickupDateTime = quoteService.PickupDateTime,
+                    DropoffDateTime = quoteService.DropoffDateTime,
+                    PickupLocation = quoteService.PickupLocation,
+                    Dropofflocation = quoteService.Dropofflocation,
+                    BeneficiaryName = quoteService.BeneficiaryName,
+                    BeneficiaryIdentificationType = quoteService.BeneficiaryIdentificationType,
+                    BenificiaryIdentificationNumber = quoteService.BenificiaryIdentificationNumber,
+                    TentativeProofOfConceptStartDate = quoteService.TentativeProofOfConceptStartDate,
+                    TentativeProofOfConceptEndDate = quoteService.TentativeProofOfConceptEndDate,
+                    TentativeFulfillmentDate = quoteService.TentativeFulfillmentDate,
+                    ProgramCommencementDate = quoteService.ProgramCommencementDate,
+                    ProgramDuration = quoteService.ProgramDuration,
+                    ProgramEndDate = quoteService.ProgramEndDate,
+                    TentativeDateOfSiteVisit = quoteService.TentativeDateOfSiteVisit,
+                    QuoteServiceId = quoteService.Id,
+                    ContractId = contractId,
+                    CreatedById = LoggedInUserId,
+                    ServiceId = quoteService.ServiceId,
+                    OfficeId = leadDivision.OfficeId,
+                    BranchId = quoteService.BranchId,
+                    AdminDirectTie = quoteService.AdminDirectTie,
+                    UniqueTag = quoteService.UniqueTag
+                };
 
-            await ConvertSBUToQuoteServicePropToSBUToContractServiceProp(quoteService.Id, contractService.Id, context);
-            await ConvertQuoteServiceDocumentsToClosureDocuments(quoteService.Id, contractService.Id, context);
-            await CreateTaskAndDeliverables(contractService, customerDivision.Id, "New");
+                var entity = await context.ContractServices.AddAsync(contractServiceToSave);
+                await context.SaveChangesAsync();
+                quoteService.IsConvertedToContractService = true;
+                context.Update(quoteService);
+                await context.SaveChangesAsync();
+                var contractService = entity.Entity;
 
-            if (contractService.InvoicingInterval != (int)TimeCycle.Adhoc)
-            {
-                FinanceVoucherType accountVoucherType = await _context.FinanceVoucherTypes
-                    .FirstOrDefaultAsync(x => x.VoucherType == SALESINVOICEVOUCHER);
+                await ConvertSBUToQuoteServicePropToSBUToContractServiceProp(quoteService.Id, contractService.Id, context);
+                await ConvertQuoteServiceDocumentsToClosureDocuments(quoteService.Id, contractService.Id, context);
+                await CreateTaskAndDeliverables(contractService, customerDivision.Id, "New");
+
+                if (contractService.InvoicingInterval != (int)TimeCycle.Adhoc)
+                {
+                    FinanceVoucherType accountVoucherType = await _context.FinanceVoucherTypes
+                        .FirstOrDefaultAsync(x => x.VoucherType == SALESINVOICEVOUCHER);
 
 
-                await CreateAccounts(
-                                     contractService,
-                                     customerDivision,
-                                     (long)leadDivision.BranchId,
-                                    (long)leadDivision.OfficeId,
-                                    quoteService.Service,
-                                    accountVoucherType,
-                                    quoteService,
-                                    LoggedInUserId,
-                                    false
-                                    );
-                await GenerateInvoices(contractService, customerDivision.Id, quoteService.Service.ServiceCode, LoggedInUserId);
-                await GenerateAmortizations(contractService, customerDivision);
+                    await CreateAccounts(
+                                         contractService,
+                                         customerDivision,
+                                         (long)leadDivision.BranchId,
+                                        (long)leadDivision.OfficeId,
+                                        quoteService.Service,
+                                        accountVoucherType,
+                                        quoteService,
+                                        LoggedInUserId,
+                                        false
+                                        );
+                    await GenerateInvoices(contractService, customerDivision.Id, quoteService.Service.ServiceCode, LoggedInUserId);
+                    await GenerateAmortizations(contractService, customerDivision);
+                }
             }
-            return true;
+            catch (Exception ex)
+            {
+                _logger.LogError("Error converting", ex);
+                return false;
+            }
 
+            return true;
         }
 
         private async Task<bool> ConvertSBUToQuoteServicePropToSBUToContractServiceProp(long quoteServiceId, long contractServiceId, HalobizContext context)

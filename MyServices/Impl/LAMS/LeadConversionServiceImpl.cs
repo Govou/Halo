@@ -230,16 +230,25 @@ namespace HaloBiz.MyServices.Impl.LAMS
         private async Task<Contract> ConvertQuoteToContract(Quote quote, long customerDivisionId, HalobizContext context)
         {
 
-            //Create contract from quote
-            var entity = await context.Contracts.AddAsync( new Contract(){
-               // ReferenceNo = quote.ReferenceNo,
-                CustomerDivisionId = customerDivisionId,
-                QuoteId = quote.Id,
-                CreatedById = this.LoggedInUserId,
-            });
+            //todo: Create contract from quote
+            try
+            {
+                var entity = await context.Contracts.AddAsync(new Contract()
+                {
+                    // ReferenceNo = quote.ReferenceNo,
+                    CustomerDivisionId = customerDivisionId,
+                    QuoteId = quote.Id,
+                    CreatedById = this.LoggedInUserId,
+                });
 
-            await context.SaveChangesAsync();
-            return entity.Entity;
+                await context.SaveChangesAsync();
+                return entity.Entity;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("Error converting quote to contract", ex);
+                throw;
+            }
                 
         }
 
@@ -343,23 +352,32 @@ namespace HaloBiz.MyServices.Impl.LAMS
         public async Task<ContractService> GenerateBulkContractService(ContractService contractService)
         {
             //todo refactor
-            //double totalVAT = 0.0 , totalBillable = 0.0;
-            //var groupContractService = await _context.QuoteServices
-            //    .Where(x => x.GroupInvoiceNumber == contractService.GroupInvoiceNumber && !x.IsDeleted)
-            //        .ToListAsync();
-            //foreach (var quoteService in groupContractService)
-            //{
-            //    totalBillable += (double) quoteService.BillableAmount;
-            //    totalVAT += (double) quoteService.Vat;
-            //}
+            double totalVAT = 0.0, totalBillable = 0.0;
 
-            //this.groupInvoiceNumbers.Add(contractService.GroupInvoiceNumber);
-            //var newContractService = _mapper.Map<ContractService>(contractService);
-            //newContractService.BillableAmount = totalBillable;
-            //newContractService.Vat = totalVAT;
+            try
+            {
+                var groupContractService = await _context.QuoteServices
+               .Include(x => x.Quote)
+               .Where(x => x.Quote.GroupInvoiceNumber == contractService.GroupInvoiceNumber && !x.IsDeleted)
+                   .ToListAsync();
+                foreach (var quoteService in groupContractService)
+                {
+                    totalBillable += (double)quoteService.BillableAmount;
+                    totalVAT += (double)quoteService.Vat;
+                }
 
-            //return newContractService;
-            return null;
+                this.groupInvoiceNumbers.Add(contractService.GroupInvoiceNumber);
+                var newContractService = _mapper.Map<ContractService>(contractService);
+                newContractService.BillableAmount = totalBillable;
+                newContractService.Vat = totalVAT;
+
+                return newContractService;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("Error converting lead to client", ex);
+                return null;
+            }
             
         }
 

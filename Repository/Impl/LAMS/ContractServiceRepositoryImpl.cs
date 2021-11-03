@@ -55,13 +55,14 @@ namespace HaloBiz.Repository.Impl.LAMS
         }
         public async Task<IEnumerable<ContractService>> FindContractServicesByReferenceNumber(string refNo)
         {
+            //todo
             return await _context.ContractServices
                 .Include(x => x.Contract)
                 .Include(x => x.QuoteService)
                 .Include(x => x.Service)
                 .Include(x => x.SbutoContractServiceProportions)
                 .Include(x => x.ClosureDocuments)
-                .Where(x => x.ReferenceNo == refNo && x.IsDeleted == false)
+                .Where(x => x.IsDeleted == false)
                 .ToListAsync();
         }
 
