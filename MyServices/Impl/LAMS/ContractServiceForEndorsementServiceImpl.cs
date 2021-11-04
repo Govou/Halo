@@ -491,7 +491,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
             else
             {
                 await UpdateInvoices(contractServiceToTerminate, contractServiceForEndorsement, false, true);
-           // }
+            }
 
             var terminatedContractServiceToNegateAmmortization = _mapper.Map<ContractService>(contractServiceToTerminate);
 
@@ -519,7 +519,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
             await _leadConversionService.CreateTaskAndDeliverables(newContractService, customerDivision.Id, "Service Topup", this.loggedInUserId);
 
-            //to checkea
+            //to check
             if(string.IsNullOrWhiteSpace(contractServcieDifference.Contract.GroupInvoiceNumber))
             {
                 await  UpdateInvoices(contractServcieDifference,contractServiceForEndorsement, true,  false);
@@ -571,7 +571,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 await  UpdateInvoices(contractServcieDifference,contractServiceForEndorsement, false,  false);
             }else {
                 await UpdateInvoices(contractServcieDifference, contractServiceForEndorsement, false, true);
-       //     }
+            }
 
 
             var description = $"Service Reduction for {service.Name} with serviceId: {service.Id} for client: {customerDivision.DivisionName}. quantity reduction of {retiredContractService.Quantity - newContractService.Quantity }";
