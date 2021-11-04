@@ -68,9 +68,10 @@ namespace HaloBiz.Repository.Impl.LAMS
 
         public async Task<IEnumerable<ContractService>> FindContractServicesByGroupInvoiceNumber(string groupInvoiceNumber)
         {
+            //to check
             return await _context.ContractServices
                 .Include(x => x.Service)
-                .Where(x => x.GroupInvoiceNumber == groupInvoiceNumber && x.IsDeleted == false)
+                .Where(x => x.Contract.GroupInvoiceNumber == groupInvoiceNumber && x.IsDeleted == false)
                 .ToListAsync();
         }
 

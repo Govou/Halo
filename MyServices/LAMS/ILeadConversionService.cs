@@ -7,11 +7,11 @@ namespace HaloBiz.MyServices.LAMS
 {
     public interface ILeadConversionService
     {
-        Task<bool> ConvertLeadToClient(long leadId, long loggedInUserId);
-        Task<bool> GenerateInvoices(ContractService contractService, long customerDivisionId, string serviceCode, long loggedInUserId);
-        Task<bool> GenerateAmortizations(ContractService contractService, CustomerDivision customerDivision);
-        Task<bool> CreateTaskAndDeliverables(ContractService contractServcie, long customerDivisionId, string endorsementType, long? loggedInUserId);
-        Task<bool> CreateAccounts(
+        Task<(bool, string)> ConvertLeadToClient(long leadId, long loggedInUserId);
+        Task<(bool, string)> GenerateInvoices(ContractService contractService, long customerDivisionId, string serviceCode, long loggedInUserId);
+        Task<(bool, string)> GenerateAmortizations(ContractService contractService, CustomerDivision customerDivision);
+        Task<(bool, string)> CreateTaskAndDeliverables(ContractService contractServcie, long customerDivisionId, string endorsementType, long? loggedInUserId);
+        Task<(bool, string)> CreateAccounts(
                                     ContractService contractService,
                                     CustomerDivision customerDivision,
                                     long branchId,

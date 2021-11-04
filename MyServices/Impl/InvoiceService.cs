@@ -140,9 +140,10 @@ namespace HaloBiz.MyServices.Impl
                     Invoice invoice = await GenerateInvoice(groupInvoiceDto, contractService);*/
                     #endregion
 
+                    //to check
                     #region New Implementation
                     var contractServices = await _context.ContractServices
-                                .Where(x => x.GroupInvoiceNumber == groupInvoiceDto.GroupInvoiceNumber && !x.IsDeleted)
+                                .Where(x => x.Contract.GroupInvoiceNumber == groupInvoiceDto.GroupInvoiceNumber && !x.IsDeleted)
                                 .ToListAsync();
 
                     var billable = groupInvoiceDto.TotalBillable;
@@ -408,7 +409,7 @@ namespace HaloBiz.MyServices.Impl
         private async Task<ContractService> UpdateEachAndGeneratePrimaryContractService(string groupInvoiceNumber, double billableAmount)
         {
             var contractServices = await _context.ContractServices
-                .Where(x => x.GroupInvoiceNumber == groupInvoiceNumber && x.BillableAmount != x.AdHocInvoicedAmount).ToListAsync();
+                .Where(x => x.Contract.GroupInvoiceNumber == groupInvoiceNumber && x.BillableAmount != x.AdHocInvoicedAmount).ToListAsync();
             
             int counter = 0;
             ContractService contractService = null;
@@ -527,8 +528,8 @@ namespace HaloBiz.MyServices.Impl
 
         private string GenerateTransactionNumber(string serviceCode, ContractService contractService)
         {
-            return String.IsNullOrWhiteSpace(contractService.GroupInvoiceNumber) ?  $"{serviceCode}/{contractService.Id}"
-            : $"{contractService.GroupInvoiceNumber.Replace("GINV", "TRS")}/{contractService.Id}" ;
+            return String.IsNullOrWhiteSpace(contractService.Contract.GroupInvoiceNumber) ?  $"{serviceCode}/{contractService.Id}"
+            : $"{contractService.Contract.GroupInvoiceNumber.Replace("GINV", "TRS")}/{contractService.Id}" ;
                     
         } 
 

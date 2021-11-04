@@ -483,7 +483,8 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
         private async Task<bool> TerminateContractService(ContractService contractServiceToTerminate, ContractServiceForEndorsement contractServiceForEndorsement)
         {
-            if (string.IsNullOrWhiteSpace(contractServiceToTerminate.GroupInvoiceNumber))
+            //to check
+            if (string.IsNullOrWhiteSpace(contractServiceToTerminate.Contract.GroupInvoiceNumber))
             {
                 await UpdateInvoices(contractServiceToTerminate, contractServiceForEndorsement, false, false);
             }
@@ -518,7 +519,8 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
             await _leadConversionService.CreateTaskAndDeliverables(newContractService, customerDivision.Id, "Service Topup", this.loggedInUserId);
 
-            if(string.IsNullOrWhiteSpace(contractServcieDifference.GroupInvoiceNumber))
+            //to checkea
+            if(string.IsNullOrWhiteSpace(contractServcieDifference.Contract.GroupInvoiceNumber))
             {
                 await  UpdateInvoices(contractServcieDifference,contractServiceForEndorsement, true,  false);
             }else {
@@ -563,7 +565,8 @@ namespace HaloBiz.MyServices.Impl.LAMS
             var financialVoucherType = await _context.FinanceVoucherTypes
                             .FirstOrDefaultAsync(x => x.VoucherType.ToLower() == salesReductionVoucher.ToLower());
 
-            if(String.IsNullOrWhiteSpace(contractServcieDifference.GroupInvoiceNumber))
+            //to check
+            if(String.IsNullOrWhiteSpace(contractServcieDifference.Contract.GroupInvoiceNumber))
             {
                 await  UpdateInvoices(contractServcieDifference,contractServiceForEndorsement, false,  false);
             }else {
@@ -617,8 +620,9 @@ namespace HaloBiz.MyServices.Impl.LAMS
                                                          false);
             //Check if an existing invoice with group invoice number already exists
             //if yes it updates the existing invoice else it creates a new invoice 
-            var invoiceExists = String.IsNullOrWhiteSpace(newContractService.GroupInvoiceNumber) ?
-                    false : await _context.Invoices.AnyAsync(x => x.GroupInvoiceNumber == newContractService.GroupInvoiceNumber);
+            //to check
+            var invoiceExists = String.IsNullOrWhiteSpace(newContractService.Contract.GroupInvoiceNumber) ?
+                    false : await _context.Invoices.AnyAsync(x => x.GroupInvoiceNumber == newContractService.Contract.GroupInvoiceNumber);
 
             if(invoiceExists && false)
             {
@@ -645,7 +649,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                                         );
             }
 
-            if(!String.IsNullOrWhiteSpace(newContractService.GroupInvoiceNumber))
+            if(!String.IsNullOrWhiteSpace(newContractService.Contract.GroupInvoiceNumber))
             {
                 //await GenerateGroupInvoiceDetails(newContractService);
             }
@@ -796,8 +800,8 @@ namespace HaloBiz.MyServices.Impl.LAMS
         {
             GroupInvoiceDetail groupInvoiceDetails = new GroupInvoiceDetail()
             {
-                InvoiceNumber = contractService.GroupInvoiceNumber,
-                Description = $"Invoice details for Group Invoice {contractService.GroupInvoiceNumber}",
+                InvoiceNumber = contractService.Contract.GroupInvoiceNumber,
+                Description = $"Invoice details for Group Invoice {contractService.Contract.GroupInvoiceNumber}",
                 UnitPrice = (double) contractService.UnitPrice,
                 Quantity =(int) contractService.Quantity,
                 Vat  = (double) contractService.Vat,

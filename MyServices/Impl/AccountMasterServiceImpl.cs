@@ -347,8 +347,9 @@ namespace HaloBiz.MyServices.Impl
 
         private string GenerateTransactionNumber(string serviceCode, ContractService contractService)
         {
-            return String.IsNullOrWhiteSpace(contractService.GroupInvoiceNumber) ?  $"{serviceCode}/{contractService.Id}"
-            : $"{contractService.GroupInvoiceNumber.Replace("GINV", "TRS")}/{contractService.Id}" ;
+            //to check
+            return String.IsNullOrWhiteSpace(contractService.Contract?.GroupInvoiceNumber) ?  $"{serviceCode}/{contractService.Id}"
+            : $"{contractService.Contract?.GroupInvoiceNumber?.Replace("GINV", "TRS")}/{contractService.Id}" ;
                     
         } 
 
