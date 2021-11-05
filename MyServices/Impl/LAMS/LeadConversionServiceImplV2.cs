@@ -165,7 +165,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
             var customerEntity = await context.Customers.AddAsync(new Customer()
             {
                 GroupName = lead.GroupName,
-                Rcnumber = lead.Rcnumber,
+                Rcnumber = lead.Rcnumber ?? "",
                 GroupTypeId = lead.GroupTypeId,
                 Industry = lead.Industry,
                 LogoUrl = lead.LogoUrl,
