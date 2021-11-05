@@ -162,75 +162,84 @@ namespace HaloBiz.Repository.Impl
         }
 
         public async Task<IEnumerable<Invoice>> GetProformaInvoiceByContractServiceId(long contractServiceId)
-        {
-            var contractService = await _context.ContractServices
-                    .Include(x=>x.Contract)
-                    .FirstOrDefaultAsync(x => x.Id == contractServiceId && !x.IsDeleted);
-
-            if (contractService == null)
-            {
-                return new List<Invoice>();
-            }
+        {            
 
             List<Invoice> invoices = new List<Invoice>();
 
-            //todo to check
-            //if (String.IsNullOrWhiteSpace(contractService.Contract?.GroupInvoiceNumber))
-            //{
-            //    invoices = await _context.Invoices
-            //    .Include(x => x.Receipts)
-            //        .Where(x => x.ContractServiceId == contractServiceId
-            //                    && (bool)x.IsFinalInvoice == false && x.IsDeleted == false)
-            //        .OrderBy(x => x.StartDate)
-            //        .ToListAsync();
-            //}
-            //else
-            //{
-            //    invoices = await _context.Invoices
-            //    .Include(x => x.Receipts)
-            //        .Where(x => x.GroupInvoiceNumber == contractService.Contract.GroupInvoiceNumber
-            //                    && (bool)x.IsFinalInvoice == false && !x.IsDeleted)
-            //        .OrderBy(x => x.StartDate)
-            //        .ToListAsync();
+            try
+            {
+                var contractService = await _context.ContractServices
+                    .Where(x => x.Id == contractServiceId && !x.IsDeleted)
+                    .Include(x => x.Contract)
+                    .FirstOrDefaultAsync();
 
-            //    var groupInvoices = new List<Invoice>();
-            //    var groupedInvoices = invoices.GroupBy(x => x.StartDate.ToString("G"));
-            //    foreach (var group in groupedInvoices)
-            //    {
-            //        var key = group.Key;
+                if (contractService == null)
+                {
+                    return new List<Invoice>();
+                }
 
-            //        double totalAmount = 0;
-            //        var allReceipts = new List<Receipt>();
-            //        foreach (var item in group)
-            //        {
-            //            totalAmount += item.Value;
-            //            allReceipts.AddRange(item.Receipts);
-            //        }
+                if (String.IsNullOrWhiteSpace(contractService.Contract?.GroupInvoiceNumber))
+                {
+                    invoices = await _context.Invoices
+                    .Include(x => x.Receipts)
+                        .Where(x => x.ContractServiceId == contractServiceId
+                                    && (bool)x.IsFinalInvoice == false && x.IsDeleted == false)
+                        .OrderBy(x => x.StartDate)
+                        .ToListAsync();
+                }
+                else
+                {
+                    invoices = await _context.Invoices
+                    .Include(x => x.Receipts)
+                        .Where(x => x.GroupInvoiceNumber == contractService.Contract.GroupInvoiceNumber
+                                    && (bool)x.IsFinalInvoice == false && !x.IsDeleted)
+                        .OrderBy(x => x.StartDate)
+                        .ToListAsync();
 
-            //        var singleInvoice = _mapper.Map<Invoice>(group.FirstOrDefault());
+                    var groupInvoices = new List<Invoice>();
+                    var groupedInvoices = invoices.GroupBy(x => x.StartDate.ToString("G"));
+                    foreach (var group in groupedInvoices)
+                    {
+                        var key = group.Key;
 
-            //        singleInvoice.Value = totalAmount;
-            //        singleInvoice.Receipts = allReceipts;
-            //        if (group.All(x => x.IsReceiptedStatus == (int)InvoiceStatus.CompletelyReceipted))
-            //        {
-            //            singleInvoice.IsReceiptedStatus = (int)InvoiceStatus.CompletelyReceipted;
-            //        }
-            //        else if (group.All(x => x.IsReceiptedStatus == (int)InvoiceStatus.NotReceipted))
-            //        {
-            //            singleInvoice.IsReceiptedStatus = (int)InvoiceStatus.NotReceipted;
-            //        }
-            //        else
-            //        {
-            //            singleInvoice.IsReceiptedStatus = (int)InvoiceStatus.PartlyReceipted;
-            //        }
+                        double totalAmount = 0;
+                        var allReceipts = new List<Receipt>();
+                        foreach (var item in group)
+                        {
+                            totalAmount += item.Value;
+                            allReceipts.AddRange(item.Receipts);
+                        }
 
-            //        groupInvoices.Add(singleInvoice);
-            //    }
+                        var singleInvoice = _mapper.Map<Invoice>(group.FirstOrDefault());
 
-            //    invoices = groupInvoices;
-            //}
+                        singleInvoice.Value = totalAmount;
+                        singleInvoice.Receipts = allReceipts;
+                        if (group.All(x => x.IsReceiptedStatus == (int)InvoiceStatus.CompletelyReceipted))
+                        {
+                            singleInvoice.IsReceiptedStatus = (int)InvoiceStatus.CompletelyReceipted;
+                        }
+                        else if (group.All(x => x.IsReceiptedStatus == (int)InvoiceStatus.NotReceipted))
+                        {
+                            singleInvoice.IsReceiptedStatus = (int)InvoiceStatus.NotReceipted;
+                        }
+                        else
+                        {
+                            singleInvoice.IsReceiptedStatus = (int)InvoiceStatus.PartlyReceipted;
+                        }
 
-            return new List<Invoice>();
+                        groupInvoices.Add(singleInvoice);
+                    }
+
+                    invoices = groupInvoices;
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("", ex);
+                return new List<Invoice>();
+            }
+
+            return invoices;
         }
 
         private async Task<bool> SaveChanges()

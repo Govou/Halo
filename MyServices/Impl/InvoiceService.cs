@@ -1103,7 +1103,8 @@ namespace HaloBiz.MyServices.Impl
             try
             {
                 Invoice invoice = await _context.Invoices
-                            .FirstOrDefaultAsync(x => x.Id == invoiceId && !x.IsDeleted);
+                            .Where(x => x.Id == invoiceId && !x.IsDeleted)
+                            .FirstOrDefaultAsync();
 
                 if(invoice == null)
                 {
@@ -1128,7 +1129,8 @@ namespace HaloBiz.MyServices.Impl
             try
             {
                 Invoice invoice = await _context.Invoices
-                            .FirstOrDefaultAsync(x => x.Id == invoiceId && !x.IsDeleted);
+                            .Where(x => x.Id == invoiceId && !x.IsDeleted)
+                            .FirstOrDefaultAsync();
 
                 if(invoice == null)
                 {
@@ -1248,11 +1250,12 @@ namespace HaloBiz.MyServices.Impl
             bool isProforma = invoice.IsFinalInvoice == false;
 
             var customerDivision = await _context.CustomerDivisions
+                            .Where(x => x.Id == invoice.CustomerDivisionId)
                             .Include(x => x.PrimaryContact)
                             .Include(x => x.SecondaryContact)
                             .Include(x => x.State)
                             .Include(x => x.Lga)
-                            .FirstOrDefaultAsync(x => x.Id == invoice.CustomerDivisionId);
+                            .FirstOrDefaultAsync();
 
 
             IEnumerable<Invoice> invoices;
@@ -1317,6 +1320,9 @@ namespace HaloBiz.MyServices.Impl
                     Quantity = theInvoice.Quantity,
                     Total = theInvoice.Value,
                     Discount = theInvoice.Discount,
+                    UniqueTag = theInvoice.ContractService.UniqueTag,
+                    AdminDirectTie = theInvoice.ContractService.AdminDirectTie
+
                 });
 
             }
