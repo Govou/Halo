@@ -31,8 +31,8 @@ namespace HaloBiz.Controllers
             return Ok(cRank);
         }
 
-        [HttpGet("GetAllArmedEscortTypess")]
-        public async Task<ActionResult> GetAllArmedEscortTypess()
+        [HttpGet("GetAllArmedEscortTypes")]
+        public async Task<ActionResult> GetAllArmedEscortTypes()
         {
             var response = await _armedEscortService.GetAllCommanderTypes();
             if (response.StatusCode >= 400)
