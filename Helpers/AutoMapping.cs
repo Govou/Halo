@@ -13,6 +13,7 @@ using HalobizMigrations.Models;
 using HalobizMigrations.Models.Halobiz;
 using HaloBiz.Model;
 using HalobizMigrations.Models.Complaints;
+using HalobizMigrations.Models.Armada;
 
 namespace HaloBiz.Helpers
 {
@@ -276,6 +277,24 @@ namespace HaloBiz.Helpers
             CreateMap<Activity, ActivityTransferDTO>();
 
             CreateMap<Lga, LgasTransferDTO>();
+
+            //yus
+            CreateMap<SMORouteAndRegionReceivingDTO, SMORoute>();
+            CreateMap<SMORoute, SMORouteTransferDTO>();
+            CreateMap<SMORegionReceivingDTO, SMORegion>();
+            CreateMap<SMORegion, SMORegionTransferDTO>();
+
+            CreateMap<CommanderTypeAndRankReceivingDTO, CommanderType>(); //for type
+            CreateMap<CommanderRankReceivingDTO, CommanderRank>();
+            CreateMap<CommanderType, CommanderTypeAndRankTransferDTO>(); //for type
+            CreateMap<CommanderRank, CommanderRankTransferDTO>();
+
+            CreateMap<ArmedEscortTypeReceivingDTO, ArmedEscortType>(); //for type
+            CreateMap<ArmedEscortRankReceivingDTO, ArmedEscortRank>();
+            CreateMap<ArmedEscortType, ArmedEscortTypeTransferDTO>(); //for type
+            CreateMap<ArmedEscortRank, ArmedEscortRankTransferDTO>();
+
+            //CreateMap<CommanderType, SMORegionTransferDTO>();
         }
     }
 }
