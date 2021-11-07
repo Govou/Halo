@@ -277,7 +277,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
         public async Task<ApiResponse> ConvertLeadToClient(HttpContext context,long leadId)
         {
-            var isConverted = await _leadConversionService.ConvertLeadToClient(leadId, context.GetLoggedInUserId());
+            var (isConverted, message) = await _leadConversionService.ConvertLeadToClient(leadId, context.GetLoggedInUserId());
                     
                 if(isConverted)
                 {
@@ -285,7 +285,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 }
                 else
                 {
-                    return new ApiResponse(500);
+                    return new ApiResponse(500, message);
                 }
 
         }

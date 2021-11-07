@@ -44,15 +44,15 @@ namespace HaloBiz.Repository.Impl.LAMS
                  .Include(x => x.ContractServices)
                 .Include(x => x.CustomerDivision)
                 .Where(entity => entity.IsDeleted == false)
-                //.OrderByDescending(entity => entity.ReferenceNo)
+                .OrderByDescending(entity => entity.Id)
                 .ToListAsync();
         }
         public async Task<Contract> FindContractByReferenceNumber(string refNo)
         {
+            //todo
             return await _context.Contracts
                 .Include(x => x.ContractServices)
                 .Include(x => x.CustomerDivision)
-                //.FirstOrDefaultAsync(x => x.ReferenceNo == refNo && x.IsDeleted == false);
                 .FirstOrDefaultAsync(x => x.IsDeleted == false);
         }
 

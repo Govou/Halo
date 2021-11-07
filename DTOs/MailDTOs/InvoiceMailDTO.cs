@@ -28,6 +28,8 @@ namespace HaloBiz.DTOs.MailDTOs
         public long Quantity { get; set; }
         public double Total { get; set; }
         public double Discount { get; set; }
+        public string UniqueTag { get; set; }
+        public string AdminDirectTie { get; set; }
     }
 
     public class ClientInfoMailDTO

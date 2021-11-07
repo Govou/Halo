@@ -90,19 +90,19 @@ namespace HaloBiz.Repository.Impl.LAMS
 
             if (contractService == null) return Array.Empty<object>();
 
-            //if(contractService.GroupInvoiceNumber == null)
-            //{
-            //    return await _context.Invoices
-            //    .Where(x => !x.IsReversalInvoice.Value && !x.IsDeleted && !x.IsReversed.Value
-            //            && x.StartDate > DateTime.Now && x.ContractServiceId == contractServiceId)
-            //    .OrderBy(x => x.StartDate)
-            //    .Select(x => new { startDate = x.StartDate, validDate = x.IsReceiptedStatus == (int)InvoiceStatus.NotReceipted }).ToListAsync();
-            //}
+            if(contractService.Contract?.GroupInvoiceNumber == null)
+            {
+                return await _context.Invoices
+                .Where(x => !x.IsReversalInvoice.Value && !x.IsDeleted && !x.IsReversed.Value
+                        && x.StartDate > DateTime.Now && x.ContractServiceId == contractServiceId)
+                .OrderBy(x => x.StartDate)
+                .Select(x => new { startDate = x.StartDate, validDate = x.IsReceiptedStatus == (int)InvoiceStatus.NotReceipted }).ToListAsync();
+            }
             else
             {
                 var invoices = await _context.Invoices
                 .Where(x => !x.IsReversalInvoice.Value && !x.IsDeleted && !x.IsReversed.Value
-                       )// && x.StartDate > DateTime.Now && x.GroupInvoiceNumber == contractService.GroupInvoiceNumber)
+                        && x.StartDate > DateTime.Now && x.GroupInvoiceNumber == contractService.Contract.GroupInvoiceNumber)
                 .ToListAsync();
                 //.OrderBy(x => x.StartDate)
                 return invoices.GroupBy(x => x.StartDate)
