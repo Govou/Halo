@@ -17,10 +17,10 @@ namespace HaloBiz.Repository
 
         Task<PilotType> UpdatePilotType(PilotType pilotType);
 
-        Task<bool> DeletePilotType(ArmedEscortType armedEscortType);
+        Task<bool> DeletePilotType(PilotType pilotType);
 
         //Rank
-        Task<PilotRank> SaveArmedEscortRank(PilotRank pilotRank);
+        Task<PilotRank> SavePilotRank(PilotRank pilotRank);
 
         Task<PilotRank> FindPilotRankById(long Id);
 

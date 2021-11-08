@@ -19,15 +19,15 @@ namespace HaloBiz.Repository
 
         Task<bool> DeleteVehicle(Vehicle vehicle);
 
-        //Type
-        //Task<PilotRank> SaveArmedEscortRank(PilotRank pilotRank);
+        //Rank
+        Task<VehicleType> SaveArmedEscortRank(PilotRank pilotRank);
 
-        //Task<PilotRank> FindPilotRankById(long Id);
+        Task<PilotRank> FindPilotRankById(long Id);
 
-        //Task<IEnumerable<PilotRank>> FindAllPilotRanks();
+        Task<IEnumerable<PilotRank>> FindAllPilotRanks();
 
-        //Task<PilotRank> UpdatePilotRank(PilotRank ailotRank);
+        Task<PilotRank> UpdatePilotRank(PilotRank ailotRank);
 
-        //Task<bool> DeletePilotRank(PilotRank pilotRank);
+        Task<bool> DeletePilotRank(PilotRank pilotRank);
     }
 }
