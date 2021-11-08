@@ -13,12 +13,31 @@ using HalobizMigrations.Models;
 using HalobizMigrations.Models.Halobiz;
 using HaloBiz.Model;
 using HalobizMigrations.Models.Complaints;
+
 using HalobizMigrations.Models.Armada;
+using HalobizMigrations.Models.Shared;
 
 namespace HaloBiz.Helpers
 {
     public class AutoMapping : Profile
     {
+        public GroupContractCategory CategoryConversion_QuoteContract(GroupQuoteCategory groupQuote)
+        {
+            switch (groupQuote)
+            {
+                case GroupQuoteCategory.IndividualQuotes:
+                    return GroupContractCategory.IndividualContract;
+
+                case GroupQuoteCategory.GroupQuoteWithSameDetails:
+                    return GroupContractCategory.GroupContractWithSameDetails;
+
+                case GroupQuoteCategory.GroupQuoteWithIndividualDetails:
+                    return GroupContractCategory.GroupContractWithIndividualDetails;
+                default:
+                    return GroupContractCategory.IndividualContract;
+            }
+        }
+
         public AutoMapping()
         {
             CreateMap<ServiceRelationship, ServiceRelationshipDTO>();
@@ -47,6 +66,25 @@ namespace HaloBiz.Helpers
             {
                 y.Members = x.UserProfiles;
             });
+
+            CreateMap<Quote, Contract>().AfterMap((s, d) => 
+            {
+                d.Id = 0;
+                d.QuoteId = s.Id;
+                d.CreatedById = s.CreatedById;
+                d.GroupInvoiceNumber = s.GroupInvoiceNumber;
+                d.GroupContractCategory = CategoryConversion_QuoteContract(s.GroupQuoteCategory);
+                d.IsDeleted = false;
+                d.Version = s.Version;
+                d.CreatedAt = DateTime.Now;
+                d.UpdatedAt = DateTime.Now;                
+            });
+
+            CreateMap<QuoteService, ContractService>()
+                 .ForMember(dest => dest.QuoteServiceId, opt =>
+                opt.MapFrom(src => src.Id));
+
+
             CreateMap<StrategicBusinessUnit, SBUWithoutOperatingEntityTransferDTO>();
             CreateMap<StrategicBusinessUnitReceivingDTO, StrategicBusinessUnit>();
             CreateMap<ServiceGroup, ServiceGroupTransferDTO>();

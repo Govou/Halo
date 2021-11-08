@@ -140,9 +140,10 @@ namespace HaloBiz.MyServices.Impl
                     Invoice invoice = await GenerateInvoice(groupInvoiceDto, contractService);*/
                     #endregion
 
+                    //to check
                     #region New Implementation
                     var contractServices = await _context.ContractServices
-                                //.Where(x => x.GroupInvoiceNumber == groupInvoiceDto.GroupInvoiceNumber && !x.IsDeleted)
+                                .Where(x => x.Contract.GroupInvoiceNumber == groupInvoiceDto.GroupInvoiceNumber && !x.IsDeleted)
                                 .ToListAsync();
 
                     var billable = groupInvoiceDto.TotalBillable;
@@ -407,8 +408,8 @@ namespace HaloBiz.MyServices.Impl
 
         private async Task<ContractService> UpdateEachAndGeneratePrimaryContractService(string groupInvoiceNumber, double billableAmount)
         {
-            var contractServices = await _context.ContractServices.ToListAsync();
-                //.Where(x => x.GroupInvoiceNumber == groupInvoiceNumber && x.BillableAmount != x.AdHocInvoicedAmount).ToListAsync();
+            var contractServices = await _context.ContractServices
+                .Where(x => x.Contract.GroupInvoiceNumber == groupInvoiceNumber && x.BillableAmount != x.AdHocInvoicedAmount).ToListAsync();
             
             int counter = 0;
             ContractService contractService = null;
@@ -527,9 +528,9 @@ namespace HaloBiz.MyServices.Impl
 
         private string GenerateTransactionNumber(string serviceCode, ContractService contractService)
         {
-            //return String.IsNullOrWhiteSpace(contractService.GroupInvoiceNumber) ?  $"{serviceCode}/{contractService.Id}"
-            //: $"{contractService.GroupInvoiceNumber.Replace("GINV", "TRS")}/{contractService.Id}" ;
-            return "";      
+            return String.IsNullOrWhiteSpace(contractService.Contract.GroupInvoiceNumber) ?  $"{serviceCode}/{contractService.Id}"
+            : $"{contractService.Contract.GroupInvoiceNumber.Replace("GINV", "TRS")}/{contractService.Id}" ;
+                    
         } 
 
         public async  Task<AccountMaster> CreateAccountMaster(double value,
@@ -1102,7 +1103,8 @@ namespace HaloBiz.MyServices.Impl
             try
             {
                 Invoice invoice = await _context.Invoices
-                            .FirstOrDefaultAsync(x => x.Id == invoiceId && !x.IsDeleted);
+                            .Where(x => x.Id == invoiceId && !x.IsDeleted)
+                            .FirstOrDefaultAsync();
 
                 if(invoice == null)
                 {
@@ -1127,7 +1129,8 @@ namespace HaloBiz.MyServices.Impl
             try
             {
                 Invoice invoice = await _context.Invoices
-                            .FirstOrDefaultAsync(x => x.Id == invoiceId && !x.IsDeleted);
+                            .Where(x => x.Id == invoiceId && !x.IsDeleted)
+                            .FirstOrDefaultAsync();
 
                 if(invoice == null)
                 {
@@ -1247,11 +1250,12 @@ namespace HaloBiz.MyServices.Impl
             bool isProforma = invoice.IsFinalInvoice == false;
 
             var customerDivision = await _context.CustomerDivisions
+                            .Where(x => x.Id == invoice.CustomerDivisionId)
                             .Include(x => x.PrimaryContact)
                             .Include(x => x.SecondaryContact)
                             .Include(x => x.State)
                             .Include(x => x.Lga)
-                            .FirstOrDefaultAsync(x => x.Id == invoice.CustomerDivisionId);
+                            .FirstOrDefaultAsync();
 
 
             IEnumerable<Invoice> invoices;
@@ -1316,6 +1320,9 @@ namespace HaloBiz.MyServices.Impl
                     Quantity = theInvoice.Quantity,
                     Total = theInvoice.Value,
                     Discount = theInvoice.Discount,
+                    UniqueTag = theInvoice.ContractService.UniqueTag,
+                    AdminDirectTie = theInvoice.ContractService.AdminDirectTie
+
                 });
 
             }
