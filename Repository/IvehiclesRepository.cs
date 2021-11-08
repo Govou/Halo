@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace HaloBiz.Repository
 {
-    public interface IvehiclesRepository
+    public interface IVehiclesRepository
     {
         
         Task<Vehicle> SaveVehicle(Vehicle vehicle);
@@ -15,19 +15,19 @@ namespace HaloBiz.Repository
 
         Task<IEnumerable<Vehicle>> FindAllVehicles();
 
-        Task<Vehicle> UpdateVehicle(Vehicle pilotType);
+        Task<Vehicle> UpdateVehicle(Vehicle vehicle);
 
         Task<bool> DeleteVehicle(Vehicle vehicle);
 
-        //Type
-        //Task<PilotRank> SaveArmedEscortRank(PilotRank pilotRank);
+        //Rank
+        Task<VehicleType> SaveVehicleType(VehicleType vehicleType);
 
-        //Task<PilotRank> FindPilotRankById(long Id);
+        Task<VehicleType> FindVehicleTypeById(long Id);
 
-        //Task<IEnumerable<PilotRank>> FindAllPilotRanks();
+        Task<IEnumerable<VehicleType>> FindAllVehicleTypes();
 
-        //Task<PilotRank> UpdatePilotRank(PilotRank ailotRank);
+        Task<VehicleType> UpdateVehicleType(VehicleType vehicleType);
 
-        //Task<bool> DeletePilotRank(PilotRank pilotRank);
+        Task<bool> DeleteVehicleType(VehicleType vehicleType);
     }
 }

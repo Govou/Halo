@@ -55,7 +55,7 @@ namespace HaloBiz.MyServices.Impl
             {
                 return new ApiResponse(500);
             }
-            var typeTransferDTO = _mapper.Map<ArmedEscortRankTransferDTO>(armedescortType);
+            var typeTransferDTO = _mapper.Map<ArmedEscortTypeTransferDTO>(armedescortType);
             return new ApiOkResponse(typeTransferDTO);
         }
 
@@ -104,7 +104,7 @@ namespace HaloBiz.MyServices.Impl
             return new ApiOkResponse(rankTransferDTO);
         }
 
-        public async Task<ApiResponse> GetAllCommanderTypes()
+        public async Task<ApiResponse> GetAllArmedEscortTypes()
         {
             var Type = await _armedEscortsRepository.FindAllArmedEscortTypes();
             if (Type == null)

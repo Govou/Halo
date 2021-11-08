@@ -34,7 +34,7 @@ namespace HaloBiz.Controllers
         [HttpGet("GetAllArmedEscortTypes")]
         public async Task<ActionResult> GetAllArmedEscortTypes()
         {
-            var response = await _armedEscortService.GetAllCommanderTypes();
+            var response = await _armedEscortService.GetAllArmedEscortTypes();
             if (response.StatusCode >= 400)
                 return StatusCode(response.StatusCode, response);
             var cType = ((ApiOkResponse)response).Result;
