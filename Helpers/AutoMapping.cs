@@ -337,6 +337,11 @@ namespace HaloBiz.Helpers
             CreateMap<PilotType, PilotTypeTransferDTO>(); //for type
             CreateMap<PilotRank, PilotRankTransferDTO>();
 
+            //CreateMap<VehicleTypeReceivingDTO, VehicleType>(); //for type
+            //CreateMap<VehicleReceivingDTO, Vehicle>();
+            //CreateMap<VehicleType, VehicleTypeTransferDTO>(); //for type
+            //CreateMap<Vehicle, VehicleTransferDTO>();
+
             //CreateMap<CommanderType, SMORegionTransferDTO>();
         }
     }

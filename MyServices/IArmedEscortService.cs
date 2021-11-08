@@ -12,7 +12,7 @@ namespace HaloBiz.MyServices
     {
         //Type
         Task<ApiResponse> AddArmedEscortType(HttpContext context, ArmedEscortTypeReceivingDTO armedEscortTypeReceivingDTO);
-        Task<ApiResponse> GetAllCommanderTypes();
+        Task<ApiResponse> GetAllArmedEscortTypes();
         Task<ApiResponse> GetArmedEscortTypeById(long id);
         Task<ApiResponse> UpdateArmedEscortType(HttpContext context, long id, ArmedEscortTypeReceivingDTO armedEscortTypeReceivingDTO);
         Task<ApiResponse> DeleteArmedEscortType(long id);
