@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace HaloBiz.Repository
 {
-    public interface IvehiclesRepository
+    public interface IVehiclesRepository
     {
         
         Task<Vehicle> SaveVehicle(Vehicle vehicle);
@@ -15,7 +15,7 @@ namespace HaloBiz.Repository
 
         Task<IEnumerable<Vehicle>> FindAllVehicles();
 
-        Task<Vehicle> UpdateVehicle(Vehicle pilotType);
+        Task<Vehicle> UpdateVehicle(Vehicle vehicle);
 
         Task<bool> DeleteVehicle(Vehicle vehicle);
 

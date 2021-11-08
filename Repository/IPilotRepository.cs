@@ -26,7 +26,7 @@ namespace HaloBiz.Repository
 
         Task<IEnumerable<PilotRank>> FindAllPilotRanks();
 
-        Task<PilotRank> UpdatePilotRank(PilotRank ailotRank);
+        Task<PilotRank> UpdatePilotRank(PilotRank pilotRank);
 
         Task<bool> DeletePilotRank(PilotRank pilotRank);
     }
