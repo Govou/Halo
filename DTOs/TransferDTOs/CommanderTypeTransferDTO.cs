@@ -7,6 +7,7 @@ namespace HaloBiz.DTOs.TransferDTOs
 {
     public class CommanderTypeAndRankTransferDTO
     {
+        public long Id { get; set; }
         public string TypeName { get; set; }
       
         public string TypeDesc { get; set; }
