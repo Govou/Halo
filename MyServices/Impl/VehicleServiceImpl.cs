@@ -27,6 +27,11 @@ namespace HaloBiz.MyServices.Impl
         public async Task<ApiResponse> AddVehicleType(HttpContext context, VehicleTypeReceivingDTO vehicleTypeReceivingDTO)
         {
             var Type = _mapper.Map<VehicleType>(vehicleTypeReceivingDTO);
+            var NameExist = _vehiclesRepository.GetTypename(vehicleTypeReceivingDTO.TypeName);
+            if (NameExist != null)
+            {
+                return new ApiResponse(409);
+            }
             Type.CreatedById = context.GetLoggedInUserId();
             Type.IsDeleted = false;
             Type.CreatedAt = DateTime.UtcNow;

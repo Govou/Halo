@@ -28,12 +28,20 @@ namespace HaloBiz.MyServices.Impl
         public async Task<ApiResponse> AddArmedEscortRank(HttpContext context, ArmedEscortRankReceivingDTO armedEscortRankReceivingDTO)
         {
             var armedescortRank = _mapper.Map<ArmedEscortRank>(armedEscortRankReceivingDTO);
+            
             var getEscortType = await _armedEscortsRepository.FindArmedEscortTypeById(armedescortRank.ArmedEscortTypeId);
+            var rankNameExist = _armedEscortsRepository.GetRankname(armedEscortRankReceivingDTO.RankName);
+            if (rankNameExist != null)
+            {
+                return new ApiResponse(409);
+            }
             if (getEscortType.Id == armedescortRank.ArmedEscortTypeId)
                 armedescortRank.Sequence = _armedEscortsRepository.FindAllArmedEscortRanksCount(armedescortRank.ArmedEscortTypeId) + 1;
             armedescortRank.CreatedById = context.GetLoggedInUserId();
             armedescortRank.IsDeleted = false;
             armedescortRank.CreatedAt = DateTime.UtcNow;
+
+            //check if name already exists
            
             var savedRank = await _armedEscortsRepository.SaveArmedEscortRank(armedescortRank);
             if (savedRank == null)
@@ -47,6 +55,11 @@ namespace HaloBiz.MyServices.Impl
         public async Task<ApiResponse> AddArmedEscortType(HttpContext context, ArmedEscortTypeReceivingDTO armedEscortTypeReceivingDTO)
         {
             var armedescortType = _mapper.Map<ArmedEscortType>(armedEscortTypeReceivingDTO);
+            var NameExist = _armedEscortsRepository.GetTypename(armedEscortTypeReceivingDTO.Name);
+            if (NameExist != null)
+            {
+                return new ApiResponse(409);
+            }
             armedescortType.CreatedById = context.GetLoggedInUserId();
             armedescortType.IsDeleted = false;
             armedescortType.CreatedAt = DateTime.UtcNow;

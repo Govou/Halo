@@ -15,6 +15,7 @@ namespace HaloBiz.Repository
         Task<CommanderType> FindCommanderTypeById(long Id);
 
         Task<CommanderType> FindCommanderTypeByName(string name);
+        CommanderType GetTypename(string Name);
 
         Task<IEnumerable<CommanderType>> FindAllCommanderTypes();
         long FindAllCommanderRanksCount(string ctype);
@@ -26,6 +27,7 @@ namespace HaloBiz.Repository
         Task<CommanderRank> SaveCommanderRank(CommanderRank commanderRank);
 
         Task<CommanderRank> FindCommanderRankById(long Id);
+        CommanderRank GetRankname(string Name);
 
         Task<IEnumerable<CommanderRank>> FindAllCommanderRanks();
 

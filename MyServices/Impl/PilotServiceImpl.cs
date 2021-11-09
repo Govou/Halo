@@ -27,10 +27,18 @@ namespace HaloBiz.MyServices.Impl
         public async Task<ApiResponse> AddPilotRank(HttpContext context, PilotRankReceivingDTO pilotRankReceivingDTO)
         {
             var Rank = _mapper.Map<PilotRank>(pilotRankReceivingDTO);
+            var getPilotType = await _pilotRepository.FindPilotTypeById(pilotRankReceivingDTO.PilotTypeId);
+            var NameExist = _pilotRepository.GetRankname(pilotRankReceivingDTO.RankName);
+            if (NameExist != null)
+            {
+                return new ApiResponse(409);
+            }
+            if (getPilotType.Id == Rank.PilotTypeId)
+                Rank.Sequence = _pilotRepository.FindAllPilotRanksCount(Rank.PilotTypeId) + 1;
             Rank.CreatedById = context.GetLoggedInUserId();
             Rank.IsDeleted = false;
             Rank.CreatedAt = DateTime.UtcNow;
-            Rank.Sequence = 1;
+            //Rank.Sequence = 1;
             var savedRank = await _pilotRepository.SavePilotRank(Rank);
             if (savedRank == null)
             {
@@ -43,6 +51,11 @@ namespace HaloBiz.MyServices.Impl
         public async Task<ApiResponse> AddPilotType(HttpContext context, PilotTypeReceivingDTO pilotTypeReceivingDTO)
         {
             var Type = _mapper.Map<PilotType>(pilotTypeReceivingDTO);
+            var NameExist = _pilotRepository.GetTypename(pilotTypeReceivingDTO.TypeName);
+            if (NameExist != null)
+            {
+                return new ApiResponse(409);
+            }
             Type.CreatedById = context.GetLoggedInUserId();
             Type.IsDeleted = false;
             Type.CreatedAt = DateTime.UtcNow;

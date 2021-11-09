@@ -64,6 +64,14 @@ namespace HaloBiz.Repository.Impl
             return null;
         }
 
+        public long FindAllPilotRanksCount(long? ctypeId)
+        {
+            var vv = _context.PilotRanks.Where(aer => aer.IsDeleted == false && aer.PilotTypeId == ctypeId)
+                .ToList();
+            long count = vv.Count();
+            return count;
+        }
+
         public async Task<PilotType> SavePilotType(PilotType pilotType)
         {
             var savedEntity = await _context.PilotTypes.AddAsync(pilotType);
@@ -94,6 +102,16 @@ namespace HaloBiz.Repository.Impl
             return null;
         }
 
+        public PilotRank GetRankname(string rankName)
+        {
+            return _context.PilotRanks.Where(c => c.RankName == rankName && c.IsDeleted == false).FirstOrDefault();
+            //return name.ToString();
+        }
+
+        public PilotType GetTypename(string Name)
+        {
+            return _context.PilotTypes.Where(c => c.TypeName == Name && c.IsDeleted == false).FirstOrDefault();
+        }
         private async Task<bool> SaveChanges()
         {
             try

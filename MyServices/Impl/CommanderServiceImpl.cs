@@ -28,6 +28,11 @@ namespace HaloBiz.MyServices.Impl
         public async Task<ApiResponse> AddCommanderRank(HttpContext context, CommanderRankReceivingDTO commanderRankReceivingDTO)
         {
             var cRank = _mapper.Map<CommanderRank>(commanderRankReceivingDTO);
+            var NameExist = _commanderRepository.GetRankname(commanderRankReceivingDTO.RankName);
+            if (NameExist != null)
+            {
+                return new ApiResponse(409);
+            }
             var getCommanderType = await _commanderRepository.FindCommanderTypeByName(cRank.CommanderType);
             if (getCommanderType.TypeName == cRank.CommanderType)
                 cRank.Sequence = _commanderRepository.FindAllCommanderRanksCount(cRank.CommanderType) + 1;
@@ -47,6 +52,11 @@ namespace HaloBiz.MyServices.Impl
         public async Task<ApiResponse> AddCommanderType(HttpContext context, CommanderTypeAndRankReceivingDTO commanderTypeReceivingDTO)
         {
             var cType = _mapper.Map<CommanderType>(commanderTypeReceivingDTO);
+            var NameExist = _commanderRepository.GetTypename(commanderTypeReceivingDTO.TypeName);
+            if (NameExist != null)
+            {
+                return new ApiResponse(409);
+            }
             cType.CreatedById = context.GetLoggedInUserId();
             //cType.IsDeleted = false;
             cType.CreatedAt = DateTime.UtcNow;

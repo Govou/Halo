@@ -60,6 +60,17 @@ namespace HaloBiz.Repository.Impl
             return count;
         }
 
+        public ArmedEscortRank GetRankname(string rankName)
+        {
+            return _context.ArmedEscortRanks.Where(c=>c.RankName == rankName && c.IsDeleted == false).FirstOrDefault();
+            //return name.ToString();
+        }
+
+        public ArmedEscortType GetTypename(string Name)
+        {
+            return _context.ArmedEscortTypes.Where(c => c.Name == Name && c.IsDeleted == false).FirstOrDefault();
+            //return name.ToString();
+        }
         public async Task<ArmedEscortType> FindArmedEscortTypeById(long Id)
         {
             return await _context.ArmedEscortTypes

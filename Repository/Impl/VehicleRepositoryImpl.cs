@@ -84,6 +84,10 @@ namespace HaloBiz.Repository.Impl
             return null;
         }
 
+        public VehicleType GetTypename(string Name)
+        {
+            return _context.VehicleTypes.Where(c => c.TypeName == Name && c.IsDeleted == false).FirstOrDefault();
+        }
         private async Task<bool> SaveChanges()
         {
             try
