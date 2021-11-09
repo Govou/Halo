@@ -1,5 +1,6 @@
 ﻿using HalobizMigrations.Data;
 using HalobizMigrations.Models.Armada;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
@@ -36,9 +37,10 @@ namespace HaloBiz.Repository.Impl
             throw new NotImplementedException();
         }
 
-        public Task<IEnumerable<VehicleType>> FindAllVehicleTypes()
+        public async Task<IEnumerable<VehicleType>> FindAllVehicleTypes()
         {
-            throw new NotImplementedException();
+            return await _context.VehicleTypes.Where(r => r.IsDeleted == false)
+                           .ToListAsync();
         }
 
         public Task<Vehicle> FindVehicleById(long Id)
@@ -46,9 +48,10 @@ namespace HaloBiz.Repository.Impl
             throw new NotImplementedException();
         }
 
-        public Task<VehicleType> FindVehicleTypeById(long Id)
+        public async Task<VehicleType> FindVehicleTypeById(long Id)
         {
-            throw new NotImplementedException();
+            return await _context.VehicleTypes
+                                                 .FirstOrDefaultAsync(v => v.Id == Id && v.IsDeleted == false);
         }
 
         public Task<Vehicle> SaveVehicle(Vehicle vehicle)
@@ -56,9 +59,14 @@ namespace HaloBiz.Repository.Impl
             throw new NotImplementedException();
         }
 
-        public Task<VehicleType> SaveVehicleType(VehicleType vehicleType)
+        public async Task<VehicleType> SaveVehicleType(VehicleType vehicleType)
         {
-            throw new NotImplementedException();
+            var savedEntity = await _context.VehicleTypes.AddAsync(vehicleType);
+            if (await SaveChanges())
+            {
+                return savedEntity.Entity;
+            }
+            return null;
         }
 
         public Task<Vehicle> UpdateVehicle(Vehicle vehicle)
@@ -66,9 +74,14 @@ namespace HaloBiz.Repository.Impl
             throw new NotImplementedException();
         }
 
-        public Task<VehicleType> UpdateVehicleType(VehicleType vehicleType)
+        public async Task<VehicleType> UpdateVehicleType(VehicleType vehicleType)
         {
-            throw new NotImplementedException();
+            var updatedEntity = _context.VehicleTypes.Update(vehicleType);
+            if (await SaveChanges())
+            {
+                return updatedEntity.Entity;
+            }
+            return null;
         }
 
         private async Task<bool> SaveChanges()

@@ -111,8 +111,8 @@ namespace HaloBiz.MyServices.Impl
             {
                 return new ApiResponse(404);
             }
-            var rankTransferDTO = _mapper.Map<IEnumerable<ArmedEscortTypeTransferDTO>>(Type);
-            return new ApiOkResponse(rankTransferDTO);
+            var TransferDTO = _mapper.Map<IEnumerable<ArmedEscortTypeTransferDTO>>(Type);
+            return new ApiOkResponse(TransferDTO);
         }
 
         public async Task<ApiResponse> GetArmedEscortRankById(long id)
@@ -133,8 +133,8 @@ namespace HaloBiz.MyServices.Impl
             {
                 return new ApiResponse(404);
             }
-            var rankTransferDTO = _mapper.Map<ArmedEscortTypeTransferDTO>(Type);
-            return new ApiOkResponse(rankTransferDTO);
+            var TransferDTO = _mapper.Map<ArmedEscortTypeTransferDTO>(Type);
+            return new ApiOkResponse(TransferDTO);
         }
 
         public async Task<ApiResponse> UpdateArmedEscortRank(HttpContext context, long id, ArmedEscortRankReceivingDTO armedEscortRankReceivingDTO)
