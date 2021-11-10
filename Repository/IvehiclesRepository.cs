@@ -9,15 +9,7 @@ namespace HaloBiz.Repository
     public interface IVehiclesRepository
     {
         
-        Task<Vehicle> SaveVehicle(Vehicle vehicle);
-
-        Task<Vehicle> FindVehicleById(long Id);
-
-        Task<IEnumerable<Vehicle>> FindAllVehicles();
-
-        Task<Vehicle> UpdateVehicle(Vehicle vehicle);
-
-        Task<bool> DeleteVehicle(Vehicle vehicle);
+       
 
         //Rank
         Task<VehicleType> SaveVehicleType(VehicleType vehicleType);

@@ -46,10 +46,9 @@ namespace HaloBiz.Repository.Impl
 
         public async Task<IEnumerable<CommanderType>> FindAllCommanderTypes()
         {
-            return await _context.CommanderTypes
+
+            return await _context.CommanderTypes.Where(ct => ct.IsDeleted == false)
                 .ToListAsync();
-            //return await _context.CommanderTypes.Where(ct => ct.IsDeleted == false)
-            //    .ToListAsync();
         }
 
         public async Task<CommanderType> UpdateCommanderType(CommanderType commanderType)
@@ -64,7 +63,7 @@ namespace HaloBiz.Repository.Impl
 
         public async Task<bool> DeleteCommanderType(CommanderType commanderType)
         {
-            //commanderType.IsDeleted = true;
+            commanderType.IsDeleted = true;
             _context.CommanderTypes.Update(commanderType);
             return await SaveChanges();
         }

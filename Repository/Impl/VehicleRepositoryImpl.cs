@@ -18,12 +18,12 @@ namespace HaloBiz.Repository.Impl
             this._logger = logger;
             this._context = context;
         }
-        public async Task<bool> DeleteVehicle(Vehicle vehicle)
-        {
-            vehicle.IsDeleted = true;
-            _context.Vehicles.Update(vehicle);
-            return await SaveChanges();
-        }
+        //public async Task<bool> DeleteVehicle(Vehicle vehicle)
+        //{
+        //    vehicle.IsDeleted = true;
+        //    _context.Vehicles.Update(vehicle);
+        //    return await SaveChanges();
+        //}
 
         public async Task<bool> DeleteVehicleType(VehicleType vehicleType)
         {
@@ -32,10 +32,10 @@ namespace HaloBiz.Repository.Impl
             return await SaveChanges();
         }
 
-        public Task<IEnumerable<Vehicle>> FindAllVehicles()
-        {
-            throw new NotImplementedException();
-        }
+        //public Task<IEnumerable<Vehicle>> FindAllVehicles()
+        //{
+        //    throw new NotImplementedException();
+        //}
 
         public async Task<IEnumerable<VehicleType>> FindAllVehicleTypes()
         {
@@ -43,10 +43,10 @@ namespace HaloBiz.Repository.Impl
                            .ToListAsync();
         }
 
-        public Task<Vehicle> FindVehicleById(long Id)
-        {
-            throw new NotImplementedException();
-        }
+        //public Task<Vehicle> FindVehicleById(long Id)
+        //{
+        //    throw new NotImplementedException();
+        //}
 
         public async Task<VehicleType> FindVehicleTypeById(long Id)
         {
@@ -54,10 +54,10 @@ namespace HaloBiz.Repository.Impl
                                                  .FirstOrDefaultAsync(v => v.Id == Id && v.IsDeleted == false);
         }
 
-        public Task<Vehicle> SaveVehicle(Vehicle vehicle)
-        {
-            throw new NotImplementedException();
-        }
+        //public Task<Vehicle> SaveVehicle(Vehicle vehicle)
+        //{
+        //    throw new NotImplementedException();
+        //}
 
         public async Task<VehicleType> SaveVehicleType(VehicleType vehicleType)
         {
@@ -69,10 +69,10 @@ namespace HaloBiz.Repository.Impl
             return null;
         }
 
-        public Task<Vehicle> UpdateVehicle(Vehicle vehicle)
-        {
-            throw new NotImplementedException();
-        }
+        //public Task<Vehicle> UpdateVehicle(Vehicle vehicle)
+        //{
+        //    throw new NotImplementedException();
+        //}
 
         public async Task<VehicleType> UpdateVehicleType(VehicleType vehicleType)
         {
