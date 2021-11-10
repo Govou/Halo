@@ -9,6 +9,7 @@ namespace HaloBiz.Repository.LAMS
     {
         Task<Quote> SaveQuote(Quote quote);
         Task<Quote> FindQuoteById(long Id);
+        Task<Quote> FindByLeadDivisionId(long id);
         Task<Quote> FindQuoteByReferenceNumber(string reference);
         Task<IEnumerable<Quote>> FindAllQuote();
         Task<Quote> UpdateQuote(Quote quote);
