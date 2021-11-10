@@ -16,6 +16,8 @@ namespace HaloBiz.Repository
 
         Task<IEnumerable<ArmedEscortType>> FindAllArmedEscortTypes();
 
+        ArmedEscortType GetTypename(string rankName);
+
         Task<ArmedEscortType> UpdateArmedEscortType(ArmedEscortType armedEscortType);
 
         Task<bool> DeleteArmedEscortType(ArmedEscortType armedEscortType);
@@ -26,6 +28,8 @@ namespace HaloBiz.Repository
         Task<ArmedEscortRank> FindArmedEscortRankById(long Id);
 
         long FindAllArmedEscortRanksCount(long ctypeId);
+
+        ArmedEscortRank GetRankname(string rankName);
 
 
         Task<IEnumerable<ArmedEscortRank>> FindAllArmedEscortRanks();

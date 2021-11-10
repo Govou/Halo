@@ -15,6 +15,8 @@ namespace HaloBiz.Repository
 
         Task<IEnumerable<PilotType>> FindAllPilotTypes();
 
+        PilotType GetTypename(string Name);
+
         Task<PilotType> UpdatePilotType(PilotType pilotType);
 
         Task<bool> DeletePilotType(PilotType pilotType);
@@ -25,7 +27,8 @@ namespace HaloBiz.Repository
         Task<PilotRank> FindPilotRankById(long Id);
 
         Task<IEnumerable<PilotRank>> FindAllPilotRanks();
-
+        PilotRank GetRankname(string Name);
+        long FindAllPilotRanksCount(long? ctypeId);
         Task<PilotRank> UpdatePilotRank(PilotRank pilotRank);
 
         Task<bool> DeletePilotRank(PilotRank pilotRank);

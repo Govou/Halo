@@ -27,6 +27,7 @@ namespace HaloBiz.DTOs.TransferDTOs
         public string Alias { get; set; }
         public string Description { get; set; }
         public long Sequence { get; set; }
+        public long PilotTypeId { get; set; }
         public long CreatedById { get; set; }
       
         public DateTime CreatedAt { get; set; }

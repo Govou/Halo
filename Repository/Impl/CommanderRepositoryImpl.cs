@@ -132,5 +132,16 @@ namespace HaloBiz.Repository.Impl
             _context.CommanderRanks.Update(commanderRank);
             return await SaveChanges();
         }
+
+        public CommanderRank GetRankname(string rankName)
+        {
+            return _context.CommanderRanks.Where(c => c.RankName == rankName && c.IsDeleted == false).FirstOrDefault();
+            //return name.ToString();
+        }
+
+        public CommanderType GetTypename(string Name)
+        {
+            return _context.CommanderTypes.Where(c => c.TypeName == Name && c.IsDeleted == false).FirstOrDefault();
+        }
     }
 }

@@ -23,6 +23,7 @@ namespace HaloBiz.Repository
         Task<VehicleType> SaveVehicleType(VehicleType vehicleType);
 
         Task<VehicleType> FindVehicleTypeById(long Id);
+        VehicleType GetTypename(string Name);
 
         Task<IEnumerable<VehicleType>> FindAllVehicleTypes();
 

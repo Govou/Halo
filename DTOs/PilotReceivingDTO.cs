@@ -27,7 +27,10 @@ namespace HaloBiz.DTOs
         [Required]
         public string Alias { get; set; }
         public string Description { get; set; }
-      
+        [Required]
+        public long PilotTypeId { get; set; }
+        //public string PilotType { get; set; }
+
     }
 
 
