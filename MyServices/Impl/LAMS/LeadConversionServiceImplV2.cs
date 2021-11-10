@@ -323,32 +323,48 @@ namespace HaloBiz.MyServices.Impl.LAMS
             try
             {
 
-                //var contractServiceToSave = _mapper.Map<ContractService>(quoteService);
-
+                //please do not use automapping betwwen QuoteService and ContractService
                 var contractServiceToSave = new ContractService()
                 {
-                    AdminDirectTie = quoteService.AdminDirectTie,
-                    BillableAmount = quoteService.BillableAmount,
-                    BranchId = quoteService.BranchId,
-                    ContractId = contractId,
-                    ContractEndDate = quoteService.ContractEndDate,
-                    CreatedAt = DateTime.Now,
-                    CreatedById = quoteService.CreatedById,
-                    InvoiceCycleInDays = quoteService.InvoiceCycleInDays,
-                    Discount = quoteService.Discount,
-                    FirstInvoiceSendDate = quoteService.FirstInvoiceSendDate,
-                    FulfillmentEndDate = quoteService.FulfillmentEndDate,
-                    ContractStartDate = quoteService.ContractStartDate,
-                    PaymentCycle = quoteService.PaymentCycle,
-                    InvoicingInterval = quoteService.InvoicingInterval,
-                    QuoteServiceId = quoteService.Id,
-                    UniqueTag = quoteService.UniqueTag,
                     UnitPrice = quoteService.UnitPrice,
                     Quantity = quoteService.Quantity,
+                    Discount = quoteService.Discount,
                     Vat = quoteService.Vat,
-                    Version = quoteService.Version,
+                    BillableAmount = quoteService.BillableAmount,
+                    Budget = quoteService.Budget,
+                    ContractStartDate = quoteService.ContractStartDate,
+                    ContractEndDate = quoteService.ContractEndDate,
+                    PaymentCycle = quoteService.PaymentCycle,
+                    PaymentCycleInDays = quoteService.PaymentCycleInDays,
+                    FirstInvoiceSendDate = quoteService.FirstInvoiceSendDate,
+                    InvoicingInterval = quoteService.InvoicingInterval,
+                    ProblemStatement = quoteService.ProblemStatement,
+                    ActivationDate = quoteService.ActivationDate,
+                    FulfillmentStartDate = quoteService.FulfillmentStartDate,
+                    FulfillmentEndDate = quoteService.FulfillmentEndDate,
+                    TentativeDateForSiteSurvey = quoteService.TentativeDateForSiteSurvey,
+                    PickupDateTime = quoteService.PickupDateTime,
+                    DropoffDateTime = quoteService.DropoffDateTime,
+                    PickupLocation = quoteService.PickupLocation,
+                    Dropofflocation = quoteService.Dropofflocation,
+                    BeneficiaryName = quoteService.BeneficiaryName,
+                    BeneficiaryIdentificationType = quoteService.BeneficiaryIdentificationType,
+                    BenificiaryIdentificationNumber = quoteService.BenificiaryIdentificationNumber,
+                    TentativeProofOfConceptStartDate = quoteService.TentativeProofOfConceptStartDate,
+                    TentativeProofOfConceptEndDate = quoteService.TentativeProofOfConceptEndDate,
+                    TentativeFulfillmentDate = quoteService.TentativeFulfillmentDate,
+                    ProgramCommencementDate = quoteService.ProgramCommencementDate,
+                    ProgramDuration = quoteService.ProgramDuration,
+                    ProgramEndDate = quoteService.ProgramEndDate,
+                    TentativeDateOfSiteVisit = quoteService.TentativeDateOfSiteVisit,
+                    QuoteServiceId = quoteService.Id,
+                    ContractId = contractId,
+                    CreatedById = LoggedInUserId,
                     ServiceId = quoteService.ServiceId,
-                    ActivationDate = quoteService.ActivationDate
+                    OfficeId = leadDivision.OfficeId,
+                    BranchId = quoteService.BranchId,
+                    UniqueTag = quoteService.UniqueTag,
+                    AdminDirectTie = quoteService.AdminDirectTie
                 };
 
                 contractServiceToSave.ContractId = contractId;
@@ -371,7 +387,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                     FinanceVoucherType accountVoucherType = await _context.FinanceVoucherTypes
                         .FirstOrDefaultAsync(x => x.VoucherType == SALESINVOICEVOUCHER);
 
-                    _context.Database.ExecuteSqlRaw("SET IDENTITY_INSERT dbo.Divisions ON;");
+                    //_context.Database.ExecuteSqlRaw("SET IDENTITY_INSERT dbo.Divisions ON;");
 
 
                    var (createSuccess, createMsg) =  await CreateAccounts(
@@ -944,16 +960,14 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
                     Account account = new Account()
                     {
-                        Name = $"{customerDivision.DivisionName} Receivable with tag: {contractService?.UniqueTag}",
-                        Description = $"Receivable Account of {customerDivision.DivisionName} with tag: {contractService?.UniqueTag}",
+                        Name = $"{customerDivision.DivisionName} Receivable",
+                        Description = $"Receivable Account of {customerDivision.DivisionName}",
                         Alias = customerDivision.DTrackCustomerNumber,
                         IsDebitBalance = true,
                         ControlAccountId = controlAccount.Id,
                         CreatedById = createdById,
                         CreatedAt = DateTime.Now
                     };
-
-                    _logger.LogInformation($"Data in account: {JsonConvert.SerializeObject(account)}");
 
                     var savedAccountId = await SaveAccount(account);
 
