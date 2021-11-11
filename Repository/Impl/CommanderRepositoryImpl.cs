@@ -107,13 +107,13 @@ namespace HaloBiz.Repository.Impl
                 .ToListAsync();
         }
 
-        public long FindAllCommanderRanksCount(string ctype)
-        {
-            var vv =  _context.CommanderRanks.Where(cr => cr.IsDeleted == false && cr.CommanderType == ctype)
-                .ToList();
-            long count = vv.Count();
-            return count;
-        }
+        //public long FindAllCommanderRanksCount(string ctype)
+        //{
+        //    var vv =  _context.CommanderRanks.Where(cr => cr.IsDeleted == false && cr.CommanderType == ctype)
+        //        .ToList();
+        //    long count = vv.Count();
+        //    return count;
+        //}
 
         public async Task<CommanderRank> UpdateCommanderRank(CommanderRank commanderRank)
         {
@@ -141,6 +141,11 @@ namespace HaloBiz.Repository.Impl
         public CommanderType GetTypename(string Name)
         {
             return _context.CommanderTypes.Where(c => c.TypeName == Name && c.IsDeleted == false).FirstOrDefault();
+        }
+
+        public long FindAllCommanderRanksCount(string ctype)
+        {
+            throw new NotImplementedException();
         }
     }
 }

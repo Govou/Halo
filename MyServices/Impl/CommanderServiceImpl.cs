@@ -33,9 +33,9 @@ namespace HaloBiz.MyServices.Impl
             {
                 return new ApiResponse(409);
             }
-            var getCommanderType = await _commanderRepository.FindCommanderTypeByName(cRank.CommanderType);
-            if (getCommanderType.TypeName == cRank.CommanderType)
-                cRank.Sequence = _commanderRepository.FindAllCommanderRanksCount(cRank.CommanderType) + 1;
+            //var getCommanderType = await _commanderRepository.FindCommanderTypeByName(cRank.CommanderType);
+            //if (getCommanderType.TypeName == cRank.CommanderType)
+            //    cRank.Sequence = _commanderRepository.FindAllCommanderRanksCount(cRank.CommanderType) + 1;
 
             cRank.CreatedById = context.GetLoggedInUserId();
             cRank.IsDeleted = false;
@@ -160,7 +160,7 @@ namespace HaloBiz.MyServices.Impl
 
             rankToUpdate.Alias = commanderRankReceivingDTO.Alias;
             rankToUpdate.Description = commanderRankReceivingDTO.Description;
-            rankToUpdate.CommanderType = commanderRankReceivingDTO.CommanderType;
+            //rankToUpdate.CommanderType = commanderRankReceivingDTO.CommanderType;
             rankToUpdate.RankName = commanderRankReceivingDTO.RankName;
             rankToUpdate.UpdatedAt = DateTime.UtcNow;
             //regionToUpdate.BranchId = regionReceivingDTO.BranchId;
