@@ -31,6 +31,6 @@ namespace HaloBiz.DTOs.ReceivingDTOs
         [Required]
         public string RankName { get; set; }
        [Required]
-        public string CommanderType { get; set; }
+        public long? CommanderTypeId { get; set; }
     }
 }

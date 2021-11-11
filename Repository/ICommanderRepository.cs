@@ -12,13 +12,13 @@ namespace HaloBiz.Repository
         //Type
         Task<CommanderType> SaveCommanderType(CommanderType commanderType);
 
-        Task<CommanderType> FindCommanderTypeById(long Id);
+        Task<CommanderType> FindCommanderTypeById(long? Id);
 
         Task<CommanderType> FindCommanderTypeByName(string name);
         CommanderType GetTypename(string Name);
 
         Task<IEnumerable<CommanderType>> FindAllCommanderTypes();
-        long FindAllCommanderRanksCount(string ctype);
+        long FindAllCommanderRanksCount(long? ctype);
         Task<CommanderType> UpdateCommanderType(CommanderType commanderType); 
 
          Task<bool> DeleteCommanderType(CommanderType commanderType);

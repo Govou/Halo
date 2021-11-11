@@ -30,7 +30,7 @@ namespace HaloBiz.Repository.Impl
             return null;
         }
 
-        public async Task<CommanderType> FindCommanderTypeById(long Id)
+        public async Task<CommanderType> FindCommanderTypeById(long? Id)
         {
             return await _context.CommanderTypes
                 .FirstOrDefaultAsync(ct => ct.Id == Id);
@@ -107,9 +107,9 @@ namespace HaloBiz.Repository.Impl
                 .ToListAsync();
         }
 
-        public long FindAllCommanderRanksCount(string ctype)
+        public long FindAllCommanderRanksCount(long? ctype)
         {
-            var vv =  _context.CommanderRanks.Where(cr => cr.IsDeleted == false && cr.CommanderType == ctype)
+            var vv =  _context.CommanderRanks.Where(cr => cr.IsDeleted == false && cr.CommanderTypeId == ctype)
                 .ToList();
             long count = vv.Count();
             return count;
