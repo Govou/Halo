@@ -373,9 +373,10 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 var entity = await context.ContractServices.AddAsync(contractServiceToSave);
                 await context.SaveChangesAsync();
 
-                quoteService.IsConvertedToContractService = true;
-                context.Update(quoteService);
-                await context.SaveChangesAsync();
+
+                //quoteService.IsConvertedToContractService = true;
+                //context.Update(quoteService);
+                //await context.SaveChangesAsync();
                 var contractService = entity.Entity;
 
                 await ConvertSBUToQuoteServicePropToSBUToContractServiceProp(quoteService.Id, contractService.Id, context);
@@ -401,14 +402,15 @@ namespace HaloBiz.MyServices.Impl.LAMS
                                         LoggedInUserId,
                                         false);
 
-                 var (invoiceSuccess, invoiceMsg) =   await GenerateInvoices(contractService, customerDivision.Id, quoteService.Service.ServiceCode, LoggedInUserId);
+                    var _serviceCode = quoteService?.Service?.ServiceCode ?? contractService.Service?.ServiceCode;
+                 var (invoiceSuccess, invoiceMsg) =   await GenerateInvoices(contractService, customerDivision.Id, _serviceCode, LoggedInUserId);
                  var (amoSuccess, amoMsg) = await GenerateAmortizations(contractService, customerDivision);
                 }
             }
             catch (Exception ex)
             {
                 _logger.LogError("Error converting", ex);
-                return false;
+                throw;
             }
 
             return true;
@@ -863,6 +865,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
             var totalVAT = CalculateTotalBillableForPeriod(contractService, true);
 
             var totalAfterTax = totalContractBillable - totalVAT;
+
             var savedAccountMasterId = await CreateAccountMaster(service,
                                                          contractService,
                                                          accountVoucherType,
@@ -923,7 +926,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
             catch (Exception ex)
             {
                 _logger.LogError("CreateAccounts", ex);
-                return (false, ex.Message);
+                throw;
             }
 
             return (true,"success");
@@ -996,7 +999,8 @@ namespace HaloBiz.MyServices.Impl.LAMS
             }
             catch (Exception ex)
             {
-                return (false, ex.Message);
+                // return (false, ex.Message);
+                throw;
             }
 
             return (true, "success");
@@ -1057,38 +1061,53 @@ namespace HaloBiz.MyServices.Impl.LAMS
         private async Task<long> GetRetailVATAccount(CustomerDivision customerDivision)
         {
 
-            Account vatAccount = await _context.Accounts.FirstOrDefaultAsync(x => x.Name == RETAIL_VAT_ACCOUNT);
-            long accountId = 0;
-            if (vatAccount == null)
+            try
             {
-                ControlAccount controlAccount = await _context.ControlAccounts
-                        .FirstOrDefaultAsync(x => x.Caption == VatControlAccount);
-
-                Account account = new Account()
+                Account vatAccount = await _context.Accounts.FirstOrDefaultAsync(x => x.Name == RETAIL_VAT_ACCOUNT);
+                long accountId = 0;
+                if (vatAccount == null)
                 {
-                    Name = RETAIL_VAT_ACCOUNT,
-                    Description = $"VAT Account of Retail Clients",
-                    Alias = "HA_RET",
-                    IsDebitBalance = true,
-                    ControlAccountId = controlAccount.Id,
-                    CreatedById = LoggedInUserId
-                };
-                var savedAccountId = await SaveAccount(account);
+                    ControlAccount controlAccount = await _context.ControlAccounts
+                            .FirstOrDefaultAsync(x => x.Caption == VatControlAccount);
 
-                customerDivision.VatAccountId = savedAccountId;
-                _context.CustomerDivisions.Update(customerDivision);
-                await _context.SaveChangesAsync();
-                accountId = savedAccountId;
+                    Account account = new Account()
+                    {
+                        Name = RETAIL_VAT_ACCOUNT,
+                        Description = $"VAT Account of Retail Clients",
+                        Alias = "HA_RET",
+                        IsDebitBalance = true,
+                        ControlAccountId = controlAccount.Id,
+                        CreatedById = LoggedInUserId
+                    };
+                    var savedAccountId = await SaveAccount(account);
+
+                    customerDivision.VatAccountId = savedAccountId;
+                    _context.CustomerDivisions.Update(customerDivision);
+                    await _context.SaveChangesAsync();
+                    accountId = savedAccountId;
+                }
+                else
+                {
+                    if (customerDivision.VatAccountId == null)
+                    {
+                        customerDivision.VatAccountId = vatAccount.Id;
+
+                        _context.CustomerDivisions.Update(customerDivision);
+                        await _context.SaveChangesAsync();
+                        _context.ChangeTracker.Clear();
+                    }
+
+                    accountId = vatAccount.Id;
+
+                }
+
+                return accountId;
             }
-            else
+            catch (Exception ex)
             {
-                customerDivision.VatAccountId = vatAccount.Id;
-                _context.CustomerDivisions.Update(customerDivision);
-                await _context.SaveChangesAsync();
-                accountId = vatAccount.Id;
+                _logger.LogError(ex.StackTrace);
+                throw;
             }
-
-            return accountId;
 
         }
 
@@ -1196,6 +1215,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                         CreatedById = loggedInUserId
                     };
 
+                    _context.ChangeTracker.Clear();
                     var savedAccountId = await SaveAccount(account);
 
                     customerDivision.VatAccountId = savedAccountId;
@@ -1203,10 +1223,12 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
                     _context.CustomerDivisions.Update(customerDivision);
                     var affected = await _context.SaveChangesAsync();
+                    _context.ChangeTracker.Clear();
+
 
                 }
 
-              var (isPosted, details) =  await PostAccountDetail(service,
+                var (isPosted, details) =  await PostAccountDetail(service,
                                         contractService,
                                         accountVoucherType,
                                         branchId,
@@ -1222,7 +1244,8 @@ namespace HaloBiz.MyServices.Impl.LAMS
             catch (Exception ex)
             {
                 _logger.LogError("", ex.Message);
-                return (false, ex.Message);
+                throw;
+                //return (false, ex.Message);
             }
 
             return (true, "success");
@@ -1245,6 +1268,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
             
             if (isRetail)
             {
+                if (service == null) service = contractService?.Service;
                 accountId = await GetServiceIncomeAccountForRetailClient(service);
             }
             else
@@ -1289,8 +1313,6 @@ namespace HaloBiz.MyServices.Impl.LAMS
                     account.Id = lastSavedAccount.Id + 1;
                 }
 
-                _logger.LogInformation($"Data account: {JsonConvert.SerializeObject(account)}");
-
                 _context.ChangeTracker.Clear();
                 var savedAccount = await _context.Accounts.AddAsync(account);
                 var id = account.Id;
@@ -1322,10 +1344,15 @@ namespace HaloBiz.MyServices.Impl.LAMS
         {
             try
             {
-                string transactionId = String.IsNullOrWhiteSpace(contractService.Contract?.GroupInvoiceNumber) ?
-                             $"TRS{service.ServiceCode}/{contractService.Id}"
-                                    : $"{contractService.Contract?.GroupInvoiceNumber?.Replace("GINV", "TRS")}/{contractService.Id}";
+                string transactionId = String.IsNullOrWhiteSpace(contractService?.Contract?.GroupInvoiceNumber) ?
+                             $"TRS{service?.ServiceCode}/{contractService?.Id}"
+                                    : $"{contractService?.Contract?.GroupInvoiceNumber?.Replace("GINV", "TRS")}/{contractService?.Id}";
                
+                if(service == null)
+                {
+                    service = contractService?.Service;
+                }
+
                 AccountMaster  accountMaster = new AccountMaster()
                 {
                     Description = GetAccountMasterDescription(accountVoucherType, service, customerDivision, contractService),
@@ -1360,17 +1387,17 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
         private string GetAccountMasterDescription(FinanceVoucherType financeVoucherType, Service service, CustomerDivision customerDivision, ContractService contractService = null)
         {
-            var fvt = financeVoucherType.VoucherType.ToLower();
+            var fvt = financeVoucherType?.VoucherType.ToLower();
 
-            var description = $"Sales of {service.Name} to {customerDivision.DivisionName} with tag '{contractService?.UniqueTag}'";
+            var description = $"Sales of {service?.Name} to {customerDivision?.DivisionName} with tag '{contractService?.UniqueTag}'";
 
             if(fvt == "debit note")
             {
-                description = $"Debit Note on {service.Name} to {customerDivision.DivisionName}";
+                description = $"Debit Note on {service?.Name} to {customerDivision?.DivisionName}";
             }
             else if(fvt == "credit note")
             {
-                description = $"Credit Note on {service.Name} to {customerDivision.DivisionName}";
+                description = $"Credit Note on {service?.Name} to {customerDivision?.DivisionName}";
             }
 
             return description;
@@ -1421,12 +1448,17 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
             try
             {
+                if(service == null)
+                {
+                    service = contractService?.Service;
+                }
+
                 AccountDetail accountDetail = new AccountDetail()
                 {
                     Description = GetAccountMasterDescription(accountVoucherType, service, customerDivision, contractService),
                     IntegrationFlag = false,
                     VoucherId = accountVoucherType.Id,
-                    TransactionId = $"{service.ServiceCode}/{contractService.Id}",
+                    TransactionId = $"{service?.ServiceCode}/{contractService?.Id}",
                     TransactionDate = DateTime.Now,
                     Credit = isCredit ? amount : 0,
                     Debit = !isCredit ? amount : 0,
@@ -1439,12 +1471,15 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
                 var savedAccountDetails = await _context.AccountDetails.AddAsync(accountDetail);
                 var affected = await _context.SaveChangesAsync();
-                return  affected > 0 ? (true, savedAccountDetails.Entity) : (false, null);
+                if (affected == 0)
+                    throw new Exception("An error occured in the posting");
+                else
+                    return (true, savedAccountDetails.Entity);
             }
             catch (Exception ex)
             {
                 _logger.LogError("", ex.Message);
-                return (false, null);
+                throw;
             }
         }
 
