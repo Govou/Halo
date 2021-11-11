@@ -1,4 +1,7 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿//using HaloBiz.SMOServices;
+using HaloBiz.MyServices;
+using HaloBiz.MyServices.Impl;
+using Microsoft.Extensions.DependencyInjection;
 using NetCore.AutoRegisterDi;
 using System;
 using System.Collections.Generic;
@@ -18,11 +21,13 @@ namespace HaloBiz.Helpers
                     || x.Name.EndsWith("ServiceImpl")
                     || x.Name.EndsWith("ServiceImplV2")
                     || x.Name.EndsWith("Service")
+                    //| x.Name.EndsWith("Services")
                     || x.Name.EndsWith("Adapter"))
                 .Where(x => x.Name != "LeadConversionServiceImpl")
                 .AsPublicImplementedInterfaces(ServiceLifetime.Scoped);
 
             //put any non-standard DI registration, e.g. generic types, here
+            //services.AddScoped<ISMORouteAndRegion, SMORoutesAndRegionServices>();
         }
     }
 }

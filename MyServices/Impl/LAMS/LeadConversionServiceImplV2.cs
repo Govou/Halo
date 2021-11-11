@@ -100,7 +100,6 @@ namespace HaloBiz.MyServices.Impl.LAMS
             {
                 await transaction.RollbackAsync();
                 _logger.LogError(e.Message);
-                _logger.LogError(e.StackTrace);
                 return (false, e.Message);
             }
         }
@@ -166,7 +165,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
             var customerEntity = await context.Customers.AddAsync(new Customer()
             {
                 GroupName = lead.GroupName,
-                Rcnumber = lead.Rcnumber,
+                Rcnumber = lead.Rcnumber ?? "",
                 GroupTypeId = lead.GroupTypeId,
                 Industry = lead.Industry,
                 LogoUrl = lead.LogoUrl,
@@ -768,7 +767,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
             {
                 var (isSuccesReceivable, messageReceivale) = await PostCustomerReceivablAccounts(
                                     service,
-                                    contractService.Id,
+                                    contractService,
                                     customerDivision,
                                     branchId,
                                     officeId,
@@ -782,7 +781,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
                var (isSuccessVat, messageVat) = await PostVATAccountDetails(
                                          service,
-                                         contractService.Id,
+                                         contractService,
                                          customerDivision,
                                          branchId,
                                          officeId,
@@ -794,7 +793,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                                         );
                 await PostIncomeAccount(
                                         service,
-                                        contractService.Id,
+                                        contractService,
                                         customerDivision,
                                         branchId,
                                         officeId,
@@ -816,7 +815,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
         }
         public async Task<(bool, string)> PostCustomerReceivablAccounts(
                                     Service service,
-                                    long contractServiceId,
+                                    ContractService contractService,
                                     CustomerDivision customerDivision,
                                     long branchId,
                                     long officeId,
@@ -851,7 +850,8 @@ namespace HaloBiz.MyServices.Impl.LAMS
                         Alias = customerDivision.DTrackCustomerNumber,
                         IsDebitBalance = true,
                         ControlAccountId = controlAccount.Id,
-                        CreatedById = createdById
+                        CreatedById = createdById,
+                        CreatedAt = DateTime.Now
                     };
 
                     var savedAccount = await SaveAccount(account);
@@ -860,13 +860,13 @@ namespace HaloBiz.MyServices.Impl.LAMS
                     accountId = savedAccount.Id;
 
                     _context.CustomerDivisions.Update(customerDivision);
-                    await _context.SaveChangesAsync();
+                   var affected = await _context.SaveChangesAsync();
 
                 }
 
 
                var (success, details) =  await PostAccountDetail(service,
-                                        contractServiceId,
+                                        contractService,
                                         accountVoucherType,
                                         branchId,
                                         officeId,
@@ -1027,7 +1027,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
         public async Task<(bool, string)> PostVATAccountDetails(
                                     Service service,
-                                    long contractServiceId,
+                                    ContractService contractService,
                                     CustomerDivision customerDivision,
                                     long branchId,
                                     long officeId,
@@ -1077,7 +1077,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 }
 
               var (isPosted, details) =  await PostAccountDetail(service,
-                                        contractServiceId,
+                                        contractService,
                                         accountVoucherType,
                                         branchId,
                                         officeId,
@@ -1100,7 +1100,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
         public async Task<bool> PostIncomeAccount(
                                     Service service,
-                                    long contractServiceId,
+                                    ContractService contractService,
                                     CustomerDivision customerDivision,
                                     long branchId,
                                     long officeId,
@@ -1124,7 +1124,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
             
 
             await PostAccountDetail(service,
-                                    contractServiceId,
+                                    contractService,
                                     accountVoucherType,
                                     branchId,
                                     officeId,
@@ -1188,7 +1188,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
                 AccountMaster accountMaster = new AccountMaster()
                 {
-                    Description = GetAccountMasterDescription(accountVoucherType, service, customerDivision),
+                    Description = GetAccountMasterDescription(accountVoucherType, service, customerDivision, contractService),
                     IntegrationFlag = false,
                     VoucherId = accountVoucherType.Id,
                     BranchId = branchId,
@@ -1212,11 +1212,11 @@ namespace HaloBiz.MyServices.Impl.LAMS
             }
         }
 
-        private string GetAccountMasterDescription(FinanceVoucherType financeVoucherType, Service service, CustomerDivision customerDivision)
+        private string GetAccountMasterDescription(FinanceVoucherType financeVoucherType, Service service, CustomerDivision customerDivision, ContractService contractService = null)
         {
             var fvt = financeVoucherType.VoucherType.ToLower();
 
-            var description = $"Sales of {service.Name} with service ID: {service.Id} to {customerDivision.DivisionName}";
+            var description = $"Sales of {service.Name} to {customerDivision.DivisionName} with tag '{contractService?.UniqueTag}'";
 
             if(fvt == "debit note")
             {
@@ -1244,8 +1244,11 @@ namespace HaloBiz.MyServices.Impl.LAMS
                     });
                 }
 
+                _context.ChangeTracker.Clear();
                 await _context.SbuaccountMasters.AddRangeAsync(listOfSbuaccountMaster);
-                await _context.SaveChangesAsync();
+                var affected = await _context.SaveChangesAsync();
+                _context.ChangeTracker.Clear();
+
             }
             catch (Exception ex)
             {
@@ -1257,7 +1260,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
         private async Task<(bool, AccountDetail)> PostAccountDetail(
                                                     Service service,
-                                                    long contractServiceId,
+                                                    ContractService contractService,
                                                     FinanceVoucherType accountVoucherType,
                                                     long branchId,
                                                     long officeId,
@@ -1274,10 +1277,10 @@ namespace HaloBiz.MyServices.Impl.LAMS
             {
                 AccountDetail accountDetail = new AccountDetail()
                 {
-                    Description = GetAccountMasterDescription(accountVoucherType, service, customerDivision),
+                    Description = GetAccountMasterDescription(accountVoucherType, service, customerDivision, contractService),
                     IntegrationFlag = false,
                     VoucherId = accountVoucherType.Id,
-                    TransactionId = $"{service.ServiceCode}/{contractServiceId}",
+                    TransactionId = $"{service.ServiceCode}/{contractService.Id}",
                     TransactionDate = DateTime.Now,
                     Credit = isCredit ? amount : 0,
                     Debit = !isCredit ? amount : 0,

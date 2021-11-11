@@ -37,7 +37,7 @@ namespace HaloBiz.Repository.Impl.LAMS
         public async Task<IEnumerable<Lead>> FindUserLeads(long userId)
         {
             //todo remove hardcooded id
-            //userId = 47;
+           // userId = 47;
             return await _context.Leads.Where(lead => !lead.IsDeleted && !lead.LeadConversionStatus && lead.CreatedById == userId).ToListAsync();
         }
 
@@ -49,16 +49,20 @@ namespace HaloBiz.Repository.Impl.LAMS
 
         public async Task<Lead> FindLeadById(long Id)
         {
-            var lead =  await _context.Leads.Include(lead => lead.GroupType)
+            var lead =  await _context.Leads
+                .Where(lead => lead.Id == Id)
+                .Include(lead => lead.GroupType)
                 .Include(lead => lead.DropReason)
                 .Include(lead => lead.LeadType)
                 .Include(lead => lead.LeadOrigin)
-                .FirstOrDefaultAsync(lead => lead.Id == Id);
+                .FirstOrDefaultAsync();
             if(lead == null)
             {
                 return null;
             }
-            lead.DropReason = await _context.DropReasons.FirstOrDefaultAsync(dropReason => lead.DropReasonId == dropReason.Id);
+
+            lead.DropReason = await _context.
+                DropReasons.Where(dropReason => lead.DropReasonId == dropReason.Id).FirstOrDefaultAsync();
             if(lead.PrimaryContactId != null)
                 lead.PrimaryContact = await _context.LeadContacts.FirstOrDefaultAsync(primaryContact => lead.PrimaryContactId == primaryContact.Id);
             if(lead.SecondaryContactId != null)
