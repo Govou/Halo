@@ -103,7 +103,7 @@ namespace HaloBiz.MyServices.Impl
                 return new ApiResponse(500);
             }
 
-            var typeTransferDTOs = _mapper.Map<VehicleTypeTransferDTO>(updatedType);
+            var typeTransferDTOs = _mapper.Map<VehicleTransferDTO>(updatedType);
             return new ApiOkResponse(typeTransferDTOs);
         }
     }
