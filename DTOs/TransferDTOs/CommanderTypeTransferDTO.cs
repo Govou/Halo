@@ -23,6 +23,7 @@ namespace HaloBiz.DTOs.TransferDTOs
         public string Alias { get; set; }
         public string RankName { get; set; }
         public string CommanderType { get; set; }
+        public long Sequence { get; set; }
         public bool isDeleted { get; set; }
         public DateTime CreatedAt { get; set; }
     }

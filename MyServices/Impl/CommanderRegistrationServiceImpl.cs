@@ -105,7 +105,7 @@ namespace HaloBiz.MyServices.Impl
                 return new ApiResponse(500);
             }
 
-            var rankTransferDTOs = _mapper.Map<CommanderRankTransferDTO>(updatedRank);
+            var rankTransferDTOs = _mapper.Map<CommanderProfileTransferDTO>(updatedRank);
             return new ApiOkResponse(rankTransferDTOs);
         }
     }
