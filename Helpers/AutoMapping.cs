@@ -13,6 +13,8 @@ using HalobizMigrations.Models;
 using HalobizMigrations.Models.Halobiz;
 using HaloBiz.Model;
 using HalobizMigrations.Models.Complaints;
+
+using HalobizMigrations.Models.Armada;
 using HalobizMigrations.Models.Shared;
 
 namespace HaloBiz.Helpers
@@ -313,6 +315,43 @@ namespace HaloBiz.Helpers
             CreateMap<Activity, ActivityTransferDTO>();
 
             CreateMap<Lga, LgasTransferDTO>();
+
+            //yus
+            CreateMap<SMORouteAndRegionReceivingDTO, SMORoute>();
+            CreateMap<SMORoute, SMORouteTransferDTO>();
+            CreateMap<SMORegionReceivingDTO, SMORegion>();
+            CreateMap<SMORegion, SMORegionTransferDTO>();
+
+            CreateMap<CommanderTypeAndRankReceivingDTO, CommanderType>(); //for type
+            CreateMap<CommanderRankReceivingDTO, CommanderRank>();
+            CreateMap<CommanderType, CommanderTypeAndRankTransferDTO>(); //for type
+            CreateMap<CommanderRank, CommanderRankTransferDTO>();
+
+            CreateMap<ArmedEscortTypeReceivingDTO, ArmedEscortType>(); //for type
+            CreateMap<ArmedEscortRankReceivingDTO, ArmedEscortRank>();
+            CreateMap<ArmedEscortType, ArmedEscortTypeTransferDTO>(); //for type
+            CreateMap<ArmedEscortRank, ArmedEscortRankTransferDTO>();
+
+            CreateMap<PilotTypeReceivingDTO, PilotType>(); //for type
+            CreateMap<PilotRankReceivingDTO, PilotRank>();
+            CreateMap<PilotType, PilotTypeTransferDTO>(); //for type
+            CreateMap<PilotRank, PilotRankTransferDTO>();
+
+            CreateMap<VehicleTypeReceivingDTO, VehicleType>(); //for type VehicleReceivingDTO
+            CreateMap<VehicleType, VehicleTypeTransferDTO>(); //
+            CreateMap<VehicleReceivingDTO, Vehicle>();
+            CreateMap<Vehicle, VehicleTransferDTO>();
+
+            CreateMap<PilotProfileReceivingDTO, PilotProfile>();
+            CreateMap<PilotProfile, PilotProfileTransferDTO>();
+
+            CreateMap<CommanderProfileReceivingDTO, CommanderProfile>();
+            CreateMap<CommanderProfile, CommanderProfileTransferDTO>();
+
+            CreateMap<ArmedEscortProfileReceivingDTO, ArmedEscortProfile>();
+            CreateMap<ArmedEscortProfile, ArmedEscortProfileTransferDTO>();
+
+            //CreateMap<CommanderType, SMORegionTransferDTO>();
         }
     }
 }
