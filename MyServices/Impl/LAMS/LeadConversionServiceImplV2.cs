@@ -52,7 +52,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
             _mailAdapter = mailAdapter;
         }
 
-        public async Task<bool> ConvertLeadToClient(long leadId, long loggedInUserId)
+        public async Task<(bool, string)> ConvertLeadToClient(long leadId, long loggedInUserId)
         {
             LoggedInUserId = loggedInUserId;
 
@@ -60,15 +60,16 @@ namespace HaloBiz.MyServices.Impl.LAMS
             try
             {
                 var lead = await _context.Leads.AsNoTracking()
+                    .Where(x => x.Id == leadId)
                     .Include(x => x.LeadKeyPeople)
                     .Include(x => x.LeadDivisions)
                         .ThenInclude(x => x.Quote)
                     .Include(x => x.LeadDivisions)
                         .ThenInclude(x => x.LeadDivisionKeyPeople)
                     .Include(x => x.GroupType)
-                    .FirstOrDefaultAsync(x => x.Id == leadId);
+                    .FirstOrDefaultAsync();
 
-                if (lead.LeadConversionStatus) return false;
+                if (lead.LeadConversionStatus) return (false, "Lead has already been converted to client");
 
                 Customer customer = await ConvertLeadToCustomer(lead, _context);
                 foreach (var leadDivision in lead.LeadDivisions)
@@ -93,14 +94,13 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 await _context.SaveChangesAsync();
 
                 await transaction.CommitAsync();
-                return true;
+                return (true, "Success");
             }
             catch (Exception e)
             {
                 await transaction.RollbackAsync();
                 _logger.LogError(e.Message);
-                _logger.LogError(e.StackTrace);
-                return false;
+                return (false, e.Message);
             }
         }
 
@@ -165,7 +165,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
             var customerEntity = await context.Customers.AddAsync(new Customer()
             {
                 GroupName = lead.GroupName,
-                Rcnumber = lead.Rcnumber,
+                Rcnumber = lead.Rcnumber ?? "",
                 GroupTypeId = lead.GroupTypeId,
                 Industry = lead.Industry,
                 LogoUrl = lead.LogoUrl,
@@ -241,17 +241,23 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
         private async Task<Contract> ConvertQuoteToContract(Quote quote, long customerDivisionId, HalobizContext context)
         {
-
-            //Create contract from quote
-            var entity = await context.Contracts.AddAsync(new Contract()
+            try
             {
-                CustomerDivisionId = customerDivisionId,
-                QuoteId = quote.Id,
-                CreatedById = LoggedInUserId,
-            });
+                //Create contract from quote
+                var contract = _mapper.Map<Contract>(quote);
+                contract.CustomerDivisionId = customerDivisionId;
 
-            await context.SaveChangesAsync();            
-            return entity.Entity;
+                var entity = await context.Contracts.AddAsync(contract);
+
+                var affected = await context.SaveChangesAsync();
+                return entity.Entity;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("Error in converting", ex);
+            }
+
+            return null;
         }
 
         private async Task<bool> ConvertQuoteServiceToContractService(QuoteService quoteService,
@@ -260,106 +266,86 @@ namespace HaloBiz.MyServices.Impl.LAMS
                                                                         long contractId,
                                                                         LeadDivision leadDivision)
         {
-            var contractServiceToSave = new ContractService()
+            try
             {
-                UnitPrice = quoteService.UnitPrice,
-                Quantity = quoteService.Quantity,
-                Discount = quoteService.Discount,
-                Vat = quoteService.Vat,
-                BillableAmount = quoteService.BillableAmount,
-                Budget = quoteService.Budget,
-                ContractStartDate = quoteService.ContractStartDate,
-                ContractEndDate = quoteService.ContractEndDate,
-                PaymentCycle = quoteService.PaymentCycle,
-                PaymentCycleInDays = quoteService.PaymentCycleInDays,
-                FirstInvoiceSendDate = quoteService.FirstInvoiceSendDate,
-                InvoicingInterval = quoteService.InvoicingInterval,
-                ProblemStatement = quoteService.ProblemStatement,
-                ActivationDate = quoteService.ActivationDate,
-                FulfillmentStartDate = quoteService.FulfillmentStartDate,
-                FulfillmentEndDate = quoteService.FulfillmentEndDate,
-                TentativeDateForSiteSurvey = quoteService.TentativeDateForSiteSurvey,
-                PickupDateTime = quoteService.PickupDateTime,
-                DropoffDateTime = quoteService.DropoffDateTime,
-                PickupLocation = quoteService.PickupLocation,
-                Dropofflocation = quoteService.Dropofflocation,
-                BeneficiaryName = quoteService.BeneficiaryName,
-                BeneficiaryIdentificationType = quoteService.BeneficiaryIdentificationType,
-                BenificiaryIdentificationNumber = quoteService.BenificiaryIdentificationNumber,
-                TentativeProofOfConceptStartDate = quoteService.TentativeProofOfConceptStartDate,
-                TentativeProofOfConceptEndDate = quoteService.TentativeProofOfConceptEndDate,
-                TentativeFulfillmentDate = quoteService.TentativeFulfillmentDate,
-                ProgramCommencementDate = quoteService.ProgramCommencementDate,
-                ProgramDuration = quoteService.ProgramDuration,
-                ProgramEndDate = quoteService.ProgramEndDate,
-                TentativeDateOfSiteVisit = quoteService.TentativeDateOfSiteVisit,
-                QuoteServiceId = quoteService.Id,
-                ContractId = contractId,
-                CreatedById = LoggedInUserId,
-                ServiceId = quoteService.ServiceId,   
-                OfficeId = leadDivision.OfficeId,
-                BranchId = leadDivision.BranchId
-            };
 
-            var entity = await context.ContractServices.AddAsync(contractServiceToSave);
-            await context.SaveChangesAsync();
-            quoteService.IsConvertedToContractService = true;
-            context.Update(quoteService);
-            await context.SaveChangesAsync();
-            var contractService = entity.Entity;
+                var contractServiceToSave = _mapper.Map<ContractService>(quoteService);
+                contractServiceToSave.ContractId = contractId;
+                contractServiceToSave.Id = 0;
 
-            await ConvertSBUToQuoteServicePropToSBUToContractServiceProp(quoteService.Id, contractService.Id, context);
-            await ConvertQuoteServiceDocumentsToClosureDocuments(quoteService.Id, contractService.Id, context);
-            await CreateTaskAndDeliverables(contractService, customerDivision.Id, "New");
+                var entity = await context.ContractServices.AddAsync(contractServiceToSave);
+                await context.SaveChangesAsync();
 
-            if (contractService.InvoicingInterval != (int)TimeCycle.Adhoc)
-            {
-                FinanceVoucherType accountVoucherType = await _context.FinanceVoucherTypes
-                    .FirstOrDefaultAsync(x => x.VoucherType == SALESINVOICEVOUCHER);
+                quoteService.IsConvertedToContractService = true;
+                context.Update(quoteService);
+                await context.SaveChangesAsync();
+                var contractService = entity.Entity;
+
+                await ConvertSBUToQuoteServicePropToSBUToContractServiceProp(quoteService.Id, contractService.Id, context);
+                await ConvertQuoteServiceDocumentsToClosureDocuments(quoteService.Id, contractService.Id, context);
+                await CreateTaskAndDeliverables(contractService, customerDivision.Id, "New");
+
+                if (contractService.InvoicingInterval != (int)TimeCycle.Adhoc)
+                {
+                    FinanceVoucherType accountVoucherType = await _context.FinanceVoucherTypes
+                        .FirstOrDefaultAsync(x => x.VoucherType == SALESINVOICEVOUCHER);
 
 
-                await CreateAccounts(
-                                     contractService,
-                                     customerDivision,
-                                     (long)leadDivision.BranchId,
-                                    (long)leadDivision.OfficeId,
-                                    quoteService.Service,
-                                    accountVoucherType,
-                                    quoteService,
-                                    LoggedInUserId,
-                                    false
-                                    );
-                await GenerateInvoices(contractService, customerDivision.Id, quoteService.Service.ServiceCode, LoggedInUserId);
-                await GenerateAmortizations(contractService, customerDivision);
+                    await CreateAccounts(
+                                         contractService,
+                                         customerDivision,
+                                         (long)leadDivision.BranchId,
+                                        (long)leadDivision.OfficeId,
+                                        quoteService.Service,
+                                        accountVoucherType,
+                                        quoteService,
+                                        LoggedInUserId,
+                                        false
+                                        );
+                    await GenerateInvoices(contractService, customerDivision.Id, quoteService.Service.ServiceCode, LoggedInUserId);
+                    await GenerateAmortizations(contractService, customerDivision);
+                }
             }
-            return true;
+            catch (Exception ex)
+            {
+                _logger.LogError("Error converting", ex);
+                return false;
+            }
 
+            return true;
         }
 
         private async Task<bool> ConvertSBUToQuoteServicePropToSBUToContractServiceProp(long quoteServiceId, long contractServiceId, HalobizContext context)
         {
-            var sBUToContractServiceProps = new List<SbutoContractServiceProportion>();
-
-            var sBUToQuoteServiceProps = await _context.SbutoQuoteServiceProportions.AsNoTracking()
-                    .Where(x => x.QuoteServiceId == quoteServiceId)
-                    .ToListAsync();
-
-            foreach (var sbuToQuoteServiceProp in sBUToQuoteServiceProps)
+            try
             {
-                sBUToContractServiceProps.Add(new SbutoContractServiceProportion()
+                var sBUToContractServiceProps = new List<SbutoContractServiceProportion>();
+
+                var sBUToQuoteServiceProps = await _context.SbutoQuoteServiceProportions.AsNoTracking()
+                        .Where(x => x.QuoteServiceId == quoteServiceId)
+                        .ToListAsync();
+
+                foreach (var sbuToQuoteServiceProp in sBUToQuoteServiceProps)
                 {
-                    ContractServiceId = contractServiceId,
-                    Proportion = sbuToQuoteServiceProp.Proportion,
-                    Status = sbuToQuoteServiceProp.Status,
-                    StrategicBusinessUnitId = sbuToQuoteServiceProp.StrategicBusinessUnitId,
-                    UserInvolvedId = sbuToQuoteServiceProp.UserInvolvedId,
-                    CreatedById = LoggedInUserId,
-                });
+                    sBUToContractServiceProps.Add(new SbutoContractServiceProportion()
+                    {
+                        ContractServiceId = contractServiceId,
+                        Proportion = sbuToQuoteServiceProp.Proportion,
+                        Status = sbuToQuoteServiceProp.Status,
+                        StrategicBusinessUnitId = sbuToQuoteServiceProp.StrategicBusinessUnitId,
+                        UserInvolvedId = sbuToQuoteServiceProp.UserInvolvedId,
+                        CreatedById = LoggedInUserId,
+                    });
 
+                }
+
+                await context.SbutoContractServiceProportions.AddRangeAsync(sBUToContractServiceProps);
+                await context.SaveChangesAsync();
             }
-
-            await context.SbutoContractServiceProportions.AddRangeAsync(sBUToContractServiceProps);
-            await context.SaveChangesAsync();
+            catch (Exception ex)
+            {
+                _logger.LogDebug("SbutoContractServiceProportion", ex);
+            }
             return true;
         }
 
@@ -388,17 +374,25 @@ namespace HaloBiz.MyServices.Impl.LAMS
             return true;
         }
 
-        public async Task<bool> GenerateInvoices(ContractService contractService, long customerDivisionId, string serviceCode, long loggedInUserId)
+        public async Task<(bool, string)> GenerateInvoices(ContractService contractService, long customerDivisionId, string serviceCode, long loggedInUserId)
         {
             List<Invoice> invoicesToSave = GenerateListOfInvoiceCycle(
                                                                         contractService,
                                                                         customerDivisionId,
                                                                         serviceCode,
                                                                         loggedInUserId);
+            try
+            {
+                await _context.Invoices.AddRangeAsync(invoicesToSave);
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                return (false, ex.Message);
+            }
 
-            await _context.Invoices.AddRangeAsync(invoicesToSave);
-            await _context.SaveChangesAsync();
-            return true;
+          
+            return (true, "success");
         }
 
         public List<Invoice> GenerateListOfInvoiceCycle(
@@ -530,12 +524,12 @@ namespace HaloBiz.MyServices.Impl.LAMS
                                 int invoiceIndex,
                                 long loggedInUserId)
         {
-            string invoiceNumber = String.IsNullOrWhiteSpace(contractService.GroupInvoiceNumber) ?
+            string invoiceNumber = String.IsNullOrWhiteSpace(contractService.Contract?.GroupInvoiceNumber) ?
                             $"INV{contractService.Id.ToString().PadLeft(8, '0')}"
-                                    : contractService.GroupInvoiceNumber;
-            string transactionId = String.IsNullOrWhiteSpace(contractService.GroupInvoiceNumber) ?
+                                    : contractService.Contract?.GroupInvoiceNumber;
+            string transactionId = String.IsNullOrWhiteSpace(contractService.Contract?.GroupInvoiceNumber) ?
                              $"TRS{serviceCode}/{contractService.Id}"
-                                    : $"{contractService.GroupInvoiceNumber.Replace("GINV", "TRS")}/{contractService.Id}";
+                                    : $"{contractService.Contract?.GroupInvoiceNumber?.Replace("GINV", "TRS")}/{contractService.Id}";
 
             /*var unitPrice = String.IsNullOrWhiteSpace(contractService.GroupInvoiceNumber)
                                 ? contractService.UnitPrice : 0;*/
@@ -562,83 +556,100 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 IsFinalInvoice = true,
                 InvoiceType = (int)InvoiceType.New,
                 CreatedById = loggedInUserId,
-                GroupInvoiceNumber = string.IsNullOrWhiteSpace(contractService.GroupInvoiceNumber) ? null : invoiceNumber,
-                //First Accounts for first invoices are posted when a lead is converted to client
+                GroupInvoiceNumber = string.IsNullOrWhiteSpace(contractService.Contract?.GroupInvoiceNumber) ? null : invoiceNumber,
                 IsAccountPosted = invoiceIndex == 1
             };
         }
 
-        public async Task<bool> GenerateAmortizations(ContractService contractService, CustomerDivision customerDivision)
+        public async Task<(bool, string)> GenerateAmortizations(ContractService contractService, CustomerDivision customerDivision)
         {
-            DateTime startDate = (DateTime)contractService.ContractStartDate;
-            DateTime endDate = (DateTime)contractService.ContractEndDate;
-            var InitialYear = startDate.Year;
-            List<Amortization> amortizations = new List<Amortization>();
-
-            var totalContractBillable = CalculateTotalAmountForContract((double)contractService.BillableAmount,
-                                                                        (DateTime)startDate,
-                                                                        (DateTime)endDate,
-                                                                        (TimeCycle)contractService.InvoicingInterval);
-
-            for (int i = startDate.Year; i <= endDate.Year; i++)
+            try
             {
-                amortizations.Add(new Amortization()
-                {
-                    Year = i,
-                    ClientId = customerDivision.CustomerId,
-                    DivisionId = customerDivision.Id,
-                    ContractId = contractService.ContractId,
-                    ContractServiceId = contractService.Id,
-                    ContractValue = (double)totalContractBillable,
-                    GroupInvoiceNumber = string.IsNullOrWhiteSpace(contractService.GroupInvoiceNumber) ? null : contractService.GroupInvoiceNumber,
-                    January = DateTime.Parse($"{i}/01/31") > startDate && DateTime.Parse($"{i}/01/31") <= endDate ? (double)contractService.BillableAmount : 0,
-                    February = DateTime.Parse($"{i}/02/28") > startDate && DateTime.Parse($"{i}/02/28") <= endDate ? (double)contractService.BillableAmount : 0,
-                    March = DateTime.Parse($"{i}/03/31") > startDate && DateTime.Parse($"{i}/03/31") <= endDate ? (double)contractService.BillableAmount : 0,
-                    April = DateTime.Parse($"{i}/04/30") > startDate && DateTime.Parse($"{i}/04/30") <= endDate ? (double)contractService.BillableAmount : 0,
-                    May = DateTime.Parse($"{i}/05/31") > startDate && DateTime.Parse($"{i}/05/31") <= endDate ? (double)contractService.BillableAmount : 0,
-                    June = DateTime.Parse($"{i}/06/30") > startDate && DateTime.Parse($"{i}/06/30") <= endDate ? (double)contractService.BillableAmount : 0,
-                    July = DateTime.Parse($"{i}/07/31") > startDate && DateTime.Parse($"{i}/07/31") <= endDate ? (double)contractService.BillableAmount : 0,
-                    August = DateTime.Parse($"{i}/08/31") > startDate && DateTime.Parse($"{i}/08/31") <= endDate ? (double)contractService.BillableAmount : 0,
-                    September = DateTime.Parse($"{i}/09/30") > startDate && DateTime.Parse($"{i}/09/30") <= endDate ? (double)contractService.BillableAmount : 0,
-                    October = DateTime.Parse($"{i}/10/31") > startDate && DateTime.Parse($"{i}/10/31") <= endDate ? (double)contractService.BillableAmount : 0,
-                    November = DateTime.Parse($"{i}/11/30") > startDate && DateTime.Parse($"{i}/11/30") <= endDate ? (double)contractService.BillableAmount : 0,
-                    December = DateTime.Parse($"{i}/12/31") > startDate && DateTime.Parse($"{i}/12/31") <= endDate ? (double)contractService.BillableAmount : 0,
+                DateTime startDate = (DateTime)contractService.ContractStartDate;
+                DateTime endDate = (DateTime)contractService.ContractEndDate;
+                var InitialYear = startDate.Year;
+                List<Amortization> amortizations = new List<Amortization>();
 
-                });
+                var totalContractBillable = CalculateTotalAmountForContract((double)contractService.BillableAmount,
+                                                                            (DateTime)startDate,
+                                                                            (DateTime)endDate,
+                                                                            (TimeCycle)contractService.InvoicingInterval);
+
+                for (int i = startDate.Year; i <= endDate.Year; i++)
+                {
+                    amortizations.Add(new Amortization()
+                    {
+                        Year = i,
+                        ClientId = customerDivision.CustomerId,
+                        DivisionId = customerDivision.Id,
+                        ContractId = contractService.ContractId,
+                        ContractServiceId = contractService.Id,
+                        ContractValue = (double)totalContractBillable,
+                        GroupInvoiceNumber = string.IsNullOrWhiteSpace(contractService.Contract?.GroupInvoiceNumber) ? null : contractService.Contract?.GroupInvoiceNumber,
+                        January = DateTime.Parse($"{i}/01/31") > startDate && DateTime.Parse($"{i}/01/31") <= endDate ? (double)contractService.BillableAmount : 0,
+                        February = DateTime.Parse($"{i}/02/28") > startDate && DateTime.Parse($"{i}/02/28") <= endDate ? (double)contractService.BillableAmount : 0,
+                        March = DateTime.Parse($"{i}/03/31") > startDate && DateTime.Parse($"{i}/03/31") <= endDate ? (double)contractService.BillableAmount : 0,
+                        April = DateTime.Parse($"{i}/04/30") > startDate && DateTime.Parse($"{i}/04/30") <= endDate ? (double)contractService.BillableAmount : 0,
+                        May = DateTime.Parse($"{i}/05/31") > startDate && DateTime.Parse($"{i}/05/31") <= endDate ? (double)contractService.BillableAmount : 0,
+                        June = DateTime.Parse($"{i}/06/30") > startDate && DateTime.Parse($"{i}/06/30") <= endDate ? (double)contractService.BillableAmount : 0,
+                        July = DateTime.Parse($"{i}/07/31") > startDate && DateTime.Parse($"{i}/07/31") <= endDate ? (double)contractService.BillableAmount : 0,
+                        August = DateTime.Parse($"{i}/08/31") > startDate && DateTime.Parse($"{i}/08/31") <= endDate ? (double)contractService.BillableAmount : 0,
+                        September = DateTime.Parse($"{i}/09/30") > startDate && DateTime.Parse($"{i}/09/30") <= endDate ? (double)contractService.BillableAmount : 0,
+                        October = DateTime.Parse($"{i}/10/31") > startDate && DateTime.Parse($"{i}/10/31") <= endDate ? (double)contractService.BillableAmount : 0,
+                        November = DateTime.Parse($"{i}/11/30") > startDate && DateTime.Parse($"{i}/11/30") <= endDate ? (double)contractService.BillableAmount : 0,
+                        December = DateTime.Parse($"{i}/12/31") > startDate && DateTime.Parse($"{i}/12/31") <= endDate ? (double)contractService.BillableAmount : 0,
+
+                    });
+                }
+
+                await _context.Amortizations.AddRangeAsync(amortizations);
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("", ex);
+                return (false, ex.Message);
             }
 
-            await _context.Amortizations.AddRangeAsync(amortizations);
-            await _context.SaveChangesAsync();
-            return true;
+            return (true, "success");
         }
 
-        public async Task<bool> CreateTaskAndDeliverables(ContractService contractServcie, long customerDivisionId, string endorsementType, long? loggedInUserId = null)
+        public async Task<(bool, string)> CreateTaskAndDeliverables(ContractService contractServcie, long customerDivisionId, string endorsementType, long? loggedInUserId = null)
         {
             var createdById = loggedInUserId ?? this.LoggedInUserId;
             Service service = await _context.Services.FirstOrDefaultAsync(x => x.Id == contractServcie.ServiceId);
             if (service == null)
             {
-                return false;
+                return (false, $"There is no such success with id {contractServcie.ServiceId}");
             }
 
-            IEnumerable<ServiceCategoryTask> serviceCategoryTasks = await _context.ServiceCategoryTasks
+            try
+            {
+                IEnumerable<ServiceCategoryTask> serviceCategoryTasks = await _context.ServiceCategoryTasks
             .Include(x => x.ServiceTaskDeliverables)
             .Where(x => x.ServiceCategoryId == service.ServiceCategoryId && x.EndorsementType.Caption == endorsementType && x.IsDeleted == false).ToListAsync();
 
-            foreach (var serviceTask in serviceCategoryTasks)
-            {
-                await CreateTaskFulfillment(
-                                     serviceTask,
-                                     contractServcie,
-                                    customerDivisionId,
-                                    service,
-                                    createdById
-                                    );
+                foreach (var serviceTask in serviceCategoryTasks)
+                {
+                    await CreateTaskFulfillment(
+                                         serviceTask,
+                                         contractServcie,
+                                        customerDivisionId,
+                                        service,
+                                        createdById
+                                        );
+                }
             }
-            return true;
+            catch (Exception ex)
+            {
+                _logger.LogError("", ex);
+                return (false, ex.Message);
+            }
+
+            return (true, "success");
         }
 
-        private async Task<bool> CreateTaskFulfillment(
+        private async Task<(bool, string)> CreateTaskFulfillment(
                                     ServiceCategoryTask serviceTask,
                                     ContractService contractServcie,
                                     long customerDivisionId,
@@ -646,44 +657,52 @@ namespace HaloBiz.MyServices.Impl.LAMS
                                     long loggedInUserId
                                     )
         {
-            var operatingEntity = await _context.OperatingEntities
+            try
+            {
+                var operatingEntity = await _context.OperatingEntities
                         .Include(x => x.Division)
                         .FirstOrDefaultAsync(x => x.Id == service.OperatingEntityId);
 
-            var task = await _context.TaskFulfillments.AddAsync(new TaskFulfillment()
-            {
-                Caption = serviceTask.Caption,
-                Description = $"{serviceTask.Caption} for {service.Name}",
-                CustomerDivisionId = customerDivisionId,
-                ResponsibleId = operatingEntity.HeadId,
-                AccountableId = operatingEntity.HeadId,
-                ConsultedId = operatingEntity.Division.HeadId,
-                InformedId = operatingEntity.Division.HeadId,
-                CreatedById = loggedInUserId,
-                ContractServiceId = contractServcie.Id,
-                EndDate = contractServcie.FulfillmentEndDate,
-                StartDate = contractServcie.FulfillmentStartDate,
-                ServiceCode = service.ServiceCode,
-                Budget = contractServcie.Budget,
-                ProjectDeliveryDate = contractServcie.ActivationDate ?? contractServcie.FulfillmentEndDate,
-            });
+                var task = await _context.TaskFulfillments.AddAsync(new TaskFulfillment()
+                {
+                    Caption = serviceTask.Caption,
+                    Description = $"{serviceTask.Caption} for {service.Name}",
+                    CustomerDivisionId = customerDivisionId,
+                    ResponsibleId = operatingEntity.HeadId,
+                    AccountableId = operatingEntity.HeadId,
+                    ConsultedId = operatingEntity.Division.HeadId,
+                    InformedId = operatingEntity.Division.HeadId,
+                    CreatedById = loggedInUserId,
+                    ContractServiceId = contractServcie.Id,
+                    EndDate = contractServcie.FulfillmentEndDate,
+                    StartDate = contractServcie.FulfillmentStartDate,
+                    ServiceCode = service.ServiceCode,
+                    Budget = contractServcie.Budget,
+                    ProjectDeliveryDate = contractServcie.ActivationDate ?? contractServcie.FulfillmentEndDate,
+                });
 
-            await _context.SaveChangesAsync();
+                await _context.SaveChangesAsync();
 
-            var taskFulfilment = await _context.TaskFulfillments.AsNoTracking().
-                Where(x => x.Id == task.Entity.Id)
-                .SingleOrDefaultAsync();
+                var taskFulfilment = await _context.TaskFulfillments.AsNoTracking().
+                    Where(x => x.Id == task.Entity.Id)
+                    .SingleOrDefaultAsync();
 
-            await SendNewTaskAssignedMail(taskFulfilment, contractServcie.Service.OperatingEntity.Name);
+                await SendNewTaskAssignedMail(taskFulfilment, contractServcie.Service.OperatingEntity.Name);
 
-            foreach (var deliverable in serviceTask.ServiceTaskDeliverables)
-            {
-                await CreateDeliverableFulfillment(task.Entity.Id, deliverable, service.ServiceCode, loggedInUserId);
+                foreach (var deliverable in serviceTask.ServiceTaskDeliverables)
+                {
+                    await CreateDeliverableFulfillment(task.Entity.Id, deliverable, service.ServiceCode, loggedInUserId);
+                }
             }
-            return true;
+            catch (Exception ex)
+            {
+                _logger.LogError("", ex.Message);
+                return (false, ex.Message);
+            }
+            return (true,"success");
         }
 
-        private async Task<bool> CreateDeliverableFulfillment(
+        private async Task<(bool, string)> CreateDeliverableFulfillment(
                                     long taskId,
                                     ServiceTaskDeliverable serviceTaskDeliverable,
                                     string serviceCode,
@@ -691,21 +710,29 @@ namespace HaloBiz.MyServices.Impl.LAMS
                                     )
         {
 
-            var deliverable = await _context.DeliverableFulfillments.AddAsync(new DeliverableFulfillment()
+            try
             {
-                Caption = serviceTaskDeliverable.Caption,
-                Description = serviceTaskDeliverable.Description,
-                TaskFullfillmentId = taskId,
-                CreatedById = loggedInUserId,
-                ServiceCode = serviceCode
-            });
+                var deliverable = await _context.DeliverableFulfillments.AddAsync(new DeliverableFulfillment()
+                {
+                    Caption = serviceTaskDeliverable.Caption,
+                    Description = serviceTaskDeliverable.Description,
+                    TaskFullfillmentId = taskId,
+                    CreatedById = loggedInUserId,
+                    ServiceCode = serviceCode
+                });
 
-            await _context.SaveChangesAsync();
-            return true;
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("", ex);
+                return (false, ex.Message);
+            }
+            return (true, "success");
         }
 
 
-        public async Task<bool> CreateAccounts(
+        public async Task<(bool, string)> CreateAccounts(
                                     ContractService contractService,
                                     CustomerDivision customerDivision,
                                     long branchId,
@@ -721,7 +748,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
             var totalVAT = CalculateTotalBillableForPeriod(contractService, true);
 
             var totalAfterTax = totalContractBillable - totalVAT;
-            var savedAccountMaster = await CreateAccountMaster(service,
+            var savedAccountMasterId = await CreateAccountMaster(service,
                                                          contractService,
                                                          accountVoucherType,
                                                          branchId,
@@ -733,52 +760,62 @@ namespace HaloBiz.MyServices.Impl.LAMS
             if (quoteService != null)
             {
                 // this breaks the conversion.
-                await SaveRangeSbuaccountMaster(savedAccountMaster.Id, quoteService.SbutoQuoteServiceProportions);  
+                await SaveRangeSbuaccountMaster(savedAccountMasterId, quoteService.SbutoQuoteServiceProportions);  
             }
 
-            await PostCustomerReceivablAccounts(
-                                     service,
-                                     contractService.Id,
-                                     customerDivision,
-                                     branchId,
-                                     officeId,
-                                     accountVoucherType,
-                                     totalContractBillable,
-                                     savedAccountMaster.Id,
-                                     loggedInUserId,
-                                     isReversal
-                                    );
-
-            await PostVATAccountDetails(
-                                     service,
-                                     contractService.Id,
-                                     customerDivision,
-                                     branchId,
-                                     officeId,
-                                     accountVoucherType,
-                                     savedAccountMaster.Id,
-                                     totalVAT,
-                                    loggedInUserId,
-                                    !isReversal
-                                    );
-            await PostIncomeAccount(
+            try
+            {
+                var (isSuccesReceivable, messageReceivale) = await PostCustomerReceivablAccounts(
                                     service,
-                                    contractService.Id,
+                                    contractService,
                                     customerDivision,
                                     branchId,
                                     officeId,
                                     accountVoucherType,
-                                    savedAccountMaster.Id,
-                                    totalAfterTax,
+                                    totalContractBillable,
+                                    savedAccountMasterId,
                                     loggedInUserId,
-                                    !isReversal
-                                            );
+                                    isReversal
+                                   );
+                
 
-            return true;
+               var (isSuccessVat, messageVat) = await PostVATAccountDetails(
+                                         service,
+                                         contractService,
+                                         customerDivision,
+                                         branchId,
+                                         officeId,
+                                         accountVoucherType,
+                                         savedAccountMasterId,
+                                         totalVAT,
+                                        loggedInUserId,
+                                        !isReversal
+                                        );
+                await PostIncomeAccount(
+                                        service,
+                                        contractService,
+                                        customerDivision,
+                                        branchId,
+                                        officeId,
+                                        accountVoucherType,
+                                        savedAccountMasterId,
+                                        totalAfterTax,
+                                        loggedInUserId,
+                                        !isReversal
+                                                );
+
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("", ex);
+                return (false, ex.Message);
+            }
+
+            return (true,"success");
         }
-        public async Task<bool> PostCustomerReceivablAccounts(
+        public async Task<(bool, string)> PostCustomerReceivablAccounts(
                                     Service service,
-                                    long contractServiceId,
+                                    ContractService contractService,
                                     CustomerDivision customerDivision,
                                     long branchId,
                                     long officeId,
@@ -789,55 +826,64 @@ namespace HaloBiz.MyServices.Impl.LAMS
                                     bool isCredit
                                     )
         {
-            long accountId = 0;
-            if (isRetail)
+            try
             {
-                accountId = await GetRetailReceivableAccount(customerDivision);
-            }
-            else if (customerDivision.ReceivableAccountId > 0)
-            {
-                accountId = (long)customerDivision.ReceivableAccountId;
-            }
-            else
-            {
-                //Create Customer Receivable Account
-                ControlAccount controlAccount = await _context.ControlAccounts
-                        .FirstOrDefaultAsync(x => x.Caption == ReceivableControlAccount);
-
-                Account account = new Account()
+                long accountId = 0;
+                if (isRetail)
                 {
-                    Name = $"{customerDivision.DivisionName} Receivable",
-                    Description = $"Receivable Account of {customerDivision.DivisionName}",
-                    Alias = customerDivision.DTrackCustomerNumber,
-                    IsDebitBalance = true,
-                    ControlAccountId = controlAccount.Id,
-                    CreatedById = createdById
-                };
-                var savedAccount = await SaveAccount(account);
+                    accountId = await GetRetailReceivableAccount(customerDivision);
+                }
+                else if (customerDivision.ReceivableAccountId > 0)
+                {
+                    accountId = (long)customerDivision.ReceivableAccountId;
+                }
+                else
+                {
+                    //Create Customer Receivable Account
+                    ControlAccount controlAccount = await _context.ControlAccounts
+                            .FirstOrDefaultAsync(x => x.Caption == ReceivableControlAccount);
 
-                customerDivision.ReceivableAccountId = savedAccount.Id;
-                accountId = savedAccount.Id;
+                    Account account = new Account()
+                    {
+                        Name = $"{customerDivision.DivisionName} Receivable",
+                        Description = $"Receivable Account of {customerDivision.DivisionName}",
+                        Alias = customerDivision.DTrackCustomerNumber,
+                        IsDebitBalance = true,
+                        ControlAccountId = controlAccount.Id,
+                        CreatedById = createdById,
+                        CreatedAt = DateTime.Now
+                    };
 
-                _context.CustomerDivisions.Update(customerDivision);
-                await _context.SaveChangesAsync();
+                    var savedAccount = await SaveAccount(account);
 
+                    customerDivision.ReceivableAccountId = savedAccount.Id;
+                    accountId = savedAccount.Id;
+
+                    _context.CustomerDivisions.Update(customerDivision);
+                   var affected = await _context.SaveChangesAsync();
+
+                }
+
+
+               var (success, details) =  await PostAccountDetail(service,
+                                        contractService,
+                                        accountVoucherType,
+                                        branchId,
+                                        officeId,
+                                        totalContractBillable,
+                                        isCredit,
+                                        accountMasterId,
+                                        accountId,
+                                        customerDivision,
+                                        createdById
+                                        );
+            }
+            catch (Exception ex)
+            {
+                return (false, ex.Message);
             }
 
-
-            await PostAccountDetail(service,
-                                    contractServiceId,
-                                    accountVoucherType,
-                                    branchId,
-                                    officeId,
-                                    totalContractBillable,
-                                    isCredit,
-                                    accountMasterId,
-                                    accountId,
-                                    customerDivision,
-                                    createdById
-                                    );
-
-            return true;
+            return (true, "success");
         }
 
         private async Task<long> GetRetailReceivableAccount(CustomerDivision customerDivision)
@@ -979,9 +1025,9 @@ namespace HaloBiz.MyServices.Impl.LAMS
         }
 
 
-        public async Task<bool> PostVATAccountDetails(
+        public async Task<(bool, string)> PostVATAccountDetails(
                                     Service service,
-                                    long contractServiceId,
+                                    ContractService contractService,
                                     CustomerDivision customerDivision,
                                     long branchId,
                                     long officeId,
@@ -994,59 +1040,67 @@ namespace HaloBiz.MyServices.Impl.LAMS
         {
             long accountId = 0;
 
-            if (isRetail)
+            try
             {
-                accountId = await GetRetailVATAccount(customerDivision);
-            }
-            else if (customerDivision.VatAccountId > 0)
-            {
-                accountId = (long)customerDivision.VatAccountId;
-            }
-            else
-            {
-                //Create customer vat account
-                ControlAccount controlAccount = await _context.ControlAccounts
-                        .FirstOrDefaultAsync(x => x.Caption == VatControlAccount);
-
-                Account account = new Account()
+                if (isRetail)
                 {
-                    Name = $"{customerDivision.DivisionName} VAT",
-                    Description = $"VAT Account of {customerDivision.DivisionName}",
-                    Alias = customerDivision.DTrackCustomerNumber,
-                    IsDebitBalance = true,
-                    ControlAccountId = controlAccount.Id,
-                    CreatedById = loggedInUserId
-                };
+                    accountId = await GetRetailVATAccount(customerDivision);
+                }
+                else if (customerDivision.VatAccountId > 0)
+                {
+                    accountId = (long)customerDivision.VatAccountId;
+                }
+                else
+                {
+                    //Create customer vat account
+                    ControlAccount controlAccount = await _context.ControlAccounts
+                            .FirstOrDefaultAsync(x => x.Caption == VatControlAccount);
 
-                var savedAccount = await SaveAccount(account);
+                    Account account = new Account()
+                    {
+                        Name = $"{customerDivision.DivisionName} VAT",
+                        Description = $"VAT Account of {customerDivision.DivisionName}",
+                        Alias = customerDivision.DTrackCustomerNumber,
+                        IsDebitBalance = true,
+                        ControlAccountId = controlAccount.Id,
+                        CreatedById = loggedInUserId
+                    };
 
-                customerDivision.VatAccountId = savedAccount.Id;
-                accountId = savedAccount.Id;
+                    var savedAccount = await SaveAccount(account);
 
-                _context.CustomerDivisions.Update(customerDivision);
-                await _context.SaveChangesAsync();
+                    customerDivision.VatAccountId = savedAccount.Id;
+                    accountId = savedAccount.Id;
 
+                    _context.CustomerDivisions.Update(customerDivision);
+                    var affected = await _context.SaveChangesAsync();
+
+                }
+
+              var (isPosted, details) =  await PostAccountDetail(service,
+                                        contractService,
+                                        accountVoucherType,
+                                        branchId,
+                                        officeId,
+                                        totalVAT,
+                                        isCredit,
+                                        accountMasterId,
+                                        accountId,
+                                        customerDivision,
+                                        loggedInUserId
+                                        );
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("", ex.Message);
+                return (false, ex.Message);
             }
 
-            await PostAccountDetail(service,
-                                    contractServiceId,
-                                    accountVoucherType,
-                                    branchId,
-                                    officeId,
-                                    totalVAT,
-                                    isCredit,
-                                    accountMasterId,
-                                    accountId,
-                                    customerDivision,
-                                    loggedInUserId
-                                    );
-
-            return true;
+            return (true, "success");
         }
 
         public async Task<bool> PostIncomeAccount(
                                     Service service,
-                                    long contractServiceId,
+                                    ContractService contractService,
                                     CustomerDivision customerDivision,
                                     long branchId,
                                     long officeId,
@@ -1070,7 +1124,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
             
 
             await PostAccountDetail(service,
-                                    contractServiceId,
+                                    contractService,
                                     accountVoucherType,
                                     branchId,
                                     officeId,
@@ -1117,7 +1171,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
         }
 
-        public async Task<AccountMaster> CreateAccountMaster(Service service,
+        public async Task<long> CreateAccountMaster(Service service,
                                                         ContractService contractService,
                                                         FinanceVoucherType accountVoucherType,
                                                         long branchId,
@@ -1126,32 +1180,43 @@ namespace HaloBiz.MyServices.Impl.LAMS
                                                         CustomerDivision customerDivision,
                                                         long createdById)
         {
-            string transactionId = String.IsNullOrWhiteSpace(contractService.GroupInvoiceNumber) ?
-                             $"TRS{service.ServiceCode}/{contractService.Id}"
-                                    : $"{contractService.GroupInvoiceNumber.Replace("GINV", "TRS")}/{contractService.Id}";
-
-            AccountMaster accountMaster = new AccountMaster()
+            try
             {
-                Description = GetAccountMasterDescription(accountVoucherType, service, customerDivision),
-                IntegrationFlag = false,
-                VoucherId = accountVoucherType.Id,
-                BranchId = branchId,
-                OfficeId = officeId,
-                Value = amount,
-                TransactionId = transactionId,
-                CreatedById = createdById,
-                CustomerDivisionId = customerDivision.Id
-            };
-            var savedAccountMaster = await _context.AccountMasters.AddAsync(accountMaster);
-            await _context.SaveChangesAsync();
-            return savedAccountMaster.Entity;
+                string transactionId = String.IsNullOrWhiteSpace(contractService.Contract?.GroupInvoiceNumber) ?
+                             $"TRS{service.ServiceCode}/{contractService.Id}"
+                                    : $"{contractService.Contract?.GroupInvoiceNumber?.Replace("GINV", "TRS")}/{contractService.Id}";
+
+                AccountMaster accountMaster = new AccountMaster()
+                {
+                    Description = GetAccountMasterDescription(accountVoucherType, service, customerDivision, contractService),
+                    IntegrationFlag = false,
+                    VoucherId = accountVoucherType.Id,
+                    BranchId = branchId,
+                    OfficeId = officeId,
+                    Value = amount,
+                    TransactionId = transactionId,
+                    CreatedById = createdById,
+                    CustomerDivisionId = customerDivision.Id
+                };
+                var savedAccountMaster = await _context.AccountMasters.AddAsync(accountMaster);
+                await _context.SaveChangesAsync();
+                long id = accountMaster.Id;
+                _context.ChangeTracker.Clear();
+
+                return id;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("Error in CreateAccountMaster", ex);
+                throw;
+            }
         }
 
-        private string GetAccountMasterDescription(FinanceVoucherType financeVoucherType, Service service, CustomerDivision customerDivision)
+        private string GetAccountMasterDescription(FinanceVoucherType financeVoucherType, Service service, CustomerDivision customerDivision, ContractService contractService = null)
         {
             var fvt = financeVoucherType.VoucherType.ToLower();
 
-            var description = $"Sales of {service.Name} with service ID: {service.Id} to {customerDivision.DivisionName}";
+            var description = $"Sales of {service.Name} to {customerDivision.DivisionName} with tag '{contractService?.UniqueTag}'";
 
             if(fvt == "debit note")
             {
@@ -1167,24 +1232,35 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
         private async Task<bool> SaveRangeSbuaccountMaster(long accountMasterId, IEnumerable<SbutoQuoteServiceProportion> sBUToQuoteServiceProp)
         {
-            List<SbuaccountMaster> listOfSbuaccountMaster = new List<SbuaccountMaster>();
-            foreach (var prop in sBUToQuoteServiceProp)
+            try
             {
-                listOfSbuaccountMaster.Add(new SbuaccountMaster()
+                List<SbuaccountMaster> listOfSbuaccountMaster = new List<SbuaccountMaster>();
+                foreach (var prop in sBUToQuoteServiceProp)
                 {
-                    StrategicBusinessUnitId = prop.StrategicBusinessUnitId,
-                    AccountMasterId = accountMasterId
-                });
-            }
+                    listOfSbuaccountMaster.Add(new SbuaccountMaster()
+                    {
+                        StrategicBusinessUnitId = prop.StrategicBusinessUnitId,
+                        AccountMasterId = accountMasterId
+                    });
+                }
 
-            await _context.SbuaccountMasters.AddRangeAsync(listOfSbuaccountMaster);
-            await _context.SaveChangesAsync();
+                _context.ChangeTracker.Clear();
+                await _context.SbuaccountMasters.AddRangeAsync(listOfSbuaccountMaster);
+                var affected = await _context.SaveChangesAsync();
+                _context.ChangeTracker.Clear();
+
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("", ex);
+                throw;
+            }
             return true;
         }
 
-        private async Task<AccountDetail> PostAccountDetail(
+        private async Task<(bool, AccountDetail)> PostAccountDetail(
                                                     Service service,
-                                                    long contractServiceId,
+                                                    ContractService contractService,
                                                     FinanceVoucherType accountVoucherType,
                                                     long branchId,
                                                     long officeId,
@@ -1197,25 +1273,33 @@ namespace HaloBiz.MyServices.Impl.LAMS
                                                     )
         {
 
-            AccountDetail accountDetail = new AccountDetail()
+            try
             {
-                Description = GetAccountMasterDescription(accountVoucherType, service, customerDivision),
-                IntegrationFlag = false,
-                VoucherId = accountVoucherType.Id,
-                TransactionId = $"{service.ServiceCode}/{contractServiceId}",
-                TransactionDate = DateTime.Now,
-                Credit = isCredit ? amount : 0,
-                Debit = !isCredit ? amount : 0,
-                AccountId = accountId,
-                BranchId = branchId,
-                OfficeId = officeId,
-                AccountMasterId = accountMasterId,
-                CreatedById = loggedInUserId,
-            };
+                AccountDetail accountDetail = new AccountDetail()
+                {
+                    Description = GetAccountMasterDescription(accountVoucherType, service, customerDivision, contractService),
+                    IntegrationFlag = false,
+                    VoucherId = accountVoucherType.Id,
+                    TransactionId = $"{service.ServiceCode}/{contractService.Id}",
+                    TransactionDate = DateTime.Now,
+                    Credit = isCredit ? amount : 0,
+                    Debit = !isCredit ? amount : 0,
+                    AccountId = accountId,
+                    BranchId = branchId,
+                    OfficeId = officeId,
+                    AccountMasterId = accountMasterId,
+                    CreatedById = loggedInUserId,
+                };
 
-            var savedAccountDetails = await _context.AccountDetails.AddAsync(accountDetail);
-            await _context.SaveChangesAsync();
-            return savedAccountDetails.Entity;
+                var savedAccountDetails = await _context.AccountDetails.AddAsync(accountDetail);
+                var affected = await _context.SaveChangesAsync();
+                return  affected > 0 ? (true, savedAccountDetails.Entity) : (false, null);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("", ex.Message);
+                return (false, null);
+            }
         }
 
 
