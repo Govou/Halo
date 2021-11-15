@@ -14,7 +14,6 @@ namespace HaloBiz.Repository
         Task<SMORoute> FindSMORouteById(long id);
 
         Task<IEnumerable<SMORoute>> FindAllSMORoutes();
-        //Task<bool> DeleteSMORoute(SMORoute sMORoute);
 
         //Region
         Task<SMORegion> SaveSMORegion(SMORegion sMORegion);
