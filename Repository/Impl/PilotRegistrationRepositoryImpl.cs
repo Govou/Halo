@@ -27,17 +27,13 @@ namespace HaloBiz.Repository.Impl
 
         public async Task<IEnumerable<PilotProfile>> FindAllPilots()
         {
-            return await _context.PilotProfiles.Where(pilot => pilot.IsDeleted == false)
-                .Include(pilot => pilot.CreatedBy).Include(pilot => pilot.Rank)
-                .Include(pilot => pilot.PilotType).Include(pilot => pilot.MeansOfIdentification)
+            return await _context.PilotProfiles.Where(rank => rank.IsDeleted == false)
                                        .ToListAsync();
         }
 
         public async Task<PilotProfile> FindPilotById(long Id)
         {
-            return await _context.PilotProfiles.Include(pilot => pilot.CreatedBy).Include(pilot => pilot.Rank)
-                .Include(pilot => pilot.PilotType).Include(pilot => pilot.MeansOfIdentification)
-                .FirstOrDefaultAsync(aer => aer.Id == Id && aer.IsDeleted == false);
+            return await _context.PilotProfiles.FirstOrDefaultAsync(aer => aer.Id == Id && aer.IsDeleted == false);
         }
 
         public async Task<PilotProfile> SavePilot(PilotProfile pilotProfile)

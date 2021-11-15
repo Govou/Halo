@@ -53,7 +53,8 @@ namespace HaloBiz.Repository.Impl
         {
             return await _context.Branches.Where(branch => branch.IsDeleted == false)
                 .Include(branch => branch.Head)
-                .Include(branch => branch.Offices.Where(office => office.IsDeleted == false))
+                .Include(branch => branch.Offices
+                .Where(office => office.IsDeleted == false))
                 .ToListAsync();
         }
 
