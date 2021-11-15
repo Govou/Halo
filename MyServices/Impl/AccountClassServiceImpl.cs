@@ -13,6 +13,9 @@ using System.Linq;
 using System.Threading.Tasks;
 
 namespace HaloBiz.MyServices.Impl
+
+
+    
 {
     public class AccountClassServiceImpl : IAccountClassService
     {
@@ -30,6 +33,7 @@ namespace HaloBiz.MyServices.Impl
         public async Task<ApiResponse> AddAccountClass(HttpContext context, AccountClassReceivingDTO accountClassReceivingDTO)
         {
             var acctClass = _mapper.Map<AccountClass>(accountClassReceivingDTO);
+          
             acctClass.CreatedById = context.GetLoggedInUserId();
             var savedAccountClass = await _accountClassRepo.SaveAccountClass(acctClass);
             if (savedAccountClass == null)

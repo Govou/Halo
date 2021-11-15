@@ -745,9 +745,9 @@ namespace HaloBiz.MyServices.Impl.LAMS
             IEnumerable<Invoice> invoices = null;
 
             invoices = isGroupInvoice?  await _context.Invoices
-                                    //.Where(x => x.GroupInvoiceNumber == contractServiceForEndorsement.GroupInvoiceNumber 
-                                    //                && x.ContractServiceId == contractServiceForEndorsement.PreviousContractServiceId
-                                    //                && x.StartDate >= contractServiceForEndorsement.DateForNewContractToTakeEffect && !x.IsDeleted)
+                                    .Where(x => x.GroupInvoiceNumber == contractServiceForEndorsement.GroupInvoiceNumber 
+                                                    && x.ContractServiceId == contractServiceForEndorsement.PreviousContractServiceId
+                                                    && x.StartDate >= contractServiceForEndorsement.DateForNewContractToTakeEffect && !x.IsDeleted)
                                     .ToListAsync()
                     :
                     await _context.Invoices
