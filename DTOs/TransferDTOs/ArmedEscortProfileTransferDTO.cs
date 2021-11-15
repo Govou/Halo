@@ -1,4 +1,6 @@
-﻿using System;
+﻿using HalobizMigrations.Models;
+using HalobizMigrations.Models.Armada;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -25,6 +27,11 @@ namespace HaloBiz.DTOs.TransferDTOs
         public string LastName { get; set; }
         public string FirstName { get; set; }
         public long Id { get; set; }
-      
+
+        public virtual SupplierService SupplierService { get; set; }
+        public virtual ArmedEscortType ArmedEscortType { get; set; }
+        public virtual ServiceAssignment ServiceAssignment { get; set; }
+        public virtual ArmedEscortRank Rank { get; set; }
+
     }
 }

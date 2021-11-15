@@ -70,8 +70,11 @@ namespace HaloBiz.Repository.Impl
 
         public async Task<IEnumerable<SMORegion>> FindAllSMORegions()
         {
-            return await _context.SMORegions
+            return await _context.SMORegions.Where(c=>c.IsDeleted == false).Include(region => region.CreatedBy)
+                .Include(region => region.SMORoutes
+                .Where(route => route.IsDeleted == false))
                 .ToListAsync();
+                
         }
 
         public async Task<SMORegion> UpdateSMORegion(SMORegion sMORegion)

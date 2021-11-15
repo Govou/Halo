@@ -1,4 +1,5 @@
-﻿using System;
+﻿using HalobizMigrations.Models.Armada;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -22,7 +23,8 @@ namespace HaloBiz.DTOs.TransferDTOs
         public string Description { get; set; }
         public string Alias { get; set; }
         public string RankName { get; set; }
-        public string CommanderType { get; set; }
+        public CommanderType CommanderType { get; set; }
+        public long CommanderTypeId { get; set; }
         public long Sequence { get; set; }
         public bool isDeleted { get; set; }
         public DateTime CreatedAt { get; set; }
