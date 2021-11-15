@@ -351,7 +351,9 @@ namespace HaloBiz.Helpers
             CreateMap<ArmedEscortProfileReceivingDTO, ArmedEscortProfile>();
             CreateMap<ArmedEscortProfile, ArmedEscortProfileTransferDTO>();
 
-            //CreateMap<CommanderType, SMORegionTransferDTO>();
-        }
+          
+
+        //CreateMap<CommanderType, SMORegionTransferDTO>();
+    }
     }
 }
