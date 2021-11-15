@@ -6,9 +6,11 @@ using System.Threading.Tasks;
 
 namespace HaloBiz.DTOs.GenericResponseDTO
 {
-    public class ApiGenericResponse
+    public class ApiGenericResponse<T>
     {
-        public EnumsResponse responseCode { get; set; }
-        //public T responseDesc { get; set; }
+        public long responseCode { get; set; }
+        public string responseMessage { get; set; }
+
+        public T data { get; set; }
     }
 }
