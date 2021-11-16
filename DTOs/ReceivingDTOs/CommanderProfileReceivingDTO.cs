@@ -15,7 +15,7 @@ namespace HaloBiz.DTOs.ReceivingDTOs
         [Required]
         public long? AttachedBranchId { get; set; }
         [Required]
-        public long? ProfileId { get; set; }
+        public long ProfileId { get; set; }
         [Required]
         public long? RankId { get; set; }
     }

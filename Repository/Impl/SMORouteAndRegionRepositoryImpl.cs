@@ -31,13 +31,20 @@ namespace HaloBiz.Repository.Impl
 
         public async Task<SMORoute> FindSMORouteById(long Id)
         {
-            return await _context.SMORoutes
-                .FirstOrDefaultAsync(route => route.Id == Id);
+            return await _context.SMORoutes.Include(reg=>reg.SMORegion)
+                .Include(r=>r.VehiclesOnRoute.Where(r=>r.IsDeleted == false))
+                .Include(r=>r.ArmedEscortsOnRoute.Where(ae=>ae.IsDeleted == false)).
+                Include(r=>r.PilotsOnRoute.Where(pi=>pi.IsDeleted == false))
+                .Include(r => r.SMORegion)
+                .FirstOrDefaultAsync(route => route.Id == Id && route.IsDeleted == false);
         }
 
         public async Task<IEnumerable<SMORoute>> FindAllSMORoutes()
         {
-            return await _context.SMORoutes
+            return await _context.SMORoutes.Where(r=>r.IsDeleted == false).Include(r => r.VehiclesOnRoute.Where(r => r.IsDeleted == false))
+                .Include(r => r.ArmedEscortsOnRoute.Where(ae => ae.IsDeleted == false)).
+                Include(r => r.PilotsOnRoute.Where(pi => pi.IsDeleted == false))
+                .Include(r=>r.SMORegion)
                 .ToListAsync();
         }
 
@@ -49,6 +56,13 @@ namespace HaloBiz.Repository.Impl
                 return updatedEntity.Entity;
             }
             return null;
+        }
+
+        public async Task<bool> DeleteSMORoute(SMORoute sMORoute)
+        {
+            sMORoute.IsDeleted = true;
+            _context.SMORoutes.Update(sMORoute);
+            return await SaveChanges();
         }
 
         //Region
@@ -64,13 +78,16 @@ namespace HaloBiz.Repository.Impl
 
         public async Task<SMORegion> FindSMORegionById(long Id)
         {
-            return await _context.SMORegions
-                .FirstOrDefaultAsync(region => region.Id == Id);
+            return await _context.SMORegions.Include(r => r.SMORoutes.Where(route => route.IsDeleted == false))
+                .Include(r => r.CreatedBy)
+                .FirstOrDefaultAsync(region => region.Id == Id && region.IsDeleted == false);
         }
 
         public async Task<IEnumerable<SMORegion>> FindAllSMORegions()
         {
-            return await _context.SMORegions
+            return await _context.SMORegions.Where(r=>r.IsDeleted == false)
+                .Include(r=>r.SMORoutes.Where(route=>route.IsDeleted == false))
+                .Include(r=>r.CreatedBy)
                 .ToListAsync();
         }
 
@@ -84,12 +101,12 @@ namespace HaloBiz.Repository.Impl
             return null;
         }
 
-        //public async Task<bool> DeleteRegion(Region region)
-        //{
-        //    region.IsDeleted = true;
-        //    _context.Regions.Update(region);
-        //    return await SaveChanges();
-        //}
+        public async Task<bool> DeleteSMORegion(SMORegion sMORegion)
+        {
+            sMORegion.IsDeleted = true;
+            _context.SMORegions.Update(sMORegion);
+            return await SaveChanges();
+        }
 
         private async Task<bool> SaveChanges()
         {
@@ -102,6 +119,60 @@ namespace HaloBiz.Repository.Impl
                 _logger.LogError(ex.Message);
                 return false;
             }
+        }
+
+        //Return Route
+        public async Task<SMOReturnRoute> SaveSMOReturnRoute(SMOReturnRoute sMOReturnRoute)
+        {
+            var savedEntity = await _context.SMOReturnRoutes.AddAsync(sMOReturnRoute);
+            if (await SaveChanges())
+            {
+                return savedEntity.Entity;
+            }
+            return null;
+        }
+
+        public async Task<SMOReturnRoute> UpdateSMOReturnRoute(SMOReturnRoute sMOReturnRoute)
+        {
+            var updatedEntity = _context.SMOReturnRoutes.Update(sMOReturnRoute);
+            if (await SaveChanges())
+            {
+                return updatedEntity.Entity;
+            }
+            return null;
+        }
+
+        public async Task<SMOReturnRoute> FindSMOReturnRouteById(long id)
+        {
+            return await _context.SMOReturnRoutes.Include(r => r.SMORoute)
+                           .Include(r => r.CreatedBy).Include(r=>r.ReturnRoute)
+                           .FirstOrDefaultAsync(region => region.Id == id && region.IsDeleted == false);
+        }
+
+        public async Task<IEnumerable<SMOReturnRoute>> FindAllSMOReturnRoutes()
+        {
+            return await _context.SMOReturnRoutes.Where(r => r.IsDeleted == false)
+                           .Include(r => r.SMORoute).Include(r => r.ReturnRoute)
+                           .Include(r => r.CreatedBy)
+                           .ToListAsync();
+        }
+
+        public async Task<bool> DeleteSMOReturnRoute(SMOReturnRoute sMOReturnRoute)
+        {
+            sMOReturnRoute.IsDeleted = true;
+            _context.SMOReturnRoutes.Update(sMOReturnRoute);
+            return await SaveChanges();
+        }
+
+        public SMORoute GetRouteName(string Name)
+        {
+            return _context.SMORoutes.Where(c => c.RouteName == Name && c.IsDeleted == false).FirstOrDefault();
+
+        }
+
+        public SMORegion GetRegionName(string Name)
+        {
+            return _context.SMORegions.Where(c => c.RegionName == Name && c.IsDeleted == false).FirstOrDefault();
         }
     }
 }
