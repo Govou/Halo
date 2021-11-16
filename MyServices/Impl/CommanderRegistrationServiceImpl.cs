@@ -27,7 +27,12 @@ namespace HaloBiz.MyServices.Impl
         public async Task<ApiResponse> AddCommander(HttpContext context, CommanderProfileReceivingDTO commanderReceivingDTO)
         {
             var commander = _mapper.Map<CommanderProfile>(commanderReceivingDTO);
-           
+            var IdExist = _commanderRepository.FindCommanderById(commanderReceivingDTO.ProfileId);
+            if (IdExist != null)
+            {
+                return new ApiResponse(409);
+            }
+
             commander.CreatedById = context.GetLoggedInUserId();
             //cType.IsDeleted = false;
             commander.CreatedAt = DateTime.UtcNow;
