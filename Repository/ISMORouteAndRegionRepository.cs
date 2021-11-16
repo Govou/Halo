@@ -14,6 +14,7 @@ namespace HaloBiz.Repository
         Task<SMORoute> FindSMORouteById(long id);
 
         Task<IEnumerable<SMORoute>> FindAllSMORoutes();
+        Task<bool> DeleteSMORoute(SMORoute sMORoute);
 
         //Region
         Task<SMORegion> SaveSMORegion(SMORegion sMORegion);
@@ -24,6 +25,17 @@ namespace HaloBiz.Repository
 
         Task<SMORegion> UpdateSMORegion(SMORegion sMORegion);
 
-        //Task<bool> DeleteSMORegion(SMORegion sMORegion);
+        Task<bool> DeleteSMORegion(SMORegion sMORegion);
+
+
+        //ReturnRoute
+        Task<SMOReturnRoute> SaveSMOReturnRoute(SMOReturnRoute sMOReturnRoute);
+        Task<SMOReturnRoute> UpdateSMOReturnRoute(SMORoute sMOReturnRoute);
+        Task<SMOReturnRoute> FindSMOReturnRouteById(long id);
+
+        Task<IEnumerable<SMOReturnRoute>> FindAllSMOReturnRoutes();
+        Task<bool> DeleteSMOReturnRoute(SMOReturnRoute sMOReturnRoute);
     }
+
+
 }

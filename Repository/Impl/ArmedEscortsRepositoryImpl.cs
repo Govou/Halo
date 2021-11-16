@@ -36,6 +36,7 @@ namespace HaloBiz.Repository.Impl
         public async Task<IEnumerable<ArmedEscortRank>> FindAllArmedEscortRanks()
         {
             return await _context.ArmedEscortRanks.Where(rank=>rank.IsDeleted == false)
+                .Include(ct=>ct.ArmedEscortType)
                 .ToListAsync();
         }
 
