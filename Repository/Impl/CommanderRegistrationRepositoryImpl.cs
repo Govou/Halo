@@ -29,13 +29,18 @@ namespace HaloBiz.Repository.Impl
         public async Task<IEnumerable<CommanderProfile>> FindAllCommanders()
         {
             return await _context.CommanderProfiles.Where(ct => ct.IsDeleted == false)
+                .Include(ct=>ct.AttachedBranch)
+                .Include(ct=>ct.AttachedOffice).Include(ct=>ct.Profile)
+                .Include(ct=>ct.Rank).Include(ct=>ct.CommanderType)
                            .ToListAsync();
         }
 
         public async Task<CommanderProfile> FindCommanderById(long Id)
         {
-            return await _context.CommanderProfiles
-                           .FirstOrDefaultAsync(cr => cr.Id == Id && cr.IsDeleted == false);
+            return await _context.CommanderProfiles.Include(ct => ct.AttachedBranch)
+                .Include(ct => ct.AttachedOffice).Include(ct => ct.Profile)
+                .Include(ct => ct.Rank).Include(ct => ct.CommanderType)
+                           .FirstOrDefaultAsync(ct => ct.Id == Id && ct.IsDeleted == false);
         }
 
         public async Task<CommanderProfile> SaveCommander(CommanderProfile commanderProfile)

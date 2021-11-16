@@ -1,4 +1,6 @@
-﻿using System;
+﻿using HalobizMigrations.Models;
+using HalobizMigrations.Models.Armada;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -32,5 +34,11 @@ namespace HaloBiz.DTOs.TransferDTOs
       
         public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }
+
+
+
+        public PilotType PilotType { get; set; }
+      
+        public UserProfile CreatedBy { get; set; }
     }
 }

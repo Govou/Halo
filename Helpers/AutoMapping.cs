@@ -317,8 +317,10 @@ namespace HaloBiz.Helpers
             CreateMap<Lga, LgasTransferDTO>();
 
             //yus
-            CreateMap<SMORouteAndRegionReceivingDTO, SMORoute>();
+            CreateMap<SMORouteReceivingDTO, SMORoute>();
             CreateMap<SMORoute, SMORouteTransferDTO>();
+            CreateMap<SMOReturnRouteReceivingDTO, SMOReturnRoute>();
+            CreateMap<SMOReturnRoute, SMOReturnRouteTransferDTO>();
             CreateMap<SMORegionReceivingDTO, SMORegion>();
             CreateMap<SMORegion, SMORegionTransferDTO>();
 

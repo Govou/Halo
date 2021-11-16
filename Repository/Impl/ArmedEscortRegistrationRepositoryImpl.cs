@@ -29,12 +29,16 @@ namespace HaloBiz.Repository.Impl
         public async Task<IEnumerable<ArmedEscortProfile>> FindAllArmedEscorts()
         {
             return await _context.ArmedEscortProfiles.Where(ae => ae.IsDeleted == false)
+                .Include(ae=>ae.ArmedEscortType).Include(ae=>ae.Rank)
+                .Include(ae=>ae.SupplierService).Include(ae=>ae.ServiceAssignment)
                           .ToListAsync();
         }
 
         public async Task<ArmedEscortProfile> FindArmedEscortById(long Id)
         {
-            return await _context.ArmedEscortProfiles.FirstOrDefaultAsync(aer => aer.Id == Id && aer.IsDeleted == false);
+            return await _context.ArmedEscortProfiles.Include(ae => ae.ArmedEscortType).Include(ae => ae.Rank)
+                .Include(ae => ae.SupplierService).Include(ae => ae.ServiceAssignment)
+                .FirstOrDefaultAsync(ae => ae.Id == Id && ae.IsDeleted == false);
         }
 
         public async Task<ArmedEscortProfile> SaveArmedEscort(ArmedEscortProfile armedEscortProfile)
