@@ -35,12 +35,18 @@ namespace HaloBiz.Repository.Impl
                            .ToListAsync();
         }
 
-        public async Task<CommanderProfile> FindCommanderById(long Id)
+        public async Task<CommanderProfile> FindCommanderById(long Id)  
         {
             return await _context.CommanderProfiles.Include(ct => ct.AttachedBranch)
                 .Include(ct => ct.AttachedOffice).Include(ct => ct.Profile)
                 .Include(ct => ct.Rank).Include(ct => ct.CommanderType)
                            .FirstOrDefaultAsync(ct => ct.Id == Id && ct.IsDeleted == false);
+        }
+
+        public CommanderProfile FindCommanderUserProfileById(long profileId)  //FindCommanderUserProfileById
+        {
+            return  _context.CommanderProfiles
+                           .Where(ct => ct.ProfileId == profileId && ct.IsDeleted == false).FirstOrDefault();
         }
 
         public async Task<CommanderProfile> SaveCommander(CommanderProfile commanderProfile)
