@@ -27,7 +27,7 @@ namespace HaloBiz.MyServices.Impl
         public async Task<ApiResponse> AddVehicle(HttpContext context, VehicleReceivingDTO vehicleReceivingDTO)
         {
             var vehicle = _mapper.Map<Vehicle>(vehicleReceivingDTO);
-            var IdExist = _vehiclesRepository.FindVehicleById(vehicleReceivingDTO.SupplierServiceId);
+            var IdExist = _vehiclesRepository.FindVehicleServiceById(vehicleReceivingDTO.SupplierServiceId);
             if (IdExist != null)
             {
                 return new ApiResponse(409);

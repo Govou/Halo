@@ -12,6 +12,8 @@ namespace HaloBiz.Repository
 
         Task<CommanderProfile> FindCommanderById(long Id);
 
+        CommanderProfile FindCommanderUserProfileById(long Id);
+
         //Task<CommanderProfile> FindCommanderTypeByName(string name);
         //CommanderProfile GetTypename(string Name);
 

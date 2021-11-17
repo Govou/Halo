@@ -34,11 +34,17 @@ namespace HaloBiz.Repository.Impl
                                       .ToListAsync();
         }
 
-        public async Task<Vehicle> FindVehicleById(long Id)
+        public async Task<Vehicle> FindVehicleById(long Id) 
         {
             return await _context.Vehicles.Include(s => s.SupplierService).Include(t => t.VehicleType)
                 .Include(office => office.AttachedOffice).Include(br => br.AttachedBranch)
                 .FirstOrDefaultAsync(v => v.Id == Id && v.IsDeleted == false);
+        }
+
+        public Vehicle FindVehicleServiceById(long serviceId) 
+        {
+            return _context.Vehicles
+                .Where(v => v.SupplierServiceId == serviceId && v.IsDeleted == false).FirstOrDefault();
         }
 
         public async Task<Vehicle> SaveVehicle(Vehicle vehicle)
