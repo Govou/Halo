@@ -10,6 +10,8 @@ namespace HaloBiz.MyServices.LAMS
         Task<(bool, string)> ConvertLeadToClient(long leadId, long loggedInUserId);
         Task<(bool, string)> GenerateInvoices(ContractService contractService, long customerDivisionId, string serviceCode, long loggedInUserId);
         Task<(bool, string)> GenerateAmortizations(ContractService contractService, CustomerDivision customerDivision);
+        Task<(bool, string)> RemoveAmortizations(ContractService contractService, CustomerDivision customerDivision);
+
         Task<(bool, string)> CreateTaskAndDeliverables(ContractService contractServcie, long customerDivisionId, string endorsementType, long? loggedInUserId);
         Task<(bool, string)> CreateAccounts(
                                     ContractService contractService,

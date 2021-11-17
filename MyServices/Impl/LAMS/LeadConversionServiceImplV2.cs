@@ -95,11 +95,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
                 }
 
-                // _context.Database.ExecuteSqlRaw("SET IDENTITY_INSERT dbo.Accounts ON;");
-                //_context.Database.ExecuteSqlRaw("SET IDENTITY_INSERT dbo.ControlAccounts ON;");
                  _context.Database.ExecuteSqlRaw("SET IDENTITY_INSERT dbo.Divisions ON;");
-                //_context.Database.ExecuteSqlRaw("SET IDENTITY_INSERT dbo.FinanceVoucherTypes ON;");
-                //_context.Database.ExecuteSqlRaw("SET IDENTITY_INSERT dbo.GroupType ON;");
 
 
                 await _context.SaveChangesAsync();
@@ -151,7 +147,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
             catch (Exception ex)
             {
                 _logger.LogError(ex.ToString());
-                return null;
+                throw;
             }
         }
 
@@ -185,7 +181,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
             catch (Exception ex)
             {
                 _logger.LogError($"GetRetailCustomer: {ex.StackTrace}");
-                return null;
+                throw;
             }
         }
 
@@ -370,14 +366,22 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 contractServiceToSave.ContractId = contractId;
                 contractServiceToSave.Id = 0;
 
-                var entity = await context.ContractServices.AddAsync(contractServiceToSave);
+                await context.ContractServices.AddAsync(contractServiceToSave);
+                await context.SaveChangesAsync();
+                _context.ChangeTracker.Clear();
+
+                var contractService = await _context.ContractServices
+                            .Where(x => x.Id == contractServiceToSave.Id)
+                            .Include(x => x.Contract)
+                            .Include(x=>x.Service)
+                            .AsNoTracking()
+                            .FirstOrDefaultAsync();
+
+
+                quoteService.IsConvertedToContractService = true;
+                //context.Update(quoteService);
                 await context.SaveChangesAsync();
 
-
-                //quoteService.IsConvertedToContractService = true;
-                //context.Update(quoteService);
-                //await context.SaveChangesAsync();
-                var contractService = entity.Entity;
 
                 await ConvertSBUToQuoteServicePropToSBUToContractServiceProp(quoteService.Id, contractService.Id, context);
                 await ConvertQuoteServiceDocumentsToClosureDocuments(quoteService.Id, contractService.Id, context);
@@ -402,7 +406,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                                         LoggedInUserId,
                                         false);
 
-                    var _serviceCode = quoteService?.Service?.ServiceCode ?? contractService.Service?.ServiceCode;
+                 var _serviceCode = quoteService?.Service?.ServiceCode ?? contractService.Service?.ServiceCode;
                  var (invoiceSuccess, invoiceMsg) =   await GenerateInvoices(contractService, customerDivision.Id, _serviceCode, LoggedInUserId);
                  var (amoSuccess, amoMsg) = await GenerateAmortizations(contractService, customerDivision);
                 }
@@ -678,6 +682,75 @@ namespace HaloBiz.MyServices.Impl.LAMS
             }
         }
 
+        public async Task<(bool, string)> RemoveAmortizations(ContractService contractService, CustomerDivision customerDivision)
+        {
+            try
+            {
+                var amots = _context.Amortizations.Where(x => x.ContractServiceId == contractService.Id).ToList();
+
+                _context.Amortizations.RemoveRange(amots);
+                await _context.SaveChangesAsync();
+                return (true, "success");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.StackTrace);
+                throw;
+            }
+        }
+
+        public async Task<(bool, string)> UpdateAmortizations(ContractService OldConstractService, ContractService newConstractService, CustomerDivision customerDivision)
+        {
+            try
+            {
+                DateTime startDate = (DateTime)newConstractService.ContractStartDate;
+                DateTime endDate = (DateTime)newConstractService.ContractEndDate;
+                var InitialYear = startDate.Year;
+                List<Amortization> amortizations = new List<Amortization>();
+
+                var totalContractBillable = CalculateTotalAmountForContract((double)newConstractService.BillableAmount,
+                                                                            (DateTime)startDate,
+                                                                            (DateTime)endDate,
+                                                                            (TimeCycle)newConstractService.InvoicingInterval);
+
+                for (int i = startDate.Year; i <= endDate.Year; i++)
+                {
+                    amortizations.Add(new Amortization()
+                    {
+                        Year = i,
+                        ClientId = customerDivision.CustomerId,
+                        DivisionId = customerDivision.Id,
+                        ContractId = newConstractService.ContractId,
+                        ContractServiceId = newConstractService.Id,
+                        ContractValue = (double)totalContractBillable,
+                        GroupInvoiceNumber = string.IsNullOrWhiteSpace(newConstractService.Contract?.GroupInvoiceNumber) ? null : newConstractService.Contract?.GroupInvoiceNumber,
+                        January = DateTime.Parse($"{i}/01/31") > startDate && DateTime.Parse($"{i}/01/31") <= endDate ? (double)newConstractService.BillableAmount : 0,
+                        February = DateTime.Parse($"{i}/02/28") > startDate && DateTime.Parse($"{i}/02/28") <= endDate ? (double)newConstractService.BillableAmount : 0,
+                        March = DateTime.Parse($"{i}/03/31") > startDate && DateTime.Parse($"{i}/03/31") <= endDate ? (double)newConstractService.BillableAmount : 0,
+                        April = DateTime.Parse($"{i}/04/30") > startDate && DateTime.Parse($"{i}/04/30") <= endDate ? (double)newConstractService.BillableAmount : 0,
+                        May = DateTime.Parse($"{i}/05/31") > startDate && DateTime.Parse($"{i}/05/31") <= endDate ? (double)newConstractService.BillableAmount : 0,
+                        June = DateTime.Parse($"{i}/06/30") > startDate && DateTime.Parse($"{i}/06/30") <= endDate ? (double)newConstractService.BillableAmount : 0,
+                        July = DateTime.Parse($"{i}/07/31") > startDate && DateTime.Parse($"{i}/07/31") <= endDate ? (double)newConstractService.BillableAmount : 0,
+                        August = DateTime.Parse($"{i}/08/31") > startDate && DateTime.Parse($"{i}/08/31") <= endDate ? (double)newConstractService.BillableAmount : 0,
+                        September = DateTime.Parse($"{i}/09/30") > startDate && DateTime.Parse($"{i}/09/30") <= endDate ? (double)newConstractService.BillableAmount : 0,
+                        October = DateTime.Parse($"{i}/10/31") > startDate && DateTime.Parse($"{i}/10/31") <= endDate ? (double)newConstractService.BillableAmount : 0,
+                        November = DateTime.Parse($"{i}/11/30") > startDate && DateTime.Parse($"{i}/11/30") <= endDate ? (double)newConstractService.BillableAmount : 0,
+                        December = DateTime.Parse($"{i}/12/31") > startDate && DateTime.Parse($"{i}/12/31") <= endDate ? (double)newConstractService.BillableAmount : 0,
+
+                    });
+                }
+
+                await _context.Amortizations.AddRangeAsync(amortizations);
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("", ex);
+                return (false, ex.Message);
+            }
+
+            return (true, "success");
+        }
         public async Task<(bool, string)> GenerateAmortizations(ContractService contractService, CustomerDivision customerDivision)
         {
             try
@@ -730,6 +803,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
             return (true, "success");
         }
+
 
         public async Task<(bool, string)> CreateTaskAndDeliverables(ContractService contractServcie, long customerDivisionId, string endorsementType, long? loggedInUserId = null)
         {
@@ -1265,10 +1339,10 @@ namespace HaloBiz.MyServices.Impl.LAMS
                                     )
         {
             long accountId;
-            
+            if (service == null) service = contractService?.Service;
+
             if (isRetail)
             {
-                if (service == null) service = contractService?.Service;
                 accountId = await GetServiceIncomeAccountForRetailClient(service);
             }
             else
@@ -1416,6 +1490,10 @@ namespace HaloBiz.MyServices.Impl.LAMS
                         AccountMasterId = accountMasterId
                     });
                 }
+
+                listOfSbuaccountMaster = listOfSbuaccountMaster.GroupBy(i => new { i.StrategicBusinessUnitId, i.AccountMasterId })
+                    .Select(g => g.First())
+                    .ToList();
 
                 _context.ChangeTracker.Clear();
                 await _context.SbuaccountMasters.AddRangeAsync(listOfSbuaccountMaster);

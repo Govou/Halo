@@ -48,64 +48,55 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
         public async Task<ApiResponse> AddNewRetentionContractServiceForEndorsement(HttpContext httpContext, List<ContractServiceForEndorsementReceivingDto> contractServiceForEndorsementDtos)
         {
+            var id = httpContext.GetLoggedInUserId();
+            foreach (var item in contractServiceForEndorsementDtos)
+            {
+                var alreadyExists = await _context.ContractServiceForEndorsements
+                       .AnyAsync(x => x.ContractId == item.ContractId && x.PreviousContractServiceId == item.PreviousContractServiceId
+                                   && x.CustomerDivisionId == item.CustomerDivisionId && x.ServiceId == item.ServiceId
+                                   && !x.IsApproved && !x.IsDeclined && x.IsConvertedToContractService != true && !x.IsDeleted);
+
+                if (alreadyExists)
+                {
+                    return new ApiResponse(400, $"There is already an endorsement request for the contract service with id {item.ContractId}");
+                }
+
+                item.CreatedById = id;
+            }
+
+           
+
+            var entityToSaveList = _mapper.Map<List<ContractServiceForEndorsement>>(contractServiceForEndorsementDtos);
+                        
+            using var transaction = await _context.Database.BeginTransactionAsync();
             try
             {
-                // check that we dont already have a request to renew the contract service/ contract service(s)
-                foreach (var item in contractServiceForEndorsementDtos)
+                foreach (var item in entityToSaveList)
                 {
-                    var alreadyExists = await _context.ContractServiceForEndorsements
-                        .AnyAsync(x => x.PreviousContractServiceId == item.PreviousContractServiceId && x.ContractId == item.ContractId 
-                                    && x.CustomerDivisionId == item.CustomerDivisionId && x.ServiceId == item.ServiceId
-                                    && !x.IsApproved && !x.IsDeclined && x.IsConvertedToContractService != true
-                                    && x.EndorsementTypeId == item.EndorsementTypeId && !x.IsDeleted);
-
-                    if (alreadyExists)
+                    var savedEntity = await _cntServiceForEndorsemntRepo.SaveContractServiceForEndorsement(item);
+                    if (savedEntity == null)
                     {
-                        return new ApiResponse(400, "There is a rention request already for a contract service in the rentention list.");
+                        return new ApiResponse(500);
+                    }
+
+                    bool successful = await _approvalService.SetUpApprovalsForContractModificationEndorsement(savedEntity, httpContext);
+                    if (!successful)
+                    {
+                        await transaction.RollbackAsync();
+                        return new ApiResponse(500, "Could not set up approvals for service endorsement.");
                     }
                 }
 
-                var entityToSave = _mapper.Map<List<ContractServiceForEndorsement>>(contractServiceForEndorsementDtos);
-
-                foreach (var entity in entityToSave)
-                {
-                    if( !await ValidateContractToRenew(entity))
-                    {
-                        return new ApiResponse(400, "Invalid Previous contract service id or invalid new contract start date");
-                    }
-
-                    entity.CreatedById = httpContext.GetLoggedInUserId();
-                }
-
-                using var transaction = await _context.Database.BeginTransactionAsync();
-                var saveSuccessful = await _cntServiceForEndorsemntRepo.SaveRangeContractServiceForEndorsement(entityToSave);
-
-                if (!saveSuccessful)
-                {
-                    await transaction.RollbackAsync();
-                    return new ApiResponse(500);
-                }
-
-                var endorsementIds = entityToSave.Select(x => x.Id).ToList();
-                var contractRenewEndorsements = await _context.ContractServiceForEndorsements.AsNoTracking()
-                                                         .Where(x => endorsementIds.Contains(x.Id))
-                                                         .ToListAsync();
-
-                bool successful = await _approvalService.SetUpApprovalsForContractRenewalEndorsement(contractRenewEndorsements, httpContext);
-                if (!successful)
-                {
-                    await transaction.RollbackAsync();
-                    return new ApiResponse(500, "Could not set up approvals for service endorsement.");
-                }
-
+                await _context.SaveChangesAsync();
                 await transaction.CommitAsync();
                 return new ApiOkResponse(true);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 _logger.LogError(ex.Message);
                 _logger.LogError(ex.StackTrace);
-                return new ApiResponse(500, ex.Message);
+               // await transaction.RollbackAsync();
+                return new ApiResponse(500);
             }
         }
 
@@ -541,7 +532,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
             retiredContractServiceToNegateAmmortization.ContractStartDate = contractServiceForEndorsement.DateForNewContractToTakeEffect;
 
             //Negate amortization value starting from date of contract service update take of to contract end date
-            await _leadConversionService.GenerateAmortizations(retiredContractServiceToNegateAmmortization, customerDivision);
+            await _leadConversionService.RemoveAmortizations(retiredContractServiceToNegateAmmortization, customerDivision);
 
             //Post ammortization of new contract serivce starting from date of contract service update take of to contract end date
             newContractService.ContractStartDate = contractServiceForEndorsement.DateForNewContractToTakeEffect;
@@ -588,7 +579,8 @@ namespace HaloBiz.MyServices.Impl.LAMS
             retiredContractServiceToNegateAmmortization.ContractStartDate = contractServiceForEndorsement.DateForNewContractToTakeEffect;
 
             //Negate amortization value starting from date of contract service update take of to contract end date
-            await _leadConversionService.GenerateAmortizations(retiredContractServiceToNegateAmmortization, customerDivision);
+            //remove the old amortization
+            await _leadConversionService.RemoveAmortizations(retiredContractServiceToNegateAmmortization, customerDivision);
 
             //Post ammortization of new contract serivce starting from date of contract service update take of to contract end date
             newContractService.ContractStartDate = contractServiceForEndorsement.DateForNewContractToTakeEffect;
@@ -745,8 +737,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
             IEnumerable<Invoice> invoices = null;
 
             invoices = isGroupInvoice?  await _context.Invoices
-                                    .Where(x => x.GroupInvoiceNumber == contractServiceForEndorsement.GroupInvoiceNumber 
-                                                    && x.ContractServiceId == contractServiceForEndorsement.PreviousContractServiceId
+                                    .Where(x => x.ContractServiceId == contractServiceForEndorsement.PreviousContractServiceId
                                                     && x.StartDate >= contractServiceForEndorsement.DateForNewContractToTakeEffect && !x.IsDeleted)
                                     .ToListAsync()
                     :

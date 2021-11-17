@@ -57,13 +57,17 @@ namespace HaloBiz.Repository.Impl.LAMS
 
         public async Task<ContractServiceForEndorsement> SaveContractServiceForEndorsement(ContractServiceForEndorsement entity)
         {
-            var contractServiceForEndorsementEntity = await _context.ContractServiceForEndorsements.AddAsync(entity);
-
-            if (await SaveChanges())
+            try
             {
-                return contractServiceForEndorsementEntity.Entity;
+                var contractServiceForEndorsementEntity = await _context.ContractServiceForEndorsements.AddAsync(entity);
+               int affected = await _context.SaveChangesAsync();
+                return affected > 0 ? entity : null;
             }
-            return null;            
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.StackTrace);
+                throw;
+            }
         }
         public async Task<bool> SaveRangeContractServiceForEndorsement(IEnumerable<ContractServiceForEndorsement> entity)
         {

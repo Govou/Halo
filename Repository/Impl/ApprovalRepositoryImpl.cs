@@ -31,12 +31,18 @@ namespace HaloBiz.Repository.Impl
 
         public async Task<bool> SaveApprovalRange(List<Approval> approvals)
         {
-            await _context.Approvals.AddRangeAsync(approvals);
-            if (await SaveChanges())
+            try
             {
-                return true;
+                await _context.Approvals.AddRangeAsync(approvals);
+                var affected = await _context.SaveChangesAsync();
+                _context.ChangeTracker.Clear();
+                return affected > 1 ? true : false;
             }
-            return false;
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.StackTrace);
+                throw;
+            }
         }
 
         public async Task<IEnumerable<Approval>> GetApprovals()
