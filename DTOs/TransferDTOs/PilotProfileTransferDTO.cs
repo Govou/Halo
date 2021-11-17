@@ -1,4 +1,6 @@
-﻿using System;
+﻿using HalobizMigrations.Models;
+using HalobizMigrations.Models.Armada;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -23,5 +25,14 @@ namespace HaloBiz.DTOs.TransferDTOs
         public long Id { get; set; }
         public long RankId { get; set; }
         public bool IsDeleted { get; set; }
+
+
+       
+        public UserProfile CreatedBy { get; set; }
+        
+        public MeansOfIdentification MeansOfIdentification { get; set; }
+    
+        public PilotRank Rank { get; set; }
+        public PilotType PilotType { get; set; }
     }
 }

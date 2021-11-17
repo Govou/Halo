@@ -9,14 +9,20 @@ namespace HaloBiz.DTOs.ReceivingDTOs
 {
     public class SMORouteAndRegionReceivingDTO
     {
+        
+    }
+
+    public class SMORouteReceivingDTO
+    {
         [Required]
         public string RouteName { get; set; }
         [Required]
         public string RouteDescription { get; set; }
         [Required]
         public long? SMORegionId { get; set; }
-
+        [Required]
         public DateTime RecoveryTime { get; set; }
+        [Required]
         public bool IsReturnRouteRequired { get; set; }
         //public DateTime ReturnRouteRecoveryTime { get; set; }
     }
@@ -29,5 +35,16 @@ namespace HaloBiz.DTOs.ReceivingDTOs
         //public UserProfile CreatedBy { get; set; }
         //public DateTime CreatedAt { get; set; }
         //public DateTime UpdatedAt { get; set; }
+    }
+
+    public class SMOReturnRouteReceivingDTO
+    {
+        [Required]
+        public long? SMORouteId { get; set; }
+        [Required]
+        public long? ReturnRouteId { get; set; }
+        [Required]
+        public DateTime RecoveryTime { get; set; }
+     
     }
 }
