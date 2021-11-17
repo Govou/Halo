@@ -29,12 +29,16 @@ namespace HaloBiz.Repository.Impl
         public async Task<IEnumerable<Vehicle>> FindAllVehicles()
         {
             return await _context.Vehicles.Where(r => r.IsDeleted == false)
+                .Include(s=>s.SupplierService).Include(t=>t.VehicleType)
+                .Include(office=>office.AttachedOffice).Include(br=>br.AttachedBranch)
                                       .ToListAsync();
         }
 
         public async Task<Vehicle> FindVehicleById(long Id)
         {
-            return await _context.Vehicles.FirstOrDefaultAsync(v => v.Id == Id && v.IsDeleted == false);
+            return await _context.Vehicles.Include(s => s.SupplierService).Include(t => t.VehicleType)
+                .Include(office => office.AttachedOffice).Include(br => br.AttachedBranch)
+                .FirstOrDefaultAsync(v => v.Id == Id && v.IsDeleted == false);
         }
 
         public async Task<Vehicle> SaveVehicle(Vehicle vehicle)

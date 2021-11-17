@@ -8,7 +8,7 @@ namespace HaloBiz.DTOs.ReceivingDTOs
 {
     public class VehicleReceivingDTO
     {
-        public long? SupplierServiceId { get; set; }
+        public long SupplierServiceId { get; set; }
 
         public long? AttachedBranchId { get; set; }
 
