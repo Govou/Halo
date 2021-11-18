@@ -156,10 +156,12 @@ namespace HaloBiz.MyServices.Impl
                 workspaces.CreatedAt = item.CreatedAt;
                 workspaces.Description = item.Description;
                 workspaces.StatusFlowOption = item.StatusFlowOption;
+                workspaces.Projects = await _context.Projects.Where(x => x.IsActive != false && x.WorkspaceId == item.Id).ToListAsync();
                 workspaces.PrivacyAccesses = await _context.PrivacyAccesses.Where(x => x.IsActive != false && x.WorkspaceId == item.Id).ToListAsync();
                 workspaces.ProjectCreators = await _context.ProjectCreators.Where(x => x.IsActive != false && x.WorkspaceId == item.Id).ToListAsync();
                 workspaces.StatusFlowDTO = await _context.StatusFlows.Where(x => x.IsDeleted == false && x.WorkspaceId == item.Id).ToListAsync();
                 workspaces.ProjectCreatorsLength = (item.ProjectCreators == null ? 0 : item.ProjectCreators.Count());
+                workspaces.ProjectLength = (item.Projects == null ? 0 : item.Projects.Count());
                 workspaces.IsPublic = item.IsPublic == false ? "Private" : "Public";
                 workspaceArr.Add(workspaces);
             }
@@ -564,6 +566,45 @@ namespace HaloBiz.MyServices.Impl
         }
 
 
+        public async Task<ApiResponse> createProject(HttpContext httpContext, ProjectDTO projectDTO)
+        {
+
+            var projectTobeSaved = new Project()
+            {
+                Caption = projectDTO.Caption,
+                Description = projectDTO.Description,
+                Alias = projectDTO.Alias,
+                ProjectImage = projectDTO.ProjectImage,
+                IsActive = true,
+                WorkspaceId = projectDTO.WorkspaceId,
+                CreatedById = httpContext.GetLoggedInUserId(),
+                CreatedAt = DateTime.Now,
+            };
+
+              _context.Projects.Add(projectTobeSaved);
+               await _context.SaveChangesAsync();
+
+
+            foreach (var item in projectDTO.Watchers)
+            {
+                var watchersToBeSaved = new Watcher()
+                {
+                    IsActive = true,
+                    ProjectWatcherId = item.ProjectWatcherId,
+                    ProjectId = projectTobeSaved.Id,
+                    CreatedById = httpContext.GetLoggedInUserId(),
+                    CreatedAt = DateTime.Now
+                };
+
+                await _context.Watchers.AddAsync(watchersToBeSaved);
+            }
+
+                await _context.SaveChangesAsync();
+                return new ApiOkResponse(projectTobeSaved);
+
+        }
+
+
         public async Task<ApiResponse> updateStatusFlowOpton(HttpContext httpContext,long workspaceId,string statusOption, List<StatusFlowDTO> statusFlowDTOs)
         {
 
@@ -630,7 +671,40 @@ namespace HaloBiz.MyServices.Impl
         }
 
 
+        public async Task<ApiResponse> getAllProjects(HttpContext httpContext)
 
+        {
+
+            var getAllProjects = await _context.Projects.Where(x => x.IsActive == true &&  x.CreatedById == httpContext.GetLoggedInUserId()).ToListAsync();
+
+            if (getAllProjects == null)
+            {
+                return new ApiResponse(400);
+            }
+
+            return new ApiOkResponse(getAllProjects);
+
+
+        }
+
+
+
+
+        //public async Task<ApiResponse> getprojectByWorkspaceId(HttpContext httpContext, long workspaceId)
+
+        //{
+
+        //    var workspaceExist = await _context.Projects.fir
+
+        //    if (getProjects == null)
+        //    {
+        //        return new ApiResponse(400);
+        //    }
+
+        //    return new ApiOkResponse(getProjects);
+
+
+        //}
 
 
         public async Task<ApiResponse> getManagersProjects(string email,int emailId)

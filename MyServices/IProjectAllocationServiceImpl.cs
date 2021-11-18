@@ -44,7 +44,11 @@ namespace HaloBiz.MyServices
         Task<ApiResponse> disableStatus(long workspaceId, long statusId);
         Task<ApiResponse> updateStatus(HttpContext httpContext, long workspaceId, long statusFlowId, StatusFlowDTO statusFlowDTO);
         Task<ApiResponse> updateToPublic(long workspaceId);
+
+        Task<ApiResponse> createProject(HttpContext httpContext, ProjectDTO projectDTO);
         Task<ApiResponse> moveStatusSequenec(HttpContext httpContext, long workspaceId, List<StatusFlowDTO> statusFlowDTO);
+
+        Task<ApiResponse> getAllProjects(HttpContext httpContext);
 
     }
 }
