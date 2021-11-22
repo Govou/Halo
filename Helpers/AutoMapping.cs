@@ -353,6 +353,10 @@ namespace HaloBiz.Helpers
             CreateMap<ArmedEscortProfileReceivingDTO, ArmedEscortProfile>();
             CreateMap<ArmedEscortProfile, ArmedEscortProfileTransferDTO>();
 
+
+            CreateMap<ServiceRegistrationReceivingDTO, ServiceRegistration>();
+            CreateMap<ServiceRegistration, ServiceRegistrationTransferDTO>();
+
             //CreateMap<CommanderType, SMORegionTransferDTO>();
         }
     }
