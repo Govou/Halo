@@ -17,6 +17,8 @@ namespace HaloBiz.DTOs.ApiDTOs
             {
                 case 404:
                     return "Resource not found";
+                case 411:
+                    return "Resource has no Return Route";
                 case 409:
                     return "Resource already exists";
                 case 500:

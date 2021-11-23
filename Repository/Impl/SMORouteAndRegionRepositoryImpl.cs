@@ -155,12 +155,12 @@ namespace HaloBiz.Repository.Impl
         {
             return await _context.SMOReturnRoutes.Include(r => r.SMORoute)
                            .Include(r => r.CreatedBy).Include(r=>r.ReturnRoute)
-                           .FirstOrDefaultAsync(region => region.Id == id && region.IsDeleted == false);
+                           .FirstOrDefaultAsync(r => r.Id == id && r.IsDeleted == false && r.SMORoute.IsReturnRouteRequired == true);
         }
 
         public async Task<IEnumerable<SMOReturnRoute>> FindAllSMOReturnRoutes()
         {
-            return await _context.SMOReturnRoutes.Where(r => r.IsDeleted == false)
+            return await _context.SMOReturnRoutes.Where(r => r.IsDeleted == false && r.SMORoute.IsReturnRouteRequired == true)
                            .Include(r => r.SMORoute).Include(r => r.ReturnRoute)
                            .Include(r => r.CreatedBy)
                            .ToListAsync();

@@ -59,7 +59,7 @@ namespace HaloBiz.MyServices.Impl
             var hasReturnRoute = _sMORouteAndRegionRepository.hasReturnRoute(sMOReturnRouteReceivingDTO.SMORouteId);
             if (!hasReturnRoute)
             {
-                return new ApiResponse(500);
+                return new ApiResponse(411);
             }
 
             addItem.CreatedById = context.GetLoggedInUserId();
