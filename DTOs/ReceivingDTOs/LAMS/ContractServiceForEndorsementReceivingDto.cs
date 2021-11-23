@@ -58,7 +58,7 @@ namespace HaloBiz.DTOs.ReceivingDTOs.LAMS
         public bool IsDeclined { get; set; } = false;
         public long CustomerDivisionId { get; set; }
         public long BranchId { get; set; }
-        public long OfficeId { get; set; }
+        public long? OfficeId { get; set; }
         public long PreviousContractServiceId { get; set; }
         public DateTime DateForNewContractToTakeEffect { get; set; }
         public string EndorsementDescription { get; set; }

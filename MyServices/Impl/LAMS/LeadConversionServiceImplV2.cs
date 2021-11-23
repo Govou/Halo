@@ -12,6 +12,7 @@ using AutoMapper;
 using HaloBiz.Adapters;
 using Newtonsoft.Json;
 using HaloBiz.MyServices.LAMS;
+using HalobizMigrations.Models.Halobiz;
 
 namespace HaloBiz.MyServices.Impl.LAMS
 {
@@ -408,7 +409,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
                  var _serviceCode = quoteService?.Service?.ServiceCode ?? contractService.Service?.ServiceCode;
                  var (invoiceSuccess, invoiceMsg) =   await GenerateInvoices(contractService, customerDivision.Id, _serviceCode, LoggedInUserId);
-                 var (amoSuccess, amoMsg) = await GenerateAmortizations(contractService, customerDivision);
+                 var (amoSuccess, amoMsg) = await GenerateAmortizations(contractService, customerDivision, (double)contractService.BillableAmount);
                 }
             }
             catch (Exception ex)
@@ -681,23 +682,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 return null;
             }
         }
-
-        public async Task<(bool, string)> RemoveAmortizations(ContractService contractService, CustomerDivision customerDivision)
-        {
-            try
-            {
-                var amots = _context.Amortizations.Where(x => x.ContractServiceId == contractService.Id).ToList();
-
-                _context.Amortizations.RemoveRange(amots);
-                await _context.SaveChangesAsync();
-                return (true, "success");
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex.StackTrace);
-                throw;
-            }
-        }
+              
 
         public async Task<(bool, string)> UpdateAmortizations(ContractService OldConstractService, ContractService newConstractService, CustomerDivision customerDivision)
         {
@@ -751,49 +736,71 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
             return (true, "success");
         }
-        public async Task<(bool, string)> GenerateAmortizations(ContractService contractService, CustomerDivision customerDivision)
+
+        public async Task<(bool, string)> GenerateAmortizations(ContractService contractService, CustomerDivision customerDivision, double billableAmount)
         {
             try
             {
                 DateTime startDate = (DateTime)contractService.ContractStartDate;
                 DateTime endDate = (DateTime)contractService.ContractEndDate;
                 var InitialYear = startDate.Year;
-                List<Amortization> amortizations = new List<Amortization>();
 
-                var totalContractBillable = CalculateTotalAmountForContract((double)contractService.BillableAmount,
-                                                                            (DateTime)startDate,
-                                                                            (DateTime)endDate,
-                                                                            (TimeCycle)contractService.InvoicingInterval);
+                //var totalContractBillable = CalculateTotalAmountForContract((double)contractService.BillableAmount,
+                //                                                            (DateTime)startDate,
+                //                                                            (DateTime)endDate,
+                //                                                            (TimeCycle)contractService.InvoicingInterval);
+                var allMonthAndYear = Enumerable.Range(0, Int32.MaxValue)
+                                 .Select(e => startDate.AddMonths(e))
+                                 .TakeWhile(e => e <= endDate)
+                                 .Select(e => new { month = int.Parse(e.ToString("MM")), year = int.Parse(e.ToString("yyyy")) });
 
                 for (int i = startDate.Year; i <= endDate.Year; i++)
                 {
-                    amortizations.Add(new Amortization()
+                    var thisYearValues = allMonthAndYear.Where(x => x.year == i).ToList();
+
+                    var repAmoritizationMaster = new RepAmortizationMaster()
                     {
                         Year = i,
-                        ClientId = customerDivision.CustomerId,
+                        ClientId = customerDivision?.CustomerId,
                         DivisionId = customerDivision.Id,
                         ContractId = contractService.ContractId,
                         ContractServiceId = contractService.Id,
-                        ContractValue = (double)totalContractBillable,
-                        GroupInvoiceNumber = string.IsNullOrWhiteSpace(contractService.Contract?.GroupInvoiceNumber) ? null : contractService.Contract?.GroupInvoiceNumber,
-                        January = DateTime.Parse($"{i}/01/31") > startDate && DateTime.Parse($"{i}/01/31") <= endDate ? (double)contractService.BillableAmount : 0,
-                        February = DateTime.Parse($"{i}/02/28") > startDate && DateTime.Parse($"{i}/02/28") <= endDate ? (double)contractService.BillableAmount : 0,
-                        March = DateTime.Parse($"{i}/03/31") > startDate && DateTime.Parse($"{i}/03/31") <= endDate ? (double)contractService.BillableAmount : 0,
-                        April = DateTime.Parse($"{i}/04/30") > startDate && DateTime.Parse($"{i}/04/30") <= endDate ? (double)contractService.BillableAmount : 0,
-                        May = DateTime.Parse($"{i}/05/31") > startDate && DateTime.Parse($"{i}/05/31") <= endDate ? (double)contractService.BillableAmount : 0,
-                        June = DateTime.Parse($"{i}/06/30") > startDate && DateTime.Parse($"{i}/06/30") <= endDate ? (double)contractService.BillableAmount : 0,
-                        July = DateTime.Parse($"{i}/07/31") > startDate && DateTime.Parse($"{i}/07/31") <= endDate ? (double)contractService.BillableAmount : 0,
-                        August = DateTime.Parse($"{i}/08/31") > startDate && DateTime.Parse($"{i}/08/31") <= endDate ? (double)contractService.BillableAmount : 0,
-                        September = DateTime.Parse($"{i}/09/30") > startDate && DateTime.Parse($"{i}/09/30") <= endDate ? (double)contractService.BillableAmount : 0,
-                        October = DateTime.Parse($"{i}/10/31") > startDate && DateTime.Parse($"{i}/10/31") <= endDate ? (double)contractService.BillableAmount : 0,
-                        November = DateTime.Parse($"{i}/11/30") > startDate && DateTime.Parse($"{i}/11/30") <= endDate ? (double)contractService.BillableAmount : 0,
-                        December = DateTime.Parse($"{i}/12/31") > startDate && DateTime.Parse($"{i}/12/31") <= endDate ? (double)contractService.BillableAmount : 0,
+                        GroupInvoiceNumber = contractService?.Contract?.GroupInvoiceNumber,
+                        QuoteServiceId = contractService.QuoteServiceId,
+                    };                
 
-                    });
+
+                    await _context.RepAmortizationMasters.AddAsync(repAmoritizationMaster);
+                    var affected = await _context.SaveChangesAsync();
+
+                    if (affected == 0)
+                        throw new Exception($"no data saved for year {i} for contract service with quote id {contractService?.QuoteServiceId}");
+
+
+                    List<RepAmortizationDetail> repAmortizationDetails = new List<RepAmortizationDetail>();
+                    foreach (var item in thisYearValues)
+                    {
+                        repAmortizationDetails.Add(new RepAmortizationDetail
+                        {
+                            Month = item.month,
+                            BillableAmount = billableAmount,
+                            RepAmortizationMasterId = repAmoritizationMaster.Id,
+                        }); 
+                    }
+
+                    await _context.RepAmortizationDetails.AddRangeAsync(repAmortizationDetails);
+                    await _context.SaveChangesAsync();
+                    _context.ChangeTracker.Clear();
+
                 }
 
-                await _context.Amortizations.AddRangeAsync(amortizations);
-                await _context.SaveChangesAsync();
+                //if this is cancellation, change the contract end date to the month before this start date
+                //if (contractService.Quantity == 0)
+                //{
+                //    var ema = startDate.AddMonths(-1); //end month adjusted
+                //    contractService.ContractEndDate = new DateTime(ema.Year, ema.Month, DateTime.DaysInMonth(ema.Year, ema.Month));
+                //    await _context.SaveChangesAsync();
+                //}
             }
             catch (Exception ex)
             {
@@ -803,7 +810,6 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
             return (true, "success");
         }
-
 
         public async Task<(bool, string)> CreateTaskAndDeliverables(ContractService contractServcie, long customerDivisionId, string endorsementType, long? loggedInUserId = null)
         {
@@ -1199,7 +1205,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 {
                     Name = serviceClientIncomeAccountName,
                     Description = $"{service.Name} Income Account for {customerDivision.DivisionName}",
-                    Alias = customerDivision.DTrackCustomerNumber,
+                    Alias = customerDivision.DTrackCustomerNumber ?? "",
                     IsDebitBalance = true,
                     ControlAccountId = (long)service.ControlAccountId,
                     CreatedById = LoggedInUserId
