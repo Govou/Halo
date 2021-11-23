@@ -25,6 +25,8 @@ namespace HaloBiz.DTOs.ReceivingDTOs
         [Required]
         public bool IsReturnRouteRequired { get; set; }
         //public DateTime ReturnRouteRecoveryTime { get; set; }
+
+      
     }
 
     public class SMORegionReceivingDTO

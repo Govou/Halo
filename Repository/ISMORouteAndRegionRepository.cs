@@ -34,6 +34,7 @@ namespace HaloBiz.Repository
         Task<SMOReturnRoute> SaveSMOReturnRoute(SMOReturnRoute sMOReturnRoute);
         Task<SMOReturnRoute> UpdateSMOReturnRoute(SMOReturnRoute sMOReturnRoute);
         Task<SMOReturnRoute> FindSMOReturnRouteById(long id);
+        bool hasReturnRoute(long? id);
 
         Task<IEnumerable<SMOReturnRoute>> FindAllSMOReturnRoutes();
         Task<bool> DeleteSMOReturnRoute(SMOReturnRoute sMOReturnRoute);

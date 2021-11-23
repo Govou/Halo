@@ -183,5 +183,18 @@ namespace HaloBiz.Repository.Impl
         {
             return _context.SMORegions.Where(c => c.RegionName == Name && c.IsDeleted == false).FirstOrDefault();
         }
+
+        public bool hasReturnRoute(long? id)
+        {
+            var hasRoute = _context.SMOReturnRoutes
+                               .Where(ct =>  ct.SMORoute.IsReturnRouteRequired == true && ct.SMORoute.Id == id  ).FirstOrDefault();
+            if (hasRoute !=null) return true;
+            else
+                return false;
+
+            //return _context.SMOReturnRoutes
+            //               .Where(ct => ct.Id == Id && ct.ReturnRoute.IsReturnRouteRequired == true && ct.IsDeleted == false).FirstOrDefault();
+
+        }
     }
 }
