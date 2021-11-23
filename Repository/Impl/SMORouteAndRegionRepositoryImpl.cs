@@ -21,7 +21,16 @@ namespace HaloBiz.Repository.Impl
 
         public async Task<SMORoute> SaveSMORoute(SMORoute sMORoute)
         {
+            var returnRoute = new SMOReturnRoute();
             var savedEntity = await _context.SMORoutes.AddAsync(sMORoute);
+            //if(sMORoute.IsReturnRouteRequired == true)
+            //{
+            //    var getId = sMORoute.Id;
+            //    returnRoute.SMORouteId = getId;
+            //    //returnRoute.ReturnRouteId = returnRoute.ReturnRouteId;
+            //    //returnRoute.RRecoveryTime = returnRoute.RRecoveryTime;
+            //    //var savedReturnRoute = await _context.SMOReturnRoutes.AddAsync(returnRoute);
+            //}
             if (await SaveChanges())
             {
                 return savedEntity.Entity;
