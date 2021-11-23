@@ -244,7 +244,7 @@ namespace HaloBiz.MyServices.Impl
             var summary = $"Initial details before change, \n {itemToUpdate.ToString()} \n";
 
             itemToUpdate.SMORouteId = sMOReturnRouteReceivingDTO.SMORouteId;
-            itemToUpdate.RRecoveryTime = sMOReturnRouteReceivingDTO.RecoveryTime;
+            itemToUpdate.RRecoveryTime = sMOReturnRouteReceivingDTO.RRecoveryTime;
 
             itemToUpdate.UpdatedAt = DateTime.UtcNow;
             var updatedRank = await _sMORouteAndRegionRepository.UpdateSMOReturnRoute(itemToUpdate);
@@ -271,7 +271,7 @@ namespace HaloBiz.MyServices.Impl
             var summary = $"Initial details before change, \n {itemToUpdate.ToString()} \n";
 
             itemToUpdate.RouteName = sMORouteReceivingDTO.RouteName;
-            itemToUpdate.RRecoveryTime = sMORouteReceivingDTO.RecoveryTime;
+            itemToUpdate.RRecoveryTime = sMORouteReceivingDTO.RRecoveryTime;
             itemToUpdate.IsReturnRouteRequired = sMORouteReceivingDTO.IsReturnRouteRequired;
             itemToUpdate.RouteDescription = sMORouteReceivingDTO.RouteDescription;
             itemToUpdate.SMORegionId = sMORouteReceivingDTO.SMORegionId;

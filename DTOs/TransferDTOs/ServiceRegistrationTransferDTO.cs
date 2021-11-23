@@ -13,10 +13,10 @@ namespace HaloBiz.DTOs.TransferDTOs
        
         public UserProfile CreatedBy { get; set; }
         public long CreatedById { get; set; }
-        public ICollection<ArmedEscortType> ApplicableArmedEscortTypes { get; set; }
-        public ICollection<VehicleType> ApplicableVehicleTypes { get; set; }
-        public ICollection<PilotType> ApplicablePilotTypes { get; set; }
-        public ICollection<CommanderType> ApplicableCommanderTypes { get; set; }
+        public List<ArmedEscortType> ApplicableArmedEscortTypes { get; set; }
+        public List<VehicleType> ApplicableVehicleTypes { get; set; }
+        public List<PilotType> ApplicablePilotTypes { get; set; }
+        public List<CommanderType> ApplicableCommanderTypes { get; set; }
         public long ArmedEscortQuantityRequired { get; set; }
         public DateTime UpdatedAt { get; set; }
         public bool RequiresArmedEscort { get; set; }

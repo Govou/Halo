@@ -15,15 +15,15 @@ namespace HaloBiz.DTOs.TransferDTOs
         public long? SMORegionId { get; set; }
 
         public SMORegion SMORegion { get; set; }
-        public DateTime RecoveryTime { get; set; }
+        public int RRecoveryTime { get; set; }
         public bool IsReturnRouteRequired { get; set; }
         public DateTime CreatedAt { get; set; }
         public long CreatedById { get; set; }
         public UserProfile CreatedBy { get; set; }
 
-        public ICollection<VehicleSMORoutesResourceTie> VehiclesOnRoute { get; set; }
-        public ICollection<PilotSMORoutesResourceTie> PilotsOnRoute { get; set; }
-        public ICollection<ArmedEscortSMORoutesResourceTie> ArmedEscortsOnRoute { get; set; }
+        public List<VehicleSMORoutesResourceTie> VehiclesOnRoute { get; set; }
+        public List<PilotSMORoutesResourceTie> PilotsOnRoute { get; set; }
+        public List<ArmedEscortSMORoutesResourceTie> ArmedEscortsOnRoute { get; set; }
      
         public DateTime UpdatedAt { get; set; }
         public bool IsDeleted { get; set; }
@@ -36,7 +36,7 @@ namespace HaloBiz.DTOs.TransferDTOs
         public SMORoute SMORoute { get; set; }
         public long? ReturnRouteId { get; set; }
         public SMORoute ReturnRoute { get; set; }
-        public DateTime RecoveryTime { get; set; }
+        public int RRecoveryTime { get; set; }
         public long CreatedById { get; set; }
         public UserProfile CreatedBy { get; set; }
         public DateTime CreatedAt { get; set; }
@@ -53,6 +53,6 @@ namespace HaloBiz.DTOs.TransferDTOs
         public UserProfile CreatedBy { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }
-        public ICollection<SMORoute> SMORoutes { get; set; }
+        public List<SMORoute> SMORoutes { get; set; }
     }
 }

@@ -357,6 +357,12 @@ namespace HaloBiz.Helpers
             CreateMap<ServiceRegistrationReceivingDTO, ServiceRegistration>();
             CreateMap<ServiceRegistration, ServiceRegistrationTransferDTO>();
 
+            CreateMap<BusinessRuleReceivingDTO, BusinessRule>();
+            CreateMap<BusinessRule, BusinessRuleTransferDTO>();
+
+            //CreateMap<BusinessRuleReceivingDTO, BRPairable>();
+            //CreateMap<BRPairable, BusinessRuleTransferDTO>();
+
             //CreateMap<CommanderType, SMORegionTransferDTO>();
         }
     }
