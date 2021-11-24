@@ -102,6 +102,24 @@ namespace HaloBiz.Controllers
             return Ok(response);
         }
 
+        [HttpGet("GetWorkspaceByProjectCreator")]
+
+        public async Task<ActionResult> GetWorkspaceByProjectCreator()
+        {
+            var response = await _projectAllocationService.getWorkByProjectCreatorId(HttpContext);
+            return Ok(response);
+        }
+
+        [HttpGet("GetWatchersByProjectId/{projectId}")]
+
+        public async Task<ActionResult> GetWatchersByProjectId(long projectId)
+        {
+            var response = await _projectAllocationService.getWatchersByProjectId(HttpContext,projectId);
+            return Ok(response);
+        }
+
+
+
 
         [HttpGet("GetAllProjectManagers")]
 
@@ -134,8 +152,7 @@ namespace HaloBiz.Controllers
         public async Task<ActionResult> UpdateWorkspace(long id,UpdateWorkspaceDTO workspaceDTO)
         {
             var response = await _projectAllocationService.updateWorkspace(HttpContext, id,workspaceDTO);
-            var responseFeedback = ((ApiOkResponse)response).Result;
-            return StatusCode(response.StatusCode, responseFeedback);
+            return Ok(response);
         }
 
         [HttpPut("addMoreProjectCreators/{id}")]
@@ -144,6 +161,13 @@ namespace HaloBiz.Controllers
             var response = await _projectAllocationService.addMoreProjectCreators(HttpContext, id, workspaceDTO);
             var responseFeedback = ((ApiOkResponse)response).Result;
             return StatusCode(response.StatusCode, responseFeedback);
+        }
+
+        [HttpPut("updateProject/{projectId}")]
+        public async Task<ActionResult> updateProject(long projectId, ProjectDTO projectDTO)
+        {
+            var response = await _projectAllocationService.updateProject(HttpContext, projectId, projectDTO);
+            return Ok(response);
         }
 
 
@@ -189,6 +213,14 @@ namespace HaloBiz.Controllers
             return StatusCode(response.StatusCode, responseFeedback);
         }
 
+        [HttpPut("AddmoreWatchers/{projectId}")]
+        public async Task<ActionResult> AddmoreWatchers(long projectId,  List<WatchersDTO> watchersDTOs)
+        {
+            var response = await _projectAllocationService.addmoreWatchers(HttpContext, projectId, watchersDTOs);
+            return Ok(response);
+        }
+
+
         [HttpPut("AddMoreStatus/{workspaceId}")]
         public async Task<ActionResult> addMoreStatus(long workspaceId, List<StatusFlowDTO> statusFlowDTO)
         {
@@ -222,6 +254,13 @@ namespace HaloBiz.Controllers
             return StatusCode(response.StatusCode, responseFeedback);
         }
 
+        [HttpDelete("DisableWatcher/{projectId}/{projectWatcherId}")]
+        public async Task<ActionResult> DisableWatcher(long projectId, long projectWatcherId)
+        {
+            var response = await _projectAllocationService.removeWatcher(HttpContext, projectId, projectWatcherId);
+            return Ok(response);
+        }
+
 
         [HttpPost("CreateProject")]
         public async Task<ActionResult> CreateProject(ProjectDTO projectDTO)
@@ -246,6 +285,14 @@ namespace HaloBiz.Controllers
         public async Task<ActionResult> GetAllProjects()
         {
             var response = await _projectAllocationService.getAllProjects(HttpContext);
+            return Ok(response);
+        }
+
+        [HttpGet("GetProjectByName/{caption}")]
+
+        public async Task<ActionResult> GetProjectByName(string caption)
+        {
+            var response = await _projectAllocationService.getProjectByProjectName(HttpContext,caption);
             return Ok(response);
         }
 

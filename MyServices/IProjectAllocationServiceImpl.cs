@@ -36,7 +36,7 @@ namespace HaloBiz.MyServices
 
         Task<ApiResponse> createDefaultStatus(HttpContext httpContext, List<DefaultStatusDTO> defaultStatusDTOs);
 
-        Task<ApiResponse> updateWorkspace(HttpContext httpContext, long id, UpdateWorkspaceDTO workspaceDTO);
+        Task<ApiGenericResponse<Workspace>> updateWorkspace(HttpContext httpContext, long id, UpdateWorkspaceDTO workspaceDTO);
         Task<ApiResponse> addMoreProjectCreators(HttpContext httpContext, long id, List<AddMoreUserDto> projectCreatorDtos);
         Task<ApiResponse> removeFromProjectCreator(long workspaceId, long creatorId);
         Task<ApiResponse> disablePrivateUser(long workspaceId, long privateUserId);
@@ -49,6 +49,17 @@ namespace HaloBiz.MyServices
         Task<ApiResponse> moveStatusSequenec(HttpContext httpContext, long workspaceId, List<StatusFlowDTO> statusFlowDTO);
 
         Task<ApiResponse> getAllProjects(HttpContext httpContext);
+        Task<ApiResponse> getProjectByProjectName(HttpContext httpContext, string projectName);
+
+        Task<ApiResponse> getWorkByProjectCreatorId(HttpContext httpContext);
+
+        Task<ApiResponse> getWatchersByProjectId(HttpContext httpContext, long projectId);
+
+        Task<ApiGenericResponse<List<Watcher>>> addmoreWatchers(HttpContext httpContext, long projectId, List<WatchersDTO> watchersDTOs);
+
+        Task<ApiGenericResponse<Project>> updateProject(HttpContext httpContext, long projectId, ProjectDTO projectDTO);
+
+        Task<ApiGenericResponse<List<Watcher>>> removeWatcher(HttpContext httpContext, long projectId, long projectWatcherId);
 
     }
 }
