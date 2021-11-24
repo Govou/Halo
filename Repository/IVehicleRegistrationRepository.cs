@@ -12,6 +12,8 @@ namespace HaloBiz.Repository
 
         Task<Vehicle> FindVehicleById(long Id);
 
+        Vehicle FindVehicleServiceById(long Id);
+
         Task<IEnumerable<Vehicle>> FindAllVehicles();
 
         Task<Vehicle> UpdateVehicle(Vehicle vehicle);

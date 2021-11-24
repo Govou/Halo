@@ -1,4 +1,6 @@
-﻿using System;
+﻿using HalobizMigrations.Models;
+using HalobizMigrations.Models.Armada;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -28,7 +30,8 @@ namespace HaloBiz.DTOs.TransferDTOs
         public long CreatedById { get; set; }
         public long ArmedEscortTypeId { get; set; }
         public DateTime CreatedAt { get; set; }
-        
-        //public virtual ArmedEscortType ArmedEscortType { get; set; }
+
+        public  UserProfile CreatedBy { get; set; }
+        public  ArmedEscortType ArmedEscortType { get; set; }
     }
 }

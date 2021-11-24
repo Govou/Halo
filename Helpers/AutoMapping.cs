@@ -317,8 +317,10 @@ namespace HaloBiz.Helpers
             CreateMap<Lga, LgasTransferDTO>();
 
             //yus
-            CreateMap<SMORouteAndRegionReceivingDTO, SMORoute>();
+            CreateMap<SMORouteReceivingDTO, SMORoute>();
             CreateMap<SMORoute, SMORouteTransferDTO>();
+            CreateMap<SMOReturnRouteReceivingDTO, SMOReturnRoute>();
+            CreateMap<SMOReturnRoute, SMOReturnRouteTransferDTO>();
             CreateMap<SMORegionReceivingDTO, SMORegion>();
             CreateMap<SMORegion, SMORegionTransferDTO>();
 
@@ -350,6 +352,16 @@ namespace HaloBiz.Helpers
 
             CreateMap<ArmedEscortProfileReceivingDTO, ArmedEscortProfile>();
             CreateMap<ArmedEscortProfile, ArmedEscortProfileTransferDTO>();
+
+
+            CreateMap<ServiceRegistrationReceivingDTO, ServiceRegistration>();
+            CreateMap<ServiceRegistration, ServiceRegistrationTransferDTO>();
+
+            CreateMap<BusinessRuleReceivingDTO, BusinessRule>();
+            CreateMap<BusinessRule, BusinessRuleTransferDTO>();
+
+            //CreateMap<BusinessRuleReceivingDTO, BRPairable>();
+            //CreateMap<BRPairable, BusinessRuleTransferDTO>();
 
             //CreateMap<CommanderType, SMORegionTransferDTO>();
         }

@@ -33,14 +33,14 @@ namespace HaloBiz.Repository.Impl
         public async Task<CommanderType> FindCommanderTypeById(long? Id)
         {
             return await _context.CommanderTypes
-                .FirstOrDefaultAsync(ct => ct.Id == Id);
+                .FirstOrDefaultAsync(ct => ct.Id == Id && ct.IsDeleted == false);
             //.FirstOrDefaultAsync(region => region.Id == Id && region.IsDeleted == false);
         }
 
         public async Task<CommanderType> FindCommanderTypeByName(string name)
         {
             return await _context.CommanderTypes
-                .FirstOrDefaultAsync(ct => ct.TypeName == name);
+                .FirstOrDefaultAsync(ct => ct.TypeName == name && ct.IsDeleted == false);
             //.FirstOrDefaultAsync(region => region.Id == Id && region.IsDeleted == false);
         }
 
@@ -96,7 +96,7 @@ namespace HaloBiz.Repository.Impl
 
         public async Task<CommanderRank> FindCommanderRankById(long Id)
         {
-            return await _context.CommanderRanks
+            return await _context.CommanderRanks.Include(cr => cr.CommanderType)
                .FirstOrDefaultAsync(cr => cr.Id == Id && cr.IsDeleted == false);
             //.FirstOrDefaultAsync(region => region.Id == Id && region.IsDeleted == false);
         }
@@ -104,6 +104,7 @@ namespace HaloBiz.Repository.Impl
         public async Task<IEnumerable<CommanderRank>> FindAllCommanderRanks()
         {
             return await _context.CommanderRanks.Where(cr => cr.IsDeleted == false)
+                .Include(cr=>cr.CommanderType)
                 .ToListAsync();
         }
 

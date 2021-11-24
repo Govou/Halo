@@ -35,6 +35,7 @@ namespace HaloBiz.Repository.Impl
         public async Task<IEnumerable<PilotRank>> FindAllPilotRanks()
         {
             return await _context.PilotRanks.Where(rank => rank.IsDeleted == false)
+                .Include(rank=>rank.PilotType)
                             .ToListAsync();
         }
 

@@ -16,7 +16,7 @@ using System.Threading.Tasks;
 
 namespace HaloBiz.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/v1/[controller]")]
     [ApiController]
     public class SMORouteAndRegionController : ControllerBase
     {
@@ -24,108 +24,152 @@ namespace HaloBiz.Controllers
         //private readonly SMORoutesAndRegionServices _sMORoutesAndRegionServices;
         private readonly HalobizContext _context;
 
-        public SMORouteAndRegionController(ISMORouteAndRegionService sMORoutesAndRegionServices, HalobizContext context)
+        public SMORouteAndRegionController(ISMORouteAndRegionService sMORoutesAndRegionServices)
         {
             _sMORoutesAndRegionServices = sMORoutesAndRegionServices;
-            _context = context;
-        }
-        // GET: api/<SMORouteAndRegionController>
-        [HttpGet("GetAllSMORoutes")]
-        //[Route]
-        //[Produces("application/json", "application/xml", Type = typeof(StatusResponse))]
-        public async Task<IActionResult> GetAllSMORoutes()
-        {
-            try
-            {
-                var resp = await _sMORoutesAndRegionServices.GetAllSMORoutes();
-                if (resp.status)
-                {
-                    return Ok(StatusResponse.SuccessMessage());
-                }
-                return resp.statusCode > 0 ? StatusCode(resp.statusCode, resp) : StatusCode(StatusCodes.Status400BadRequest, resp);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
-            }
+           // _context = context;
         }
 
-        [HttpGet("GetSMORouteById/{id}")]
-        //[Route("GetSMORouteById")]
-        public async Task<IActionResult> GetSMORouteById(long id)
+        [HttpGet("GetAllRegions")]
+        public async Task<ActionResult> GetAllRegions()
         {
-            try
-            {
-                var resp = await _sMORoutesAndRegionServices.GetSMORouteById(id);
-                if (resp.status)
-                {
-                    return Ok(StatusResponse.SuccessMessage());
-                }
-                return resp.statusCode > 0 ? StatusCode(resp.statusCode, resp) : StatusCode(StatusCodes.Status400BadRequest, resp);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
-            }
-        }
-
-        [HttpPost("AddRoute")]
-        //[Produces("application/json", "application/xml", Type = typeof(StatusResponse))]
-        public async Task<IActionResult> AddSMORoute(SMORouteAndRegionReceivingDTO sMORoute)
-        {
-            try
-            {
-                var response = await _sMORoutesAndRegionServices.AddSMORoute(HttpContext, sMORoute);
-                if (response.StatusCode >= 400)
-                    return StatusCode(response.StatusCode, response);
-                var route = ((ApiOkResponse)response).Result;
-                return Ok(route);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
-            }
-           
-        }
-
-        [HttpPut("UpdateRouteById/{id}")]
-        public async Task<IActionResult> UpdateSMORoute(long id, SMORouteAndRegionReceivingDTO sMORoute)
-        {
-            var response = await _sMORoutesAndRegionServices.UpdateSMORoute(HttpContext, sMORoute, id);
+            var response = await _sMORoutesAndRegionServices.GetAllSMORegions();
             if (response.StatusCode >= 400)
                 return StatusCode(response.StatusCode, response);
-            var region = ((ApiOkResponse)response).Result;
-            return Ok(region);
+            var items = ((ApiOkResponse)response).Result;
+            return Ok(items);
         }
 
-        //Region
-        [HttpPost("AddRegion")]
-        //[Produces("application/json", "application/xml", Type = typeof(StatusResponse))]
-        public async Task<IActionResult> AddSMORegion(SMORegionReceivingDTO sMORegion)
+        [HttpGet("GetAllReturnRoutes")]
+        public async Task<ActionResult> GetAllReturnRoutes()
         {
-            try
-            {
-                var response = await _sMORoutesAndRegionServices.AddSMORegion(HttpContext, sMORegion);
-                if (response.StatusCode >= 400)
-                    return StatusCode(response.StatusCode, response);
-                var region = ((ApiOkResponse)response).Result;
-                return Ok(region);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
-            }
+            var response = await _sMORoutesAndRegionServices.GetAllSMOReturnRoutes();
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var items = ((ApiOkResponse)response).Result;
+            return Ok(items);
+        }
 
+        [HttpGet("GetAllRoutes")]
+        public async Task<ActionResult> GetAllRoutes()
+        {
+            var response = await _sMORoutesAndRegionServices.GetAllSMORoutes();
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var items = ((ApiOkResponse)response).Result;
+            return Ok(items);
+        }
+
+        [HttpGet("GetRegionById/{id}")]
+        public async Task<ActionResult> GetRegionById(long id)
+        {
+            var response = await _sMORoutesAndRegionServices.GetSMORegionById(id);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var item = ((ApiOkResponse)response).Result;
+            return Ok(item);
+        }
+
+        [HttpGet("GetReturnRouteById/{id}")]
+        public async Task<ActionResult> GetReturnRouteById(long id)
+        {
+            var response = await _sMORoutesAndRegionServices.GetSMOReturnRouteById(id);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var item = ((ApiOkResponse)response).Result;
+            return Ok(item);
+        }
+
+        [HttpGet("GetRouteById/{id}")]
+        public async Task<ActionResult> GetRouteById(long id)
+        {
+            var response = await _sMORoutesAndRegionServices.GetSMORouteById(id);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var item = ((ApiOkResponse)response).Result;
+            return Ok(item);
+        }
+
+        [HttpPost("AddNewRegion")]
+        public async Task<ActionResult> AddNewRegion(SMORegionReceivingDTO ReceivingDTO)
+        {
+            var response = await _sMORoutesAndRegionServices.AddSMORegion(HttpContext, ReceivingDTO);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var item = ((ApiOkResponse)response).Result;
+            return Ok(item);
+        }
+
+        [HttpPost("AddNewReturnRoute")]
+        public async Task<ActionResult> AddNewReturnRoute(SMOReturnRouteReceivingDTO ReceivingDTO)
+        {
+            var response = await _sMORoutesAndRegionServices.AddSMOReturnRoute(HttpContext, ReceivingDTO);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var item = ((ApiOkResponse)response).Result;
+            return Ok(item);
+        }
+
+        [HttpPost("AddNewRoute")]
+        public async Task<ActionResult> AddNewRoute(SMORouteReceivingDTO ReceivingDTO)
+        {
+            var response = await _sMORoutesAndRegionServices.AddSMORoute(HttpContext, ReceivingDTO);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var item = ((ApiOkResponse)response).Result;
+            return Ok(item);
         }
 
         [HttpPut("UpdateRegionById/{id}")]
-        public async Task<IActionResult> UpdateSMORegion(long id, SMORegionReceivingDTO sMORegion)
+        public async Task<IActionResult> UpdateRegionById(long id, SMORegionReceivingDTO Receiving)
         {
-            var response = await _sMORoutesAndRegionServices.UpdateSMORegion(HttpContext, sMORegion, id);
+            var response = await _sMORoutesAndRegionServices.UpdateSMORegion(HttpContext, id, Receiving);
             if (response.StatusCode >= 400)
                 return StatusCode(response.StatusCode, response);
-            var region = ((ApiOkResponse)response).Result;
-            return Ok(region);
+            var item = ((ApiOkResponse)response).Result;
+            return Ok(item);
         }
+
+        [HttpPut("UpdateReturnRouteById/{id}")]
+        public async Task<IActionResult> UpdateReturnRouteById(long id, SMOReturnRouteReceivingDTO Receiving)
+        {
+            var response = await _sMORoutesAndRegionServices.UpdateSMOReturnRoute(HttpContext, id, Receiving);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var item = ((ApiOkResponse)response).Result;
+            return Ok(item);
+        }
+
+        [HttpPut("UpdateRouteById/{id}")]
+        public async Task<IActionResult> UpdateRouteById(long id, SMORouteReceivingDTO Receiving)
+        {
+            var response = await _sMORoutesAndRegionServices.UpdateSMORoute(HttpContext, id, Receiving);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var item = ((ApiOkResponse)response).Result;
+            return Ok(item);
+        }
+
+        [HttpDelete("DeleteRegionById/{id}")]
+        public async Task<ActionResult> DeleteRegionById(int id)
+        {
+            var response = await _sMORoutesAndRegionServices.DeleteSMORegion(id);
+            return StatusCode(response.StatusCode);
+        }
+
+        [HttpDelete("DeleteReturnRouteById/{id}")]
+        public async Task<ActionResult> DeleteReturnRouteById(int id)
+        {
+            var response = await _sMORoutesAndRegionServices.DeleteSMOReturnRoute(id);
+            return StatusCode(response.StatusCode);
+        }
+
+        [HttpDelete("DeleteRouteById/{id}")]
+        public async Task<ActionResult> DeleteRouteById(int id)
+        {
+            var response = await _sMORoutesAndRegionServices.DeleteSMORoute(id);
+            return StatusCode(response.StatusCode);
+        }
+
     }
 }

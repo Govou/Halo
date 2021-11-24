@@ -36,6 +36,7 @@ namespace HaloBiz.Repository.Impl
         public async Task<IEnumerable<ArmedEscortRank>> FindAllArmedEscortRanks()
         {
             return await _context.ArmedEscortRanks.Where(rank=>rank.IsDeleted == false)
+                .Include(ct=>ct.ArmedEscortType)
                 .ToListAsync();
         }
 
@@ -90,6 +91,7 @@ namespace HaloBiz.Repository.Impl
         public async Task<ArmedEscortType> SaveArmedEscortType(ArmedEscortType armedEscortType)
         {
             var savedEntity = await _context.ArmedEscortTypes.AddAsync(armedEscortType);
+            
             if (await SaveChanges())
             {
                 return savedEntity.Entity;
