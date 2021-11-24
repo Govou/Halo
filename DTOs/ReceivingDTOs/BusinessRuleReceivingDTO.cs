@@ -9,7 +9,7 @@ namespace HaloBiz.DTOs.ReceivingDTOs
     public class BusinessRuleReceivingDTO
     {
         [Required]
-        public long? ServiceRegistrationId { get; set; }
+        public long ServiceRegistrationId { get; set; }
         [Required]
         public bool IsQuantityRequired { get; set; }
         public long MaxQuantity { get; set; }
