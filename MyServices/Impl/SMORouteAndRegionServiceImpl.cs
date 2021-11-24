@@ -56,7 +56,12 @@ namespace HaloBiz.MyServices.Impl
         public async Task<ApiResponse> AddSMOReturnRoute(HttpContext context, SMOReturnRouteReceivingDTO sMOReturnRouteReceivingDTO)
         {
             var addItem = _mapper.Map<SMOReturnRoute>(sMOReturnRouteReceivingDTO);
-           
+            var hasReturnRoute = _sMORouteAndRegionRepository.hasReturnRoute(sMOReturnRouteReceivingDTO.SMORouteId);
+            if (!hasReturnRoute)
+            {
+                return new ApiResponse(411);
+            }
+
             addItem.CreatedById = context.GetLoggedInUserId();
             addItem.IsDeleted = false;
             addItem.CreatedAt = DateTime.UtcNow;
@@ -72,6 +77,7 @@ namespace HaloBiz.MyServices.Impl
         public async Task<ApiResponse> AddSMORoute(HttpContext context, SMORouteReceivingDTO sMORouteReceivingDTO)
         {
             var addItem = _mapper.Map<SMORoute>(sMORouteReceivingDTO);
+            var addItem2 = _mapper.Map<SMOReturnRoute>(sMORouteReceivingDTO);
             var NameExist = _sMORouteAndRegionRepository.GetRouteName(sMORouteReceivingDTO.RouteName);
             if (NameExist != null)
             {
@@ -81,6 +87,13 @@ namespace HaloBiz.MyServices.Impl
             addItem.IsDeleted = false;
             addItem.CreatedAt = DateTime.UtcNow;
             var savedRank = await _sMORouteAndRegionRepository.SaveSMORoute(addItem);
+            //if(addItem.IsReturnRouteRequired == true)
+            //{
+            //    addItem2.SMORouteId = addItem.Id;
+                
+            //    var savedRRoute = await _sMORouteAndRegionRepository.SaveSMOReturnRoute(addItem2);
+            //}
+            
             if (savedRank == null)
             {
                 return new ApiResponse(500);
@@ -244,7 +257,7 @@ namespace HaloBiz.MyServices.Impl
             var summary = $"Initial details before change, \n {itemToUpdate.ToString()} \n";
 
             itemToUpdate.SMORouteId = sMOReturnRouteReceivingDTO.SMORouteId;
-            itemToUpdate.RRecoveryTime = sMOReturnRouteReceivingDTO.RecoveryTime;
+            itemToUpdate.RRecoveryTime = sMOReturnRouteReceivingDTO.RRecoveryTime;
 
             itemToUpdate.UpdatedAt = DateTime.UtcNow;
             var updatedRank = await _sMORouteAndRegionRepository.UpdateSMOReturnRoute(itemToUpdate);
@@ -271,7 +284,7 @@ namespace HaloBiz.MyServices.Impl
             var summary = $"Initial details before change, \n {itemToUpdate.ToString()} \n";
 
             itemToUpdate.RouteName = sMORouteReceivingDTO.RouteName;
-            itemToUpdate.RRecoveryTime = sMORouteReceivingDTO.RecoveryTime;
+            itemToUpdate.RRecoveryTime = sMORouteReceivingDTO.RRecoveryTime;
             itemToUpdate.IsReturnRouteRequired = sMORouteReceivingDTO.IsReturnRouteRequired;
             itemToUpdate.RouteDescription = sMORouteReceivingDTO.RouteDescription;
             itemToUpdate.SMORegionId = sMORouteReceivingDTO.SMORegionId;
