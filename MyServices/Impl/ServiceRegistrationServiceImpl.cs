@@ -104,12 +104,7 @@ namespace HaloBiz.MyServices.Impl
             itemToUpdate.PilotQuantityRequired = serviceRegReceivingDTO.PilotQuantityRequired;
             itemToUpdate.CommanderQuantityRequired = serviceRegReceivingDTO.CommanderQuantityRequired;
             itemToUpdate.ArmedEscortQuantityRequired = serviceRegReceivingDTO.ArmedEscortQuantityRequired;
-
-            itemToUpdate.ApplicableArmedEscortTypes = serviceRegReceivingDTO.ApplicableArmedEscortTypes;
-            itemToUpdate.ApplicableCommanderTypes = serviceRegReceivingDTO.ApplicableCommanderTypes;
-            itemToUpdate.ApplicablePilotTypes = serviceRegReceivingDTO.ApplicablePilotTypes;
-            itemToUpdate.ApplicableVehicleTypes = serviceRegReceivingDTO.ApplicableVehicleTypes;
-
+          
             itemToUpdate.UpdatedAt = DateTime.UtcNow;
             //regionToUpdate.BranchId = regionReceivingDTO.BranchId;
             var updated = await _serviceregRepository.UpdateServices(itemToUpdate);

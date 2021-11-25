@@ -360,6 +360,9 @@ namespace HaloBiz.Helpers
             CreateMap<BusinessRuleReceivingDTO, BusinessRule>();
             CreateMap<BusinessRule, BusinessRuleTransferDTO>();
 
+            CreateMap<BRPairableReceivingDTO, BRPairable>();
+            CreateMap<BRPairable, BRPairableTransferDTO>();
+
             //CreateMap<BusinessRuleReceivingDTO, BRPairable>();
             //CreateMap<BRPairable, BusinessRuleTransferDTO>();
 
