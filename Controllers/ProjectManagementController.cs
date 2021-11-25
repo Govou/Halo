@@ -269,6 +269,13 @@ namespace HaloBiz.Controllers
             return Ok(response);
         }
 
+        [HttpPost("CreateTask/{projectId}")]
+        public async Task<ActionResult> CreateTask(long projectId,TaskDTO taskDTO)
+        {
+            var response = await _projectAllocationService.createNewTask(HttpContext, projectId, taskDTO);
+            return Ok(response);
+        }
+
 
 
         //[HttpGet("GetProjectByWorkspaceId/{workspaceId}")]
@@ -279,12 +286,46 @@ namespace HaloBiz.Controllers
         //    return Ok(response);
         //}
 
+        [HttpGet("GetTaskByCaption/{caption}")]
+
+        public async Task<ActionResult> GetTaskByCaption(string caption)
+        {
+            var response = await _projectAllocationService.getTaskByCaption(HttpContext, caption);
+            return Ok(response);
+        }
+
 
         [HttpGet("GetAllProjects")]
 
         public async Task<ActionResult> GetAllProjects()
         {
             var response = await _projectAllocationService.getAllProjects(HttpContext);
+            return Ok(response);
+        }
+
+        [HttpGet("GetAllTaskByProjectId/{projectId}")]
+
+        public async Task<ActionResult> GetAllTaskByProjectId(long projectId)
+        {
+            var response = await _projectAllocationService.getTaskByProjectId(HttpContext, projectId);
+            return Ok(response);
+        }
+
+        [HttpGet("GetTaskByTaskId/{taskId}")]
+
+        public async Task<ActionResult> GetTaskByTaskId(long taskId)
+        {
+            var response = await _projectAllocationService.getTaskById(HttpContext, taskId);
+            return Ok(response);
+        }
+
+
+
+        [HttpGet("GetAllTask")]
+
+        public async Task<ActionResult> GetAllTask()
+        {
+            var response = await _projectAllocationService.getAllTask(HttpContext);
             return Ok(response);
         }
 

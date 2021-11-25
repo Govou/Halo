@@ -6,10 +6,10 @@ using System.Threading.Tasks;
 
 namespace HaloBiz.DTOs.ProjectManagementDTO
 {
-    public class TaskDTO
+    public class TaskSummaryDTO
     {
         public long CreatedById { get; set; }
-        public ICollection<TaskAssigneeDTO> TaskAssignees { get; set; }
+        public ICollection<TaskAssignee> TaskAssignees { get; set; }
         public List<Deliverable> Deliverables { get; set; }
         public bool IsReassigned { get; set; }
         public bool IsAssigned { get; set; }
@@ -23,5 +23,9 @@ namespace HaloBiz.DTOs.ProjectManagementDTO
         public string Alias { get; set; }
         public bool IsMilestone { get; set; }
         public DateTime UpdatedAt { get; set; }
+
+        public Workspace workspace { get; set; }
+
+        public Project Project { get; set; }
     }
 }
