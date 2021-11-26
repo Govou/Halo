@@ -56,11 +56,11 @@ namespace HaloBiz.MyServices.Impl
         public async Task<ApiResponse> AddSMOReturnRoute(HttpContext context, SMOReturnRouteReceivingDTO sMOReturnRouteReceivingDTO)
         {
             var addItem = _mapper.Map<SMOReturnRoute>(sMOReturnRouteReceivingDTO);
-            var hasReturnRoute = _sMORouteAndRegionRepository.hasReturnRoute(sMOReturnRouteReceivingDTO.SMORouteId);
-            if (!hasReturnRoute)
-            {
-                return new ApiResponse(411);
-            }
+            //var hasReturnRoute = _sMORouteAndRegionRepository.hasReturnRoute(sMOReturnRouteReceivingDTO.SMORouteId);
+            //if (!hasReturnRoute)
+            //{
+            //    return new ApiResponse(411);
+            //}
 
             addItem.CreatedById = context.GetLoggedInUserId();
             addItem.IsDeleted = false;
