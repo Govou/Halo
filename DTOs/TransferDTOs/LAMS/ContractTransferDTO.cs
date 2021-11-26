@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 using HalobizMigrations.Models;
-
+using HalobizMigrations.Models.Shared;
 
 namespace HaloBiz.DTOs.TransferDTOs.LAMS
 {
@@ -18,7 +18,8 @@ namespace HaloBiz.DTOs.TransferDTOs.LAMS
      public class ContractForCustomerDivisionTransferDTO
     {
         public long Id { get; set; }
-        public string ReferenceNo { get; set; }
+        public GroupContractCategory GroupContractCategory { get; set; }
+        public string GroupInvoiceNumber { get; set; }
         public long CustomerDivisionId { get; set; }
         public double AmountPaid { get; set; } = 0;
         public IEnumerable<ContractServiceForContractTransferDTO> ContractServices { get; set; }

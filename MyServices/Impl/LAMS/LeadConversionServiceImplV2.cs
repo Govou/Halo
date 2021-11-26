@@ -13,6 +13,7 @@ using HaloBiz.Adapters;
 using Newtonsoft.Json;
 using HaloBiz.MyServices.LAMS;
 using HalobizMigrations.Models.Halobiz;
+using HaloBiz.Model;
 
 namespace HaloBiz.MyServices.Impl.LAMS
 {
@@ -510,7 +511,6 @@ namespace HaloBiz.MyServices.Impl.LAMS
         {
             try
             {
-                int interval = 0;
                 int invoiceNumber = 1;
                 DateTime startDate = (DateTime)contractService.ContractStartDate;
                 DateTime firstInvoiceSendDate = (DateTime)contractService.FirstInvoiceSendDate;
@@ -520,73 +520,16 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
                 List<Invoice> invoices = new List<Invoice>();
 
-                switch (cycle)
-                {
-                    case TimeCycle.Weekly:
-                        interval = 7;
-                        break;
-                    case TimeCycle.BiWeekly:
-                        interval = 14;
-                        break;
-                    case TimeCycle.Monthly:
-                        interval = 1;
-                        break;
-                    case TimeCycle.BiMonthly:
-                        interval = 2;
-                        break;
-                    case TimeCycle.Quarterly:
-                        interval = 4;
-                        break;
-                    case TimeCycle.SemiAnnually:
-                        interval = 6;
-                        break;
-                    case TimeCycle.Annually:
-                        interval = 12;
-                        break;
-                    case TimeCycle.BiAnnually:
-                        interval = 24;
-                        break;
-                }
+                var (interval, billableForInvoicingPeriod, vat) = CalculateTotalBillableForPeriod(contractService);
 
-                var billableForInvoicingPeriod = CalculateTotalBillableForPeriod(contractService, false);
-                var totalContractValue = CalculateTotalAmountForContract(
-                                                                        (double)contractService.BillableAmount,
-                                                                         (DateTime)contractService.ContractStartDate,
-                                                                         (DateTime)contractService.ContractEndDate,
-                                                                         (TimeCycle)contractService.InvoicingInterval
-                                                                        );
+                //var totalContractValue = CalculateTotalAmountForContract(
+                //                                                        (double)contractService.BillableAmount,
+                //                                                         (DateTime)contractService.ContractStartDate,
+                //                                                         (DateTime)contractService.ContractEndDate,
+                //                                                         (TimeCycle)contractService.InvoicingInterval
+                //                                                        );
 
-                if (cycle == TimeCycle.Weekly || cycle == TimeCycle.BiWeekly)
-                {
-
-                    while (firstInvoiceSendDate < endDate)
-                    {
-
-                        //to cater for edge cases where the last invoicing cycle isn't complete
-                        var invoiceValueToPost = billableForInvoicingPeriod <= totalContractValue ?
-                                            billableForInvoicingPeriod : totalContractValue;
-
-                        //to cater for edge cases where the calculated enddate false beyond the contract end date
-                        var invoiceEndDateToPost = startDate.AddDays(interval) > endDate ? endDate : startDate.AddMonths(interval);
-
-                        invoices.Add(
-                            GenerateInvoice(startDate,
-                                           invoiceEndDateToPost,
-                                           invoiceValueToPost,
-                                           firstInvoiceSendDate,
-                                           contractService,
-                                           customerDivisionId,
-                                            serviceCode,
-                                            invoiceNumber,
-                                            loggedInUserId)
-                            );
-                        firstInvoiceSendDate = firstInvoiceSendDate.AddDays(interval);
-                        startDate = startDate.AddDays(interval);
-                        invoiceNumber++;
-                        totalContractValue -= billableForInvoicingPeriod;
-                    }
-                }
-                else if (cycle == TimeCycle.OneTime)
+                if (cycle == TimeCycle.OneTime)
                 {
 
                     invoices.Add(GenerateInvoice(startDate, endDate, amount, firstInvoiceSendDate,
@@ -600,11 +543,16 @@ namespace HaloBiz.MyServices.Impl.LAMS
                     {
 
                         //to cater for edge cases where the last invoicing cycle isn't complete
-                        var invoiceValueToPost = billableForInvoicingPeriod <= totalContractValue ?
-                                            billableForInvoicingPeriod : totalContractValue;
-                        //to cater for edge cases where the calculated enddate false beyond the contract end date
-                        var invoiceEndDateToPost = startDate.AddMonths(interval) > endDate ? endDate : startDate.AddMonths(interval);
+                        //var invoiceValueToPost = billableForInvoicingPeriod <= totalContractValue ?
+                        //                    billableForInvoicingPeriod : totalContractValue;
+                        var invoiceValueToPost = billableForInvoicingPeriod; //check working well
 
+                        //to cater for edge cases where the calculated enddate false beyond the contract end date
+                        //                        var invoiceEndDateToPost = startDate.AddMonths(interval) > endDate ? endDate : startDate.AddMonths(interval);
+
+                        var invoiceEndDateToPost = startDate.AddMonths(interval);
+
+                        //todo where is VAT in this?
                         invoices.Add(GenerateInvoice(startDate,
                                                     invoiceEndDateToPost,
                                                     invoiceValueToPost,
@@ -617,7 +565,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                         firstInvoiceSendDate = firstInvoiceSendDate.AddMonths(interval);
                         startDate = startDate.AddMonths(interval);
                         invoiceNumber++;
-                        totalContractValue -= billableForInvoicingPeriod;
+                       // totalContractValue -= billableForInvoicingPeriod;
                     }
                 }
                 return invoices;
@@ -647,11 +595,6 @@ namespace HaloBiz.MyServices.Impl.LAMS
                                  $"TRS{serviceCode}/{contractService.Id}"
                                         : $"{contractService.Contract?.GroupInvoiceNumber?.Replace("GINV", "TRS")}/{contractService.Id}";
 
-                /*var unitPrice = String.IsNullOrWhiteSpace(contractService.GroupInvoiceNumber)
-                                    ? contractService.UnitPrice : 0;*/
-
-                /*var quantity = String.IsNullOrWhiteSpace(contractService.GroupInvoiceNumber) ?
-                                    contractService.Quantity : 0;*/
 
                 return new Invoice()
                 {
@@ -737,70 +680,68 @@ namespace HaloBiz.MyServices.Impl.LAMS
             return (true, "success");
         }
 
-        public async Task<(bool, string)> GenerateAmortizations(ContractService contractService, CustomerDivision customerDivision, double billableAmount)
+        public async Task<(bool, string)> GenerateAmortizations(ContractService contractService, CustomerDivision customerDivision, double billableAmount, ContractServiceForEndorsement endorsement =  null)
         {
             try
             {
-                DateTime startDate = (DateTime)contractService.ContractStartDate;
+                DateTime startDate = endorsement == null ? (DateTime)contractService.ContractStartDate : (DateTime) endorsement?.DateForNewContractToTakeEffect;
                 DateTime endDate = (DateTime)contractService.ContractEndDate;
                 var InitialYear = startDate.Year;
 
-                //var totalContractBillable = CalculateTotalAmountForContract((double)contractService.BillableAmount,
-                //                                                            (DateTime)startDate,
-                //                                                            (DateTime)endDate,
-                //                                                            (TimeCycle)contractService.InvoicingInterval);
-                var allMonthAndYear = Enumerable.Range(0, Int32.MaxValue)
-                                 .Select(e => startDate.AddMonths(e))
-                                 .TakeWhile(e => e <= endDate)
-                                 .Select(e => new { month = int.Parse(e.ToString("MM")), year = int.Parse(e.ToString("yyyy")) });
+               
+                var (interval, billableForInvoicingPeriod, vat) = CalculateTotalBillableForPeriod(contractService);
+                var allMonthAndYear = new List<MonthsAndYears>();
 
-                for (int i = startDate.Year; i <= endDate.Year; i++)
+                billableAmount *= interval; 
+
+                while (startDate < endDate)
                 {
-                    var thisYearValues = allMonthAndYear.Where(x => x.year == i).ToList();
-
-                    var repAmoritizationMaster = new RepAmortizationMaster()
-                    {
-                        Year = i,
-                        ClientId = customerDivision?.CustomerId,
-                        DivisionId = customerDivision.Id,
-                        ContractId = contractService.ContractId,
-                        ContractServiceId = contractService.Id,
-                        GroupInvoiceNumber = contractService?.Contract?.GroupInvoiceNumber,
-                        QuoteServiceId = contractService.QuoteServiceId,
-                    };                
-
-
-                    await _context.RepAmortizationMasters.AddAsync(repAmoritizationMaster);
-                    var affected = await _context.SaveChangesAsync();
-
-                    if (affected == 0)
-                        throw new Exception($"no data saved for year {i} for contract service with quote id {contractService?.QuoteServiceId}");
-
-
-                    List<RepAmortizationDetail> repAmortizationDetails = new List<RepAmortizationDetail>();
-                    foreach (var item in thisYearValues)
-                    {
-                        repAmortizationDetails.Add(new RepAmortizationDetail
-                        {
-                            Month = item.month,
-                            BillableAmount = billableAmount,
-                            RepAmortizationMasterId = repAmoritizationMaster.Id,
-                        }); 
-                    }
-
-                    await _context.RepAmortizationDetails.AddRangeAsync(repAmortizationDetails);
-                    await _context.SaveChangesAsync();
-                    _context.ChangeTracker.Clear();
-
+                    allMonthAndYear.Add(new MonthsAndYears { Month = startDate.Month, Year = startDate.Year });
+                    startDate = startDate.AddMonths(interval);
                 }
 
-                //if this is cancellation, change the contract end date to the month before this start date
-                //if (contractService.Quantity == 0)
-                //{
-                //    var ema = startDate.AddMonths(-1); //end month adjusted
-                //    contractService.ContractEndDate = new DateTime(ema.Year, ema.Month, DateTime.DaysInMonth(ema.Year, ema.Month));
-                //    await _context.SaveChangesAsync();
-                //}
+                for (int i = InitialYear; i <= endDate.Year; i++)
+                {
+                    var thisYearValues = allMonthAndYear.Where(x => x.Year == i).ToList();
+                    
+                    if(thisYearValues.Count > 0)
+                    {
+                        var repAmoritizationMaster = new RepAmortizationMaster()
+                        {
+                            Year = i,
+                            ClientId = customerDivision?.CustomerId,
+                            DivisionId = customerDivision.Id,
+                            ContractId = contractService.ContractId,
+                            ContractServiceId = contractService.Id,
+                            GroupInvoiceNumber = contractService?.Contract?.GroupInvoiceNumber,
+                            QuoteServiceId = contractService.QuoteServiceId,
+                        };
+
+
+                        await _context.RepAmortizationMasters.AddAsync(repAmoritizationMaster);
+                        var affected = await _context.SaveChangesAsync();
+
+                        if (affected == 0)
+                            throw new Exception($"no data saved for year {i} for contract service with quote id {contractService?.QuoteServiceId}");
+
+
+                        List<RepAmortizationDetail> repAmortizationDetails = new List<RepAmortizationDetail>();
+                        foreach (var item in thisYearValues)
+                        {
+                            repAmortizationDetails.Add(new RepAmortizationDetail
+                            {
+                                Month = item.Month,
+                                BillableAmount = billableAmount,
+                                RepAmortizationMasterId = repAmoritizationMaster.Id,
+                            });
+                        }
+
+                        await _context.RepAmortizationDetails.AddRangeAsync(repAmortizationDetails);
+                        await _context.SaveChangesAsync();
+                        _context.ChangeTracker.Clear();
+                    }                   
+
+                }
             }
             catch (Exception ex)
             {
@@ -941,8 +882,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                                     bool isReversal
                                     )
         {
-            var totalContractBillable = CalculateTotalBillableForPeriod(contractService, false);
-            var totalVAT = CalculateTotalBillableForPeriod(contractService, true);
+            var (interval, totalContractBillable, totalVAT) = CalculateTotalBillableForPeriod(contractService);
 
             var totalAfterTax = totalContractBillable - totalVAT;
 
@@ -1632,7 +1572,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
         private static double GenerateWeeklyAmount(DateTime startDate, DateTime endDate, double amountPerMonth, TimeCycle timeCylce)
         {
-            var interval = timeCylce == TimeCycle.Weekly ? 7 : 14;
+            var interval = 0;// timeCylce == TimeCycle.Weekly ? 7 : 14;
             var numberOfMonths = 0;
             var daysBetweenStartAndEndDate = (endDate.Subtract(startDate).TotalDays + 1) < interval ?
                            (int)interval : (endDate.Subtract(startDate).TotalDays + 1);
@@ -1650,22 +1590,15 @@ namespace HaloBiz.MyServices.Impl.LAMS
             return amountToPay;
         }
 
-        private double CalculateTotalBillableForPeriod(ContractService contractService, bool isVAT)
+        private (int, double, double) CalculateTotalBillableForPeriod(ContractService contractService)
         {
             int interval = 0;
-            DateTime startDate = (DateTime)contractService.ContractStartDate;
-            DateTime endDate = (DateTime)contractService.ContractEndDate;
             TimeCycle cycle = (TimeCycle)contractService.InvoicingInterval;
-            double amount = isVAT ? (double)contractService.Vat : (double)contractService.BillableAmount;
+            double amount =  (double)contractService.BillableAmount;
+            double vat = contractService?.Service?.IsVatable == true ? (double) contractService.Vat : 0;
 
             switch (cycle)
-            {
-                case TimeCycle.Weekly:
-                    interval = 7;
-                    break;
-                case TimeCycle.BiWeekly:
-                    interval = 14;
-                    break;
+            {              
                 case TimeCycle.Monthly:
                     interval = 1;
                     break;
@@ -1673,31 +1606,23 @@ namespace HaloBiz.MyServices.Impl.LAMS
                     interval = 2;
                     break;
                 case TimeCycle.Quarterly:
-                    interval = 4;
+                    interval = 3;
                     break;
-                case TimeCycle.SemiAnnually:
+                case TimeCycle.BiAnnually:
                     interval = 6;
                     break;
                 case TimeCycle.Annually:
                     interval = 12;
                     break;
-                case TimeCycle.BiAnnually:
-                    interval = 24;
-                    break;
             }
 
-            if (cycle == TimeCycle.Weekly || cycle == TimeCycle.BiWeekly)
+            if (cycle == TimeCycle.OneTime)
             {
-                return GenerateWeeklyAmount(startDate, endDate, amount, cycle);
-
-            }
-            else if (cycle == TimeCycle.OneTime)
-            {
-                return amount;
+                return (interval, amount, vat);
             }
             else
             {
-                return amount * (double)interval;
+                return (interval, amount * interval, vat * interval);
             }
         }
     }
