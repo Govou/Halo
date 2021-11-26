@@ -186,6 +186,17 @@ namespace HaloBiz.MyServices.Impl
             return new ApiOkResponse(itemTransferDTO);
         }
 
+        public async Task<ApiResponse> GetAllSMORoutesWithReturnRoute()
+        {
+            var allItems = await _sMORouteAndRegionRepository.FindAllRoutesWithReturnRoute();
+            if (allItems == null)
+            {
+                return new ApiResponse(404);
+            }
+            var itemTransferDTO = _mapper.Map<IEnumerable<SMORouteTransferDTO>>(allItems);
+            return new ApiOkResponse(itemTransferDTO);
+        }
+
         public async Task<ApiResponse> GetSMORegionById(long id)
         {
             var getItem = await _sMORouteAndRegionRepository.FindSMORegionById(id);

@@ -60,6 +60,16 @@ namespace HaloBiz.Controllers
             return Ok(items);
         }
 
+        [HttpGet("GetAllSMORoutesWithReturnRoute")]
+        public async Task<ActionResult> GetAllSMORoutesWithReturnRoute()
+        {
+            var response = await _sMORoutesAndRegionServices.GetAllSMORoutesWithReturnRoute();
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var items = ((ApiOkResponse)response).Result;
+            return Ok(items);
+        }
+
         [HttpGet("GetRegionById/{id}")]
         public async Task<ActionResult> GetRegionById(long id)
         {

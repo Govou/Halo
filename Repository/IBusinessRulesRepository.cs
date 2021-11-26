@@ -20,6 +20,21 @@ namespace HaloBiz.Repository
 
         Task<bool> DeleteRule(BusinessRule businessRule);
 
+        //BRPaiarble
+        Task<BRPairable> SavePairable(BRPairable bRPairable);
+
+        Task<BRPairable> FindPairableById(long Id);
+
+        Task<IEnumerable<BRPairable>> FindAllPairables();
+
+        Task<IEnumerable<BRPairable>> FindAllActivePairables();
+
+        //BRPairable GetPairableId(long regServiceId);
+
+        Task<BRPairable> UpdatePairable(BRPairable bRPairable);
+
+        Task<bool> DeletePairable(BRPairable bRPairable);
+
         bool requiresCommander(long? id);
         bool requiresVehicle(long? id);
         bool requiresArmedEscort(long? id);
