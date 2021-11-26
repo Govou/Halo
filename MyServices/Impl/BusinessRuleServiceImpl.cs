@@ -96,7 +96,7 @@ namespace HaloBiz.MyServices.Impl
             itemToUpdate.IsPairingRequired = businessRuleReceivingDTO.IsPairingRequired;
             itemToUpdate.IsQuantityRequired = businessRuleReceivingDTO.IsQuantityRequired;
             itemToUpdate.MaxQuantity = businessRuleReceivingDTO.MaxQuantity;
-            itemToUpdate.ServiceRegistrationId = businessRuleReceivingDTO.ServiceRegistrationId;
+            //itemToUpdate.ServiceRegistrationId = businessRuleReceivingDTO.ServiceRegistrationId;
 
             itemToUpdate.UpdatedAt = DateTime.UtcNow;
             //regionToUpdate.BranchId = regionReceivingDTO.BranchId;
