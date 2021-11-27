@@ -14,10 +14,7 @@ namespace HaloBiz.DTOs.ReceivingDTOs
         //public VehicleType[] ApplicableVehicleTypes { get; set; }
         //public PilotType[] ApplicablePilotTypes { get; set; }
         //public CommanderType[] ApplicableCommanderTypes { get; set; }
-        public virtual List<ArmedEscortType> ApplicableArmedEscortTypes { get; set; }
-        public virtual List<VehicleType> ApplicableVehicleTypes { get; set; }
-        public virtual List<PilotType> ApplicablePilotTypes { get; set; }
-        public virtual List<CommanderType> ApplicableCommanderTypes { get; set; }
+     
         public long ArmedEscortQuantityRequired { get; set; }
         [Required]
         public bool RequiresArmedEscort { get; set; }
