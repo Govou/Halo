@@ -311,6 +311,15 @@ namespace HaloBiz.Controllers
             return Ok(response);
         }
 
+
+        [HttpGet("GetAllProjectByWorkspaceId/{workspaceId}")]
+
+        public async Task<ActionResult> GetAllProjectByWorkspaceId(long worksppaceId)
+        {
+            var response = await _projectAllocationService.getProjectByWorkspaceId(HttpContext, worksppaceId);
+            return Ok(response);
+        }
+
         [HttpGet("GetTaskByTaskId/{taskId}")]
 
         public async Task<ActionResult> GetTaskByTaskId(long taskId)

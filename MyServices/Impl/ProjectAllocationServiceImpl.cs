@@ -1167,6 +1167,52 @@ namespace HaloBiz.MyServices.Impl
           
         }
 
+
+        public async Task<ApiGenericResponse<List<ProjectSummaryDTO>>> getProjectByWorkspaceId(HttpContext httpContext, long workspaceId)
+        {
+            var getProjectsByWorkspaceId = await _context.Projects.Where(x => x.WorkspaceId == workspaceId && x.IsActive == true).ToListAsync();
+            var ProjectArr = new List<ProjectSummaryDTO>();
+            if (getProjectsByWorkspaceId.Count() == 0)
+            {
+
+                return new ApiGenericResponse<List<ProjectSummaryDTO>>
+                {
+                    responseCode = 404,
+                    responseMessage = "No Project was with workspaceId " + workspaceId + " was found",
+                    data = null,
+                };
+
+            }
+
+            else
+            {
+                foreach(var item in getProjectsByWorkspaceId)
+                {
+                    var projectInstance = new ProjectSummaryDTO();
+
+                    projectInstance.Alias = item.Alias;
+                    projectInstance.Caption = item.Caption;
+                    projectInstance.CreatedById = item.CreatedById;
+                    projectInstance.Id = item.Id;
+                    projectInstance.IsActive = item.IsActive;
+                    projectInstance.ProjectImage = item.ProjectImage;
+                    projectInstance.Tasks = await _context.Tasks.Where(x => x.ProjectId == item.Id && x.CreatedById == httpContext.GetLoggedInUserId()).ToListAsync();
+                    projectInstance.Watchers = await _context.Watchers.Where(x => x.ProjectId == item.Id && x.CreatedById == httpContext.GetLoggedInUserId() && x.IsActive == true).ToListAsync();
+                    projectInstance.Workspace = await _context.Workspaces.FirstOrDefaultAsync(x => x.Id == workspaceId && x.IsActive == true && x.CreatedById == httpContext.GetLoggedInUserId());
+
+                    ProjectArr.Add(projectInstance);
+
+                };
+
+                return new ApiGenericResponse<List<ProjectSummaryDTO>>
+                {
+                    responseCode = 200,
+                    responseMessage = "Projects were successfully retrieved",
+                    data = ProjectArr,
+                };
+            }
+        }
+
         public async Task<ApiGenericResponse<TaskSummaryDTO>> getTaskByCaption(HttpContext httpContext,string caption)
         {
             var checkIfTaskExistByCaption = await _context.Tasks.FirstOrDefaultAsync(x => x.Caption == caption.Trim() && x.CreatedById == httpContext.GetLoggedInUserId());
