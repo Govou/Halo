@@ -539,7 +539,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 else
                 {
 
-                    while (firstInvoiceSendDate < endDate)
+                    while (startDate < endDate)
                     {
 
                         //to cater for edge cases where the last invoicing cycle isn't complete
@@ -562,7 +562,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                                                     serviceCode,
                                                     invoiceNumber,
                                                     loggedInUserId));
-                        firstInvoiceSendDate = firstInvoiceSendDate.AddMonths(interval);
+                        //firstInvoiceSendDate = firstInvoiceSendDate.AddMonths(interval);
                         startDate = startDate.AddMonths(interval);
                         invoiceNumber++;
                        // totalContractValue -= billableForInvoicingPeriod;

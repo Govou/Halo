@@ -54,6 +54,16 @@ namespace HaloBiz.MyServices.Impl.LAMS
             return new ApiOkResponse(contractServiceTransferDTOs);
         }
 
+        public async Task<ApiResponse> GetContractServiceByTag(string tag)
+        {
+            var contractService = await _contractServiceRepo.FindContractServiceByTag(tag);
+            if (contractService == null)
+            {
+                return new ApiResponse(404);
+            }
+            var contractTransferDTOs = _mapper.Map<ContractServiceForContractTransferDTO>(contractService);
+            return new ApiOkResponse(contractTransferDTOs);
+        }
         public async Task<ApiResponse> GetContractServiceByReferenceNumber(string refNo)
         {
             var contractService = await _contractServiceRepo.FindContractServicesByReferenceNumber(refNo);

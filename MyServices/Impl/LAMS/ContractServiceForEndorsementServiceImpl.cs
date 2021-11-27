@@ -300,7 +300,6 @@ namespace HaloBiz.MyServices.Impl.LAMS
                         .Include(x => x.Service)
                         .FirstOrDefaultAsync(); //contractServiceEntity.Entity;
 
-                    contractService.InvoicingInterval = contractServiceToRetire.InvoicingInterval;
 
                     var contract = await _context.Contracts
                                 .Include(x => x.CustomerDivision)
@@ -319,8 +318,9 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
                     }else if(endorsementType.ToLower().Contains("topup")){
                         //this new contract would have the same start and end date as the on to retire
-                        contractServiceToSave.ContractStartDate = contractServiceToRetire.ContractStartDate;
-                        contractServiceToSave.ContractEndDate = contractServiceToRetire.ContractEndDate;
+                        contractService.ContractStartDate = contractServiceToRetire.ContractStartDate;
+                        contractService.ContractEndDate = contractServiceToRetire.ContractEndDate;
+                        contractService.InvoicingInterval = contractServiceToRetire.InvoicingInterval;
 
                         await _context.SaveChangesAsync();
 
@@ -333,8 +333,9 @@ namespace HaloBiz.MyServices.Impl.LAMS
                     }else if(endorsementType.ToLower().Contains("reduction")){
 
                         //this new contract would have the same start and end date as the on to retire
-                        contractServiceToSave.ContractStartDate = contractServiceToRetire.ContractStartDate;
-                        contractServiceToSave.ContractEndDate = contractServiceToRetire.ContractEndDate;
+                        contractService.ContractStartDate = contractServiceToRetire.ContractStartDate;
+                        contractService.ContractEndDate = contractServiceToRetire.ContractEndDate;
+                        contractService.InvoicingInterval = contractServiceToRetire.InvoicingInterval;
 
                         await _context.SaveChangesAsync();
 
