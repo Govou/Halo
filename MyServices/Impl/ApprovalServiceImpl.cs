@@ -540,7 +540,7 @@ namespace HaloBiz.MyServices.Impl
             }
             else if (item.ApproverLevel.Caption == "CEO")
             {
-                return service?.Division?.Company?.HeadId.Value ?? 1;
+                return service?.Division?.Company?.HeadId ?? 1;
             }
             else
             {

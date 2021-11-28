@@ -117,14 +117,16 @@ namespace HaloBiz.Repository.Impl.LAMS
                                         .ThenInclude(quote => quote.QuoteServices.Where(x => x.IsDeleted == false))
                                             .ThenInclude(x => x.SbutoQuoteServiceProportions.Where(x => x.IsDeleted == false))
                                     .Where(division => division.LeadId == lead.Id).ToListAsync();
+
             lead.LeadKeyPeople = await _context.LeadKeyPeople
                                     .Include(x => x.Designation)
                                     .Include(x => x.ClientContactQualification)
-                                    .Where(x => x.LeadId == lead.Id && x.IsDeleted == false).ToListAsync();
+                                    .Where(x => x.LeadId == lead.Id && x.IsDeleted == false).AsNoTracking().ToListAsync();
             if(lead.LeadKeyPeople != null)
             {
                 lead.LeadKeyPeople.ToList().ForEach(x => x.Lead = null);
             }
+
             return lead;
         }
 
