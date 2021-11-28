@@ -693,8 +693,10 @@ namespace HaloBiz.MyServices.Impl
                     .OrderBy(x => x.Id).LastOrDefaultAsync();
                 if(lastSavedAccount == null || lastSavedAccount.Id < 1000000000)
                 {
-                    account.Id = (long) account.ControlAccountId + 1;
-                }else{
+                    account.Id = (long)account.ControlAccountId + 1;
+                }
+                else
+                {
                     account.Id = lastSavedAccount.Id + 1;
                 }
                 var savedAccount = await _context.Accounts.AddAsync(account);

@@ -136,6 +136,17 @@ namespace HaloBiz.MyServices.Impl.LAMS
             }
             var quoteTransferDTOs = _mapper.Map<QuoteTransferDTO>(quote);
             return new ApiOkResponse(quoteTransferDTOs);
+        } 
+
+        public async Task<ApiResponse> FindByLeadDivisionId(long id)
+        {
+            var quote = await _quoteRepo.FindByLeadDivisionId(id);
+            if (quote == null)
+            {
+                return new ApiResponse(404);
+            }
+            var quoteTransferDTOs = _mapper.Map<QuoteTransferDTO>(quote);
+            return new ApiOkResponse(quoteTransferDTOs);
         }
 
         public async Task<ApiResponse> GetQuoteByReferenceNumber(string reference)
