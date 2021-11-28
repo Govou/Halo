@@ -9,6 +9,7 @@ namespace HaloBiz.MyServices.LAMS
 
         Task<ApiResponse> GetAllContractsServcieForAContract(long contractId);
         Task<ApiResponse> GetContractServiceByGroupInvoiceNumber(string refNo);
+        Task<ApiResponse> GetContractServiceByTag(string tag);
 
         Task<ApiResponse> GetContractServiceByReferenceNumber(string refNo);
 
