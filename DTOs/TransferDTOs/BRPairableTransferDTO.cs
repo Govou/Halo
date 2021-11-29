@@ -13,6 +13,8 @@ namespace HaloBiz.DTOs.TransferDTOs
         public long Id { get; set; }
         public long? BusinessRuleId { get; set; }
         public BusinessRule BusinessRule { get; set; }
+        public long? ServiceRegistrationId { get; set; }
+        public ServiceRegistration ServiceRegistration { get; set; }
         public long CreatedById { get; set; }
         public UserProfile CreatedBy { get; set; }
         public DateTime CreatedAt { get; set; }

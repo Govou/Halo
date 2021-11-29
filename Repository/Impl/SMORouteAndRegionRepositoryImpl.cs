@@ -196,5 +196,14 @@ namespace HaloBiz.Repository.Impl
             //               .Where(ct => ct.Id == Id && ct.ReturnRoute.IsReturnRouteRequired == true && ct.IsDeleted == false).FirstOrDefault();
 
         }
+
+        public async Task<IEnumerable<SMORoute>> FindAllRoutesWithReturnRoute()
+        {
+            return await _context.SMORoutes.Where(r => r.IsDeleted == false && r.IsReturnRouteRequired == true).Include(r => r.VehiclesOnRoute.Where(r => r.IsDeleted == false))
+                           .Include(r => r.ArmedEscortsOnRoute.Where(ae => ae.IsDeleted == false)).
+                           Include(r => r.PilotsOnRoute.Where(pi => pi.IsDeleted == false))
+                           .Include(r => r.SMORegion)
+                           .ToListAsync();
+        }
     }
 }

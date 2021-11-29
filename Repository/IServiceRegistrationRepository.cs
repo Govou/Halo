@@ -19,5 +19,11 @@ namespace HaloBiz.Repository
         Task<ServiceRegistration> UpdateServices(ServiceRegistration serviceRegistration);
 
         Task<bool> DeleteService(ServiceRegistration serviceRegistration);
+
+        //Applicable Types
+        Task<VehicleType> UpdateVehicleTypes(VehicleType vehicleType);
+        Task<CommanderType> UpdateCommanderTypess(CommanderType commanderType);
+        Task<ArmedEscortType> UpdateArmedEscortTypes(ArmedEscortType armedEscortType);
+        Task<PilotType> UpdatePilotTypes(PilotType pilotType);
     }
 }
