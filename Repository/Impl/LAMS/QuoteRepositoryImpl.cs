@@ -50,6 +50,19 @@ namespace HaloBiz.Repository.Impl.LAMS
             return null;
         }
 
+        public async Task<Quote> FindByLeadDivisionId(long id)
+        {
+           _context.ChangeTracker.Clear();
+
+            var result = await _context.Quotes
+                .Where(quote => quote.LeadDivisionId == id && quote.IsDeleted == false)
+                .AsNoTracking()
+                .Include(a => a.QuoteServices.Where(a => a.IsDeleted == false))
+                .AsNoTracking()
+                .FirstOrDefaultAsync();
+            return result;
+        }
+
         public async Task<IEnumerable<Quote>> FindAllQuote()
         {
             return await _context.Quotes.AsNoTracking()

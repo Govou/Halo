@@ -10,8 +10,7 @@ namespace HaloBiz.DTOs.ReceivingDTOs.LAMS
 {
     public class ContractServiceForEndorsementReceivingDto
     {
-        [StringLength(50)]
-        public string ReferenceNo { get; set; }
+       
         public double? UnitPrice {get ; set; }
         public long Quantity {get ; set; }
         public double Discount {get ; set; }
@@ -53,17 +52,21 @@ namespace HaloBiz.DTOs.ReceivingDTOs.LAMS
         public long ServiceId { get; set; }
         public long ContractId { get; set; }
         public long ContractService {get; set; }
-        public string GroupInvoiceNumber { get; set; }
         public long EndorsementTypeId { get; set; }
         public bool IsRequestedForApproval { get; set; } = true;
         public bool IsApproved { get; set; } = false;
         public bool IsDeclined { get; set; } = false;
         public long CustomerDivisionId { get; set; }
         public long BranchId { get; set; }
-        public long OfficeId { get; set; }
+        public long? OfficeId { get; set; }
         public long PreviousContractServiceId { get; set; }
         public DateTime DateForNewContractToTakeEffect { get; set; }
         public string EndorsementDescription { get; set; }
         public string DocumentUrl { get; set; }
+        public string AdminDirectTie { get; set; }
+        public string UniqueTag { get; set; }
+        public string QuoteServiceId { get; set; }
+        public long CreatedById { get; set; }
+
     }
 }
