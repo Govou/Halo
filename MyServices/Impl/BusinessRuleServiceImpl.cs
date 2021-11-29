@@ -44,45 +44,53 @@ namespace HaloBiz.MyServices.Impl
             return new ApiOkResponse(TransferDTO);
         }
 
-        public async Task<ApiResponse> AddPairable(HttpContext context, BRPairableReceivingDTO[] bRPairableReceivingDTO)
+        public async Task<ApiResponse> AddPairable(HttpContext context, BRPairableReceivingDTO bRPairableReceivingDTO)
         {
             //var pair = _mapper.Map<BRPairable>(bRPairableReceivingDTO);
+            //var IdExist = _businessRulesRepository.GetBusinessRileRegServiceId(bRPairableReceivingDTO.BusinessRuleId);
+            //if (IdExist != null)
+            //{
+            //    return new ApiResponse(409);
+            //}
             var pair = new BRPairable();
 
-            //pair.CreatedById = context.GetLoggedInUserId();
-            //pair.CreatedAt = DateTime.UtcNow;
-            //var savedType = await _businessRulesRepository.SavePairable(pair);
-            //if (savedType == null)
-            //{
-            //    return new ApiResponse(500);
-            //}
-            //var getLength = bRPairableReceivingDTO.ServiceRegistrationId.Count();
-            //var getItems = bRPairableReceivingDTO.ServiceRegistrationId.ToList();
-            //for (int i =0; i < getLength; i++)
-            //{
-            //    pair.ServiceRegistrationId = getItems.;
-            //}
-
-            foreach (var item in  bRPairableReceivingDTO)
+            for (int i = 0; i < bRPairableReceivingDTO.ServiceRegistrationId.Length; i++)
             {
-                pair.BusinessRuleId = item.BusinessRuleId;
-              
-                for(int i=0;i<item.ServiceRegistrationId.Length; i++)
+                pair.Id = 0;
+                pair.BusinessRuleId = bRPairableReceivingDTO.BusinessRuleId;
+                pair.ServiceRegistrationId = bRPairableReceivingDTO.ServiceRegistrationId[i];
+                pair.CreatedById = context.GetLoggedInUserId();
+                pair.CreatedAt = DateTime.UtcNow;
+
+                var savedType = await _businessRulesRepository.SavePairable(pair);
+                if (savedType == null)
                 {
-
-                    pair.ServiceRegistrationId = item.ServiceRegistrationId[i];
-                    pair.CreatedById = context.GetLoggedInUserId();
-                    pair.CreatedAt = DateTime.UtcNow;
-
-                    var savedType = await _businessRulesRepository.SavePairable(pair);
-                    if (savedType == null)
-                    {
-                        return new ApiResponse(500);
-                    }
+                    return new ApiResponse(500);
                 }
-             
-
             }
+
+
+            //foreach (var item in  bRPairableReceivingDTO)
+            //{
+            //    //pair.BusinessRuleId = item.BusinessRuleId;
+
+            //    for(int i=0;i<item.ServiceRegistrationId.Length; i++)
+            //    {
+            //        pair.Id = 0;
+            //        pair.BusinessRuleId = item.BusinessRuleId;
+            //        pair.ServiceRegistrationId = item.ServiceRegistrationId[i];
+            //        pair.CreatedById = context.GetLoggedInUserId();
+            //        pair.CreatedAt = DateTime.UtcNow;
+
+            //        var savedType = await _businessRulesRepository.SavePairable(pair);
+            //        if (savedType == null)
+            //        {
+            //            return new ApiResponse(500);
+            //        }
+            //    }
+
+
+            //}
 
             //var TransferDTO = _mapper.Map<BRPairableTransferDTO[]>(pair);
             return new ApiOkResponse("Records Added");
@@ -209,36 +217,37 @@ namespace HaloBiz.MyServices.Impl
             return new ApiOkResponse(TransferDTOs);
         }
 
-        public async Task<ApiResponse> UpdatePairable(HttpContext context, long id, BRPairableReceivingDTO[] bRPairableReceivingDTO)
+        public async Task<ApiResponse> UpdatePairable(HttpContext context, long id, BRPairableReceivingDTO bRPairableReceivingDTO)
         {
-            var summary = "";
+            //var summary = "";
             //var itemToUpdate =[];
             //var updated = "";
-;
-            foreach (var item in bRPairableReceivingDTO)
+            var pair = new BRPairable();
+            var itemToUpdate = await _businessRulesRepository.FindPairableById(id);
+            if (itemToUpdate == null)
             {
-                var itemToUpdate = await _businessRulesRepository.FindPairableById(id);
-                if (itemToUpdate == null)
-                {
-                    return new ApiResponse(404);
-                }
+                return new ApiResponse(404);
+            }
 
-                //itemToUpdate.BusinessRuleId = item.BusinessRuleId;
-                //itemToUpdate.ServiceRegistrationId = item.ServiceRegistrationId;
-                itemToUpdate.UpdatedAt = DateTime.UtcNow;
-                summary = $"Initial details before change, \n {itemToUpdate.ToString()} \n";
+            for (int i = 0; i < bRPairableReceivingDTO.ServiceRegistrationId.Length; i++)
+            {
+                //pair.Id = 0;
+                //pair.BusinessRuleId = bRPairableReceivingDTO.BusinessRuleId;
+                itemToUpdate.ServiceRegistrationId = bRPairableReceivingDTO.ServiceRegistrationId[i];
+                pair.UpdatedAt = DateTime.UtcNow;
+
                 var updated = await _businessRulesRepository.UpdatePairable(itemToUpdate);
                 if (updated == null)
                 {
                     return new ApiResponse(500);
                 }
-                summary += $"Details after change, \n {updated.ToString()} \n";
-                //var TransferDTOs = _mapper.Map<BRPairableTransferDTO>(updated);
             }
-          
 
            
-           
+
+
+
+
             return new ApiOkResponse(200);
         }
     }

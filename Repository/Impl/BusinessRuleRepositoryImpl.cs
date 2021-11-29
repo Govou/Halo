@@ -84,6 +84,11 @@ namespace HaloBiz.Repository.Impl
                  .FirstOrDefaultAsync(ae => ae.Id == Id && ae.IsDeleted == false);
         }
 
+        public BRPairable GetBusinessRileRegServiceId(long? regServiceId)
+        {
+            return _context.BRPairables.Where(ct => ct.BusinessRuleId == regServiceId && ct.IsDeleted == false).FirstOrDefault();
+        }
+
         public BusinessRule GetRegServiceId(long regServiceId)
         {
             return _context.BusinessRules.Where(ct => ct.ServiceRegistrationId == regServiceId && ct.IsDeleted == false).FirstOrDefault();
@@ -127,8 +132,8 @@ namespace HaloBiz.Repository.Impl
 
         public async Task<BRPairable> SavePairable(BRPairable bRPairable)
         {
+            _context.Database.ExecuteSqlRaw("SET IDENTITY_INSERT armada.BRPairables ON;");
             var savedEntity = await _context.BRPairables.AddAsync(bRPairable);
-           // _context.Database.ExecuteSqlRaw("SET IDENTITY_INSERT amarda.BRPairables ON;");
             if (await SaveMultiSelectChanges())
             {
                 return savedEntity.Entity;
@@ -189,7 +194,7 @@ namespace HaloBiz.Repository.Impl
         {
             try
             {
-                _context.Database.ExecuteSqlRaw("SET IDENTITY_INSERT dbo.armada.BRPairables ON;");
+                _context.Database.ExecuteSqlRaw("SET IDENTITY_INSERT armada.BRPairables ON;");
                 return await _context.SaveChangesAsync() > 0;
 
             }

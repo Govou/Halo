@@ -84,7 +84,7 @@ namespace HaloBiz.Controllers
 
 
         [HttpPost("AddNewPairable")]
-        public async Task<ActionResult> AddNewPairable(BRPairableReceivingDTO[] ReceivingDTO)
+        public async Task<ActionResult> AddNewPairable(BRPairableReceivingDTO ReceivingDTO)
         {
             var response = await _businessRuleService.AddPairable(HttpContext, ReceivingDTO);
             if (response.StatusCode >= 400)
@@ -104,7 +104,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpPut("UpdatePairableById/{id}")]
-        public async Task<IActionResult> UpdatePairableById(long id, BRPairableReceivingDTO[] ReceivingDTO)
+        public async Task<IActionResult> UpdatePairableById(long id, BRPairableReceivingDTO ReceivingDTO)
         {
             var response = await _businessRuleService.UpdatePairable(HttpContext, id, ReceivingDTO);
             if (response.StatusCode >= 400)

@@ -56,6 +56,11 @@ namespace HaloBiz.MyServices.Impl
         public async Task<ApiResponse> AddSMOReturnRoute(HttpContext context, SMOReturnRouteReceivingDTO sMOReturnRouteReceivingDTO)
         {
             var addItem = _mapper.Map<SMOReturnRoute>(sMOReturnRouteReceivingDTO);
+            var IdExist = _sMORouteAndRegionRepository.GetSMORouteId(sMOReturnRouteReceivingDTO.SMORouteId);
+            if (IdExist != null)
+            {
+                return new ApiResponse(409);
+            }
             //var hasReturnRoute = _sMORouteAndRegionRepository.hasReturnRoute(sMOReturnRouteReceivingDTO.SMORouteId);
             //if (!hasReturnRoute)
             //{
@@ -77,7 +82,6 @@ namespace HaloBiz.MyServices.Impl
         public async Task<ApiResponse> AddSMORoute(HttpContext context, SMORouteReceivingDTO sMORouteReceivingDTO)
         {
             var addItem = _mapper.Map<SMORoute>(sMORouteReceivingDTO);
-            var addItem2 = _mapper.Map<SMOReturnRoute>(sMORouteReceivingDTO);
             var NameExist = _sMORouteAndRegionRepository.GetRouteName(sMORouteReceivingDTO.RouteName);
             if (NameExist != null)
             {

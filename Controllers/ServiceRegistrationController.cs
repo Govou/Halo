@@ -72,7 +72,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpPut("UpdateVehicleTypeServiceById/{id}")]
-        public async Task<IActionResult> UpdateVehicleTypeServiceById(long id, VehicleTypeReceivingDTO[] ReceivingDTO)
+        public async Task<IActionResult> UpdateVehicleTypeServiceById(long id, VehicleTypeRegReceivingDTO ReceivingDTO)
         {
             var response = await _serviceRegistration.AddUpVehicleType(HttpContext, id, ReceivingDTO);
             if (response.StatusCode >= 400)
@@ -82,7 +82,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpPut("UpdatePilotTypeServiceById/{id}")]
-        public async Task<IActionResult> UpdatePilotTypeServiceById(long id, PilotTypeReceivingDTO[] ReceivingDTO)
+        public async Task<IActionResult> UpdatePilotTypeServiceById(long id, PilotTypeRegReceivingDTO ReceivingDTO)
         {
             var response = await _serviceRegistration.AddUpPilotType(HttpContext, id, ReceivingDTO);
             if (response.StatusCode >= 400)
@@ -93,7 +93,7 @@ namespace HaloBiz.Controllers
 
 
         [HttpPut("UpdateCommanderTypeServiceById/{id}")]
-        public async Task<IActionResult> UpdateCommanderTypeServiceById(long id, CommanderTypeAndRankReceivingDTO[] ReceivingDTO)
+        public async Task<IActionResult> UpdateCommanderTypeServiceById(long id, CommanderTypeRegReceivingDTO ReceivingDTO)
         {
             var response = await _serviceRegistration.AddUpCommanderType(HttpContext, id, ReceivingDTO);
             if (response.StatusCode >= 400)
@@ -103,7 +103,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpPut("UpdateArmedEscortTypeServiceById/{id}")]
-        public async Task<IActionResult> UpdateArmedEscortTypeServiceById(long id, ArmedEscortTypeReceivingDTO[] ReceivingDTO)
+        public async Task<IActionResult> UpdateArmedEscortTypeServiceById(long id, AEscortTypeRegReceivingDTO ReceivingDTO)
         {
             var response = await _serviceRegistration.AddUpArmedEscortType(HttpContext, id, ReceivingDTO);
             if (response.StatusCode >= 400)

@@ -22,7 +22,7 @@ namespace HaloBiz.DTOs.ApiDTOs
                 case 411:
                     return "Resource has no Return Route";
                 case 409:
-                    return "Resource already exists";
+                    return "Record already exists";
                 case 500:
                     return "An unhandled error occurred";
                 //case 409:

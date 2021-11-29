@@ -205,5 +205,11 @@ namespace HaloBiz.Repository.Impl
                            .Include(r => r.SMORegion)
                            .ToListAsync();
         }
+
+        public SMOReturnRoute GetSMORouteId(long? routeId)
+        {
+            return _context.SMOReturnRoutes
+                                      .Where(ct => ct.SMORouteId == routeId && ct.IsDeleted == false).FirstOrDefault();
+        }
     }
 }
