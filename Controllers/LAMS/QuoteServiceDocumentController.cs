@@ -65,6 +65,15 @@ namespace Controllers.Controllers
         [HttpPost("")]
         public async Task<ActionResult> AddNewQuoteServiceDocument(QuoteServiceDocumentReceivingDTO quoteServiceDocumentReceiving)
         {
+            if (quoteServiceDocumentReceiving.IsGroupUpload && quoteServiceDocumentReceiving.QuoteId == 0)
+            {
+                return StatusCode(400, "You need to specify quoteId since IsGroupUpload is true");
+            }
+            else if(!quoteServiceDocumentReceiving.IsGroupUpload && quoteServiceDocumentReceiving.QuoteServiceId==0)
+            {
+                return StatusCode(400, "You need to specify QuoteServiceId");
+            }
+
             var response = await _quoteServiceDocumentService.AddQuoteServiceDocument(HttpContext, quoteServiceDocumentReceiving);
             if (response.StatusCode >= 400)
                 return StatusCode(response.StatusCode, response);

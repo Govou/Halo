@@ -40,6 +40,16 @@ namespace Controllers.Controllers
             return Ok(quote);
         }
 
+        [HttpGet("ByLeadDivision/{id}")]
+        public async Task<ActionResult> ByLeadDivision(long id)
+        {
+            var response = await _quoteService.FindByLeadDivisionId(id);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var quote = ((ApiOkResponse)response).Result;
+            return Ok(quote);
+        }
+
         [HttpGet("{id}")]
         public async Task<ActionResult> GetById(long id)
         {

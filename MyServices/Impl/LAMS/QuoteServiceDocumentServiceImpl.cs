@@ -22,25 +22,70 @@ namespace HaloBiz.MyServices.Impl.LAMS
         private readonly ILogger<QuoteServiceDocumentServiceImpl> _logger;
         private readonly IModificationHistoryRepository _historyRepo;
         private readonly IQuoteServiceDocumentRepository _quoteServiceDocumentRepo;
+        private readonly IQuoteRepository _quoteRepository;
         private readonly IMapper _mapper;
 
-        public QuoteServiceDocumentServiceImpl(IModificationHistoryRepository historyRepo, IQuoteServiceDocumentRepository quoteServiceDocumentRepo, ILogger<QuoteServiceDocumentServiceImpl> logger, IMapper mapper)
+        public QuoteServiceDocumentServiceImpl(IModificationHistoryRepository historyRepo,
+            IQuoteRepository quoteRepository,
+            IQuoteServiceDocumentRepository quoteServiceDocumentRepo, ILogger<QuoteServiceDocumentServiceImpl> logger, IMapper mapper)
         {
             this._mapper = mapper;
             this._historyRepo = historyRepo;
             this._quoteServiceDocumentRepo = quoteServiceDocumentRepo;
             this._logger = logger;
+            _quoteRepository = quoteRepository;
         }
 
-        public async Task<ApiResponse> AddQuoteServiceDocument(HttpContext context, QuoteServiceDocumentReceivingDTO quoteServiceDocumentReceivingDTO)
+        public async Task<ApiResponse> AddQuoteServiceDocument(HttpContext context, QuoteServiceDocumentReceivingDTO qdd)
         {
-            var quoteServiceDocument = _mapper.Map<QuoteServiceDocument>(quoteServiceDocumentReceivingDTO);
-            quoteServiceDocument.CreatedById = context.GetLoggedInUserId();
-            var savedQuoteServiceDocument = await _quoteServiceDocumentRepo.SaveQuoteServiceDocument(quoteServiceDocument);
+           // var quoteServiceDocument = _mapper.Map<QuoteServiceDocument>(qdd);
+           
+            var CreatedById = context.GetLoggedInUserId();
+
+            //check if this is a group upload 
+            List<QuoteServiceDocument> serviceDocuments = new List<QuoteServiceDocument>();
+            if (qdd.IsGroupUpload)
+            {
+                //get all the services of the quote
+                var quote = await _quoteRepository.FindQuoteById(qdd.QuoteId);
+
+                foreach (var quoteService in quote?.QuoteServices)
+                {
+                    serviceDocuments.Add(new QuoteServiceDocument
+                    {
+                        Caption = qdd.Caption,
+                        Description = qdd.Description,
+                        CreatedAt = DateTime.Now,
+                        UpdatedAt = DateTime.Now,
+                        DocumentUrl = qdd.DocumentUrl,
+                        Type = qdd.Type,
+                        QuoteServiceId = quoteService.Id,
+                        CreatedById = CreatedById
+                    });
+                }
+            }
+            else
+            {
+                serviceDocuments.Add(new QuoteServiceDocument
+                {
+                    Caption = qdd.Caption,
+                    Description = qdd.Description,
+                    CreatedAt = DateTime.Now,
+                    UpdatedAt = DateTime.Now,
+                    DocumentUrl = qdd.DocumentUrl,
+                    Type = qdd.Type,
+                    QuoteServiceId = qdd.QuoteServiceId,
+                    CreatedById = CreatedById
+                });
+            }
+
+            var savedQuoteServiceDocument = await _quoteServiceDocumentRepo.SaveQuoteServiceDocument(serviceDocuments);
+           
             if (savedQuoteServiceDocument == null)
             {
                 return new ApiResponse(500);
             }
+
             var quoteServiceDocumentTransferDTO = _mapper.Map<QuoteServiceDocumentTransferDTO>(savedQuoteServiceDocument);
             return new ApiOkResponse(quoteServiceDocumentTransferDTO);
         }

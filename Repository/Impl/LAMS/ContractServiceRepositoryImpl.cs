@@ -66,6 +66,13 @@ namespace HaloBiz.Repository.Impl.LAMS
                 .ToListAsync();
         }
 
+        public async Task<ContractService> FindContractServiceByTag(string tag)
+        {
+            return await _context.ContractServices
+                .Where(x => x.UniqueTag == tag)
+                .FirstOrDefaultAsync();
+        }
+
         public async Task<IEnumerable<ContractService>> FindContractServicesByGroupInvoiceNumber(string groupInvoiceNumber)
         {
             //to check

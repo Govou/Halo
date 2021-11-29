@@ -59,7 +59,6 @@ namespace HaloBiz.DTOs.TransferDTOs.LAMS
     public class ContractServiceForContractTransferDTO
     {
         public long Id { get; set; }
-        public string ReferenceNo { get; set; }
         public double UnitPrice {get ; set; }
         public long Quantity {get ; set; }
         public double Discount {get ; set; }
@@ -95,10 +94,12 @@ namespace HaloBiz.DTOs.TransferDTOs.LAMS
         public DateTime? TentativeDateOfSiteVisit {get ; set; }
         public long ServiceId { get; set; }
         public ServiceTransferDTO Service { get; set; }
-        public string GroupInvoiceNumber { get; set; }
         public double AdHocInvoicedAmount { get; set; }
 
         public long? BranchId { get; set; }
         public long? OfficeId { get; set; }
+        public string AdminDirectTie { get; set; }
+        public string UniqueTag { get; set; }
+        public long QuoteServiceId { get; set; }
     }
 }

@@ -21,13 +21,15 @@ namespace HaloBiz.Repository.Impl.LAMS
             this._context = context;
         }
 
-        public async Task<QuoteServiceDocument> SaveQuoteServiceDocument(QuoteServiceDocument quoteServiceDocument)
+        public async Task<QuoteServiceDocument> SaveQuoteServiceDocument(List<QuoteServiceDocument> quoteServiceDocument)
         {
-            var quoteServiceDocumentEntity = await _context.QuoteServiceDocuments.AddAsync(quoteServiceDocument);
+             await _context.QuoteServiceDocuments.AddRangeAsync(quoteServiceDocument);
+            
             if(await SaveChanges())
             {
-                return quoteServiceDocumentEntity.Entity;
+                return quoteServiceDocument.FirstOrDefault();
             }
+
             return null;
         }
 
