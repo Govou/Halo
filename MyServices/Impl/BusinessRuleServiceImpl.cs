@@ -46,20 +46,41 @@ namespace HaloBiz.MyServices.Impl
 
         public async Task<ApiResponse> AddPairable(HttpContext context, BRPairableReceivingDTO[] bRPairableReceivingDTO)
         {
-           
-            foreach (var item in bRPairableReceivingDTO)
-            {
-                var pair = _mapper.Map<BRPairable>(bRPairableReceivingDTO);
-                pair.BusinessRuleId = item.BusinessRuleId;
-                pair.ServiceRegistrationId = item.ServiceRegistrationId;
-                pair.CreatedById = context.GetLoggedInUserId();
-                pair.CreatedAt = DateTime.UtcNow;
+            //var pair = _mapper.Map<BRPairable>(bRPairableReceivingDTO);
+            var pair = new BRPairable();
 
-                var savedType = await _businessRulesRepository.SavePairable(pair);
-                if (savedType == null)
+            //pair.CreatedById = context.GetLoggedInUserId();
+            //pair.CreatedAt = DateTime.UtcNow;
+            //var savedType = await _businessRulesRepository.SavePairable(pair);
+            //if (savedType == null)
+            //{
+            //    return new ApiResponse(500);
+            //}
+            //var getLength = bRPairableReceivingDTO.ServiceRegistrationId.Count();
+            //var getItems = bRPairableReceivingDTO.ServiceRegistrationId.ToList();
+            //for (int i =0; i < getLength; i++)
+            //{
+            //    pair.ServiceRegistrationId = getItems.;
+            //}
+
+            foreach (var item in  bRPairableReceivingDTO)
+            {
+                pair.BusinessRuleId = item.BusinessRuleId;
+              
+                for(int i=0;i<item.ServiceRegistrationId.Length; i++)
                 {
-                    return new ApiResponse(500);
+
+                    pair.ServiceRegistrationId = item.ServiceRegistrationId[i];
+                    pair.CreatedById = context.GetLoggedInUserId();
+                    pair.CreatedAt = DateTime.UtcNow;
+
+                    var savedType = await _businessRulesRepository.SavePairable(pair);
+                    if (savedType == null)
+                    {
+                        return new ApiResponse(500);
+                    }
                 }
+             
 
             }
 
@@ -203,7 +224,7 @@ namespace HaloBiz.MyServices.Impl
                 }
 
                 //itemToUpdate.BusinessRuleId = item.BusinessRuleId;
-                itemToUpdate.ServiceRegistrationId = item.ServiceRegistrationId;
+                //itemToUpdate.ServiceRegistrationId = item.ServiceRegistrationId;
                 itemToUpdate.UpdatedAt = DateTime.UtcNow;
                 summary = $"Initial details before change, \n {itemToUpdate.ToString()} \n";
                 var updated = await _businessRulesRepository.UpdatePairable(itemToUpdate);

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using HalobizMigrations.Models.Armada;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -11,6 +12,8 @@ namespace HaloBiz.DTOs.ReceivingDTOs
        [Required]
         public long? BusinessRuleId { get; set; }
         [Required]
-        public long? ServiceRegistrationId { get; set; }
+        public long[] ServiceRegistrationId { get; set; }
+        //public List<ServiceRegistration> ServiceRegistrationId { get; set; }
+        //public ServiceRegistration[] ServiceRegistrationId { get; set; }
     }
 }

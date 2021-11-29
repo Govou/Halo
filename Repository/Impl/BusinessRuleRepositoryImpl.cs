@@ -43,8 +43,13 @@ namespace HaloBiz.Repository.Impl
         public async Task<IEnumerable<BRPairable>> FindAllPairables()
         {
             return await _context.BRPairables.Where(s => s.IsDeleted == false)
-                                              .Include(s=>s.BusinessRule).Include(s=>s.ServiceRegistration)
-                                              .Include(s=>s.CreatedBy)
+                                             .Include(s => s.BusinessRule).Include(s => s.BusinessRule.ServiceRegistration)
+                .Include(s => s.BusinessRule.ServiceRegistration.Service)
+               .Include(s => s.ServiceRegistration).Include(s => s.ServiceRegistration.Service)
+                                   .Include(s => s.CreatedBy).Include(s => s.ServiceRegistration.Service.ServiceCategory)
+                                   .Include(s => s.ServiceRegistration.Service.Division).Include(s => s.ServiceRegistration.Service.ServiceGroup)
+                                   .Include(s => s.ServiceRegistration.Service.ServiceType).Include(s => s.ServiceRegistration.Service.Target)
+                                   .Include(s=>s.CreatedBy)
                                                         .ToListAsync();
         }
 
@@ -60,7 +65,8 @@ namespace HaloBiz.Repository.Impl
 
         public async Task<BRPairable> FindPairableById(long Id)
         {
-            return await _context.BRPairables.Where(s => s.IsDeleted == false)
+            return await _context.BRPairables.Where(s => s.IsDeleted == false).Include(s=>s.BusinessRule).Include(s=>s.BusinessRule.ServiceRegistration)
+                .Include(s=>s.BusinessRule.ServiceRegistration.Service)
                .Include(s => s.ServiceRegistration).Include(s => s.ServiceRegistration.Service)
                                    .Include(s => s.CreatedBy).Include(s => s.ServiceRegistration.Service.ServiceCategory)
                                    .Include(s => s.ServiceRegistration.Service.Division).Include(s => s.ServiceRegistration.Service.ServiceGroup)
@@ -122,11 +128,19 @@ namespace HaloBiz.Repository.Impl
         public async Task<BRPairable> SavePairable(BRPairable bRPairable)
         {
             var savedEntity = await _context.BRPairables.AddAsync(bRPairable);
-            if (await SaveChanges())
+           // _context.Database.ExecuteSqlRaw("SET IDENTITY_INSERT amarda.BRPairables ON;");
+            if (await SaveMultiSelectChanges())
             {
                 return savedEntity.Entity;
             }
             return null;
+        }
+        public async Task<List<BRPairable>> SaveRangePairable(List<BRPairable> bRPairable)
+        {
+              await _context.BRPairables.AddRangeAsync(bRPairable);
+            await _context.SaveChangesAsync();
+            return bRPairable;
+            //return null;
         }
 
         public async Task<BusinessRule> SaveRule(BusinessRule businessRule)
@@ -164,6 +178,20 @@ namespace HaloBiz.Repository.Impl
             try
             {
                 return await _context.SaveChangesAsync() > 0;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.Message);
+                return false;
+            }
+        }
+        private async Task<bool> SaveMultiSelectChanges()
+        {
+            try
+            {
+                _context.Database.ExecuteSqlRaw("SET IDENTITY_INSERT dbo.armada.BRPairables ON;");
+                return await _context.SaveChangesAsync() > 0;
+
             }
             catch (Exception ex)
             {

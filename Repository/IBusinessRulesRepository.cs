@@ -23,6 +23,8 @@ namespace HaloBiz.Repository
         //BRPaiarble
         Task<BRPairable> SavePairable(BRPairable bRPairable);
 
+        Task<List<BRPairable>> SaveRangePairable(List<BRPairable> bRPairable);
+
         Task<BRPairable> FindPairableById(long Id);
 
         Task<IEnumerable<BRPairable>> FindAllPairables();
