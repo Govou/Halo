@@ -91,6 +91,7 @@ namespace HaloBiz.Repository.Impl
         public async Task<ArmedEscortType> SaveArmedEscortType(ArmedEscortType armedEscortType)
         {
             var savedEntity = await _context.ArmedEscortTypes.AddAsync(armedEscortType);
+            
             if (await SaveChanges())
             {
                 return savedEntity.Entity;

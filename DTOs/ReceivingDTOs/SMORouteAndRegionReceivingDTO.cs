@@ -21,10 +21,12 @@ namespace HaloBiz.DTOs.ReceivingDTOs
         [Required]
         public long? SMORegionId { get; set; }
         [Required]
-        public DateTime RecoveryTime { get; set; }
+        public int RRecoveryTime { get; set; }
         [Required]
         public bool IsReturnRouteRequired { get; set; }
         //public DateTime ReturnRouteRecoveryTime { get; set; }
+
+      
     }
 
     public class SMORegionReceivingDTO
@@ -44,7 +46,7 @@ namespace HaloBiz.DTOs.ReceivingDTOs
         [Required]
         public long? ReturnRouteId { get; set; }
         [Required]
-        public DateTime RecoveryTime { get; set; }
+        public int RRecoveryTime { get; set; }
      
     }
 }
