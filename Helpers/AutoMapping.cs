@@ -366,10 +366,15 @@ namespace HaloBiz.Helpers
             CreateMap<BRPairableReceivingDTO[], BRPairable>();
             CreateMap<BRPairable, BRPairableTransferDTO[]>();
 
-            CreateMap<CommanderTypeAndRankReceivingDTO[], CommanderType>(); 
-            CreateMap<ArmedEscortTypeReceivingDTO[], ArmedEscortType>(); 
-            CreateMap<VehicleTypeReceivingDTO[], VehicleType>(); 
-            CreateMap<PilotTypeReceivingDTO[], PilotType>();
+            CreateMap<CommanderTypeRegReceivingDTO, CommanderType>();
+            CreateMap<AEscortTypeRegReceivingDTO, ArmedEscortType>();
+            CreateMap<PilotTypeRegReceivingDTO, PilotType>();
+            CreateMap<VehicleTypeRegReceivingDTO, VehicleType>();
+
+            //CreateMap<CommanderTypeAndRankReceivingDTO[], CommanderType>(); 
+            //CreateMap<ArmedEscortTypeReceivingDTO[], ArmedEscortType>(); 
+            //CreateMap<VehicleTypeReceivingDTO[], VehicleType>(); 
+            //CreateMap<PilotTypeReceivingDTO[], PilotType>();
 
             //CreateMap<BusinessRuleReceivingDTO, BRPairable>();
             //CreateMap<BRPairable, BusinessRuleTransferDTO>();

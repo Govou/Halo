@@ -16,6 +16,8 @@ namespace HaloBiz.Repository
 
         BusinessRule GetRegServiceId(long regServiceId);
 
+
+
         Task<BusinessRule> UpdateRule(BusinessRule businessRule);
 
         Task<bool> DeleteRule(BusinessRule businessRule);
@@ -28,6 +30,8 @@ namespace HaloBiz.Repository
         Task<BRPairable> FindPairableById(long Id);
 
         Task<IEnumerable<BRPairable>> FindAllPairables();
+
+        BRPairable GetBusinessRileRegServiceId(long? regServiceId);
 
         Task<IEnumerable<BRPairable>> FindAllActivePairables();
 

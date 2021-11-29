@@ -24,7 +24,7 @@ namespace HaloBiz.DTOs.ReceivingDTOs
         public string TypeName { get; set; }
         [Required]
         public string TypeDesc { get; set; }
-        public long ServiceRegistrationId { get; set; }
+        //public long ServiceRegistrationId { get; set; }
 
     }
 }

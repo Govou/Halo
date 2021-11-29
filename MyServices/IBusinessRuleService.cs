@@ -17,12 +17,12 @@ namespace HaloBiz.MyServices
         Task<ApiResponse> DeleteBusinessRule(long id);
 
         //BRPairable
-        Task<ApiResponse> AddPairable(HttpContext context, BRPairableReceivingDTO[] bRPairableReceivingDTO);
+        Task<ApiResponse> AddPairable(HttpContext context, BRPairableReceivingDTO bRPairableReceivingDTO);
         //Task<ApiResponse> AddPairables(HttpContext context, BRPairableReceivingDTO[] bRPairableReceivingDTO);
         Task<ApiResponse> GetAllPairables();
         Task<ApiResponse> GetAllActivePairables();
         Task<ApiResponse> GetPairableById(long id);
-        Task<ApiResponse> UpdatePairable(HttpContext context, long id, BRPairableReceivingDTO[] bRPairableReceivingDTO);
+        Task<ApiResponse> UpdatePairable(HttpContext context, long id, BRPairableReceivingDTO bRPairableReceivingDTO);
         Task<ApiResponse> DeletePairable(long id);
     }
 }
