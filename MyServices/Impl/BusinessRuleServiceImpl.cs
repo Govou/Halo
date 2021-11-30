@@ -59,14 +59,20 @@ namespace HaloBiz.MyServices.Impl
                 pair.Id = 0;
                 pair.BusinessRuleId = bRPairableReceivingDTO.BusinessRuleId;
                 pair.ServiceRegistrationId = bRPairableReceivingDTO.ServiceRegistrationId[i];
-                pair.CreatedById = context.GetLoggedInUserId();
-                pair.CreatedAt = DateTime.UtcNow;
-
-                var savedType = await _businessRulesRepository.SavePairable(pair);
-                if (savedType == null)
+                var IdExist = _businessRulesRepository.GetBusinessAndRegServiceId(bRPairableReceivingDTO.BusinessRuleId, bRPairableReceivingDTO.ServiceRegistrationId[i]);
+                if (IdExist == null)
                 {
-                    return new ApiResponse(500);
+                    pair.CreatedById = context.GetLoggedInUserId();
+                    pair.CreatedAt = DateTime.UtcNow;
+
+                    var savedType = await _businessRulesRepository.SavePairable(pair);
+                    if (savedType == null)
+                    {
+                        return new ApiResponse(500);
+                    }
+                    //return new ApiResponse(409);
                 }
+               
             }
 
 

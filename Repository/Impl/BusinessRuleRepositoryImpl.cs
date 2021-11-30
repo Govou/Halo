@@ -84,6 +84,11 @@ namespace HaloBiz.Repository.Impl
                  .FirstOrDefaultAsync(ae => ae.Id == Id && ae.IsDeleted == false);
         }
 
+        public BRPairable GetBusinessAndRegServiceId(long? BusinessRuleId, long RegServiceId)
+        {
+            return _context.BRPairables.Where(ct => ct.ServiceRegistrationId == RegServiceId && ct.BusinessRuleId ==BusinessRuleId && ct.IsDeleted == false).FirstOrDefault();
+        }
+
         public BRPairable GetBusinessRileRegServiceId(long? regServiceId)
         {
             return _context.BRPairables.Where(ct => ct.BusinessRuleId == regServiceId && ct.IsDeleted == false).FirstOrDefault();

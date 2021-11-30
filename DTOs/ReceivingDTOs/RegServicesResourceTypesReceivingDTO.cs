@@ -19,7 +19,6 @@ namespace HaloBiz.DTOs.ReceivingDTOs
     }
     public class AEscortTypeRegReceivingDTO
     {
-       
      
         [Required]
         public long[] ServiceRegistrationId { get; set; }
@@ -37,5 +36,18 @@ namespace HaloBiz.DTOs.ReceivingDTOs
      
         [Required]
         public long[] ServiceRegistrationId { get; set; }
+    }
+
+    public class AllApplicableTypesRegReceivingDTO
+    {
+
+        [Required]
+        public long[] AEServiceRegistrationId { get; set; }
+        [Required]
+        public long[] CommanderServiceRegistrationId { get; set; }
+        [Required]
+        public long[] PilotServiceRegistrationId { get; set; }
+        [Required]
+        public long[] VehicleServiceRegistrationId { get; set; }
     }
 }
