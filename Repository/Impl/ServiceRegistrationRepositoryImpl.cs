@@ -34,9 +34,10 @@ namespace HaloBiz.Repository.Impl
                           .Include(s=>s.ApplicablePilotTypes.Where(type=>type.IsDeleted ==  false))
                           .Include(s=>s.ApplicableVehicleTypes.Where(type=>type.IsDeleted == false))
                           .Include(s=>s.Service).Include(s=>s.Service.ServiceCategory).Include(s=>s.CreatedBy)
-                          .Include(s=>s.Service.ServiceType).Include(s=>s.Service.ServiceGroup).Include(s=>s.Service.Target)
-                          .Include(s=>s.Service.OperatingEntity)
+                          
                                     .ToListAsync();
+            //.Include(s => s.Service.ServiceType).Include(s => s.Service.ServiceGroup).Include(s => s.Service.Target)
+            //              .Include(s => s.Service.OperatingEntity)
         }
 
         public async Task<ServiceRegistration> FindServiceById(long Id)
@@ -47,9 +48,10 @@ namespace HaloBiz.Repository.Impl
                           .Include(s => s.ApplicablePilotTypes.Where(type => type.IsDeleted == false))
                           .Include(s => s.ApplicableVehicleTypes.Where(type => type.IsDeleted == false))
                           .Include(s => s.Service).Include(s => s.Service.ServiceCategory).Include(s => s.CreatedBy)
-                          .Include(s => s.Service.ServiceType).Include(s => s.Service.ServiceGroup).Include(s => s.Service.Target)
-                          .Include(s => s.Service.OperatingEntity)
+                       
                  .FirstOrDefaultAsync(ae => ae.Id == Id && ae.IsDeleted == false);
+               //.Include(s => s.Service.ServiceType).Include(s => s.Service.ServiceGroup).Include(s => s.Service.Target)
+               //           .Include(s => s.Service.OperatingEntity)
         }
 
         public ServiceRegistration GetserviceId(long serviceId)
