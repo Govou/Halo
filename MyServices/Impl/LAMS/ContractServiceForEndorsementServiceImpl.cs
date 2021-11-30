@@ -453,23 +453,11 @@ namespace HaloBiz.MyServices.Impl.LAMS
             var financialVoucherType = await _context.FinanceVoucherTypes
                             .FirstOrDefaultAsync(x => x.VoucherType.ToLower() == salesVoucherName.ToLower());
 
-            await _leadConversionService.CreateTaskAndDeliverables(contractService, customerDivision.Id, "Service Addition", this.loggedInUserId);
+          
+            var contract = await _context.Contracts.Where(x => x.Id == contractService.ContractId).FirstOrDefaultAsync();
+            contractService.Contract = contract;
+            await _leadConversionService.GenerateInvoices(contractService, customerDivision.Id, service.ServiceCode, this.loggedInUserId);
 
-            await _leadConversionService.CreateAccounts(contractService,
-                                                         customerDivision,
-                                                         (long)contractService.BranchId,
-                                                         (long)contractService.OfficeId,
-                                                         service,financialVoucherType,
-                                                         null,
-                                                         this.loggedInUserId,
-                                                         false);
-
-            /*if(string.IsNullOrWhiteSpace(contractService.GroupInvoiceNumber))
-            {*/
-                await  _leadConversionService.GenerateInvoices(contractService,customerDivision.Id, service.ServiceCode, this.loggedInUserId);
-            /*}else {
-                await  UpdateInvoices(contractService, contractServiceForEndorsement, true, true);
-            }*/
             await _leadConversionService.GenerateAmortizations(contractService, customerDivision, (double)contractService?.BillableAmount);
 
             return true;
