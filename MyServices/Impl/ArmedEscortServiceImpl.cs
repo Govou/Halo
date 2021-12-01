@@ -61,7 +61,7 @@ namespace HaloBiz.MyServices.Impl
                 return new ApiResponse(409);
             }
             armedescortType.CreatedById = context.GetLoggedInUserId();
-            armedescortType.IsDeleted = false;
+            //armedescortType.IsDeleted = false;
             armedescortType.CreatedAt = DateTime.UtcNow;
             var savedRank = await _armedEscortsRepository.SaveArmedEscortType(armedescortType);
             if (savedRank == null)

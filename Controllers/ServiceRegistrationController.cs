@@ -1,4 +1,5 @@
-﻿using HaloBiz.DTOs.ApiDTOs;
+﻿using HaloBiz.DTOs;
+using HaloBiz.DTOs.ApiDTOs;
 using HaloBiz.DTOs.ReceivingDTOs;
 using HaloBiz.MyServices;
 using Microsoft.AspNetCore.Http;
@@ -15,6 +16,7 @@ namespace HaloBiz.Controllers
     public class ServiceRegistrationController : ControllerBase
     {
         private readonly IServiceRegistrationService _serviceRegistration;
+
 
         public ServiceRegistrationController(IServiceRegistrationService serviceRegistration)
         {
@@ -67,6 +69,47 @@ namespace HaloBiz.Controllers
         {
             var response = await _serviceRegistration.DeleteServiceReg(id);
             return StatusCode(response.StatusCode);
+        }
+
+        [HttpPut("UpdateVehicleTypeServiceById/{id}")]
+        public async Task<IActionResult> UpdateVehicleTypeServiceById(long id, VehicleTypeRegReceivingDTO ReceivingDTO)
+        {
+            var response = await _serviceRegistration.AddUpVehicleType(HttpContext, id, ReceivingDTO);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var type = ((ApiOkResponse)response).Result;
+            return Ok(type);
+        }
+
+        [HttpPut("UpdatePilotTypeServiceById/{id}")]
+        public async Task<IActionResult> UpdatePilotTypeServiceById(long id, PilotTypeRegReceivingDTO ReceivingDTO)
+        {
+            var response = await _serviceRegistration.AddUpPilotType(HttpContext, id, ReceivingDTO);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var type = ((ApiOkResponse)response).Result;
+            return Ok(type);
+        }
+
+
+        [HttpPut("UpdateCommanderTypeServiceById/{id}")]
+        public async Task<IActionResult> UpdateCommanderTypeServiceById(long id, CommanderTypeRegReceivingDTO ReceivingDTO)
+        {
+            var response = await _serviceRegistration.AddUpCommanderType(HttpContext, id, ReceivingDTO);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var type = ((ApiOkResponse)response).Result;
+            return Ok(type);
+        }
+
+        [HttpPut("UpdateArmedEscortTypeServiceById/{id}")]
+        public async Task<IActionResult> UpdateArmedEscortTypeServiceById(long id, AEscortTypeRegReceivingDTO ReceivingDTO)
+        {
+            var response = await _serviceRegistration.AddUpArmedEscortType(HttpContext, id, ReceivingDTO);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var type = ((ApiOkResponse)response).Result;
+            return Ok(type);
         }
     }
 }

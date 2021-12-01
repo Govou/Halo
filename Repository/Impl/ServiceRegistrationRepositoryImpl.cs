@@ -34,9 +34,10 @@ namespace HaloBiz.Repository.Impl
                           .Include(s=>s.ApplicablePilotTypes.Where(type=>type.IsDeleted ==  false))
                           .Include(s=>s.ApplicableVehicleTypes.Where(type=>type.IsDeleted == false))
                           .Include(s=>s.Service).Include(s=>s.Service.ServiceCategory).Include(s=>s.CreatedBy)
-                          .Include(s=>s.Service.ServiceType).Include(s=>s.Service.ServiceGroup).Include(s=>s.Service.Target)
-                          .Include(s=>s.Service.OperatingEntity)
+                          
                                     .ToListAsync();
+            //.Include(s => s.Service.ServiceType).Include(s => s.Service.ServiceGroup).Include(s => s.Service.Target)
+            //              .Include(s => s.Service.OperatingEntity)
         }
 
         public async Task<ServiceRegistration> FindServiceById(long Id)
@@ -47,9 +48,10 @@ namespace HaloBiz.Repository.Impl
                           .Include(s => s.ApplicablePilotTypes.Where(type => type.IsDeleted == false))
                           .Include(s => s.ApplicableVehicleTypes.Where(type => type.IsDeleted == false))
                           .Include(s => s.Service).Include(s => s.Service.ServiceCategory).Include(s => s.CreatedBy)
-                          .Include(s => s.Service.ServiceType).Include(s => s.Service.ServiceGroup).Include(s => s.Service.Target)
-                          .Include(s => s.Service.OperatingEntity)
+                       
                  .FirstOrDefaultAsync(ae => ae.Id == Id && ae.IsDeleted == false);
+               //.Include(s => s.Service.ServiceType).Include(s => s.Service.ServiceGroup).Include(s => s.Service.Target)
+               //           .Include(s => s.Service.OperatingEntity)
         }
 
         public ServiceRegistration GetserviceId(long serviceId)
@@ -68,9 +70,49 @@ namespace HaloBiz.Repository.Impl
             return null;
         }
 
+        public async Task<ArmedEscortType> UpdateArmedEscortTypes(ArmedEscortType armedEscortType)
+        {
+            var updatedEntity = _context.ArmedEscortTypes.Update(armedEscortType);
+            if (await SaveChanges())
+            {
+                return updatedEntity.Entity;
+            }
+            return null;
+        }
+
+        public async Task<CommanderType> UpdateCommanderTypess(CommanderType commanderType)
+        {
+            var updatedEntity = _context.CommanderTypes.Update(commanderType);
+            if (await SaveChanges())
+            {
+                return updatedEntity.Entity;
+            }
+            return null;
+        }
+
+        public async Task<PilotType> UpdatePilotTypes(PilotType pilotType)
+        {
+            var updatedEntity = _context.PilotTypes.Update(pilotType);
+            if (await SaveChanges())
+            {
+                return updatedEntity.Entity;
+            }
+            return null;
+        }
+
         public async Task<ServiceRegistration> UpdateServices(ServiceRegistration serviceRegistration)
         {
             var updatedEntity = _context.ServiceRegistrations.Update(serviceRegistration);
+            if (await SaveChanges())
+            {
+                return updatedEntity.Entity;
+            }
+            return null;
+        }
+
+        public async Task<VehicleType> UpdateVehicleTypes(VehicleType vehicleType)
+        {
+            var updatedEntity = _context.VehicleTypes.Update(vehicleType);
             if (await SaveChanges())
             {
                 return updatedEntity.Entity;

@@ -97,7 +97,7 @@ namespace HaloBiz.MyServices.Impl
             itemToUpdate.AttachedOfficeId = commanderReceivingDTO.AttachedOfficeId;
             itemToUpdate.CommanderTypeId = commanderReceivingDTO.CommanderTypeId;
             itemToUpdate.RankId = commanderReceivingDTO.RankId;
-
+            
             itemToUpdate.UpdatedAt = DateTime.UtcNow;
             //regionToUpdate.BranchId = regionReceivingDTO.BranchId;
             var updatedRank = await _commanderRepository.UpdateCommander(itemToUpdate);
