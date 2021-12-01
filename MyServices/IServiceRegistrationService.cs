@@ -23,8 +23,8 @@ namespace HaloBiz.MyServices
         Task<ApiResponse> AddUpVehicleType(HttpContext context, long id, VehicleTypeRegReceivingDTO vehicleTypeReceivingDTO);
         Task<ApiResponse> AddUpPilotType(HttpContext context, long id, PilotTypeRegReceivingDTO pilotTypeReceivingDTO);
         Task<ApiResponse> AddUpCommanderType(HttpContext context, long id, CommanderTypeRegReceivingDTO commanderTypeReceivingDTO);
-        Task<ApiResponse> AddUpArmedEscortType(HttpContext context, long id, AEscortTypeRegReceivingDTO armedEscortTypeReceivingDTO);
-        Task<ApiResponse> AddUpAllTypes(HttpContext context, long id, AllApplicableTypesRegReceivingDTO allApplicableTypesRegReceivingDTO);
+        //Task<ApiResponse> AddUpArmedEscortType(HttpContext context, long id, AEscortTypeRegReceivingDTO armedEscortTypeReceivingDTO);
+        //Task<ApiResponse> AddUpAllTypes(HttpContext context, long id, AllResourceTypesPerServiceRegReceivingDTO allApplicableTypesRegReceivingDTO);
         //Task<ApiResponse> DeleteServiceReg(long id);
     }
 }

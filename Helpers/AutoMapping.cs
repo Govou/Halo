@@ -374,10 +374,20 @@ namespace HaloBiz.Helpers
             CreateMap<PriceRegisterReceivingDTO, PriceRegister>();
             CreateMap<PriceRegister, PriceRegisterTransferDTO>();
 
-            //CreateMap<VehicleTypeRegReceivingDTO, CommanderResourceRequiredPerService>();
-            //CreateMap<VehicleTypeRegReceivingDTO, PilotResourceRequiredPerService>();
-            //CreateMap<VehicleTypeRegReceivingDTO, VehicleResourceRequiredPerService>();
-            //CreateMap<VehicleTypeRegReceivingDTO, ArmedEscortResourceRequiredPerService>();
+            CreateMap<VehicleTypeRegReceivingDTO, CommanderResourceRequiredPerService>();
+            CreateMap<VehicleTypeRegReceivingDTO, PilotResourceRequiredPerService>();
+            CreateMap<VehicleTypeRegReceivingDTO, VehicleResourceRequiredPerService>();
+            CreateMap<VehicleTypeRegReceivingDTO, ArmedEscortResourceRequiredPerService>();
+
+            CreateMap<VehicleTypeRegReceivingDTO, CommanderResourceRequiredPerService>();
+            CreateMap<VehicleTypeRegReceivingDTO, PilotResourceRequiredPerService>();
+            CreateMap<VehicleTypeRegReceivingDTO, VehicleResourceRequiredPerService>();
+            CreateMap<VehicleTypeRegReceivingDTO, ArmedEscortResourceRequiredPerService>();
+
+            //CreateMap<CommanderResourceRequiredPerService, CommanderTypeRegTransferDTO>(); 
+            //CreateMap<PilotResourceRequiredPerService, PilotTypeRegTransferDTO>(); 
+            //CreateMap<VehicleResourceRequiredPerService, VehicleTypeRegTransferDTO>();
+            //CreateMap< ArmedEscortResourceRequiredPerService, ArmedEscortTypeRegReceivingDTO>();
 
             CreateMap<ArmedEscortSMORoutesResourceTieReceivingDTO, ArmedEscortSMORoutesResourceTie>();
             CreateMap<PilotSMORoutesResourceTieReceivingDTO, PilotSMORoutesResourceTie>();

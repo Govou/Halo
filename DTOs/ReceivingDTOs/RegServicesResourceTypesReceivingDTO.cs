@@ -12,37 +12,53 @@ namespace HaloBiz.DTOs.ReceivingDTOs
 
     public class CommanderTypeRegReceivingDTO
     {
-    
-      
-        [Required]
-        public long[] ServiceRegistrationId { get; set; }
+
+        public long? ServiceRegistrationId { get; set; }
+        public long Quantity { get; set; }
+        public long? CommanderTypeId { get; set; }
+     
+       // public long[] ServiceRegistrationId { get; set; }
     }
     public class AEscortTypeRegReceivingDTO
     {
-     
-        [Required]
-        public long[] ServiceRegistrationId { get; set; }
+
+        public long? ServiceRegistrationId { get; set; }
+        public long Quantity { get; set; }
+        public long? ArmedEscortTypeId { get; set; }
+        //public long[] ServiceRegistrationId { get; set; }
     }
     public class PilotTypeRegReceivingDTO
     {
-    
-     
-        [Required]
-        public long[] ServiceRegistrationId { get; set; }
+        public long? ServiceRegistrationId { get; set; }
+        public long Quantity { get; set; }
+        public long? PilotTypeId { get; set; }
+        //public long[] ServiceRegistrationId { get; set; }
     }
     public class VehicleTypeRegReceivingDTO
     {
-       
-     
-        [Required]
-        public long[] ServiceRegistrationId { get; set; }
+
+        public long? ServiceRegistrationId { get; set; }
+        public long Quantity { get; set; }
+        public long? VehicleTypeId { get; set; }
+        //[Required]
+       // public long[] ServiceRegistrationId { get; set; }
     }
 
-    public class AllApplicableTypesRegReceivingDTO
+    public class AllResourceTypesPerServiceRegReceivingDTO
     {
+        public long VehicleQuantity { get; set; }
+        public long? VehicleTypeId { get; set; }
+
+        public long PilotQuantity { get; set; }
+        public long? PilotTypeId { get; set; }
+
+        public long CommanderQuantity { get; set; }
+        public long? CommanderTypeId { get; set; }
+        public long ArmedEscortQuantity { get; set; }
+        public long? ArmedEscortTypeId { get; set; }
 
         [Required]
-        public long[] AEServiceRegistrationId { get; set; }
+        public long[] ArmedEscortEServiceRegistrationId { get; set; }
         [Required]
         public long[] CommanderServiceRegistrationId { get; set; }
         [Required]

@@ -14,6 +14,8 @@ namespace HaloBiz.Repository
 
         Task<IEnumerable<BusinessRule>> FindAllRules();
 
+        Task<IEnumerable<BusinessRule>> FindAllPairableRules();
+
         BusinessRule GetRegServiceId(long regServiceId);
 
 

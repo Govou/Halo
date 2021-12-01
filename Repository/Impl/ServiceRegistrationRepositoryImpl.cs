@@ -19,11 +19,67 @@ namespace HaloBiz.Repository.Impl
             this._context = context;
         }
 
+        public async Task<bool> DeleteArmedEscortResource(ArmedEscortResourceRequiredPerService escort)
+        {
+            escort.IsDeleted = true;
+            _context.ArmedEscortResourceRequiredPerServices.Update(escort);
+            return await SaveChanges();
+        }
+
+        public async Task<bool> DeleteCommanderResource(CommanderResourceRequiredPerService commander)
+        {
+            commander.IsDeleted = true;
+            _context.CommanderResourceRequiredPerServices.Update(commander);
+            return await SaveChanges();
+        }
+
+        public async Task<bool> DeletePilotResource(PilotResourceRequiredPerService pilot)
+        {
+            pilot.IsDeleted = true;
+            _context.PilotResourceRequiredPerService.Update(pilot);
+            return await SaveChanges();
+        }
+
         public async Task<bool> DeleteService(ServiceRegistration serviceRegistration)
         {
             serviceRegistration.IsDeleted = true;
             _context.ServiceRegistrations.Update(serviceRegistration);
             return await SaveChanges();
+        }
+
+        public async Task<bool> DeleteVehicleResource(VehicleResourceRequiredPerService vehicle)
+        {
+            vehicle.IsDeleted = true;
+            _context.VehicleResourceRequiredPerServices.Update(vehicle);
+            return await SaveChanges();
+        }
+
+        public async Task<IEnumerable<ArmedEscortResourceRequiredPerService>> FindAllArmedEscortResources()
+        {
+
+            return await _context.ArmedEscortResourceRequiredPerServices.Where(s => s.IsDeleted == false)
+                          .Include(s => s.CreatedBy).Include(s=>s.ServiceRegistration).Include(s=>s.ServiceRegistration.Service)
+                          .Include(s=>s.ArmedEscortType.ServiceRegistration).Include(s=>s.ServiceRegistration.ApplicableArmedEscortTypes)
+                          .Include(s=>s.ArmedEscortType.ServiceRegistration.Service)
+                                    .ToListAsync();
+        }
+
+        public async Task<IEnumerable<CommanderResourceRequiredPerService>> FindAllCommanderResources()
+        {
+            return await _context.CommanderResourceRequiredPerServices.Where(s => s.IsDeleted == false)
+                         .Include(s => s.CreatedBy).Include(s => s.ServiceRegistration).Include(s => s.ServiceRegistration.Service)
+                         .Include(s => s.CommanderType.ServiceRegistration).Include(s => s.ServiceRegistration.ApplicableArmedEscortTypes)
+                         .Include(s => s.CommanderType.ServiceRegistration.Service)
+                                   .ToListAsync();
+        }
+
+        public async Task<IEnumerable<PilotResourceRequiredPerService>> FindAllPilotResources()
+        {
+            return await _context.PilotResourceRequiredPerService.Where(s => s.IsDeleted == false)
+                        .Include(s => s.CreatedBy).Include(s => s.ServiceRegistration).Include(s => s.ServiceRegistration.Service)
+                        .Include(s => s.PilotType.ServiceRegistration).Include(s => s.ServiceRegistration.ApplicableArmedEscortTypes)
+                        .Include(s => s.PilotType.ServiceRegistration.Service)
+                                  .ToListAsync();
         }
 
         public async Task<IEnumerable<ServiceRegistration>> FindAllServicess()
@@ -40,6 +96,42 @@ namespace HaloBiz.Repository.Impl
             //              .Include(s => s.Service.OperatingEntity)
         }
 
+        public async Task<IEnumerable<VehicleResourceRequiredPerService>> FindAllVehicleResources()
+        {
+            return await _context.VehicleResourceRequiredPerServices.Where(s => s.IsDeleted == false)
+                        .Include(s => s.CreatedBy).Include(s => s.ServiceRegistration).Include(s => s.ServiceRegistration.Service)
+                        .Include(s => s.VehicleType.ServiceRegistration).Include(s => s.ServiceRegistration.ApplicableArmedEscortTypes)
+                        .Include(s => s.VehicleType.ServiceRegistration.Service)
+                                  .ToListAsync();
+        }
+
+        public async Task<ArmedEscortResourceRequiredPerService> FindArmedEsxortResourceById(long Id)
+        {
+            return await _context.ArmedEscortResourceRequiredPerServices.Where(s => s.IsDeleted == false)
+                .Include(s => s.CreatedBy).Include(s => s.ServiceRegistration).Include(s => s.ServiceRegistration.Service)
+                        .Include(s => s.ArmedEscortType.ServiceRegistration).Include(s => s.ServiceRegistration.ApplicableArmedEscortTypes)
+                        .Include(s => s.ArmedEscortType.ServiceRegistration.Service)
+                .FirstOrDefaultAsync(s => s.Id == Id && s.IsDeleted == false);
+        }
+
+        public async Task<CommanderResourceRequiredPerService> FindCommanderResourceById(long Id)
+        {
+            return await _context.CommanderResourceRequiredPerServices.Where(s => s.IsDeleted == false)
+               .Include(s => s.CreatedBy).Include(s => s.ServiceRegistration).Include(s => s.ServiceRegistration.Service)
+                       .Include(s => s.CommanderType.ServiceRegistration).Include(s => s.ServiceRegistration.ApplicableArmedEscortTypes)
+                       .Include(s => s.CommanderType.ServiceRegistration.Service)
+               .FirstOrDefaultAsync(s => s.Id == Id && s.IsDeleted == false);
+        }
+
+        public async Task<PilotResourceRequiredPerService> FindPilotResourceById(long Id)
+        {
+            return await _context.PilotResourceRequiredPerService.Where(s => s.IsDeleted == false)
+             .Include(s => s.CreatedBy).Include(s => s.ServiceRegistration).Include(s => s.ServiceRegistration.Service)
+                     .Include(s => s.PilotType.ServiceRegistration).Include(s => s.ServiceRegistration.ApplicableArmedEscortTypes)
+                     .Include(s => s.PilotType.ServiceRegistration.Service)
+             .FirstOrDefaultAsync(s => s.Id == Id && s.IsDeleted == false);
+        }
+
         public async Task<ServiceRegistration> FindServiceById(long Id)
         {
             return await _context.ServiceRegistrations.Where(s => s.IsDeleted == false)
@@ -54,10 +146,59 @@ namespace HaloBiz.Repository.Impl
                //           .Include(s => s.Service.OperatingEntity)
         }
 
+        public async Task<VehicleResourceRequiredPerService> FindVehicleResourceById(long Id)
+        {
+            return await _context.VehicleResourceRequiredPerServices.Where(s => s.IsDeleted == false)
+             .Include(s => s.CreatedBy).Include(s => s.ServiceRegistration).Include(s => s.ServiceRegistration.Service)
+                     .Include(s => s.VehicleType.ServiceRegistration).Include(s => s.ServiceRegistration.ApplicableArmedEscortTypes)
+                     .Include(s => s.VehicleType.ServiceRegistration.Service)
+             .FirstOrDefaultAsync(s => s.Id == Id && s.IsDeleted == false);
+        }
+
         public ServiceRegistration GetserviceId(long serviceId)
         {
             return _context.ServiceRegistrations
                                        .Where(ct => ct.ServiceId == serviceId && ct.IsDeleted == false).FirstOrDefault();
+        }
+
+        public async Task<ArmedEscortResourceRequiredPerService> SaveArmedEscortResource(ArmedEscortResourceRequiredPerService escort)
+        {
+            var savedEntity = await _context.ArmedEscortResourceRequiredPerServices.AddAsync(escort);
+            if (await SaveChanges())
+            {
+                return savedEntity.Entity;
+            }
+            return null;
+        }
+
+        public async Task<CommanderResourceRequiredPerService> SaveCommanderResource(CommanderResourceRequiredPerService commander)
+        {
+            var savedEntity = await _context.CommanderResourceRequiredPerServices.AddAsync(commander);
+            if (await SaveChanges())
+            {
+                return savedEntity.Entity;
+            }
+            return null;
+        }
+
+        public async Task<PilotResourceRequiredPerService> SavePilotResource(PilotResourceRequiredPerService pilot)
+        {
+            var savedEntity = await _context.PilotResourceRequiredPerService.AddAsync(pilot);
+            if (await SaveChanges())
+            {
+                return savedEntity.Entity;
+            }
+            return null;
+        }
+
+        public async Task<VehicleResourceRequiredPerService> SaveResourceVehicle(VehicleResourceRequiredPerService vehicle)
+        {
+            var savedEntity = await _context.VehicleResourceRequiredPerServices.AddAsync(vehicle);
+            if (await SaveChanges())
+            {
+                return savedEntity.Entity;
+            }
+            return null;
         }
 
         public async Task<ServiceRegistration> SaveService(ServiceRegistration serviceRegistration)

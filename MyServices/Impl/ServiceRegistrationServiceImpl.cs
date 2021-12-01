@@ -53,97 +53,97 @@ namespace HaloBiz.MyServices.Impl
             return new ApiOkResponse(TransferDTO);
         }
 
-        public async Task<ApiResponse> AddUpAllTypes(HttpContext context, long id, AllApplicableTypesRegReceivingDTO allApplicableTypesRegReceivingDTO)
-        {
-            var pair = new ArmedEscortType();
-          
-            var PilotToUpdate = await _pilotRepository.FindPilotTypeById(id);
-            if (PilotToUpdate == null)
-            {
-                return new ApiResponse(404);
-            }
-            var CommanderToUpdate = await _commanderRepository.FindCommanderTypeById(id);
-            if (CommanderToUpdate == null)
-            {
-                return new ApiResponse(404);
-            }
-            var VehicleToUpdate = await _vehiclesRepository.FindVehicleTypeById(id);
-            if (CommanderToUpdate == null)
-            {
-                return new ApiResponse(404);
-            }
+        //public async Task<ApiResponse> AddUpAllTypes(HttpContext context, long id, AllResourceTypesPerServiceRegReceivingDTO allApplicableTypesRegReceivingDTO)
+        //{
+        //    var pair = new ArmedEscortType();
 
-            for (int i = 0; i < allApplicableTypesRegReceivingDTO.AEServiceRegistrationId.Length; i++)
-            {
+        //    var PilotToUpdate = await _pilotRepository.FindPilotTypeById(id);
+        //    if (PilotToUpdate == null)
+        //    {
+        //        return new ApiResponse(404);
+        //    }
+        //    var CommanderToUpdate = await _commanderRepository.FindCommanderTypeById(id);
+        //    if (CommanderToUpdate == null)
+        //    {
+        //        return new ApiResponse(404);
+        //    }
+        //    var VehicleToUpdate = await _vehiclesRepository.FindVehicleTypeById(id);
+        //    if (CommanderToUpdate == null)
+        //    {
+        //        return new ApiResponse(404);
+        //    }
 
-                var EscortToUpdate = await _armedEscortsRepository.FindArmedEscortTypeById(id);
-                if (EscortToUpdate == null)
-                {
-                    return new ApiResponse(404);
-                }
-                //pair.BusinessRuleId = bRPairableReceivingDTO.BusinessRuleId;
-                EscortToUpdate.ServiceRegistrationId = allApplicableTypesRegReceivingDTO.AEServiceRegistrationId[i];
-                EscortToUpdate.UpdatedAt = DateTime.UtcNow;
+        //    for (int i = 0; i < allApplicableTypesRegReceivingDTO.AEServiceRegistrationId.Length; i++)
+        //    {
 
-                var updated = await _armedEscortsRepository.UpdateArmedEscortType(EscortToUpdate);
-                if (updated == null)
-                {
-                    return new ApiResponse(500);
-                }
-            }
+        //        var EscortToUpdate = await _armedEscortsRepository.FindArmedEscortTypeById(id);
+        //        if (EscortToUpdate == null)
+        //        {
+        //            return new ApiResponse(404);
+        //        }
+        //        //pair.BusinessRuleId = bRPairableReceivingDTO.BusinessRuleId;
+        //        EscortToUpdate.ServiceRegistrationId = allApplicableTypesRegReceivingDTO.AEServiceRegistrationId[i];
+        //        EscortToUpdate.UpdatedAt = DateTime.UtcNow;
 
-            return new ApiOkResponse(200);
-        }
+        //        var updated = await _armedEscortsRepository.UpdateArmedEscortType(EscortToUpdate);
+        //        if (updated == null)
+        //        {
+        //            return new ApiResponse(500);
+        //        }
+        //    }
 
-        public async Task<ApiResponse> AddUpArmedEscortType(HttpContext context, long id, AEscortTypeRegReceivingDTO armedEscortTypeReceivingDTO)
-        {
-            //var summary = "";
-            var pair = new ArmedEscortType();
-            var itemToUpdate = await _armedEscortsRepository.FindArmedEscortTypeById(id);
-            if (itemToUpdate == null)
-            {
-                return new ApiResponse(404);
-            }
+        //    return new ApiOkResponse(200);
+        //}
 
-            for (int i = 0; i < armedEscortTypeReceivingDTO.ServiceRegistrationId.Length; i++)
-            {
-                //pair.Id = 0;
-                //pair.BusinessRuleId = bRPairableReceivingDTO.BusinessRuleId;
-                itemToUpdate.ServiceRegistrationId = armedEscortTypeReceivingDTO.ServiceRegistrationId[i];
-                pair.UpdatedAt = DateTime.UtcNow;
+        //public async Task<ApiResponse> AddUpArmedEscortType(HttpContext context, long id, AEscortTypeRegReceivingDTO armedEscortTypeReceivingDTO)
+        //{
+        //    //var summary = "";
+        //    var pair = new ArmedEscortType();
+        //    var itemToUpdate = await _armedEscortsRepository.FindArmedEscortTypeById(id);
+        //    if (itemToUpdate == null)
+        //    {
+        //        return new ApiResponse(404);
+        //    }
 
-                var updated = await _armedEscortsRepository.UpdateArmedEscortType(itemToUpdate);
-                if (updated == null)
-                {
-                    return new ApiResponse(500);
-                }
-            }
+        //    for (int i = 0; i < armedEscortTypeReceivingDTO.ServiceRegistrationId.Length; i++)
+        //    {
+        //        //pair.Id = 0;
+        //        //pair.BusinessRuleId = bRPairableReceivingDTO.BusinessRuleId;
+        //        itemToUpdate.ServiceRegistrationId = armedEscortTypeReceivingDTO.ServiceRegistrationId[i];
+        //        pair.UpdatedAt = DateTime.UtcNow;
 
-            return new ApiOkResponse(200);
+        //        var updated = await _armedEscortsRepository.UpdateArmedEscortType(itemToUpdate);
+        //        if (updated == null)
+        //        {
+        //            return new ApiResponse(500);
+        //        }
+        //    }
+
+        //    return new ApiOkResponse(200);
 
 
-            //foreach (var item in armedEscortTypeReceivingDTO)
-            //{
-            //    var itemToUpdate = await _armedEscortsRepository.FindArmedEscortTypeById(id);
-            //    if (itemToUpdate == null)
-            //    {
-            //        return new ApiResponse(404);
-            //    }
+        //    //foreach (var item in armedEscortTypeReceivingDTO)
+        //    //{
+        //    //    var itemToUpdate = await _armedEscortsRepository.FindArmedEscortTypeById(id);
+        //    //    if (itemToUpdate == null)
+        //    //    {
+        //    //        return new ApiResponse(404);
+        //    //    }
 
-            //    itemToUpdate.ServiceRegistrationId = item.ServiceRegistrationId;
-            //    itemToUpdate.UpdatedAt = DateTime.UtcNow;
-            //    summary = $"Initial details before change, \n {itemToUpdate.ToString()} \n";
-            //    var updated = await _serviceregRepository.UpdateArmedEscortTypes(itemToUpdate);
-            //    if (updated == null)
-            //    {
-            //        return new ApiResponse(500);
-            //    }
-            //    summary += $"Details after change, \n {updated.ToString()} \n";
-            //    //var TransferDTOs = _mapper.Map<BRPairableTransferDTO>(updated);
-            //}
+        //    //    itemToUpdate.ServiceRegistrationId = item.ServiceRegistrationId;
+        //    //    itemToUpdate.UpdatedAt = DateTime.UtcNow;
+        //    //    summary = $"Initial details before change, \n {itemToUpdate.ToString()} \n";
+        //    //    var updated = await _serviceregRepository.UpdateArmedEscortTypes(itemToUpdate);
+        //    //    if (updated == null)
+        //    //    {
+        //    //        return new ApiResponse(500);
+        //    //    }
+        //    //    summary += $"Details after change, \n {updated.ToString()} \n";
+        //    //    //var TransferDTOs = _mapper.Map<BRPairableTransferDTO>(updated);
+        //    //}
 
-            return new ApiOkResponse(200);
-        }
+        //    return new ApiOkResponse(200);
+        //}
 
         public async Task<ApiResponse> AddUpCommanderType(HttpContext context, long id, CommanderTypeRegReceivingDTO commanderTypeReceivingDTO)
         {

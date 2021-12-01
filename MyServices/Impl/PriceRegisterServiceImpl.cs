@@ -33,6 +33,7 @@ namespace HaloBiz.MyServices.Impl
             //    return new ApiResponse(409);
             //}
             priceReg.CreatedById = context.GetLoggedInUserId();
+            //priceReg.MarkupPrice = 
             priceReg.CreatedAt = DateTime.UtcNow;
             var Save = await _priceRegisterRepository.SavePriceRegister(priceReg);
             if (Save == null)

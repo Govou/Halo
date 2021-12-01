@@ -60,5 +60,12 @@ namespace HaloBiz.Controllers
             var type = ((ApiOkResponse)response).Result;
             return Ok(type);
         }
+
+        [HttpDelete("DeletePriceRegisterById/{id}")] //{id}
+        public async Task<ActionResult> DeletePriceRegisterById(int id)
+        {
+            var response = await _priceRegisterService.DeletePriceRegister(id);
+            return StatusCode(response.StatusCode);
+        }
     }
 }

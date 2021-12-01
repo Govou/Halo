@@ -102,14 +102,14 @@ namespace HaloBiz.Controllers
             return Ok(type);
         }
 
-        [HttpPut("UpdateArmedEscortTypeServiceById/{id}")]
-        public async Task<IActionResult> UpdateArmedEscortTypeServiceById(long id, AEscortTypeRegReceivingDTO ReceivingDTO)
-        {
-            var response = await _serviceRegistration.AddUpArmedEscortType(HttpContext, id, ReceivingDTO);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var type = ((ApiOkResponse)response).Result;
-            return Ok(type);
-        }
+        //[HttpPut("UpdateArmedEscortTypeServiceById/{id}")]
+        //public async Task<IActionResult> UpdateArmedEscortTypeServiceById(long id, AEscortTypeRegReceivingDTO ReceivingDTO)
+        //{
+        //    var response = await _serviceRegistration.AddUpArmedEscortType(HttpContext, id, ReceivingDTO);
+        //    if (response.StatusCode >= 400)
+        //        return StatusCode(response.StatusCode, response);
+        //    var type = ((ApiOkResponse)response).Result;
+        //    return Ok(type);
+        //}
     }
 }
