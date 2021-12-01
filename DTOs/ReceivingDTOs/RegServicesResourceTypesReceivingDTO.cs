@@ -8,41 +8,38 @@ namespace HaloBiz.DTOs.ReceivingDTOs
 {
     public class RegServicesResourceTypesReceivingDTO
     {
+        public class CommanderTypeRegReceivingDTO
+        {
+
+            public long? ServiceRegistrationId { get; set; }
+            public long[] CommanderTypeId { get; set; }
+
+            // public long[] ServiceRegistrationId { get; set; }
+        }
+        public class AEscortTypeRegReceivingDTO
+        {
+
+            public long? ServiceRegistrationId { get; set; }
+            public long[] ArmedEscortTypeId { get; set; }
+            //public long[] ServiceRegistrationId { get; set; }
+        }
+        public class PilotTypeRegReceivingDTO
+        {
+            public long? ServiceRegistrationId { get; set; }
+            public long[] PilotTypeId { get; set; }
+            //public long[] ServiceRegistrationId { get; set; }
+        }
+        public class VehicleTypeRegReceivingDTO
+        {
+
+            public long? ServiceRegistrationId { get; set; }
+            public long[] VehicleTypeId { get; set; }
+            //[Required]
+            // public long[] ServiceRegistrationId { get; set; }
+        }
     }
 
-    public class CommanderTypeRegReceivingDTO
-    {
-
-        public long? ServiceRegistrationId { get; set; }
-        public long Quantity { get; set; }
-        public long? CommanderTypeId { get; set; }
-     
-       // public long[] ServiceRegistrationId { get; set; }
-    }
-    public class AEscortTypeRegReceivingDTO
-    {
-
-        public long? ServiceRegistrationId { get; set; }
-        public long Quantity { get; set; }
-        public long? ArmedEscortTypeId { get; set; }
-        //public long[] ServiceRegistrationId { get; set; }
-    }
-    public class PilotTypeRegReceivingDTO
-    {
-        public long? ServiceRegistrationId { get; set; }
-        public long Quantity { get; set; }
-        public long? PilotTypeId { get; set; }
-        //public long[] ServiceRegistrationId { get; set; }
-    }
-    public class VehicleTypeRegReceivingDTO
-    {
-
-        public long? ServiceRegistrationId { get; set; }
-        public long Quantity { get; set; }
-        public long? VehicleTypeId { get; set; }
-        //[Required]
-       // public long[] ServiceRegistrationId { get; set; }
-    }
+ 
 
     public class AllResourceTypesPerServiceRegReceivingDTO
     {
