@@ -96,7 +96,7 @@ namespace HaloBiz.MyServices.Impl
 
             ToUpdate.AttachedBranchId = vehicleReceivingDTO.AttachedBranchId;
             ToUpdate.AttachedOfficeId = vehicleReceivingDTO.AttachedOfficeId;
-            ToUpdate.SupplierServiceId = vehicleReceivingDTO.SupplierServiceId;
+            //ToUpdate.SupplierServiceId = vehicleReceivingDTO.SupplierServiceId;
             ToUpdate.VehicleTypeId = vehicleReceivingDTO.VehicleTypeId;
             ToUpdate.UpdatedAt = DateTime.UtcNow;
             var updatedType = await _vehiclesRepository.UpdateVehicle(ToUpdate);

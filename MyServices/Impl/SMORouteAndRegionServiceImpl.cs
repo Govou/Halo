@@ -56,11 +56,16 @@ namespace HaloBiz.MyServices.Impl
         public async Task<ApiResponse> AddSMOReturnRoute(HttpContext context, SMOReturnRouteReceivingDTO sMOReturnRouteReceivingDTO)
         {
             var addItem = _mapper.Map<SMOReturnRoute>(sMOReturnRouteReceivingDTO);
-            var hasReturnRoute = _sMORouteAndRegionRepository.hasReturnRoute(sMOReturnRouteReceivingDTO.SMORouteId);
-            if (!hasReturnRoute)
+            var IdExist = _sMORouteAndRegionRepository.GetSMORouteId(sMOReturnRouteReceivingDTO.SMORouteId);
+            if (IdExist != null)
             {
-                return new ApiResponse(411);
+                return new ApiResponse(409);
             }
+            //var hasReturnRoute = _sMORouteAndRegionRepository.hasReturnRoute(sMOReturnRouteReceivingDTO.SMORouteId);
+            //if (!hasReturnRoute)
+            //{
+            //    return new ApiResponse(411);
+            //}
 
             addItem.CreatedById = context.GetLoggedInUserId();
             addItem.IsDeleted = false;
@@ -77,7 +82,6 @@ namespace HaloBiz.MyServices.Impl
         public async Task<ApiResponse> AddSMORoute(HttpContext context, SMORouteReceivingDTO sMORouteReceivingDTO)
         {
             var addItem = _mapper.Map<SMORoute>(sMORouteReceivingDTO);
-            var addItem2 = _mapper.Map<SMOReturnRoute>(sMORouteReceivingDTO);
             var NameExist = _sMORouteAndRegionRepository.GetRouteName(sMORouteReceivingDTO.RouteName);
             if (NameExist != null)
             {
@@ -178,6 +182,17 @@ namespace HaloBiz.MyServices.Impl
         public async Task<ApiResponse> GetAllSMORoutes()
         {
             var allItems = await _sMORouteAndRegionRepository.FindAllSMORoutes();
+            if (allItems == null)
+            {
+                return new ApiResponse(404);
+            }
+            var itemTransferDTO = _mapper.Map<IEnumerable<SMORouteTransferDTO>>(allItems);
+            return new ApiOkResponse(itemTransferDTO);
+        }
+
+        public async Task<ApiResponse> GetAllSMORoutesWithReturnRoute()
+        {
+            var allItems = await _sMORouteAndRegionRepository.FindAllRoutesWithReturnRoute();
             if (allItems == null)
             {
                 return new ApiResponse(404);

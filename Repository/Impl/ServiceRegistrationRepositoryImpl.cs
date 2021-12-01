@@ -68,9 +68,49 @@ namespace HaloBiz.Repository.Impl
             return null;
         }
 
+        public async Task<ArmedEscortType> UpdateArmedEscortTypes(ArmedEscortType armedEscortType)
+        {
+            var updatedEntity = _context.ArmedEscortTypes.Update(armedEscortType);
+            if (await SaveChanges())
+            {
+                return updatedEntity.Entity;
+            }
+            return null;
+        }
+
+        public async Task<CommanderType> UpdateCommanderTypess(CommanderType commanderType)
+        {
+            var updatedEntity = _context.CommanderTypes.Update(commanderType);
+            if (await SaveChanges())
+            {
+                return updatedEntity.Entity;
+            }
+            return null;
+        }
+
+        public async Task<PilotType> UpdatePilotTypes(PilotType pilotType)
+        {
+            var updatedEntity = _context.PilotTypes.Update(pilotType);
+            if (await SaveChanges())
+            {
+                return updatedEntity.Entity;
+            }
+            return null;
+        }
+
         public async Task<ServiceRegistration> UpdateServices(ServiceRegistration serviceRegistration)
         {
             var updatedEntity = _context.ServiceRegistrations.Update(serviceRegistration);
+            if (await SaveChanges())
+            {
+                return updatedEntity.Entity;
+            }
+            return null;
+        }
+
+        public async Task<VehicleType> UpdateVehicleTypes(VehicleType vehicleType)
+        {
+            var updatedEntity = _context.VehicleTypes.Update(vehicleType);
             if (await SaveChanges())
             {
                 return updatedEntity.Entity;

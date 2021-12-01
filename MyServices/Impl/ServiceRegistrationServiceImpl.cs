@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using HaloBiz.DTOs;
 using HaloBiz.DTOs.ApiDTOs;
 using HaloBiz.DTOs.ReceivingDTOs;
 using HaloBiz.DTOs.TransferDTOs;
@@ -16,12 +17,20 @@ namespace HaloBiz.MyServices.Impl
     public class ServiceRegistrationServiceImpl:IServiceRegistrationService
     {
         private readonly IServiceRegistrationRepository _serviceregRepository;
+        private readonly IVehiclesRepository _vehiclesRepository;
+        private readonly IArmedEscortsRepository _armedEscortsRepository;
+        private readonly IPilotRepository _pilotRepository;
+        private readonly ICommanderRepository _commanderRepository;
         private readonly IMapper _mapper;
 
-        public ServiceRegistrationServiceImpl(IMapper mapper, IServiceRegistrationRepository serviceregRepository)
+        public ServiceRegistrationServiceImpl(ICommanderRepository commanderRepository, IPilotRepository pilotRepository, IArmedEscortsRepository armedEscortsRepository, IVehiclesRepository vehiclesRepository,IMapper mapper, IServiceRegistrationRepository serviceregRepository)
         {
             _mapper = mapper;
             _serviceregRepository = serviceregRepository;
+            _commanderRepository = commanderRepository;
+            _pilotRepository = pilotRepository;
+            _armedEscortsRepository = armedEscortsRepository;
+            _vehiclesRepository = vehiclesRepository;
         }
 
         public async Task<ApiResponse> AddServiceReg(HttpContext context, ServiceRegistrationReceivingDTO serviceRegReceivingDTO)
@@ -42,6 +51,144 @@ namespace HaloBiz.MyServices.Impl
             }
             var TransferDTO = _mapper.Map<ServiceRegistrationTransferDTO>(service);
             return new ApiOkResponse(TransferDTO);
+        }
+
+        public async Task<ApiResponse> AddUpArmedEscortType(HttpContext context, long id, AEscortTypeRegReceivingDTO armedEscortTypeReceivingDTO)
+        {
+            //var summary = "";
+            var pair = new ArmedEscortType();
+            var itemToUpdate = await _armedEscortsRepository.FindArmedEscortTypeById(id);
+            if (itemToUpdate == null)
+            {
+                return new ApiResponse(404);
+            }
+
+            for (int i = 0; i < armedEscortTypeReceivingDTO.ServiceRegistrationId.Length; i++)
+            {
+                //pair.Id = 0;
+                //pair.BusinessRuleId = bRPairableReceivingDTO.BusinessRuleId;
+                itemToUpdate.ServiceRegistrationId = armedEscortTypeReceivingDTO.ServiceRegistrationId[i];
+                pair.UpdatedAt = DateTime.UtcNow;
+
+                var updated = await _armedEscortsRepository.UpdateArmedEscortType(itemToUpdate);
+                if (updated == null)
+                {
+                    return new ApiResponse(500);
+                }
+            }
+
+
+
+
+
+
+            return new ApiOkResponse(200);
+
+
+            //foreach (var item in armedEscortTypeReceivingDTO)
+            //{
+            //    var itemToUpdate = await _armedEscortsRepository.FindArmedEscortTypeById(id);
+            //    if (itemToUpdate == null)
+            //    {
+            //        return new ApiResponse(404);
+            //    }
+
+            //    itemToUpdate.ServiceRegistrationId = item.ServiceRegistrationId;
+            //    itemToUpdate.UpdatedAt = DateTime.UtcNow;
+            //    summary = $"Initial details before change, \n {itemToUpdate.ToString()} \n";
+            //    var updated = await _serviceregRepository.UpdateArmedEscortTypes(itemToUpdate);
+            //    if (updated == null)
+            //    {
+            //        return new ApiResponse(500);
+            //    }
+            //    summary += $"Details after change, \n {updated.ToString()} \n";
+            //    //var TransferDTOs = _mapper.Map<BRPairableTransferDTO>(updated);
+            //}
+
+            return new ApiOkResponse(200);
+        }
+
+        public async Task<ApiResponse> AddUpCommanderType(HttpContext context, long id, CommanderTypeRegReceivingDTO commanderTypeReceivingDTO)
+        {
+            var summary = "";
+
+            
+            //foreach (var item in commanderTypeReceivingDTO)
+            //{
+            //    var itemToUpdate = await _commanderRepository.FindCommanderTypeById(id);
+            //    if (itemToUpdate == null)
+            //    {
+            //        return new ApiResponse(404);
+            //    }
+
+            //    itemToUpdate.ServiceRegistrationId = item.ServiceRegistrationId;
+            //    itemToUpdate.UpdatedAt = DateTime.UtcNow;
+            //    summary = $"Initial details before change, \n {itemToUpdate.ToString()} \n";
+            //    var updated = await _serviceregRepository.UpdateCommanderTypess(itemToUpdate);
+            //    if (updated == null)
+            //    {
+            //        return new ApiResponse(500);
+            //    }
+            //    summary += $"Details after change, \n {updated.ToString()} \n";
+            //}
+
+            return new ApiOkResponse(200);
+        }
+
+        public async Task<ApiResponse> AddUpPilotType(HttpContext context, long id, PilotTypeRegReceivingDTO pilotTypeReceivingDTO)
+        {
+            var summary = "";
+            
+            //foreach (var item in pilotTypeReceivingDTO)
+            //{
+            //    var itemToUpdate = await _pilotRepository.FindPilotTypeById(id);
+            //    if (itemToUpdate == null)
+            //    {
+            //        return new ApiResponse(404);
+            //    }
+
+            //    itemToUpdate.ServiceRegistrationId = item.ServiceRegistrationId;
+            //    itemToUpdate.UpdatedAt = DateTime.UtcNow;
+            //    summary = $"Initial details before change, \n {itemToUpdate.ToString()} \n";
+            //    var updated = await _serviceregRepository.UpdatePilotTypes(itemToUpdate);
+            //    if (updated == null)
+            //    {
+            //        return new ApiResponse(500);
+            //    }
+            //    summary += $"Details after change, \n {updated.ToString()} \n";
+            //    //var TransferDTOs = _mapper.Map<BRPairableTransferDTO>(updated);
+            //}
+
+            return new ApiOkResponse(200);
+        }
+
+        public async Task<ApiResponse> AddUpVehicleType(HttpContext context, long id, VehicleTypeRegReceivingDTO vehicleTypeReceivingDTO)
+        {
+
+            var summary = "";
+            
+            //foreach (var item in vehicleTypeReceivingDTO)
+            //{
+            //    var itemToUpdate = await _vehiclesRepository.FindVehicleTypeById(id);
+            //    if (itemToUpdate == null)
+            //    {
+            //        return new ApiResponse(404);
+            //    }
+
+                
+            //    itemToUpdate.ServiceRegistrationId = item.ServiceRegistrationId;
+            //    itemToUpdate.UpdatedAt = DateTime.UtcNow;
+            //    summary = $"Initial details before change, \n {itemToUpdate.ToString()} \n";
+            //    var updated = await _serviceregRepository.UpdateVehicleTypes(itemToUpdate);
+            //    if (updated == null)
+            //    {
+            //        return new ApiResponse(500);
+            //    }
+            //    summary += $"Details after change, \n {updated.ToString()} \n";
+            //    //var TransferDTOs = _mapper.Map<BRPairableTransferDTO>(updated);
+            //}
+
+            return new ApiOkResponse(200);
         }
 
         public async Task<ApiResponse> DeleteServiceReg(long id)
