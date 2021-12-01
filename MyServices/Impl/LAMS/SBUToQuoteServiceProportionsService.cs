@@ -54,17 +54,42 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
             var entitiesToSave = _mapper.Map<IEnumerable<SbutoQuoteServiceProportion>>(entities);
 
-            entitiesToSave = await SetProportionValue(entitiesToSave, context);
+            //group according the quote service id
+            var filtered = from e in entitiesToSave
+                                          group e by e.QuoteServiceId into g
+                                          select new
+                                          {
+                                              QuoteServiceId = g.Key,
+                                              Members = g.Select(x => new SbutoQuoteServiceProportion
+                                              { 
+                                                  StrategicBusinessUnitId =  x.StrategicBusinessUnitId,
+                                                  UserInvolvedId = x.UserInvolvedId,
+                                                  Status = x.Status,
+                                                  QuoteServiceId = x.QuoteServiceId                                                
 
-            var savedEntities = await _sbuToQuotePropRepo.SaveSbutoQuoteServiceProportion(entitiesToSave);
+                                              }).ToList()
+                                          };
+
+            List<SbutoQuoteServiceProportion> entitiesToSaveFiltered = new List<SbutoQuoteServiceProportion>();
+
+            foreach (var item in filtered)
+            {
+                var toSave = await SetProportionValue(item.Members, context);
+                entitiesToSaveFiltered.AddRange(toSave);
+            }
+
+            var savedEntities = await _sbuToQuotePropRepo.SaveSbutoQuoteServiceProportion(entitiesToSaveFiltered);
             if (savedEntities == null)
             {
                 return new ApiResponse(404);
             }
+
             var sbuToQuoteProportionTransferDTOs = _mapper
                                         .Map<IEnumerable<SbutoQuoteServiceProportionTransferDTO>>(savedEntities);
+           
             return new ApiOkResponse(sbuToQuoteProportionTransferDTOs);
         }
+
         private async Task<IEnumerable<SbutoQuoteServiceProportion>> SetProportionValue(IEnumerable<SbutoQuoteServiceProportion> entities, HttpContext context) 
         {
             var quoteServiceId = entities.Select(x => x.QuoteServiceId).First();
@@ -100,8 +125,10 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 {
                     entity.Proportion = Math.Round(1.0/sumRatio * 100.00, 2);
                 }
+
                 entity.CreatedById = loggedInUserId;
             }
+
             return entities;
         }
 
