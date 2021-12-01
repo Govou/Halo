@@ -321,6 +321,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                         contractService.ContractStartDate = contractServiceToRetire.ContractStartDate;
                         contractService.ContractEndDate = contractServiceToRetire.ContractEndDate;
                         contractService.InvoicingInterval = contractServiceToRetire.InvoicingInterval;
+                        contractService.UniqueTag = contractServiceToRetire.UniqueTag;
 
                         await _context.SaveChangesAsync();
 
@@ -336,6 +337,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                         contractService.ContractStartDate = contractServiceToRetire.ContractStartDate;
                         contractService.ContractEndDate = contractServiceToRetire.ContractEndDate;
                         contractService.InvoicingInterval = contractServiceToRetire.InvoicingInterval;
+                        contractService.UniqueTag = contractServiceToRetire.UniqueTag;
 
                         await _context.SaveChangesAsync();
 
