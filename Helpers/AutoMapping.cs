@@ -371,6 +371,21 @@ namespace HaloBiz.Helpers
             CreateMap<PilotTypeRegReceivingDTO, PilotType>();
             CreateMap<VehicleTypeRegReceivingDTO, VehicleType>();
 
+            CreateMap<PriceRegisterReceivingDTO, PriceRegister>();
+            CreateMap<PriceRegister, PriceRegisterTransferDTO>();
+
+            //CreateMap<VehicleTypeRegReceivingDTO, CommanderResourceRequiredPerService>();
+            //CreateMap<VehicleTypeRegReceivingDTO, PilotResourceRequiredPerService>();
+            //CreateMap<VehicleTypeRegReceivingDTO, VehicleResourceRequiredPerService>();
+            //CreateMap<VehicleTypeRegReceivingDTO, ArmedEscortResourceRequiredPerService>();
+
+            CreateMap<ArmedEscortSMORoutesResourceTieReceivingDTO, ArmedEscortSMORoutesResourceTie>();
+            CreateMap<PilotSMORoutesResourceTieReceivingDTO, PilotSMORoutesResourceTie>();
+            CreateMap<VehicleSMORoutesResourceTieReceivingDTO, VehicleSMORoutesResourceTie>();
+
+            CreateMap<ArmedEscortSMORoutesResourceTie, ArmedEscortSMORoutesResourceTieTransferDTO>(); 
+            CreateMap<PilotSMORoutesResourceTie, PilotSMORoutesResourceTieTransferDTO>(); 
+            CreateMap<VehicleSMORoutesResourceTie, VehicleSMORoutesResourceTieTransferDTO>(); 
             //CreateMap<CommanderTypeAndRankReceivingDTO[], CommanderType>(); 
             //CreateMap<ArmedEscortTypeReceivingDTO[], ArmedEscortType>(); 
             //CreateMap<VehicleTypeReceivingDTO[], VehicleType>(); 
