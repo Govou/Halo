@@ -42,13 +42,12 @@ namespace HaloBiz.Repository.Impl.LAMS
             {
                 return null;
             }
-            var quoteServiceId = entities.First().QuoteServiceId;
+
+            //var quoteServiceId = entities.First().QuoteServiceId;
             await _context.SbutoQuoteServiceProportions.AddRangeAsync(entities);
-            if (await SaveChanges())
-            {
-                return await FindAllSbutoQuoteServiceProportionByQuoteServiceId(quoteServiceId);
-            }
-            return null;            
+            await _context.SaveChangesAsync();
+
+            return entities;        
         }
 
         
