@@ -318,12 +318,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
                     }else if(endorsementType.ToLower().Contains("topup")){
                         //this new contract would have the same start and end date as the on to retire
-                        contractService.ContractStartDate = contractServiceToRetire.ContractStartDate;
-                        contractService.ContractEndDate = contractServiceToRetire.ContractEndDate;
-                        contractService.InvoicingInterval = contractServiceToRetire.InvoicingInterval;
-                        contractService.UniqueTag = contractServiceToRetire.UniqueTag;
-
-                        await _context.SaveChangesAsync();
+                        await RetainContractValues(contractService, contractServiceToRetire);
 
                         await ServiceTopUpGoingForwardEndorsement( contractServiceToRetire,
                                                                     contractService,
@@ -334,12 +329,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                     }else if(endorsementType.ToLower().Contains("reduction")){
 
                         //this new contract would have the same start and end date as the on to retire
-                        contractService.ContractStartDate = contractServiceToRetire.ContractStartDate;
-                        contractService.ContractEndDate = contractServiceToRetire.ContractEndDate;
-                        contractService.InvoicingInterval = contractServiceToRetire.InvoicingInterval;
-                        contractService.UniqueTag = contractServiceToRetire.UniqueTag;
-
-                        await _context.SaveChangesAsync();
+                        await RetainContractValues(contractService, contractServiceToRetire);
 
                         await ServiceReductionGoingForwardEndorsement( contractServiceToRetire,
                                                                     contractService,
@@ -348,7 +338,9 @@ namespace HaloBiz.MyServices.Impl.LAMS
                                                                     contractServiceForEndorsement
                                                                     );
                     }else if(endorsementType.ToLower().Contains("retention"))
-                    {                       
+                    {
+                        await RetainSbuInfo(contractService, contractServiceToRetire);
+
                         await ServiceRenewalEndorsement(
                                                         contractServiceToRetire,
                                                         contractService,
@@ -378,6 +370,49 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 }
             }
 
+        }
+
+        private async Task<bool> RetainSbuInfo(ContractService contractService, ContractService contractServiceToRetire)
+        {
+            try
+            {
+                var props = _context.SbutoContractServiceProportions.Where(x => x.ContractServiceId == contractServiceToRetire.Id);
+               
+                foreach (var item in props)
+                {
+                    item.ContractServiceId = contractService.Id;
+                }
+
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.StackTrace);
+                throw;
+            }
+
+            return true;
+        }
+
+        private async Task<bool> RetainContractValues(ContractService contractService, ContractService contractServiceToRetire)
+        {
+            try
+            {
+                contractService.ContractStartDate = contractServiceToRetire.ContractStartDate;
+                contractService.ContractEndDate = contractServiceToRetire.ContractEndDate;
+                contractService.InvoicingInterval = contractServiceToRetire.InvoicingInterval;
+                contractService.UniqueTag = contractServiceToRetire.UniqueTag;
+
+                await _context.SaveChangesAsync();
+                await RetainSbuInfo(contractService, contractServiceToRetire);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.StackTrace);
+                throw;
+            }
+
+            return true;
         }
 
         public async Task<ApiResponse> ConvertDebitCreditNoteEndorsement(HttpContext httpContext, long id)
