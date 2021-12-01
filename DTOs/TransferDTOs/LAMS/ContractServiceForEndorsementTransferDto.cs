@@ -8,7 +8,6 @@ namespace HaloBiz.DTOs.TransferDTOs.LAMS
     public class ContractServiceForEndorsementTransferDto
     {
         public long Id { get; set; }
-        public string ReferenceNo { get; set; }
         public double? UnitPrice {get ; set; }
         public long Quantity {get ; set; }
         public double Discount {get ; set; }
@@ -70,5 +69,7 @@ namespace HaloBiz.DTOs.TransferDTOs.LAMS
         public DateTime CreatedAt { get; set; }
         public string EndorsementDescription { get; set; }
         public string DocumentUrl { get; set; }
+        public string UniqueTag { get; set; }
+        public string AdminDirectTie { get; set; }
     }
 }

@@ -16,6 +16,8 @@ namespace HaloBiz.DTOs.ReceivingDTOs
         public double? VAT { get; set; }
         public double? BillableAmount { get; set; }
         public double? Budget { get; set; }
+
+        [DataType(DataType.Date)]
         public DateTime? ContractStartDate { get; set; }
         public DateTime? ContractEndDate { get; set; }
         public TimeCycle? PaymentCycle { get; set; }
