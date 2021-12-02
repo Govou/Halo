@@ -86,7 +86,7 @@ namespace HaloBiz.MyServices.Impl
                 pilot.Id = 0;
                 pilot.ServiceRegistrationId = ResouredRequiredReceivingDTO.ServiceRegistrationId;
                 pilot.PilotTypeId = ResouredRequiredReceivingDTO.PilotTypeId[i];
-                var IdExist = _serviceregRepository.GetCommanderTypeAndRegServiceId(ResouredRequiredReceivingDTO.ServiceRegistrationId, ResouredRequiredReceivingDTO.PilotTypeId[i]);
+                var IdExist = _serviceregRepository.GetPilotTypeAndRegServiceId(ResouredRequiredReceivingDTO.ServiceRegistrationId, ResouredRequiredReceivingDTO.PilotTypeId[i]);
                 if (IdExist == null)
                 {
                     pilot.CreatedById = context.GetLoggedInUserId();
@@ -106,7 +106,7 @@ namespace HaloBiz.MyServices.Impl
                 vehicle.Id = 0;
                 vehicle.ServiceRegistrationId = ResouredRequiredReceivingDTO.ServiceRegistrationId;
                 vehicle.VehicleTypeId = ResouredRequiredReceivingDTO.VehicleTypeId[i];
-                var IdExist = _serviceregRepository.GetCommanderTypeAndRegServiceId(ResouredRequiredReceivingDTO.ServiceRegistrationId, ResouredRequiredReceivingDTO.VehicleTypeId[i]);
+                var IdExist = _serviceregRepository.GetVehicleTypeAndRegServiceId(ResouredRequiredReceivingDTO.ServiceRegistrationId, ResouredRequiredReceivingDTO.VehicleTypeId[i]);
                 if (IdExist == null)
                 {
                     vehicle.CreatedById = context.GetLoggedInUserId();
