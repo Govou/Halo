@@ -40,6 +40,8 @@ namespace HaloBiz.Repository.Impl
             return await SaveChanges();
         }
 
+      
+
         public async Task<bool> DeleteService(ServiceRegistration serviceRegistration)
         {
             serviceRegistration.IsDeleted = true;
@@ -155,10 +157,35 @@ namespace HaloBiz.Repository.Impl
              .FirstOrDefaultAsync(s => s.Id == Id && s.IsDeleted == false);
         }
 
+        public ArmedEscortResourceRequiredPerService GetArmedEscortTypeAndRegServiceId(long RegServiceId, long? ArmedEscortTypeId)
+        {
+            return _context.ArmedEscortResourceRequiredPerServices.Where
+                (ct => ct.ServiceRegistrationId == RegServiceId && ct.ArmedEscortTypeId == ArmedEscortTypeId && ct.IsDeleted == false).FirstOrDefault();
+
+        }
+
+        public CommanderResourceRequiredPerService GetCommanderTypeAndRegServiceId(long RegServiceId, long? CommanderTypeId)
+        {
+            return _context.CommanderResourceRequiredPerServices.Where
+               (ct => ct.ServiceRegistrationId == RegServiceId && ct.CommanderTypeId == CommanderTypeId && ct.IsDeleted == false).FirstOrDefault();
+        }
+
+        public PilotResourceRequiredPerService GetPilotTypeAndRegServiceId(long RegServiceId, long? PilotTypeId)
+        {
+            return _context.PilotResourceRequiredPerService.Where
+                (ct => ct.ServiceRegistrationId == RegServiceId && ct.PilotTypeId == PilotTypeId && ct.IsDeleted == false).FirstOrDefault();
+        }
+
         public ServiceRegistration GetserviceId(long serviceId)
         {
             return _context.ServiceRegistrations
                                        .Where(ct => ct.ServiceId == serviceId && ct.IsDeleted == false).FirstOrDefault();
+        }
+
+        public VehicleResourceRequiredPerService GetVehicleTypeAndRegServiceId(long RegServiceId, long? VehicleTypeId)
+        {
+            return _context.VehicleResourceRequiredPerServices.Where
+              (ct => ct.ServiceRegistrationId == RegServiceId && ct.VehicleTypeId == VehicleTypeId && ct.IsDeleted == false).FirstOrDefault();
         }
 
         public async Task<ArmedEscortResourceRequiredPerService> SaveArmedEscortResource(ArmedEscortResourceRequiredPerService escort)

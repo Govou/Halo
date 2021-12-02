@@ -43,24 +43,21 @@ namespace HaloBiz.DTOs.ReceivingDTOs
 
     public class AllResourceTypesPerServiceRegReceivingDTO
     {
-        public long VehicleQuantity { get; set; }
-        public long? VehicleTypeId { get; set; }
+        public long?[] VehicleTypeId { get; set; }
 
-        public long PilotQuantity { get; set; }
-        public long? PilotTypeId { get; set; }
+        public long?[] PilotTypeId { get; set; }
 
-        public long CommanderQuantity { get; set; }
-        public long? CommanderTypeId { get; set; }
-        public long ArmedEscortQuantity { get; set; }
-        public long? ArmedEscortTypeId { get; set; }
+        public long?[] CommanderTypeId { get; set; }
 
-        [Required]
-        public long[] ArmedEscortEServiceRegistrationId { get; set; }
-        [Required]
-        public long[] CommanderServiceRegistrationId { get; set; }
-        [Required]
-        public long[] PilotServiceRegistrationId { get; set; }
-        [Required]
-        public long[] VehicleServiceRegistrationId { get; set; }
+        public long?[] ArmedEscortTypeId { get; set; }
+
+       
+        public long ServiceRegistrationId { get; set; }
+      
+        //public long CommanderServiceRegistrationId { get; set; }
+    
+        //public long PilotServiceRegistrationId { get; set; }
+       
+        //public long VehicleServiceRegistrationId { get; set; }
     }
 }

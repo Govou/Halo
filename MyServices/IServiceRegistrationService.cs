@@ -20,9 +20,24 @@ namespace HaloBiz.MyServices
 
       
         //
-        Task<ApiResponse> AddUpVehicleType(HttpContext context, long id, VehicleTypeRegReceivingDTO vehicleTypeReceivingDTO);
-        Task<ApiResponse> AddUpPilotType(HttpContext context, long id, PilotTypeRegReceivingDTO pilotTypeReceivingDTO);
-        Task<ApiResponse> AddUpCommanderType(HttpContext context, long id, CommanderTypeRegReceivingDTO commanderTypeReceivingDTO);
+        Task<ApiResponse> AddResourceRequired(HttpContext context, AllResourceTypesPerServiceRegReceivingDTO ResouredRequiredReceivingDTO);
+        //ArmedEscort
+        Task<ApiResponse> GetAllArmedEscortResourceRequired();
+        Task<ApiResponse> GetArmedEscortResourceById(long id);
+        Task<ApiResponse> DeleteArmedEscortResource(long id);
+
+        //Pilot
+        Task<ApiResponse> GetAllPilotResourceRequired();
+        Task<ApiResponse> GetPilotResourceById(long id);
+        Task<ApiResponse> DeletePilotResource(long id);
+        //Commander
+        Task<ApiResponse> GetAllCommanderResourceRequired();
+        Task<ApiResponse> GetCommanderResourceById(long id);
+        Task<ApiResponse> DeleteCommanderResource(long id);
+        //Vehicle
+        Task<ApiResponse> GetAllVehicleResourceRequired();
+        Task<ApiResponse> GetVehicleResourceById(long id);
+        Task<ApiResponse> DeleteVehicleResource(long id);
         //Task<ApiResponse> AddUpArmedEscortType(HttpContext context, long id, AEscortTypeRegReceivingDTO armedEscortTypeReceivingDTO);
         //Task<ApiResponse> AddUpAllTypes(HttpContext context, long id, AllResourceTypesPerServiceRegReceivingDTO allApplicableTypesRegReceivingDTO);
         //Task<ApiResponse> DeleteServiceReg(long id);
