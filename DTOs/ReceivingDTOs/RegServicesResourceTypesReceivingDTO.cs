@@ -8,46 +8,56 @@ namespace HaloBiz.DTOs.ReceivingDTOs
 {
     public class RegServicesResourceTypesReceivingDTO
     {
+        public class CommanderTypeRegReceivingDTO
+        {
+
+            public long? ServiceRegistrationId { get; set; }
+            public long[] CommanderTypeId { get; set; }
+
+            // public long[] ServiceRegistrationId { get; set; }
+        }
+        public class AEscortTypeRegReceivingDTO
+        {
+
+            public long? ServiceRegistrationId { get; set; }
+            public long[] ArmedEscortTypeId { get; set; }
+            //public long[] ServiceRegistrationId { get; set; }
+        }
+        public class PilotTypeRegReceivingDTO
+        {
+            public long? ServiceRegistrationId { get; set; }
+            public long[] PilotTypeId { get; set; }
+            //public long[] ServiceRegistrationId { get; set; }
+        }
+        public class VehicleTypeRegReceivingDTO
+        {
+
+            public long? ServiceRegistrationId { get; set; }
+            public long[] VehicleTypeId { get; set; }
+            //[Required]
+            // public long[] ServiceRegistrationId { get; set; }
+        }
     }
 
-    public class CommanderTypeRegReceivingDTO
+ 
+
+    public class AllResourceTypesPerServiceRegReceivingDTO
     {
-    
-      
-        [Required]
-        public long[] ServiceRegistrationId { get; set; }
-    }
-    public class AEscortTypeRegReceivingDTO
-    {
-     
-        [Required]
-        public long[] ServiceRegistrationId { get; set; }
-    }
-    public class PilotTypeRegReceivingDTO
-    {
-    
-     
-        [Required]
-        public long[] ServiceRegistrationId { get; set; }
-    }
-    public class VehicleTypeRegReceivingDTO
-    {
+        public long?[] VehicleTypeId { get; set; }
+
+        public long?[] PilotTypeId { get; set; }
+
+        public long?[] CommanderTypeId { get; set; }
+
+        public long?[] ArmedEscortTypeId { get; set; }
+
        
-     
-        [Required]
-        public long[] ServiceRegistrationId { get; set; }
-    }
-
-    public class AllApplicableTypesRegReceivingDTO
-    {
-
-        [Required]
-        public long[] AEServiceRegistrationId { get; set; }
-        [Required]
-        public long[] CommanderServiceRegistrationId { get; set; }
-        [Required]
-        public long[] PilotServiceRegistrationId { get; set; }
-        [Required]
-        public long[] VehicleServiceRegistrationId { get; set; }
+        public long ServiceRegistrationId { get; set; }
+      
+        //public long CommanderServiceRegistrationId { get; set; }
+    
+        //public long PilotServiceRegistrationId { get; set; }
+       
+        //public long VehicleServiceRegistrationId { get; set; }
     }
 }
