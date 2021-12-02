@@ -8,7 +8,7 @@ namespace HaloBiz.MyServices.LAMS
 {
     public interface IContractServiceForEndorsementService
     {
-        Task<ApiResponse> AddNewContractServiceForEndorsement (HttpContext httpContext, ContractServiceForEndorsementReceivingDto contractServiceForEndorsementReceiving);
+       // Task<ApiResponse> AddNewContractServiceForEndorsement (HttpContext httpContext, ContractServiceForEndorsementReceivingDto contractServiceForEndorsementReceiving);
         Task<ApiResponse> GetUnApprovedContractServiceForEndorsement();
         Task<ApiResponse> GetEndorsementDetailsById(long endorsementId);
         Task<ApiResponse> ApproveContractServiceForEndorsement(long Id, long sequence, bool isApproved);
