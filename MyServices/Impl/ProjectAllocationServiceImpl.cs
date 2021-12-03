@@ -1196,7 +1196,6 @@ namespace HaloBiz.MyServices.Impl
                         requirementInstance.CreatedById = httpContext.GetLoggedInUserId();
                         requirementInstance.DeliverableId = deliverableToBeSaved.Id;
                         requirementInstance.IsActive = true;
-                        requirementInstance.IsDeleted = false;
                         requirementInstance.Caption = item.Caption;
                         requirementInstance.Alias = item.Alias;
                         requirementInstance.Descrption = item.Descrption;
@@ -1204,7 +1203,7 @@ namespace HaloBiz.MyServices.Impl
                         requirementArray.Add(requirementInstance);
                     }
 
-                    _context..AddRange(requirementArray);
+                   _context.Re.AddRange(requirementArray);
                 }
 
                 if(deliverableDTO.Dependencies.Count() > 0)
@@ -1221,15 +1220,15 @@ namespace HaloBiz.MyServices.Impl
                         dependyArray.Add(dependencyInstance);
                     }
 
-                    await _context.PM.AddRange(dependyArray);
+                   // await _context..AddRange(dependyArray);
                 }
 
                 var updatedResult = await _context.Deliverables.Where(x => x.TaskId == TaskId && x.CreatedById == httpContext.GetLoggedInUserId()).ToListAsync();
 
                 return new ApiGenericResponse<List<Deliverable>>
                 {
-                    responseCode = 404,
-                    responseMessage = "Task with Id" + TaskId + "could not be found",
+                    responseCode = 200,
+                    responseMessage = "Deliverable successfully saved",
                     data = updatedResult,
                 };
             }
