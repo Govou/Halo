@@ -160,6 +160,17 @@ namespace HaloBiz.MyServices.Impl
             return new ApiOkResponse(TransferDTO);
         }
 
+        public async Task<ApiResponse> GetAllPairableBusinessRules()
+        {
+            var rule = await _businessRulesRepository.FindAllPairableRules();
+            if (rule == null)
+            {
+                return new ApiResponse(404);
+            }
+            var TransferDTO = _mapper.Map<IEnumerable<BusinessRuleTransferDTO>>(rule);
+            return new ApiOkResponse(TransferDTO);
+        }
+
         public async Task<ApiResponse> GetAllPairables()
         {
             var pairables = await _businessRulesRepository.FindAllPairables();

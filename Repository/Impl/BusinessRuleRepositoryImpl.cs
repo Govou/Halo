@@ -40,15 +40,25 @@ namespace HaloBiz.Repository.Impl
                                                         .ToListAsync();
         }
 
+        public async Task<IEnumerable<BusinessRule>> FindAllPairableRules()
+        {
+            return await _context.BusinessRules.Where(s => s.IsDeleted == false && s.IsPairingRequired == true)
+                                 .Include(s => s.ServiceRegistration).Include(s => s.ServiceRegistration.Service)
+                                 .Include(s => s.CreatedBy).Include(s => s.ServiceRegistration.Service.ServiceCategory)
+                                 .Include(s => s.ServiceRegistration.Service.Division).Include(s => s.ServiceRegistration.Service.ServiceGroup)
+                                 .Include(s => s.ServiceRegistration.Service.ServiceType)
+                                           .ToListAsync();
+        }
+
         public async Task<IEnumerable<BRPairable>> FindAllPairables()
         {
             return await _context.BRPairables.Where(s => s.IsDeleted == false)
                                              .Include(s => s.BusinessRule).Include(s => s.BusinessRule.ServiceRegistration)
                 .Include(s => s.BusinessRule.ServiceRegistration.Service)
                .Include(s => s.ServiceRegistration).Include(s => s.ServiceRegistration.Service)
-                                   .Include(s => s.CreatedBy).Include(s => s.ServiceRegistration.Service.ServiceCategory)
-                                   .Include(s => s.ServiceRegistration.Service.Division).Include(s => s.ServiceRegistration.Service.ServiceGroup)
-                                   .Include(s => s.ServiceRegistration.Service.ServiceType).Include(s => s.ServiceRegistration.Service.Target)
+                                   .Include(s => s.CreatedBy)
+                                   .Include(s => s.ServiceRegistration.Service.ServiceType)
+
                                    .Include(s=>s.CreatedBy)
                                                         .ToListAsync();
         }
@@ -59,7 +69,7 @@ namespace HaloBiz.Repository.Impl
                                     .Include(s => s.ServiceRegistration).Include(s=>s.ServiceRegistration.Service)
                                     .Include(s => s.CreatedBy).Include(s=>s.ServiceRegistration.Service.ServiceCategory)
                                     .Include(s=>s.ServiceRegistration.Service.Division).Include(s=>s.ServiceRegistration.Service.ServiceGroup)
-                                    .Include(s=>s.ServiceRegistration.Service.ServiceType).Include(s=>s.ServiceRegistration.Service.Target)
+                                    .Include(s=>s.ServiceRegistration.Service.ServiceType)
                                               .ToListAsync();
         }
 
@@ -69,8 +79,7 @@ namespace HaloBiz.Repository.Impl
                 .Include(s=>s.BusinessRule.ServiceRegistration.Service)
                .Include(s => s.ServiceRegistration).Include(s => s.ServiceRegistration.Service)
                                    .Include(s => s.CreatedBy).Include(s => s.ServiceRegistration.Service.ServiceCategory)
-                                   .Include(s => s.ServiceRegistration.Service.Division).Include(s => s.ServiceRegistration.Service.ServiceGroup)
-                                   .Include(s => s.ServiceRegistration.Service.ServiceType).Include(s => s.ServiceRegistration.Service.Target)
+                                 
                 .FirstOrDefaultAsync(ae => ae.Id == Id && ae.IsDeleted == false);
         }
 

@@ -31,6 +31,16 @@ namespace HaloBiz.Controllers
             return Ok(rule);
         }
 
+        [HttpGet("GetAllPairableRules")]
+        public async Task<ActionResult> GetAllPairableRules()
+        {
+            var response = await _businessRuleService.GetAllPairableBusinessRules();
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var rule = ((ApiOkResponse)response).Result;
+            return Ok(rule);
+        }
+
 
         [HttpGet("GetAllPairables")]
         public async Task<ActionResult> GetAllPairables()
