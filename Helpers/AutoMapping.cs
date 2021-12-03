@@ -339,7 +339,7 @@ namespace HaloBiz.Helpers
             CreateMap<PilotType, PilotTypeTransferDTO>(); //for type
             CreateMap<PilotRank, PilotRankTransferDTO>();
 
-            CreateMap<VehicleTypeReceivingDTO, VehicleType>(); //for type VehicleReceivingDTO
+            CreateMap<VehicleTypeReceivingDTO, VehicleType>(); //for type VehicleReceivingDTO  
             CreateMap<VehicleType, VehicleTypeTransferDTO>(); //
             CreateMap<VehicleReceivingDTO, Vehicle>();
             CreateMap<Vehicle, VehicleTransferDTO>();
@@ -362,6 +362,41 @@ namespace HaloBiz.Helpers
 
             CreateMap<BRPairableReceivingDTO, BRPairable>();
             CreateMap<BRPairable, BRPairableTransferDTO>();
+
+            CreateMap<BRPairableReceivingDTO[], BRPairable>();
+            CreateMap<BRPairable, BRPairableTransferDTO[]>();
+
+          
+
+            CreateMap<PriceRegisterReceivingDTO, PriceRegister>();
+            CreateMap<PriceRegister, PriceRegisterTransferDTO>();
+
+            CreateMap<RegServicesResourceTypesReceivingDTO.CommanderTypeRegReceivingDTO, CommanderResourceRequiredPerService>();
+            CreateMap<RegServicesResourceTypesReceivingDTO.PilotTypeRegReceivingDTO, PilotResourceRequiredPerService>();
+            CreateMap<RegServicesResourceTypesReceivingDTO.VehicleTypeRegReceivingDTO, VehicleResourceRequiredPerService>();
+            CreateMap<RegServicesResourceTypesReceivingDTO.AEscortTypeRegReceivingDTO, ArmedEscortResourceRequiredPerService>();
+
+            CreateMap<CommanderResourceRequiredPerService, CommanderResourceRequiredTransferDTO>();
+            CreateMap<PilotResourceRequiredPerService, PilotResourceRequiredTransferDTO>();
+            CreateMap<VehicleResourceRequiredPerService, VehicleResourceRequiredTransferDTO>();
+            CreateMap<ArmedEscortResourceRequiredPerService, ArmedEscortResourceRequiredTransferDTO>(); 
+
+            //CreateMap<CommanderResourceRequiredPerService, CommanderTypeRegTransferDTO>(); 
+            //CreateMap<PilotResourceRequiredPerService, PilotTypeRegTransferDTO>(); 
+            //CreateMap<VehicleResourceRequiredPerService, VehicleTypeRegTransferDTO>();
+            //CreateMap< ArmedEscortResourceRequiredPerService, ArmedEscortTypeRegReceivingDTO>();
+
+            CreateMap<ArmedEscortSMORoutesResourceTieReceivingDTO, ArmedEscortSMORoutesResourceTie>();
+            CreateMap<PilotSMORoutesResourceTieReceivingDTO, PilotSMORoutesResourceTie>();
+            CreateMap<VehicleSMORoutesResourceTieReceivingDTO, VehicleSMORoutesResourceTie>();
+
+            CreateMap<ArmedEscortSMORoutesResourceTie, ArmedEscortSMORoutesResourceTieTransferDTO>(); 
+            CreateMap<PilotSMORoutesResourceTie, PilotSMORoutesResourceTieTransferDTO>(); 
+            CreateMap<VehicleSMORoutesResourceTie, VehicleSMORoutesResourceTieTransferDTO>(); 
+            //CreateMap<CommanderTypeAndRankReceivingDTO[], CommanderType>(); 
+            //CreateMap<ArmedEscortTypeReceivingDTO[], ArmedEscortType>(); 
+            //CreateMap<VehicleTypeReceivingDTO[], VehicleType>(); 
+            //CreateMap<PilotTypeReceivingDTO[], PilotType>();
 
             //CreateMap<BusinessRuleReceivingDTO, BRPairable>();
             //CreateMap<BRPairable, BusinessRuleTransferDTO>();

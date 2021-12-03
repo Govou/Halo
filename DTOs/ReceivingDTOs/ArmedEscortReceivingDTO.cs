@@ -17,12 +17,13 @@ namespace HaloBiz.DTOs.ReceivingDTOs
         public string Caption { get; set; }
         [StringLength(1000)]
         public string Description { get; set; }
+        //public long ServiceRegistrationId { get; set; }
         //public long CreatedById { get; set; }
         //public bool IsDeleted { get; set; }
         //public DateTime CreatedAt { get; set; }
         //public DateTime UpdatedAt { get; set; }
-       
-       // public virtual UserProfile CreatedBy { get; set; }
+
+        // public virtual UserProfile CreatedBy { get; set; }
     }
     public class ArmedEscortRankReceivingDTO
     {

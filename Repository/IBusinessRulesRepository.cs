@@ -14,11 +14,34 @@ namespace HaloBiz.Repository
 
         Task<IEnumerable<BusinessRule>> FindAllRules();
 
+        Task<IEnumerable<BusinessRule>> FindAllPairableRules();
+
         BusinessRule GetRegServiceId(long regServiceId);
+
+
 
         Task<BusinessRule> UpdateRule(BusinessRule businessRule);
 
         Task<bool> DeleteRule(BusinessRule businessRule);
+
+        //BRPaiarble
+        Task<BRPairable> SavePairable(BRPairable bRPairable);
+
+        Task<List<BRPairable>> SaveRangePairable(List<BRPairable> bRPairable);
+
+        Task<BRPairable> FindPairableById(long Id);
+
+        Task<IEnumerable<BRPairable>> FindAllPairables();
+
+        BRPairable GetBusinessRileRegServiceId(long? regServiceId);
+
+        Task<IEnumerable<BRPairable>> FindAllActivePairables();
+
+        BRPairable GetBusinessAndRegServiceId(long? BusinessRuleId, long RegServiceId);
+
+        Task<BRPairable> UpdatePairable(BRPairable bRPairable);
+
+        Task<bool> DeletePairable(BRPairable bRPairable);
 
         bool requiresCommander(long? id);
         bool requiresVehicle(long? id);
