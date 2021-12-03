@@ -529,6 +529,136 @@ namespace HaloBiz.MyServices.Impl
         }
 
 
+        public async Task<ApiGenericResponse<TaskSummaryDTO>> updateTask(HttpContext httpContext, long TaskId, TaskDTO taskDTO)
+        {
+            var tasksfound = await _context.Tasks.FirstOrDefaultAsync(x => x.Id == TaskId && x.CreatedById == httpContext.GetLoggedInUserId() && x.IsActive == true);
+
+            if (tasksfound != null)
+            {
+                var taskFoundByCaption = await _context.Tasks.FirstOrDefaultAsync(x => x.Caption == taskDTO.Caption && x.IsActive == true);
+
+                if (taskDTO.Caption == tasksfound.Caption || taskFoundByCaption != null)
+                {
+                    if (taskDTO.Alias == null)
+                        taskDTO.Alias = tasksfound.Alias;
+
+
+                    if (taskDTO.TaskEndDate == DateTime.MinValue)
+                        taskDTO.TaskEndDate = tasksfound.TaskEndDate;
+                    if (taskDTO.TaskStartDate == DateTime.MinValue)
+                        taskDTO.TaskStartDate = tasksfound.TaskStartDate;
+                    if (taskDTO.WorkingManHours == 0)
+                        taskDTO.WorkingManHours = tasksfound.WorkingManHours;
+                    if (taskDTO.DueTime == DateTime.MinValue)
+                        taskDTO.DueTime = tasksfound.DueTime;
+
+                    if (taskDTO.Description == null)
+                        taskDTO.Description = tasksfound.Description;
+
+                    tasksfound.Alias = taskDTO.Alias;
+                    tasksfound.Description = taskDTO.Description;
+                    tasksfound.DueTime = taskDTO.DueTime;
+                    tasksfound.TaskEndDate = taskDTO.TaskEndDate;
+                    tasksfound.WorkingManHours = taskDTO.WorkingManHours;
+                    tasksfound.TaskStartDate = taskDTO.TaskStartDate; ;
+                    _context.Tasks.Update(tasksfound);
+                    await _context.SaveChangesAsync();
+                    var updatedTask = await _context.Tasks.FirstOrDefaultAsync(x => x.Id == TaskId && x.IsActive == true && x.CreatedById == httpContext.GetLoggedInUserId());
+                    var taskSummary = new TaskSummaryDTO();
+                    taskSummary.Alias = updatedTask.Alias;
+                    taskSummary.DueTime = updatedTask.DueTime;
+                    taskSummary.WorkingManHours = updatedTask.WorkingManHours;
+                    taskSummary.Caption = updatedTask.Caption;
+                    taskSummary.CreatedAt = updatedTask.CreatedAt;
+                    taskSummary.CreatedById = updatedTask.CreatedById;
+                    taskSummary.Description = updatedTask.Description;
+                    taskSummary.IsAssigned = updatedTask.IsAssigned;
+                    taskSummary.IsMilestone = updatedTask.IsMilestone;
+                    taskSummary.IsReassigned = updatedTask.IsReassigned;
+                    taskSummary.IsWorkbenched = updatedTask.IsWorkbenched;
+                    taskSummary.ProjectId = updatedTask.ProjectId;
+                    taskSummary.TaskEndDate = updatedTask.TaskEndDate;
+                    taskSummary.TaskStartDate = updatedTask.TaskStartDate;
+                    taskSummary.Project = await _context.Projects.FirstOrDefaultAsync(x => x.Id == updatedTask.ProjectId && x.IsActive == true && x.CreatedById == httpContext.GetLoggedInUserId());
+                    taskSummary.TaskAssignees = await _context.TaskAssignees.Where(X => X.TaskId == updatedTask.Id && X.IsActive == true && X.CreatedById == httpContext.GetLoggedInUserId()).ToListAsync();
+                    taskSummary.workspace = await _context.Workspaces.FirstOrDefaultAsync(x => x.Id == taskSummary.Project.WorkspaceId && x.IsActive == true && x.CreatedById == httpContext.GetLoggedInUserId());
+
+                    return new ApiGenericResponse<TaskSummaryDTO>
+                    {
+                        responseCode = 200,
+                        responseMessage = "The caption could not be updated because it already exist,but every other values provided where successfully updated.",
+                        data = taskSummary,
+                    };
+
+                }
+                else
+                {
+                    if (taskDTO.Caption == null)
+                        taskDTO.Caption = tasksfound.Caption;
+                    if (taskDTO.Alias == null)
+                        taskDTO.Alias = tasksfound.Alias;
+
+                    if (taskDTO.TaskEndDate == DateTime.MinValue)
+                        taskDTO.TaskEndDate = tasksfound.TaskEndDate;
+                    if (taskDTO.TaskStartDate == DateTime.MinValue)
+                        taskDTO.TaskStartDate = tasksfound.TaskStartDate;
+                    if (taskDTO.WorkingManHours == 0)
+                        taskDTO.WorkingManHours = tasksfound.WorkingManHours;
+                    if (taskDTO.DueTime == DateTime.MinValue)
+                        taskDTO.DueTime = tasksfound.DueTime;
+
+                    if (taskDTO.Description == null)
+                        taskDTO.Description = tasksfound.Description;
+                    tasksfound.Caption = taskDTO.Caption;
+                    tasksfound.Alias = taskDTO.Alias;
+                    tasksfound.Description = taskDTO.Description;
+                    tasksfound.DueTime = taskDTO.DueTime;
+                    tasksfound.TaskEndDate = taskDTO.TaskEndDate;
+                    tasksfound.WorkingManHours = taskDTO.WorkingManHours;
+                    tasksfound.TaskStartDate = taskDTO.TaskStartDate; 
+                    _context.Tasks.Update(tasksfound);
+                    await _context.SaveChangesAsync();
+                    var updatedTask = await _context.Tasks.FirstOrDefaultAsync(x => x.Id == TaskId && x.IsActive == true);
+                    var taskSummary = new TaskSummaryDTO();
+                    taskSummary.Alias = updatedTask.Alias;
+                    taskSummary.Caption = updatedTask.Caption;
+                    taskSummary.CreatedAt = updatedTask.CreatedAt;
+                    taskSummary.CreatedById = updatedTask.CreatedById;
+                    taskSummary.Description = updatedTask.Description;
+                    taskSummary.DueTime = updatedTask.DueTime;
+                    taskSummary.WorkingManHours = updatedTask.WorkingManHours;
+                    taskSummary.IsAssigned = updatedTask.IsAssigned;
+                    taskSummary.IsMilestone = updatedTask.IsMilestone;
+                    taskSummary.IsReassigned = updatedTask.IsReassigned;
+                    taskSummary.IsWorkbenched = updatedTask.IsWorkbenched;
+                    taskSummary.ProjectId = updatedTask.ProjectId;
+                    taskSummary.TaskEndDate = updatedTask.TaskEndDate;
+                    taskSummary.TaskStartDate = updatedTask.TaskStartDate;
+                    taskSummary.Project = await _context.Projects.FirstOrDefaultAsync(x => x.Id == updatedTask.ProjectId && x.IsActive == true && x.CreatedById == httpContext.GetLoggedInUserId());
+                    taskSummary.TaskAssignees = await _context.TaskAssignees.Where(X => X.TaskId == updatedTask.Id && X.IsActive == true && X.CreatedById == httpContext.GetLoggedInUserId()).ToListAsync();
+                    taskSummary.workspace = await _context.Workspaces.FirstOrDefaultAsync(x => x.Id == taskSummary.Project.WorkspaceId && x.IsActive == true && x.CreatedById == httpContext.GetLoggedInUserId());
+
+                    return new ApiGenericResponse<TaskSummaryDTO>
+                    {
+                        responseCode = 200,
+                        responseMessage = "Task was updated successfully",
+                        data = taskSummary,
+                    };
+                }
+
+            }
+            else
+            {
+                return new ApiGenericResponse<TaskSummaryDTO>
+                {
+                    responseCode = 404,
+                    responseMessage = "Task with Id " + TaskId + " does not exist",
+                    data = null
+                };
+            }
+        }
+
+
 
 
         public async Task<ApiResponse> addMorePrivateUser(HttpContext httpContext, long workspaceId, List<AddMoreUserDto> privateUserid)
@@ -773,7 +903,7 @@ namespace HaloBiz.MyServices.Impl
 
         }
 
-
+        
 
         public async Task<ApiResponse> createDefaultStatus(HttpContext httpContext, List<DefaultStatusDTO> defaultStatusFlows)
         {
@@ -1019,6 +1149,95 @@ namespace HaloBiz.MyServices.Impl
         }
 
 
+
+        public async Task<ApiGenericResponse<List<Deliverable>>> createNewDeliverable(HttpContext httpContext, long TaskId,DeliverableDTO deliverableDTO)
+
+        {
+
+            var getAvailableTask = await _context.Tasks.Where(x => x.IsActive == true && x.CreatedById == httpContext.GetLoggedInUserId() && x.Id == TaskId).ToListAsync();
+           
+            if (getAvailableTask == null)
+            {
+                return new ApiGenericResponse<List<Deliverable>>
+                {
+                    responseCode = 404,
+                    responseMessage = "Task with Id" + TaskId + "could not be found",
+                    data = null,
+                };
+            }
+
+            else
+            {
+               
+                var deliverableToBeSaved = new Deliverable();
+                deliverableToBeSaved.Caption = deliverableDTO.Caption;
+                deliverableToBeSaved.Alias = deliverableDTO.Alias;
+                deliverableToBeSaved.Description = deliverableDTO.Description;
+                deliverableToBeSaved.Budget = deliverableDTO.Budget;
+                deliverableToBeSaved.StartDate = deliverableDTO.StartDate;
+                deliverableToBeSaved.EndDate = deliverableDTO.EndDate;
+                deliverableToBeSaved.DatePicked = deliverableDTO.DatePicked;
+                deliverableToBeSaved.TimeEstimate = deliverableDTO.TimeEstimate;
+                deliverableToBeSaved.DependentType = deliverableDTO.DependentType;
+                deliverableToBeSaved.CreatedAt = DateTime.Now;
+                deliverableToBeSaved.CreatedById = httpContext.GetLoggedInUserId();
+                deliverableToBeSaved.TaskId = TaskId;
+
+                await _context.Deliverables.AddAsync(deliverableToBeSaved);
+                await _context.SaveChangesAsync();
+
+                if(deliverableDTO.Requirements.Count()>0)
+                {
+                    var requirementArray = new List<PMRequirement>();
+                    foreach (var item in deliverableDTO.Requirements)
+                    {
+                        var requirementInstance = new PMRequirement();
+                        requirementInstance.CreatedAt = DateTime.Now;
+                        requirementInstance.CreatedById = httpContext.GetLoggedInUserId();
+                        requirementInstance.DeliverableId = deliverableToBeSaved.Id;
+                        requirementInstance.IsActive = true;
+                        requirementInstance.IsDeleted = false;
+                        requirementInstance.Caption = item.Caption;
+                        requirementInstance.Alias = item.Alias;
+                        requirementInstance.Descrption = item.Descrption;
+                        requirementInstance.FileExtention = item.FileExtention;
+                        requirementArray.Add(requirementInstance);
+                    }
+
+                    _context..AddRange(requirementArray);
+                }
+
+                if(deliverableDTO.Dependencies.Count() > 0)
+                {
+                    var dependyArray = new List<Dependency>();
+                    foreach(var item in deliverableDTO.Dependencies)
+                    {
+                        var dependencyInstance = new Dependency();
+                        dependencyInstance.CreatedAt = DateTime.Now;
+                        dependencyInstance.CreatedById = httpContext.GetLoggedInUserId();
+                        dependencyInstance.DependencyDeliverableId = deliverableToBeSaved.Id;
+                        dependencyInstance.DependencyProfileId = item.DependencyProfileId;
+                        dependencyInstance.DeliverableDependentOnId = item.DeliverableDependentOnId;
+                        dependyArray.Add(dependencyInstance);
+                    }
+
+                    _context.Dependencies.AddRange(dependyArray);
+                }
+
+                var updatedResult = await _context.Deliverables.Where(x => x.TaskId == TaskId && x.CreatedById == httpContext.GetLoggedInUserId()).ToListAsync();
+
+                return new ApiGenericResponse<List<Deliverable>>
+                {
+                    responseCode = 404,
+                    responseMessage = "Task with Id" + TaskId + "could not be found",
+                    data = updatedResult,
+                };
+            }
+
+
+        }
+
+
         public async Task<ApiGenericResponse<List<TaskSummaryDTO>>> createNewTask(HttpContext context,long projectId ,TaskDTO taskDTO)
         {
             var taskSummaryList = new List<TaskSummaryDTO>();
@@ -1042,6 +1261,8 @@ namespace HaloBiz.MyServices.Impl
                     Description = taskDTO.Description,
                     IsAssigned = taskDTO.TaskAssignees.Count > 0 ? true : false,
                     IsReassigned = false,
+                    WorkingManHours = taskDTO.WorkingManHours,
+                    DueTime = taskDTO.DueTime,
                     IsMilestone = taskDTO.IsMilestone,
                     IsWorkbenched = taskDTO.IsWorkbenched,
                     ProjectId = projectId,
@@ -1193,6 +1414,7 @@ namespace HaloBiz.MyServices.Impl
                     projectInstance.Alias = item.Alias;
                     projectInstance.Caption = item.Caption;
                     projectInstance.CreatedById = item.CreatedById;
+                    projectInstance.Description = item.Description;
                     projectInstance.Id = item.Id;
                     projectInstance.IsActive = item.IsActive;
                     projectInstance.ProjectImage = item.ProjectImage;
@@ -1228,6 +1450,7 @@ namespace HaloBiz.MyServices.Impl
             else
             {
                 var taskSummary = new TaskSummaryDTO();
+                taskSummary.id = checkIfTaskExistByCaption.Id;
                 taskSummary.Alias = checkIfTaskExistByCaption.Alias;
                 taskSummary.Caption = checkIfTaskExistByCaption.Caption;
                 taskSummary.CreatedAt = checkIfTaskExistByCaption.CreatedAt;
@@ -1236,6 +1459,8 @@ namespace HaloBiz.MyServices.Impl
                 taskSummary.IsAssigned = checkIfTaskExistByCaption.IsAssigned;
                 taskSummary.IsMilestone = checkIfTaskExistByCaption.IsMilestone;
                 taskSummary.IsReassigned = checkIfTaskExistByCaption.IsReassigned;
+                taskSummary.DueTime = checkIfTaskExistByCaption.DueTime;
+                taskSummary.WorkingManHours = checkIfTaskExistByCaption.WorkingManHours;
                 taskSummary.IsWorkbenched = checkIfTaskExistByCaption.IsWorkbenched;
                 taskSummary.ProjectId = checkIfTaskExistByCaption.ProjectId;
                 taskSummary.TaskEndDate = checkIfTaskExistByCaption.TaskEndDate;
@@ -1269,12 +1494,15 @@ namespace HaloBiz.MyServices.Impl
             else
             {
                 var taskSummary = new TaskSummaryDTO();
+                taskSummary.id = checkIfTaskExistByCaption.Id;
                 taskSummary.Alias = checkIfTaskExistByCaption.Alias;
                 taskSummary.Caption = checkIfTaskExistByCaption.Caption;
                 taskSummary.CreatedAt = checkIfTaskExistByCaption.CreatedAt;
                 taskSummary.CreatedById = checkIfTaskExistByCaption.CreatedById;
                 taskSummary.Description = checkIfTaskExistByCaption.Description;
                 taskSummary.IsAssigned = checkIfTaskExistByCaption.IsAssigned;
+                taskSummary.DueTime = checkIfTaskExistByCaption.DueTime;
+                taskSummary.WorkingManHours = checkIfTaskExistByCaption.WorkingManHours;
                 taskSummary.IsMilestone = checkIfTaskExistByCaption.IsMilestone;
                 taskSummary.IsReassigned = checkIfTaskExistByCaption.IsReassigned;
                 taskSummary.IsWorkbenched = checkIfTaskExistByCaption.IsWorkbenched;
@@ -1313,20 +1541,25 @@ namespace HaloBiz.MyServices.Impl
                 foreach(var item in checkIfTaskExistById)
                 {
                     var taskSummary = new TaskSummaryDTO();
+                    taskSummary.id = item.Id;
                     taskSummary.Alias = item.Alias;
                     taskSummary.Caption = item.Caption;
                     taskSummary.CreatedAt = item.CreatedAt;
                     taskSummary.CreatedById = item.CreatedById;
                     taskSummary.Description = item.Description;
                     taskSummary.IsAssigned = item.IsAssigned;
+                    taskSummary.DueTime = item.DueTime;
+                    taskSummary.WorkingManHours = item.WorkingManHours;
                     taskSummary.IsMilestone = item.IsMilestone;
                     taskSummary.IsReassigned = item.IsReassigned;
                     taskSummary.IsWorkbenched = item.IsWorkbenched;
                     taskSummary.ProjectId = item.ProjectId;
                     taskSummary.TaskEndDate = item.TaskEndDate;
                     taskSummary.TaskStartDate = item.TaskStartDate;
+                  
                     taskSummary.Project = await _context.Projects.FirstOrDefaultAsync(x => x.Id == item.ProjectId && x.IsActive == true && x.CreatedById == httpContext.GetLoggedInUserId());
                     taskSummary.TaskAssignees = await _context.TaskAssignees.Where(X => X.TaskId == item.Id && X.IsActive == true && X.CreatedById == httpContext.GetLoggedInUserId()).ToListAsync();
+                    taskSummary.AssigneeLength = taskSummary.TaskAssignees.Count();
                     taskSummary.workspace = await _context.Workspaces.FirstOrDefaultAsync(x => x.Id == taskSummary.Project.WorkspaceId && x.IsActive == true && x.CreatedById == httpContext.GetLoggedInUserId());
 
                     taskSummaryList.Add(taskSummary);

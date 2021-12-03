@@ -13,6 +13,8 @@ namespace HaloBiz.DTOs.ProjectManagementDTO
         public List<Deliverable> Deliverables { get; set; }
         public bool IsReassigned { get; set; }
         public bool IsAssigned { get; set; }
+         public DateTime DueTime { get; set; }
+        public int WorkingManHours { get; set; }
         public DateTime CreatedAt { get; set; }
         public bool IsWorkbenched { get; set; }
         public string Caption { get; set; }

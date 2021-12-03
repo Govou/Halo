@@ -314,9 +314,9 @@ namespace HaloBiz.Controllers
 
         [HttpGet("GetAllProjectByWorkspaceId/{workspaceId}")]
 
-        public async Task<ActionResult> GetAllProjectByWorkspaceId(long worksppaceId)
+        public async Task<ActionResult> GetAllProjectByWorkspaceId(long workspaceId)
         {
-            var response = await _projectAllocationService.getProjectByWorkspaceId(HttpContext, worksppaceId);
+            var response = await _projectAllocationService.getProjectByWorkspaceId(HttpContext, workspaceId);
             return Ok(response);
         }
 
@@ -325,6 +325,13 @@ namespace HaloBiz.Controllers
         public async Task<ActionResult> GetTaskByTaskId(long taskId)
         {
             var response = await _projectAllocationService.getTaskById(HttpContext, taskId);
+            return Ok(response);
+        }
+
+        [HttpPut("UpdateTask/{taskId}")]
+        public async Task<ActionResult> UpdateTask(long taskId, TaskDTO taskDTO)
+        {
+            var response = await _projectAllocationService.updateTask(HttpContext, taskId, taskDTO);
             return Ok(response);
         }
 
@@ -343,6 +350,13 @@ namespace HaloBiz.Controllers
         public async Task<ActionResult> GetProjectByName(string caption)
         {
             var response = await _projectAllocationService.getProjectByProjectName(HttpContext,caption);
+            return Ok(response);
+        }
+
+        [HttpGet("CreateNewDeliverable/{taskId}")]
+        public async Task<ActionResult> createNewDeliverable(long taskId,DeliverableDTO deliverableDTO)
+        {
+            var response = await _projectAllocationService.createNewDeliverable(HttpContext, taskId,deliverableDTO);
             return Ok(response);
         }
 

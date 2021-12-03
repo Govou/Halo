@@ -73,5 +73,8 @@ namespace HaloBiz.MyServices
 
         Task<ApiGenericResponse<List<ProjectSummaryDTO>>> getProjectByWorkspaceId(HttpContext httpContext, long workspaceId);
 
+        Task<ApiGenericResponse<TaskSummaryDTO>> updateTask(HttpContext httpContext, long TaskId, TaskDTO taskDTO);
+        Task<ApiGenericResponse<List<Deliverable>>> createNewDeliverable(HttpContext httpContext, long TaskId, DeliverableDTO deliverableDTO);
+
     }
 }
