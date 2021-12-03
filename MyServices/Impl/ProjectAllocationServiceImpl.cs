@@ -1221,7 +1221,7 @@ namespace HaloBiz.MyServices.Impl
                         dependyArray.Add(dependencyInstance);
                     }
 
-                    _context.Dependencies.AddRange(dependyArray);
+                    await _context.PM.AddRange(dependyArray);
                 }
 
                 var updatedResult = await _context.Deliverables.Where(x => x.TaskId == TaskId && x.CreatedById == httpContext.GetLoggedInUserId()).ToListAsync();
