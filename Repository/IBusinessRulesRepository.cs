@@ -35,7 +35,7 @@ namespace HaloBiz.Repository
 
         Task<IEnumerable<BRPairable>> FindAllActivePairables();
 
-        //BRPairable GetPairableId(long regServiceId);
+        BRPairable GetBusinessAndRegServiceId(long? BusinessRuleId, long RegServiceId);
 
         Task<BRPairable> UpdatePairable(BRPairable bRPairable);
 

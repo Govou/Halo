@@ -53,6 +53,48 @@ namespace HaloBiz.MyServices.Impl
             return new ApiOkResponse(TransferDTO);
         }
 
+        public async Task<ApiResponse> AddUpAllTypes(HttpContext context, long id, AllApplicableTypesRegReceivingDTO allApplicableTypesRegReceivingDTO)
+        {
+            var pair = new ArmedEscortType();
+          
+            var PilotToUpdate = await _pilotRepository.FindPilotTypeById(id);
+            if (PilotToUpdate == null)
+            {
+                return new ApiResponse(404);
+            }
+            var CommanderToUpdate = await _commanderRepository.FindCommanderTypeById(id);
+            if (CommanderToUpdate == null)
+            {
+                return new ApiResponse(404);
+            }
+            var VehicleToUpdate = await _vehiclesRepository.FindVehicleTypeById(id);
+            if (CommanderToUpdate == null)
+            {
+                return new ApiResponse(404);
+            }
+
+            for (int i = 0; i < allApplicableTypesRegReceivingDTO.AEServiceRegistrationId.Length; i++)
+            {
+
+                var EscortToUpdate = await _armedEscortsRepository.FindArmedEscortTypeById(id);
+                if (EscortToUpdate == null)
+                {
+                    return new ApiResponse(404);
+                }
+                //pair.BusinessRuleId = bRPairableReceivingDTO.BusinessRuleId;
+                EscortToUpdate.ServiceRegistrationId = allApplicableTypesRegReceivingDTO.AEServiceRegistrationId[i];
+                EscortToUpdate.UpdatedAt = DateTime.UtcNow;
+
+                var updated = await _armedEscortsRepository.UpdateArmedEscortType(EscortToUpdate);
+                if (updated == null)
+                {
+                    return new ApiResponse(500);
+                }
+            }
+
+            return new ApiOkResponse(200);
+        }
+
         public async Task<ApiResponse> AddUpArmedEscortType(HttpContext context, long id, AEscortTypeRegReceivingDTO armedEscortTypeReceivingDTO)
         {
             //var summary = "";
@@ -76,11 +118,6 @@ namespace HaloBiz.MyServices.Impl
                     return new ApiResponse(500);
                 }
             }
-
-
-
-
-
 
             return new ApiOkResponse(200);
 
