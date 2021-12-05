@@ -81,19 +81,9 @@ namespace Controllers.Controllers
                 return StatusCode(response.StatusCode, response);
             var endorsements = ((ApiOkResponse)response).Result;
             return Ok(endorsements);
-        }
+        }       
 
         [HttpPost("")]
-        public async Task<ActionResult> PostEndorsement(ContractServiceForEndorsementReceivingDto dto)
-        {
-            var response = await _contractServiceForEndorsementService.AddNewContractServiceForEndorsement(HttpContext, dto);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var endorsements = ((ApiOkResponse)response).Result;
-            return Ok(endorsements);
-        }
-
-        [HttpPost("Retention")]
         public async Task<ActionResult> PostEndorsement(List<ContractServiceForEndorsementReceivingDto> dto)
         {
             var response = await _contractServiceForEndorsementService.AddNewRetentionContractServiceForEndorsement(HttpContext, dto);
