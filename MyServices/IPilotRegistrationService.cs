@@ -15,5 +15,11 @@ namespace HaloBiz.MyServices
         Task<ApiResponse> GetPilotById(long id);
         Task<ApiResponse> UpdatePilot(HttpContext context, long id, PilotProfileReceivingDTO pilotReceivingDTO);
         Task<ApiResponse> DeletePilot(long id);
+
+        //Tie
+        Task<ApiResponse> AddPilotTie(HttpContext context, PilotSMORoutesResourceTieReceivingDTO pilotReceivingTieDTO);
+        Task<ApiResponse> GetAllPilotTies();
+        Task<ApiResponse> GetPilotTieById(long id);
+        Task<ApiResponse> DeletePilotTie(long id);
     }
 }

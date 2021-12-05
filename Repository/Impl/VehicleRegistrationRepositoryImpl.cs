@@ -26,11 +26,26 @@ namespace HaloBiz.Repository.Impl
             return await SaveChanges();
         }
 
+        public async Task<bool> DeleteVehicleTie(VehicleSMORoutesResourceTie vehicleTie)
+        {
+            vehicleTie.IsDeleted = true;
+            _context.VehicleSMORoutesResourceTies.Update(vehicleTie);
+            return await SaveChanges();
+        }
+
         public async Task<IEnumerable<Vehicle>> FindAllVehicles()
         {
             return await _context.Vehicles.Where(r => r.IsDeleted == false)
                 .Include(s=>s.SupplierService).Include(t=>t.VehicleType)
                 .Include(office=>office.AttachedOffice).Include(br=>br.AttachedBranch)
+                                      .ToListAsync();
+        }
+
+        public async Task<IEnumerable<VehicleSMORoutesResourceTie>> FindAllVehicleTies()
+        {
+            return await _context.VehicleSMORoutesResourceTies.Where(r => r.IsDeleted == false)
+                .Include(s => s.Resource).Include(t => t.SMORoute)
+                .Include(r => r.SMORegion).Include(cr => cr.CreatedBy)
                                       .ToListAsync();
         }
 
@@ -47,9 +62,34 @@ namespace HaloBiz.Repository.Impl
                 .Where(v => v.SupplierServiceId == serviceId && v.IsDeleted == false).FirstOrDefault();
         }
 
+       
+
+        public async Task<VehicleSMORoutesResourceTie> FindVehicleTieById(long Id)
+        {
+            return await _context.VehicleSMORoutesResourceTies.Include(s => s.Resource).Include(t => t.SMORoute)
+                .Include(r => r.SMORegion).Include(cr => cr.CreatedBy)
+                .FirstOrDefaultAsync(v => v.Id == Id && v.IsDeleted == false);
+        }
+
+        public VehicleSMORoutesResourceTie GetResourceRegIdRegionAndRouteId(long regRessourceId, long RouteId, long RegionId)
+        {
+            return _context.VehicleSMORoutesResourceTies.Where
+               (ct => ct.ResourceId == regRessourceId && ct.SMORouteId == RouteId && ct.SMORegionId == RegionId && ct.IsDeleted == false).FirstOrDefault();
+        }
+
         public async Task<Vehicle> SaveVehicle(Vehicle vehicle)
         {
             var savedEntity = await _context.Vehicles.AddAsync(vehicle);
+            if (await SaveChanges())
+            {
+                return savedEntity.Entity;
+            }
+            return null;
+        }
+
+        public async Task<VehicleSMORoutesResourceTie> SaveVehicleTie(VehicleSMORoutesResourceTie vehicleTie)
+        {
+            var savedEntity = await _context.VehicleSMORoutesResourceTies.AddAsync(vehicleTie);
             if (await SaveChanges())
             {
                 return savedEntity.Entity;

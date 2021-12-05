@@ -324,6 +324,9 @@ namespace HaloBiz.Helpers
             CreateMap<SMORegionReceivingDTO, SMORegion>();
             CreateMap<SMORegion, SMORegionTransferDTO>();
 
+            CreateMap<SMORegion, SMORouteRegionTransferDTO>();
+            CreateMap<SMORoute, SMORouteRegionTransferDTO>();
+
             CreateMap<CommanderTypeAndRankReceivingDTO, CommanderType>(); //for type
             CreateMap<CommanderRankReceivingDTO, CommanderRank>();
             CreateMap<CommanderType, CommanderTypeAndRankTransferDTO>(); //for type

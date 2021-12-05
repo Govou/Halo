@@ -13,13 +13,13 @@ namespace HaloBiz.DTOs.ReceivingDTOs
         public double MarkupPercentage { get; set; }
 
         public decimal CostPrice { get; set; }
-        public long? ServiceRegistrationId { get; set; }
+        public long ServiceRegistrationId { get; set; }
 
 
-        public long? SMORouteId { get; set; }
+        public long SMORouteId { get; set; }
 
 
-        public long? SMORegionId { get; set; }
+        public long SMORegionId { get; set; }
 
     }
 

@@ -21,5 +21,17 @@ namespace HaloBiz.Repository
         //long FindAllCommanderRanksCount(string ctype);
         Task<CommanderProfile> UpdateCommander(CommanderProfile commanderProfile);
         Task<bool> DeleteCommander(CommanderProfile commanderProfile);
+
+        //Tie
+        //Task<CommanderProfile> SaveCommanderTie(CommanderProfile commanderProfile);
+
+        //Task<CommanderProfile> FindCommanderTieById(long Id);
+
+        //CommanderProfile FindCommanderUserProfileTieById(long Id);
+
+        //CommanderProfile GetResourceRegIdRegionAndRouteId(long regRessourceId, long RouteId, long RegionId);
+
+        //Task<IEnumerable<CommanderProfile>> FindAllCommanderTies();
+        //Task<bool> DeleteCommanderTie(CommanderProfile commanderProfile);
     }
 }

@@ -44,6 +44,34 @@ namespace HaloBiz.MyServices.Impl
             return new ApiOkResponse(TransferDTO);
         }
 
+        public async Task<ApiResponse> AddPilotTie(HttpContext context, PilotSMORoutesResourceTieReceivingDTO pilotReceivingTieDTO)
+        {
+            var pilot = new PilotSMORoutesResourceTie();
+
+            for (int i = 0; i < pilotReceivingTieDTO.SMORouteId.Length; i++)
+            {
+                pilot.Id = 0;
+                pilot.SMORegionId = pilotReceivingTieDTO.SMORegionId;
+                pilot.ResourceId = pilotReceivingTieDTO.ResourceId;
+                pilot.SMORouteId = pilotReceivingTieDTO.SMORouteId[i];
+                var IdExist = _pilotProfileRepository.GetResourceRegIdRegionAndRouteId(pilotReceivingTieDTO.ResourceId, pilotReceivingTieDTO.SMORouteId[i], pilotReceivingTieDTO.SMORegionId);
+                if (IdExist == null)
+                {
+                    pilot.CreatedById = context.GetLoggedInUserId();
+                    pilot.CreatedAt = DateTime.UtcNow;
+
+                    var savedType = await _pilotProfileRepository.SavePilotTie(pilot);
+                    if (savedType == null)
+                    {
+                        return new ApiResponse(500);
+                    }
+                    //return new ApiResponse(409);
+                }
+
+            }
+            return new ApiOkResponse("Record(s) Added");
+        }
+
         public async Task<ApiResponse> DeletePilot(long id)
         {
             var ToDelete = await _pilotProfileRepository.FindPilotById(id);
@@ -54,6 +82,23 @@ namespace HaloBiz.MyServices.Impl
             }
 
             if (!await _pilotProfileRepository.DeletePilot(ToDelete))
+            {
+                return new ApiResponse(500);
+            }
+
+            return new ApiOkResponse(true);
+        }
+
+        public async Task<ApiResponse> DeletePilotTie(long id)
+        {
+            var ToDelete = await _pilotProfileRepository.FindPilotTieById(id);
+
+            if (ToDelete == null)
+            {
+                return new ApiResponse(404);
+            }
+
+            if (!await _pilotProfileRepository.DeletePilotTie(ToDelete))
             {
                 return new ApiResponse(500);
             }
@@ -72,6 +117,17 @@ namespace HaloBiz.MyServices.Impl
             return new ApiOkResponse(TransferDTO);
         }
 
+        public async Task<ApiResponse> GetAllPilotTies()
+        {
+            var pilot = await _pilotProfileRepository.FindAllPilotTies();
+            if (pilot == null)
+            {
+                return new ApiResponse(404);
+            }
+            var TransferDTO = _mapper.Map<IEnumerable<PilotSMORoutesResourceTieTransferDTO>>(pilot);
+            return new ApiOkResponse(TransferDTO);
+        }
+
         public async Task<ApiResponse> GetPilotById(long id)
         {
             var pilot = await _pilotProfileRepository.FindPilotById(id);
@@ -80,6 +136,17 @@ namespace HaloBiz.MyServices.Impl
                 return new ApiResponse(404);
             }
             var TransferDTO = _mapper.Map<PilotProfileTransferDTO>(pilot);
+            return new ApiOkResponse(TransferDTO);
+        }
+
+        public async Task<ApiResponse> GetPilotTieById(long id)
+        {
+            var pilot = await _pilotProfileRepository.FindPilotTieById(id);
+            if (pilot == null)
+            {
+                return new ApiResponse(404);
+            }
+            var TransferDTO = _mapper.Map<PilotSMORoutesResourceTieTransferDTO>(pilot);
             return new ApiOkResponse(TransferDTO);
         }
 

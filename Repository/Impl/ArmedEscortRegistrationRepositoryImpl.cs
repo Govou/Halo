@@ -1,5 +1,6 @@
 ﻿using HalobizMigrations.Data;
 using HalobizMigrations.Models;
+using HalobizMigrations.Models.Armada;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using System;
@@ -26,12 +27,27 @@ namespace HaloBiz.Repository.Impl
             return await SaveChanges();
         }
 
+        public async Task<bool> DeleteArmedEscortTie(ArmedEscortSMORoutesResourceTie armedEscortTie)
+        {
+            armedEscortTie.IsDeleted = true;
+            _context.ArmedEscortSMORoutesResourceTies.Update(armedEscortTie);
+            return await SaveChanges();
+        }
+
         public async Task<IEnumerable<ArmedEscortProfile>> FindAllArmedEscorts()
         {
             return await _context.ArmedEscortProfiles.Where(ae => ae.IsDeleted == false)
                 .Include(ae=>ae.ArmedEscortType).Include(ae=>ae.Rank)
                 .Include(ae=>ae.SupplierService).Include(ae=>ae.ServiceAssignment)
                           .ToListAsync();
+        }
+
+        public async Task<IEnumerable<ArmedEscortSMORoutesResourceTie>> FindAllArmedEscortTies()
+        {
+            return await _context.ArmedEscortSMORoutesResourceTies.Where(ae => ae.IsDeleted == false)
+               .Include(ae => ae.SMORegion).Include(ae=>ae.CreatedBy)
+               .Include(ae => ae.SMORoute).Include(ae => ae.Resource)
+                         .ToListAsync();
         }
 
         public async Task<ArmedEscortProfile> FindArmedEscortById(long Id)
@@ -41,9 +57,32 @@ namespace HaloBiz.Repository.Impl
                 .FirstOrDefaultAsync(ae => ae.Id == Id && ae.IsDeleted == false);
         }
 
+        public async Task<ArmedEscortSMORoutesResourceTie> FindArmedEscortTieById(long Id)
+        {
+            return await _context.ArmedEscortSMORoutesResourceTies.Include(ae => ae.SMORegion).Include(ae => ae.CreatedBy)
+               .Include(ae => ae.SMORoute).Include(ae => ae.Resource)
+               .FirstOrDefaultAsync(ae => ae.Id == Id && ae.IsDeleted == false);
+        }
+
+        public ArmedEscortSMORoutesResourceTie GetServiceRegIdRegionAndRoute(long regRessourceId, long RouteId, long RegionId)
+        {
+            return _context.ArmedEscortSMORoutesResourceTies.Where
+                (ct => ct.ResourceId == regRessourceId && ct.SMORouteId == RouteId && ct.SMORegionId == RegionId && ct.IsDeleted == false).FirstOrDefault();
+        }
+
         public async Task<ArmedEscortProfile> SaveArmedEscort(ArmedEscortProfile armedEscortProfile)
         {
             var savedEntity = await _context.ArmedEscortProfiles.AddAsync(armedEscortProfile);
+            if (await SaveChanges())
+            {
+                return savedEntity.Entity;
+            }
+            return null;
+        }
+
+        public async Task<ArmedEscortSMORoutesResourceTie> SaveArmedEscortTie(ArmedEscortSMORoutesResourceTie armedEscortTie)
+        {
+            var savedEntity = await _context.ArmedEscortSMORoutesResourceTies.AddAsync(armedEscortTie);
             if (await SaveChanges())
             {
                 return savedEntity.Entity;
