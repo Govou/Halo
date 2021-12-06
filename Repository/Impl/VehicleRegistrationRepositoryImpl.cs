@@ -44,8 +44,8 @@ namespace HaloBiz.Repository.Impl
         public async Task<IEnumerable<VehicleSMORoutesResourceTie>> FindAllVehicleTies()
         {
             return await _context.VehicleSMORoutesResourceTies.Where(r => r.IsDeleted == false)
-                .Include(s => s.Resource).Include(t => t.SMORoute)
-                .Include(r => r.SMORegion).Include(cr => cr.CreatedBy)
+                .Include(s => s.Resource).Include(t => t.SMORoute).Include(s => s.Resource.VehicleType)
+                .Include(r => r.SMORegion).Include(cr => cr.CreatedBy).Include(r=>r.Resource.SupplierService)
                                       .ToListAsync();
         }
 
@@ -67,7 +67,7 @@ namespace HaloBiz.Repository.Impl
         public async Task<VehicleSMORoutesResourceTie> FindVehicleTieById(long Id)
         {
             return await _context.VehicleSMORoutesResourceTies.Include(s => s.Resource).Include(t => t.SMORoute)
-                .Include(r => r.SMORegion).Include(cr => cr.CreatedBy)
+                .Include(r => r.SMORegion).Include(cr => cr.CreatedBy).Include(s => s.Resource.VehicleType).Include(r => r.Resource.SupplierService)
                 .FirstOrDefaultAsync(v => v.Id == Id && v.IsDeleted == false);
         }
 

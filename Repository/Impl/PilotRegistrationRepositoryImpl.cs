@@ -43,7 +43,7 @@ namespace HaloBiz.Repository.Impl
         public async Task<IEnumerable<PilotSMORoutesResourceTie>> FindAllPilotTies()
         {
             return await _context.PilotSMORoutesResourceTies.Where(pi => pi.IsDeleted == false)
-               .Include(pi => pi.SMORegion).Include(pi => pi.SMORoute)
+               .Include(pi => pi.SMORegion).Include(pi => pi.SMORoute).Include(s => s.Resource.PilotType)
                .Include(pi => pi.Resource).Include(pi => pi.CreatedBy)
                                       .ToListAsync();
         }
@@ -56,7 +56,7 @@ namespace HaloBiz.Repository.Impl
 
         public async Task<PilotSMORoutesResourceTie> FindPilotTieById(long Id)
         {
-            return await _context.PilotSMORoutesResourceTies.Include(pi => pi.SMORegion).Include(pi => pi.SMORoute)
+            return await _context.PilotSMORoutesResourceTies.Include(pi => pi.SMORegion).Include(pi => pi.SMORoute).Include(s => s.Resource.PilotType)
                .Include(pi => pi.Resource).Include(pi => pi.CreatedBy).FirstOrDefaultAsync(aer => aer.Id == Id && aer.IsDeleted == false);
         }
 

@@ -46,7 +46,7 @@ namespace HaloBiz.Repository.Impl
         {
             return await _context.ArmedEscortSMORoutesResourceTies.Where(ae => ae.IsDeleted == false)
                .Include(ae => ae.SMORegion).Include(ae=>ae.CreatedBy)
-               .Include(ae => ae.SMORoute).Include(ae => ae.Resource)
+               .Include(ae => ae.SMORoute).Include(ae => ae.Resource).Include(s=>s.Resource.ArmedEscortType)
                          .ToListAsync();
         }
 
@@ -60,7 +60,7 @@ namespace HaloBiz.Repository.Impl
         public async Task<ArmedEscortSMORoutesResourceTie> FindArmedEscortTieById(long Id)
         {
             return await _context.ArmedEscortSMORoutesResourceTies.Include(ae => ae.SMORegion).Include(ae => ae.CreatedBy)
-               .Include(ae => ae.SMORoute).Include(ae => ae.Resource)
+               .Include(ae => ae.SMORoute).Include(ae => ae.Resource).Include(s => s.Resource.ArmedEscortType)
                .FirstOrDefaultAsync(ae => ae.Id == Id && ae.IsDeleted == false);
         }
 
