@@ -23,15 +23,15 @@ namespace HaloBiz.Repository
         Task<bool> DeleteCommander(CommanderProfile commanderProfile);
 
         //Tie
-        //Task<CommanderProfile> SaveCommanderTie(CommanderProfile commanderProfile);
+        Task<CommanderSMORoutesResourceTie> SaveCommanderTie(CommanderSMORoutesResourceTie commanderProfileTie);
 
-        //Task<CommanderProfile> FindCommanderTieById(long Id);
+        Task<CommanderSMORoutesResourceTie> FindCommanderTieById(long Id);
 
-        //CommanderProfile FindCommanderUserProfileTieById(long Id);
+        //CommanderSMORoutesResourceTie FindCommanderUserProfileTieById(long Id);
 
-        //CommanderProfile GetResourceRegIdRegionAndRouteId(long regRessourceId, long RouteId, long RegionId);
+        CommanderSMORoutesResourceTie GetResourceRegIdRegionAndRouteId(long regRessourceId, long RouteId, long RegionId);
 
-        //Task<IEnumerable<CommanderProfile>> FindAllCommanderTies();
-        //Task<bool> DeleteCommanderTie(CommanderProfile commanderProfile);
+        Task<IEnumerable<CommanderSMORoutesResourceTie>> FindAllCommanderTies();
+        Task<bool> DeleteCommanderTie(CommanderSMORoutesResourceTie commanderProfileTie);
     }
 }
