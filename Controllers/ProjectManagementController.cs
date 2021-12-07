@@ -353,7 +353,37 @@ namespace HaloBiz.Controllers
             return Ok(response);
         }
 
-        [HttpGet("CreateNewDeliverable/{taskId}")]
+        [HttpGet("GetAllDeliverable")]
+
+        public async Task<ActionResult> GetAllDeliverable()
+        {
+            var response = await _projectAllocationService.getAllDeliverables(HttpContext);
+            return Ok(response);
+        }
+
+        [HttpGet("GetDeliverableByTaskId/{taskId}")]
+        public async Task<ActionResult> GetDeliverableByTaskId(long taskId)
+        {
+            var response = await _projectAllocationService.getAllDeliverablesByTaskId(HttpContext, taskId);
+            return Ok(response);
+        }
+
+        [HttpGet("GetDeliverableById/{Id}")]
+        public async Task<ActionResult> GetDeliverableById(long Id)
+        {
+            var response = await _projectAllocationService.getDeliverablesById(HttpContext, Id);
+            return Ok(response);
+        }
+
+
+        [HttpGet("GetPrivacyAccessByWorkspaceId/{workspaceId}")]
+        public async Task<ActionResult> GetPrivacyAccessByWorkspaceId(long workspaceId)
+        {
+            var response = await _projectAllocationService.getAllPrivacyAccessByWorkspaceId(HttpContext, workspaceId);
+            return Ok(response);
+        }
+
+        [HttpPost("CreateNewDeliverable/{taskId}")]
         public async Task<ActionResult> createNewDeliverable(long taskId,DeliverableDTO deliverableDTO)
         {
             var response = await _projectAllocationService.createNewDeliverable(HttpContext, taskId,deliverableDTO);

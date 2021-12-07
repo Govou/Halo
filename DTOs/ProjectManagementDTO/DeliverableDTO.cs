@@ -14,7 +14,6 @@ namespace HaloBiz.DTOs.ProjectManagementDTO
         public long CreatedById { get; set; }
         public DependentType DependentType { get; set; }
         public ICollection<DependencyDTO> Dependencies { get; set; }
-
         public ICollection<RequirementsDTO> Requirements { get; set; }
         public DateTime CreatedAt { get; set; }
         public long TimeEstimate { get; set; }
