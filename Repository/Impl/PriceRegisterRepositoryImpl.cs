@@ -41,10 +41,15 @@ namespace HaloBiz.Repository.Impl
                 .FirstOrDefaultAsync(aer => aer.Id == Id && aer.IsDeleted == false);
         }
 
-        public PriceRegister GetServiceRegIdRegionAndRoute(long regServiceId, long RouteId, long RegionId)
+        //public PriceRegister GetServiceRegIdRegionAndRoute(long regServiceId, long RouteId, long RegionId)
+        //{
+        //    return _context.PriceRegisters.Where
+        //        (ct => ct.ServiceRegistrationId == regServiceId && ct.SMORouteId == RouteId && ct.SMORegionId == RegionId && ct.IsDeleted == false).FirstOrDefault();
+        //}
+        public PriceRegister GetServiceRegIdRegionAndRoute(long regServiceId, long RouteId)
         {
             return _context.PriceRegisters.Where
-                (ct => ct.ServiceRegistrationId == regServiceId && ct.SMORouteId == RouteId && ct.SMORegionId == RegionId && ct.IsDeleted == false).FirstOrDefault();
+                (ct => ct.ServiceRegistrationId == regServiceId && ct.SMORouteId == RouteId  && ct.IsDeleted == false).FirstOrDefault();
         }
 
         public async Task<PriceRegister> SavePriceRegister(PriceRegister priceRegister)

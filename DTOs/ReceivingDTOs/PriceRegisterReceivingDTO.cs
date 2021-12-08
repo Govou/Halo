@@ -19,7 +19,7 @@ namespace HaloBiz.DTOs.ReceivingDTOs
         public long SMORouteId { get; set; }
 
 
-        public long SMORegionId { get; set; }
+        //public long SMORegionId { get; set; }
 
     }
 

@@ -136,6 +136,7 @@ namespace HaloBiz.MyServices.Impl
 
             service.CreatedById = context.GetLoggedInUserId();
             service.CreatedAt = DateTime.UtcNow;
+            service.Description = "Not required";
             var savedType = await _serviceregRepository.SaveService(service);
             if (savedType == null)
             {
@@ -365,6 +366,7 @@ namespace HaloBiz.MyServices.Impl
             itemToUpdate.PilotQuantityRequired = serviceRegReceivingDTO.PilotQuantityRequired;
             itemToUpdate.CommanderQuantityRequired = serviceRegReceivingDTO.CommanderQuantityRequired;
             itemToUpdate.ArmedEscortQuantityRequired = serviceRegReceivingDTO.ArmedEscortQuantityRequired;
+            //itemToUpdate.Description = serviceRegReceivingDTO.Description;
           
             itemToUpdate.UpdatedAt = DateTime.UtcNow;
             //regionToUpdate.BranchId = regionReceivingDTO.BranchId;
