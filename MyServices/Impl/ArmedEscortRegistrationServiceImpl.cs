@@ -5,6 +5,7 @@ using HaloBiz.DTOs.TransferDTOs;
 using HaloBiz.Helpers;
 using HaloBiz.Repository;
 using HalobizMigrations.Models;
+using HalobizMigrations.Models.Armada;
 using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
@@ -40,6 +41,34 @@ namespace HaloBiz.MyServices.Impl
             return new ApiOkResponse(typeTransferDTO);
         }
 
+        public async Task<ApiResponse> AddArmedEscortTie(HttpContext context, ArmedEscortSMORoutesResourceTieReceivingDTO armedEscortTieReceivingDTO)
+        {
+            var escort = new ArmedEscortSMORoutesResourceTie();
+
+            for (int i = 0; i < armedEscortTieReceivingDTO.SMORouteId.Length; i++)
+            {
+                escort.Id = 0;
+                escort.SMORegionId = armedEscortTieReceivingDTO.SMORegionId;
+                escort.ResourceId = armedEscortTieReceivingDTO.ResourceId;
+                escort.SMORouteId = armedEscortTieReceivingDTO.SMORouteId[i];
+                var IdExist = _armedEscortsRepository.GetServiceRegIdRegionAndRoute(armedEscortTieReceivingDTO.ResourceId, armedEscortTieReceivingDTO.SMORouteId[i], armedEscortTieReceivingDTO.SMORegionId);
+                if (IdExist == null)
+                {
+                    escort.CreatedById = context.GetLoggedInUserId();
+                    escort.CreatedAt = DateTime.UtcNow;
+
+                    var savedType = await _armedEscortsRepository.SaveArmedEscortTie(escort);
+                    if (savedType == null)
+                    {
+                        return new ApiResponse(500);
+                    }
+                    //return new ApiResponse(409);
+                }
+
+            }
+            return new ApiOkResponse("Record(s) Added");
+        }
+
         public async Task<ApiResponse> DeleteArmedEscort(long id)
         {
             var itemToDelete = await _armedEscortsRepository.FindArmedEscortById(id);
@@ -50,6 +79,23 @@ namespace HaloBiz.MyServices.Impl
             }
 
             if (!await _armedEscortsRepository.DeleteArmedEscort(itemToDelete))
+            {
+                return new ApiResponse(500);
+            }
+
+            return new ApiOkResponse(true);
+        }
+
+        public async Task<ApiResponse> DeleteArmedEscortTie(long id)
+        {
+            var itemToDelete = await _armedEscortsRepository.FindArmedEscortTieById(id);
+
+            if (itemToDelete == null)
+            {
+                return new ApiResponse(404);
+            }
+
+            if (!await _armedEscortsRepository.DeleteArmedEscortTie(itemToDelete))
             {
                 return new ApiResponse(500);
             }
@@ -68,6 +114,17 @@ namespace HaloBiz.MyServices.Impl
             return new ApiOkResponse(rankTransferDTO);
         }
 
+        public async Task<ApiResponse> GetAllArmedEscortTies()
+        {
+            var armedescorts = await _armedEscortsRepository.FindAllArmedEscortTies();
+            if (armedescorts == null)
+            {
+                return new ApiResponse(404);
+            }
+            var rankTransferDTO = _mapper.Map<IEnumerable<ArmedEscortSMORoutesResourceTieTransferDTO>>(armedescorts);
+            return new ApiOkResponse(rankTransferDTO);
+        }
+
         public async Task<ApiResponse> GetArmedEscortById(long id)
         {
             var escort = await _armedEscortsRepository.FindArmedEscortById(id);
@@ -76,6 +133,17 @@ namespace HaloBiz.MyServices.Impl
                 return new ApiResponse(404);
             }
             var rankTransferDTO = _mapper.Map<ArmedEscortProfileTransferDTO>(escort);
+            return new ApiOkResponse(rankTransferDTO);
+        }
+
+        public async Task<ApiResponse> GetArmedEscortTieById(long id)
+        {
+            var escort = await _armedEscortsRepository.FindArmedEscortTieById(id);
+            if (escort == null)
+            {
+                return new ApiResponse(404);
+            }
+            var rankTransferDTO = _mapper.Map<ArmedEscortSMORoutesResourceTieTransferDTO>(escort);
             return new ApiOkResponse(rankTransferDTO);
         }
 

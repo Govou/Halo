@@ -27,7 +27,7 @@ namespace HaloBiz.DTOs.TransferDTOs
         public bool RequiresCommander { get; set; }
         public Service Service { get; set; }
         public long ServiceId { get; set; }
-       
+        public string Description { get; set; }
         public long Id { get; set; }
         public long PilotQuantityRequired { get; set; }
         public bool IsDeleted { get; set; }

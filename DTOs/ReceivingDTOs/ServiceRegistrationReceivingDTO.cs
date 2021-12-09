@@ -31,5 +31,6 @@ namespace HaloBiz.DTOs.ReceivingDTOs
         public long ServiceId { get; set; }
 
         public long PilotQuantityRequired { get; set; }
+        //public string Description { get; set; }
     }
 }

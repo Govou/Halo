@@ -324,6 +324,9 @@ namespace HaloBiz.Helpers
             CreateMap<SMORegionReceivingDTO, SMORegion>();
             CreateMap<SMORegion, SMORegionTransferDTO>();
 
+            CreateMap<SMORegion, SMORouteRegionTransferDTO>();
+            CreateMap<SMORoute, SMORouteRegionTransferDTO>();
+
             CreateMap<CommanderTypeAndRankReceivingDTO, CommanderType>(); //for type
             CreateMap<CommanderRankReceivingDTO, CommanderRank>();
             CreateMap<CommanderType, CommanderTypeAndRankTransferDTO>(); //for type
@@ -387,10 +390,12 @@ namespace HaloBiz.Helpers
             //CreateMap< ArmedEscortResourceRequiredPerService, ArmedEscortTypeRegReceivingDTO>();
 
             CreateMap<ArmedEscortSMORoutesResourceTieReceivingDTO, ArmedEscortSMORoutesResourceTie>();
+            CreateMap<CommanderSMORoutesResourceTieReceivingDTO, CommanderSMORoutesResourceTie>();
             CreateMap<PilotSMORoutesResourceTieReceivingDTO, PilotSMORoutesResourceTie>();
             CreateMap<VehicleSMORoutesResourceTieReceivingDTO, VehicleSMORoutesResourceTie>();
 
-            CreateMap<ArmedEscortSMORoutesResourceTie, ArmedEscortSMORoutesResourceTieTransferDTO>(); 
+            CreateMap<ArmedEscortSMORoutesResourceTie, ArmedEscortSMORoutesResourceTieTransferDTO>();
+            CreateMap<CommanderSMORoutesResourceTie, CommanderSMORoutesResourceTieTransferDTO>();
             CreateMap<PilotSMORoutesResourceTie, PilotSMORoutesResourceTieTransferDTO>(); 
             CreateMap<VehicleSMORoutesResourceTie, VehicleSMORoutesResourceTieTransferDTO>(); 
             //CreateMap<CommanderTypeAndRankReceivingDTO[], CommanderType>(); 

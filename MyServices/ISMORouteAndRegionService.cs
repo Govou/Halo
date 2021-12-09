@@ -20,6 +20,7 @@ namespace HaloBiz.MyServices
 
         Task<ApiResponse> GetAllSMORoutes();
 
+        //Task<ApiResponse> GetAllSMORouteAndRegions();
         Task<ApiResponse> GetAllSMORoutesWithReturnRoute();
         Task<ApiResponse> DeleteSMORoute(long id);
 

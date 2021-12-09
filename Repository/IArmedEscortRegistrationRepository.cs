@@ -1,4 +1,5 @@
 ﻿using HalobizMigrations.Models;
+using HalobizMigrations.Models.Armada;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,5 +20,18 @@ namespace HaloBiz.Repository
         Task<ArmedEscortProfile> UpdateArmedEscort(ArmedEscortProfile armedEscortProfile);
 
         Task<bool> DeleteArmedEscort(ArmedEscortProfile armedEscortProfile);
+
+        //Tie
+        Task<ArmedEscortSMORoutesResourceTie> SaveArmedEscortTie(ArmedEscortSMORoutesResourceTie armedEscortTie);
+
+        Task<ArmedEscortSMORoutesResourceTie> FindArmedEscortTieById(long Id);
+
+        Task<IEnumerable<ArmedEscortSMORoutesResourceTie>> FindAllArmedEscortTies();
+
+         ArmedEscortSMORoutesResourceTie GetServiceRegIdRegionAndRoute(long regRessourceId, long RouteId, long RegionId);
+
+        //Task<ArmedEscortProfile> UpdateArmedEscort(ArmedEscortProfile armedEscortProfile);
+
+        Task<bool> DeleteArmedEscortTie(ArmedEscortSMORoutesResourceTie armedEscortTie);
     }
 }

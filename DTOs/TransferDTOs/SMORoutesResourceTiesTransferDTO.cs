@@ -29,6 +29,18 @@ namespace HaloBiz.DTOs.TransferDTOs
     }
     public class CommanderSMORoutesResourceTieTransferDTO
     {
+        public long Id { get; set; }
+        public long? ResourceId { get; set; }
+        public CommanderProfile Resource { get; set; }
+        public long? SMORegionId { get; set; }
+        public SMORegion SMORegion { get; set; }
+        public long? SMORouteId { get; set; }
+        public SMORoute SMORoute { get; set; }
+        public long CreatedById { get; set; }
+        public UserProfile CreatedBy { get; set; }
+        public DateTime CreatedAt { get; set; }
+        public DateTime UpdatedAt { get; set; }
+        public bool IsDeleted { get; set; }
     }
     public class PilotSMORoutesResourceTieTransferDTO
     {
