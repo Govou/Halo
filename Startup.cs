@@ -89,6 +89,7 @@ namespace HaloBiz
             //services.AddSingleton(Configuration.GetSection("AppSettings").Get<AppSettings>());
 
             services.RegisterServiceLayerDi();
+            services.AddSingleton<JwtHelper>();
 
             services.AddAutoMapper(typeof(Startup));
             services.AddControllersWithViews()
@@ -163,6 +164,9 @@ namespace HaloBiz
             app.UseHttpsRedirection();
 
             app.UseRouting();
+
+            app.UseMiddleware<AuthenticationHandler>();
+
 
             app.UseAuthentication();
 

@@ -28,20 +28,55 @@ namespace HaloBiz.Controllers
         private readonly IUserProfileService userProfileService;
         private readonly IConfiguration _config;
         private readonly ILogger<AuthController> _logger;
+        private readonly JwtHelper _jwttHelper;
 
         public AuthController(
             IUserProfileService userProfileService,
             IConfiguration config,
+            JwtHelper jwtHelper,
             ILogger<AuthController> logger)
         {
             this._config = config;
             this.userProfileService = userProfileService;
             _logger = logger;
+            _jwttHelper = jwtHelper;
+        }
+
+        [AllowAnonymous]
+        [HttpPost("OtherLogin")]
+        public async Task<ActionResult> OtherLogin(LoginDTO login)
+        {
+            try
+            {
+                var response = await userProfileService.FindUserByEmail(login.Email);
+                if (response.StatusCode >= 400)
+                {
+                    _logger.LogWarning($"Could not find user [{login.Email}] => {response.Message}");
+                    return StatusCode(response.StatusCode, response);
+                }
+
+                if(login.Password != "12345")
+                {
+                    return StatusCode(400, "Username or password incorrect");
+                }
+
+                var user = ((ApiOkResponse)response).Result;
+                var userProfile = (UserProfileTransferDTO)user;
+
+                var jwtToken = _jwttHelper.GenerateToken(userProfile);
+                return Ok(new UserAuthTransferDTO { Token = jwtToken, UserProfile = userProfile });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.Message);
+                _logger.LogError(ex.StackTrace);
+                return StatusCode(500, $"An error occured => {ex.Message}");
+            }
         }
 
         [AllowAnonymous]
         [HttpPost("Login")]
-        public async Task<ActionResult> Login(LoginReceivingDTO loginReceiving)
+        public async Task<ActionResult> Login(GoogleLoginReceivingDTO loginReceiving)
         {
             try
             {
@@ -75,7 +110,7 @@ namespace HaloBiz.Controllers
                 var user = ((ApiOkResponse)response).Result;
                 var userProfile = (UserProfileTransferDTO)user;
 
-                var jwtToken = GenerateToken(userProfile);
+                var jwtToken = _jwttHelper.GenerateToken(userProfile);
                 return Ok(new UserAuthTransferDTO { Token = jwtToken, UserProfile = userProfile });
             }
             catch (Exception ex)
@@ -126,7 +161,7 @@ namespace HaloBiz.Controllers
                 var user = ((ApiOkResponse)response).Result;
                 var userProfile = (UserProfileTransferDTO)user;
 
-                var token = GenerateToken(userProfile);
+                var token = _jwttHelper.GenerateToken(userProfile);
                 UserAuthTransferDTO userAuthTransferDTO = new UserAuthTransferDTO()
                 {
                     Token = token,
@@ -142,33 +177,6 @@ namespace HaloBiz.Controllers
                 return StatusCode(500, $"An error occured => {ex.Message}");
             }
         }
-
-        private string GenerateToken(UserProfileTransferDTO userProfile)
-        {
-            List<Claim> claims = new List<Claim>()
-            {
-                new Claim(ClaimTypes.NameIdentifier, userProfile.Id.ToString()),
-                new Claim(ClaimTypes.Email, userProfile.Email),
-                new Claim(ClaimTypes.Role, userProfile.Role?.Name ?? string.Empty),
-                new Claim("RoleId", userProfile.RoleId.ToString())
-            };
-
-            var secret = _config["JWTSecretKey"] ?? _config.GetSection("AppSettings:JWTSecretKey").Value;
-
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secret));
-
-            var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha512Signature);
-
-            var tokenDescriptor = new SecurityTokenDescriptor
-            {
-                Subject = new ClaimsIdentity(claims),
-                Expires = DateTime.Now.AddDays(1),
-                SigningCredentials = credentials
-            };
-
-            var tokenHandler = new JwtSecurityTokenHandler();
-            var token = tokenHandler.CreateToken(tokenDescriptor);
-            return tokenHandler.WriteToken(token);
-        }
+       
     }
 }

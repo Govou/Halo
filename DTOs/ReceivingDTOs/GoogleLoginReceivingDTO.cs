@@ -1,6 +1,6 @@
 namespace HaloBiz.DTOs.ReceivingDTOs
 {
-    public class LoginReceivingDTO
+    public class GoogleLoginReceivingDTO
     {
         public string IdToken { get; set; }
     }
