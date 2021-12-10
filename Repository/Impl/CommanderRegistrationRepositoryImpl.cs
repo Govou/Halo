@@ -26,6 +26,13 @@ namespace HaloBiz.Repository.Impl
             return await SaveChanges();
         }
 
+        public async Task<bool> DeleteCommanderTie(CommanderSMORoutesResourceTie commanderProfileTie)
+        {
+            commanderProfileTie.IsDeleted = true;
+            _context.CommanderSMORoutesResourceTies.Update(commanderProfileTie);
+            return await SaveChanges();
+        }
+
         public async Task<IEnumerable<CommanderProfile>> FindAllCommanders()
         {
             return await _context.CommanderProfiles.Where(ct => ct.IsDeleted == false)
@@ -33,6 +40,16 @@ namespace HaloBiz.Repository.Impl
                 .Include(ct=>ct.AttachedOffice).Include(ct=>ct.Profile)
                 .Include(ct=>ct.Rank).Include(ct=>ct.CommanderType)
                            .ToListAsync();
+        }
+
+        public async Task<IEnumerable<CommanderSMORoutesResourceTie>> FindAllCommanderTies()
+        {
+            return await _context.CommanderSMORoutesResourceTies.Where(ct => ct.IsDeleted == false)
+               .Include(ct => ct.Resource)
+               .Include(ct => ct.Resource.AttachedBranch).Include(ct => ct.Resource.AttachedOffice)
+               .Include(ct => ct.SMORegion).Include(ct => ct.Resource.CommanderType).Include(s=>s.SMORoute)
+               .Include(s=>s.Resource.Profile)
+                          .ToListAsync();
         }
 
         public async Task<CommanderProfile> FindCommanderById(long Id)  
@@ -43,15 +60,44 @@ namespace HaloBiz.Repository.Impl
                            .FirstOrDefaultAsync(ct => ct.Id == Id && ct.IsDeleted == false);
         }
 
+        public async Task<CommanderSMORoutesResourceTie> FindCommanderTieById(long Id)
+        {
+            return await _context.CommanderSMORoutesResourceTies.Include(ct => ct.Resource)
+               .Include(ct => ct.Resource.AttachedBranch).Include(ct => ct.Resource.AttachedOffice).Include(s => s.Resource.Profile)
+               .Include(ct => ct.SMORegion).Include(ct => ct.Resource.CommanderType).Include(s => s.SMORoute)
+                          .FirstOrDefaultAsync(ct => ct.Id == Id && ct.IsDeleted == false);
+        }
+
         public CommanderProfile FindCommanderUserProfileById(long profileId)  //FindCommanderUserProfileById
         {
             return  _context.CommanderProfiles
                            .Where(ct => ct.ProfileId == profileId && ct.IsDeleted == false).FirstOrDefault();
         }
 
+        //public CommanderSMORoutesResourceTie FindCommanderUserProfileTieById(long Id)
+        //{
+        //    throw new NotImplementedException();
+        //}
+
+        public CommanderSMORoutesResourceTie GetResourceRegIdRegionAndRouteId(long regRessourceId, long RouteId, long RegionId)
+        {
+            return _context.CommanderSMORoutesResourceTies.Where
+               (ct => ct.ResourceId == regRessourceId && ct.SMORouteId == RouteId && ct.SMORegionId == RegionId && ct.IsDeleted == false).FirstOrDefault();
+        }
+
         public async Task<CommanderProfile> SaveCommander(CommanderProfile commanderProfile)
         {
             var savedEntity = await _context.CommanderProfiles.AddAsync(commanderProfile);
+            if (await SaveChanges())
+            {
+                return savedEntity.Entity;
+            }
+            return null;
+        }
+
+        public async Task<CommanderSMORoutesResourceTie> SaveCommanderTie(CommanderSMORoutesResourceTie commanderProfileTie)
+        {
+            var savedEntity = await _context.CommanderSMORoutesResourceTies.AddAsync(commanderProfileTie);
             if (await SaveChanges())
             {
                 return savedEntity.Entity;

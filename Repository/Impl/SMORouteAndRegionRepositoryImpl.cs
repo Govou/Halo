@@ -1,4 +1,5 @@
-﻿using HalobizMigrations.Data;
+﻿using HaloBiz.DTOs.TransferDTOs;
+using HalobizMigrations.Data;
 using HalobizMigrations.Models.Armada;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -99,6 +100,16 @@ namespace HaloBiz.Repository.Impl
                 .Include(r=>r.CreatedBy)
                 .ToListAsync();
         }
+
+        //public async Task<IEnumerable<SMORouteRegionTransferDTO>> FindAllSMORouteRegions()
+        //{
+        //    return new SMORouteRegionTransferDTO()
+        //    {
+        //        SMORoutes = await _context.SMORoutes.Where(x => x.IsDeleted == false).ToListAsync(),
+        //        SMORegions = await _context.SMORegions.Where(x => x.IsDeleted == false).ToListAsync()
+        //    };
+
+        //}
 
         public async Task<SMORegion> UpdateSMORegion(SMORegion sMORegion)
         {

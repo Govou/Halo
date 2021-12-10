@@ -27,11 +27,11 @@ namespace HaloBiz.MyServices.Impl
         public async Task<ApiResponse> AddPriceRegister(HttpContext context, PriceRegisterReceivingDTO priceRegisterReceivingDTO)
         {
             var priceReg = _mapper.Map<PriceRegister>(priceRegisterReceivingDTO);
-            //var NameExist = _armedEscortsRepository.GetTypename(armedEscortTypeReceivingDTO.Name);
-            //if (NameExist != null)
-            //{
-            //    return new ApiResponse(409);
-            //}
+            var NameExist = _priceRegisterRepository.GetServiceRegIdRegionAndRoute(priceRegisterReceivingDTO.ServiceRegistrationId, priceRegisterReceivingDTO.SMORouteId);
+            if (NameExist != null)
+            {
+                return new ApiResponse(409);
+            }
             priceReg.CreatedById = context.GetLoggedInUserId();
             //priceReg.MarkupPrice = 
             priceReg.CreatedAt = DateTime.UtcNow;

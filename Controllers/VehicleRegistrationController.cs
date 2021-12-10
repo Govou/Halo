@@ -31,6 +31,16 @@ namespace HaloBiz.Controllers
             return Ok(cType);
         }
 
+        [HttpGet("GetAllVehicleTies")]
+        public async Task<ActionResult> GetAllVehicleTies()
+        {
+            var response = await _vehicleService.GetAllVehicleTies();
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var cType = ((ApiOkResponse)response).Result;
+            return Ok(cType);
+        }
+
         [HttpGet("GetVehicleById/{id}")]
         public async Task<ActionResult> GetVehicleById(long id)
         {
@@ -41,10 +51,30 @@ namespace HaloBiz.Controllers
             return Ok(type);
         }
 
+        [HttpGet("GetVehicleTieById/{id}")]
+        public async Task<ActionResult> GetVehicleTieById(long id)
+        {
+            var response = await _vehicleService.GetVehicleTieById(id);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var type = ((ApiOkResponse)response).Result;
+            return Ok(type);
+        }
+
         [HttpPost("AddNewVehicle")]
         public async Task<ActionResult> AddNewVehicle(VehicleReceivingDTO ReceivingDTO)
         {
             var response = await _vehicleService.AddVehicle(HttpContext, ReceivingDTO);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var type = ((ApiOkResponse)response).Result;
+            return Ok(type);
+        }
+
+        [HttpPost("AddNewVehicleTie")]
+        public async Task<ActionResult> AddNewVehicleTie(VehicleSMORoutesResourceTieReceivingDTO ReceivingDTO)
+        {
+            var response = await _vehicleService.AddVehicleTie(HttpContext, ReceivingDTO);
             if (response.StatusCode >= 400)
                 return StatusCode(response.StatusCode, response);
             var type = ((ApiOkResponse)response).Result;
@@ -65,6 +95,12 @@ namespace HaloBiz.Controllers
         public async Task<ActionResult> DeleteVehicleById(int id)
         {
             var response = await _vehicleService.DeleteVehicle(id);
+            return StatusCode(response.StatusCode);
+        }
+        [HttpDelete("DeleteVehicleTieById/{id}")] //{id}
+        public async Task<ActionResult> DeleteVehicleTieById(int id)
+        {
+            var response = await _vehicleService.DeleteVehicleTie(id);
             return StatusCode(response.StatusCode);
         }
 

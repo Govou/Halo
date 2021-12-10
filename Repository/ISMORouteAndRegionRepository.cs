@@ -30,6 +30,8 @@ namespace HaloBiz.Repository
 
         Task<bool> DeleteSMORegion(SMORegion sMORegion);
 
+       
+
 
         //ReturnRoute
         Task<SMOReturnRoute> SaveSMOReturnRoute(SMOReturnRoute sMOReturnRoute);

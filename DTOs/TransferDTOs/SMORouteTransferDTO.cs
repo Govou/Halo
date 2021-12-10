@@ -55,4 +55,10 @@ namespace HaloBiz.DTOs.TransferDTOs
         public DateTime UpdatedAt { get; set; }
         public List<SMORoute> SMORoutes { get; set; }
     }
+
+    public class SMORouteRegionTransferDTO
+    {
+        public List<SMORoute> SMORoutes { get; set; }
+        public List<SMORegion> SMORegions { get; set; }
+    }
 }

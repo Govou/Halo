@@ -1,5 +1,6 @@
 ﻿using HaloBiz.DTOs.ApiDTOs;
 using HaloBiz.DTOs.ReceivingDTOs;
+using HaloBiz.DTOs.TransferDTOs;
 using HaloBiz.Helpers;
 using HaloBiz.MyServices;
 using HalobizMigrations.Data;
@@ -7,6 +8,7 @@ using HalobizMigrations.Data;
 using HalobizMigrations.Models.Armada;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -59,6 +61,21 @@ namespace HaloBiz.Controllers
             var items = ((ApiOkResponse)response).Result;
             return Ok(items);
         }
+
+        //[HttpGet("GetAllRouteRegions")]
+        //public async Task<ActionResult> GetAllRouteRegions()
+        //{
+        //    return new SMORouteRegionTransferDTO()
+        //    {
+        //       SMORoutes = _sMORoutesAndRegionServices.GetAllSMORoutes(),
+        //       SMORegions = _sMORoutesAndRegionServices.GetAllSMORegions()
+        //    };
+        //    //var response = await _sMORoutesAndRegionServices.GetAllSMORoutes();
+        //    //if (response.StatusCode >= 400)
+        //    //    return StatusCode(response.StatusCode, response);
+        //    //var items = ((ApiOkResponse)response).Result;
+        //    //return Ok(items);
+        //}
 
         [HttpGet("GetAllSMORoutesWithReturnRoute")]
         public async Task<ActionResult> GetAllSMORoutesWithReturnRoute()
