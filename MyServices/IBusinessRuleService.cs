@@ -12,6 +12,7 @@ namespace HaloBiz.MyServices
     {
         Task<ApiResponse> AddBusinessRule(HttpContext context, BusinessRuleReceivingDTO businessRuleReceivingDTO);
         Task<ApiResponse> GetAllBusinessRules();
+        Task<ApiResponse> GetAllPairableBusinessRules();
         Task<ApiResponse> GetBusinessRuleById(long id);
         Task<ApiResponse> UpdateBusinessRule(HttpContext context, long id, BusinessRuleReceivingDTO businessRuleReceivingDTO);
         Task<ApiResponse> DeleteBusinessRule(long id);

@@ -44,6 +44,34 @@ namespace HaloBiz.MyServices.Impl
             return new ApiOkResponse(typeTransferDTO);
         }
 
+        public async Task<ApiResponse> AddCommanderTie(HttpContext context, CommanderSMORoutesResourceTieReceivingDTO commanderReceivingDTO)
+        {
+            var commander = new CommanderSMORoutesResourceTie();
+
+            for (int i = 0; i < commanderReceivingDTO.SMORouteId.Length; i++)
+            {
+                commander.Id = 0;
+                commander.SMORegionId = commanderReceivingDTO.SMORegionId;
+                commander.ResourceId = commanderReceivingDTO.ResourceId;
+                commander.SMORouteId = commanderReceivingDTO.SMORouteId[i];
+                var IdExist = _commanderRepository.GetResourceRegIdRegionAndRouteId(commanderReceivingDTO.ResourceId, commanderReceivingDTO.SMORouteId[i], commanderReceivingDTO.SMORegionId);
+                if (IdExist == null)
+                {
+                    commander.CreatedById = context.GetLoggedInUserId();
+                    commander.CreatedAt = DateTime.UtcNow;
+
+                    var savedType = await _commanderRepository.SaveCommanderTie(commander);
+                    if (savedType == null)
+                    {
+                        return new ApiResponse(500);
+                    }
+                    //return new ApiResponse(409);
+                }
+
+            }
+            return new ApiOkResponse("Record(s) Added");
+        }
+
         public async Task<ApiResponse> DeleteCommander(long id)
         {
             var itemToDelete = await _commanderRepository.FindCommanderById(id);
@@ -54,6 +82,23 @@ namespace HaloBiz.MyServices.Impl
             }
 
             if (!await _commanderRepository.DeleteCommander(itemToDelete))
+            {
+                return new ApiResponse(500);
+            }
+
+            return new ApiOkResponse(true);
+        }
+
+        public async Task<ApiResponse> DeleteCommanderTie(long id)
+        {
+            var itemToDelete = await _commanderRepository.FindCommanderTieById(id);
+
+            if (itemToDelete == null)
+            {
+                return new ApiResponse(404);
+            }
+
+            if (!await _commanderRepository.DeleteCommanderTie(itemToDelete))
             {
                 return new ApiResponse(500);
             }
@@ -72,6 +117,17 @@ namespace HaloBiz.MyServices.Impl
             return new ApiOkResponse(TransferDTO);
         }
 
+        public async Task<ApiResponse> GetAllCommanderTies()
+        {
+            var commanders = await _commanderRepository.FindAllCommanderTies();
+            if (commanders == null)
+            {
+                return new ApiResponse(404);
+            }
+            var TransferDTO = _mapper.Map<IEnumerable<CommanderSMORoutesResourceTieTransferDTO>>(commanders);
+            return new ApiOkResponse(TransferDTO);
+        }
+
         public async Task<ApiResponse> GetCommanderById(long id)
         {
             var commander = await _commanderRepository.FindCommanderById(id);
@@ -80,6 +136,17 @@ namespace HaloBiz.MyServices.Impl
                 return new ApiResponse(404);
             }
             var TransferDTO = _mapper.Map<CommanderProfileTransferDTO>(commander);
+            return new ApiOkResponse(TransferDTO);
+        }
+
+        public async Task<ApiResponse> GetCommanderTieById(long id)
+        {
+            var commander = await _commanderRepository.FindCommanderTieById(id);
+            if (commander == null)
+            {
+                return new ApiResponse(404);
+            }
+            var TransferDTO = _mapper.Map<CommanderSMORoutesResourceTieTransferDTO>(commander);
             return new ApiOkResponse(TransferDTO);
         }
 
