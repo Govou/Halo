@@ -294,12 +294,35 @@ namespace HaloBiz.Controllers
             return Ok(response);
         }
 
+        [HttpGet("GetRequirementsByDeliverableId/{deliverableId}")]
+
+        public async Task<ActionResult> GetRequirementsByDeliverableId(long deliverableId)
+        {
+            var response = await _projectAllocationService.getRequirementsByDeliverableId(HttpContext, deliverableId);
+            return Ok(response);
+        }
+
+        [HttpGet("GetAssignedTask")]
+
+        public async Task<ActionResult> GetAssignedTask()
+        {
+            var response = await _projectAllocationService.getAssignedTask(HttpContext);
+            return Ok(response);
+        }
 
         [HttpGet("GetAllProjects")]
 
         public async Task<ActionResult> GetAllProjects()
         {
             var response = await _projectAllocationService.getAllProjects(HttpContext);
+            return Ok(response);
+        }
+
+        [HttpGet("GetAllWorkspaceForProjectCreator")]
+
+        public async Task<ActionResult> GetAllWorkspaceForProjectCreator()
+        {
+            var response = await _projectAllocationService.getWorkByProjectCreatorId(HttpContext);
             return Ok(response);
         }
 

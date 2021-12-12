@@ -16,5 +16,7 @@ namespace HaloBiz.DTOs.ProjectManagementDTO
         
         public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }
+        public string ProfileImage { get; set; }
+
     }
 }
