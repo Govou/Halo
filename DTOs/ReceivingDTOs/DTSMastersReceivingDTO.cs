@@ -11,15 +11,16 @@ namespace HaloBiz.DTOs.ReceivingDTOs
     public class ArmedEscortDTSMastersReceivingDTO
     {
         public string Caption  { get; set; }
-        public long ResourceId { get; set; }
+        public long? ArmedEscortResourceId { get; set; }
         public DateTime AvailabilityStart { get; set; }
         public DateTime AvailablilityEnd { get; set; }
+      
     }
 
     public class CommanderDTSMastersReceivingDTO
     {
         public string Caption { get; set; }
-        public long ResourceId { get; set; }
+        public long CommanderResourceId { get; set; }
         public DateTime AvailabilityStart { get; set; }
         public DateTime AvailablilityEnd { get; set; }
     }
@@ -27,7 +28,7 @@ namespace HaloBiz.DTOs.ReceivingDTOs
     public class PilotDTSMastersReceivingDTO
     {
         public string Caption { get; set; }
-        public long ResourceId { get; set; }
+        public long PilotResourceId { get; set; }
         public DateTime AvailabilityStart { get; set; }
         public DateTime AvailablilityEnd { get; set; }
     }
@@ -35,7 +36,7 @@ namespace HaloBiz.DTOs.ReceivingDTOs
     public class VehicleDTSMastersReceivingDTO
     {
         public string Caption { get; set; }
-        public long ResourceId { get; set; }
+        public long VehicleResourceId { get; set; }
         public DateTime AvailabilityStart { get; set; }
         public DateTime AvailablilityEnd { get; set; }
     }

@@ -253,7 +253,7 @@ namespace HaloBiz.MyServices.Impl
 
             itemToUpdate.AvailabilityStart = armedEscortReceivingDTO.AvailabilityStart;
             itemToUpdate.AvailablilityEnd = armedEscortReceivingDTO.AvailablilityEnd;
-            //itemToUpdate.ArmedEscortTypeId = armedEscortRankReceivingDTO.ArmedEscortTypeId;
+            itemToUpdate.Caption = armedEscortReceivingDTO.Caption;
             //itemToUpdate.RankName = armedEscortRankReceivingDTO.RankName;
             itemToUpdate.UpdatedAt = DateTime.UtcNow;
             var updateMaster = await _dTSMastersRepository.UpdateArmedEscortMaster(itemToUpdate);
@@ -281,7 +281,7 @@ namespace HaloBiz.MyServices.Impl
 
             itemToUpdate.AvailabilityStart = commanderReceivingDTO.AvailabilityStart;
             itemToUpdate.AvailablilityEnd = commanderReceivingDTO.AvailablilityEnd;
-            //itemToUpdate.ArmedEscortTypeId = armedEscortRankReceivingDTO.ArmedEscortTypeId;
+            itemToUpdate.Caption = commanderReceivingDTO.Caption;
             //itemToUpdate.RankName = armedEscortRankReceivingDTO.RankName;
             itemToUpdate.UpdatedAt = DateTime.UtcNow;
             var updateMaster = await _dTSMastersRepository.UpdateCommanderMaster(itemToUpdate);
@@ -293,18 +293,64 @@ namespace HaloBiz.MyServices.Impl
                 return new ApiResponse(500);
             }
 
-            var TransferDTOs = _mapper.Map<ArmedEscortDTSMastersTransferDTO>(updateMaster);
+            var TransferDTOs = _mapper.Map<CommanderDTSMastersTransferDTO>(updateMaster);
             return new ApiOkResponse(TransferDTOs);
         }
 
-        public Task<ApiResponse> UpdatePilotMaster(HttpContext context, long id, PilotDTSMastersReceivingDTO pilotReceivingDTO)
+        public async Task<ApiResponse> UpdatePilotMaster(HttpContext context, long id, PilotDTSMastersReceivingDTO pilotReceivingDTO)
         {
-            throw new NotImplementedException();
+            var itemToUpdate = await _dTSMastersRepository.FindPilotMasterById(id);
+            if (itemToUpdate == null)
+            {
+                return new ApiResponse(404);
+            }
+
+            var summary = $"Initial details before change, \n {itemToUpdate.ToString()} \n";
+
+            itemToUpdate.AvailabilityStart = pilotReceivingDTO.AvailabilityStart;
+            itemToUpdate.AvailablilityEnd = pilotReceivingDTO.AvailablilityEnd;
+            itemToUpdate.Caption = pilotReceivingDTO.Caption;
+            //itemToUpdate.RankName = armedEscortRankReceivingDTO.RankName;
+            itemToUpdate.UpdatedAt = DateTime.UtcNow;
+            var updateMaster = await _dTSMastersRepository.UpdatePilotMaster(itemToUpdate);
+
+            summary += $"Details after change, \n {updateMaster.ToString()} \n";
+
+            if (updateMaster == null)
+            {
+                return new ApiResponse(500);
+            }
+
+            var TransferDTOs = _mapper.Map<PilotDTSMastersTransferDTO>(updateMaster);
+            return new ApiOkResponse(TransferDTOs);
         }
 
-        public Task<ApiResponse> UpdateVehicleMaster(HttpContext context, long id, VehicleDTSMastersReceivingDTO vehicleReceivingDTO)
+        public async Task<ApiResponse> UpdateVehicleMaster(HttpContext context, long id, VehicleDTSMastersReceivingDTO vehicleReceivingDTO)
         {
-            throw new NotImplementedException();
+            var itemToUpdate = await _dTSMastersRepository.FindVehicleMasterById(id);
+            if (itemToUpdate == null)
+            {
+                return new ApiResponse(404);
+            }
+
+            var summary = $"Initial details before change, \n {itemToUpdate.ToString()} \n";
+
+            itemToUpdate.AvailabilityStart = vehicleReceivingDTO.AvailabilityStart;
+            itemToUpdate.AvailablilityEnd = vehicleReceivingDTO.AvailablilityEnd;
+            itemToUpdate.Caption = vehicleReceivingDTO.Caption;
+            //itemToUpdate.RankName = armedEscortRankReceivingDTO.RankName;
+            itemToUpdate.UpdatedAt = DateTime.UtcNow;
+            var updateMaster = await _dTSMastersRepository.UpdatevehicleMaster(itemToUpdate);
+
+            summary += $"Details after change, \n {updateMaster.ToString()} \n";
+
+            if (updateMaster == null)
+            {
+                return new ApiResponse(500);
+            }
+
+            var TransferDTOs = _mapper.Map<VehicleDTSMastersTransferDTO>(updateMaster);
+            return new ApiOkResponse(TransferDTOs);
         }
     }
 }
