@@ -179,6 +179,18 @@ namespace HaloBiz.MyServices.Impl
             return new ApiOkResponse(itemTransferDTO);
         }
 
+        //public async Task<ApiResponse> GetAllSMORouteAndRegions()
+        //{
+        //    var allItems = await _sMORouteAndRegionRepository.FindAllSMORegions();
+        //    var allItemsRoute = await _sMORouteAndRegionRepository.FindAllSMORoutes();
+        //    if (allItems == null && allItemsRoute == null)
+        //    {
+        //        return new ApiResponse(404);
+        //    }
+        //    var itemTransferDTO = _mapper.Map<IEnumerable<SMORouteRegionTransferDTO>>(allItems, allItemsRoute);
+        //    return new ApiOkResponse(itemTransferDTO);
+        //}
+
         public async Task<ApiResponse> GetAllSMORoutes()
         {
             var allItems = await _sMORouteAndRegionRepository.FindAllSMORoutes();

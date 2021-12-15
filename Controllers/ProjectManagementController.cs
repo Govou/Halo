@@ -326,6 +326,14 @@ namespace HaloBiz.Controllers
             return Ok(response);
         }
 
+        [HttpGet("GetAllPickedTask")]
+
+        public async Task<ActionResult> GetAllPickedTask()
+        {
+            var response = await _projectAllocationService.getAllPickedTask(HttpContext);
+            return Ok(response);
+        }
+
         [HttpGet("GetAllTaskByProjectId/{projectId}")]
 
         public async Task<ActionResult> GetAllTaskByProjectId(long projectId)
@@ -358,6 +366,19 @@ namespace HaloBiz.Controllers
             return Ok(response);
         }
 
+        [HttpPut("PickUpTask/{taskId}")]
+        public async Task<ActionResult> PickUpTask(long taskId)
+        {
+            var response = await _projectAllocationService.pickUptask(taskId,HttpContext);
+            return Ok(response);
+        }
+
+        [HttpPut("DropTask/{taskId}/{taskOwnershipId}")]
+        public async Task<ActionResult> DropTask(long taskId, long taskOwnershipId)
+        {
+            var response = await _projectAllocationService.dropTask(taskId,taskOwnershipId, HttpContext);
+            return Ok(response);
+        }
 
 
         [HttpGet("GetAllTask")]

@@ -34,7 +34,7 @@ namespace HaloBiz.MyServices.Impl
             }
 
             vehicle.CreatedById = context.GetLoggedInUserId();
-            vehicle.IsDeleted = false;
+            //vehicle.IsDeleted = false;
             vehicle.CreatedAt = DateTime.UtcNow;
             var savedRank = await _vehiclesRepository.SaveVehicle(vehicle);
             if (savedRank == null)
@@ -43,6 +43,34 @@ namespace HaloBiz.MyServices.Impl
             }
             var typeTransferDTO = _mapper.Map<VehicleTransferDTO>(vehicle);
             return new ApiOkResponse(typeTransferDTO);
+        }
+
+        public async Task<ApiResponse> AddVehicleTie(HttpContext context, VehicleSMORoutesResourceTieReceivingDTO vehicleTieReceivingDTO)
+        {
+            var vehicle = new VehicleSMORoutesResourceTie();
+
+            for (int i = 0; i < vehicleTieReceivingDTO.SMORouteId.Length; i++)
+            {
+                vehicle.Id = 0;
+                vehicle.SMORegionId = vehicleTieReceivingDTO.SMORegionId;
+                vehicle.ResourceId = vehicleTieReceivingDTO.ResourceId;
+                vehicle.SMORouteId = vehicleTieReceivingDTO.SMORouteId[i];
+                var IdExist = _vehiclesRepository.GetResourceRegIdRegionAndRouteId(vehicleTieReceivingDTO.ResourceId, vehicleTieReceivingDTO.SMORouteId[i], vehicleTieReceivingDTO.SMORegionId);
+                if (IdExist == null)
+                {
+                    vehicle.CreatedById = context.GetLoggedInUserId();
+                    vehicle.CreatedAt = DateTime.UtcNow;
+
+                    var savedType = await _vehiclesRepository.SaveVehicleTie(vehicle);
+                    if (savedType == null)
+                    {
+                        return new ApiResponse(500);
+                    }
+                    //return new ApiResponse(409);
+                }
+
+            }
+            return new ApiOkResponse("Record(s) Added");
         }
 
         public async Task<ApiResponse> DeleteVehicle(long id)
@@ -62,6 +90,23 @@ namespace HaloBiz.MyServices.Impl
             return new ApiOkResponse(true);
         }
 
+        public async Task<ApiResponse> DeleteVehicleTie(long id)
+        {
+            var typeToDelete = await _vehiclesRepository.FindVehicleTieById(id);
+
+            if (typeToDelete == null)
+            {
+                return new ApiResponse(404);
+            }
+
+            if (!await _vehiclesRepository.DeleteVehicleTie(typeToDelete))
+            {
+                return new ApiResponse(500);
+            }
+
+            return new ApiOkResponse(true);
+        }
+
         public async Task<ApiResponse> GetAllVehicles()
         {
             var vehicles = await _vehiclesRepository.FindAllVehicles();
@@ -73,6 +118,17 @@ namespace HaloBiz.MyServices.Impl
             return new ApiOkResponse(TransferDTO);
         }
 
+        public async Task<ApiResponse> GetAllVehicleTies()
+        {
+            var vehicles = await _vehiclesRepository.FindAllVehicleTies();
+            if (vehicles == null)
+            {
+                return new ApiResponse(404);
+            }
+            var TransferDTO = _mapper.Map<IEnumerable<VehicleSMORoutesResourceTieTransferDTO>>(vehicles);
+            return new ApiOkResponse(TransferDTO);
+        }
+
         public async Task<ApiResponse> GetVehicleById(long id)
         {
             var vehicle = await _vehiclesRepository.FindVehicleById(id);
@@ -81,6 +137,17 @@ namespace HaloBiz.MyServices.Impl
                 return new ApiResponse(404);
             }
             var TransferDTO = _mapper.Map<VehicleTransferDTO>(vehicle);
+            return new ApiOkResponse(TransferDTO);
+        }
+
+        public async Task<ApiResponse> GetVehicleTieById(long id)
+        {
+            var vehicle = await _vehiclesRepository.FindVehicleTieById(id);
+            if (vehicle == null)
+            {
+                return new ApiResponse(404);
+            }
+            var TransferDTO = _mapper.Map<VehicleSMORoutesResourceTieTransferDTO>(vehicle);
             return new ApiOkResponse(TransferDTO);
         }
 

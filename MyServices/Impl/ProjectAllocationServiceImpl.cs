@@ -1180,7 +1180,7 @@ namespace HaloBiz.MyServices.Impl
 
             var getAllDeliverables = await _context.Deliverables.Where(x => x.IsActive == true && x.TaskId == taskId && x.CreatedById == httpContext.GetLoggedInUserId()).ToListAsync();
 
-            if (getAllDeliverables == null)
+            if (getAllDeliverables == null || getAllDeliverables.Count() == 0)
             {
                 return new ApiGenericResponse<List<Deliverable>>
                 {
@@ -1216,7 +1216,6 @@ namespace HaloBiz.MyServices.Impl
                     deliverableToDisplayInstance.Pictures = await _context.Pictures.Where(x => x.DeliverableId == item.Id && x.CreatedById == httpContext.GetLoggedInUserId()).ToListAsync();
                     deliverableToDisplayInstance.IsActive = item.IsActive;
                     deliverableToDisplayInstance.Documents = await _context.Documents.Where(x => x.DeliverableId == item.Id && x.CreatedById == httpContext.GetLoggedInUserId()).ToListAsync();
-
 
                     deliverableToDisplayArray.Add(deliverableToDisplayInstance);
                 }
@@ -1807,6 +1806,166 @@ namespace HaloBiz.MyServices.Impl
         //}
 
 
+        public async Task<ApiGenericResponse<List<Task>>> pickUptask(long taskId,HttpContext httpContext)
+        {
+            var taskToBePicked = await _context.Tasks.FirstOrDefaultAsync(x => x.IsActive == true && x.Id == taskId);
+            if (taskToBePicked == null)
+            {
+                return new ApiGenericResponse<List<Task>>
+                {
+                    responseCode = 404,
+                    responseMessage = "No Assignee details  was found",
+                    data = null,
+                };
+
+            }
+            else
+            {
+
+                var taskOwner = new TaskOwnership()
+                {
+                    TimePicked = DateTime.Now,
+                    TaskOwnerId = httpContext.GetLoggedInUserId(),
+                    CreatedAt = DateTime.Now,
+                    DatePicked = DateTime.Now,
+                    CreatedById = httpContext.GetLoggedInUserId(),
+                    IsDeleted = false,
+                };
+
+                await _context.TaskOwnerships.AddAsync(taskOwner);
+                await _context.SaveChangesAsync();
+
+                taskToBePicked.IsPickedUp = true;
+                taskToBePicked.TaskOwnershipId = taskOwner.Id;
+                _context.Tasks.Update(taskToBePicked);
+                await _context.SaveChangesAsync();
+
+                var getUpdatedTaskownerShip = await _context.TaskOwnerships.Where(x => x.IsDeleted == false && x.TaskOwnerId == httpContext.GetLoggedInUserId()).ToListAsync();
+
+                var taskArray = new List<Task>();
+                if (getUpdatedTaskownerShip != null || getUpdatedTaskownerShip.Count() > 0)
+                {
+                    
+                    foreach (var item in getUpdatedTaskownerShip)
+                    {
+
+                        var taskGotten = await _context.Tasks.Where(x => x.IsActive == true && x.TaskOwnershipId == item.Id).ToListAsync();
+
+                        taskArray.AddRange(taskGotten);
+
+                    }
+
+                }
+
+                return new ApiGenericResponse<List<Task>>
+                {
+                    responseCode = 200,
+                    responseMessage = " TaskOwner details  was found",
+                    data = taskArray,
+                };
+
+            }
+
+        }
+
+        public async Task<ApiGenericResponse<List<Task>>> getAllPickedTask(HttpContext httpContext)
+        {
+            var getUpdatedTaskownerShip = await _context.TaskOwnerships.Where(x => x.IsDeleted == false && x.TaskOwnerId == httpContext.GetLoggedInUserId()).ToListAsync();
+
+            if (getUpdatedTaskownerShip == null || getUpdatedTaskownerShip.Count() == 0)
+            {
+                return new ApiGenericResponse<List<Task>>
+                {
+                    responseCode = 404,
+                    responseMessage = "No Assignee details  was found",
+                    data = null,
+                };
+
+            }
+            else
+            {
+
+                   var taskArray = new List<Task>();
+                   foreach (var item in getUpdatedTaskownerShip)
+                    {
+                        
+                        var taskGotten = await _context.Tasks.Where(x => x.IsActive == true && x.TaskOwnershipId == item.Id).ToListAsync();
+
+                        taskArray.AddRange(taskGotten);
+
+                    }
+
+                
+
+                return new ApiGenericResponse<List<Task>>
+                {
+                    responseCode = 200,
+                    responseMessage = " TaskOwner details  was found",
+                    data = taskArray,
+                };
+
+            }
+
+        }
+
+        
+
+        public async Task<ApiGenericResponse<List<Task>>> dropTask(long taskId,long taskOwnershipId, HttpContext httpContext)
+        {
+            var taskToBePicked = await _context.Tasks.FirstOrDefaultAsync(x => x.IsActive == true && x.Id == taskId);
+            var taskOwnerShip = await _context.TaskOwnerships.FirstOrDefaultAsync(x => x.IsDeleted == false && x.Id == taskOwnershipId && x.TaskOwnerId == httpContext.GetLoggedInUserId());
+            if (taskToBePicked == null || taskOwnerShip == null)
+            {
+                return new ApiGenericResponse<List<Task>>
+                {
+                    responseCode = 404,
+                    responseMessage = "No Assignee details  was found",
+                    data = null,
+                };
+
+            }
+            else
+            {
+
+                taskToBePicked.IsPickedUp = false;
+                _context.Tasks.Update(taskToBePicked);
+                taskOwnerShip.IsDeleted = true;
+                //taskOwnerShip.TaskOwnerId = 0;
+                
+                 _context.TaskOwnerships.Update(taskOwnerShip);
+                await _context.SaveChangesAsync();
+
+                var getUpdatedTaskownerShip = await _context.TaskOwnerships.Where(x => x.IsDeleted == false && x.TaskOwnerId == httpContext.GetLoggedInUserId()).ToListAsync();
+
+                var taskArray = new List<Task>();
+                if (getUpdatedTaskownerShip != null || getUpdatedTaskownerShip.Count() > 0)
+                {
+                    
+                    foreach (var item in getUpdatedTaskownerShip)
+                    {
+
+                        var taskGotten = await _context.Tasks.Where(x => x.IsActive == true && x.TaskOwnershipId == item.Id).ToListAsync();
+
+                        taskArray.AddRange(taskGotten);
+
+                    }
+
+
+                }
+
+                return new ApiGenericResponse<List<Task>>
+                {
+                    responseCode = 200,
+                    responseMessage = " TaskOwner details  was found",
+                    data = taskArray,
+                };
+
+            }
+
+
+        }
+
+
 
         public async Task<ApiGenericResponse<List<TaskRevampDTO>>> getAssignedTask(HttpContext httpContext)
         {
@@ -1832,6 +1991,7 @@ namespace HaloBiz.MyServices.Impl
                     {
                         var taskAssigneeInstance = new TaskRevampDTO();
                         taskAssigneeInstance.Alias = getTaskAssigned.Alias;
+                        taskAssigneeInstance.Id = getTaskAssigned.Id;
                         taskAssigneeInstance.Caption = getTaskAssigned.Caption;
                         taskAssigneeInstance.CreatedAt = getTaskAssigned.CreatedAt;
                         taskAssigneeInstance.CreatedById = getTaskAssigned.CreatedById;
@@ -1842,6 +2002,7 @@ namespace HaloBiz.MyServices.Impl
                         taskAssigneeInstance.IsMilestone = getTaskAssigned.IsReassigned;
                         taskAssigneeInstance.IsReassigned = getTaskAssigned.IsReassigned;
                         taskAssigneeInstance.IsWorkbenched = getTaskAssigned.IsWorkbenched;
+                        taskAssigneeInstance.IsPickedUp = getTaskAssigned.IsPickedUp;
                         taskAssigneeInstance.project = await _context.Projects.FirstOrDefaultAsync(x => x.IsActive == true && x.Id == getTaskAssigned.ProjectId);
                         taskAssigneeInstance.ProjectId = getTaskAssigned.ProjectId;
                         taskAssigneeInstance.TaskAssignees = await getAssignees(getTaskAssigned.Id, httpContext);
@@ -1849,7 +2010,6 @@ namespace HaloBiz.MyServices.Impl
                         taskAssigneeInstance.TaskStartDate = getTaskAssigned.TaskStartDate;
                         taskAssigneeInstance.UpdatedAt = getTaskAssigned.UpdatedAt;
                         taskAssigneeInstance.WorkingManHours = getTaskAssigned.WorkingManHours;
-
                         taskArray.Add(taskAssigneeInstance);
                     }
 

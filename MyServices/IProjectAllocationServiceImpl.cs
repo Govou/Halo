@@ -86,5 +86,8 @@ namespace HaloBiz.MyServices
         Task<ApiGenericResponse<List<PMRequirement>>> getRequirementsByDeliverableId(HttpContext httpContext, long deliverableId);
         Task<ApiGenericResponse<List<TaskRevampDTO>>> getAssignedTask(HttpContext httpContext);
         Task<ApiGenericResponse<List<WorkspaceDTO>>> getAllProjectCreatorsWorkspace(HttpContext httpContext);
+        Task<ApiGenericResponse<List<Task>>> pickUptask(long taskId, HttpContext httpContext);
+        Task<ApiGenericResponse<List<Task>>> dropTask(long taskId, long taskOwnershipId, HttpContext httpContext);
+        Task<ApiGenericResponse<List<Task>>> getAllPickedTask(HttpContext httpContext);
     }
 }

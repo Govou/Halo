@@ -25,6 +25,13 @@ namespace HaloBiz.Repository.Impl
             return await SaveChanges();
         }
 
+        public async Task<bool> DeletePilotTie(PilotSMORoutesResourceTie pilotProfileTie)
+        {
+            pilotProfileTie.IsDeleted = true;
+            _context.PilotSMORoutesResourceTies.Update(pilotProfileTie);
+            return await SaveChanges();
+        }
+
         public async Task<IEnumerable<PilotProfile>> FindAllPilots()
         {
             return await _context.PilotProfiles.Where(pi => pi.IsDeleted == false)
@@ -33,15 +40,45 @@ namespace HaloBiz.Repository.Impl
                                        .ToListAsync();
         }
 
+        public async Task<IEnumerable<PilotSMORoutesResourceTie>> FindAllPilotTies()
+        {
+            return await _context.PilotSMORoutesResourceTies.Where(pi => pi.IsDeleted == false)
+               .Include(pi => pi.SMORegion).Include(pi => pi.SMORoute).Include(s => s.Resource.PilotType)
+               .Include(pi => pi.Resource).Include(pi => pi.CreatedBy)
+                                      .ToListAsync();
+        }
+
         public async Task<PilotProfile> FindPilotById(long Id)
         {
             return await _context.PilotProfiles.Include(pi => pi.MeansOfIdentification).Include(pi => pi.PilotType)
                 .Include(pi => pi.Rank).Include(pi => pi.CreatedBy).FirstOrDefaultAsync(aer => aer.Id == Id && aer.IsDeleted == false);
         }
 
+        public async Task<PilotSMORoutesResourceTie> FindPilotTieById(long Id)
+        {
+            return await _context.PilotSMORoutesResourceTies.Include(pi => pi.SMORegion).Include(pi => pi.SMORoute).Include(s => s.Resource.PilotType)
+               .Include(pi => pi.Resource).Include(pi => pi.CreatedBy).FirstOrDefaultAsync(aer => aer.Id == Id && aer.IsDeleted == false);
+        }
+
+        public PilotSMORoutesResourceTie GetResourceRegIdRegionAndRouteId(long regRessourceId, long RouteId, long RegionId)
+        {
+            return _context.PilotSMORoutesResourceTies.Where
+                (ct => ct.ResourceId == regRessourceId && ct.SMORouteId == RouteId && ct.SMORegionId == RegionId && ct.IsDeleted == false).FirstOrDefault();
+        }
+
         public async Task<PilotProfile> SavePilot(PilotProfile pilotProfile)
         {
             var savedEntity = await _context.PilotProfiles.AddAsync(pilotProfile);
+            if (await SaveChanges())
+            {
+                return savedEntity.Entity;
+            }
+            return null;
+        }
+
+        public async Task<PilotSMORoutesResourceTie> SavePilotTie(PilotSMORoutesResourceTie pilotProfileTie)
+        {
+            var savedEntity = await _context.PilotSMORoutesResourceTies.AddAsync(pilotProfileTie);
             if (await SaveChanges())
             {
                 return savedEntity.Entity;
