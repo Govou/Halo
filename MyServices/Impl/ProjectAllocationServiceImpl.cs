@@ -1194,6 +1194,10 @@ namespace HaloBiz.MyServices.Impl
 
                 var deliverableToDisplayArray = new List<Deliverable>();
 
+                
+                
+                
+                
                 foreach (var item in getAllDeliverables)
                 {
                     var deliverableToDisplayInstance = new Deliverable();
