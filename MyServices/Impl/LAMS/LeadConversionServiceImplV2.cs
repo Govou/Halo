@@ -1620,6 +1620,10 @@ namespace HaloBiz.MyServices.Impl.LAMS
             {
                 return (interval, amount, vat);
             }
+            else if (cycle == TimeCycle.Adhoc)
+            {
+                return (1, amount, vat);
+            }
             else
             {
                 return (interval, amount * interval, vat * interval);

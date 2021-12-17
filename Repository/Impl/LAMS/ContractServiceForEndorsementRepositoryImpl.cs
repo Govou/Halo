@@ -96,7 +96,7 @@ namespace HaloBiz.Repository.Impl.LAMS
 
             return await _context.Invoices
                .Where(x => !x.IsReversalInvoice.Value && !x.IsDeleted && !x.IsReversed.Value
-                       && x.StartDate > DateTime.Now && x.ContractServiceId == contractServiceId && x.Quantity > 0)
+                       && x.StartDate > DateTime.Now && x.ContractServiceId == contractServiceId && x.Quantity > 0 && x.IsAccountPosted==false)
                .OrderBy(x => x.StartDate)
                .Select(x => new { startDate = x.StartDate, validDate = x.IsReceiptedStatus == (int)InvoiceStatus.NotReceipted }).ToListAsync();
           

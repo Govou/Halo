@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using HaloBiz.DTOs.ApiDTOs;
 using HaloBiz.DTOs.ReceivingDTO;
+using HaloBiz.DTOs.ReceivingDTOs.RoleManagement;
 using HaloBiz.DTOs.TransferDTOs;
 using HaloBiz.Helpers;
 using HaloBiz.MyServices;
@@ -83,14 +84,14 @@ namespace HaloBiz.Controllers
             return Ok((UserProfileTransferDTO) user);
         }
 
-        [HttpPut("UpdateUserRole/{id}/{roleId}")]
-        public async Task<IActionResult> UpdateUserRole(long id, long roleId)
+        [HttpPut("UpdateUserRole/{id}")]
+        public async Task<IActionResult> UpdateUserRole(long id, List<RoleReceivingDTO> roles)
         {
-            var response = await _userProfileService.UpdateUserRole(id, roleId);
+            var response = await _userProfileService.UpdateUserRole(HttpContext, id, roles);
             if (response.StatusCode >= 400)
                 return StatusCode(response.StatusCode, response);
             var user = ((ApiOkResponse)response).Result;
-            return Ok((UserProfileTransferDTO)user);
+            return Ok(user);
         
         }
         

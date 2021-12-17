@@ -1,6 +1,9 @@
-﻿using HaloBiz.DTOs.ApiDTOs;
+﻿using Auth.PermissionParts;
+using HaloBiz.DTOs.ApiDTOs;
 using HaloBiz.DTOs.ReceivingDTOs.RoleManagement;
 using Microsoft.AspNetCore.Http;
+using System.Collections;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace HaloBiz.MyServices.RoleManagement
@@ -15,5 +18,13 @@ namespace HaloBiz.MyServices.RoleManagement
         Task<ApiResponse> DeleteRole(long id);
         Task<ApiResponse> GetAllClaims();
         Task<ApiResponse> GetUserRoleClaims(HttpContext context);
+        ApiResponse GetPermissions();
+        ApiResponse GetGroupedPermissions();
+        Task<ApiResponse> GetPermissionsOnRole(string name);
+        Task<ApiResponse> FindRolesByUser(long userId);        
+        Task<ApiResponse> GetPermissionsOnUser(long userId);
+        Task<IEnumerable<Permissions>> GetPermissionEnumsOnUser(long userId);
+
+
     }
 }

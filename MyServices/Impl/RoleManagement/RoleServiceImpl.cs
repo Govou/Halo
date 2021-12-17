@@ -15,6 +15,8 @@ using HaloBiz.Repository.RoleManagement;
 using Microsoft.AspNetCore.Http;
 using HaloBiz.Model.RoleManagement;
 using HaloBiz.MyServices.RoleManagement;
+using Auth.PermissionParts;
+using System.Text.RegularExpressions;
 
 namespace HaloBiz.MyServices.Impl.RoleManagement
 {
@@ -42,20 +44,141 @@ namespace HaloBiz.MyServices.Impl.RoleManagement
 
         public async Task<ApiResponse> AddRole(HttpContext context, RoleReceivingDTO roleReceivingDto)
         {
-            var item = await _roleRepo.FindRoleByName(roleReceivingDto.Name);
-            if (item != null)
+            try
             {
-                return new ApiResponse(400, "Role Name Already Exists.");
+                var item = await _roleRepo.FindRoleByName(roleReceivingDto.Name);
+                if (item != null)
+                {
+                    return new ApiResponse(400, "Role Name Already Exists.");
+                }
+
+                List<Permissions> initialPermissions = new List<Permissions>();
+
+                foreach (var permission in roleReceivingDto.Permissions)
+                {
+                    Enum.TryParse<Permissions>(permission.Permission, out Permissions result);
+                    initialPermissions.Add(result);
+                }
+
+                var role = new RoleTemp(roleReceivingDto.Name, roleReceivingDto.Description, initialPermissions);
+
+                var savedRole = await _roleRepo.SaveRole(role);
+                if (savedRole == null)
+                {
+                    return new ApiResponse(500);
+                }
+
+                var roleTransferDto = _mapper.Map<RoleTransferDTO>(role);
+                return new ApiOkResponse(roleTransferDto);
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+        }
+
+        public async Task<ApiResponse> FindRolesByUser(long userId)
+        {
+            var roles = await _roleRepo.FindRolesByUser(userId);
+            var roleTransferDto = _mapper.Map<IEnumerable<RoleTransferDTO>>(roles);
+
+            return new ApiOkResponse(roleTransferDto);
+        }  
+
+        public async Task<IEnumerable<Permissions>> GetPermissionEnumsOnUser(long userId)
+        {
+            var roles = await _roleRepo.FindRolesByUser(userId);
+
+            if (!roles.Any())
+                return new List<Permissions>();
+
+            List<Permissions> permissionsInRole = new List<Permissions>();
+
+            //get all the permissions for the roles
+            foreach (var role in roles)
+            {
+                RoleTemp roletemp = new RoleTemp { PermissionCode = role.PermissionCode };
+
+                var thisPermissionInRole = roletemp.PermissionsInRole.ToList();
+                permissionsInRole.AddRange(thisPermissionInRole);
             }
 
-            var role = _mapper.Map<Role>(roleReceivingDto);
-            var savedRole = await _roleRepo.SaveRole(role);
-            if (savedRole == null)
+            //remove duplicates
+            return permissionsInRole.Distinct().ToList();
+        }
+
+        public async Task<ApiResponse> GetPermissionsOnUser(long userId)
+        {
+            IEnumerable<PermissionDisplay> allPermissions = PermissionDisplay.GetPermissionsToDisplay(typeof(Permissions));
+
+            var permissionsInRole = await GetPermissionEnumsOnUser(userId);
+             List<PermissionDisplay> permissions = new List<PermissionDisplay>();
+
+            foreach (PermissionDisplay permission in allPermissions)
             {
-                return new ApiResponse(500);
+                if (permissionsInRole.Contains(permission.Permission))
+                    permissions.Add(permission);
             }
-            var roleTransferDto = _mapper.Map<RoleTransferDTO>(role);
-            return new ApiOkResponse(roleTransferDto);
+
+            return new ApiOkResponse(permissions);
+        }
+
+
+        public async Task<ApiResponse> GetPermissionsOnRole(string name)
+        {
+            var role = await _roleRepo.FindRoleByName(name);
+            if (role == null)
+                return new ApiOkResponse(new List<PermissionDisplay>());
+
+            IEnumerable<PermissionDisplay> allPermissions = PermissionDisplay.GetPermissionsToDisplay(typeof(Permissions));
+            List<PermissionDisplay> permissions = new List<PermissionDisplay>();
+
+            var roletemp = new RoleTemp { PermissionCode = role.PermissionCode };
+
+            var permissionsInRole = roletemp.PermissionsInRole.ToList();
+            foreach (PermissionDisplay permission in allPermissions)
+            {
+                if (permissionsInRole.Contains(permission.Permission))
+                    permissions.Add(permission);
+            }
+
+            return new ApiOkResponse(permissions);
+        }
+
+        public async Task<ApiResponse> UpdateRole(HttpContext context, long id, RoleReceivingDTO roleReceivingDto)
+        {
+            try
+            {
+                var role = await _roleRepo.FindRoleByName(roleReceivingDto.Name);
+                if (role == null)
+                {
+                    return new ApiResponse(400, $"Role {roleReceivingDto.Name} does not exists.");
+                }
+
+                List<Permissions> initialPermissions = new List<Permissions>();
+
+                foreach (var permission in roleReceivingDto.Permissions)
+                {
+                    Enum.TryParse<Permissions>(permission.Permission, out Permissions result);
+                    initialPermissions.Add(result);
+                }
+
+                var roletemp = new RoleTemp(roleReceivingDto.Name, roleReceivingDto.Description, initialPermissions);
+
+                //alter some properties of the role
+                role.PermissionCode = roletemp.PermissionCode;
+                role.Name = roleReceivingDto.Name;
+                role.Description = roleReceivingDto.Description;
+
+                await _context.SaveChangesAsync();
+
+                var roleTransferDto = _mapper.Map<RoleTransferDTO>(role);
+                return new ApiOkResponse(roleTransferDto);
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
         }
 
         public async Task<ApiResponse> GetAllRoles()
@@ -64,11 +187,13 @@ namespace HaloBiz.MyServices.Impl.RoleManagement
             if (roles == null)
             {
                 return new ApiResponse(404);
-            }
-            var roleTransferDto = _mapper.Map<IEnumerable<RoleTransferDTO>>(roles);
-            return new ApiOkResponse(roleTransferDto);
+            }           
+
+           var roleTransfer = _mapper.Map<IEnumerable<RoleTransferDTO>>(roles);
+            return new ApiOkResponse(roleTransfer);
         }
 
+       
         public async Task<ApiResponse> GetAllClaims()
         {
             var claims = await _roleRepo.FindAllClaims();
@@ -78,6 +203,43 @@ namespace HaloBiz.MyServices.Impl.RoleManagement
             }
             var claimTransferDto = _mapper.Map<IEnumerable<ClaimTransferDTO>>(claims);
             return new ApiOkResponse(claimTransferDto);
+        }
+
+        public ApiResponse GetPermissions()
+        {
+            var result =  PermissionDisplay.GetPermissionsToDisplay(typeof(Permissions));
+            return new ApiOkResponse(result);
+
+        } 
+
+        public ApiResponse GetGroupedPermissions()
+        {
+            var result = PermissionDisplay.GetPermissionsToDisplay(typeof(Permissions));
+
+            //group according the controller id
+            var grouped = from e in result
+                           group e by e.Controller into g
+                           select new
+                           {
+                               GroupName = g.Key,
+                               SplitName = SplitCamelCase(g.Key),
+                               PermissionList = g.Select(x => new PermissionDisplay
+                               (
+                                   x.Controller,
+                                    x.Action,
+                                   x.Description,
+                                   x.Permission
+
+                               )).ToList()
+                           };
+
+            return new ApiOkResponse(grouped);
+
+        }
+
+        string SplitCamelCase(string source)
+        {
+            return string.Join(" ", Regex.Split(source, @"(?<!^)(?=[A-Z](?![A-Z]|$))"));
         }
 
         public async Task<ApiResponse> GetUserRoleClaims(HttpContext context)
@@ -135,66 +297,66 @@ namespace HaloBiz.MyServices.Impl.RoleManagement
             return new ApiOkResponse(roleTransferDtOs);
         }
 
-        public async Task<ApiResponse> UpdateRole(HttpContext context, long id, RoleReceivingDTO roleReceivingDto)
-        {
-            var roleToUpdate = await _roleRepo.FindRoleById(id);
-            if (roleToUpdate == null)
-            {
-                return new ApiResponse(404);
-            }
+        //public async Task<ApiResponse> UpdateRole(HttpContext context, long id, RoleReceivingDTO roleReceivingDto)
+        //{
+        //    var roleToUpdate = await _roleRepo.FindRoleById(id);
+        //    if (roleToUpdate == null)
+        //    {
+        //        return new ApiResponse(404);
+        //    }
 
-            if(roleToUpdate.Name != roleReceivingDto.Name)
-            {
-                var item = await _roleRepo.FindRoleByName(roleReceivingDto.Name);
-                if (item != null)
-                {
-                    return new ApiResponse(400, "Role Name Already Exists.");
-                }
-            }          
+        //    if(roleToUpdate.Name != roleReceivingDto.Name)
+        //    {
+        //        var item = await _roleRepo.FindRoleByName(roleReceivingDto.Name);
+        //        if (item != null)
+        //        {
+        //            return new ApiResponse(400, "Role Name Already Exists.");
+        //        }
+        //    }          
 
-            var summary = $"Initial details before change, \n {roleToUpdate} \n" ;
+        //    var summary = $"Initial details before change, \n {roleToUpdate} \n" ;
 
-            roleToUpdate.Name = roleReceivingDto.Name;
-            roleToUpdate.Description = roleReceivingDto.Description;
+        //    roleToUpdate.Name = roleReceivingDto.Name;
+        //    roleToUpdate.Description = roleReceivingDto.Description;
 
-            var updatedRole = await _roleRepo.UpdateRole(roleToUpdate);
+        //    var updatedRole = await _roleRepo.UpdateRole(roleToUpdate);
 
-            if (updatedRole == null)
-            {
-                return new ApiResponse(500);
-            }
+        //    if (updatedRole == null)
+        //    {
+        //        return new ApiResponse(500);
+        //    }
 
-            var roleClaimsDeleted = await _roleRepo.DeleteRoleClaims(updatedRole);
-            if (!roleClaimsDeleted)
-            {
-                return new ApiResponse(500);
-            }
+        //    var roleClaimsDeleted = await _roleRepo.DeleteRoleClaims(updatedRole);
+        //    if (!roleClaimsDeleted)
+        //    {
+        //        return new ApiResponse(500);
+        //    }
 
-            if (roleReceivingDto.RoleClaims.Any())
-            {
-                var roleClaimsToSave = _mapper.Map<ICollection<RoleClaim>>(roleReceivingDto.RoleClaims);
-                foreach (var item in roleClaimsToSave)
-                {
-                    item.RoleId = updatedRole.Id;
-                }
-                _context.RoleClaims.AddRange(roleClaimsToSave);
-            }       
+        //    //if (roleReceivingDto.RoleClaims.Any())
+        //    //{
+        //    //    var roleClaimsToSave = _mapper.Map<ICollection<RoleClaim>>(roleReceivingDto.RoleClaims);
+        //    //    foreach (var item in roleClaimsToSave)
+        //    //    {
+        //    //        item.RoleId = updatedRole.Id;
+        //    //    }
+        //    //    _context.RoleClaims.AddRange(roleClaimsToSave);
+        //    //}       
 
-            summary += $"Details after change, \n {updatedRole.ToString()} \n";
+        //    summary += $"Details after change, \n {updatedRole.ToString()} \n";
     
-            ModificationHistory history = new ModificationHistory(){
-                ModelChanged = "Role",
-                ChangeSummary = summary,
-                ChangedById = context.GetLoggedInUserId(),
-                ModifiedModelId = updatedRole.Id
-            };
+        //    ModificationHistory history = new ModificationHistory(){
+        //        ModelChanged = "Role",
+        //        ChangeSummary = summary,
+        //        ChangedById = context.GetLoggedInUserId(),
+        //        ModifiedModelId = updatedRole.Id
+        //    };
 
-            await _historyRepo.SaveHistory(history);
+        //    await _historyRepo.SaveHistory(history);
 
-            var roleTransferDto = _mapper.Map<RoleTransferDTO>(await _roleRepo.FindRoleById(id));
-            return new ApiOkResponse(roleTransferDto);
+        //    var roleTransferDto = _mapper.Map<RoleTransferDTO>(await _roleRepo.FindRoleById(id));
+        //    return new ApiOkResponse(roleTransferDto);
 
-        }
+        //}
 
         public async Task<ApiResponse> DeleteRole(long id)
         {
