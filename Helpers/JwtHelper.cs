@@ -1,9 +1,12 @@
-﻿using Google.Apis.Auth;
+﻿using Auth.PermissionParts;
+using Google.Apis.Auth;
 using HaloBiz.DTOs.ApiDTOs;
 using HaloBiz.DTOs.ReceivingDTOs;
 using HaloBiz.DTOs.TransferDTOs;
 using HaloBiz.Helpers;
 using HaloBiz.MyServices;
+using HaloBiz.MyServices.Impl.RoleManagement;
+using HaloBiz.MyServices.RoleManagement;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -26,6 +29,7 @@ namespace HaloBiz.Helpers
         private readonly ILogger<JwtHelper> _logger;
         private readonly string _secret;
 
+
         public JwtHelper(
             IConfiguration config,
             ILogger<JwtHelper> logger)
@@ -35,14 +39,18 @@ namespace HaloBiz.Helpers
 
         }
 
-        public string GenerateToken(UserProfileTransferDTO userProfile)
+        public string GenerateToken(UserProfileTransferDTO userProfile, IEnumerable<Permissions> permissions)
         {
+            //get the permissions for this guy
+            var permissionStr = JsonConvert.SerializeObject(permissions);
+
             List<Claim> claims = new List<Claim>()
             {
                 new Claim(ClaimTypes.NameIdentifier, userProfile.Id.ToString()),
                 new Claim(ClaimTypes.Email, userProfile.Email),
                 new Claim(ClaimTypes.Role, userProfile.Role?.Name ?? string.Empty),
-                new Claim("RoleId", userProfile.RoleId.ToString())
+                new Claim("RoleId", userProfile.RoleId.ToString()),
+               new Claim("Permissions", permissionStr)
             };
 
 
@@ -62,7 +70,7 @@ namespace HaloBiz.Helpers
             return tokenHandler.WriteToken(token);
         }
 
-        public async Task<bool> IsValidToken(string token)
+        public (bool, List<short>) IsValidToken(string token)
         {
             try
             {
@@ -81,18 +89,17 @@ namespace HaloBiz.Helpers
                 }, out SecurityToken validatedToken);
 
                 var jwtToken = (JwtSecurityToken)validatedToken;
-               // var accountId = jwtToken.Claims.First(x => x.Type == "id").Value;
 
-                // attach account to context on successful jwt validation
-                // context.Items["User"] = _userService.GetUserDetails();
+                var permssionsStr = jwtToken.Claims.First(x => x.Type == "Permissions").Value;
+                var permissions = JsonConvert.DeserializeObject<List<short>>(permssionsStr);
+                return (true, permissions);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 _logger.LogError(ex.StackTrace);
-                return false;
+                return (false, new List<short>());
             }
 
-            return true;
         }
     }
 }

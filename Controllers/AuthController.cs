@@ -4,6 +4,7 @@ using HaloBiz.DTOs.ReceivingDTOs;
 using HaloBiz.DTOs.TransferDTOs;
 using HaloBiz.Helpers;
 using HaloBiz.MyServices;
+using HaloBiz.MyServices.RoleManagement;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
@@ -29,17 +30,19 @@ namespace HaloBiz.Controllers
         private readonly IConfiguration _config;
         private readonly ILogger<AuthController> _logger;
         private readonly JwtHelper _jwttHelper;
-
+        private readonly IRoleService _roleService;
         public AuthController(
             IUserProfileService userProfileService,
             IConfiguration config,
             JwtHelper jwtHelper,
+            IRoleService roleService,
             ILogger<AuthController> logger)
         {
             this._config = config;
             this.userProfileService = userProfileService;
             _logger = logger;
             _jwttHelper = jwtHelper;
+            _roleService = roleService;
         }
 
         [AllowAnonymous]
@@ -63,7 +66,10 @@ namespace HaloBiz.Controllers
                 var user = ((ApiOkResponse)response).Result;
                 var userProfile = (UserProfileTransferDTO)user;
 
-                var jwtToken = _jwttHelper.GenerateToken(userProfile);
+                //get the permissions of the user
+                var permissions = await _roleService.GetPermissionEnumsOnUser(userProfile.Id);
+
+                var jwtToken =   _jwttHelper.GenerateToken(userProfile, permissions);
                 return Ok(new UserAuthTransferDTO { Token = jwtToken, UserProfile = userProfile });
             }
             catch (Exception ex)
@@ -110,7 +116,9 @@ namespace HaloBiz.Controllers
                 var user = ((ApiOkResponse)response).Result;
                 var userProfile = (UserProfileTransferDTO)user;
 
-                var jwtToken = _jwttHelper.GenerateToken(userProfile);
+                var permissions = await _roleService.GetPermissionEnumsOnUser(userProfile.Id);
+
+                var jwtToken =  _jwttHelper.GenerateToken(userProfile, permissions);
                 return Ok(new UserAuthTransferDTO { Token = jwtToken, UserProfile = userProfile });
             }
             catch (Exception ex)
@@ -161,7 +169,9 @@ namespace HaloBiz.Controllers
                 var user = ((ApiOkResponse)response).Result;
                 var userProfile = (UserProfileTransferDTO)user;
 
-                var token = _jwttHelper.GenerateToken(userProfile);
+                var permissions = await _roleService.GetPermissionEnumsOnUser(userProfile.Id);
+
+                var token =  _jwttHelper.GenerateToken(userProfile, permissions);
                 UserAuthTransferDTO userAuthTransferDTO = new UserAuthTransferDTO()
                 {
                     Token = token,

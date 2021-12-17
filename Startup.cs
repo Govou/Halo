@@ -27,6 +27,8 @@ using Microsoft.OpenApi.Models;
 using HaloBiz.Data;
 using HaloBiz.MyServices;
 using HaloBiz.MyServices.Impl;
+using HaloBiz.MyServices.RoleManagement;
+using HaloBiz.MyServices.Impl.RoleManagement;
 
 namespace HaloBiz
 {
@@ -165,8 +167,7 @@ namespace HaloBiz
 
             app.UseRouting();
 
-            app.UseMiddleware<AuthenticationHandler>();
-
+            //app.UseMiddleware<AuthenticationHandler>();
 
             app.UseAuthentication();
 

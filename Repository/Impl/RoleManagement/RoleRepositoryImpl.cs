@@ -39,9 +39,24 @@ namespace HaloBiz.Repository.Impl.RoleManagement
 
         public async Task<Role> FindRoleByName(string name)
         {
-            return await _context.Roles.Where(x => x.IsDeleted == false)
+            return await _context.Roles.Where(x => x.IsDeleted == false && x.Name == name)
                 .Include(x => x.RoleClaims.Where(x => x.IsDeleted == false))
-                .FirstOrDefaultAsync( role => role.Name == name);
+                .FirstOrDefaultAsync();
+        }
+
+        public async Task<IEnumerable<Role>> FindRolesByUser(long userId)
+        {
+            var userRole =  await _context.UserRoles.Where(x => x.IsDeleted == false && x.UserId==userId)
+                .Include(x => x.Role)
+                .ToListAsync();
+
+            List<Role> roles = new List<Role>();
+            foreach (var item in userRole)
+            {
+                roles.Add(item.Role);
+            }
+
+            return roles;
         }
 
         public async Task<IEnumerable<Role>> FindAllRole()
