@@ -27,11 +27,20 @@ namespace HaloBiz.MyServices.Impl
         public async Task<ApiResponse> AddArmedEscortMaster(HttpContext context, ArmedEscortDTSMastersReceivingDTO armedEscortReceivingDTO)
         {
             var armedescort = _mapper.Map<ArmedEscortDTSMaster>(armedEscortReceivingDTO);
-            //var NameExist = _armedEscortsRepository.GetTypename(armedEscortReceivingDTO.Name);
-            //if (NameExist != null)
-            //{
-            //    return new ApiResponse(409);
-            //}
+            var profileIdExist = _dTSMastersRepository.GetArmedEscortProfileId(armedEscortReceivingDTO.ArmedEscortResourceId);
+            if (armedEscortReceivingDTO.AvailablilityEnd < armedEscortReceivingDTO.AvailabilityStart || armedEscortReceivingDTO.AvailablilityEnd == armedEscortReceivingDTO.AvailabilityStart)
+            {
+                return new ApiResponse(440);
+            }
+            if (profileIdExist != null)
+            {
+                if (armedEscortReceivingDTO.AvailabilityStart < profileIdExist.AvailablilityEnd)
+                {
+                    return new ApiResponse(440);
+                }
+                    
+            }
+
             armedescort.CreatedById = context.GetLoggedInUserId();
             armedescort.CreatedAt = DateTime.UtcNow;
             var save = await _dTSMastersRepository.SaveArmedEscortMaster(armedescort);
@@ -46,6 +55,19 @@ namespace HaloBiz.MyServices.Impl
         public async Task<ApiResponse> AddCommanderMaster(HttpContext context, CommanderDTSMastersReceivingDTO commanderReceivingDTO)
         {
             var commander = _mapper.Map<CommanderDTSMaster>(commanderReceivingDTO);
+            var profileIdExist = _dTSMastersRepository.GetCommanderProfileId(commanderReceivingDTO.CommanderResourceId);
+            if (commanderReceivingDTO.AvailablilityEnd < commanderReceivingDTO.AvailabilityStart || commanderReceivingDTO.AvailablilityEnd == commanderReceivingDTO.AvailabilityStart)
+            {
+                return new ApiResponse(440);
+            }
+            if (profileIdExist != null)
+            {
+                if (commanderReceivingDTO.AvailabilityStart < profileIdExist.AvailablilityEnd)
+                {
+                    return new ApiResponse(440);
+                }
+
+            }
             commander.CreatedById = context.GetLoggedInUserId();
             commander.CreatedAt = DateTime.UtcNow;
             var save = await _dTSMastersRepository.SaveCommanderMaster(commander);
@@ -60,6 +82,19 @@ namespace HaloBiz.MyServices.Impl
         public async Task<ApiResponse> AddPilotMaster(HttpContext context, PilotDTSMastersReceivingDTO pilotReceivingDTO)
         {
             var pilot = _mapper.Map<PilotDTSMaster>(pilotReceivingDTO);
+            var profileIdExist = _dTSMastersRepository.GetPilotProfileId(pilotReceivingDTO.PilotResourceId);
+            if (pilotReceivingDTO.AvailablilityEnd < pilotReceivingDTO.AvailabilityStart || pilotReceivingDTO.AvailablilityEnd == pilotReceivingDTO.AvailabilityStart)
+            {
+                return new ApiResponse(440);
+            }
+            if (profileIdExist != null)
+            {
+                if (pilotReceivingDTO.AvailabilityStart < profileIdExist.AvailablilityEnd)
+                {
+                    return new ApiResponse(440);
+                }
+
+            }
             pilot.CreatedById = context.GetLoggedInUserId();
             pilot.CreatedAt = DateTime.UtcNow;
             var save = await _dTSMastersRepository.SavePilotMaster(pilot);
@@ -74,6 +109,19 @@ namespace HaloBiz.MyServices.Impl
         public async Task<ApiResponse> AddVehicleMaster(HttpContext context, VehicleDTSMastersReceivingDTO vehicleReceivingDTO)
         {
             var vehicle = _mapper.Map<VehicleDTSMaster>(vehicleReceivingDTO);
+            var profileIdExist = _dTSMastersRepository.GetVehicleProfileId(vehicleReceivingDTO.VehicleResourceId);
+            if (vehicleReceivingDTO.AvailablilityEnd < vehicleReceivingDTO.AvailabilityStart || vehicleReceivingDTO.AvailablilityEnd == vehicleReceivingDTO.AvailabilityStart)
+            {
+                return new ApiResponse(440);
+            }
+            if (profileIdExist != null)
+            {
+                if (vehicleReceivingDTO.AvailabilityStart < profileIdExist.AvailablilityEnd)
+                {
+                    return new ApiResponse(440);
+                }
+
+            }
             vehicle.CreatedById = context.GetLoggedInUserId();
             vehicle.CreatedAt = DateTime.UtcNow;
             var save = await _dTSMastersRepository.SaveVehicleMaster(vehicle);

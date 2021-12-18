@@ -31,10 +31,10 @@ namespace HaloBiz.Controllers
             return Ok(priceReg);
         }
 
-        [HttpGet("GetAllSMORoutesByName")]
-        public async Task<ActionResult> GetAllSMORoutesByName(string routeName)
+        [HttpGet("GetAllPriceRegistersByRouteId/{routeId}")]
+        public async Task<ActionResult> GetAllPriceRegistersByRouteId(long routeId)
         {
-            var response = await _priceRegisterService.GetAllRoutesWithPriceRegisters(routeName);
+            var response = await _priceRegisterService.GetAllPriceRegistersByRouteId(routeId);
             if (response.StatusCode >= 400)
                 return StatusCode(response.StatusCode, response);
             var priceReg = ((ApiOkResponse)response).Result;

@@ -40,6 +40,15 @@ namespace HaloBiz.Controllers
             var Rank = ((ApiOkResponse)response).Result;
             return Ok(Rank);
         }
+        [HttpGet("GetArmedEscortGenericsByMasterId/{id}")]
+        public async Task<ActionResult> GetArmedEscortGenericsByMasterId(long id)
+        {
+            var response = await _dTSDetailGenericDaysService.GetArmedEscortGenericByMasterId(id);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var Rank = ((ApiOkResponse)response).Result;
+            return Ok(Rank);
+        }
 
         [HttpPost("AddNewArmedEscortGeneric")]
         public async Task<ActionResult> AddNewArmedEscortGeneric(ArmedEscortDTSDetailGenericDaysReceivingDTO ReceivingDTO)
@@ -83,6 +92,15 @@ namespace HaloBiz.Controllers
         public async Task<ActionResult> GetCommanderGenericsById(long id)
         {
             var response = await _dTSDetailGenericDaysService.GetCommanderGenericById(id);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var Rank = ((ApiOkResponse)response).Result;
+            return Ok(Rank);
+        }
+        [HttpGet("GetCommanderGenericsByMasterId/{id}")]
+        public async Task<ActionResult> GetCommanderGenericsByMasterId(long id)
+        {
+            var response = await _dTSDetailGenericDaysService.GetCommanderGenericByMasterId(id);
             if (response.StatusCode >= 400)
                 return StatusCode(response.StatusCode, response);
             var Rank = ((ApiOkResponse)response).Result;
@@ -136,6 +154,15 @@ namespace HaloBiz.Controllers
             var Rank = ((ApiOkResponse)response).Result;
             return Ok(Rank);
         }
+        [HttpGet("GetPilotGenericsByMasterId/{id}")]
+        public async Task<ActionResult> GetPilotGenericsByMasterId(long id)
+        {
+            var response = await _dTSDetailGenericDaysService.GetPilotGenericByMasterId(id);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var Rank = ((ApiOkResponse)response).Result;
+            return Ok(Rank);
+        }
 
         [HttpPost("AddNewPilotGeneric")]
         public async Task<ActionResult> AddNewPilotGeneric(PilotDTSDetailGenericDaysReceivingDTO ReceivingDTO)
@@ -179,6 +206,16 @@ namespace HaloBiz.Controllers
         public async Task<ActionResult> GetVehicleGenericsById(long id)
         {
             var response = await _dTSDetailGenericDaysService.GetVehicleGenericById(id);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var Rank = ((ApiOkResponse)response).Result;
+            return Ok(Rank);
+        }
+
+        [HttpGet("GetVehicleGenericsByMasterId/{id}")]
+        public async Task<ActionResult> GetVehicleGenericsByMasterId(long id)
+        {
+            var response = await _dTSDetailGenericDaysService.GetVehicleGenericByMasterId(id);
             if (response.StatusCode >= 400)
                 return StatusCode(response.StatusCode, response);
             var Rank = ((ApiOkResponse)response).Result;

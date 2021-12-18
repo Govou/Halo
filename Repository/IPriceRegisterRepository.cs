@@ -14,7 +14,7 @@ namespace HaloBiz.Repository
 
         Task<IEnumerable<PriceRegister>> FindAllPriceRegisters();
 
-        Task<IEnumerable<PriceRegister>> FindAllRoutesWithPriceRegisters(string routeName);
+        Task<IEnumerable<PriceRegister>> FindAllPriceRegistersWithByRouteId(long routeId);
 
         //PriceRegister GetServiceRegIdRegionAndRoute(long regServiceId, long RouteId, long RegionId);
         PriceRegister GetServiceRegIdRegionAndRoute(long regServiceId, long RouteId);
