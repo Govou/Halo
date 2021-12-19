@@ -51,6 +51,7 @@ namespace HaloBiz.Repository.Impl
         {
             return await _context.ArmedEscortDTSDetailGenericDays.Where(dts => dts.IsDeleted == false)
             .Include(dts => dts.CreatedBy).Include(dts => dts.DTSMaster).Include(dts => dts.DTSMaster.GenericDays)
+            .OrderByDescending(x => x.Id)
             .ToListAsync();
         }
 
@@ -58,6 +59,7 @@ namespace HaloBiz.Repository.Impl
         {
             return await _context.CommanderDTSDetailGenericDays.Where(dts => dts.IsDeleted == false)
            .Include(dts => dts.CreatedBy).Include(dts => dts.DTSMaster).Include(dts => dts.DTSMaster.GenericDays)
+           .OrderByDescending(x => x.Id)
            .ToListAsync();
         }
 
@@ -65,6 +67,7 @@ namespace HaloBiz.Repository.Impl
         {
             return await _context.PilotDTSDetailGenericDays.Where(dts => dts.IsDeleted == false)
           .Include(dts => dts.CreatedBy).Include(dts => dts.DTSMaster).Include(dts => dts.DTSMaster.GenericDays)
+          .OrderByDescending(x => x.Id)
           .ToListAsync();
         }
 
@@ -72,6 +75,7 @@ namespace HaloBiz.Repository.Impl
         {
             return await _context.VehicleDTSDetailGenericDays.Where(dts => dts.IsDeleted == false)
           .Include(dts => dts.CreatedBy).Include(dts => dts.DTSMaster).Include(dts => dts.DTSMaster.GenericDays)
+          .OrderByDescending(x => x.Id)
           .ToListAsync();
         }
 
@@ -82,11 +86,26 @@ namespace HaloBiz.Repository.Impl
                  .FirstOrDefaultAsync(aer => aer.Id == Id && aer.IsDeleted == false);
         }
 
+        public async Task<IEnumerable<ArmedEscortDTSDetailGenericDay>> FindArmedEscortGenericByMasterId(long masterId)
+        {
+            return await _context.ArmedEscortDTSDetailGenericDays.Where(dts => dts.DTSMasterId == masterId && dts.IsDeleted == false)
+            .Include(dts => dts.CreatedBy).Include(dts => dts.DTSMaster).Include(dts => dts.DTSMaster.GenericDays)
+            .OrderByDescending(x => x.Id)
+            .ToListAsync();
+        }
+
         public async Task<CommanderDTSDetailGenericDay> FindCommanderGenericById(long Id)
         {
             return await _context.CommanderDTSDetailGenericDays.Include(dts => dts.DTSMaster)
                 .Include(dts => dts.CreatedBy).Include(dts => dts.DTSMaster.GenericDays)
                 .FirstOrDefaultAsync(aer => aer.Id == Id && aer.IsDeleted == false);
+        }
+
+        public async Task<IEnumerable<CommanderDTSDetailGenericDay>> FindCommanderGenericByMasterId(long masterId)
+        {
+            return await _context.CommanderDTSDetailGenericDays.Where(dts => dts.DTSMasterId == masterId && dts.IsDeleted == false)
+            .Include(dts => dts.CreatedBy).Include(dts => dts.DTSMaster).Include(dts => dts.DTSMaster.GenericDays).OrderByDescending(x => x.Id)
+            .ToListAsync();
         }
 
         public async Task<PilotDTSDetailGenericDay> FindPilotGenericById(long Id)
@@ -96,6 +115,13 @@ namespace HaloBiz.Repository.Impl
                 .FirstOrDefaultAsync(aer => aer.Id == Id && aer.IsDeleted == false);
         }
 
+        public async Task<IEnumerable<PilotDTSDetailGenericDay>> FindPilotGenericByMasterId(long masterId)
+        {
+            return await _context.PilotDTSDetailGenericDays.Where(dts => dts.DTSMasterId == masterId && dts.IsDeleted == false)
+          .Include(dts => dts.CreatedBy).Include(dts => dts.DTSMaster).Include(dts => dts.DTSMaster.GenericDays).OrderByDescending(x => x.Id)
+          .ToListAsync();
+        }
+
         public async Task<VehicleDTSDetailGenericDay> FindVehicleGenericById(long Id)
         {
             return await _context.VehicleDTSDetailGenericDays.Include(dts => dts.DTSMaster)
@@ -103,9 +129,34 @@ namespace HaloBiz.Repository.Impl
                 .FirstOrDefaultAsync(aer => aer.Id == Id && aer.IsDeleted == false);
         }
 
+        public async Task<IEnumerable<VehicleDTSDetailGenericDay>> FindVehicleGenericByMasterId(long masterId)
+        {
+            return await _context.VehicleDTSDetailGenericDays.Where(dts => dts.DTSMasterId == masterId && dts.IsDeleted == false)
+         .Include(dts => dts.CreatedBy).Include(dts => dts.DTSMaster).Include(dts => dts.DTSMaster.GenericDays).OrderByDescending(x => x.Id)
+         .ToListAsync();
+        }
+
+        public ArmedEscortDTSDetailGenericDay GetArmedEscortDTSMasterId(long? dtsMasterId)
+        {
+            return _context.ArmedEscortDTSDetailGenericDays
+              .Where(aer => aer.DTSMasterId == dtsMasterId && aer.IsDeleted == false).ToList().LastOrDefault();
+        }
+
+        public CommanderDTSDetailGenericDay GetCommanderDTSMasterId(long? dtsMasterId)
+        {
+            return _context.CommanderDTSDetailGenericDays
+             .Where(aer => aer.DTSMasterId == dtsMasterId && aer.IsDeleted == false).ToList().LastOrDefault();
+        }
+
         public CommanderDTSDetailGenericDay GetCommandername(string Name)
         {
             throw new NotImplementedException();
+        }
+
+        public PilotDTSDetailGenericDay GetPilotDTSMasterId(long? dtsMasterId)
+        {
+            return _context.PilotDTSDetailGenericDays
+              .Where(aer => aer.DTSMasterId == dtsMasterId && aer.IsDeleted == false).ToList().LastOrDefault();
         }
 
         public PilotDTSDetailGenericDay GetPilotname(string Name)
@@ -116,6 +167,12 @@ namespace HaloBiz.Repository.Impl
         public ArmedEscortDTSDetailGenericDay GetTypename(string Name)
         {
             throw new NotImplementedException();
+        }
+
+        public VehicleDTSDetailGenericDay GetVehicleDTSMasterId(long? dtsMasterId)
+        {
+            return _context.VehicleDTSDetailGenericDays
+              .Where(aer => aer.DTSMasterId == dtsMasterId && aer.IsDeleted == false).ToList().LastOrDefault();
         }
 
         public VehicleDTSDetailGenericDay GetVehiclename(string Name)

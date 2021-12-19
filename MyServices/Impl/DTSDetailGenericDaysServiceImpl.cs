@@ -28,11 +28,41 @@ namespace HaloBiz.MyServices.Impl
         public async Task<ApiResponse> AddArmedEscortGeneric(HttpContext context, ArmedEscortDTSDetailGenericDaysReceivingDTO armedEscortReceivingDTO)
         {
             var armedescort = _mapper.Map<ArmedEscortDTSDetailGenericDay>(armedEscortReceivingDTO);
-            //var NameExist = _armedEscortsRepository.GetTypename(armedEscortReceivingDTO.Name);
-            //if (NameExist != null)
-            //{
-            //    return new ApiResponse(409);
-            //}
+            var masterIdExist = _dTSDetailGenericDaysRepository.GetArmedEscortDTSMasterId(armedEscortReceivingDTO.DTSMasterId);
+            DateTime timeOpen = Convert.ToDateTime(armedEscortReceivingDTO.OpeningTime.AddHours(1));
+            timeOpen = timeOpen.AddSeconds(-1 * timeOpen.Second);
+            timeOpen = timeOpen.AddMilliseconds(-1 * timeOpen.Millisecond);
+            DateTime timeClose = Convert.ToDateTime(armedEscortReceivingDTO.ClosingTime.AddHours(1));
+            timeClose = timeClose.AddSeconds(-1 * timeClose.Second);
+            timeClose = timeClose.AddMilliseconds(-1 * timeClose.Millisecond);
+
+            if (timeClose.TimeOfDay.CompareTo(timeOpen.TimeOfDay) == 0)
+            {
+                return new ApiResponse(441);
+            }
+            if (timeClose.TimeOfDay.CompareTo(timeOpen.TimeOfDay) < 0)
+            {
+                return new ApiResponse(441);
+            }
+           
+            if (masterIdExist != null)
+            {
+                DateTime IdExistClose = Convert.ToDateTime(masterIdExist.ClosingTime);
+                IdExistClose = IdExistClose.AddSeconds(-1 * IdExistClose.Second);
+                IdExistClose = IdExistClose.AddMilliseconds(-1 * IdExistClose.Millisecond);
+                if (timeOpen.TimeOfDay < IdExistClose.TimeOfDay)
+                {
+                    return new ApiResponse(441);
+                }
+
+            }
+            if(armedEscortReceivingDTO.Monday == false && armedEscortReceivingDTO.Tuesday == false && armedEscortReceivingDTO.Wednesday == false && armedEscortReceivingDTO.Thursday == false && armedEscortReceivingDTO.Friday == false
+                && armedEscortReceivingDTO.Saturday == false && armedEscortReceivingDTO.Sunday == false )
+            {
+                return new ApiResponse(442);
+            }
+            armedescort.OpeningTime = timeOpen;
+            armedescort.ClosingTime = timeClose;
             armedescort.CreatedById = context.GetLoggedInUserId();
             armedescort.CreatedAt = DateTime.UtcNow;
             var save = await _dTSDetailGenericDaysRepository.SaveArmedEscortGeneric(armedescort);
@@ -47,7 +77,41 @@ namespace HaloBiz.MyServices.Impl
         public async Task<ApiResponse> AddCommanderGeneric(HttpContext context, CommanderDTSDetailGenericDaysReceivingDTO commanderReceivingDTO)
         {
             var commander = _mapper.Map<CommanderDTSDetailGenericDay>(commanderReceivingDTO);
-         
+            var masterIdExist = _dTSDetailGenericDaysRepository.GetCommanderDTSMasterId(commanderReceivingDTO.DTSMasterId);
+            DateTime timeOpen = Convert.ToDateTime(commanderReceivingDTO.OpeningTime.AddHours(1));
+            timeOpen = timeOpen.AddSeconds(-1 * timeOpen.Second);
+            timeOpen = timeOpen.AddMilliseconds(-1 * timeOpen.Millisecond);
+            DateTime timeClose = Convert.ToDateTime(commanderReceivingDTO.ClosingTime.AddHours(1));
+            timeClose = timeClose.AddSeconds(-1 * timeClose.Second);
+            timeClose = timeClose.AddMilliseconds(-1 * timeClose.Millisecond);
+
+            if (timeClose.TimeOfDay.CompareTo(timeOpen.TimeOfDay) == 0)
+            {
+                return new ApiResponse(441);
+            }
+            if (timeClose.TimeOfDay.CompareTo(timeOpen.TimeOfDay) < 0)
+            {
+                return new ApiResponse(441);
+            }
+
+            if (masterIdExist != null)
+            {
+                DateTime IdExistClose = Convert.ToDateTime(masterIdExist.ClosingTime);
+                IdExistClose = IdExistClose.AddSeconds(-1 * IdExistClose.Second);
+                IdExistClose = IdExistClose.AddMilliseconds(-1 * IdExistClose.Millisecond);
+                if (timeOpen.TimeOfDay < IdExistClose.TimeOfDay)
+                {
+                    return new ApiResponse(441);
+                }
+
+            }
+            if (commanderReceivingDTO.Monday == false && commanderReceivingDTO.Tuesday == false && commanderReceivingDTO.Wednesday == false && commanderReceivingDTO.Thursday == false && commanderReceivingDTO.Friday == false
+              && commanderReceivingDTO.Saturday == false && commanderReceivingDTO.Sunday == false)
+            {
+                return new ApiResponse(442);
+            }
+            commander.OpeningTime = timeOpen;
+            commander.ClosingTime = timeClose;
             commander.CreatedById = context.GetLoggedInUserId();
             commander.CreatedAt = DateTime.UtcNow;
             var save = await _dTSDetailGenericDaysRepository.SaveCommanderGeneric(commander);
@@ -62,7 +126,41 @@ namespace HaloBiz.MyServices.Impl
         public async Task<ApiResponse> AddPilotGeneric(HttpContext context, PilotDTSDetailGenericDaysReceivingDTO pilotReceivingDTO)
         {
             var pilot = _mapper.Map<PilotDTSDetailGenericDay>(pilotReceivingDTO);
+            var masterIdExist = _dTSDetailGenericDaysRepository.GetPilotDTSMasterId(pilotReceivingDTO.DTSMasterId);
+            DateTime timeOpen = Convert.ToDateTime(pilotReceivingDTO.OpeningTime.AddHours(1));
+            timeOpen = timeOpen.AddSeconds(-1 * timeOpen.Second);
+            timeOpen = timeOpen.AddMilliseconds(-1 * timeOpen.Millisecond);
+            DateTime timeClose = Convert.ToDateTime(pilotReceivingDTO.ClosingTime.AddHours(1));
+            timeClose = timeClose.AddSeconds(-1 * timeClose.Second);
+            timeClose = timeClose.AddMilliseconds(-1 * timeClose.Millisecond);
 
+            if (timeClose.TimeOfDay.CompareTo(timeOpen.TimeOfDay) == 0)
+            {
+                return new ApiResponse(441);
+            }
+            if (timeClose.TimeOfDay.CompareTo(timeOpen.TimeOfDay) < 0)
+            {
+                return new ApiResponse(441);
+            }
+
+            if (masterIdExist != null)
+            {
+                DateTime IdExistClose = Convert.ToDateTime(masterIdExist.ClosingTime);
+                IdExistClose = IdExistClose.AddSeconds(-1 * IdExistClose.Second);
+                IdExistClose = IdExistClose.AddMilliseconds(-1 * IdExistClose.Millisecond);
+                if (timeOpen.TimeOfDay < IdExistClose.TimeOfDay)
+                {
+                    return new ApiResponse(441);
+                }
+
+            }
+            if (pilotReceivingDTO.Monday == false && pilotReceivingDTO.Tuesday == false && pilotReceivingDTO.Wednesday == false && pilotReceivingDTO.Thursday == false && pilotReceivingDTO.Friday == false
+              && pilotReceivingDTO.Saturday == false && pilotReceivingDTO.Sunday == false)
+            {
+                return new ApiResponse(442);
+            }
+            pilot.OpeningTime = timeOpen;
+            pilot.ClosingTime = timeClose;
             pilot.CreatedById = context.GetLoggedInUserId();
             pilot.CreatedAt = DateTime.UtcNow;
             var save = await _dTSDetailGenericDaysRepository.SavePilotGeneric(pilot);
@@ -77,7 +175,41 @@ namespace HaloBiz.MyServices.Impl
         public async Task<ApiResponse> AddVehicleGeneric(HttpContext context, VehicleDTSDetailGenericDaysReceivingDTO vehicleReceivingDTO)
         {
             var vehicle = _mapper.Map<VehicleDTSDetailGenericDay>(vehicleReceivingDTO);
+            var masterIdExist = _dTSDetailGenericDaysRepository.GetVehicleDTSMasterId(vehicleReceivingDTO.DTSMasterId);
+            DateTime timeOpen = Convert.ToDateTime(vehicleReceivingDTO.OpeningTime.AddHours(1));
+            timeOpen = timeOpen.AddSeconds(-1 * timeOpen.Second);
+            timeOpen = timeOpen.AddMilliseconds(-1 * timeOpen.Millisecond);
+            DateTime timeClose = Convert.ToDateTime(vehicleReceivingDTO.ClosingTime.AddHours(1));
+            timeClose = timeClose.AddSeconds(-1 * timeClose.Second);
+            timeClose = timeClose.AddMilliseconds(-1 * timeClose.Millisecond);
 
+            if (timeClose.TimeOfDay.CompareTo(timeOpen.TimeOfDay) == 0)
+            {
+                return new ApiResponse(441);
+            }
+            if (timeClose.TimeOfDay.CompareTo(timeOpen.TimeOfDay) < 0)
+            {
+                return new ApiResponse(441);
+            }
+
+            if (masterIdExist != null)
+            {
+                DateTime IdExistClose = Convert.ToDateTime(masterIdExist.ClosingTime);
+                IdExistClose = IdExistClose.AddSeconds(-1 * IdExistClose.Second);
+                IdExistClose = IdExistClose.AddMilliseconds(-1 * IdExistClose.Millisecond);
+                if (timeOpen.TimeOfDay < IdExistClose.TimeOfDay)
+                {
+                    return new ApiResponse(441);
+                }
+
+            }
+            if (vehicleReceivingDTO.Monday == false && vehicleReceivingDTO.Tuesday == false && vehicleReceivingDTO.Wednesday == false && vehicleReceivingDTO.Thursday == false && vehicleReceivingDTO.Friday == false
+              && vehicleReceivingDTO.Saturday == false && vehicleReceivingDTO.Sunday == false)
+            {
+                return new ApiResponse(442);
+            }
+            vehicle.OpeningTime = timeOpen;
+            vehicle.ClosingTime = timeClose;
             vehicle.CreatedById = context.GetLoggedInUserId();
             vehicle.CreatedAt = DateTime.UtcNow;
             var save = await _dTSDetailGenericDaysRepository.SaveVehicleGeneric(vehicle);
@@ -212,6 +344,17 @@ namespace HaloBiz.MyServices.Impl
             return new ApiOkResponse(TransferDTO);
         }
 
+        public async Task<ApiResponse> GetArmedEscortGenericByMasterId(long id)
+        {
+            var master = await _dTSDetailGenericDaysRepository.FindArmedEscortGenericByMasterId(id);
+            if (master == null)
+            {
+                return new ApiResponse(404);
+            }
+            var TransferDTO = _mapper.Map<IEnumerable<ArmedEscortDTSDetailGenericDaysTransferDTO>>(master);
+            return new ApiOkResponse(TransferDTO);
+        }
+
         public async Task<ApiResponse> GetCommanderGenericById(long id)
         {
             var master = await _dTSDetailGenericDaysRepository.FindCommanderGenericById(id);
@@ -220,6 +363,18 @@ namespace HaloBiz.MyServices.Impl
                 return new ApiResponse(404);
             }
             var TransferDTO = _mapper.Map<CommanderDTSDetailGenericDaysTransferDTO>(master);
+            return new ApiOkResponse(TransferDTO);
+        }
+
+        public async Task<ApiResponse> GetCommanderGenericByMasterId(long id)
+        {
+            var master = await _dTSDetailGenericDaysRepository.FindCommanderGenericByMasterId(id);
+            if (master == null)
+            {
+                return new ApiResponse(404);
+            }
+           
+            var TransferDTO = _mapper.Map<IEnumerable<CommanderDTSDetailGenericDaysTransferDTO>>(master);
             return new ApiOkResponse(TransferDTO);
         }
 
@@ -234,6 +389,17 @@ namespace HaloBiz.MyServices.Impl
             return new ApiOkResponse(TransferDTO);
         }
 
+        public async Task<ApiResponse> GetPilotGenericByMasterId(long id)
+        {
+            var master = await _dTSDetailGenericDaysRepository.FindPilotGenericByMasterId(id);
+            if (master == null)
+            {
+                return new ApiResponse(404);
+            }
+            var TransferDTO = _mapper.Map<IEnumerable<PilotDTSDetailGenericDaysTransferDTO>>(master);
+            return new ApiOkResponse(TransferDTO);
+        }
+
         public async Task<ApiResponse> GetVehicleGenericById(long id)
         {
             var master = await _dTSDetailGenericDaysRepository.FindVehicleGenericById(id);
@@ -242,6 +408,17 @@ namespace HaloBiz.MyServices.Impl
                 return new ApiResponse(404);
             }
             var TransferDTO = _mapper.Map<VehicleDTSDetailGenericDaysTransferDTO>(master);
+            return new ApiOkResponse(TransferDTO);
+        }
+
+        public async Task<ApiResponse> GetVehicleGenericByMasterId(long id)
+        {
+            var master = await _dTSDetailGenericDaysRepository.FindVehicleGenericByMasterId(id);
+            if (master == null)
+            {
+                return new ApiResponse(404);
+            }
+            var TransferDTO = _mapper.Map<IEnumerable<VehicleDTSDetailGenericDaysTransferDTO>>(master);
             return new ApiOkResponse(TransferDTO);
         }
 

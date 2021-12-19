@@ -16,6 +16,7 @@ namespace HaloBiz.Repository
         Task<IEnumerable<ArmedEscortDTSMaster>> FindAllArmedEscortMasters();
 
         ArmedEscortDTSMaster GetTypename(string Name);
+        ArmedEscortDTSMaster GetArmedEscortProfileId(long? profileId);
 
         Task<ArmedEscortDTSMaster> UpdateArmedEscortMaster(ArmedEscortDTSMaster armedEscort);
 
@@ -29,6 +30,7 @@ namespace HaloBiz.Repository
         Task<IEnumerable<CommanderDTSMaster>> FindAllCommanderMasters();
 
         CommanderDTSMaster GetCommandername(string Name);
+        CommanderDTSMaster GetCommanderProfileId(long? profileId);
 
         Task<CommanderDTSMaster> UpdateCommanderMaster(CommanderDTSMaster commander);
 
@@ -42,6 +44,7 @@ namespace HaloBiz.Repository
         Task<IEnumerable<PilotDTSMaster>> FindAllPilotMasters();
 
         PilotDTSMaster GetPilotname(string Name);
+        PilotDTSMaster GetPilotProfileId(long? profileId);
 
         Task<PilotDTSMaster> UpdatePilotMaster(PilotDTSMaster pilot);
 
@@ -55,7 +58,7 @@ namespace HaloBiz.Repository
         Task<IEnumerable<VehicleDTSMaster>> FindAllVehicleMasters();
 
         VehicleDTSMaster GetVehiclename(string Name);
-
+        VehicleDTSMaster GetVehicleProfileId(long? profileId);
         Task<VehicleDTSMaster> UpdatevehicleMaster(VehicleDTSMaster vehicle);
 
         Task<bool> DeleteVehicleMaster(VehicleDTSMaster vehicle);

@@ -51,13 +51,15 @@ namespace HaloBiz.Repository.Impl
         {
             return await _context.ArmedEscortDTSMasters.Where(dts => dts.IsDeleted == false)
              .Include(dts => dts.CreatedBy).Include(dts => dts.GenericDays).Include(dts=>dts.ArmedEscortResource).Include(dts=>dts.ArmedEscortResource.SupplierService)
+             .OrderByDescending(x=>x.Id)
              .ToListAsync();
         }
 
         public async Task<IEnumerable<CommanderDTSMaster>> FindAllCommanderMasters()
         {
             return await _context.CommanderDTSMasters.Where(dts => dts.IsDeleted == false)
-            .Include(dts => dts.CreatedBy).Include(dts => dts.GenericDays).Include(dts => dts.CommanderResource)
+            .Include(dts => dts.CreatedBy).Include(dts => dts.GenericDays).Include(dts => dts.CommanderResource).Include(dts=>dts.CommanderResource.Profile)
+            .OrderByDescending(x => x.Id)
             .ToListAsync();
         }
 
@@ -65,6 +67,7 @@ namespace HaloBiz.Repository.Impl
         {
             return await _context.PilotDTSMasters.Where(dts => dts.IsDeleted == false)
             .Include(dts => dts.CreatedBy).Include(dts => dts.GenericDays).Include(dts => dts.PilotResource)
+            .OrderByDescending(x => x.Id)
             .ToListAsync();
         }
 
@@ -72,6 +75,7 @@ namespace HaloBiz.Repository.Impl
         {
             return await _context.VehicleDTSMasters.Where(dts => dts.IsDeleted == false)
             .Include(dts => dts.CreatedBy).Include(dts=>dts.GenericDays).Include(dts => dts.VehicleResource).Include(dts => dts.VehicleResource.SupplierService)
+            .OrderByDescending(x => x.Id)
             .ToListAsync();
         }
 
@@ -85,7 +89,7 @@ namespace HaloBiz.Repository.Impl
         public async Task<CommanderDTSMaster> FindCommanderMasterById(long Id)
         {
             return await _context.CommanderDTSMasters.Include(dts => dts.GenericDays)
-                .Include(dts => dts.CreatedBy).Include(dts => dts.CommanderResource)
+                .Include(dts => dts.CreatedBy).Include(dts => dts.CommanderResource).Include(dts => dts.CommanderResource.Profile)
                 .FirstOrDefaultAsync(aer => aer.Id == Id && aer.IsDeleted == false);
         }
 
@@ -103,14 +107,34 @@ namespace HaloBiz.Repository.Impl
               .FirstOrDefaultAsync(aer => aer.Id == Id && aer.IsDeleted == false);
         }
 
+        public ArmedEscortDTSMaster GetArmedEscortProfileId(long? profileId)
+        {
+            return _context.ArmedEscortDTSMasters
+              .Where(aer => aer.ArmedEscortResourceId == profileId && aer.IsDeleted == false).ToList().LastOrDefault();
+            //return _context.ArmedEscortDTSMasters
+            //   .LastOrDefault(aer => aer.ArmedEscortResource.Id == profileId && aer.IsDeleted == false);
+        }
+
         public CommanderDTSMaster GetCommandername(string Name)
         {
             throw new NotImplementedException();
         }
 
+        public CommanderDTSMaster GetCommanderProfileId(long? profileId)
+        {
+            return _context.CommanderDTSMasters
+             .Where(aer => aer.CommanderResourceId == profileId && aer.IsDeleted == false).ToList().LastOrDefault();
+        }
+
         public PilotDTSMaster GetPilotname(string Name)
         {
             throw new NotImplementedException();
+        }
+
+        public PilotDTSMaster GetPilotProfileId(long? profileId)
+        {
+            return _context.PilotDTSMasters
+             .Where(aer => aer.PilotResourceId == profileId && aer.IsDeleted == false).ToList().LastOrDefault();
         }
 
         public ArmedEscortDTSMaster GetTypename(string Name)
@@ -121,6 +145,12 @@ namespace HaloBiz.Repository.Impl
         public VehicleDTSMaster GetVehiclename(string Name)
         {
             throw new NotImplementedException();
+        }
+
+        public VehicleDTSMaster GetVehicleProfileId(long? profileId)
+        {
+            return _context.VehicleDTSMasters
+             .Where(aer => aer.VehicleResourceId == profileId && aer.IsDeleted == false).ToList().LastOrDefault();
         }
 
         public async Task<ArmedEscortDTSMaster> SaveArmedEscortMaster(ArmedEscortDTSMaster armedEscort)

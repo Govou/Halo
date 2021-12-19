@@ -25,6 +25,13 @@ namespace HaloBiz.DTOs.ApiDTOs
                     return "Record already exists";
                 case 500:
                     return "An unhandled error occurred";
+                case 440:
+                    return "Please check your Start or End Date";
+                case 441:
+                    return "Please check your Opening or Closing Time";
+                case 442:
+                    return "All Available days can't be false";
+
                 //case 409:
                 //    return "This user cannot be assigned to a different market area or the same service category";
                 default:
