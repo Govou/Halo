@@ -31,7 +31,8 @@ namespace HaloBiz.DTOs.TransferDTOs.LAMS
         public IEnumerable<LeadKeyPersonTransferDTO> LeadKeyPeople { get; set; }
         public IEnumerable<LeadDivisionTransferDTO> LeadDivisions { get; set; }
         public UserProfileTransferDTO CreatedBy { get; set; }
-        
+        public DateTime? CreatedAt { get; set; }
+
     }
     public class LeadWithoutModelsTransferDTO
     {
