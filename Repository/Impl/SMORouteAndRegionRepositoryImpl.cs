@@ -222,5 +222,14 @@ namespace HaloBiz.Repository.Impl
             return _context.SMOReturnRoutes
                                       .Where(ct => ct.SMORouteId == routeId && ct.IsDeleted == false).FirstOrDefault();
         }
+
+        public async Task<IEnumerable<SMORoute>> FindAllSMORoutesByName(string routeName)
+        {
+            return await _context.SMORoutes.Where(r => r.IsDeleted == false && r.RouteName == routeName).Include(r => r.VehiclesOnRoute.Where(r => r.IsDeleted == false))
+              .Include(r => r.ArmedEscortsOnRoute.Where(ae => ae.IsDeleted == false)).
+              Include(r => r.PilotsOnRoute.Where(pi => pi.IsDeleted == false))
+              .Include(r => r.SMORegion)
+              .ToListAsync();
+        }
     }
 }
