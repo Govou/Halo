@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Auth.PermissionParts;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -12,5 +13,6 @@ namespace HaloBiz.DTOs.TransferDTOs.RoleManagement
         public string Name { get; set; }
         public string Description { get; set; }
         public IEnumerable<RoleClaimTransferDTO> RoleClaims { get; set; }
+
     }
 }

@@ -28,10 +28,18 @@ namespace HaloBiz.Repository.Impl
 
         public async Task<IEnumerable<PriceRegister>> FindAllPriceRegisters()
         {
-            return await _context.PriceRegisters.Where(rank => rank.IsDeleted == false)
+            return await _context.PriceRegisters.Where(price => price.IsDeleted == false)
                .Include(ct => ct.ServiceRegistration).Include(ct=>ct.ServiceRegistration.Service)
-               .Include(ct=>ct.SMORegion).Include(ct=>ct.SMORoute).Include(ct=>ct.CreatedBy)
+               .Include(ct=>ct.SMORegion).Include(ct=>ct.SMORoute).Include(ct=>ct.CreatedBy).OrderByDescending(x => x.Id)
                .ToListAsync();
+        }
+
+        public async Task<IEnumerable<PriceRegister>> FindAllPriceRegistersWithByRouteId( long routeId)
+        {
+            return await _context.PriceRegisters.Where(price => price.IsDeleted == false && price.SMORouteId == routeId)
+                .Include(price => price.ServiceRegistration).Include(price => price.ServiceRegistration.Service)
+                .Include(price => price.SMORegion).Include(price => price.SMORoute).Include(price => price.CreatedBy).OrderByDescending(x=>x.Id)
+                .ToListAsync();
         }
 
         public async Task<PriceRegister> FindPriceRegisterById(long Id)

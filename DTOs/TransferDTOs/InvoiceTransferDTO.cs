@@ -29,5 +29,6 @@ namespace HaloBiz.DTOs.TransferDTOs
         public bool IsFinalInvoice { get; set; }
 
         public double ToReceiptValue { get; set; }
+        public double TotalReceiptApplied { get; set; }
     }
 }
