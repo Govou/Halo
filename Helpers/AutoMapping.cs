@@ -420,6 +420,19 @@ namespace HaloBiz.Helpers
             CreateMap<VehicleDTSDetailGenericDaysReceivingDTO, VehicleDTSDetailGenericDay>();
             CreateMap<VehicleDTSDetailGenericDay, VehicleDTSDetailGenericDaysTransferDTO>();
 
+            //ServiceAssignment Types
+            CreateMap<PassengerTypesForServiceAssignmentReceivingDTO, PassengerType>();
+            CreateMap<TripTypesForServiceAssignmentReceivingDTO, TripType>();
+            CreateMap<SourceTypesForServiceAssignmentReceivingDTO, SourceType>();
+            CreateMap<ReleaseTypesForServiceAssignmentReceivingDTO, ReleaseType>();
+
+            //Transfer
+            CreateMap<PassengerType, PassengerTypesForServiceAssignmentTransferDTO>();
+            CreateMap<TripType, TripTypesForServiceAssignmentTransferDTO>();
+            CreateMap<SourceType, SourceTypesForServiceAssignmentTransferDTO>();
+            CreateMap<ReleaseType, ReleaseTypesForServiceAssignmentTransferDTO>();
+
+
             //CreateMap<CommanderType, SMORegionTransferDTO>();
         }
     }
