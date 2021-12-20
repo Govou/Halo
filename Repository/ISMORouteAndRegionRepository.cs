@@ -15,6 +15,7 @@ namespace HaloBiz.Repository
 
         SMORoute GetRouteName(string Name);
         Task<IEnumerable<SMORoute>> FindAllSMORoutes();
+        Task<IEnumerable<SMORoute>> FindAllSMORoutesByName(string routeName);
         Task<IEnumerable<SMORoute>> FindAllRoutesWithReturnRoute();
         Task<bool> DeleteSMORoute(SMORoute sMORoute);
 

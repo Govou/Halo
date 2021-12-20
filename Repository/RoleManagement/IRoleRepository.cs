@@ -14,5 +14,6 @@ namespace HaloBiz.Repository.RoleManagement
         Task<Role> UpdateRole(Role role);
         Task<bool> DeleteRole(Role role);
         Task<bool> DeleteRoleClaims(Role role);
+        Task<IEnumerable<Role>> FindRolesByUser(long userId);
     }
 }

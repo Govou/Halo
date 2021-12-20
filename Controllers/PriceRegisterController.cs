@@ -31,6 +31,15 @@ namespace HaloBiz.Controllers
             return Ok(priceReg);
         }
 
+        [HttpGet("GetAllPriceRegistersByRouteId/{routeId}")]
+        public async Task<ActionResult> GetAllPriceRegistersByRouteId(long routeId)
+        {
+            var response = await _priceRegisterService.GetAllPriceRegistersByRouteId(routeId);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var priceReg = ((ApiOkResponse)response).Result;
+            return Ok(priceReg);
+        }
         [HttpGet("GetPriceRegisterById/{id}")]
         public async Task<ActionResult> GetPriceRegisterById(long id)
         {

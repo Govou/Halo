@@ -72,6 +72,17 @@ namespace HaloBiz.MyServices.Impl
             return new ApiOkResponse(TransferDTO);
         }
 
+        public async Task<ApiResponse> GetAllPriceRegistersByRouteId(long routeId)
+        {
+            var priceReg = await _priceRegisterRepository.FindAllPriceRegistersWithByRouteId(routeId);
+            if (priceReg == null)
+            {
+                return new ApiResponse(404);
+            }
+            var TransferDTO = _mapper.Map<IEnumerable<PriceRegisterTransferDTO>>(priceReg);
+            return new ApiOkResponse(TransferDTO);
+        }
+
         public async Task<ApiResponse> GetPriceRegisterId(long id)
         {
             var priceReg = await _priceRegisterRepository.FindPriceRegisterById(id);

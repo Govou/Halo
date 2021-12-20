@@ -398,13 +398,27 @@ namespace HaloBiz.Helpers
             CreateMap<CommanderSMORoutesResourceTie, CommanderSMORoutesResourceTieTransferDTO>();
             CreateMap<PilotSMORoutesResourceTie, PilotSMORoutesResourceTieTransferDTO>(); 
             CreateMap<VehicleSMORoutesResourceTie, VehicleSMORoutesResourceTieTransferDTO>(); 
-            //CreateMap<CommanderTypeAndRankReceivingDTO[], CommanderType>(); 
-            //CreateMap<ArmedEscortTypeReceivingDTO[], ArmedEscortType>(); 
-            //CreateMap<VehicleTypeReceivingDTO[], VehicleType>(); 
-            //CreateMap<PilotTypeReceivingDTO[], PilotType>();
 
-            //CreateMap<BusinessRuleReceivingDTO, BRPairable>();
-            //CreateMap<BRPairable, BusinessRuleTransferDTO>();
+            //Schedules
+            CreateMap<ArmedEscortDTSMastersReceivingDTO, ArmedEscortDTSMaster>();
+            CreateMap<ArmedEscortDTSMaster, ArmedEscortDTSMastersTransferDTO>();
+            CreateMap<ArmedEscortDTSDetailGenericDaysReceivingDTO, ArmedEscortDTSDetailGenericDay>();
+            CreateMap<ArmedEscortDTSDetailGenericDay, ArmedEscortDTSDetailGenericDaysTransferDTO>();
+
+            CreateMap<CommanderDTSMastersReceivingDTO, CommanderDTSMaster>();
+            CreateMap<CommanderDTSMaster, CommanderDTSMastersTransferDTO>();
+            CreateMap<CommanderDTSDetailGenericDaysReceivingDTO, CommanderDTSDetailGenericDay>();
+            CreateMap<CommanderDTSDetailGenericDay, CommanderDTSDetailGenericDaysTransferDTO>();
+
+            CreateMap<PilotDTSMastersReceivingDTO, PilotDTSMaster>();
+            CreateMap<PilotDTSMaster, PilotDTSMastersTransferDTO>();
+            CreateMap<PilotDTSDetailGenericDaysReceivingDTO, PilotDTSDetailGenericDay>();
+            CreateMap<PilotDTSDetailGenericDay, PilotDTSDetailGenericDaysTransferDTO>();
+
+            CreateMap<VehicleDTSMastersReceivingDTO, VehicleDTSMaster>();
+            CreateMap<VehicleDTSMaster, VehicleDTSMastersTransferDTO>();
+            CreateMap<VehicleDTSDetailGenericDaysReceivingDTO, VehicleDTSDetailGenericDay>();
+            CreateMap<VehicleDTSDetailGenericDay, VehicleDTSDetailGenericDaysTransferDTO>();
 
             //CreateMap<CommanderType, SMORegionTransferDTO>();
         }

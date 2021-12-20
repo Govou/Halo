@@ -12,6 +12,8 @@ namespace HaloBiz.MyServices
     {
         Task<ApiResponse> AddPriceRegister(HttpContext context, PriceRegisterReceivingDTO priceRegisterReceivingDTO);
         Task<ApiResponse> GetAllPriceRegisters();
+        Task<ApiResponse> GetAllPriceRegistersByRouteId(long routeId);
+        //Task<ApiResponse> GetAllRoutesWithPriceRegisters(string routeName);
         Task<ApiResponse> GetPriceRegisterId(long id);
         Task<ApiResponse> UpdatePriceRegister(HttpContext context, long id, PriceRegisterReceivingDTO priceRegisterReceivingDTO);
         Task<ApiResponse> DeletePriceRegister(long id);
