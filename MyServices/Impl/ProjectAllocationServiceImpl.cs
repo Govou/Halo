@@ -1138,6 +1138,7 @@ namespace HaloBiz.MyServices.Impl
                     var deliverableToDisplayInstance = new Deliverable();
                     deliverableToDisplayInstance.Alias = item.Alias;
                     deliverableToDisplayInstance.Caption = item.Caption;
+                    deliverableToDisplayInstance.Budget = item.Budget;
                     deliverableToDisplayInstance.Description = item.Description;
                     deliverableToDisplayInstance.Balances = await _context.Balances.Where(x => x.DeliverableId == item.Id && x.CreatedById == httpContext.GetLoggedInUserId()).ToListAsync();
                     deliverableToDisplayInstance.CreatedById = httpContext.GetLoggedInUserId();
@@ -1174,7 +1175,7 @@ namespace HaloBiz.MyServices.Impl
         }
 
 
-        public async Task<ApiGenericResponse<List<Deliverable>>> getAllDeliverablesByTaskId(HttpContext httpContext,long taskId)
+        public async Task<ApiGenericResponse<List<DeliverableDTO>>> getAllDeliverablesByTaskId(HttpContext httpContext,long taskId)
 
         {
 
@@ -1182,7 +1183,7 @@ namespace HaloBiz.MyServices.Impl
 
             if (getAllDeliverables == null || getAllDeliverables.Count() == 0)
             {
-                return new ApiGenericResponse<List<Deliverable>>
+                return new ApiGenericResponse<List<DeliverableDTO>>
                 {
                     responseCode = 404,
                     responseMessage = "No Deliverables was found",
@@ -1192,39 +1193,51 @@ namespace HaloBiz.MyServices.Impl
             else
             {
 
-                var deliverableToDisplayArray = new List<Deliverable>();
+                var deliverableToDisplayArray = new List<DeliverableDTO>();
 
-                
-                
-                
-                
                 foreach (var item in getAllDeliverables)
                 {
-                    var deliverableToDisplayInstance = new Deliverable();
+                    var deliverableToDisplayInstance = new DeliverableDTO();
                     deliverableToDisplayInstance.Alias = item.Alias;
                     deliverableToDisplayInstance.Caption = item.Caption;
+                    deliverableToDisplayInstance.Budget = item.Budget;
                     deliverableToDisplayInstance.Description = item.Description;
-                    deliverableToDisplayInstance.Balances = await _context.Balances.Where(x => x.DeliverableId == item.Id && x.CreatedById == httpContext.GetLoggedInUserId()).ToListAsync();
                     deliverableToDisplayInstance.CreatedById = httpContext.GetLoggedInUserId();
                     deliverableToDisplayInstance.DatePicked = item.DatePicked;
-                    deliverableToDisplayInstance.DeliverableAssignees = await _context.DeliverableAssignees.Where(x => x.DeliverableId == item.Id && x.CreatedById == httpContext.GetLoggedInUserId() && x.IsActive == true).ToListAsync();
-                    deliverableToDisplayInstance.Dependencies = await _context.Dependencies.Where(x => x.DependencyDeliverableId == item.Id && x.CreatedById == httpContext.GetLoggedInUserId()).ToListAsync();
                     deliverableToDisplayInstance.DependentType = item.DependentType;
                     deliverableToDisplayInstance.EndDate = item.EndDate;
+                    deliverableToDisplayInstance.Requirements = await _context.PMRequirements.Where(x => x.IsActive == true && x.DeliverableId == item.Id).ToListAsync();
+                    deliverableToDisplayInstance.Dependencies = await _context.Dependencies.Where(x => x.DependencyDeliverableId == item.Id).ToListAsync();
                     deliverableToDisplayInstance.Id = item.Id;
                     deliverableToDisplayInstance.TimeEstimate = item.TimeEstimate;
-                    deliverableToDisplayInstance.Videos = await _context.Videos.Where(x => x.DeliverableId == item.Id && x.CreatedById == httpContext.GetLoggedInUserId()).ToListAsync();
-                    deliverableToDisplayInstance.Task = await _context.Tasks.FirstOrDefaultAsync(x => x.Id == item.TaskId && x.CreatedById == httpContext.GetLoggedInUserId() && x.IsActive == true);
                     deliverableToDisplayInstance.StartDate = item.StartDate;
-                    deliverableToDisplayInstance.Requirements = await _context.PMRequirements.Where(x => x.DeliverableId == item.Id && x.CreatedById == httpContext.GetLoggedInUserId() && x.IsActive == false).ToListAsync();
-                    deliverableToDisplayInstance.Pictures = await _context.Pictures.Where(x => x.DeliverableId == item.Id && x.CreatedById == httpContext.GetLoggedInUserId()).ToListAsync();
+                    deliverableToDisplayInstance.PMIllustrations = await _context.PMIllustrations.Where(x => x.IsActive == true && x.TaskOrDeliverableId == item.Id).ToListAsync();
+                    var getAssignTaskById = await _context.AssignTasks.FirstOrDefaultAsync(x => x.IsActive == true && x.DeliverableId == item.Id);
+                    var assigneeToBeSaved = new AssignDeliverableDTO();
+                    if (getAssignTaskById != null){
+                        assigneeToBeSaved.Caption = getAssignTaskById.Caption;
+                        assigneeToBeSaved.Alias = getAssignTaskById.Alias;
+                        assigneeToBeSaved.CreatedAt = getAssignTaskById.CreatedAt;
+                        assigneeToBeSaved.CreatedById = getAssignTaskById.CreatedById;
+                        assigneeToBeSaved.DeliverableAssigneeId = getAssignTaskById.DeliverableAssigneeId;
+                        assigneeToBeSaved.DeliverableUser = await getUser(assigneeToBeSaved.DeliverableAssigneeId, httpContext);
+                        assigneeToBeSaved.DeliverableId = getAssignTaskById.DeliverableId;
+                        assigneeToBeSaved.Description = getAssignTaskById.Description;
+                        assigneeToBeSaved.DueDate = getAssignTaskById.DueDate;
+                        assigneeToBeSaved.Id = getAssignTaskById.Id; 
+                        assigneeToBeSaved.IsActive = getAssignTaskById.IsActive;
+                        assigneeToBeSaved.Priority = getAssignTaskById.Priority;
+                        assigneeToBeSaved.UpdatedAt = getAssignTaskById.UpdatedAt;
+                    }
+
+                    deliverableToDisplayInstance.AssignDeliverableDTO = assigneeToBeSaved;
                     deliverableToDisplayInstance.IsActive = item.IsActive;
-                    deliverableToDisplayInstance.Documents = await _context.Documents.Where(x => x.DeliverableId == item.Id && x.CreatedById == httpContext.GetLoggedInUserId()).ToListAsync();
 
                     deliverableToDisplayArray.Add(deliverableToDisplayInstance);
+
                 }
 
-                return new ApiGenericResponse<List<Deliverable>>
+                return new ApiGenericResponse<List<DeliverableDTO>>
                 {
                     responseCode = 200,
                     responseMessage = "Successfull retrieved all deliverables",
@@ -1257,6 +1270,7 @@ namespace HaloBiz.MyServices.Impl
 
                     var deliverableToDisplayInstance = new Deliverable();
                     deliverableToDisplayInstance.Alias = getAllDeliverables.Alias;
+                deliverableToDisplayInstance.Budget = getAllDeliverables.Budget;
                     deliverableToDisplayInstance.Caption = getAllDeliverables.Caption;
                     deliverableToDisplayInstance.Description = getAllDeliverables.Description;
                     deliverableToDisplayInstance.Balances = await _context.Balances.Where(x => x.DeliverableId == getAllDeliverables.Id && x.CreatedById == httpContext.GetLoggedInUserId()).ToListAsync();
@@ -1571,6 +1585,293 @@ namespace HaloBiz.MyServices.Impl
 
         }
 
+
+
+
+
+        public async Task<ApiGenericResponse<List<DeliverableDTO>>> AssignDeliverable(HttpContext context, long taskId,long deliverableId, long assigneDeliverableId,  AssignDeliverableDTO assignDeliverableDTO)
+        {
+           
+               var getAssigndDeliverable = await _context.AssignTasks.FirstOrDefaultAsync(x => x.IsActive == true && x.Id == assigneDeliverableId && x.DeliverableId == deliverableId);
+           
+
+                if (assigneDeliverableId > 0)
+                {
+
+                    if (assignDeliverableDTO.DeliverableAssigneeId == null)
+                        assignDeliverableDTO.DeliverableAssigneeId = getAssigndDeliverable.DeliverableAssigneeId;
+                    if (assignDeliverableDTO.Priority == null)
+                        assignDeliverableDTO.Priority = getAssigndDeliverable.Priority;
+
+                    getAssigndDeliverable.Priority = assignDeliverableDTO.Priority;
+                    getAssigndDeliverable.DeliverableAssigneeId = assignDeliverableDTO.DeliverableAssigneeId;
+                    _context.AssignTasks.Update(getAssigndDeliverable);
+                    await _context.SaveChangesAsync();
+
+            }
+
+               else
+                {
+
+                    var deliverableToBeAssigned = new AssignTask
+                    {
+                        IsActive = true,
+                        Caption = assignDeliverableDTO.Caption,
+                        Alias = assignDeliverableDTO.Alias,
+                        Description = assignDeliverableDTO.Description,
+                        Priority = assignDeliverableDTO.Priority,
+                        DeliverableId = assignDeliverableDTO.DeliverableId,
+                        DeliverableAssigneeId = assignDeliverableDTO.DeliverableAssigneeId,
+                        DueDate = assignDeliverableDTO.DueDate,
+                        CreatedById = context.GetLoggedInUserId(),
+                        CreatedAt = DateTime.Now
+                    };
+                    await _context.AssignTasks.AddAsync(deliverableToBeAssigned);
+                    await _context.SaveChangesAsync();
+            }
+
+                    
+                    
+                
+
+                    var getAllDeliverables = await _context.Deliverables.Where(x => x.IsActive == true && x.TaskId == taskId  && x.CreatedById == context.GetLoggedInUserId()).ToListAsync();
+                    var deliverableToDisplayArray = new List<DeliverableDTO>();
+
+                    foreach (var item in getAllDeliverables)
+                    {
+                        var deliverableToDisplayInstance = new DeliverableDTO();
+                        deliverableToDisplayInstance.Alias = item.Alias;
+                        deliverableToDisplayInstance.Caption = item.Caption;
+                        deliverableToDisplayInstance.Budget = item.Budget;
+                        deliverableToDisplayInstance.Description = item.Description;
+                        deliverableToDisplayInstance.CreatedById = context.GetLoggedInUserId();
+                        deliverableToDisplayInstance.DatePicked = item.DatePicked;
+                        deliverableToDisplayInstance.DependentType = item.DependentType;
+                        deliverableToDisplayInstance.EndDate = item.EndDate;
+                        deliverableToDisplayInstance.Requirements = await _context.PMRequirements.Where(x => x.IsActive == true && x.DeliverableId == item.Id).ToListAsync();
+                        deliverableToDisplayInstance.Dependencies = await _context.Dependencies.Where(x => x.DependencyDeliverableId == item.Id).ToListAsync();
+                        deliverableToDisplayInstance.Id = item.Id;
+                        deliverableToDisplayInstance.TimeEstimate = item.TimeEstimate;
+                        deliverableToDisplayInstance.StartDate = item.StartDate;
+                        deliverableToDisplayInstance.PMIllustrations = await _context.PMIllustrations.Where(x => x.IsActive == true && x.TaskOrDeliverableId == deliverableId).ToListAsync();
+                        var getAssignTaskById = await _context.AssignTasks.FirstOrDefaultAsync(x => x.IsActive == true && x.DeliverableId == item.Id);
+                        var assigneeToBeSaved = new AssignDeliverableDTO();
+                        if (getAssignTaskById != null)
+                        {
+                            assigneeToBeSaved.Caption = getAssignTaskById.Caption;
+                            assigneeToBeSaved.Alias = getAssignTaskById.Alias;
+                            assigneeToBeSaved.CreatedAt = getAssignTaskById.CreatedAt;
+                            assigneeToBeSaved.CreatedById = getAssignTaskById.CreatedById;
+                            assigneeToBeSaved.DeliverableAssigneeId = getAssignTaskById.DeliverableAssigneeId;
+                            assigneeToBeSaved.DeliverableUser = await getUser(assigneeToBeSaved.DeliverableAssigneeId, context);
+                            assigneeToBeSaved.DeliverableId = getAssignTaskById.DeliverableId;
+                            assigneeToBeSaved.Description = getAssignTaskById.Description;
+                            assigneeToBeSaved.DueDate = getAssignTaskById.DueDate;
+                            assigneeToBeSaved.Id = getAssignTaskById.Id;
+                            assigneeToBeSaved.IsActive = getAssignTaskById.IsActive;
+                            assigneeToBeSaved.Priority = getAssignTaskById.Priority;
+                            assigneeToBeSaved.UpdatedAt = getAssignTaskById.UpdatedAt;
+                        }
+
+                        deliverableToDisplayInstance.AssignDeliverableDTO = assigneeToBeSaved;
+                        deliverableToDisplayInstance.IsActive = item.IsActive;
+
+                        deliverableToDisplayArray.Add(deliverableToDisplayInstance);
+
+                        }
+
+                        return new ApiGenericResponse<List<DeliverableDTO>>
+                        {
+                            responseCode = 200,
+                            responseMessage = "Deliverable successfully saved.",
+                            data = deliverableToDisplayArray,
+                        };
+
+             }
+
+
+
+
+
+
+        public async Task<ApiGenericResponse<List<DeliverableDTO>>> createDeliverableIllustrattions(HttpContext context, long deliverableId,long taskId, List<IllustrationsDTO> illustrationsDTO)
+        {
+            
+            var getCurrentDeliverable = await _context.Deliverables.FirstOrDefaultAsync(x => x.IsActive == true  && x.Id == deliverableId);
+
+
+            if (getCurrentDeliverable == null)
+                return new ApiGenericResponse<List<DeliverableDTO>>
+                {
+                    responseCode = 404,
+                    responseMessage = "Deliverable was not found.",
+                    data = null,
+                };
+
+
+            else
+            {
+                var illustrationArray = new List<PMIllustration>();
+                foreach(var item in illustrationsDTO)
+                {
+                    var illustration = new PMIllustration();
+                    illustration.Alias = item.Alias;
+                    illustration.Caption = item.Caption;
+                    illustration.CreatedAt = DateTime.Now;
+                    illustration.CreatedById = context.GetLoggedInUserId();
+                    illustration.Description = item.Description;
+                    illustration.IllustrationImage = item.IllustrationImage;
+                    illustration.IsActive = true;
+                    illustration.TaskOrDeliverableId = deliverableId;
+                    illustrationArray.Add(illustration);
+                }
+                await _context.PMIllustrations.AddRangeAsync(illustrationArray);
+                await _context.SaveChangesAsync();
+            }
+
+
+            var getAllDeliverables = await _context.Deliverables.Where(x => x.IsActive == true && x.TaskId == taskId && x.CreatedById == context.GetLoggedInUserId()).ToListAsync();
+            var deliverableToDisplayArray = new List<DeliverableDTO>();
+
+            foreach (var item in getAllDeliverables)
+            {
+                var deliverableToDisplayInstance = new DeliverableDTO();
+                deliverableToDisplayInstance.Alias = item.Alias;
+                deliverableToDisplayInstance.Caption = item.Caption;
+                deliverableToDisplayInstance.Budget = item.Budget;
+                deliverableToDisplayInstance.Description = item.Description;
+                deliverableToDisplayInstance.CreatedById = context.GetLoggedInUserId();
+                deliverableToDisplayInstance.DatePicked = item.DatePicked;
+                deliverableToDisplayInstance.DependentType = item.DependentType;
+                deliverableToDisplayInstance.EndDate = item.EndDate;
+                deliverableToDisplayInstance.Requirements = await _context.PMRequirements.Where(x => x.IsActive == true && x.DeliverableId == item.Id).ToListAsync();
+                deliverableToDisplayInstance.Dependencies = await _context.Dependencies.Where(x => x.DependencyDeliverableId == item.Id).ToListAsync();
+                deliverableToDisplayInstance.Id = item.Id;
+                deliverableToDisplayInstance.TimeEstimate = item.TimeEstimate;
+                deliverableToDisplayInstance.StartDate = item.StartDate;
+                var getAssignTaskById = await _context.AssignTasks.FirstOrDefaultAsync(x => x.IsActive == true && x.DeliverableId == item.Id);
+                deliverableToDisplayInstance.PMIllustrations = await _context.PMIllustrations.Where(x => x.IsActive == true && x.TaskOrDeliverableId == deliverableId).ToListAsync();
+                var assigneeToBeSaved = new AssignDeliverableDTO();
+                if (getAssignTaskById != null)
+                {
+                    assigneeToBeSaved.Caption = getAssignTaskById.Caption;
+                    assigneeToBeSaved.Alias = getAssignTaskById.Alias;
+                    assigneeToBeSaved.CreatedAt = getAssignTaskById.CreatedAt;
+                    assigneeToBeSaved.CreatedById = getAssignTaskById.CreatedById;
+                    assigneeToBeSaved.DeliverableAssigneeId = getAssignTaskById.DeliverableAssigneeId;
+                    assigneeToBeSaved.DeliverableUser = await getUser(assigneeToBeSaved.DeliverableAssigneeId, context);
+                    assigneeToBeSaved.DeliverableId = getAssignTaskById.DeliverableId;
+                    assigneeToBeSaved.Description = getAssignTaskById.Description;
+                    assigneeToBeSaved.DueDate = getAssignTaskById.DueDate;
+                    assigneeToBeSaved.Id = getAssignTaskById.Id;
+                    assigneeToBeSaved.IsActive = getAssignTaskById.IsActive;
+                    assigneeToBeSaved.Priority = getAssignTaskById.Priority;
+                    assigneeToBeSaved.UpdatedAt = getAssignTaskById.UpdatedAt;
+                }
+
+                deliverableToDisplayInstance.AssignDeliverableDTO = assigneeToBeSaved;
+                deliverableToDisplayInstance.IsActive = item.IsActive;
+
+                deliverableToDisplayArray.Add(deliverableToDisplayInstance);
+
+            }
+
+            return new ApiGenericResponse<List<DeliverableDTO>>
+            {
+                responseCode = 200,
+                responseMessage = "Deliverable successfully saved.",
+                data = deliverableToDisplayArray,
+            };
+
+        }
+
+
+
+
+
+        public async Task<ApiGenericResponse<List<DeliverableDTO>>> DeleteIllustration(HttpContext context, long taskId,long deliverableId ,long illustrationId)
+        {
+
+            var getCurrentDeliverable = await _context.Deliverables.FirstOrDefaultAsync(x => x.IsActive == true && x.Id == deliverableId);
+
+
+            if (getCurrentDeliverable == null)
+                return new ApiGenericResponse<List<DeliverableDTO>>
+                {
+                    responseCode = 404,
+                    responseMessage = "Deliverable was not found.",
+                    data = null,
+                };
+
+
+            else
+            {
+                var illustrationInstance = await _context.PMIllustrations.FirstOrDefaultAsync(x => x.Id == illustrationId && x.IsActive == true && x.TaskOrDeliverableId == deliverableId);
+                illustrationInstance.IsActive = false;
+                _context.PMIllustrations.Update(illustrationInstance);
+                await _context.SaveChangesAsync();
+            }
+
+
+            var getAllDeliverables = await _context.Deliverables.Where(x => x.IsActive == true && x.TaskId == taskId && x.CreatedById == context.GetLoggedInUserId()).ToListAsync();
+            var deliverableToDisplayArray = new List<DeliverableDTO>();
+
+            foreach (var item in getAllDeliverables)
+            {
+                var deliverableToDisplayInstance = new DeliverableDTO();
+                deliverableToDisplayInstance.Alias = item.Alias;
+                deliverableToDisplayInstance.Caption = item.Caption;
+                deliverableToDisplayInstance.Budget = item.Budget;
+                deliverableToDisplayInstance.Description = item.Description;
+                deliverableToDisplayInstance.CreatedById = context.GetLoggedInUserId();
+                deliverableToDisplayInstance.DatePicked = item.DatePicked;
+                deliverableToDisplayInstance.DependentType = item.DependentType;
+                deliverableToDisplayInstance.Requirements = await _context.PMRequirements.Where(x => x.IsActive == true && x.DeliverableId == item.Id).ToListAsync();
+                deliverableToDisplayInstance.Dependencies = await _context.Dependencies.Where(x => x.DependencyDeliverableId == item.Id).ToListAsync();
+                deliverableToDisplayInstance.EndDate = item.EndDate;
+                deliverableToDisplayInstance.Id = item.Id;
+                deliverableToDisplayInstance.TimeEstimate = item.TimeEstimate;
+                deliverableToDisplayInstance.StartDate = item.StartDate;
+                var getAssignTaskById = await _context.AssignTasks.FirstOrDefaultAsync(x => x.IsActive == true && x.DeliverableId == item.Id);
+                deliverableToDisplayInstance.PMIllustrations = await _context.PMIllustrations.Where(x => x.IsActive == true && x.TaskOrDeliverableId == deliverableId).ToListAsync();
+                var assigneeToBeSaved = new AssignDeliverableDTO();
+                if (getAssignTaskById != null)
+                {
+                    assigneeToBeSaved.Caption = getAssignTaskById.Caption;
+                    assigneeToBeSaved.Alias = getAssignTaskById.Alias;
+                    assigneeToBeSaved.CreatedAt = getAssignTaskById.CreatedAt;
+                    assigneeToBeSaved.CreatedById = getAssignTaskById.CreatedById;
+                    assigneeToBeSaved.DeliverableAssigneeId = getAssignTaskById.DeliverableAssigneeId;
+                    assigneeToBeSaved.DeliverableUser = await getUser(assigneeToBeSaved.DeliverableAssigneeId, context);
+                    assigneeToBeSaved.DeliverableId = getAssignTaskById.DeliverableId;
+                    assigneeToBeSaved.Description = getAssignTaskById.Description;
+                    assigneeToBeSaved.DueDate = getAssignTaskById.DueDate;
+                    assigneeToBeSaved.Id = getAssignTaskById.Id;
+                    assigneeToBeSaved.IsActive = getAssignTaskById.IsActive;
+                    assigneeToBeSaved.Priority = getAssignTaskById.Priority;
+                    assigneeToBeSaved.UpdatedAt = getAssignTaskById.UpdatedAt;
+                }
+
+                deliverableToDisplayInstance.AssignDeliverableDTO = assigneeToBeSaved;
+                deliverableToDisplayInstance.IsActive = item.IsActive;
+
+                deliverableToDisplayArray.Add(deliverableToDisplayInstance);
+
+            }
+
+            return new ApiGenericResponse<List<DeliverableDTO>>
+            {
+                responseCode = 200,
+                responseMessage = "Deliverable successfully saved.",
+                data = deliverableToDisplayArray,
+            };
+
+        }
+
+
+
+
+
         public async Task<ApiGenericResponse<List<TaskSummaryDTO>>> getAllTask(HttpContext httpContext)
         {
             var taskSummaryList = new List<TaskSummaryDTO>();
@@ -1626,6 +1927,9 @@ namespace HaloBiz.MyServices.Impl
         }
 
 
+
+
+
         public async Task<ApiGenericResponse<List<ProjectSummaryDTO>>> getProjectByWorkspaceId(HttpContext httpContext, long workspaceId)
         {
             var getProjectsByWorkspaceId = await _context.Projects.Where(x => x.WorkspaceId == workspaceId && x.CreatedById == httpContext.GetLoggedInUserId() && x.IsActive == true).ToListAsync();
@@ -1673,141 +1977,6 @@ namespace HaloBiz.MyServices.Impl
         }
 
 
-
-
-
-
-
-
-
-
-
-        //public async Task<ApiGenericResponse<List<ProjectTree>>> getProjectForTreeTable(HttpContext httpContext)
-        //{
-        //    var getAllAssignedToAssignee = await _context.TaskAssignees.Where(x => x.IsActive == true && x.TaskAssigneeId == httpContext.GetLoggedInUserId() && x.IsActive == true).ToListAsync();
-        //    if(getAllAssignedToAssignee.Count()  != 0)
-        //    {
-
-        //        var projectArray = new List<ProjectTree>();
-        //        var getAllProjects = await _context.Projects.Where(x => x.IsActive == true && x.CreatedById == httpContext.GetLoggedInUserId()).ToListAsync();
-        //        if(getAllProjects.Count() != 0)
-        //        {
-        //            var taskArray = new List<TaskRevampDTO>();
-
-        //            foreach(var project in getAllProjects)
-        //            {
-        //                var projectInstance = new ProjectTree();
-        //                var getAllTask = await _context.Tasks.Where(x => x.IsActive == true && x.ProjectId == project.Id).ToListAsync();
-        //                projectInstance.Alias = project.Alias;
-        //                projectInstance.Caption = project.Caption;
-        //                projectInstance.CreatedAt = project.CreatedAt;
-        //                projectInstance.CreatedById = project.CreatedById;
-        //                projectInstance.Description = project.Description;
-        //                projectInstance.Id = project.Id;
-        //                projectInstance.IsActive = project.IsActive;
-        //                projectInstance.ProjectImage = project.ProjectImage;
-        //                projectInstance.UpdatedAt = project.UpdatedAt;
-        //                projectInstance.WorkspaceId = project.WorkspaceId;
-        //                if(getAllTask.Count() != 0)
-        //                {
-        //                    foreach(var task in getAllTask)
-        //                    {
-        //                        var taskInstance = new TaskRevampDTO();
-        //                        taskInstance.Alias = task.Alias;
-        //                        taskInstance.Caption = task.Caption;
-        //                        taskInstance.CreatedAt = task.CreatedAt;
-        //                        taskInstance.CreatedById = task.CreatedById;
-        //                        taskInstance.Deliverables = await _context.Deliverables.Where(x => x.IsActive == true && x.TaskId == task.Id).ToListAsync();
-        //                        taskInstance.Description = task.Description;
-        //                        taskInstance.DueTime = task.DueTime;
-        //                        taskInstance.IsAssigned = task.IsAssigned;
-        //                        taskInstance.IsMilestone = task.IsMilestone;
-        //                        taskInstance.IsReassigned = task.IsReassigned;
-        //                        taskInstance.IsWorkbenched = task.IsWorkbenched;
-        //                        taskInstance.ProjectId = task.ProjectId;
-        //                        taskInstance.project = await _context.Projects.FirstOrDefaultAsync(x => x.IsActive == true && x.Id == task.ProjectId);
-        //                        taskInstance.TaskAssignees = await getAssignees(task.Id,httpContext);
-        //                        taskInstance.TaskEndDate = task.TaskEndDate;
-        //                        taskInstance.TaskStartDate = task.TaskStartDate;
-        //                        taskInstance.UpdatedAt = task.UpdatedAt;
-        //                        task.WorkingManHours = task.WorkingManHours;
-
-        //                        taskArray.Add(taskInstance);
-
-        //                    }
-        //                }
-
-        //                projectInstance.Tasks = taskArray;
-        //                projectArray.Add(projectInstance);
-
-        //            }
-
-        //            return new ApiGenericResponse<List<ProjectTree>>
-        //            {
-        //                responseCode = 200,
-        //                responseMessage = "ProjectTree was successfully retrieved",
-        //                data = projectArray,
-        //            };
-
-        //        }
-        //        else
-        //        {
-        //            return new ApiGenericResponse<List<ProjectTree>>
-        //            {
-        //                responseCode = 404,
-        //                responseMessage = "No Project  was found",
-        //                data = null,
-        //            };
-        //        }
-
-        //    }
-        //    else
-        //    {
-
-        //        return new ApiGenericResponse<List<ProjectTree>>
-        //        {
-        //            responseCode = 404,
-        //            responseMessage = "No Assignee  was found",
-        //            data = null,
-        //        };
-
-        //    }
-
-        //}
-
-
-
-
-
-
-
-        //public async Task<ApiGenericResponse<List<ProjectTree>>> getProjectForTreeTable(HttpContext httpContext)
-        //{
-        //    var getTaskAssigneeDetails = await _context.TaskAssignees.Where(x => x.IsActive == true).ToListAsync();
-        //    if (getTaskAssigneeDetails.Count() == 0 || getTaskAssigneeDetails == null)
-        //    {
-        //        return new ApiGenericResponse<List<ProjectTree>>
-        //        {
-        //            responseCode = 404,
-        //            responseMessage = "No Assignee details  was found",
-        //            data = null,
-        //        };
-
-        //    }
-        //    else
-        //    {
-        //        foreach(var assignee in getTaskAssigneeDetails)
-        //        {
-        //            if(assignee.TaskAssigneeId == httpContext.GetLoggedInUserId())
-        //            {
-        //                var getTask = await _context.Tasks.Where(x => x.IsActive == true && x.Id == assignee.TaskId).ToA
-        //            }
-        //        }
-        //    }
-
-
-
-        //}
 
 
         public async Task<ApiGenericResponse<List<Task>>> pickUptask(long taskId,HttpContext httpContext)
@@ -1973,6 +2142,7 @@ namespace HaloBiz.MyServices.Impl
 
         public async Task<ApiGenericResponse<List<TaskRevampDTO>>> getAssignedTask(HttpContext httpContext)
         {
+            var userId = httpContext.GetLoggedInUserId();
             var getAllAssigneeId = await _context.TaskAssignees.Where(x => x.IsActive == true && x.TaskAssigneeId == httpContext.GetLoggedInUserId()).ToListAsync();
             if(getAllAssigneeId == null || getAllAssigneeId.Count() == 0)
             {
@@ -2070,6 +2240,30 @@ namespace HaloBiz.MyServices.Impl
             return taskList;
 
         }
+
+
+        public async Task<DeliverableUser> getUser(long? userId, HttpContext httpContext)
+        {
+
+            var getUser = await _context.UserProfiles.FirstOrDefaultAsync(x => x.IsDeleted == false && x.Id == userId);
+            var user = new DeliverableUser();
+            if (getUser == null)
+            {
+                return null;
+            }
+            else
+            {
+                
+                user.userId = getUser.Id;
+                user.email = getUser.Email;
+                user.fullname = getUser.FirstName + " " + getUser.LastName;
+                user.imageUrl = getUser.ImageUrl;
+
+                return user;
+            }
+
+        }
+
 
 
         public async Task<List<TaskAssigneeDTO>> getAssignees(long taskId,HttpContext httpContext)

@@ -78,7 +78,7 @@ namespace HaloBiz.MyServices
 
         Task<ApiGenericResponse<List<Deliverable>>> getAllDeliverables(HttpContext httpContext);
 
-        Task<ApiGenericResponse<List<Deliverable>>> getAllDeliverablesByTaskId(HttpContext httpContext, long taskId);
+        Task<ApiGenericResponse<List<DeliverableDTO>>> getAllDeliverablesByTaskId(HttpContext httpContext, long taskId);
 
         Task<ApiGenericResponse<Deliverable>> getDeliverablesById(HttpContext httpContext, long id);
 
@@ -89,5 +89,8 @@ namespace HaloBiz.MyServices
         Task<ApiGenericResponse<List<Task>>> pickUptask(long taskId, HttpContext httpContext);
         Task<ApiGenericResponse<List<Task>>> dropTask(long taskId, long taskOwnershipId, HttpContext httpContext);
         Task<ApiGenericResponse<List<Task>>> getAllPickedTask(HttpContext httpContext);
+        Task<ApiGenericResponse<List<DeliverableDTO>>> AssignDeliverable(HttpContext context, long taskId, long deliverableId, long assigneDeliverableId, AssignDeliverableDTO assignDeliverableDTO);
+        Task<ApiGenericResponse<List<DeliverableDTO>>> createDeliverableIllustrattions(HttpContext context, long deliverableId, long taskId, List<IllustrationsDTO> illustrationsDTO);
+        Task<ApiGenericResponse<List<DeliverableDTO>>> DeleteIllustration(HttpContext context, long taskId, long deliverableId,long illustrationId);
     }
 }

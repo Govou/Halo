@@ -277,14 +277,27 @@ namespace HaloBiz.Controllers
         }
 
 
+        [HttpPost("AssignDeliverable/{deliverableId}/{taskId}/{deliverableAssigneeId}")]
+        public async Task<ActionResult> AssignDeliverable(long taskId,long deliverableId,long deliverableAssigneeId,AssignDeliverableDTO assignDeliverableDTO)
+        {
+            var response = await _projectAllocationService.AssignDeliverable(HttpContext, taskId,deliverableId,deliverableAssigneeId,assignDeliverableDTO);
+            return Ok(response);
+        }
 
-        //[HttpGet("GetProjectByWorkspaceId/{workspaceId}")]
+        [HttpPost("createDeliverableIllustration/{deliverableId}/{taskId}")]
+        public async Task<ActionResult> createDeliverableIllustration(long taskId, long deliverableId, List<IllustrationsDTO> illustrationsDTOs)
+        {
+            var response = await _projectAllocationService.createDeliverableIllustrattions(HttpContext, deliverableId, taskId, illustrationsDTOs);
+            return Ok(response);
+        }
 
-        //public async Task<ActionResult> GetProjectByWorkspaceId(long workspaceId)
-        //{
-        //    var response = await _projectAllocationService.getAllDefaultStatus(workspaceId);
-        //    return Ok(response);
-        //}
+        [HttpDelete("removeIllustration/{taskId}/{deliverableId}/{illustrationId}")]
+        public async Task<ActionResult> removeIllustration(long taskId, long deliverableId, long illustrationId)
+        {
+            var response = await _projectAllocationService.DeleteIllustration(HttpContext, taskId,deliverableId, illustrationId);
+            return Ok(response);
+        }
+
 
         [HttpGet("GetTaskByCaption/{caption}")]
 
