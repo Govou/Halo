@@ -181,9 +181,10 @@ namespace HaloBiz.MyServices.Impl
                             && x.StartDate == singleInvoice.StartDate && !x.IsDeleted)
                     .ToListAsync();
 
-            var invoiceTransferDTOS = _mapper.Map<List<InvoiceTransferDTO>>(invoicesGrouped);
+            var invoiceTransferDTOS = _mapper.Map<List<InvoiceTransferDTO>>(invoicesGrouped);          
+          
 
-            foreach (var invoice in invoiceTransferDTOS)
+            foreach (InvoiceTransferDTO invoice in invoiceTransferDTOS)
             {
                 if (invoice.IsReceiptedStatus == InvoiceStatus.CompletelyReceipted) 
                 {
@@ -194,25 +195,28 @@ namespace HaloBiz.MyServices.Impl
                 try
                 {
                     var totalAmoutReceipted = invoice.Receipts.Sum(x => x.ReceiptValue);
-                    var invoiceValueBeforeReceipting = invoice.Value - totalAmoutReceipted;
+                    double totalBalanceLeft = invoice.Value - totalAmoutReceipted;
 
-                    if (totalReceiptAmount < invoiceValueBeforeReceipting)
+                    invoice.TotalAmountReceipted = totalAmoutReceipted;
+                    invoice.ToReceiptValue = totalReceiptAmount;
+
+                    invoice.TotalReceiptApplied = invoice.ToReceiptValue + invoice.TotalAmountReceipted;
+
+
+                    if (totalReceiptAmount < totalBalanceLeft)
                     {
                         invoice.IsReceiptedStatus = InvoiceStatus.PartlyReceipted;
-                        invoice.ToReceiptValue = totalReceiptAmount;
                         break;
                     }
-                    else if (totalReceiptAmount == invoiceValueBeforeReceipting)
+                    else if (totalReceiptAmount == totalBalanceLeft)
                     {
                         invoice.IsReceiptedStatus = InvoiceStatus.CompletelyReceipted;
-                        invoice.ToReceiptValue = totalReceiptAmount;
                         break;
                     }
                     else
                     {
                         invoice.IsReceiptedStatus = InvoiceStatus.CompletelyReceipted;
-                        invoice.ToReceiptValue = invoiceValueBeforeReceipting;
-                        totalReceiptAmount -= invoiceValueBeforeReceipting;
+                        totalReceiptAmount -= totalBalanceLeft;
                     }
                 }
                 catch (Exception ex)

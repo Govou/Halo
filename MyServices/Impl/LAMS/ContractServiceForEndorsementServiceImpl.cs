@@ -64,12 +64,12 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 //check if this is nenewal and the previous contract has not
                 var previouslyRenewal = await _context.ContractServiceForEndorsements
                                                 .Include(x => x.EndorsementType)
-                                                .Where(x => x.ContractId == item.ContractId && x.PreviousContractServiceId == item.PreviousContractServiceId && x.ContractEndDate >= DateTime.Now && x.EndorsementType.Caption.Contains("retention"))
+                                                .Where(x => x.ContractId == item.ContractId && x.PreviousContractServiceId == item.PreviousContractServiceId && x.EndorsementType.Caption.Contains("retention"))
                                                 .FirstOrDefaultAsync();
 
                 if (previouslyRenewal != null)
                 {
-                    return new ApiResponse(400, "The previous renewal of this service has not expired.");
+                    return new ApiResponse(400, "There has been a retention on this contract service");
                 }
 
                 item.CreatedById = id;

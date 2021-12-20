@@ -27,6 +27,8 @@ using Microsoft.OpenApi.Models;
 using HaloBiz.Data;
 using HaloBiz.MyServices;
 using HaloBiz.MyServices.Impl;
+using HaloBiz.MyServices.RoleManagement;
+using HaloBiz.MyServices.Impl.RoleManagement;
 
 namespace HaloBiz
 {
@@ -89,6 +91,7 @@ namespace HaloBiz
             //services.AddSingleton(Configuration.GetSection("AppSettings").Get<AppSettings>());
 
             services.RegisterServiceLayerDi();
+            services.AddSingleton<JwtHelper>();
 
             services.AddAutoMapper(typeof(Startup));
             services.AddControllersWithViews()
@@ -163,6 +166,8 @@ namespace HaloBiz
             app.UseHttpsRedirection();
 
             app.UseRouting();
+
+            //app.UseMiddleware<AuthenticationHandler>();
 
             app.UseAuthentication();
 

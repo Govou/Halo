@@ -13,6 +13,10 @@ using HalobizMigrations.Models;
 using HaloBiz.Repository;
 using Newtonsoft.Json;
 using HaloBiz.Model.RoleManagement;
+using HaloBiz.DTOs.ReceivingDTOs.RoleManagement;
+using HalobizMigrations.Models.Halobiz;
+using HalobizMigrations.Data;
+using Microsoft.AspNetCore.Http;
 
 namespace HaloBiz.MyServices.Impl
 {
@@ -22,15 +26,18 @@ namespace HaloBiz.MyServices.Impl
         private readonly IMapper _mapper;
         private readonly IMailAdapter _mailAdpater;
         private readonly IModificationHistoryRepository _historyRepo ;
+        private readonly HalobizContext _context;
         public UserProfileServiceImpl(IUserProfileRepository userRepo, 
             IMapper mapper, 
             IMailAdapter mailAdapter,
+            HalobizContext context,
             IModificationHistoryRepository historyRepo)
         {
             _mapper = mapper;
             _userRepo = userRepo;
             _mailAdpater = mailAdapter;
             _historyRepo = historyRepo;
+            _context = context;
 
         }
 
@@ -277,46 +284,97 @@ namespace HaloBiz.MyServices.Impl
 
         }
 
-        public async Task<ApiResponse> UpdateUserRole(long userId, long roleId)
+        public async Task<ApiResponse> UpdateUserRole(HttpContext context, long userId, List<RoleReceivingDTO> roles)
         {
-            var userToUpdate = await _userRepo.FindUserById(userId);
-            if (userToUpdate == null)
+            try
             {
-                return new ApiResponse(404);
+                var userToUpdate = await _userRepo.FindUserById(userId);
+                if (userToUpdate == null)
+                {
+                    return new ApiResponse(404, "User not found");
+                }
+
+                var thisUserId = context.GetLoggedInUserId();
+                if (thisUserId == userId)
+                {
+                    return new ApiResponse(404, "You cannot add/update role for yourself");
+                }
+
+                //remove all the role assignment for this user
+                var oldUserRoles = _context.UserRoles.Where(x => x.UserId == userId);
+                _context.RemoveRange(oldUserRoles);
+                await _context.SaveChangesAsync();
+
+                List<UserRole> userRoles = new List<UserRole>();
+
+                foreach (var item in roles)
+                {
+                    userRoles.Add(new UserRole { UserId = userId, RoleId = item.Id, CreatedById = thisUserId });
+                }
+
+                //ModificationHistory history = new ModificationHistory()
+                //{
+                //    ModelChanged = "UserRole",
+                //    ChangeSummary = "Changes to roles",
+                //    ChangedBy = $"{thisUserId}",
+                //    ModifiedModelId = updatedUser.Id
+                //};
+
+                //await _historyRepo.SaveHistory(history);
+
+                await _context.UserRoles.AddRangeAsync(userRoles);
+                await _context.SaveChangesAsync();
+                return new ApiOkResponse(userRoles);
             }
-            var summary = $"Initial details before change, \n {userToUpdate} \n";
-            userToUpdate.RoleId = roleId;
-
-            summary += $"Details after change, \n {userToUpdate} \n";
-
-            var updatedUser = await _userRepo.UpdateUserProfile(userToUpdate);
-
-            if (updatedUser == null)
+            catch (Exception ex)
             {
-                return new ApiResponse(500);
+                var p = ex.StackTrace;
             }
 
-            var serializedUser = JsonConvert.SerializeObject(updatedUser, new JsonSerializerSettings { 
-                 ReferenceLoopHandling = ReferenceLoopHandling.Ignore
-            });
+            return null;
 
-            RunTask(async () => {
-                await _mailAdpater.SendUserAssignedToRoleMail(serializedUser);
-            });       
-
-            ModificationHistory history = new ModificationHistory()
-            {
-                ModelChanged = "UserProfile",
-                ChangeSummary = summary,
-                ChangedBy = updatedUser,
-                ModifiedModelId = updatedUser.Id
-            };
-
-            await _historyRepo.SaveHistory(history);
-
-            var userProfileTransferDto = _mapper.Map<UserProfileTransferDTO>(updatedUser);
-            return new ApiOkResponse(userProfileTransferDto);
         }
+
+        //public async Task<ApiResponse> UpdateUserRole(long userId, long roleId)
+        //{
+        //    var userToUpdate = await _userRepo.FindUserById(userId);
+        //    if (userToUpdate == null)
+        //    {
+        //        return new ApiResponse(404);
+        //    }
+        //    var summary = $"Initial details before change, \n {userToUpdate} \n";
+        //    userToUpdate.RoleId = roleId;
+
+        //    summary += $"Details after change, \n {userToUpdate} \n";
+
+        //    var updatedUser = await _userRepo.UpdateUserProfile(userToUpdate);
+
+        //    if (updatedUser == null)
+        //    {
+        //        return new ApiResponse(500);
+        //    }
+
+        //    var serializedUser = JsonConvert.SerializeObject(updatedUser, new JsonSerializerSettings { 
+        //         ReferenceLoopHandling = ReferenceLoopHandling.Ignore
+        //    });
+
+        //    RunTask(async () => {
+        //        await _mailAdpater.SendUserAssignedToRoleMail(serializedUser);
+        //    });       
+
+        //    ModificationHistory history = new ModificationHistory()
+        //    {
+        //        ModelChanged = "UserProfile",
+        //        ChangeSummary = summary,
+        //        ChangedBy = updatedUser,
+        //        ModifiedModelId = updatedUser.Id
+        //    };
+
+        //    await _historyRepo.SaveHistory(history);
+
+        //    var userProfileTransferDto = _mapper.Map<UserProfileTransferDTO>(updatedUser);
+        //    return new ApiOkResponse(userProfileTransferDto);
+        //}
 
 
         public async Task<ApiResponse> DeleteUserProfile(long userId)

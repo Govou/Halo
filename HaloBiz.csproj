@@ -82,6 +82,7 @@
 
   <ItemGroup>
     <Folder Include="Log\" />
+    <Folder Include="Auth\" />
   </ItemGroup>
 
 </Project>

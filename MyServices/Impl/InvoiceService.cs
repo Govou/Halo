@@ -17,11 +17,15 @@ using HaloBiz.Repository.LAMS;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using HalobizMigrations.Models.Shared;
+using HaloBiz.MyServices.LAMS;
 
 namespace HaloBiz.MyServices.Impl
 {
     public class InvoiceService : IInvoiceService
     {
+        private readonly ILeadConversionService _leadConversionService;
+
         private readonly ILogger<InvoiceService> _logger;
         private readonly IContractServiceRepository _contractServiceRepo;
         private readonly IModificationHistoryRepository _historyRepo;
@@ -57,7 +61,8 @@ namespace HaloBiz.MyServices.Impl
                                 IServicesRepository serviceRepo,
                                 ICustomerDivisionRepository customerDivisionRepo,
                                 IAccountRepository accountRepo,
-                                IMailAdapter mailAdapter
+                                IMailAdapter mailAdapter,
+                                ILeadConversionService leadConversionService
                                 )
         {
             this._mapper = mapper;
@@ -72,6 +77,7 @@ namespace HaloBiz.MyServices.Impl
             this._accountRepo = accountRepo;
             this._serviceRepo = serviceRepo;
             this._mailAdapter = mailAdapter;
+            _leadConversionService = leadConversionService;
         }
 
         public async  Task<ApiResponse> AddInvoice(HttpContext context, InvoiceReceivingDTO invoiceReceivingDTO)
@@ -84,7 +90,9 @@ namespace HaloBiz.MyServices.Impl
 
                     var invoice = _mapper.Map<Invoice>(invoiceReceivingDTO);
                     var contractService = await _context.ContractServices
-                                .FirstOrDefaultAsync(x => x.Id == invoice.ContractServiceId);
+                                .Where(x => x.Id == invoice.ContractServiceId)
+                                .Include(x=>x.Contract)
+                                .FirstOrDefaultAsync();
 
                     if(invoice.Value + contractService.AdHocInvoicedAmount > contractService.BillableAmount)
                     {
@@ -94,10 +102,24 @@ namespace HaloBiz.MyServices.Impl
                     var service = await _context.Services
                                     .FirstOrDefaultAsync(x => x.Id == contractService.ServiceId);
 
-                    invoice.InvoiceNumber = $"INV{contractService.Id.ToString().PadLeft(8, '0')}";
+                    if(contractService.Contract.GroupContractCategory == GroupContractCategory.GroupContractWithSameDetails
+                        || contractService.Contract.GroupContractCategory == GroupContractCategory.GroupContractWithIndividualDetails)
+                    {
+                        var invNo = contractService.Contract?.GroupInvoiceNumber;
+                        //check if there is a previous invoice from with the group invoice number
+                        var allThisGroupedInvoices = await _context.Invoices.Where(x => x.GroupInvoiceNumber == invNo).ToListAsync();
+                        invoice.InvoiceNumber = $"{invNo}/{allThisGroupedInvoices.Count + 1}";
+
+                    }
+                    else
+                    {
+                        invoice.InvoiceNumber = $"INV{contractService.Id.ToString().PadLeft(8, '0')}";
+                    }
+
                     invoice.ContractId = contractService.ContractId;
                     invoice.CreatedById = this.LoggedInUserId;
                     invoice.InvoiceType = (int)InvoiceType.New;
+                    invoice.GroupInvoiceNumber = contractService.Contract?.GroupInvoiceNumber;
                     invoice.IsFinalInvoice = false;
                     invoice.TransactionId = GenerateTransactionNumber(service.ServiceCode, contractService);
 
@@ -292,9 +314,9 @@ namespace HaloBiz.MyServices.Impl
 
                         await PostAccounts(contractService, customerDivision, accountVoucherType.Id,
                                         VAT, (double)proformaInvoice.Value, service);
-                        await GenerateAmortizations(contractService, customerDivision,
-                                        (double)contractService.BillableAmount, (double)proformaInvoice.Value,
-                                        proformaInvoice.DateToBeSent);
+
+                        await _leadConversionService.GenerateAmortizations(contractService, customerDivision,
+                                       (double)proformaInvoice.Value);
 
                         proformaInvoice.IsAccountPosted = true;
                         proformaInvoice.IsFinalInvoice = true;
@@ -355,8 +377,8 @@ namespace HaloBiz.MyServices.Impl
                     await _context.SaveChangesAsync();
                     var invoiceTransferDTO = _mapper.Map<InvoiceTransferDTO>(invoice);
 
-                    await GenerateAmortizations(contractService, customerDivision, 
-                                   (double) contractService.BillableAmount, invoice.Value, invoice.DateToBeSent );
+                    await _leadConversionService.GenerateAmortizations(contractService, customerDivision, 
+                                    invoice.Value);
                     await _context.SaveChangesAsync();
                     await transaction.CommitAsync();
                     return new ApiOkResponse(invoiceTransferDTO);
@@ -528,8 +550,8 @@ namespace HaloBiz.MyServices.Impl
 
         private string GenerateTransactionNumber(string serviceCode, ContractService contractService)
         {
-            return String.IsNullOrWhiteSpace(contractService.Contract.GroupInvoiceNumber) ?  $"{serviceCode}/{contractService.Id}"
-            : $"{contractService.Contract.GroupInvoiceNumber.Replace("GINV", "TRS")}/{contractService.Id}" ;
+            return String.IsNullOrWhiteSpace(contractService.Contract?.GroupInvoiceNumber) ?  $"{serviceCode}/{contractService.Id}"
+            : $"{contractService.Contract?.GroupInvoiceNumber.Replace("GINV", "TRS")}/{contractService.Id}" ;
                     
         } 
 
@@ -860,42 +882,7 @@ namespace HaloBiz.MyServices.Impl
             
             return true;
         }
-
-        private async  Task<bool> GenerateAmortizations(ContractService contractService, CustomerDivision customerDivision, 
-                                                        double billableAmount, double paidAmount, 
-                                                        DateTime amortizationDate
-                                                        )
-        {
-            DateTime startDate = (DateTime) contractService.ContractStartDate;
-            DateTime endDate = (DateTime) contractService.ContractEndDate;
-            var year = amortizationDate.Year;
-            var month = amortizationDate.Month;
-
-                var amortization = new Amortization() {
-                    Year = year,
-                    ClientId = customerDivision.CustomerId,
-                    DivisionId = customerDivision.Id,
-                    ContractId = contractService.ContractId,
-                    ContractServiceId = contractService.Id,
-                    ContractValue =  billableAmount,
-                    January = DateTime.Parse($"{year}/01/31").Month == month ? paidAmount : 0,
-                    February = DateTime.Parse($"{year}/02/28").Month == month ? paidAmount : 0,
-                    March =  DateTime.Parse($"{year}/03/31").Month == month ? paidAmount : 0,
-                    April = DateTime.Parse($"{year}/04/30").Month == month ? paidAmount : 0,
-                    May = DateTime.Parse($"{year}/05/31").Month == month ? paidAmount : 0,
-                    June = DateTime.Parse($"{year}/06/30").Month == month ? paidAmount : 0,
-                    July = DateTime.Parse($"{year}/07/31").Month == month ? paidAmount : 0,
-                    August = DateTime.Parse($"{year}/08/31").Month == month ? paidAmount : 0,
-                    September = DateTime.Parse($"{year}/09/30").Month == month ? paidAmount : 0,
-                    October = DateTime.Parse($"{year}/10/31").Month == month ? paidAmount : 0,
-                    November = DateTime.Parse($"{year}/11/30").Month == month ? paidAmount : 0,
-                    December = DateTime.Parse($"{year}/12/31").Month == month ? paidAmount : 0,
-                    
-                };
-
-           await  _context.Amortizations.AddAsync(amortization);
-            return true;
-        }
+       
 
         private double CalculateTotalAmountForContract(double priceOfService, DateTime contractStartDate, DateTime contractEndDate, TimeCycle timeCycle )
         {

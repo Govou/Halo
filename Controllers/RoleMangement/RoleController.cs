@@ -56,6 +56,66 @@ namespace HaloBiz.Controllers.RoleMangement
             return Ok(claims);
         }
 
+        [HttpGet("GetPermissions")]
+        public ActionResult GetPermissions()
+        {
+            var response =  _roleService.GetPermissions();
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+
+            var claims = ((ApiOkResponse)response).Result;
+
+            return Ok(claims);
+        }
+
+        [HttpGet("GetPermissionsOnRole/{name}")]
+        public async Task<ActionResult> GetPermissionsOnRole(string name)
+        {
+            var response = await _roleService.GetPermissionsOnRole(name);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+
+            var claims = ((ApiOkResponse)response).Result;
+
+            return Ok(claims);
+        }
+
+        [HttpGet("GetPermissionsOnUser/{id}")]
+        public async Task<ActionResult> GetPermissionsOnUser(long id)
+        {
+            var response = await _roleService.GetPermissionsOnUser(id);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+
+            var claims = ((ApiOkResponse)response).Result;
+
+            return Ok(claims);
+        }
+
+        [HttpGet("GetGroupedPermissions")]
+        public ActionResult GetGroupedPermissions()
+        {
+            var response = _roleService.GetGroupedPermissions();
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+
+            var claims = ((ApiOkResponse)response).Result;
+
+            return Ok(claims);
+        }
+
+        [HttpGet("GetRolesByUser/{id}")]
+        public async Task<ActionResult> GetRolesByUser(long id)
+        {
+            var response = await _roleService.FindRolesByUser(id);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+
+            var claims = ((ApiOkResponse)response).Result;
+
+            return Ok(claims);
+        }
+
         [HttpGet("name/{name}")]
         public async Task<ActionResult> GetByName(string name)
         {
