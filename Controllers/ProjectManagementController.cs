@@ -347,6 +347,30 @@ namespace HaloBiz.Controllers
             return Ok(response);
         }
 
+
+        [HttpPost("CreateTaskIllustration/{taskId}")]
+
+        public async Task<ActionResult> CreateTaskIllustration(List<IllustrationsDTO> illustrations,long taskId)
+        {
+            var response = await _projectAllocationService.createTaskIllustration( illustrations,taskId,HttpContext);
+            return Ok(response);
+        }
+
+        [HttpDelete("removeTaskIllustration/{taskId}/{illustrationId}")]
+        public async Task<ActionResult> removeTaskIllustration(long taskId,long illustrationId)
+        {
+            var response = await _projectAllocationService.removeIllustrationById(taskId, illustrationId);
+            return Ok(response);
+        }
+
+        [HttpGet("GetAllTaskIllustrations/{taskId}")]
+
+        public async Task<ActionResult> GetAllTaskIllustrations(long taskId)
+        {
+            var response = await _projectAllocationService.getTaskIllustrationById(taskId);
+            return Ok(response);
+        }
+
         [HttpGet("GetAllTaskByProjectId/{projectId}")]
 
         public async Task<ActionResult> GetAllTaskByProjectId(long projectId)
@@ -444,6 +468,13 @@ namespace HaloBiz.Controllers
         public async Task<ActionResult> createNewDeliverable(long taskId,DeliverableDTO deliverableDTO)
         {
             var response = await _projectAllocationService.createNewDeliverable(HttpContext, taskId,deliverableDTO);
+            return Ok(response);
+        }
+
+        [HttpPost("CreateNewDeliverableOnTask/{taskId}")]
+        public async Task<ActionResult> CreateNewDeliverableOnTask(long taskId, DeliverableDTO deliverableDTO)
+        {
+            var response = await _projectAllocationService.createNewDeliverableFromTask(HttpContext, taskId, deliverableDTO);
             return Ok(response);
         }
 

@@ -40,6 +40,12 @@ namespace HaloBiz.DTOs.ProjectManagementDTO
 			set;
 		}
 
+		public long? TaskId
+		{
+			get;
+			set;
+		}
+
 		public bool IsActive
 		{
 			get;
