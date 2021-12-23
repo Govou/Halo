@@ -22,8 +22,10 @@ namespace HaloBiz.Helpers
 
         public static long GetLoggedInUserId(this HttpContext context)
         {
-            return long.TryParse(context.User.FindFirstValue(ClaimTypes.NameIdentifier), out long userIdClaim) ?
+            var id =  long.TryParse(context.User.FindFirstValue(ClaimTypes.NameIdentifier), out long userIdClaim) ?
                 userIdClaim : 31;
+
+            return id;
 
         }
 
