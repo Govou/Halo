@@ -29,6 +29,7 @@ using HaloBiz.MyServices;
 using HaloBiz.MyServices.Impl;
 using HaloBiz.MyServices.RoleManagement;
 using HaloBiz.MyServices.Impl.RoleManagement;
+using System.Reflection;
 
 namespace HaloBiz
 {
@@ -167,7 +168,7 @@ namespace HaloBiz
 
             app.UseRouting();
 
-            //app.UseMiddleware<AuthenticationHandler>();
+            // app.UseMiddleware<AuthenticationHandler>();           
 
             app.UseAuthentication();
 
