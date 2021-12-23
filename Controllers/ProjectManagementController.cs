@@ -363,6 +363,20 @@ namespace HaloBiz.Controllers
             return Ok(response);
         }
 
+        [HttpDelete("DisableTaskAssignee/{taskId}/{assigneeId}")]
+        public async Task<ActionResult> DisableTaskAssignee(long taskId, long assigneeId)
+        {
+            var response = await _projectAllocationService.disableTaskAssignee(HttpContext,taskId, assigneeId);
+            return Ok(response);
+        }
+
+        [HttpDelete("DisableDeliverable/{taskId}/{deliverableId}")]
+        public async Task<ActionResult> DisableDeliverable(long taskId, long deliverableId)
+        {
+            var response = await _projectAllocationService.disableDeliverable(HttpContext, taskId, deliverableId);
+            return Ok(response);
+        }
+
         [HttpGet("GetAllTaskIllustrations/{taskId}")]
 
         public async Task<ActionResult> GetAllTaskIllustrations(long taskId)
@@ -414,6 +428,13 @@ namespace HaloBiz.Controllers
         public async Task<ActionResult> DropTask(long taskId, long taskOwnershipId)
         {
             var response = await _projectAllocationService.dropTask(taskId,taskOwnershipId, HttpContext);
+            return Ok(response);
+        }
+
+        [HttpPut("UpdateDeliverable/{taskId}/{deliverableId}")]
+        public async Task<ActionResult> DropTask(long taskId, long deliverableId,DeliverableDTO deliverableDTO)
+        {
+            var response = await _projectAllocationService.updateDeliverable(HttpContext,taskId, deliverableId, deliverableDTO);
             return Ok(response);
         }
 
@@ -475,6 +496,13 @@ namespace HaloBiz.Controllers
         public async Task<ActionResult> CreateNewDeliverableOnTask(long taskId, DeliverableDTO deliverableDTO)
         {
             var response = await _projectAllocationService.createNewDeliverableFromTask(HttpContext, taskId, deliverableDTO);
+            return Ok(response);
+        }
+
+        [HttpPost("AddmoreTaskAssignees/{taskId}")]
+        public async Task<ActionResult> AddmoreTaskAssignees(long taskId, List<TaskAssigneeDTO> taskAssigneeDTO)
+        {
+            var response = await _projectAllocationService.addMoreTaskAssignees(HttpContext, taskId, taskAssigneeDTO);
             return Ok(response);
         }
 
