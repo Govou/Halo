@@ -432,6 +432,25 @@ namespace HaloBiz.Helpers
             CreateMap<SourceType, SourceTypesForServiceAssignmentTransferDTO>();
             CreateMap<ReleaseType, ReleaseTypesForServiceAssignmentTransferDTO>();
 
+            //ServiceAssignment
+            CreateMap<MasterServiceAssignmentReceivingDTO, MasterServiceAssignment>();
+            CreateMap<MasterServiceAssignment, MasterServiceAssignmentTransferDTO>();
+
+            //ServiceAssignmentDetail
+            CreateMap<ArmedEscortServiceAssignmentDetailsReceivingDTO, ArmedEscortServiceAssignmentDetail>();
+            CreateMap<CommanderServiceAssignmentDetailsReceivingDTO, CommanderServiceAssignmentDetail>();
+            CreateMap<PilotServiceAssignmentDetailsReceivingDTO, PilotServiceAssignmentDetail>();
+            CreateMap<VehicleServiceAssignmentDetailsReceivingDTO, VehicleServiceAssignmentDetail>();
+
+
+            CreateMap<ArmedEscortServiceAssignmentDetail, ArmedEscortServiceAssignmentDetailsTransferDTO>();
+            CreateMap<CommanderServiceAssignmentDetail, CommanderServiceAssignmentDetailsTransferDTO>();
+            CreateMap<PilotServiceAssignmentDetail, PilotServiceAssignmentDetailsTransferDTO>();
+            CreateMap<VehicleServiceAssignmentDetail, VehicleServiceAssignmentDetailsTransferDTO>();
+
+            CreateMap<PassengerReceivingDTO, Passenger>();
+            CreateMap<Passenger, PassengerTransferDTO>();
+
 
             //CreateMap<CommanderType, SMORegionTransferDTO>();
         }

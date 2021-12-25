@@ -21,7 +21,7 @@ namespace HaloBiz.Controllers
             _typesForServiceAssignmentService = typesForServiceAssignmentService;
         }
 
-        //Passenger
+        //PassengerType
         [HttpGet("GetAllPassengerTypes")]
         public async Task<ActionResult> GetAllPassengerTypes()
         {
