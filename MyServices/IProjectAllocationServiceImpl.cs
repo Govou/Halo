@@ -54,50 +54,50 @@ namespace HaloBiz.MyServices
 
         Task<ApiCommonResponse> getWatchersByProjectId(HttpContext httpContext, long projectId);
 
-        Task<ApiGenericResponse<List<Watcher>>> addmoreWatchers(HttpContext httpContext, long projectId, List<WatchersDTO> watchersDTOs);
+        Task<ApiCommonResponse> addmoreWatchers(HttpContext httpContext, long projectId, List<WatchersDTO> watchersDTOs);
 
-        Task<ApiGenericResponse<Project>> updateProject(HttpContext httpContext, long projectId, ProjectDTO projectDTO);
+        Task<ApiCommonResponse> updateProject(HttpContext httpContext, long projectId, ProjectDTO projectDTO);
 
-        Task<ApiGenericResponse<List<Watcher>>> removeWatcher(HttpContext httpContext, long projectId, long projectWatcherId);
-        Task<ApiGenericResponse<List<TaskSummaryDTO>>> createNewTask(HttpContext context, long projectId, TaskDTO taskDTO);
+        Task<ApiCommonResponse> removeWatcher(HttpContext httpContext, long projectId, long projectWatcherId);
+        Task<ApiCommonResponse> createNewTask(HttpContext context, long projectId, TaskDTO taskDTO);
 
-        Task<ApiGenericResponse<TaskSummaryDTO>> getTaskByCaption(HttpContext httpContext, string caption);
+        Task<ApiCommonResponse> getTaskByCaption(HttpContext httpContext, string caption);
 
-        Task<ApiGenericResponse<TaskSummaryDTO>> getTaskById(HttpContext httpContext, long taskId);
+        Task<ApiCommonResponse> getTaskById(HttpContext httpContext, long taskId);
 
-        Task<ApiGenericResponse<List<TaskSummaryDTO>>> getTaskByProjectId(HttpContext httpContext, long projectId);
+        Task<ApiCommonResponse> getTaskByProjectId(HttpContext httpContext, long projectId);
 
-        Task<ApiGenericResponse<List<TaskSummaryDTO>>> getAllTask(HttpContext httpContext);
+        Task<ApiCommonResponse> getAllTask(HttpContext httpContext);
 
-        Task<ApiGenericResponse<List<ProjectSummaryDTO>>> getProjectByWorkspaceId(HttpContext httpContext, long workspaceId);
+        Task<ApiCommonResponse> getProjectByWorkspaceId(HttpContext httpContext, long workspaceId);
 
-        Task<ApiGenericResponse<TaskSummaryDTO>> updateTask(HttpContext httpContext, long TaskId, TaskDTO taskDTO);
-        Task<ApiGenericResponse<List<Deliverable>>> createNewDeliverable(HttpContext httpContext, long TaskId, DeliverableDTO deliverableDTO);
+        Task<ApiCommonResponse> updateTask(HttpContext httpContext, long TaskId, TaskDTO taskDTO);
+        Task<ApiCommonResponse> createNewDeliverable(HttpContext httpContext, long TaskId, DeliverableDTO deliverableDTO);
 
-        Task<ApiGenericResponse<List<Deliverable>>> getAllDeliverables(HttpContext httpContext);
+        Task<ApiCommonResponse> getAllDeliverables(HttpContext httpContext);
 
-        Task<ApiGenericResponse<List<DeliverableDTO>>> getAllDeliverablesByTaskId(HttpContext httpContext, long taskId);
+        Task<ApiCommonResponse> getAllDeliverablesByTaskId(HttpContext httpContext, long taskId);
 
-        Task<ApiGenericResponse<Deliverable>> getDeliverablesById(HttpContext httpContext, long id);
+        Task<ApiCommonResponse> getDeliverablesById(HttpContext httpContext, long id);
 
-        Task<ApiGenericResponse<List<PrivacyAccess>>> getAllPrivacyAccessByWorkspaceId(HttpContext httpContext, long workspaceId);
-        Task<ApiGenericResponse<List<PMRequirement>>> getRequirementsByDeliverableId(HttpContext httpContext, long deliverableId);
-        Task<ApiGenericResponse<List<TaskRevampDTO>>> getAssignedTask(HttpContext httpContext);
-        Task<ApiGenericResponse<List<WorkspaceDTO>>> getAllProjectCreatorsWorkspace(HttpContext httpContext);
-        Task<ApiGenericResponse<List<Task>>> pickUptask(long taskId, HttpContext httpContext);
-        Task<ApiGenericResponse<List<Task>>> dropTask(long taskId, long taskOwnershipId, HttpContext httpContext);
-        Task<ApiGenericResponse<List<Task>>> getAllPickedTask(HttpContext httpContext);
-        Task<ApiGenericResponse<List<Deliverable>>> AssignDeliverable(HttpContext context, long taskId, long deliverableId, long assigneDeliverableId, AssignDeliverableDTO assignDeliverableDTO);
-        Task<ApiGenericResponse<List<Deliverable>>> createDeliverableIllustrattions(HttpContext context, long deliverableId, long taskId, List<IllustrationsDTO> illustrationsDTO);
-        Task<ApiGenericResponse<List<Deliverable>>> DeleteIllustration(HttpContext context, long taskId, long deliverableId,long illustrationId);
-        Task<ApiGenericResponse<List<PMIllustration>>> createTaskIllustration(List<IllustrationsDTO> illustrationsDTO, long taskId, HttpContext httpContext);
-        Task<ApiGenericResponse<List<PMIllustration>>> getTaskIllustrationById(long taskId);
-        Task<ApiGenericResponse<List<PMIllustration>>> removeIllustrationById(long taskId, long illustrationId);
-        Task<ApiGenericResponse<List<Deliverable>>> createNewDeliverableFromTask(HttpContext httpContext, long TaskId, DeliverableDTO deliverableDTO);
-        Task<ApiGenericResponse<IEnumerable<TaskAssignee>>> addMoreTaskAssignees(HttpContext context, long taskId, List<TaskAssigneeDTO> taskAssigneeDTO);
-        Task<ApiGenericResponse<List<TaskAssignee>>> disableTaskAssignee(HttpContext context, long taskId, long assigneeId);
-        Task<ApiGenericResponse<List<Deliverable>>> updateDeliverable(HttpContext httpContext, long taskId, long deliverableId, DeliverableDTO deliverableDTO);
-        Task<ApiGenericResponse<List<Deliverable>>> disableDeliverable(HttpContext httpContext, long taskId, long deliverableId);
+        Task<ApiCommonResponse> getAllPrivacyAccessByWorkspaceId(HttpContext httpContext, long workspaceId);
+        Task<ApiCommonResponse> getRequirementsByDeliverableId(HttpContext httpContext, long deliverableId);
+        Task<ApiCommonResponse> getAssignedTask(HttpContext httpContext);
+        Task<ApiCommonResponse> getAllProjectCreatorsWorkspace(HttpContext httpContext);
+        Task<ApiCommonResponse> pickUptask(long taskId, HttpContext httpContext);
+        Task<ApiCommonResponse> dropTask(long taskId, long taskOwnershipId, HttpContext httpContext);
+        Task<ApiCommonResponse> getAllPickedTask(HttpContext httpContext);
+        Task<ApiCommonResponse> AssignDeliverable(HttpContext context, long taskId, long deliverableId, long assigneDeliverableId, AssignDeliverableDTO assignDeliverableDTO);
+        Task<ApiCommonResponse> createDeliverableIllustrattions(HttpContext context, long deliverableId, long taskId, List<IllustrationsDTO> illustrationsDTO);
+        Task<ApiCommonResponse> DeleteIllustration(HttpContext context, long taskId, long deliverableId,long illustrationId);
+        Task<ApiCommonResponse> createTaskIllustration(List<IllustrationsDTO> illustrationsDTO, long taskId, HttpContext httpContext);
+        Task<ApiCommonResponse> getTaskIllustrationById(long taskId);
+        Task<ApiCommonResponse> removeIllustrationById(long taskId, long illustrationId);
+        Task<ApiCommonResponse> createNewDeliverableFromTask(HttpContext httpContext, long TaskId, DeliverableDTO deliverableDTO);
+        Task<ApiCommonResponse> addMoreTaskAssignees(HttpContext context, long taskId, List<TaskAssigneeDTO> taskAssigneeDTO);
+        Task<ApiCommonResponse> disableTaskAssignee(HttpContext context, long taskId, long assigneeId);
+        Task<ApiCommonResponse> updateDeliverable(HttpContext httpContext, long taskId, long deliverableId, DeliverableDTO deliverableDTO);
+        Task<ApiCommonResponse> disableDeliverable(HttpContext httpContext, long taskId, long deliverableId);
 
     }
 }
