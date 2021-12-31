@@ -132,7 +132,6 @@ namespace HaloBiz.Controllers
         public async Task<ApiCommonResponse> UpdateWorkspace(long id,UpdateWorkspaceDTO workspaceDTO)
         {
             return await _projectAllocationService.updateWorkspace(HttpContext, id,workspaceDTO);
-            return StatusCode(response.StatusCode, responseFeedback);
         }
 
         [HttpPut("addMoreProjectCreators/{id}")]

@@ -46,13 +46,13 @@ namespace HaloBiz.MyServices
         Task<ApiCommonResponse> updateStatus(HttpContext httpContext, long workspaceId, long statusFlowId, StatusFlowDTO statusFlowDTO);
         Task<ApiCommonResponse> updateToPublic(long workspaceId);
         Task<ApiCommonResponse> moveStatusSequenec(HttpContext httpContext, long workspaceId, List<StatusFlowDTO> statusFlowDTO);
+        Task<ApiCommonResponse> createProject(HttpContext httpContext, ProjectDTO projectDTO);
+        Task<ApiCommonResponse> getAllProjects(HttpContext httpContext);
+        Task<ApiCommonResponse> getProjectByProjectName(HttpContext httpContext, string projectName);
 
-        Task<ApiResponse> getAllProjects(HttpContext httpContext);
-        Task<ApiResponse> getProjectByProjectName(HttpContext httpContext, string projectName);
+        Task<ApiCommonResponse> getWorkByProjectCreatorId(HttpContext httpContext);
 
-        Task<ApiResponse> getWorkByProjectCreatorId(HttpContext httpContext);
-
-        Task<ApiResponse> getWatchersByProjectId(HttpContext httpContext, long projectId);
+        Task<ApiCommonResponse> getWatchersByProjectId(HttpContext httpContext, long projectId);
 
         Task<ApiGenericResponse<List<Watcher>>> addmoreWatchers(HttpContext httpContext, long projectId, List<WatchersDTO> watchersDTOs);
 
