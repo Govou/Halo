@@ -15,10 +15,12 @@ namespace HaloBiz.DTOs.ProjectManagementDTO
         public string Alias { get; set; }
         public bool IsActive { get; set; }
         public string StatusFlowOption { get; set; }
+        public ICollection<Project> Projects { get; set; }
         public ICollection<StatusFlow> StatusFlowDTO { get; set; }
         public ICollection<PrivacyAccess> PrivacyAccesses { get; set; }
         public ICollection<ProjectCreator> ProjectCreators { get; set; }
         public long ProjectCreatorsLength { get; set; }
+        public long ProjectLength { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }
     }
