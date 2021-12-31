@@ -69,14 +69,23 @@ namespace HaloBiz.Controllers.AccountsModel
         }
 
         [HttpGet("GetInvoiceDetails/{invoiceId}")]
-        public async Task<ActionResult> SendInvoiceDetails(long invoiceId)
+        [HttpGet("GetInvoiceDetails/{invoiceId}/{isAdhocAndGrouped}")]
+
+        public async Task<ActionResult> SendInvoiceDetails(long invoiceId, bool isAdhocAndGrouped = false)
         {
-            var response = await _invoiceService.GetInvoiceDetails(invoiceId);
+            var response = await _invoiceService.GetInvoiceDetails(invoiceId, isAdhocAndGrouped);
             if (response.StatusCode >= 400)
                 return StatusCode(response.StatusCode, response);
             var invoice = ((ApiOkResponse)response).Result;
             return Ok(invoice);
         }
+
+        //[HttpGet("GetInvoiceDetails/{groupinvoicenumber}/{startdate}")]
+        //public async Task<ApiCommonResponse> GetInvoiceDetails(string groupinvoicenumber, string startdate)
+        //{
+        //    return await _invoiceService.GetInvoiceDetails(groupinvoicenumber, startdate);
+        //}
+
 
         [HttpPost("AdHocInvoice")]
         public async Task<ActionResult> AddNewinvoice(InvoiceReceivingDTO invoiceReceivingDTO)
@@ -98,6 +107,7 @@ namespace HaloBiz.Controllers.AccountsModel
             return Ok(invoice);
         }
 
+
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateById(long id, InvoiceReceivingDTO invoiceReceiving)
         {
@@ -116,6 +126,12 @@ namespace HaloBiz.Controllers.AccountsModel
                 return StatusCode(response.StatusCode, response);
             var invoice = ((ApiOkResponse)response).Result;
             return Ok(invoice);
+        }
+
+        [HttpPut("RemoveProformaInvoice/{invoiceId}")]
+        public async Task<ApiCommonResponse> RemoveProformaInvoice(long invoiceId)
+        {
+            return await _invoiceService.RemoveProformaInvoice(invoiceId);
         }
 
         [HttpDelete("{id}")]

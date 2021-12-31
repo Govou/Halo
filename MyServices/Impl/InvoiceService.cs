@@ -1087,7 +1087,7 @@ namespace HaloBiz.MyServices.Impl
 
         }
 
-        public async Task<ApiResponse> GetInvoiceDetails(long invoiceId)
+        public async Task<ApiResponse> GetInvoiceDetails(long invoiceId, bool isAdhocAndGrouped = false)
         {
             try
             {
@@ -1100,7 +1100,7 @@ namespace HaloBiz.MyServices.Impl
                     return new ApiResponse(404);
                 }
 
-                InvoiceMailDTO invoiceMailDTO = await GenerateInvoiceMailDTO(invoice);
+                InvoiceMailDTO invoiceMailDTO = await GenerateInvoiceMailDTO(invoice, isAdhocAndGrouped);
                 return new ApiOkResponse(invoiceMailDTO);
             }
             catch (System.Exception ex)
@@ -1110,7 +1110,6 @@ namespace HaloBiz.MyServices.Impl
                 _logger.LogError($"Error: {ex.StackTrace}");
                 return new ApiResponse(500);
             }
-
         }
 
         public async Task<ApiResponse> SendInvoice(long invoiceId)
@@ -1132,6 +1131,7 @@ namespace HaloBiz.MyServices.Impl
                 {
                     return new ApiOkResponse(true);
                 }
+
                 return new ApiResponse(500, "Invoice Not Sent");
             }
             catch (System.Exception ex)
@@ -1141,7 +1141,6 @@ namespace HaloBiz.MyServices.Impl
                 _logger.LogError($"Error: {ex.StackTrace}");
                 return new ApiResponse(500, "Invoice Not Sent");
             }
-
         }
 
         /*private async Task<InvoiceMailDTO> GenerateInvoiceMailDTO(Invoice invoice)
@@ -1234,7 +1233,30 @@ namespace HaloBiz.MyServices.Impl
                 return invoiceMailDTO;
         }*/
 
-        private async Task<InvoiceMailDTO> GenerateInvoiceMailDTO(Invoice invoice)
+        public async Task<ApiCommonResponse> GetInvoiceDetails(string groupinvoiceNumber, string startdate)
+        {
+            List<Invoice> invoices = new List<Invoice>();
+
+            try
+            {
+                DateTime date = DateTime.Parse(startdate).Date;
+
+                invoices = await _context.Invoices
+                    .Where(x => !x.IsDeleted && x.GroupInvoiceNumber == groupinvoiceNumber
+                            && x.StartDate.Date == date && !x.IsInvoiceSent).ToListAsync();
+
+                return CommonResponse.Send(ResponseCodes.SUCCESS, invoices);             
+
+            }
+            catch (System.Exception e)
+            {
+                _logger.LogError(e.StackTrace);
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+            }
+        }
+
+
+        private async Task<InvoiceMailDTO> GenerateInvoiceMailDTO(Invoice invoice, bool isAdhocAndGrouped = false)
         {
             bool isProforma = invoice.IsFinalInvoice == false;
 
@@ -1259,15 +1281,18 @@ namespace HaloBiz.MyServices.Impl
             else
             {
                 invoices = await _context.Invoices.AsNoTracking()
-                        .Include(x => x.ContractService)
-                        .ThenInclude(x => x.Service)
-                        .Where(x => x.GroupInvoiceNumber == invoice.GroupInvoiceNumber && !x.IsDeleted && ((bool)x.IsFinalInvoice || isProforma))
-                        .ToListAsync();
+                       .Include(x => x.ContractService)
+                       .ThenInclude(x => x.Service)
+                       .Where(x => x.GroupInvoiceNumber == invoice.GroupInvoiceNumber && !x.IsDeleted && ((bool)x.IsFinalInvoice || isProforma))
+                       .ToListAsync();
 
                 var contractService = await _context.ContractServices.FindAsync(invoice.ContractServiceId);
                 if(contractService.InvoicingInterval == (int)TimeCycle.Adhoc)
                 {
-                    invoices = invoices.Where(x => x.StartDate.ToString("G") == invoice.StartDate.ToString("G"));
+                    if(isAdhocAndGrouped)
+                        invoices = invoices.Where(x => x.Id == invoice.Id);
+                    else
+                        invoices = invoices.Where(x => x.StartDate.ToString("G") == invoice.StartDate.ToString("G"));
                 }
                 else
                 {
@@ -1281,6 +1306,7 @@ namespace HaloBiz.MyServices.Impl
             double VAT = 0.0;
             string invoiceCycle = null;
             string keyServiceName = "";
+
             List<string> recepients = new List<string>();
             recepients.Add(customerDivision.Email);
             if (customerDivision.SecondaryContact != null)
@@ -1310,8 +1336,9 @@ namespace HaloBiz.MyServices.Impl
                     Total = theInvoice.Value,
                     Discount = theInvoice.Discount,
                     UniqueTag = theInvoice.ContractService.UniqueTag,
-                    AdminDirectTie = theInvoice.ContractService.AdminDirectTie
-
+                    AdminDirectTie = theInvoice.ContractService.AdminDirectTie,
+                    Id = theInvoice.ContractServiceId,
+                    StartDate = theInvoice.StartDate.ToString("G")
                 });
 
             }
@@ -1407,6 +1434,30 @@ namespace HaloBiz.MyServices.Impl
             }
 
             return accountId;
+        }
+
+        public async Task<ApiCommonResponse> RemoveProformaInvoice(long invoiceId)
+        {
+            try
+            {
+                var invoice = await _context.Invoices.Where(x => x.Id == invoiceId).FirstOrDefaultAsync();
+
+                if (invoice == null)
+                {
+                    return CommonResponse.Send(ResponseCodes.FAILURE, null, $"No invoice with id: {invoiceId}");
+                }
+                else
+                {
+                    invoice.IsDeleted = true;
+                    await _context.SaveChangesAsync();
+                    return CommonResponse.Send(ResponseCodes.SUCCESS, null);
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.StackTrace);
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, $"Some system errors occurred");
+            }
         }
     }
 }

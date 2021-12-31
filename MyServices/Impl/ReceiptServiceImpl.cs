@@ -181,7 +181,20 @@ namespace HaloBiz.MyServices.Impl
                             && x.StartDate == singleInvoice.StartDate && !x.IsDeleted)
                     .ToListAsync();
 
-            var invoiceTransferDTOS = _mapper.Map<List<InvoiceTransferDTO>>(invoicesGrouped);          
+            var invoiceTransferDTOS = _mapper.Map<List<InvoiceTransferDTO>>(invoicesGrouped);
+
+            //check that the amount being entered is not more than
+            double amountPaid = invoiceTransferDTOS
+                                .SelectMany(x => x.Receipts)
+                                .Sum(x => x.ReceiptValue);
+            double invoiceValue = invoiceTransferDTOS
+                                .Sum(x => x.Value);
+            double amountLeft = invoiceValue - amountPaid;
+
+            if(totalReceiptAmount > amountLeft)
+            {
+                return new ApiResponse(400, "Amount is greater than what is left");
+            }
           
 
             foreach (InvoiceTransferDTO invoice in invoiceTransferDTOS)

@@ -18,6 +18,8 @@ namespace HaloBiz.MyServices
         Task<ApiResponse> ConvertProformaInvoiceToFinalInvoice(HttpContext httpContext, long invoiceId);
         Task<ApiResponse> SendPeriodicInvoices();
         Task<ApiResponse> SendInvoice(long invoiceId);
-        Task<ApiResponse> GetInvoiceDetails(long invoiceId);
+        Task<ApiResponse> GetInvoiceDetails(long invoiceId, bool isAdhocAndGrouped);
+        Task<ApiCommonResponse> RemoveProformaInvoice(long invoiceId);
+        Task<ApiCommonResponse> GetInvoiceDetails(string groupinvoiceNumber, string startdate);
     }
 }
