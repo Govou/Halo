@@ -23,7 +23,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpGet("")]
-        public async Task<ActionResult> GetClientPolicies()
+        public async Task<ApiCommonResponse> GetClientPolicies()
         {
             var response = await _ClientPolicyService.GetAllClientPolicies();
             if (response.StatusCode >= 400)
@@ -33,7 +33,7 @@ namespace HaloBiz.Controllers
         }
 
         /*[HttpGet("caption/{name}")]
-        public async Task<ActionResult> GetByCaption(string name)
+        public async Task<ApiCommonResponse> GetByCaption(string name)
         {
             var response = await _ClientPolicyService.GetClientPolicyByName(name);
             if (response.StatusCode >= 400)
@@ -43,7 +43,7 @@ namespace HaloBiz.Controllers
         }*/
 
         [HttpGet("{id}")]
-        public async Task<ActionResult> GetById(long id)
+        public async Task<ApiCommonResponse> GetById(long id)
         {
             var response = await _ClientPolicyService.GetClientPolicyById(id);
             if (response.StatusCode >= 400)
@@ -53,7 +53,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpGet("GetByContractId/{contractId}")]
-        public async Task<ActionResult> FindClientPolicyByContractId(long contractId)
+        public async Task<ApiCommonResponse> FindClientPolicyByContractId(long contractId)
         {
             var response = await _ClientPolicyService.FindClientPolicyByContractId(contractId);
             if (response.StatusCode >= 400)
@@ -63,7 +63,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpGet("GetByContractServiceId/{contractServiceId}")]
-        public async Task<ActionResult> FindClientPolicyByContractServiceId(long contractServiceId)
+        public async Task<ApiCommonResponse> FindClientPolicyByContractServiceId(long contractServiceId)
         {
             var response = await _ClientPolicyService.FindClientPolicyByContractServiceId(contractServiceId);
             if (response.StatusCode >= 400)
@@ -73,7 +73,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpPost("")]
-        public async Task<ActionResult> AddNewClientPolicy(ClientPolicyReceivingDTO ClientPolicyReceiving)
+        public async Task<ApiCommonResponse> AddNewClientPolicy(ClientPolicyReceivingDTO ClientPolicyReceiving)
         {
             var response = await _ClientPolicyService.AddClientPolicy(HttpContext, ClientPolicyReceiving);
             if (response.StatusCode >= 400)
@@ -93,7 +93,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpDelete("{id}")]
-        public async Task<ActionResult> DeleteById(int id)
+        public async Task<ApiCommonResponse> DeleteById(int id)
         {
             var response = await _ClientPolicyService.DeleteClientPolicy(id);
             return StatusCode(response.StatusCode);

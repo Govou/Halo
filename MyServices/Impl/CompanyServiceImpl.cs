@@ -25,57 +25,57 @@ namespace HaloBiz.MyServices.Impl
             this._logger = logger;
         }
 
-        public async Task<ApiResponse> AddCompany(CompanyReceivingDTO companyReceivingDTO)
+        public async Task<ApiCommonResponse> AddCompany(CompanyReceivingDTO companyReceivingDTO)
         {
             var company = _mapper.Map<Company>(companyReceivingDTO);
             var savedCompany = await _companyRepo.SaveCompany(company);
             if (savedCompany == null)
             {
-                return new ApiResponse(500);
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
             var companyTransferDTOs = _mapper.Map<CompanyTransferDTO>(company);
             return new ApiOkResponse(companyTransferDTOs);
         }
 
-        public async Task<ApiResponse> GetAllCompanies()
+        public async Task<ApiCommonResponse> GetAllCompanies()
         {
             var companyes = await _companyRepo.FindAllCompanies();
             if (companyes == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var companyTransferDTOs = _mapper.Map<IEnumerable<CompanyTransferDTO>>(companyes);
             return new ApiOkResponse(companyTransferDTOs);
         }
 
-        public async Task<ApiResponse> GetCompanyById(long id)
+        public async Task<ApiCommonResponse> GetCompanyById(long id)
         {
             var company = await _companyRepo.FindCompanyById(id);
             if (company == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var companyTransferDTOs = _mapper.Map<CompanyTransferDTO>(company);
             return new ApiOkResponse(companyTransferDTOs);
         }
 
-        public async Task<ApiResponse> GetCompanyByName(string name)
+        public async Task<ApiCommonResponse> GetCompanyByName(string name)
         {
             var company = await _companyRepo.FindCompanyByName(name);
             if (company == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var companyTransferDTOs = _mapper.Map<CompanyTransferDTO>(company);
             return new ApiOkResponse(companyTransferDTOs);
         }
 
-        public async Task<ApiResponse> UpdateCompany(long id, CompanyReceivingDTO companyReceivingDTO)
+        public async Task<ApiCommonResponse> UpdateCompany(long id, CompanyReceivingDTO companyReceivingDTO)
         {
             var companyToUpdate = await _companyRepo.FindCompanyById(id);
             if (companyToUpdate == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             companyToUpdate.Name = companyReceivingDTO.Name;
             companyToUpdate.Description = companyReceivingDTO.Description;
@@ -85,7 +85,7 @@ namespace HaloBiz.MyServices.Impl
 
             if (updatedCompany == null)
             {
-                return new ApiResponse(500);
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
             var companyTransferDTOs = _mapper.Map<CompanyTransferDTO>(updatedCompany);
             return new ApiOkResponse(companyTransferDTOs);

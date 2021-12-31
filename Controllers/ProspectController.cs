@@ -23,7 +23,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpGet("")]
-        public async Task<ActionResult> GetProspect()
+        public async Task<ApiCommonResponse> GetProspect()
         {
             var response = await _ProspectService.GetAllProspect();
             if (response.StatusCode >= 400)
@@ -33,7 +33,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult> GetById(long id)
+        public async Task<ApiCommonResponse> GetById(long id)
         {
             var response = await _ProspectService.GetProspectById(id);
             if (response.StatusCode >= 400)
@@ -43,7 +43,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpGet("GetByEmail/{email}")]
-        public async Task<ActionResult> GetByEmail(string email)
+        public async Task<ApiCommonResponse> GetByEmail(string email)
         {
             var response = await _ProspectService.GetProspectByEmail(email);
             if (response.StatusCode >= 400)
@@ -53,7 +53,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpPost("")]
-        public async Task<ActionResult> AddNewProspect(ProspectReceivingDTO ProspectReceiving)
+        public async Task<ApiCommonResponse> AddNewProspect(ProspectReceivingDTO ProspectReceiving)
         {
             var response = await _ProspectService.AddProspect(HttpContext, ProspectReceiving);
             if (response.StatusCode >= 400)
@@ -73,7 +73,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpDelete("{id}")]
-        public async Task<ActionResult> DeleteById(int id)
+        public async Task<ApiCommonResponse> DeleteById(int id)
         {
             var response = await _ProspectService.DeleteProspect(id);
             return StatusCode(response.StatusCode);

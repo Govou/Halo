@@ -18,7 +18,7 @@ namespace HaloBiz.Controllers.AccountsModel
         }
 
         [HttpGet("")]
-        public async Task<ActionResult> GetControlAccounts()
+        public async Task<ApiCommonResponse> GetControlAccounts()
         {
             var response = await _controlAccountService.GetAllControlAccounts();
             if (response.StatusCode >= 400)
@@ -28,7 +28,7 @@ namespace HaloBiz.Controllers.AccountsModel
         }
 
         [HttpGet("GetIncomeControlAccounts")]
-        public async Task<ActionResult> GetIncomeControlAccounts()
+        public async Task<ApiCommonResponse> GetIncomeControlAccounts()
         {
             var response = await _controlAccountService.GetAllIncomeControlAccounts();
             if (response.StatusCode >= 400)
@@ -38,7 +38,7 @@ namespace HaloBiz.Controllers.AccountsModel
         }
 
         [HttpGet("alias/{alias}")]
-        public async Task<ActionResult> GetByAlias(string alias)
+        public async Task<ApiCommonResponse> GetByAlias(string alias)
         {
             var response = await _controlAccountService.GetControlAccountByAlias(alias);
             if (response.StatusCode >= 400)
@@ -48,7 +48,7 @@ namespace HaloBiz.Controllers.AccountsModel
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult> GetById(long id)
+        public async Task<ApiCommonResponse> GetById(long id)
         {
             var response = await _controlAccountService.GetControlAccountById(id);
             if (response.StatusCode >= 400)
@@ -58,7 +58,7 @@ namespace HaloBiz.Controllers.AccountsModel
         }
 
         [HttpPost("")]
-        public async Task<ActionResult> AddNewAccount(ControlAccountReceivingDTO controlAccountReceiving)
+        public async Task<ApiCommonResponse> AddNewAccount(ControlAccountReceivingDTO controlAccountReceiving)
         {
             var response = await _controlAccountService.AddControlAccount(HttpContext, controlAccountReceiving);
             if (response.StatusCode >= 400)
@@ -78,7 +78,7 @@ namespace HaloBiz.Controllers.AccountsModel
         }
 
         [HttpDelete("{id}")]
-        public async Task<ActionResult> DeleteById(int id)
+        public async Task<ApiCommonResponse> DeleteById(int id)
         {
             var response = await _controlAccountService.DeleteControlAccount(id);
             return StatusCode(response.StatusCode);

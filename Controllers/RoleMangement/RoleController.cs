@@ -23,7 +23,7 @@ namespace HaloBiz.Controllers.RoleMangement
         }
   
         [HttpGet("")]
-        public async Task<ActionResult> GetRoles()
+        public async Task<ApiCommonResponse> GetRoles()
         {
             var response = await _roleService.GetAllRoles();
             if (response.StatusCode >= 400)
@@ -33,7 +33,7 @@ namespace HaloBiz.Controllers.RoleMangement
         }
 
         [HttpGet("GetAllApplicationClaims")]
-        public async Task<ActionResult> GetApplicationClaims()
+        public async Task<ApiCommonResponse> GetApplicationClaims()
         {
             var response = await _roleService.GetAllClaims();
             if (response.StatusCode >= 400)
@@ -45,7 +45,7 @@ namespace HaloBiz.Controllers.RoleMangement
         }
 
         [HttpGet("GetUserRoleClaims")]
-        public async Task<ActionResult> GetUserRoleClaims()
+        public async Task<ApiCommonResponse> GetUserRoleClaims()
         {
             var response = await _roleService.GetUserRoleClaims(HttpContext);
             if (response.StatusCode >= 400)
@@ -69,7 +69,7 @@ namespace HaloBiz.Controllers.RoleMangement
         }
 
         [HttpGet("GetPermissionsOnRole/{name}")]
-        public async Task<ActionResult> GetPermissionsOnRole(string name)
+        public async Task<ApiCommonResponse> GetPermissionsOnRole(string name)
         {
             var response = await _roleService.GetPermissionsOnRole(name);
             if (response.StatusCode >= 400)
@@ -81,7 +81,7 @@ namespace HaloBiz.Controllers.RoleMangement
         }
 
         [HttpGet("GetPermissionsOnUser/{id}")]
-        public async Task<ActionResult> GetPermissionsOnUser(long id)
+        public async Task<ApiCommonResponse> GetPermissionsOnUser(long id)
         {
             var response = await _roleService.GetPermissionsOnUser(id);
             if (response.StatusCode >= 400)
@@ -105,7 +105,7 @@ namespace HaloBiz.Controllers.RoleMangement
         }
 
         [HttpGet("GetRolesByUser/{id}")]
-        public async Task<ActionResult> GetRolesByUser(long id)
+        public async Task<ApiCommonResponse> GetRolesByUser(long id)
         {
             var response = await _roleService.FindRolesByUser(id);
             if (response.StatusCode >= 400)
@@ -117,7 +117,7 @@ namespace HaloBiz.Controllers.RoleMangement
         }
 
         [HttpGet("name/{name}")]
-        public async Task<ActionResult> GetByName(string name)
+        public async Task<ApiCommonResponse> GetByName(string name)
         {
             var response = await _roleService.GetRoleByName(name);
             if (response.StatusCode >= 400)
@@ -127,7 +127,7 @@ namespace HaloBiz.Controllers.RoleMangement
         }
      
         [HttpGet("{id}")]
-        public async Task<ActionResult> GetById(long id)
+        public async Task<ApiCommonResponse> GetById(long id)
         {
             var response = await _roleService.GetRoleById(id);
             if (response.StatusCode >= 400)
@@ -137,7 +137,7 @@ namespace HaloBiz.Controllers.RoleMangement
         }
      
         [HttpPost("")]
-        public async Task<ActionResult> AddNewRole(RoleReceivingDTO roleReceiving)
+        public async Task<ApiCommonResponse> AddNewRole(RoleReceivingDTO roleReceiving)
         {
             var response = await _roleService.AddRole(HttpContext, roleReceiving);
             if (response.StatusCode >= 400)
@@ -159,7 +159,7 @@ namespace HaloBiz.Controllers.RoleMangement
 
         
         [HttpDelete("{id}")]
-        public async Task<ActionResult> DeleteById(int id)
+        public async Task<ApiCommonResponse> DeleteById(int id)
         {
             var response = await _roleService.DeleteRole(id);
             return StatusCode(response.StatusCode);

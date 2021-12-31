@@ -24,7 +24,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpGet("")]
-        public async Task<ActionResult> GetModeOfTransport()
+        public async Task<ApiCommonResponse> GetModeOfTransport()
         {
             var response = await _modeOfTransportService.GetAllModeOfTransport();
             if (response.StatusCode >= 400)
@@ -33,7 +33,7 @@ namespace HaloBiz.Controllers
             return Ok(modeOfTransport);
         }
         [HttpGet("caption/{name}")]
-        public async Task<ActionResult> GetByCaption(string name)
+        public async Task<ApiCommonResponse> GetByCaption(string name)
         {
             var response = await _modeOfTransportService.GetModeOfTransportByName(name);
             if (response.StatusCode >= 400)
@@ -43,7 +43,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult> GetById(long id)
+        public async Task<ApiCommonResponse> GetById(long id)
         {
             var response = await _modeOfTransportService.GetModeOfTransportById(id);
             if (response.StatusCode >= 400)
@@ -53,7 +53,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpPost("")]
-        public async Task<ActionResult> AddNewModeOfTransport(ModeOfTransportReceivingDTO modeOfTransportReceiving)
+        public async Task<ApiCommonResponse> AddNewModeOfTransport(ModeOfTransportReceivingDTO modeOfTransportReceiving)
         {
             var response = await _modeOfTransportService.AddModeOfTransport(HttpContext, modeOfTransportReceiving);
             if (response.StatusCode >= 400)
@@ -73,7 +73,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpDelete("{id}")]
-        public async Task<ActionResult> DeleteById(int id)
+        public async Task<ApiCommonResponse> DeleteById(int id)
         {
             var response = await _modeOfTransportService.DeleteModeOfTransport(id);
             return StatusCode(response.StatusCode);

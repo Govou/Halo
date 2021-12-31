@@ -26,51 +26,51 @@ namespace HaloBiz.MyServices.Impl
             this._approvalLimitRepo = approvalLimitRepo;
             this._logger = logger;
         }
-        public async  Task<ApiResponse> AddApprovalLimit(HttpContext context, ApprovalLimitReceivingDTO approvalLimitReceivingDTO)
+        public async  Task<ApiCommonResponse> AddApprovalLimit(HttpContext context, ApprovalLimitReceivingDTO approvalLimitReceivingDTO)
         {
             var approvalLimit = _mapper.Map<ApprovalLimit>(approvalLimitReceivingDTO);
             approvalLimit.CreatedById = context.GetLoggedInUserId();
             var savedApprovalLimit = await _approvalLimitRepo.SaveApprovalLimit(approvalLimit);
             if (savedApprovalLimit == null)
             {
-                return new ApiResponse(500);
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
             var approvalLimitTransferDTO = _mapper.Map<ApprovalLimitTransferDTO>(approvalLimit);
             return new ApiOkResponse(approvalLimitTransferDTO);
         }
 
-        public async Task<ApiResponse> DeleteApprovalLimit(long id)
+        public async Task<ApiCommonResponse> DeleteApprovalLimit(long id)
         {
             var approvalLimitToDelete = await _approvalLimitRepo.FindApprovalLimitById(id);
             if(approvalLimitToDelete == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             if (!await _approvalLimitRepo.DeleteApprovalLimit(approvalLimitToDelete))
             {
-                return new ApiResponse(500);
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
 
-            return new ApiOkResponse(true);
+            return CommonResponse.Send(ResponseCodes.SUCCESS);
         }
 
-        public async Task<ApiResponse> GetAllApprovalLimit()
+        public async Task<ApiCommonResponse> GetAllApprovalLimit()
         {
             var approvalLimit = await _approvalLimitRepo.GetApprovalLimits();
             if (approvalLimit == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var approvalLimitTransferDTO = _mapper.Map<IEnumerable<ApprovalLimitTransferDTO>>(approvalLimit);
             return new ApiOkResponse(approvalLimitTransferDTO);
         }
 
-        public  async Task<ApiResponse> UpdateApprovalLimit(HttpContext context, long id, ApprovalLimitReceivingDTO approvalLimitReceivingDTO)
+        public  async Task<ApiCommonResponse> UpdateApprovalLimit(HttpContext context, long id, ApprovalLimitReceivingDTO approvalLimitReceivingDTO)
         {
             var approvalLimitToUpdate = await _approvalLimitRepo.FindApprovalLimitById(id);
             if (approvalLimitToUpdate == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             
             var summary = $"Initial details before change, \n {approvalLimitToUpdate.ToString()} \n" ;
@@ -89,7 +89,7 @@ namespace HaloBiz.MyServices.Impl
 
             if (updatedApprovalLimit == null)
             {
-                return new ApiResponse(500);
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
             ModificationHistory history = new ModificationHistory(){
                 ModelChanged = "ApprovalLimit",

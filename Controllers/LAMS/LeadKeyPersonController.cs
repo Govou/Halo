@@ -19,7 +19,7 @@ namespace HaloBiz.Controllers.LAMS
         }
 
         [HttpGet("")]
-        public async Task<ActionResult> GetLeadKeyPeople()
+        public async Task<ApiCommonResponse> GetLeadKeyPeople()
         {
             var response = await _leadKeyPersonService.GetAllLeadKeyPerson();
             if (response.StatusCode >= 400)
@@ -29,7 +29,7 @@ namespace HaloBiz.Controllers.LAMS
         }
 
         [HttpGet("Lead/{leadId}")]
-        public async Task<ActionResult> GetLeadKeyPeopleByLeadId(long leadId)
+        public async Task<ApiCommonResponse> GetLeadKeyPeopleByLeadId(long leadId)
         {
             var response = await _leadKeyPersonService.GetAllLeadKeyPersonsByLeadId(leadId);
             if (response.StatusCode >= 400)
@@ -39,7 +39,7 @@ namespace HaloBiz.Controllers.LAMS
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult> GetById(long id)
+        public async Task<ApiCommonResponse> GetById(long id)
         {
             var response = await _leadKeyPersonService.GetLeadKeyPersonById(id);
             if (response.StatusCode >= 400)
@@ -49,7 +49,7 @@ namespace HaloBiz.Controllers.LAMS
         }
 
         [HttpPost("")]
-        public async Task<ActionResult> AddNewLeadKeyPerson(LeadKeyPersonReceivingDTO leadKeyPersonReceiving)
+        public async Task<ApiCommonResponse> AddNewLeadKeyPerson(LeadKeyPersonReceivingDTO leadKeyPersonReceiving)
         {
             var response = await _leadKeyPersonService.AddLeadKeyPerson(HttpContext, leadKeyPersonReceiving);
             if (response.StatusCode >= 400)
@@ -68,7 +68,7 @@ namespace HaloBiz.Controllers.LAMS
         }
 
         [HttpDelete("{id}")]
-        public async Task<ActionResult> DeleteById(int id)
+        public async Task<ApiCommonResponse> DeleteById(int id)
         {
             var response = await _leadKeyPersonService.DeleteKeyPerson(id);
             return StatusCode(response.StatusCode);

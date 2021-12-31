@@ -23,7 +23,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpGet("")]
-        public async Task<ActionResult> GetSuspect()
+        public async Task<ApiCommonResponse> GetSuspect()
         {
             var response = await _SuspectService.GetAllSuspect();
             if (response.StatusCode >= 400)
@@ -33,7 +33,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpGet("GetUserSuspects")]
-        public async Task<ActionResult> GetUserSuspects()
+        public async Task<ApiCommonResponse> GetUserSuspects()
         {
             var response = await _SuspectService.GetUserSuspects(HttpContext);
             if (response.StatusCode >= 400)
@@ -43,7 +43,7 @@ namespace HaloBiz.Controllers
         }
 
         /*[HttpGet("caption/{name}")]
-        public async Task<ActionResult> GetByCaption(string name)
+        public async Task<ApiCommonResponse> GetByCaption(string name)
         {
             var response = await _SuspectService.GetSuspectByName(name);
             if (response.StatusCode >= 400)
@@ -53,7 +53,7 @@ namespace HaloBiz.Controllers
         }*/
 
         [HttpGet("{id}")]
-        public async Task<ActionResult> GetById(long id)
+        public async Task<ApiCommonResponse> GetById(long id)
         {
             var response = await _SuspectService.GetSuspectById(id);
             if (response.StatusCode >= 400)
@@ -63,7 +63,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpPost("ConvertSuspect/{suspectId}")]
-        public async Task<ActionResult> ConvertSuspect(long suspectId)
+        public async Task<ApiCommonResponse> ConvertSuspect(long suspectId)
         {
             var response = await _SuspectService.ConvertSuspect(HttpContext, suspectId);
             if (response.StatusCode >= 400)
@@ -73,7 +73,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpPost("")]
-        public async Task<ActionResult> AddNewSuspect(SuspectReceivingDTO SuspectReceiving)
+        public async Task<ApiCommonResponse> AddNewSuspect(SuspectReceivingDTO SuspectReceiving)
         {
             var response = await _SuspectService.AddSuspect(HttpContext, SuspectReceiving);
             if (response.StatusCode >= 400)
@@ -93,7 +93,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpDelete("{id}")]
-        public async Task<ActionResult> DeleteById(int id)
+        public async Task<ApiCommonResponse> DeleteById(int id)
         {
             var response = await _SuspectService.DeleteSuspect(id);
             return StatusCode(response.StatusCode);

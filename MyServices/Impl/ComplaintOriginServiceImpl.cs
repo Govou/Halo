@@ -38,7 +38,7 @@ namespace HaloBiz.MyServices.Impl
             this._logger = logger;
         }
 
-        public async Task<ApiResponse> AddComplaintOrigin(HttpContext context, ComplaintOriginReceivingDTO complaintOriginReceivingDTO)
+        public async Task<ApiCommonResponse> AddComplaintOrigin(HttpContext context, ComplaintOriginReceivingDTO complaintOriginReceivingDTO)
         {
             long code = 1;
             var lastComplaintOrigin = await _context.ComplaintOrigins.OrderByDescending(x => x.Id).FirstOrDefaultAsync();
@@ -56,67 +56,67 @@ namespace HaloBiz.MyServices.Impl
             var savedcomplaintOrigin = await _complaintOriginRepo.SaveComplaintOrigin(complaintOrigin);
             if (savedcomplaintOrigin == null)
             {
-                return new ApiResponse(500);
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
             var complaintOriginTransferDTO = _mapper.Map<ComplaintOriginTransferDTO>(complaintOrigin);
             return new ApiOkResponse(complaintOriginTransferDTO);
         }
 
-        public async Task<ApiResponse> DeleteComplaintOrigin(long id)
+        public async Task<ApiCommonResponse> DeleteComplaintOrigin(long id)
         {
             var complaintOriginToDelete = await _complaintOriginRepo.FindComplaintOriginById(id);
             if (complaintOriginToDelete == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
 
             if (!await _complaintOriginRepo.DeleteComplaintOrigin(complaintOriginToDelete))
             {
-                return new ApiResponse(500);
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
 
-            return new ApiOkResponse(true);
+            return CommonResponse.Send(ResponseCodes.SUCCESS);
         }
 
-        public async Task<ApiResponse> GetAllComplaintOrigin()
+        public async Task<ApiCommonResponse> GetAllComplaintOrigin()
         {
             var complaintOrigins = await _complaintOriginRepo.FindAllComplaintOrigins();
             if (complaintOrigins == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var complaintOriginTransferDTO = _mapper.Map<IEnumerable<ComplaintOriginTransferDTO>>(complaintOrigins);
             return new ApiOkResponse(complaintOriginTransferDTO);
         }
 
-        public async Task<ApiResponse> GetComplaintOriginById(long id)
+        public async Task<ApiCommonResponse> GetComplaintOriginById(long id)
         {
             var complaintOrigin = await _complaintOriginRepo.FindComplaintOriginById(id);
             if (complaintOrigin == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var complaintOriginTransferDTOs = _mapper.Map<ComplaintOriginTransferDTO>(complaintOrigin);
             return new ApiOkResponse(complaintOriginTransferDTOs);
         }
 
-        public async Task<ApiResponse> GetComplaintOriginByName(string name)
+        public async Task<ApiCommonResponse> GetComplaintOriginByName(string name)
         {
             var complaintOrigin = await _complaintOriginRepo.FindComplaintOriginByName(name);
             if (complaintOrigin == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var complaintOriginTransferDTOs = _mapper.Map<ComplaintOriginTransferDTO>(complaintOrigin);
             return new ApiOkResponse(complaintOriginTransferDTOs);
         }
 
-        public async Task<ApiResponse> UpdateComplaintOrigin(HttpContext context, long id, ComplaintOriginReceivingDTO complaintOriginReceivingDTO)
+        public async Task<ApiCommonResponse> UpdateComplaintOrigin(HttpContext context, long id, ComplaintOriginReceivingDTO complaintOriginReceivingDTO)
         {
             var complaintOriginToUpdate = await _complaintOriginRepo.FindComplaintOriginById(id);
             if (complaintOriginToUpdate == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
 
             var summary = $"Initial details before change, \n {complaintOriginToUpdate.ToString()} \n";
@@ -129,7 +129,7 @@ namespace HaloBiz.MyServices.Impl
 
             if (updatedcomplaintOrigin == null)
             {
-                return new ApiResponse(500);
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
             ModificationHistory history = new ModificationHistory()
             {

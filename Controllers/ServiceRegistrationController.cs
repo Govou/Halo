@@ -25,7 +25,7 @@ namespace HaloBiz.Controllers
 
 
         [HttpGet("GetAllRegisteredServices")]
-        public async Task<ActionResult> GetAllRegisteredServices()
+        public async Task<ApiCommonResponse> GetAllRegisteredServices()
         {
             var response = await _serviceRegistration.GetAllServiceRegs();
             if (response.StatusCode >= 400)
@@ -34,7 +34,7 @@ namespace HaloBiz.Controllers
             return Ok(cRank);
         }
         [HttpGet("GetAllArmedEscortResourceRequired")]
-        public async Task<ActionResult> GetAllArmedEscortResourceRequired()
+        public async Task<ApiCommonResponse> GetAllArmedEscortResourceRequired()
         {
             var response = await _serviceRegistration.GetAllArmedEscortResourceRequired();
             if (response.StatusCode >= 400)
@@ -43,7 +43,7 @@ namespace HaloBiz.Controllers
             return Ok(resource);
         }
         [HttpGet("GetAllPilotResourceRequired")] 
-        public async Task<ActionResult> GetAllPilotResourceRequired()
+        public async Task<ApiCommonResponse> GetAllPilotResourceRequired()
         {
             var response = await _serviceRegistration.GetAllPilotResourceRequired();
             if (response.StatusCode >= 400)
@@ -52,7 +52,7 @@ namespace HaloBiz.Controllers
             return Ok(resource);
         }
         [HttpGet("GetAllCommanderResourceRequired")]
-        public async Task<ActionResult> GetAllCommanderResourceRequired()
+        public async Task<ApiCommonResponse> GetAllCommanderResourceRequired()
         {
             var response = await _serviceRegistration.GetAllCommanderResourceRequired();
             if (response.StatusCode >= 400)
@@ -61,7 +61,7 @@ namespace HaloBiz.Controllers
             return Ok(resource);
         }
         [HttpGet("GetAllVehicleResourceRequired")]
-        public async Task<ActionResult> GetAllVehicleResourceRequired()
+        public async Task<ApiCommonResponse> GetAllVehicleResourceRequired()
         {
             var response = await _serviceRegistration.GetAllVehicleResourceRequired();
             if (response.StatusCode >= 400)
@@ -71,7 +71,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpGet("GetRegServiceById/{id}")]
-        public async Task<ActionResult> GetRegServiceById(long id)
+        public async Task<ApiCommonResponse> GetRegServiceById(long id)
         {
             var response = await _serviceRegistration.GetServiceRegById(id);
             if (response.StatusCode >= 400)
@@ -80,7 +80,7 @@ namespace HaloBiz.Controllers
             return Ok(Rank);
         }
         [HttpGet("GetArmedEscortResourceRequiredById/{id}")]
-        public async Task<ActionResult> GetArmedEscortResourceRequiredById(long id)
+        public async Task<ApiCommonResponse> GetArmedEscortResourceRequiredById(long id)
         {
             var response = await _serviceRegistration.GetArmedEscortResourceById(id);
             if (response.StatusCode >= 400)
@@ -89,7 +89,7 @@ namespace HaloBiz.Controllers
             return Ok(Rank);
         }
         [HttpGet("GetPilotResourceRequiredById/{id}")] 
-        public async Task<ActionResult> GetPilotResourceRequiredById(long id)
+        public async Task<ApiCommonResponse> GetPilotResourceRequiredById(long id)
         {
             var response = await _serviceRegistration.GetPilotResourceById(id);
             if (response.StatusCode >= 400)
@@ -98,7 +98,7 @@ namespace HaloBiz.Controllers
             return Ok(Rank);
         }
         [HttpGet("GetCommanderResourceRequiredById/{id}")]
-        public async Task<ActionResult> GetCommanderResourceRequiredById(long id)
+        public async Task<ApiCommonResponse> GetCommanderResourceRequiredById(long id)
         {
             var response = await _serviceRegistration.GetCommanderResourceById(id);
             if (response.StatusCode >= 400)
@@ -107,7 +107,7 @@ namespace HaloBiz.Controllers
             return Ok(Rank);
         }
         [HttpGet("GetVehicleResourceRequiredById/{id}")]
-        public async Task<ActionResult> GetVehicleResourceRequiredById(long id)
+        public async Task<ApiCommonResponse> GetVehicleResourceRequiredById(long id)
         {
             var response = await _serviceRegistration.GetVehicleResourceById(id);
             if (response.StatusCode >= 400)
@@ -117,7 +117,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpPost("AddNewServiceReg")]
-        public async Task<ActionResult> AddNewServiceReg(ServiceRegistrationReceivingDTO ReceivingDTO)
+        public async Task<ApiCommonResponse> AddNewServiceReg(ServiceRegistrationReceivingDTO ReceivingDTO)
         {
             var response = await _serviceRegistration.AddServiceReg(HttpContext, ReceivingDTO);
             if (response.StatusCode >= 400)
@@ -127,7 +127,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpPost("AddNewResourceRequired")]
-        public async Task<ActionResult> AddNewResourceRequiredTypes(AllResourceTypesPerServiceRegReceivingDTO ReceivingDTO)
+        public async Task<ApiCommonResponse> AddNewResourceRequiredTypes(AllResourceTypesPerServiceRegReceivingDTO ReceivingDTO)
         {
             var response = await _serviceRegistration.AddResourceRequired(HttpContext, ReceivingDTO);
             if (response.StatusCode >= 400)
@@ -147,31 +147,31 @@ namespace HaloBiz.Controllers
         }
 
         [HttpDelete("DeleteRegServiceById/{id}")]
-        public async Task<ActionResult> DeleteRegServiceById(int id)
+        public async Task<ApiCommonResponse> DeleteRegServiceById(int id)
         {
             var response = await _serviceRegistration.DeleteServiceReg(id);
             return StatusCode(response.StatusCode);
         }
         [HttpDelete("DeleteArmedEscortResourceRequiredById/{id}")]
-        public async Task<ActionResult> DeleteArmedEscortResourceRequiredById(int id)
+        public async Task<ApiCommonResponse> DeleteArmedEscortResourceRequiredById(int id)
         {
             var response = await _serviceRegistration.DeleteArmedEscortResource(id);
             return StatusCode(response.StatusCode);
         }
         [HttpDelete("DeletePilotResourceRequiredById/{id}")] 
-        public async Task<ActionResult> DeletePilotResourceRequiredById(int id)
+        public async Task<ApiCommonResponse> DeletePilotResourceRequiredById(int id)
         {
             var response = await _serviceRegistration.DeletePilotResource(id);
             return StatusCode(response.StatusCode);
         }
         [HttpDelete("DeleteCommanderResourceRequiredById/{id}")]
-        public async Task<ActionResult> DeleteCommanderResourceRequiredById(int id)
+        public async Task<ApiCommonResponse> DeleteCommanderResourceRequiredById(int id)
         {
             var response = await _serviceRegistration.DeleteCommanderResource(id);
             return StatusCode(response.StatusCode);
         }
         [HttpDelete("DeleteVehicleResourceRequiredById/{id}")]
-        public async Task<ActionResult> DeleteVehicleResourceRequiredById(int id)
+        public async Task<ApiCommonResponse> DeleteVehicleResourceRequiredById(int id)
         {
             var response = await _serviceRegistration.DeleteVehicleResource(id);
             return StatusCode(response.StatusCode);

@@ -38,7 +38,7 @@ namespace HaloBiz.MyServices.Impl
             this._logger = logger;
         }
 
-        public async Task<ApiResponse> AddComplaintType(HttpContext context, ComplaintTypeReceivingDTO complaintTypeReceivingDTO)
+        public async Task<ApiCommonResponse> AddComplaintType(HttpContext context, ComplaintTypeReceivingDTO complaintTypeReceivingDTO)
         {
             long code = 1;
             var lastComplaintType = await _context.ComplaintTypes.OrderByDescending(x => x.Id).FirstOrDefaultAsync();
@@ -56,67 +56,67 @@ namespace HaloBiz.MyServices.Impl
             var savedcomplaintType = await _complaintTypeRepo.SaveComplaintType(complaintType);
             if (savedcomplaintType == null)
             {
-                return new ApiResponse(500);
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
             var complaintTypeTransferDTO = _mapper.Map<ComplaintTypeTransferDTO>(complaintType);
             return new ApiOkResponse(complaintTypeTransferDTO);
         }
 
-        public async Task<ApiResponse> DeleteComplaintType(long id)
+        public async Task<ApiCommonResponse> DeleteComplaintType(long id)
         {
             var complaintTypeToDelete = await _complaintTypeRepo.FindComplaintTypeById(id);
             if (complaintTypeToDelete == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
 
             if (!await _complaintTypeRepo.DeleteComplaintType(complaintTypeToDelete))
             {
-                return new ApiResponse(500);
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
 
-            return new ApiOkResponse(true);
+            return CommonResponse.Send(ResponseCodes.SUCCESS);
         }
 
-        public async Task<ApiResponse> GetAllComplaintType()
+        public async Task<ApiCommonResponse> GetAllComplaintType()
         {
             var complaintTypes = await _complaintTypeRepo.FindAllComplaintTypes();
             if (complaintTypes == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var complaintTypeTransferDTO = _mapper.Map<IEnumerable<ComplaintTypeTransferDTO>>(complaintTypes);
             return new ApiOkResponse(complaintTypeTransferDTO);
         }
 
-        public async Task<ApiResponse> GetComplaintTypeById(long id)
+        public async Task<ApiCommonResponse> GetComplaintTypeById(long id)
         {
             var complaintType = await _complaintTypeRepo.FindComplaintTypeById(id);
             if (complaintType == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var complaintTypeTransferDTOs = _mapper.Map<ComplaintTypeTransferDTO>(complaintType);
             return new ApiOkResponse(complaintTypeTransferDTOs);
         }
 
-        public async Task<ApiResponse> GetComplaintTypeByName(string name)
+        public async Task<ApiCommonResponse> GetComplaintTypeByName(string name)
         {
             var complaintType = await _complaintTypeRepo.FindComplaintTypeByName(name);
             if (complaintType == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var complaintTypeTransferDTOs = _mapper.Map<ComplaintTypeTransferDTO>(complaintType);
             return new ApiOkResponse(complaintTypeTransferDTOs);
         }
 
-        public async Task<ApiResponse> UpdateComplaintType(HttpContext context, long id, ComplaintTypeReceivingDTO complaintTypeReceivingDTO)
+        public async Task<ApiCommonResponse> UpdateComplaintType(HttpContext context, long id, ComplaintTypeReceivingDTO complaintTypeReceivingDTO)
         {
             var complaintTypeToUpdate = await _complaintTypeRepo.FindComplaintTypeById(id);
             if (complaintTypeToUpdate == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
 
             var summary = $"Initial details before change, \n {complaintTypeToUpdate.ToString()} \n";
@@ -129,7 +129,7 @@ namespace HaloBiz.MyServices.Impl
 
             if (updatedcomplaintType == null)
             {
-                return new ApiResponse(500);
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
             ModificationHistory history = new ModificationHistory()
             {

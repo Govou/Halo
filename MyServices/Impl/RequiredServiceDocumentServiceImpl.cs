@@ -26,58 +26,58 @@ namespace HaloBiz.MyServices.Impl
             this._requiredServiceDocumentRepo = requiredServiceDocumentRepo;
         }
 
-        public async Task<ApiResponse> AddRequiredServiceDocument(HttpContext context, RequiredServiceDocumentReceivingDTO requiredServiceDocumentReceivingDTO)
+        public async Task<ApiCommonResponse> AddRequiredServiceDocument(HttpContext context, RequiredServiceDocumentReceivingDTO requiredServiceDocumentReceivingDTO)
         {
             var requiredServiceDocument = _mapper.Map<RequiredServiceDocument>(requiredServiceDocumentReceivingDTO);
             requiredServiceDocument.CreatedById = context.GetLoggedInUserId();
             var savedRequiredServiceDocument = await _requiredServiceDocumentRepo.SaveRequiredServiceDocument(requiredServiceDocument);
             if (savedRequiredServiceDocument == null)
             {
-                return new ApiResponse(500);
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
             var requiredServiceDocumentTransferDTO = _mapper.Map<RequiredServiceDocumentTransferDTO>(requiredServiceDocument);
             return new ApiOkResponse(requiredServiceDocumentTransferDTO);
         }
 
-        public async Task<ApiResponse> GetAllRequiredServiceDocument()
+        public async Task<ApiCommonResponse> GetAllRequiredServiceDocument()
         {
             var requiredServiceDocuments = await _requiredServiceDocumentRepo.FindAllRequiredServiceDocuments();
             if (requiredServiceDocuments == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var requiredServiceDocumentTransferDTO = _mapper.Map<IEnumerable<RequiredServiceDocumentTransferDTO>>(requiredServiceDocuments);
             return new ApiOkResponse(requiredServiceDocumentTransferDTO);
         }
 
-        public async Task<ApiResponse> GetRequiredServiceDocumentById(long id)
+        public async Task<ApiCommonResponse> GetRequiredServiceDocumentById(long id)
         {
             var requiredServiceDocument = await _requiredServiceDocumentRepo.FindRequiredServiceDocumentById(id);
             if (requiredServiceDocument == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var requiredServiceDocumentTransferDTOs = _mapper.Map<RequiredServiceDocumentTransferDTO>(requiredServiceDocument);
             return new ApiOkResponse(requiredServiceDocumentTransferDTOs);
         }
 
-        public async Task<ApiResponse> GetRequiredServiceDocumentByName(string name)
+        public async Task<ApiCommonResponse> GetRequiredServiceDocumentByName(string name)
         {
             var requiredServiceDocument = await _requiredServiceDocumentRepo.FindRequiredServiceDocumentByName(name);
             if (requiredServiceDocument == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var requiredServiceDocumentTransferDTOs = _mapper.Map<RequiredServiceDocumentTransferDTO>(requiredServiceDocument);
             return new ApiOkResponse(requiredServiceDocumentTransferDTOs);
         }
 
-        public async Task<ApiResponse> UpdateRequiredServiceDocument(HttpContext context, long id, RequiredServiceDocumentReceivingDTO requiredServiceDocumentReceivingDTO)
+        public async Task<ApiCommonResponse> UpdateRequiredServiceDocument(HttpContext context, long id, RequiredServiceDocumentReceivingDTO requiredServiceDocumentReceivingDTO)
         {
             var requiredServiceDocumentToUpdate = await _requiredServiceDocumentRepo.FindRequiredServiceDocumentById(id);
             if (requiredServiceDocumentToUpdate == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             
             var summary = $"Initial details before change, \n {requiredServiceDocumentToUpdate.ToString()} \n" ;
@@ -91,7 +91,7 @@ namespace HaloBiz.MyServices.Impl
 
             if (updatedRequiredServiceDocument == null)
             {
-                return new ApiResponse(500);
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
             ModificationHistory history = new ModificationHistory(){
                 ModelChanged = "RequiredServiceDocument",
@@ -107,14 +107,14 @@ namespace HaloBiz.MyServices.Impl
 
         }
 
-        public async Task<ApiResponse> DeleteRequiredServiceDocument(long id)
+        public async Task<ApiCommonResponse> DeleteRequiredServiceDocument(long id)
         {
             IList<ServiceRequiredServiceDocument> serviceRequiredServiceDocument = new List<ServiceRequiredServiceDocument>();
 
             var requiredServiceDocumentToDelete = await _requiredServiceDocumentRepo.FindRequiredServiceDocumentById(id);
             if (requiredServiceDocumentToDelete == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             
 
@@ -122,10 +122,10 @@ namespace HaloBiz.MyServices.Impl
 
             if (!await _requiredServiceDocumentRepo.DeleteRequiredServiceDocument(requiredServiceDocumentToDelete))
             {
-                return new ApiResponse(500);
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
 
-            return new ApiOkResponse(true);
+            return CommonResponse.Send(ResponseCodes.SUCCESS);
         }
     }
 }

@@ -25,72 +25,72 @@ namespace HaloBiz.MyServices.Impl.LAMS
             this._logger = logger;
         }
 
-        public async Task<ApiResponse> DeleteContract(long id)
+        public async Task<ApiCommonResponse> DeleteContract(long id)
         {
             var contractToDelete = await _contractRepo.FindContractById(id);
             if (contractToDelete == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
 
             if (!await _contractRepo.DeleteContract(contractToDelete))
             {
-                return new ApiResponse(500);
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
 
-            return new ApiOkResponse(true);
+            return CommonResponse.Send(ResponseCodes.SUCCESS);
         }
 
-        public async Task<ApiResponse> GetAllContracts()
+        public async Task<ApiCommonResponse> GetAllContracts()
         {
             var contracts = await _contractRepo.FindAllContract();
             if (contracts == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var contractTransferDTOs = _mapper.Map<IEnumerable<ContractTransferDTO>>(contracts);
             return new ApiOkResponse(contractTransferDTOs);
         }
 
-        public async Task<ApiResponse> GetContractByReferenceNumber(string refNo)
+        public async Task<ApiCommonResponse> GetContractByReferenceNumber(string refNo)
         {
             var contract = await _contractRepo.FindContractByReferenceNumber(refNo);
             if (contract == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var contractTransferDTOs = _mapper.Map<ContractTransferDTO>(contract);
             return new ApiOkResponse(contractTransferDTOs);
         }
 
-        public async Task<ApiResponse> GetContractById(long id)
+        public async Task<ApiCommonResponse> GetContractById(long id)
         {
             var contract = await _contractRepo.FindContractById(id);
             if (contract == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var contractTransferDTOs = _mapper.Map<ContractTransferDTO>(contract);
             return new ApiOkResponse(contractTransferDTOs);
         }
 
-        public async Task<ApiResponse> GetContractsByLeadId(long leadId)
+        public async Task<ApiCommonResponse> GetContractsByLeadId(long leadId)
         {
             var contracts = await _contractRepo.FindContractsByLeadId(leadId);
             if (contracts == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var contractTransferDTOs = _mapper.Map<IEnumerable<ContractTransferDTO>>(contracts);
             return new ApiOkResponse(contractTransferDTOs);
         }
 
-        public async Task<ApiResponse> GetContractsByCustomerId(long customerId)
+        public async Task<ApiCommonResponse> GetContractsByCustomerId(long customerId)
         {
             var contracts = await _contractRepo.FindContractsByCustomerId(customerId);
             if (contracts == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var contractTransferDTOs = _mapper.Map<IEnumerable<ContractTransferDTO>>(contracts);
             return new ApiOkResponse(contractTransferDTOs);

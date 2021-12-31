@@ -23,7 +23,7 @@ namespace HaloBiz.Controllers
 
         //ArmedEscort
         [HttpGet("GetAllArmedEscortMasters")]
-        public async Task<ActionResult> GetAllArmedEscortMasters()
+        public async Task<ApiCommonResponse> GetAllArmedEscortMasters()
         {
             var response = await _dTSMastersService.GetAllArmedEscortMasters();
             if (response.StatusCode >= 400)
@@ -33,7 +33,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpGet("GetArmedEscortMasterById/{id}")]
-        public async Task<ActionResult> GetArmedEscortMasterById(long id)
+        public async Task<ApiCommonResponse> GetArmedEscortMasterById(long id)
         {
             var response = await _dTSMastersService.GetArmedEscortMasterById(id);
             if (response.StatusCode >= 400)
@@ -43,7 +43,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpPost("AddNewArmedEscortMaster")]
-        public async Task<ActionResult> AddNewArmedEscortMaster(ArmedEscortDTSMastersReceivingDTO ReceivingDTO)
+        public async Task<ApiCommonResponse> AddNewArmedEscortMaster(ArmedEscortDTSMastersReceivingDTO ReceivingDTO)
         {
             var response = await _dTSMastersService.AddArmedEscortMaster(HttpContext, ReceivingDTO);
 
@@ -63,7 +63,7 @@ namespace HaloBiz.Controllers
             return Ok(type);
         }
         [HttpDelete("DeleteArmedEscortMasterById/{id}")]
-        public async Task<ActionResult> DeleteArmedEscortMasterById(int id)
+        public async Task<ApiCommonResponse> DeleteArmedEscortMasterById(int id)
         {
             var response = await _dTSMastersService.DeleteArmedEscortMaster(id);
             return StatusCode(response.StatusCode);
@@ -71,7 +71,7 @@ namespace HaloBiz.Controllers
 
         //Commander
         [HttpGet("GetAllCommanderMasters")]
-        public async Task<ActionResult> GetAllCommanderMasters()
+        public async Task<ApiCommonResponse> GetAllCommanderMasters()
         {
             var response = await _dTSMastersService.GetAllCommanderMasters();
             if (response.StatusCode >= 400)
@@ -81,7 +81,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpGet("GetCommanderMasterById/{id}")]
-        public async Task<ActionResult> GetCommanderMasterById(long id)
+        public async Task<ApiCommonResponse> GetCommanderMasterById(long id)
         {
             var response = await _dTSMastersService.GetCommanderMasterById(id);
             if (response.StatusCode >= 400)
@@ -91,7 +91,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpPost("AddNewCommanderMaster")]
-        public async Task<ActionResult> AddNewCommanderMaster(CommanderDTSMastersReceivingDTO ReceivingDTO)
+        public async Task<ApiCommonResponse> AddNewCommanderMaster(CommanderDTSMastersReceivingDTO ReceivingDTO)
         {
             var response = await _dTSMastersService.AddCommanderMaster(HttpContext, ReceivingDTO);
 
@@ -111,7 +111,7 @@ namespace HaloBiz.Controllers
             return Ok(type);
         }
         [HttpDelete("DeleteCommanderMasterById/{id}")]
-        public async Task<ActionResult> DeleteCommanderMasterById(int id)
+        public async Task<ApiCommonResponse> DeleteCommanderMasterById(int id)
         {
             var response = await _dTSMastersService.DeleteCommanderMaster(id);
             return StatusCode(response.StatusCode);
@@ -119,7 +119,7 @@ namespace HaloBiz.Controllers
 
         //Pilot
         [HttpGet("GetAllPilotMasters")]
-        public async Task<ActionResult> GetAllPilotMasters()
+        public async Task<ApiCommonResponse> GetAllPilotMasters()
         {
             var response = await _dTSMastersService.GetAllPilotMasters();
             if (response.StatusCode >= 400)
@@ -129,7 +129,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpGet("GetPilotMasterById/{id}")]
-        public async Task<ActionResult> GetPilotMasterById(long id)
+        public async Task<ApiCommonResponse> GetPilotMasterById(long id)
         {
             var response = await _dTSMastersService.GetPilotMasterById(id);
             if (response.StatusCode >= 400)
@@ -139,7 +139,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpPost("AddNewPilotMaster")]
-        public async Task<ActionResult> AddNewPilotMaster(PilotDTSMastersReceivingDTO ReceivingDTO)
+        public async Task<ApiCommonResponse> AddNewPilotMaster(PilotDTSMastersReceivingDTO ReceivingDTO)
         {
             var response = await _dTSMastersService.AddPilotMaster(HttpContext, ReceivingDTO);
 
@@ -159,7 +159,7 @@ namespace HaloBiz.Controllers
             return Ok(type);
         }
         [HttpDelete("DeletePilotMasterById/{id}")]
-        public async Task<ActionResult> DeletePilotMasterById(int id)
+        public async Task<ApiCommonResponse> DeletePilotMasterById(int id)
         {
             var response = await _dTSMastersService.DeletePilotMaster(id);
             return StatusCode(response.StatusCode);
@@ -167,7 +167,7 @@ namespace HaloBiz.Controllers
 
         //Vehicle
         [HttpGet("GetAllVehicleMasters")]
-        public async Task<ActionResult> GetAllVehicleMasters()
+        public async Task<ApiCommonResponse> GetAllVehicleMasters()
         {
             var response = await _dTSMastersService.GetAllVehicleMasters();
             if (response.StatusCode >= 400)
@@ -177,7 +177,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpGet("GetVehicleMasterById/{id}")]
-        public async Task<ActionResult> GetVehicleMasterById(long id)
+        public async Task<ApiCommonResponse> GetVehicleMasterById(long id)
         {
             var response = await _dTSMastersService.GetVehicleMasterById(id);
             if (response.StatusCode >= 400)
@@ -187,7 +187,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpPost("AddNewVehicleMaster")]
-        public async Task<ActionResult> AddNewVehicleMaster(VehicleDTSMastersReceivingDTO ReceivingDTO)
+        public async Task<ApiCommonResponse> AddNewVehicleMaster(VehicleDTSMastersReceivingDTO ReceivingDTO)
         {
             var response = await _dTSMastersService.AddVehicleMaster(HttpContext, ReceivingDTO);
 
@@ -207,7 +207,7 @@ namespace HaloBiz.Controllers
             return Ok(type);
         }
         [HttpDelete("DeleteVehicleMasterById/{id}")]
-        public async Task<ActionResult> DeleteVehicleMasterById(int id)
+        public async Task<ApiCommonResponse> DeleteVehicleMasterById(int id)
         {
             var response = await _dTSMastersService.DeleteVehicleMaster(id);
             return StatusCode(response.StatusCode);

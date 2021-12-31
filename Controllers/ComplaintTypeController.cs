@@ -23,7 +23,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpGet("")]
-        public async Task<ActionResult> GetComplaintType()
+        public async Task<ApiCommonResponse> GetComplaintType()
         {
             var response = await _ComplaintTypeService.GetAllComplaintType();
             if (response.StatusCode >= 400)
@@ -32,7 +32,7 @@ namespace HaloBiz.Controllers
             return Ok(ComplaintType);
         }
         [HttpGet("caption/{name}")]
-        public async Task<ActionResult> GetByCaption(string name)
+        public async Task<ApiCommonResponse> GetByCaption(string name)
         {
             var response = await _ComplaintTypeService.GetComplaintTypeByName(name);
             if (response.StatusCode >= 400)
@@ -42,7 +42,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult> GetById(long id)
+        public async Task<ApiCommonResponse> GetById(long id)
         {
             var response = await _ComplaintTypeService.GetComplaintTypeById(id);
             if (response.StatusCode >= 400)
@@ -52,7 +52,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpPost("")]
-        public async Task<ActionResult> AddNewComplaintType(ComplaintTypeReceivingDTO ComplaintTypeReceiving)
+        public async Task<ApiCommonResponse> AddNewComplaintType(ComplaintTypeReceivingDTO ComplaintTypeReceiving)
         {
             var response = await _ComplaintTypeService.AddComplaintType(HttpContext, ComplaintTypeReceiving);
             if (response.StatusCode >= 400)
@@ -72,7 +72,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpDelete("{id}")]
-        public async Task<ActionResult> DeleteById(int id)
+        public async Task<ApiCommonResponse> DeleteById(int id)
         {
             var response = await _ComplaintTypeService.DeleteComplaintType(id);
             return StatusCode(response.StatusCode);

@@ -57,47 +57,47 @@ namespace HaloBiz.MyServices.Impl
             //this.VALUE_ADDED_TAX = _configuration.GetSection("AccountsInformation:ValueAddedTask").Value;
         }
 
-        public async Task<ApiResponse> AddAccountMaster(HttpContext context, AccountMasterReceivingDTO accountMasterReceivingDTO)
+        public async Task<ApiCommonResponse> AddAccountMaster(HttpContext context, AccountMasterReceivingDTO accountMasterReceivingDTO)
         {
             var acctClass = _mapper.Map<AccountMaster>(accountMasterReceivingDTO);
             acctClass.CreatedById = context.GetLoggedInUserId();
             var savedAccountMaster = await _accountMasterRepo.SaveAccountMaster(acctClass);
             if (savedAccountMaster == null)
             {
-                return new ApiResponse(500);
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
             var AccountMasterTransferDTOs = _mapper.Map<AccountMasterTransferDTO>(acctClass);
             return new ApiOkResponse(AccountMasterTransferDTOs);
         }
 
-        public async Task<ApiResponse> DeleteAccountMaster(long id)
+        public async Task<ApiCommonResponse> DeleteAccountMaster(long id)
         {
             var AccountMasterToDelete = await _accountMasterRepo.FindAccountMasterById(id);
             if (AccountMasterToDelete == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
 
             if (!await _accountMasterRepo.DeleteAccountMaster(AccountMasterToDelete))
             {
-                return new ApiResponse(500);
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
 
-            return new ApiOkResponse(true);
+            return CommonResponse.Send(ResponseCodes.SUCCESS);
         }
 
-        public async Task<ApiResponse> GetAccountMasterById(long id)
+        public async Task<ApiCommonResponse> GetAccountMasterById(long id)
         {
             var AccountMaster = await _accountMasterRepo.FindAccountMasterById(id);
             if (AccountMaster == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var AccountMasterTransferDTOs = _mapper.Map<AccountMasterTransferDTO>(AccountMaster);
             return new ApiOkResponse(AccountMasterTransferDTOs);
         }
 
-        public async Task<ApiResponse> QueryAccountMasters(AccountMasterTransactionDateQueryParams query)
+        public async Task<ApiCommonResponse> QueryAccountMasters(AccountMasterTransactionDateQueryParams query)
         {
             if(query.VoucherTypeIds != null && query.VoucherTypeIds.Count > 0  
                     && query.StartDate != null && query.EndDate != null){
@@ -118,17 +118,17 @@ namespace HaloBiz.MyServices.Impl
                 return await GetAllAccountMasters();
             }
         }
-        public async Task<ApiResponse> GetAllAccountMasters()
+        public async Task<ApiCommonResponse> GetAllAccountMasters()
         {
             var AccountMaster = await _accountMasterRepo.FindAllAccountMasters();
             if (AccountMaster == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var AccountMasterTransferDTOs = _mapper.Map<IEnumerable<AccountMasterTransferDTO>>(AccountMaster);
             return new ApiOkResponse(AccountMasterTransferDTOs);
         }
-        public async Task<ApiResponse> GetAllAccountMastersByTransactionDate(AccountMasterTransactionDateQueryParams query)
+        public async Task<ApiCommonResponse> GetAllAccountMastersByTransactionDate(AccountMasterTransactionDateQueryParams query)
         {
             try{
                 var queryable =  _accountMasterRepo.GetAccountMastersQueryable();
@@ -140,10 +140,10 @@ namespace HaloBiz.MyServices.Impl
             {
                 _logger.LogError(e.Message);
                 _logger.LogError(e.StackTrace);
-                return new ApiResponse(500);
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
         }
-        public async Task<ApiResponse> GetAllAccountMastersByVoucherId(AccountMasterTransactionDateQueryParams query)
+        public async Task<ApiCommonResponse> GetAllAccountMastersByVoucherId(AccountMasterTransactionDateQueryParams query)
         {
             try{
                 var queryable =  _accountMasterRepo.GetAccountMastersQueryable();
@@ -155,21 +155,21 @@ namespace HaloBiz.MyServices.Impl
             {
                 _logger.LogError(e.Message);
                 _logger.LogError(e.StackTrace);
-                return new ApiResponse(500);
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
         }
-        public async Task<ApiResponse> GetAllAccountMastersByTransactionId(string transactionId)
+        public async Task<ApiCommonResponse> GetAllAccountMastersByTransactionId(string transactionId)
         {
             var accountMasters = await _accountMasterRepo.FindAccountMastersByTransactionId(transactionId);
             if (accountMasters == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var accountMasterTransferDTOs = _mapper.Map<IEnumerable<AccountMasterTransferDTO>>(accountMasters);
             return new ApiOkResponse(accountMasterTransferDTOs);
         }
 
-        public async Task<ApiResponse> GetAllAccountMastersByCustomerIdAndContractYear(AccountMasterTransactionDateQueryParams query)
+        public async Task<ApiCommonResponse> GetAllAccountMastersByCustomerIdAndContractYear(AccountMasterTransactionDateQueryParams query)
         {
             try{
                 var accountMasters = await _accountMasterRepo.FindAllAccountMastersByCustomerId(query);
@@ -179,17 +179,17 @@ namespace HaloBiz.MyServices.Impl
             {
                 _logger.LogError(e.Message);
                 _logger.LogError(e.StackTrace);
-                return new ApiResponse(500);
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
             
         }
 
-        public async Task<ApiResponse> UpdateAccountMaster(long id, AccountMasterReceivingDTO accountMasterReceivingDTO)
+        public async Task<ApiCommonResponse> UpdateAccountMaster(long id, AccountMasterReceivingDTO accountMasterReceivingDTO)
         {
             var AccountMasterToUpdate = await _accountMasterRepo.FindAccountMasterById(id);
             if (AccountMasterToUpdate == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             AccountMasterToUpdate.Description = accountMasterReceivingDTO.Description;
             AccountMasterToUpdate.OfficeId = accountMasterReceivingDTO.OfficeId;
@@ -200,13 +200,13 @@ namespace HaloBiz.MyServices.Impl
 
             if (updatedAccountMaster == null)
             {
-                return new ApiResponse(500);
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
             var AccountMasterTransferDTOs = _mapper.Map<AccountMasterTransferDTO>(updatedAccountMaster);
             return new ApiOkResponse(AccountMasterTransferDTOs);
         }
 
-        public async Task<ApiResponse> PostPeriodicAccountMaster()
+        public async Task<ApiCommonResponse> PostPeriodicAccountMaster()
         {
             using(var transaction = await _context.Database.BeginTransactionAsync())
             {
@@ -268,14 +268,14 @@ namespace HaloBiz.MyServices.Impl
                     _context.Invoices.UpdateRange(invoices);
                     await _context.SaveChangesAsync();
                     await transaction.CommitAsync();
-                    return new ApiOkResponse(true);
+                    return CommonResponse.Send(ResponseCodes.SUCCESS);
                 }
                 catch (System.Exception e)
                 {
                     _logger.LogError(e.Message);
                     _logger.LogError(e.StackTrace);
                     await transaction.RollbackAsync();
-                    return new ApiResponse(500);
+                    return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
                 }
             }
         }

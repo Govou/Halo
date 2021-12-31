@@ -21,7 +21,7 @@ namespace HaloBiz.Controllers
             this._divisonService = divisonService;
         }
         [HttpGet("")]
-        public async Task<ActionResult> GetDivisions()
+        public async Task<ApiCommonResponse> GetDivisions()
         {
             var response = await _divisonService.GetAllDivisions();
             if (response.StatusCode >= 400)
@@ -31,7 +31,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpGet("GetDivisionsOpEntityAndSbu")]
-        public async Task<ActionResult> GetDivGetDivisionsOpEntityAndSbuisions()
+        public async Task<ApiCommonResponse> GetDivGetDivisionsOpEntityAndSbuisions()
         {
             var response = await _divisonService.GetAllDivisionsAndSbu();
             if (response.StatusCode >= 400)
@@ -41,7 +41,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpGet("name/{name}")]
-        public async Task<ActionResult> GetByName(string name)
+        public async Task<ApiCommonResponse> GetByName(string name)
         {
             var response = await _divisonService.GetDivisionByName(name);
             if (response.StatusCode >= 400)
@@ -51,7 +51,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult> GetById(long id)
+        public async Task<ApiCommonResponse> GetById(long id)
         {
             var response = await _divisonService.GetDivisionnById(id);
             if (response.StatusCode >= 400)
@@ -61,7 +61,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpPost("")]
-        public async Task<ActionResult> AddNewBranch(DivisionReceivingDTO divisionReceiving)
+        public async Task<ApiCommonResponse> AddNewBranch(DivisionReceivingDTO divisionReceiving)
         {
             var response = await _divisonService.AddDivision(divisionReceiving);
             if (response.StatusCode >= 400)
@@ -81,7 +81,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpDelete("{id}")]
-        public async Task<ActionResult> DeleteById(int id)
+        public async Task<ApiCommonResponse> DeleteById(int id)
         {
             var response = await _divisonService.DeleteDivision(id);
             return StatusCode(response.StatusCode);

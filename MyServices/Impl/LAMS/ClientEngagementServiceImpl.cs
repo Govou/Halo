@@ -32,58 +32,58 @@ namespace HaloBiz.MyServices.Impl.LAMS
             this._logger = logger;
         }
 
-        public async Task<ApiResponse> AddClientEngagement(HttpContext context, ClientEngagementReceivingDTO clientEngagementReceivingDTO)
+        public async Task<ApiCommonResponse> AddClientEngagement(HttpContext context, ClientEngagementReceivingDTO clientEngagementReceivingDTO)
         {
             var clientEngagement = _mapper.Map<ClientEngagement>(clientEngagementReceivingDTO);
             clientEngagement.CreatedById = context.GetLoggedInUserId();
             var savedClientEngagement = await _clientEngagementRepo.SaveClientEngagement(clientEngagement);
             if (savedClientEngagement == null)
             {
-                return new ApiResponse(500);
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
             var clientEngagementTransferDTO = _mapper.Map<ClientEngagementTransferDTO>(savedClientEngagement);
             return new ApiOkResponse(clientEngagementTransferDTO);
         }
 
-        public async Task<ApiResponse> GetAllClientEngagement()
+        public async Task<ApiCommonResponse> GetAllClientEngagement()
         {
             var clientEngagements = await _clientEngagementRepo.FindAllClientEngagement();
             if (clientEngagements == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var clientEngagementTransferDTO = _mapper.Map<IEnumerable<ClientEngagementTransferDTO>>(clientEngagements);
             return new ApiOkResponse(clientEngagementTransferDTO);
         }
 
-        public async Task<ApiResponse> GetClientEngagementById(long id)
+        public async Task<ApiCommonResponse> GetClientEngagementById(long id)
         {
             var clientEngagement = await _clientEngagementRepo.FindClientEngagementById(id);
             if (clientEngagement == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var clientEngagementTransferDTOs = _mapper.Map<ClientEngagementTransferDTO>(clientEngagement);
             return new ApiOkResponse(clientEngagementTransferDTOs);
         }
 
-        public async Task<ApiResponse> GetClientEngagementByName(string name)
+        public async Task<ApiCommonResponse> GetClientEngagementByName(string name)
         {
             var clientEngagement = await _clientEngagementRepo.FindClientEngagementByName(name);
             if (clientEngagement == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var clientEngagementTransferDTOs = _mapper.Map<ClientEngagementTransferDTO>(clientEngagement);
             return new ApiOkResponse(clientEngagementTransferDTOs);
         }
 
-        public async Task<ApiResponse> UpdateClientEngagement(HttpContext context, long id, ClientEngagementReceivingDTO clientEngagementReceivingDTO)
+        public async Task<ApiCommonResponse> UpdateClientEngagement(HttpContext context, long id, ClientEngagementReceivingDTO clientEngagementReceivingDTO)
         {
             var clientEngagementToUpdate = await _clientEngagementRepo.FindClientEngagementById(id);
             if (clientEngagementToUpdate == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             
             var summary = $"Initial details before change, \n {clientEngagementToUpdate.ToString()} \n" ;
@@ -103,7 +103,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
             if (updatedClientEngagement == null)
             {
-                return new ApiResponse(500);
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
             ModificationHistory history = new ModificationHistory(){
                 ModelChanged = "ClientEngagement",
@@ -119,20 +119,20 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
         }
 
-        public async Task<ApiResponse> DeleteClientEngagement(long id)
+        public async Task<ApiCommonResponse> DeleteClientEngagement(long id)
         {
             var clientEngagementToDelete = await _clientEngagementRepo.FindClientEngagementById(id);
             if (clientEngagementToDelete == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
 
             if (!await _clientEngagementRepo.DeleteClientEngagement(clientEngagementToDelete))
             {
-                return new ApiResponse(500);
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
 
-            return new ApiOkResponse(true);
+            return CommonResponse.Send(ResponseCodes.SUCCESS);
         }
     }
 }

@@ -22,46 +22,46 @@ namespace HaloBiz.MyServices.Impl
         }
 
 
-        public async Task<ApiResponse> GetStateById(long id)
+        public async Task<ApiCommonResponse> GetStateById(long id)
         {
             var state = await _stateRepo.FindStateById(id);
             if (state == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var stateTransferDto = _mapper.Map<StateTransferDTO>(state);
             return new ApiOkResponse(stateTransferDto);
 
         }
 
-        public async Task<ApiResponse> GetStateByName(string name)
+        public async Task<ApiCommonResponse> GetStateByName(string name)
         {
             var state = await _stateRepo.FindStateByName(name);
             if (state == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var stateTransferDto = _mapper.Map<StateTransferDTO>(state);
             return new ApiOkResponse(stateTransferDto);
         }
 
-        public async Task<ApiResponse> GetAllStates()
+        public async Task<ApiCommonResponse> GetAllStates()
         {
             var states = await _stateRepo.FindAllStates();
             if (states == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var statesTransferDto = _mapper.Map<IEnumerable<StateTransferDTO>>(states);
             return new ApiOkResponse(statesTransferDto);
         }
 
-        public async Task<ApiResponse> GetAllLgas()
+        public async Task<ApiCommonResponse> GetAllLgas()
         {
             var lgas = await _stateRepo.FindAllLgas();
             if(lgas == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var lgasTransferDto = _mapper.Map<IEnumerable<LgasTransferDTO>>(lgas);
             return new ApiOkResponse(lgasTransferDto);

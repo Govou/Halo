@@ -23,7 +23,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpGet("")]
-        public async Task<ActionResult> GetApproval()
+        public async Task<ApiCommonResponse> GetApproval()
         {
             var response = await _approvalService.GetAllApproval();
             if (response.StatusCode >= 400)
@@ -33,7 +33,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpGet("GetPendingApprovals")]
-        public async Task<ActionResult> GetPendingApprovals()
+        public async Task<ApiCommonResponse> GetPendingApprovals()
         {
             var response = await _approvalService.GetPendingApprovals();
             if (response.StatusCode >= 400)
@@ -43,7 +43,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpGet("GetPendingApprovalsByServiceId/{serviceId}")]
-        public async Task<ActionResult> GetPendingApprovalsByServiceId(long serviceId)
+        public async Task<ApiCommonResponse> GetPendingApprovalsByServiceId(long serviceId)
         {
             var response = await _approvalService.GetPendingApprovalsByServiceId(serviceId);
             if (response.StatusCode >= 400)
@@ -53,7 +53,7 @@ namespace HaloBiz.Controllers
         }
         
         [HttpGet("GetApprovalsByServiceId/{serviceId}")]
-        public async Task<ActionResult> GetApprovalsByServiceId(long serviceId)
+        public async Task<ApiCommonResponse> GetApprovalsByServiceId(long serviceId)
         {
             var response = await _approvalService.GetApprovalsByServiceId(serviceId);
             if (response.StatusCode >= 400)
@@ -63,7 +63,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpGet("GetPendingApprovalsByQuoteId/{quoteId}")]
-        public async Task<ActionResult> GetPendingApprovalsByQuoteId(long quoteId)
+        public async Task<ApiCommonResponse> GetPendingApprovalsByQuoteId(long quoteId)
         {
             var response = await _approvalService.GetPendingApprovalsByQuoteId(quoteId);
             if (response.StatusCode >= 400)
@@ -73,7 +73,7 @@ namespace HaloBiz.Controllers
         }
         
         [HttpGet("GetApprovalsByQuoteId/{quoteId}")]
-        public async Task<ActionResult> GetApprovalsByQuoteId(long quoteId)
+        public async Task<ApiCommonResponse> GetApprovalsByQuoteId(long quoteId)
         {
             var response = await _approvalService.GetApprovalsByQuoteId(quoteId);
             if (response.StatusCode >= 400)
@@ -83,7 +83,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpGet("GetApprovalsByEndorsementId/{endorsementId}")]
-        public async Task<ActionResult> GetApprovalsByEndorsementId(long endorsementId)
+        public async Task<ApiCommonResponse> GetApprovalsByEndorsementId(long endorsementId)
         {
             var response = await _approvalService.GetApprovalsByEndorsementId(endorsementId);
             if (response.StatusCode >= 400)
@@ -93,7 +93,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpGet("GetUserPendingApprovals")]
-        public async Task<ActionResult> GetUserPendingApprovals()
+        public async Task<ApiCommonResponse> GetUserPendingApprovals()
         {
             var response = await _approvalService.GetUserPendingApprovals(HttpContext);
             if (response.StatusCode >= 400)
@@ -103,7 +103,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpPost("")]
-        public async Task<ActionResult> AddNewApproval(ApprovalReceivingDTO approvalReceiving)
+        public async Task<ApiCommonResponse> AddNewApproval(ApprovalReceivingDTO approvalReceiving)
         {
             var response = await _approvalService.AddApproval(HttpContext, approvalReceiving);
             if (response.StatusCode >= 400)
@@ -123,7 +123,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpDelete("{id}")]
-        public async Task<ActionResult> DeleteById(int id)
+        public async Task<ApiCommonResponse> DeleteById(int id)
         {
             var response = await _approvalService.DeleteApproval(id);
             return StatusCode(response.StatusCode);

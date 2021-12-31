@@ -19,7 +19,7 @@ namespace HaloBiz.Controllers.LAMS
         }
 
         [HttpGet("")]
-        public async Task<ActionResult> GetLeadContacts()
+        public async Task<ApiCommonResponse> GetLeadContacts()
         {
             var response = await _LeadDivisionContactService.GetAllLeadDivisionContact();
             if (response.StatusCode >= 400)
@@ -29,7 +29,7 @@ namespace HaloBiz.Controllers.LAMS
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult> GetById(long id)
+        public async Task<ApiCommonResponse> GetById(long id)
         {
             var response = await _LeadDivisionContactService.GetLeadDivisionContactById(id);
             if (response.StatusCode >= 400)
@@ -39,7 +39,7 @@ namespace HaloBiz.Controllers.LAMS
         }
 
         [HttpPost("")]
-        public async Task<ActionResult> AddNewLeadDivisionContact(long leadDivisionId, LeadDivisionContactReceivingDTO leadDivisionContactReceiving)
+        public async Task<ApiCommonResponse> AddNewLeadDivisionContact(long leadDivisionId, LeadDivisionContactReceivingDTO leadDivisionContactReceiving)
         {
             var response = await _LeadDivisionContactService.AddLeadDivisionContact(HttpContext, leadDivisionId, leadDivisionContactReceiving);
             if (response.StatusCode >= 400)

@@ -23,7 +23,7 @@ namespace Controllers.Controllers
         }
 
         [HttpGet("")]
-        public async Task<ActionResult> GetClientEngagement()
+        public async Task<ApiCommonResponse> GetClientEngagement()
         {
             var response = await _clientEngagementService.GetAllClientEngagement();
             if (response.StatusCode >= 400)
@@ -32,7 +32,7 @@ namespace Controllers.Controllers
             return Ok(clientEngagement);
         }
         [HttpGet("caption/{name}")]
-        public async Task<ActionResult> GetByCaption(string name)
+        public async Task<ApiCommonResponse> GetByCaption(string name)
         {
             var response = await _clientEngagementService.GetClientEngagementByName(name);
             if (response.StatusCode >= 400)
@@ -42,7 +42,7 @@ namespace Controllers.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult> GetById(long id)
+        public async Task<ApiCommonResponse> GetById(long id)
         {
             var response = await _clientEngagementService.GetClientEngagementById(id);
             if (response.StatusCode >= 400)
@@ -52,7 +52,7 @@ namespace Controllers.Controllers
         }
 
         [HttpPost("")]
-        public async Task<ActionResult> AddNewClientEngagement(ClientEngagementReceivingDTO clientEngagementReceiving)
+        public async Task<ApiCommonResponse> AddNewClientEngagement(ClientEngagementReceivingDTO clientEngagementReceiving)
         {
             var response = await _clientEngagementService.AddClientEngagement(HttpContext, clientEngagementReceiving);
             if (response.StatusCode >= 400)
@@ -72,7 +72,7 @@ namespace Controllers.Controllers
         }
 
         [HttpDelete("{id}")]
-        public async Task<ActionResult> DeleteById(int id)
+        public async Task<ApiCommonResponse> DeleteById(int id)
         {
             var response = await _clientEngagementService.DeleteClientEngagement(id);
             return StatusCode(response.StatusCode);

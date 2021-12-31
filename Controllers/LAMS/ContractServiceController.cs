@@ -19,7 +19,7 @@ namespace HaloBiz.Controllers.LAMS
 
 
         [HttpGet("ReferenceNumber/{refNo}")]
-        public async Task<ActionResult> GetByCaption(string refNo)
+        public async Task<ApiCommonResponse> GetByCaption(string refNo)
         {
             var response = await _contractServiceService.GetContractServiceByReferenceNumber(refNo);
             if (response.StatusCode >= 400)
@@ -29,7 +29,7 @@ namespace HaloBiz.Controllers.LAMS
         }
 
         [HttpGet("ByTag/{tag}")]
-        public async Task<ActionResult> ByTag(string tag)
+        public async Task<ApiCommonResponse> ByTag(string tag)
         {
             var response = await _contractServiceService.GetContractServiceByTag(tag);
             if (response.StatusCode >= 400)
@@ -39,7 +39,7 @@ namespace HaloBiz.Controllers.LAMS
         }
 
         [HttpGet("GroupInvoiceNumber/{groupInvoiceNumber}")]
-        public async Task<ActionResult> GetByGroupInvoiceNumber(string groupInvoiceNumber)
+        public async Task<ApiCommonResponse> GetByGroupInvoiceNumber(string groupInvoiceNumber)
         {
             var response = await _contractServiceService.GetContractServiceByGroupInvoiceNumber(groupInvoiceNumber);
             if (response.StatusCode >= 400)
@@ -49,7 +49,7 @@ namespace HaloBiz.Controllers.LAMS
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult> GetById(long id)
+        public async Task<ApiCommonResponse> GetById(long id)
         {
             var response = await _contractServiceService.GetContractServiceById(id);
             if (response.StatusCode >= 400)
@@ -60,7 +60,7 @@ namespace HaloBiz.Controllers.LAMS
 
 
         [HttpDelete("{id}")]
-        public async Task<ActionResult> DeleteById(int id)
+        public async Task<ApiCommonResponse> DeleteById(int id)
         {
             var response = await _contractServiceService.DeleteContractService(id);
             return StatusCode(response.StatusCode);

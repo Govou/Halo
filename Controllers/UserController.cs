@@ -23,7 +23,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpGet("")]
-        public async Task<ActionResult> GetUsers()
+        public async Task<ApiCommonResponse> GetUsers()
         {
             var response = await _userProfileService.FindAllUsers();
             if(response.StatusCode >= 400)
@@ -33,7 +33,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpGet("NotInSbu/{sbuId}")]
-        public async Task<ActionResult> GetUsersNotInSbu(long sbuId)
+        public async Task<ApiCommonResponse> GetUsersNotInSbu(long sbuId)
         {
             var response = await _userProfileService.FindAllUsersNotInAnSBU(sbuId);
             if(response.StatusCode >= 400)
@@ -43,7 +43,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpGet("email/{email}")]
-        public async Task<ActionResult> GetUserByEmail(string email)
+        public async Task<ApiCommonResponse> GetUserByEmail(string email)
         {
             var response = await _userProfileService.FindUserByEmail(email);
             if(response.StatusCode >= 400)
@@ -53,7 +53,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult> GetUserById(long id)
+        public async Task<ApiCommonResponse> GetUserById(long id)
         {
             var response = await _userProfileService.FindUserById(id);
             if(response.StatusCode >= 400)
@@ -65,7 +65,7 @@ namespace HaloBiz.Controllers
         
 
         [HttpPost("")]
-        public async Task<ActionResult> PostUserProfile(UserProfileReceivingDTO userProfileReceiving)
+        public async Task<ApiCommonResponse> PostUserProfile(UserProfileReceivingDTO userProfileReceiving)
         {
            var response = await _userProfileService.AddUserProfile(userProfileReceiving);
             if(response.StatusCode >= 400)
@@ -116,7 +116,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpDelete("{id}")]
-        public async Task<ActionResult> DeleteUserProfileById(int id)
+        public async Task<ApiCommonResponse> DeleteUserProfileById(int id)
         {
             var response = await _userProfileService.DeleteUserProfile(id);
             return StatusCode(response.StatusCode);

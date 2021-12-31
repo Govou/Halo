@@ -26,7 +26,7 @@ namespace HaloBiz.MyServices.Impl
             this._supplierServiceRepo = supplierServiceRepo;
             this._logger = logger;
         }
-        public async  Task<ApiResponse> AddSupplierService(HttpContext context, SupplierServiceReceivingDTO supplierServiceReceivingDTO)
+        public async  Task<ApiCommonResponse> AddSupplierService(HttpContext context, SupplierServiceReceivingDTO supplierServiceReceivingDTO)
         {
             var supplierService = _mapper.Map<SupplierService>(supplierServiceReceivingDTO);
             supplierService.CreatedById = context.GetLoggedInUserId();
@@ -34,53 +34,53 @@ namespace HaloBiz.MyServices.Impl
             var savedSupplierService = await _supplierServiceRepo.SaveSupplierService(supplierService);
             if (savedSupplierService == null)
             {
-                return new ApiResponse(500);
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
             var supplierServiceTransferDTO = _mapper.Map<SupplierServiceTransferDTO>(supplierService);
             return new ApiOkResponse(supplierServiceTransferDTO);
         }
 
-        public async Task<ApiResponse> DeleteSupplierService(long id)
+        public async Task<ApiCommonResponse> DeleteSupplierService(long id)
         {
             var supplierServiceToDelete = await _supplierServiceRepo.FindSupplierServiceById(id);
             if(supplierServiceToDelete == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             if (!await _supplierServiceRepo.DeleteSupplierService(supplierServiceToDelete))
             {
-                return new ApiResponse(500);
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
 
-            return new ApiOkResponse(true);
+            return CommonResponse.Send(ResponseCodes.SUCCESS);
         }
-        public async Task<ApiResponse> GetSupplierServiceById(long id)
+        public async Task<ApiCommonResponse> GetSupplierServiceById(long id)
         {
             var SupplierService = await _supplierServiceRepo.FindSupplierServiceById(id);
             if (SupplierService == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var SupplierServiceTransferDTOs = _mapper.Map<SupplierServiceTransferDTO>(SupplierService);
             return new ApiOkResponse(SupplierServiceTransferDTOs);
         }
-        public async Task<ApiResponse> GetAllSupplierServiceCategories()
+        public async Task<ApiCommonResponse> GetAllSupplierServiceCategories()
         {
             var supplierService = await _supplierServiceRepo.GetSupplierServices();
             if (supplierService == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var supplierServiceTransferDTO = _mapper.Map<IEnumerable<SupplierServiceTransferDTO>>(supplierService);
             return new ApiOkResponse(supplierServiceTransferDTO);
         }
 
-        public  async Task<ApiResponse> UpdateSupplierService(HttpContext context, long id, SupplierServiceReceivingDTO supplierServiceReceivingDTO)
+        public  async Task<ApiCommonResponse> UpdateSupplierService(HttpContext context, long id, SupplierServiceReceivingDTO supplierServiceReceivingDTO)
         {
             var supplierServiceToUpdate = await _supplierServiceRepo.FindSupplierServiceById(id);
             if (supplierServiceToUpdate == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             
             var summary = $"Initial details before change, \n {supplierServiceToUpdate.ToString()} \n" ;
@@ -103,7 +103,7 @@ namespace HaloBiz.MyServices.Impl
 
             if (updatedSupplierService == null)
             {
-                return new ApiResponse(500);
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
             ModificationHistory history = new ModificationHistory(){
                 ModelChanged = "SupplierService",

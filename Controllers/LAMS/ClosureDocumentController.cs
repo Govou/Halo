@@ -23,7 +23,7 @@ namespace Controllers.Controllers
         }
 
         [HttpGet("")]
-        public async Task<ActionResult> GetClosureDocument()
+        public async Task<ApiCommonResponse> GetClosureDocument()
         {
             var response = await _closureDocumentService.GetAllClosureDocument();
             if (response.StatusCode >= 400)
@@ -32,7 +32,7 @@ namespace Controllers.Controllers
             return Ok(closureDocument);
         }
         [HttpGet("caption/{caption}")]
-        public async Task<ActionResult> GetByCaption(string caption)
+        public async Task<ApiCommonResponse> GetByCaption(string caption)
         {
             var response = await _closureDocumentService.GetClosureDocumentByCaption(caption);
             if (response.StatusCode >= 400)
@@ -42,7 +42,7 @@ namespace Controllers.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult> GetById(long id)
+        public async Task<ApiCommonResponse> GetById(long id)
         {
             var response = await _closureDocumentService.GetClosureDocumentById(id);
             if (response.StatusCode >= 400)
@@ -52,7 +52,7 @@ namespace Controllers.Controllers
         }
 
         [HttpPost("")]
-        public async Task<ActionResult> AddNewClosureDocument(ClosureDocumentReceivingDTO closureDocumentReceiving)
+        public async Task<ApiCommonResponse> AddNewClosureDocument(ClosureDocumentReceivingDTO closureDocumentReceiving)
         {
             var response = await _closureDocumentService.AddClosureDocument(HttpContext, closureDocumentReceiving);
             if (response.StatusCode >= 400)
@@ -72,7 +72,7 @@ namespace Controllers.Controllers
         }
 
         [HttpDelete("{id}")]
-        public async Task<ActionResult> DeleteById(int id)
+        public async Task<ApiCommonResponse> DeleteById(int id)
         {
             var response = await _closureDocumentService.DeleteClosureDocument(id);
             return StatusCode(response.StatusCode);

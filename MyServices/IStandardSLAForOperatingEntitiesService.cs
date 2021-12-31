@@ -7,11 +7,11 @@ namespace HaloBiz.MyServices
 {
     public interface IStandardSlaforOperatingEntityService
     {
-        Task<ApiResponse> AddStandardSlaforOperatingEntity(HttpContext context, StandardSlaforOperatingEntityReceivingDTO standardSLAForOperatingEntitiesReceivingDTO);
-        Task<ApiResponse> GetAllStandardSlaforOperatingEntity();
-        Task<ApiResponse> GetStandardSlaforOperatingEntityById(long id);
-        Task<ApiResponse> GetStandardSlaforOperatingEntityByName(string name);
-        Task<ApiResponse> UpdateStandardSlaforOperatingEntity(HttpContext context, long id, StandardSlaforOperatingEntityReceivingDTO standardSLAForOperatingEntitiesReceivingDTO);
-        Task<ApiResponse> DeleteStandardSlaforOperatingEntity(long id);
+        Task<ApiCommonResponse> AddStandardSlaforOperatingEntity(HttpContext context, StandardSlaforOperatingEntityReceivingDTO standardSLAForOperatingEntitiesReceivingDTO);
+        Task<ApiCommonResponse> GetAllStandardSlaforOperatingEntity();
+        Task<ApiCommonResponse> GetStandardSlaforOperatingEntityById(long id);
+        Task<ApiCommonResponse> GetStandardSlaforOperatingEntityByName(string name);
+        Task<ApiCommonResponse> UpdateStandardSlaforOperatingEntity(HttpContext context, long id, StandardSlaforOperatingEntityReceivingDTO standardSLAForOperatingEntitiesReceivingDTO);
+        Task<ApiCommonResponse> DeleteStandardSlaforOperatingEntity(long id);
     }
 }

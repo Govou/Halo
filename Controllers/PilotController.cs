@@ -22,7 +22,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpGet("GetAllPilotRanks")]
-        public async Task<ActionResult> GetAllPilotRanks()
+        public async Task<ApiCommonResponse> GetAllPilotRanks()
         {
             var response = await _pilotService.GetAllPilotRanks();
             if (response.StatusCode >= 400)
@@ -32,7 +32,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpGet("GetAllPilotTypes")]
-        public async Task<ActionResult> GetAllPilotTypes()
+        public async Task<ApiCommonResponse> GetAllPilotTypes()
         {
             var response = await _pilotService.GetAllPilotTypes();
             if (response.StatusCode >= 400)
@@ -42,7 +42,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpGet("GetRankById/{id}")]
-        public async Task<ActionResult> GetRankById(long id)
+        public async Task<ApiCommonResponse> GetRankById(long id)
         {
             var response = await _pilotService.GetPilotRankById(id);
             if (response.StatusCode >= 400)
@@ -52,7 +52,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpGet("GetTypeById/{id}")]
-        public async Task<ActionResult> GetTypeById(long id)
+        public async Task<ApiCommonResponse> GetTypeById(long id)
         {
             var response = await _pilotService.GetPilotTypeById(id);
             if (response.StatusCode >= 400)
@@ -62,7 +62,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpPost("AddNewType")]
-        public async Task<ActionResult> AddNewType(PilotTypeReceivingDTO TypeReceivingDTO)
+        public async Task<ApiCommonResponse> AddNewType(PilotTypeReceivingDTO TypeReceivingDTO)
         {
             var response = await _pilotService.AddPilotType(HttpContext, TypeReceivingDTO);
             if (response.StatusCode >= 400)
@@ -72,7 +72,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpPost("AddNewRank")]
-        public async Task<ActionResult> AddNewRank(PilotRankReceivingDTO RankReceivingDTO)
+        public async Task<ApiCommonResponse> AddNewRank(PilotRankReceivingDTO RankReceivingDTO)
         {
             var response = await _pilotService.AddPilotRank(HttpContext, RankReceivingDTO);
             if (response.StatusCode >= 400)
@@ -102,14 +102,14 @@ namespace HaloBiz.Controllers
         }
 
         [HttpDelete("DeleteRankById/{id}")]
-        public async Task<ActionResult> DeleteRankById(int id)
+        public async Task<ApiCommonResponse> DeleteRankById(int id)
         {
             var response = await _pilotService.DeletePilotRank(id);
             return StatusCode(response.StatusCode);
         }
 
         [HttpDelete("DeleteTypeById/{id}")] //{id}
-        public async Task<ActionResult> DeleteTypeById(int id)
+        public async Task<ApiCommonResponse> DeleteTypeById(int id)
         {
             var response = await _pilotService.DeletePilotType(id);
             return StatusCode(response.StatusCode);

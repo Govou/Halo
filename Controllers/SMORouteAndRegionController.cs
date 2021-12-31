@@ -33,7 +33,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpGet("GetAllRegions")]
-        public async Task<ActionResult> GetAllRegions()
+        public async Task<ApiCommonResponse> GetAllRegions()
         {
             var response = await _sMORoutesAndRegionServices.GetAllSMORegions();
             if (response.StatusCode >= 400)
@@ -43,7 +43,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpGet("GetAllReturnRoutes")]
-        public async Task<ActionResult> GetAllReturnRoutes()
+        public async Task<ApiCommonResponse> GetAllReturnRoutes()
         {
             var response = await _sMORoutesAndRegionServices.GetAllSMOReturnRoutes();
             if (response.StatusCode >= 400)
@@ -53,7 +53,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpGet("GetAllRoutes")]
-        public async Task<ActionResult> GetAllRoutes()
+        public async Task<ApiCommonResponse> GetAllRoutes()
         {
             var response = await _sMORoutesAndRegionServices.GetAllSMORoutes();
             if (response.StatusCode >= 400)
@@ -63,7 +63,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpGet("GetRoutesByName")]
-        public async Task<ActionResult> GetRoutesByName(string routeName)
+        public async Task<ApiCommonResponse> GetRoutesByName(string routeName)
         {
             var response = await _sMORoutesAndRegionServices.GetAllSMORoutesByName(routeName);
             if (response.StatusCode >= 400)
@@ -73,7 +73,7 @@ namespace HaloBiz.Controllers
         }
 
         //[HttpGet("GetAllRouteRegions")]
-        //public async Task<ActionResult> GetAllRouteRegions()
+        //public async Task<ApiCommonResponse> GetAllRouteRegions()
         //{
         //    return new SMORouteRegionTransferDTO()
         //    {
@@ -88,7 +88,7 @@ namespace HaloBiz.Controllers
         //}
 
         [HttpGet("GetAllSMORoutesWithReturnRoute")]
-        public async Task<ActionResult> GetAllSMORoutesWithReturnRoute()
+        public async Task<ApiCommonResponse> GetAllSMORoutesWithReturnRoute()
         {
             var response = await _sMORoutesAndRegionServices.GetAllSMORoutesWithReturnRoute();
             if (response.StatusCode >= 400)
@@ -98,7 +98,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpGet("GetRegionById/{id}")]
-        public async Task<ActionResult> GetRegionById(long id)
+        public async Task<ApiCommonResponse> GetRegionById(long id)
         {
             var response = await _sMORoutesAndRegionServices.GetSMORegionById(id);
             if (response.StatusCode >= 400)
@@ -108,7 +108,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpGet("GetReturnRouteById/{id}")]
-        public async Task<ActionResult> GetReturnRouteById(long id)
+        public async Task<ApiCommonResponse> GetReturnRouteById(long id)
         {
             var response = await _sMORoutesAndRegionServices.GetSMOReturnRouteById(id);
             if (response.StatusCode >= 400)
@@ -118,7 +118,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpGet("GetRouteById/{id}")]
-        public async Task<ActionResult> GetRouteById(long id)
+        public async Task<ApiCommonResponse> GetRouteById(long id)
         {
             var response = await _sMORoutesAndRegionServices.GetSMORouteById(id);
             if (response.StatusCode >= 400)
@@ -128,7 +128,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpPost("AddNewRegion")]
-        public async Task<ActionResult> AddNewRegion(SMORegionReceivingDTO ReceivingDTO)
+        public async Task<ApiCommonResponse> AddNewRegion(SMORegionReceivingDTO ReceivingDTO)
         {
             var response = await _sMORoutesAndRegionServices.AddSMORegion(HttpContext, ReceivingDTO);
             if (response.StatusCode >= 400)
@@ -138,7 +138,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpPost("AddNewReturnRoute")]
-        public async Task<ActionResult> AddNewReturnRoute(SMOReturnRouteReceivingDTO ReceivingDTO)
+        public async Task<ApiCommonResponse> AddNewReturnRoute(SMOReturnRouteReceivingDTO ReceivingDTO)
         {
             var response = await _sMORoutesAndRegionServices.AddSMOReturnRoute(HttpContext, ReceivingDTO);
             if (response.StatusCode >= 400)
@@ -148,7 +148,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpPost("AddNewRoute")]
-        public async Task<ActionResult> AddNewRoute(SMORouteReceivingDTO ReceivingDTO)
+        public async Task<ApiCommonResponse> AddNewRoute(SMORouteReceivingDTO ReceivingDTO)
         {
             var response = await _sMORoutesAndRegionServices.AddSMORoute(HttpContext, ReceivingDTO);
             if (response.StatusCode >= 400)
@@ -188,21 +188,21 @@ namespace HaloBiz.Controllers
         }
 
         [HttpDelete("DeleteRegionById/{id}")]
-        public async Task<ActionResult> DeleteRegionById(int id)
+        public async Task<ApiCommonResponse> DeleteRegionById(int id)
         {
             var response = await _sMORoutesAndRegionServices.DeleteSMORegion(id);
             return StatusCode(response.StatusCode);
         }
 
         [HttpDelete("DeleteReturnRouteById/{id}")]
-        public async Task<ActionResult> DeleteReturnRouteById(int id)
+        public async Task<ApiCommonResponse> DeleteReturnRouteById(int id)
         {
             var response = await _sMORoutesAndRegionServices.DeleteSMOReturnRoute(id);
             return StatusCode(response.StatusCode);
         }
 
         [HttpDelete("DeleteRouteById/{id}")]
-        public async Task<ActionResult> DeleteRouteById(int id)
+        public async Task<ApiCommonResponse> DeleteRouteById(int id)
         {
             var response = await _sMORoutesAndRegionServices.DeleteSMORoute(id);
             return StatusCode(response.StatusCode);

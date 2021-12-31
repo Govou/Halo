@@ -22,7 +22,7 @@ namespace Controllers.Controllers
         }
 
         [HttpGet("")]
-        public async Task<ActionResult> GetQuoteService()
+        public async Task<ApiCommonResponse> GetQuoteService()
         {
             var response = await _quoteServiceService.GetAllQuoteService();
             if (response.StatusCode >= 400)
@@ -32,7 +32,7 @@ namespace Controllers.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult> GetById(long id)
+        public async Task<ApiCommonResponse> GetById(long id)
         {
             var response = await _quoteServiceService.GetQuoteServiceById(id);
             if (response.StatusCode >= 400)
@@ -42,7 +42,7 @@ namespace Controllers.Controllers
         }
 
         [HttpGet("ByTag/{tag}")]
-        public async Task<ActionResult> GetByTag(string tag)
+        public async Task<ApiCommonResponse> GetByTag(string tag)
         {
             var response = await _quoteServiceService.GetQuoteServiceByTag(tag);
             if (response.StatusCode >= 400)
@@ -62,7 +62,7 @@ namespace Controllers.Controllers
         }
 
         [HttpDelete("{id}")]
-        public async Task<ActionResult> DeleteById(int id)
+        public async Task<ApiCommonResponse> DeleteById(int id)
         {
             var response = await _quoteServiceService.DeleteQuoteService(id);
             return StatusCode(response.StatusCode);

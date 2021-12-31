@@ -48,7 +48,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
             this._context = context;
         }
 
-        public async Task<ApiResponse> AddQuote(HttpContext context, QuoteReceivingDTO quoteReceivingDTO)
+        public async Task<ApiCommonResponse> AddQuote(HttpContext context, QuoteReceivingDTO quoteReceivingDTO)
         {
             Quote savedQuote = null;
 
@@ -77,7 +77,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
                     if (savedQuote == null)
                     {
-                        return new ApiResponse(500);
+                        return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
                     }
 
                     foreach (var item in quoteService)
@@ -89,7 +89,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                     var savedSuccessfully = await _quoteServiceRepo.SaveQuoteServiceRange(quoteService);
                     if (!savedSuccessfully)
                     {
-                        return new ApiResponse(500);
+                        return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
                     }
 
                     await transaction.CommitAsync();
@@ -98,7 +98,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 {
                     _logger.LogError(e.Message);
                     await transaction.RollbackAsync();
-                    return new ApiResponse(500);
+                    return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
                 }                   
             }
 
@@ -116,51 +116,51 @@ namespace HaloBiz.MyServices.Impl.LAMS
             return new ApiOkResponse(quoteTransferDTO);
         }
 
-        public async Task<ApiResponse> GetAllQuote()
+        public async Task<ApiCommonResponse> GetAllQuote()
         {
             var quotes = await _quoteRepo.FindAllQuote();
             if (quotes == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var quoteTransferDTO = _mapper.Map<IEnumerable<QuoteTransferDTO>>(quotes);
             return new ApiOkResponse(quoteTransferDTO);
         }
 
-        public async Task<ApiResponse> GetQuoteById(long id)
+        public async Task<ApiCommonResponse> GetQuoteById(long id)
         {
             var quote = await _quoteRepo.FindQuoteById(id);
             if (quote == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var quoteTransferDTOs = _mapper.Map<QuoteTransferDTO>(quote);
             return new ApiOkResponse(quoteTransferDTOs);
         } 
 
-        public async Task<ApiResponse> FindByLeadDivisionId(long id)
+        public async Task<ApiCommonResponse> FindByLeadDivisionId(long id)
         {
             var quote = await _quoteRepo.FindByLeadDivisionId(id);
             if (quote == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var quoteTransferDTOs = _mapper.Map<QuoteTransferDTO>(quote);
             return new ApiOkResponse(quoteTransferDTOs);
         }
 
-        public async Task<ApiResponse> GetQuoteByReferenceNumber(string reference)
+        public async Task<ApiCommonResponse> GetQuoteByReferenceNumber(string reference)
         {
             var quote = await _quoteRepo.FindQuoteByReferenceNumber(reference);
             if (quote == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var quoteTransferDTOs = _mapper.Map<QuoteTransferDTO>(quote);
             return new ApiOkResponse(quoteTransferDTOs);
         }
 
-        public async Task<ApiResponse> UpdateQuote(HttpContext context, long id, QuoteReceivingDTO quoteReceivingDTO)
+        public async Task<ApiCommonResponse> UpdateQuote(HttpContext context, long id, QuoteReceivingDTO quoteReceivingDTO)
         {
             using var transaction = await _context.Database.BeginTransactionAsync();
             try
@@ -194,7 +194,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                     var deleteSuccessful = await _quoteServiceRepo.DeleteQuoteServiceRange(quote.QuoteServices);
                     if (!deleteSuccessful)
                     {
-                        return new ApiResponse(500);
+                        return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
                     }
                 }
 
@@ -203,14 +203,14 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 var savedSuccessful = await _quoteServiceRepo.SaveQuoteServiceRange(quoteServices);
                 if (!savedSuccessful)
                 {
-                    return new ApiResponse(500);
+                    return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
                 }
 
                 var updatedQuote = await _quoteRepo.FindQuoteById(id);
 
                 if (updatedQuote == null)
                 {
-                    return new ApiResponse(500);
+                    return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
                 }
 
                 summary += $"Details after change, \n {updatedQuote} \n";          
@@ -234,24 +234,24 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 await transaction.RollbackAsync();
                 _logger.LogError(e.Message);
                 _logger.LogError(e.StackTrace);
-                return new ApiResponse(500);
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
         }
 
-        public async Task<ApiResponse> DeleteQuote(long id)
+        public async Task<ApiCommonResponse> DeleteQuote(long id)
         {
             var quoteToDelete = await _quoteRepo.FindQuoteById(id);
             if (quoteToDelete == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
 
             if (!await _quoteRepo.DeleteQuote(quoteToDelete))
             {
-                return new ApiResponse(500);
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
 
-            return new ApiOkResponse(true);
+            return CommonResponse.Send(ResponseCodes.SUCCESS);
         }
     }
 }

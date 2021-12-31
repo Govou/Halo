@@ -18,7 +18,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpGet("")]
-        public async Task<ActionResult> GetSbuproportion()
+        public async Task<ApiCommonResponse> GetSbuproportion()
         {
             var response = await _sBUProportionService.GetAllSbuproportions();
             if (response.StatusCode >= 400)
@@ -28,7 +28,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult> GetById(long id)
+        public async Task<ApiCommonResponse> GetById(long id)
         {
             var response = await _sBUProportionService.GetSbuproportionById(id);
             if (response.StatusCode >= 400)
@@ -38,7 +38,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpPost("")]
-        public async Task<ActionResult> AddNewSbuproportion(SbuproportionReceivingDTO sBUProportionReceiving)
+        public async Task<ApiCommonResponse> AddNewSbuproportion(SbuproportionReceivingDTO sBUProportionReceiving)
         {
             var response = await _sBUProportionService.AddSbuproportion(HttpContext, sBUProportionReceiving);
             if (response.StatusCode >= 400)
@@ -58,7 +58,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpDelete("{id}")]
-        public async Task<ActionResult> DeleteById(int id)
+        public async Task<ApiCommonResponse> DeleteById(int id)
         {
             var response = await _sBUProportionService.DeleteSbuproportion(id);
             return StatusCode(response.StatusCode);

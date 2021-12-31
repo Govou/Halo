@@ -24,7 +24,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpGet("")]
-        public async Task<ActionResult> GetProcessesRequiringApproval()
+        public async Task<ApiCommonResponse> GetProcessesRequiringApproval()
         {
             var response = await _approverLevelService.GetAllProcessesRequiringApproval();
             if (response.StatusCode >= 400)
@@ -34,7 +34,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpPost("")]
-        public async Task<ActionResult> AddNewProcessesRequiringApproval(ProcessesRequiringApprovalReceivingDTO approverLevelReceiving)
+        public async Task<ApiCommonResponse> AddNewProcessesRequiringApproval(ProcessesRequiringApprovalReceivingDTO approverLevelReceiving)
         {
             var response = await _approverLevelService.AddProcessesRequiringApproval(HttpContext, approverLevelReceiving);
             if (response.StatusCode >= 400)
@@ -54,7 +54,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpDelete("{id}")]
-        public async Task<ActionResult> DeleteById(int id)
+        public async Task<ApiCommonResponse> DeleteById(int id)
         {
             var response = await _approverLevelService.DeleteProcessesRequiringApproval(id);
             return StatusCode(response.StatusCode);

@@ -22,7 +22,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpGet("GetAllCommanderRanks")]
-        public async Task<ActionResult> GetAllCommanderRanks()
+        public async Task<ApiCommonResponse> GetAllCommanderRanks()
         {
             var response = await _commanderService.GetAllCommanderRanks();
             if (response.StatusCode >= 400)
@@ -32,7 +32,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpGet("GetAllCommanderTypes")]
-        public async Task<ActionResult> GetAllCommanderTypes()
+        public async Task<ApiCommonResponse> GetAllCommanderTypes()
         {
             var response = await _commanderService.GetAllCommanderTypes();
             if (response.StatusCode >= 400)
@@ -42,7 +42,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpGet("GetRankById/{id}")]
-        public async Task<ActionResult> GetRankById(long id)
+        public async Task<ApiCommonResponse> GetRankById(long id)
         {
             var response = await _commanderService.GetCommanderRankById(id);
             if (response.StatusCode >= 400)
@@ -52,7 +52,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpGet("GetTypeById/{id}")]
-        public async Task<ActionResult> GetTypeById(long id)
+        public async Task<ApiCommonResponse> GetTypeById(long id)
         {
             var response = await _commanderService.GetCommanderTypeById(id);
             if (response.StatusCode >= 400)
@@ -62,7 +62,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpPost("AddNewCommanderType")]
-        public async Task<ActionResult> AddNewCommanderType(CommanderTypeAndRankReceivingDTO TypeReceivingDTO)
+        public async Task<ApiCommonResponse> AddNewCommanderType(CommanderTypeAndRankReceivingDTO TypeReceivingDTO)
         {
             var response = await _commanderService.AddCommanderType(HttpContext, TypeReceivingDTO);
             if (response.StatusCode >= 400)
@@ -72,7 +72,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpPost("AddNewCommanderRank")]
-        public async Task<ActionResult> AddNewCommanderRank(CommanderRankReceivingDTO RankReceivingDTO)
+        public async Task<ApiCommonResponse> AddNewCommanderRank(CommanderRankReceivingDTO RankReceivingDTO)
         {
             var response = await _commanderService.AddCommanderRank(HttpContext, RankReceivingDTO);
             if (response.StatusCode >= 400)
@@ -102,14 +102,14 @@ namespace HaloBiz.Controllers
         }
 
         [HttpDelete("DeleterankById/{id}")]
-        public async Task<ActionResult> DeleteRankById(int id)
+        public async Task<ApiCommonResponse> DeleteRankById(int id)
         {
             var response = await _commanderService.DeleteCommanderRank(id);
             return StatusCode(response.StatusCode);
         }
 
         [HttpDelete("DeleteTypeById/{id}")] //{id}
-        public async Task<ActionResult> DeleteTypeById(int id)
+        public async Task<ApiCommonResponse> DeleteTypeById(int id)
         {
             var response = await _commanderService.DeleteCommanderType(id);
             return StatusCode(response.StatusCode);

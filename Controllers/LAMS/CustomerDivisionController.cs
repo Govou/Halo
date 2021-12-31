@@ -19,7 +19,7 @@ namespace HaloBiz.Controllers.LAMS
         }
 
         [HttpGet("")]
-        public async Task<ActionResult> GetCustomerDivisions()
+        public async Task<ApiCommonResponse> GetCustomerDivisions()
         {
             var response = await _CustomerDivisionService.GetAllCustomerDivisions();
             if (response.StatusCode >= 400)
@@ -29,7 +29,7 @@ namespace HaloBiz.Controllers.LAMS
         }
 
         [HttpGet("GetCustomerDivisionsByGroupType/{groupTypeId}")]
-        public async Task<ActionResult> GetCustomerDivisionsByGroupType(long groupTypeId)
+        public async Task<ApiCommonResponse> GetCustomerDivisionsByGroupType(long groupTypeId)
         {
             var response = await _CustomerDivisionService.GetCustomerDivisionsByGroupType(groupTypeId);
             if (response.StatusCode >= 400)
@@ -40,7 +40,7 @@ namespace HaloBiz.Controllers.LAMS
 
 
         [HttpGet("{id}")]
-        public async Task<ActionResult> GetById(long id)
+        public async Task<ApiCommonResponse> GetById(long id)
         {
             var response = await _CustomerDivisionService.GetCustomerDivisionById(id);
             if (response.StatusCode >= 400)
@@ -50,7 +50,7 @@ namespace HaloBiz.Controllers.LAMS
         }
 
         [HttpGet("TaskAndDeliverables/{customerDivisionId}")]
-        public async Task<ActionResult> GetTaskAndDeliverables(long customerDivisionId)
+        public async Task<ApiCommonResponse> GetTaskAndDeliverables(long customerDivisionId)
         {
             var response = await _CustomerDivisionService.GetTaskAndFulfillmentsByCustomerDivisionId(customerDivisionId);
             if (response.StatusCode >= 400)
@@ -60,7 +60,7 @@ namespace HaloBiz.Controllers.LAMS
         }
 
         [HttpGet("GetClientsWithSecuredMobilityContractService")]
-        public async Task<ActionResult> GetClientsWithSecuredMobilityContractService()
+        public async Task<ApiCommonResponse> GetClientsWithSecuredMobilityContractService()
         {
             var response = await _CustomerDivisionService.GetClientsWithSecuredMobilityContractServices();
             if (response.StatusCode >= 400)
@@ -70,7 +70,7 @@ namespace HaloBiz.Controllers.LAMS
         }
 
         [HttpGet("GetClientsUnAssignedToRMSbu")]
-        public async Task<ActionResult> GetClientsUnAssignedToRMSbu()
+        public async Task<ApiCommonResponse> GetClientsUnAssignedToRMSbu()
         {
             var response = await _CustomerDivisionService.GetClientsUnAssignedToRMSbu();
             if (response.StatusCode >= 400)
@@ -80,7 +80,7 @@ namespace HaloBiz.Controllers.LAMS
         }
 
         [HttpGet("GetClientsAttachedToRMSbu/{sbuId}")]
-        public async Task<ActionResult> GetClientsAttachedToRMSbu(long sbuId)
+        public async Task<ApiCommonResponse> GetClientsAttachedToRMSbu(long sbuId)
         {
             var response = await _CustomerDivisionService.GetClientsAttachedToRMSbu(sbuId);
             if (response.StatusCode >= 400)
@@ -90,7 +90,7 @@ namespace HaloBiz.Controllers.LAMS
         }
 
         [HttpGet("GetRMSbuClientsByGroupType/{sbuId}/{clientTypeId}")]
-        public async Task<ActionResult> GetRMSbuClientsByGroupType(long sbuId, long clientTypeId)
+        public async Task<ApiCommonResponse> GetRMSbuClientsByGroupType(long sbuId, long clientTypeId)
         {
             var response = await _CustomerDivisionService.GetRMSbuClientsByGroupType(sbuId, clientTypeId);
             if (response.StatusCode >= 400)
@@ -100,7 +100,7 @@ namespace HaloBiz.Controllers.LAMS
         }
 
         [HttpPut("AttachClientToRMSbu/{customerDivisionId}/{sbuId}")]
-        public async Task<ActionResult> AttachClientToRMSbu(long customerDivisionId, long sbuId)
+        public async Task<ApiCommonResponse> AttachClientToRMSbu(long customerDivisionId, long sbuId)
         {
             var response = await _CustomerDivisionService.AttachClientToRMSbu(HttpContext, customerDivisionId, sbuId);
             if (response.StatusCode >= 400)
@@ -110,7 +110,7 @@ namespace HaloBiz.Controllers.LAMS
         }
 
         [HttpGet("ContractsBreakDown/{customerDivsionId}")]
-        public async Task<ActionResult> GetContractBreakDownId(long customerDivsionId)
+        public async Task<ApiCommonResponse> GetContractBreakDownId(long customerDivsionId)
         {
             var response = await _CustomerDivisionService. GetCustomerDivisionBreakDownById(customerDivsionId);
             if (response.StatusCode >= 400)
@@ -120,7 +120,7 @@ namespace HaloBiz.Controllers.LAMS
         }
 
         [HttpPost("")]
-        public async Task<ActionResult> AddNewCustomerDivision(CustomerDivisionReceivingDTO CustomerDivisionReceiving)
+        public async Task<ApiCommonResponse> AddNewCustomerDivision(CustomerDivisionReceivingDTO CustomerDivisionReceiving)
         {
             var response = await _CustomerDivisionService.AddCustomerDivision(HttpContext, CustomerDivisionReceiving);
             if (response.StatusCode >= 400)
@@ -140,14 +140,14 @@ namespace HaloBiz.Controllers.LAMS
         }
 
         [HttpDelete("{id}")]
-        public async Task<ActionResult> DeleteById(int id)
+        public async Task<ApiCommonResponse> DeleteById(int id)
         {
             var response = await _CustomerDivisionService.DeleteCustomerDivision(id);
             return StatusCode(response.StatusCode);
         }
 
         [HttpGet("GetByCustomerNumber/{dTrackCustomerNumber}")]
-        public async Task<ActionResult> GetByDTrackCustomerNumber(string dTrackCustomerNumber)
+        public async Task<ApiCommonResponse> GetByDTrackCustomerNumber(string dTrackCustomerNumber)
         {
             var response = await _CustomerDivisionService.GetCustomerDivisionByDTrackCustomerNumber(dTrackCustomerNumber);
             if (response.StatusCode >= 400)

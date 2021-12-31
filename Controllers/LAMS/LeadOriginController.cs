@@ -18,7 +18,7 @@ namespace HaloBiz.Controllers.LAMS
         }
 
         [HttpGet("")]
-        public async Task<ActionResult> GetLeadOrigin()
+        public async Task<ApiCommonResponse> GetLeadOrigin()
         {
             var response = await _leadOriginService.GetAllLeadOrigin();
             if (response.StatusCode >= 400)
@@ -27,7 +27,7 @@ namespace HaloBiz.Controllers.LAMS
             return Ok(leadOrigin);
         }
         [HttpGet("caption/{name}")]
-        public async Task<ActionResult> GetByCaption(string name)
+        public async Task<ApiCommonResponse> GetByCaption(string name)
         {
             var response = await _leadOriginService.GetLeadOriginByName(name);
             if (response.StatusCode >= 400)
@@ -37,7 +37,7 @@ namespace HaloBiz.Controllers.LAMS
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult> GetById(long id)
+        public async Task<ApiCommonResponse> GetById(long id)
         {
             var response = await _leadOriginService.GetLeadOriginById(id);
             if (response.StatusCode >= 400)
@@ -47,7 +47,7 @@ namespace HaloBiz.Controllers.LAMS
         }
 
         [HttpPost("")]
-        public async Task<ActionResult> AddNewLeadOrigin(LeadOriginReceivingDTO leadOriginReceiving)
+        public async Task<ApiCommonResponse> AddNewLeadOrigin(LeadOriginReceivingDTO leadOriginReceiving)
         {
             var response = await _leadOriginService.AddLeadOrigin(HttpContext, leadOriginReceiving);
             if (response.StatusCode >= 400)
@@ -67,7 +67,7 @@ namespace HaloBiz.Controllers.LAMS
         }
 
         [HttpDelete("{id}")]
-        public async Task<ActionResult> DeleteById(int id)
+        public async Task<ApiCommonResponse> DeleteById(int id)
         {
             var response = await _leadOriginService.DeleteLeadOrigin(id);
             return StatusCode(response.StatusCode);

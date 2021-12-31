@@ -25,7 +25,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpGet("")]
-        public async Task<ActionResult> GetRelationship()
+        public async Task<ApiCommonResponse> GetRelationship()
         {
             var response = await _relationshipService.GetAllRelationship();
             if (response.StatusCode >= 400)
@@ -35,7 +35,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpGet("caption/{name}")]
-        public async Task<ActionResult> GetByCaption(string name)
+        public async Task<ApiCommonResponse> GetByCaption(string name)
         {
             var response = await _relationshipService.GetRelationshipByName(name);
             if (response.StatusCode >= 400)
@@ -45,7 +45,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult> GetById(long id)
+        public async Task<ApiCommonResponse> GetById(long id)
         {
             var response = await _relationshipService.GetRelationshipById(id);
             if (response.StatusCode >= 400)
@@ -55,7 +55,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpPost("")]
-        public async Task<ActionResult> AddNewRelationship(RelationshipReceivingDTO relationshipReceiving)
+        public async Task<ApiCommonResponse> AddNewRelationship(RelationshipReceivingDTO relationshipReceiving)
         {
             var response = await _relationshipService.AddRelationship(HttpContext, relationshipReceiving);
             if (response.StatusCode >= 400)
@@ -75,7 +75,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpDelete("{id}")]
-        public async Task<ActionResult> DeleteById(int id)
+        public async Task<ApiCommonResponse> DeleteById(int id)
         {
             var response = await _relationshipService.DeleteRelationship(id);
             return StatusCode(response.StatusCode);

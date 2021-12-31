@@ -23,7 +23,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpGet("")]
-        public async Task<ActionResult> GetServicePricing()
+        public async Task<ApiCommonResponse> GetServicePricing()
         {
             var response = await _ServicePricingService.GetAllServicePricing();
             if (response.StatusCode >= 400)
@@ -33,7 +33,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpGet("ServiceId/{serviceId}")]
-        public async Task<ActionResult> GetByServiceId(long serviceId)
+        public async Task<ApiCommonResponse> GetByServiceId(long serviceId)
         {
             var response = await _ServicePricingService.GetServicePricingByServiceId(serviceId);
             if (response.StatusCode >= 400)
@@ -43,7 +43,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpGet("BranchId/{branchId}")]
-        public async Task<ActionResult> GetByBranchId(long branchId)
+        public async Task<ApiCommonResponse> GetByBranchId(long branchId)
         {
             var response = await _ServicePricingService.GetServicePricingByBranchId(branchId);
             if (response.StatusCode >= 400)
@@ -53,7 +53,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult> GetById(long id)
+        public async Task<ApiCommonResponse> GetById(long id)
         {
             var response = await _ServicePricingService.GetServicePricingById(id);
             if (response.StatusCode >= 400)
@@ -63,7 +63,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpPost("")]
-        public async Task<ActionResult> AddNewServicePricing(ServicePricingReceivingDTO ServicePricingReceiving)
+        public async Task<ApiCommonResponse> AddNewServicePricing(ServicePricingReceivingDTO ServicePricingReceiving)
         {
             var response = await _ServicePricingService.AddServicePricing(HttpContext, ServicePricingReceiving);
             if (response.StatusCode >= 400)
@@ -83,7 +83,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpDelete("{id}")]
-        public async Task<ActionResult> DeleteById(int id)
+        public async Task<ApiCommonResponse> DeleteById(int id)
         {
             var response = await _ServicePricingService.DeleteServicePricing(id);
             return StatusCode(response.StatusCode);

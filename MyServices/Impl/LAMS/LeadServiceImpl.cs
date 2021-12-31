@@ -57,14 +57,14 @@ namespace HaloBiz.MyServices.Impl.LAMS
             _logger = logger;
         }
 
-        public async Task<ApiResponse> AddLead(HttpContext context, LeadReceivingDTO leadReceivingDTO)
+        public async Task<ApiCommonResponse> AddLead(HttpContext context, LeadReceivingDTO leadReceivingDTO)
         {
             var lead = _mapper.Map<Lead>(leadReceivingDTO);
             lead.CreatedById = context.GetLoggedInUserId();
             var referenceNumber = await _refNumberRepo.GetReferenceNumber();
             if(referenceNumber == null)
             {
-                return new ApiResponse(500);
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
 
             lead.ReferenceNo = referenceNumber.ReferenceNo.GenerateReferenceNumber();
@@ -73,94 +73,94 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
             if(!isUpdatedRefNumber)
             {
-                return new ApiResponse(500);
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
 
             var savedLead = await _leadRepo.SaveLead(lead);
             if (savedLead == null)
             {
-                return new ApiResponse(500);
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
             var leadTransferDTO = _mapper.Map<LeadTransferDTO>(savedLead);
             return new ApiOkResponse(leadTransferDTO);
         }
 
-        public async Task<ApiResponse> GetAllLead()
+        public async Task<ApiCommonResponse> GetAllLead()
         {
             var leads = await _leadRepo.FindAllLead();
             if (leads == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var leadTransferDTO = _mapper.Map<IEnumerable<LeadTransferDTO>>(leads);
             return new ApiOkResponse(leadTransferDTO);
         }
 
-        public async Task<ApiResponse> GetUserLeads(HttpContext context)
+        public async Task<ApiCommonResponse> GetUserLeads(HttpContext context)
         {
             var leads = await _leadRepo.FindUserLeads(context.GetLoggedInUserId());
             if (leads == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var leadTransferDTO = _mapper.Map<IEnumerable<LeadTransferDTO>>(leads);
             return new ApiOkResponse(leadTransferDTO);
         }
 
-        public async Task<ApiResponse> GetAllUnApprovedLeads()
+        public async Task<ApiCommonResponse> GetAllUnApprovedLeads()
         {
             var leads = await _leadRepo.FindAllUnApprovedLeads();
             if (leads == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var leadTransferDTO = _mapper.Map<IEnumerable<LeadTransferDTO>>(leads);
             return new ApiOkResponse(leadTransferDTO);
         }
 
-        public async Task<ApiResponse> SetUpLeadForApproval(HttpContext httpContext, long id)
+        public async Task<ApiCommonResponse> SetUpLeadForApproval(HttpContext httpContext, long id)
         {
             var approvalsCreatedSuccessfully = await _approvalService.SetUpApprovalsForClientCreation(id, httpContext);
                     
             if(approvalsCreatedSuccessfully)
             {
-                return new ApiOkResponse(true);
+                return CommonResponse.Send(ResponseCodes.SUCCESS);
             }
             else
             {
-                return new ApiResponse(500);
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
         }
 
-        public async Task<ApiResponse> GetLeadById(long id)
+        public async Task<ApiCommonResponse> GetLeadById(long id)
         {
             var lead = await _leadRepo.FindLeadById(id);
             if (lead == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var leadTransferDTOs = _mapper.Map<LeadTransferDTO>(lead);
             return new ApiOkResponse(leadTransferDTOs);
         }
 
-        public async Task<ApiResponse> GetLeadByReferenceNumber(string refNumber)
+        public async Task<ApiCommonResponse> GetLeadByReferenceNumber(string refNumber)
         {
             var lead = await _leadRepo.FindLeadByReferenceNo(refNumber);
             if (lead == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var leadTransferDTOs = _mapper.Map<LeadTransferDTO>(lead);
             return new ApiOkResponse(leadTransferDTOs);
         }
 
-        public async Task<ApiResponse> DropLead(HttpContext context, long id, DropLeadReceivingDTO dropLeadReceivingDTO)
+        public async Task<ApiCommonResponse> DropLead(HttpContext context, long id, DropLeadReceivingDTO dropLeadReceivingDTO)
         {
 
             var leadToUpdate = await _leadRepo.FindLeadById(id);
             if (leadToUpdate == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             
             leadToUpdate.DropReasonId = dropLeadReceivingDTO.DropReasonId;
@@ -170,7 +170,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
             if(updatedLead == null)
             {
-                return new ApiResponse(500);
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
 
 
@@ -187,13 +187,13 @@ namespace HaloBiz.MyServices.Impl.LAMS
             var leadTransferDTOs = _mapper.Map<LeadTransferDTO>(updatedLead);
             return new ApiOkResponse(leadTransferDTOs);
         }
-        public async Task<ApiResponse> UpdateLead(HttpContext context, long id, LeadReceivingDTO leadReceivingDTO)
+        public async Task<ApiCommonResponse> UpdateLead(HttpContext context, long id, LeadReceivingDTO leadReceivingDTO)
         {
 
             var leadToUpdate = await _leadRepo.FindLeadById(id);
             if (leadToUpdate == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
 
             var summary = $"Initial details before change, \n {leadToUpdate.ToString()} \n";
@@ -210,7 +210,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
             if(updatedLead == null)
             {
-                return new ApiResponse(500);
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
 
             summary += $"Details after change, \n {updatedLead.ToString()} \n";
@@ -231,13 +231,13 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
         }
 
-        public async Task<ApiResponse> UpdateLeadStagesStatus(long leadId, LeadStages stage, LeadCaptureReceivingDTO leadCaptureReceivingDTO = null)
+        public async Task<ApiCommonResponse> UpdateLeadStagesStatus(long leadId, LeadStages stage, LeadCaptureReceivingDTO leadCaptureReceivingDTO = null)
         {
             var leadToUpdate = await _context.Leads.FirstOrDefaultAsync(x => x.Id == leadId);
             
             if (leadToUpdate == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             switch (stage)
             {
@@ -267,7 +267,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
             if(updatedLead == null)
             {
-                return new ApiResponse(500);
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
 
             var leadTransferDTOs = _mapper.Map<LeadTransferDTO>(updatedLead);
@@ -275,13 +275,13 @@ namespace HaloBiz.MyServices.Impl.LAMS
         }
 
 
-        public async Task<ApiResponse> ConvertLeadToClient(HttpContext context,long leadId)
+        public async Task<ApiCommonResponse> ConvertLeadToClient(HttpContext context,long leadId)
         {
             var (isConverted, message) = await _leadConversionService.ConvertLeadToClient(leadId, context.GetLoggedInUserId());
                     
                 if(isConverted)
                 {
-                    return new ApiOkResponse(true);
+                    return CommonResponse.Send(ResponseCodes.SUCCESS);
                 }
                 else
                 {
@@ -290,7 +290,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
         }
 
-        public async Task<ApiResponse> ApproveQuoteService(HttpContext context, long leadId, long quoteServiceId, long sequence)
+        public async Task<ApiCommonResponse> ApproveQuoteService(HttpContext context, long leadId, long quoteServiceId, long sequence)
         {
             try
             {
@@ -300,7 +300,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
                 if(quoteService == null)
                 {
-                    return new ApiResponse(500);
+                    return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
                 }
 
                 var approvals = await _context.Approvals.Where(x => x.QuoteServiceId == quoteServiceId).ToListAsync();
@@ -309,7 +309,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
                 if(approval == null)
                 {
-                    return new ApiResponse(500);
+                    return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
                 }
 
                 approval.IsApproved = true;
@@ -335,21 +335,21 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 // Other Quote Service Approvals not approved.
                 if (!otherApprovalApproved)
                 {
-                    return new ApiOkResponse(true);
+                    return CommonResponse.Send(ResponseCodes.SUCCESS);
                 }
 
                 var quote = quoteService.Quote;
 
                 if (quote == null)
                 {
-                    return new ApiResponse(500);
+                    return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
                 }
                 
                 quote.IsApproved = true;
                 _context.Quotes.Update(quote);
                 await _context.SaveChangesAsync();
             
-                return new ApiOkResponse(true);             
+                return CommonResponse.Send(ResponseCodes.SUCCESS);             
             }
             catch (Exception e)
             {
@@ -359,7 +359,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
             }
         }
 
-        public async Task<ApiResponse> DisapproveQuoteService(HttpContext context, long leadId, long quoteServiceId, long sequence)
+        public async Task<ApiCommonResponse> DisapproveQuoteService(HttpContext context, long leadId, long quoteServiceId, long sequence)
         {
             try
             {
@@ -367,14 +367,14 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
                 if (lead == null)
                 {
-                    return new ApiResponse(500);
+                    return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
                 }
 
                 lead.IsLeadDropped = true;
                 _context.Leads.Update(lead);
                 await _context.SaveChangesAsync();
 
-                return new ApiOkResponse(true);
+                return CommonResponse.Send(ResponseCodes.SUCCESS);
             }
             catch (Exception e)
             {

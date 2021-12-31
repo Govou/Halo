@@ -23,7 +23,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpGet("")]
-        public async Task<ActionResult> GetSupplierCategory()
+        public async Task<ApiCommonResponse> GetSupplierCategory()
         {
             var response = await _supplierCategoryService.GetAllSupplierCategories();
             if (response.StatusCode >= 400)
@@ -33,7 +33,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpPost("")]
-        public async Task<ActionResult> AddNewSupplierCategory(SupplierCategoryReceivingDTO supplierCategoryReceiving)
+        public async Task<ApiCommonResponse> AddNewSupplierCategory(SupplierCategoryReceivingDTO supplierCategoryReceiving)
         {
             var response = await _supplierCategoryService.AddSupplierCategory(HttpContext, supplierCategoryReceiving);
             if (response.StatusCode >= 400)
@@ -42,7 +42,7 @@ namespace HaloBiz.Controllers
             return Ok(supplierCategory);
         }
         [HttpGet("{id}")]
-        public async Task<ActionResult> GetById(long id)
+        public async Task<ApiCommonResponse> GetById(long id)
         {
             var response = await _supplierCategoryService.GetSupplierCategoryById(id);
             if (response.StatusCode >= 400)
@@ -62,7 +62,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpDelete("{id}")]
-        public async Task<ActionResult> DeleteById(int id)
+        public async Task<ApiCommonResponse> DeleteById(int id)
         {
             var response = await _supplierCategoryService.DeleteSupplierCategory(id);
             return StatusCode(response.StatusCode);

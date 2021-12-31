@@ -26,51 +26,51 @@ namespace HaloBiz.MyServices.Impl
             this._industryRepo = industryRepo;
             this._logger = logger;
         }
-        public async  Task<ApiResponse> AddIndustry(HttpContext context, IndustryReceivingDTO industryReceivingDTO)
+        public async  Task<ApiCommonResponse> AddIndustry(HttpContext context, IndustryReceivingDTO industryReceivingDTO)
         {
             var industry = _mapper.Map<Industry>(industryReceivingDTO);
             industry.CreatedById = context.GetLoggedInUserId();
             var savedIndustry = await _industryRepo.SaveIndustry(industry);
             if (savedIndustry == null)
             {
-                return new ApiResponse(500);
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
             var industryTransferDTO = _mapper.Map<IndustryTransferDTO>(industry);
             return new ApiOkResponse(industryTransferDTO);
         }
 
-        public async Task<ApiResponse> DeleteIndustry(long id)
+        public async Task<ApiCommonResponse> DeleteIndustry(long id)
         {
             var industryToDelete = await _industryRepo.FindIndustryById(id);
             if(industryToDelete == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             if (!await _industryRepo.DeleteIndustry(industryToDelete))
             {
-                return new ApiResponse(500);
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
 
-            return new ApiOkResponse(true);
+            return CommonResponse.Send(ResponseCodes.SUCCESS);
         }
 
-        public async Task<ApiResponse> GetAllIndustry()
+        public async Task<ApiCommonResponse> GetAllIndustry()
         {
             var industry = await _industryRepo.GetIndustries();
             if (industry == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var industryTransferDTO = _mapper.Map<IEnumerable<IndustryTransferDTO>>(industry);
             return new ApiOkResponse(industryTransferDTO);
         }
 
-        public  async Task<ApiResponse> UpdateIndustry(HttpContext context, long id, IndustryReceivingDTO industryReceivingDTO)
+        public  async Task<ApiCommonResponse> UpdateIndustry(HttpContext context, long id, IndustryReceivingDTO industryReceivingDTO)
         {
             var industryToUpdate = await _industryRepo.FindIndustryById(id);
             if (industryToUpdate == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             
             var summary = $"Initial details before change, \n {industryToUpdate.ToString()} \n" ;
@@ -83,7 +83,7 @@ namespace HaloBiz.MyServices.Impl
 
             if (updatedIndustry == null)
             {
-                return new ApiResponse(500);
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
             ModificationHistory history = new ModificationHistory(){
                 ModelChanged = "Industry",

@@ -36,7 +36,7 @@ namespace HaloBiz.MyServices.Impl
         }
 
 
-        public async Task<ApiResponse> AddNewManager(HttpContext context, ProjectAllocationRecievingDTO projectAllocationDTO)
+        public async Task<ApiCommonResponse> AddNewManager(HttpContext context, ProjectAllocationRecievingDTO projectAllocationDTO)
         {
 
             var existingManagerInAnotherMarketArea = _context.ProjectAllocations.Where(x => x.ManagerId == projectAllocationDTO.ManagerId
@@ -74,7 +74,7 @@ namespace HaloBiz.MyServices.Impl
                     var savedProjectManager = await _projectAllocationRepository.saveNewManager(projectClass);
                     if (savedProjectManager == null)
                     {
-                        return new ApiResponse(500);
+                        return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
                     }
                     return new ApiOkResponse(savedProjectManager);
 
@@ -124,7 +124,7 @@ namespace HaloBiz.MyServices.Impl
 
 
 
-        public async Task<ApiResponse> getProjectManagers(int serviceCategoryId)
+        public async Task<ApiCommonResponse> getProjectManagers(int serviceCategoryId)
         {
 
             var getManagers =  await _projectAllocationRepository.getAllProjectManager(serviceCategoryId);
@@ -139,7 +139,7 @@ namespace HaloBiz.MyServices.Impl
             
         }
 
-        public async Task<ApiResponse> getAllWorkspaces(HttpContext httpContext)
+        public async Task<ApiCommonResponse> getAllWorkspaces(HttpContext httpContext)
         {
            
            var workspaceArr = new List<RevampedWorkspaceDTO>();
@@ -174,7 +174,7 @@ namespace HaloBiz.MyServices.Impl
         }
 
 
-        public async Task<ApiResponse> getWorkspaceById(long id)
+        public async Task<ApiCommonResponse> getWorkspaceById(long id)
         {
 
             var getWorkspace = await _projectAllocationRepository.getWorkSpaceById(id);
@@ -189,7 +189,7 @@ namespace HaloBiz.MyServices.Impl
         }
 
 
-        public async Task<ApiResponse> getWorkspaceByCaption(string caption)
+        public async Task<ApiCommonResponse> getWorkspaceByCaption(string caption)
         {
 
             var result = await _context.Workspaces.FirstOrDefaultAsync(x => x.Caption == caption && x.IsActive != false);
@@ -205,7 +205,7 @@ namespace HaloBiz.MyServices.Impl
         }
 
 
-        public async Task<ApiResponse> getAllProjectManagers()
+        public async Task<ApiCommonResponse> getAllProjectManagers()
         {
 
             var getAllManagers = await _context.ProjectAllocations.ToListAsync();
@@ -221,7 +221,7 @@ namespace HaloBiz.MyServices.Impl
 
 
 
-        public async Task<ApiResponse> getDefaultStatus()
+        public async Task<ApiCommonResponse> getDefaultStatus()
         {
 
             var getDefaultStatus = await _context.StatusFlows.Where(x => x.WorkspaceId == 84).ToListAsync();
@@ -235,27 +235,27 @@ namespace HaloBiz.MyServices.Impl
 
         }
 
-        public async Task<ApiResponse> removeFromCategory(long id,int category,long projectId)
+        public async Task<ApiCommonResponse> removeFromCategory(long id,int category,long projectId)
         {
             var activityToDelete = await _context.ProjectAllocations.FirstOrDefaultAsync(x => x.ManagerId == id 
                                                                     && x.ServiceCategoryId == category
                                                                     && x.Id == projectId);
             if (activityToDelete == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             activityToDelete.IsDeleted = true;
             _context.ProjectAllocations.Update(activityToDelete);
             await _context.SaveChangesAsync();
-            return new ApiOkResponse(true);
+            return CommonResponse.Send(ResponseCodes.SUCCESS);
         }
 
-        public async Task<ApiResponse> removeFromProjectCreator(long workspaceId,long creatorId)
+        public async Task<ApiCommonResponse> removeFromProjectCreator(long workspaceId,long creatorId)
         {
             var creatorToDelete = await _context.ProjectCreators.FirstOrDefaultAsync(x => x.ProjectCreatorProfileId == creatorId && x.IsActive != false  && x.WorkspaceId == workspaceId);
             if (creatorToDelete == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             creatorToDelete.IsActive = false;
             _context.ProjectCreators.Update(creatorToDelete);
@@ -264,7 +264,7 @@ namespace HaloBiz.MyServices.Impl
             return new ApiOkResponse(remainderUser);
         }
 
-        public async Task<ApiResponse> updateToPublic(long workspaceId)
+        public async Task<ApiCommonResponse> updateToPublic(long workspaceId)
         {
 
             var workspace = await _context.Workspaces.FirstOrDefaultAsync(x => x.Id == workspaceId);
@@ -293,7 +293,7 @@ namespace HaloBiz.MyServices.Impl
         }
 
 
-        public async Task<ApiResponse> disablePrivateUser(long workspaceId, long privateUserId)
+        public async Task<ApiCommonResponse> disablePrivateUser(long workspaceId, long privateUserId)
         {
 
 
@@ -302,7 +302,7 @@ namespace HaloBiz.MyServices.Impl
 
             if (privateUser == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             privateUser.IsActive = false;
             _context.PrivacyAccesses.Update(privateUser);
@@ -311,7 +311,7 @@ namespace HaloBiz.MyServices.Impl
             return new ApiOkResponse(remainderUser);
         }
 
-        public async Task<ApiResponse> disableStatus(long workspaceId, long statusId)
+        public async Task<ApiCommonResponse> disableStatus(long workspaceId, long statusId)
         {
 
             var status = await _context.StatusFlows.FirstOrDefaultAsync(x => x.WorkspaceId == workspaceId && x.Id == statusId);
@@ -319,7 +319,7 @@ namespace HaloBiz.MyServices.Impl
 
             if (status == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             status.IsDeleted = true;
             _context.StatusFlows.Update(status);
@@ -329,25 +329,25 @@ namespace HaloBiz.MyServices.Impl
         }
 
 
-        public async Task<ApiResponse> disableWorkspace(long id)
+        public async Task<ApiCommonResponse> disableWorkspace(long id)
         {
             var activityToDelete = await _context.Workspaces.FirstOrDefaultAsync(x => x.Id == id);
             if (activityToDelete == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             activityToDelete.IsActive = false;
             _context.Workspaces.Update(activityToDelete);
             await _context.SaveChangesAsync();
-            return new ApiOkResponse(true);
+            return CommonResponse.Send(ResponseCodes.SUCCESS);
         }
 
-        public async Task<ApiResponse> updateWorkspace(HttpContext httpContext, long id,UpdateWorkspaceDTO workspaceDTO)
+        public async Task<ApiCommonResponse> updateWorkspace(HttpContext httpContext, long id,UpdateWorkspaceDTO workspaceDTO)
         {
             var workspace = await _context.Workspaces.FirstOrDefaultAsync(x => x.Id == id);
             if (workspace == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
 
             workspace.Alias = workspaceDTO.Alias;
@@ -359,12 +359,12 @@ namespace HaloBiz.MyServices.Impl
         }
 
 
-        public async Task<ApiResponse> addMoreProjectCreators(HttpContext httpContext, long id, List<AddMoreUserDto> projectCreatorDtos)
+        public async Task<ApiCommonResponse> addMoreProjectCreators(HttpContext httpContext, long id, List<AddMoreUserDto> projectCreatorDtos)
         {
             var workspace = await _context.Workspaces.FirstOrDefaultAsync(x => x.Id == id);
             if (workspace == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
 
             var projectCreatorsList = new List<ProjectCreator>();
@@ -398,12 +398,12 @@ namespace HaloBiz.MyServices.Impl
         }
 
 
-        public async Task<ApiResponse> addMorePrivateUser(HttpContext httpContext, long workspaceId, List<AddMoreUserDto> privateUserid)
+        public async Task<ApiCommonResponse> addMorePrivateUser(HttpContext httpContext, long workspaceId, List<AddMoreUserDto> privateUserid)
         {
             var workspace = await _context.Workspaces.FirstOrDefaultAsync(x => x.Id == workspaceId);
             if (workspace == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
 
             workspace.IsPublic = false;
@@ -440,12 +440,12 @@ namespace HaloBiz.MyServices.Impl
 
         }
 
-        public async Task<ApiResponse> updateStatus(HttpContext httpContext, long workspaceId, long statusFlowId,StatusFlowDTO statusFlowDTO)
+        public async Task<ApiCommonResponse> updateStatus(HttpContext httpContext, long workspaceId, long statusFlowId,StatusFlowDTO statusFlowDTO)
         {
             var gottenStatusFlow = await _context.StatusFlows.FirstOrDefaultAsync(x => x.WorkspaceId == workspaceId && x.Id == statusFlowId);
             if (gottenStatusFlow == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
 
             gottenStatusFlow.LevelCount = statusFlowDTO.LevelCount;
@@ -465,7 +465,7 @@ namespace HaloBiz.MyServices.Impl
         }
 
 
-        public async Task<ApiResponse> addmoreStatus(HttpContext httpContext, long workspaceId, List<StatusFlowDTO> statusFlowDTO)
+        public async Task<ApiCommonResponse> addmoreStatus(HttpContext httpContext, long workspaceId, List<StatusFlowDTO> statusFlowDTO)
         {
             
 
@@ -494,7 +494,7 @@ namespace HaloBiz.MyServices.Impl
         }
 
 
-        public async Task<ApiResponse> moveStatusSequenec(HttpContext httpContext, long workspaceId, List<StatusFlowDTO> statusFlowDTO)
+        public async Task<ApiCommonResponse> moveStatusSequenec(HttpContext httpContext, long workspaceId, List<StatusFlowDTO> statusFlowDTO)
         {
 
 
@@ -535,7 +535,7 @@ namespace HaloBiz.MyServices.Impl
 
 
 
-        public async Task<ApiResponse> createDefaultStatus(HttpContext httpContext, List<DefaultStatusDTO> defaultStatusFlows)
+        public async Task<ApiCommonResponse> createDefaultStatus(HttpContext httpContext, List<DefaultStatusDTO> defaultStatusFlows)
         {
 
             var defaultStatusArray = new List<DefaultStatusFlow>();
@@ -564,7 +564,7 @@ namespace HaloBiz.MyServices.Impl
         }
 
 
-        public async Task<ApiResponse> updateStatusFlowOpton(HttpContext httpContext,long workspaceId,string statusOption, List<StatusFlowDTO> statusFlowDTOs)
+        public async Task<ApiCommonResponse> updateStatusFlowOpton(HttpContext httpContext,long workspaceId,string statusOption, List<StatusFlowDTO> statusFlowDTOs)
         {
 
 
@@ -613,7 +613,7 @@ namespace HaloBiz.MyServices.Impl
         }
 
 
-        public async Task<ApiResponse> getAllDefaultStatus()
+        public async Task<ApiCommonResponse> getAllDefaultStatus()
 
         {
 
@@ -633,7 +633,7 @@ namespace HaloBiz.MyServices.Impl
 
 
 
-        public async Task<ApiResponse> getManagersProjects(string email,int emailId)
+        public async Task<ApiCommonResponse> getManagersProjects(string email,int emailId)
        
         {
 

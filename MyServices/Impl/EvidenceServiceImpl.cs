@@ -30,7 +30,7 @@ namespace HaloBiz.MyServices.Impl
             this._logger = logger;
         }
 
-        public async Task<ApiResponse> AddEvidence(HttpContext context, EvidenceReceivingDTO evidenceReceivingDTO)
+        public async Task<ApiCommonResponse> AddEvidence(HttpContext context, EvidenceReceivingDTO evidenceReceivingDTO)
         {
 
             var evidence = _mapper.Map<Evidence>(evidenceReceivingDTO);
@@ -38,67 +38,67 @@ namespace HaloBiz.MyServices.Impl
             var savedevidence = await _evidenceRepo.SaveEvidence(evidence);
             if (savedevidence == null)
             {
-                return new ApiResponse(500);
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
             var evidenceTransferDTO = _mapper.Map<EvidenceTransferDTO>(evidence);
             return new ApiOkResponse(evidenceTransferDTO);
         }
 
-        public async Task<ApiResponse> DeleteEvidence(long id)
+        public async Task<ApiCommonResponse> DeleteEvidence(long id)
         {
             var evidenceToDelete = await _evidenceRepo.FindEvidenceById(id);
             if (evidenceToDelete == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
 
             if (!await _evidenceRepo.DeleteEvidence(evidenceToDelete))
             {
-                return new ApiResponse(500);
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
 
-            return new ApiOkResponse(true);
+            return CommonResponse.Send(ResponseCodes.SUCCESS);
         }
 
-        public async Task<ApiResponse> GetAllEvidence()
+        public async Task<ApiCommonResponse> GetAllEvidence()
         {
             var evidences = await _evidenceRepo.FindAllEvidences();
             if (evidences == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var evidenceTransferDTO = _mapper.Map<IEnumerable<EvidenceTransferDTO>>(evidences);
             return new ApiOkResponse(evidenceTransferDTO);
         }
 
-        public async Task<ApiResponse> GetEvidenceById(long id)
+        public async Task<ApiCommonResponse> GetEvidenceById(long id)
         {
             var evidence = await _evidenceRepo.FindEvidenceById(id);
             if (evidence == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var evidenceTransferDTOs = _mapper.Map<EvidenceTransferDTO>(evidence);
             return new ApiOkResponse(evidenceTransferDTOs);
         }
 
-        public async Task<ApiResponse> GetEvidenceByName(string name)
+        public async Task<ApiCommonResponse> GetEvidenceByName(string name)
         {
             var evidence = await _evidenceRepo.FindEvidenceByName(name);
             if (evidence == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var evidenceTransferDTOs = _mapper.Map<EvidenceTransferDTO>(evidence);
             return new ApiOkResponse(evidenceTransferDTOs);
         }
 
-        public async Task<ApiResponse> UpdateEvidence(HttpContext context, long id, EvidenceReceivingDTO evidenceReceivingDTO)
+        public async Task<ApiCommonResponse> UpdateEvidence(HttpContext context, long id, EvidenceReceivingDTO evidenceReceivingDTO)
         {
             var evidenceToUpdate = await _evidenceRepo.FindEvidenceById(id);
             if (evidenceToUpdate == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
 
             var summary = $"Initial details before change, \n {evidenceToUpdate.ToString()} \n";
@@ -114,7 +114,7 @@ namespace HaloBiz.MyServices.Impl
 
             if (updatedevidence == null)
             {
-                return new ApiResponse(500);
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
             ModificationHistory history = new ModificationHistory()
             {

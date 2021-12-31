@@ -22,7 +22,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpGet("GetAllCommanderProfiles")]
-        public async Task<ActionResult> GetAllCommanderProfiles()
+        public async Task<ApiCommonResponse> GetAllCommanderProfiles()
         {
             var response = await _commanderService.GetAllCommanders();
             if (response.StatusCode >= 400)
@@ -31,7 +31,7 @@ namespace HaloBiz.Controllers
             return Ok(cRank);
         }
         [HttpGet("GetAllCommanderTies")]
-        public async Task<ActionResult> GetAllCommanderTies()
+        public async Task<ApiCommonResponse> GetAllCommanderTies()
         {
             var response = await _commanderService.GetAllCommanderTies();
             if (response.StatusCode >= 400)
@@ -41,7 +41,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpGet("GetProfileById/{id}")]
-        public async Task<ActionResult> GetProfileById(long id)
+        public async Task<ApiCommonResponse> GetProfileById(long id)
         {
             var response = await _commanderService.GetCommanderById(id);
             if (response.StatusCode >= 400)
@@ -50,7 +50,7 @@ namespace HaloBiz.Controllers
             return Ok(Rank);
         }
         [HttpGet("GetProfileTieById/{id}")]
-        public async Task<ActionResult> GetProfileTieById(long id)
+        public async Task<ApiCommonResponse> GetProfileTieById(long id)
         {
             var response = await _commanderService.GetCommanderTieById(id);
             if (response.StatusCode >= 400)
@@ -60,7 +60,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpPost("AddNewCommanderProfile")]
-        public async Task<ActionResult> AddNewCommanderProfile(CommanderProfileReceivingDTO ReceivingDTO)
+        public async Task<ApiCommonResponse> AddNewCommanderProfile(CommanderProfileReceivingDTO ReceivingDTO)
         {
             var response = await _commanderService.AddCommander(HttpContext, ReceivingDTO);
             if (response.StatusCode >= 400)
@@ -70,7 +70,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpPost("AddNewProfileTie")]
-        public async Task<ActionResult> AddNewProfileTie(CommanderSMORoutesResourceTieReceivingDTO ReceivingDTO)
+        public async Task<ApiCommonResponse> AddNewProfileTie(CommanderSMORoutesResourceTieReceivingDTO ReceivingDTO)
         {
             var response = await _commanderService.AddCommanderTie(HttpContext, ReceivingDTO);
             if (response.StatusCode >= 400)
@@ -90,13 +90,13 @@ namespace HaloBiz.Controllers
         }
 
         [HttpDelete("DeleteProfileById/{id}")]
-        public async Task<ActionResult> DeleteRankById(int id)
+        public async Task<ApiCommonResponse> DeleteRankById(int id)
         {
             var response = await _commanderService.DeleteCommander(id);
             return StatusCode(response.StatusCode);
         }
         [HttpDelete("DeleteProfileTieById/{id}")]
-        public async Task<ActionResult> DeleteProfileTieById(int id)
+        public async Task<ApiCommonResponse> DeleteProfileTieById(int id)
         {
             var response = await _commanderService.DeleteCommanderTie(id);
             return StatusCode(response.StatusCode);

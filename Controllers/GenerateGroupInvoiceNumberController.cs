@@ -24,7 +24,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpGet("")]
-        public async Task<ActionResult> GetDivisions()
+        public async Task<ApiCommonResponse> GetDivisions()
         {
             var response = await _trackerRepo.GenerateGroupInvoiceNumber();
             if (response == null)

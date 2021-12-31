@@ -22,7 +22,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpGet("GetAllArmedEscortProfiless")]
-        public async Task<ActionResult> GetAllArmedEscortProfiless()
+        public async Task<ApiCommonResponse> GetAllArmedEscortProfiless()
         {
             var response = await _armedEscortService.GetAllArmedEscorts();
             if (response.StatusCode >= 400)
@@ -32,7 +32,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpGet("GetAllArmedEscortTies")]
-        public async Task<ActionResult> GetAllArmedEscortTies()
+        public async Task<ApiCommonResponse> GetAllArmedEscortTies()
         {
             var response = await _armedEscortService.GetAllArmedEscortTies();
             if (response.StatusCode >= 400)
@@ -41,7 +41,7 @@ namespace HaloBiz.Controllers
             return Ok(cRank);
         }
         [HttpGet("GetProfileById/{id}")]
-        public async Task<ActionResult> GetProfileById(long id)
+        public async Task<ApiCommonResponse> GetProfileById(long id)
         {
             var response = await _armedEscortService.GetArmedEscortById(id);
             if (response.StatusCode >= 400)
@@ -51,7 +51,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpGet("GetProfileTieById/{id}")]
-        public async Task<ActionResult> GetProfileTieById(long id)
+        public async Task<ApiCommonResponse> GetProfileTieById(long id)
         {
             var response = await _armedEscortService.GetArmedEscortTieById(id);
             if (response.StatusCode >= 400)
@@ -61,7 +61,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpPost("AddNewProfile")]
-        public async Task<ActionResult> AddNewProfile(ArmedEscortProfileReceivingDTO ReceivingDTO)
+        public async Task<ApiCommonResponse> AddNewProfile(ArmedEscortProfileReceivingDTO ReceivingDTO)
         {
             var response = await _armedEscortService.AddArmedEscort(HttpContext, ReceivingDTO);
             if (response.StatusCode >= 400)
@@ -71,7 +71,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpPost("AddNewProfileTie")]
-        public async Task<ActionResult> AddNewProfileTie(ArmedEscortSMORoutesResourceTieReceivingDTO ReceivingDTO)
+        public async Task<ApiCommonResponse> AddNewProfileTie(ArmedEscortSMORoutesResourceTieReceivingDTO ReceivingDTO)
         {
             var response = await _armedEscortService.AddArmedEscortTie(HttpContext, ReceivingDTO);
             if (response.StatusCode >= 400)
@@ -91,14 +91,14 @@ namespace HaloBiz.Controllers
         }
 
         [HttpDelete("DeleteProfileById/{id}")]
-        public async Task<ActionResult> DeleteProfileById(int id)
+        public async Task<ApiCommonResponse> DeleteProfileById(int id)
         {
             var response = await _armedEscortService.DeleteArmedEscort(id);
             return StatusCode(response.StatusCode);
         }
 
         [HttpDelete("DeleteProfileTieById/{id}")]
-        public async Task<ActionResult> DeleteProfileTieById(int id)
+        public async Task<ApiCommonResponse> DeleteProfileTieById(int id)
         {
             var response = await _armedEscortService.DeleteArmedEscortTie(id);
             return StatusCode(response.StatusCode);

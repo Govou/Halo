@@ -33,47 +33,47 @@ namespace HaloBiz.MyServices.Impl.LAMS
             this._logger = logger;
         }
 
-        public async Task<ApiResponse> AddCustomer(HttpContext context, CustomerReceivingDTO CustomerReceivingDTO)
+        public async Task<ApiCommonResponse> AddCustomer(HttpContext context, CustomerReceivingDTO CustomerReceivingDTO)
         {
             var customer = _mapper.Map<Customer>(CustomerReceivingDTO);
             customer.CreatedById = context.GetLoggedInUserId();
             var savedCustomer = await _CustomerRepo.SaveCustomer(customer);
             if (savedCustomer == null)
             {
-                return new ApiResponse(500);
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
             var CustomerTransferDTOs = _mapper.Map<CustomerTransferDTO>(customer);
             return new ApiOkResponse(CustomerTransferDTOs);
         }
 
-        public async Task<ApiResponse> DeleteCustomer(long id)
+        public async Task<ApiCommonResponse> DeleteCustomer(long id)
         {
             var customerToDelete = await _CustomerRepo.FindCustomerById(id);
             if (customerToDelete == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
 
             if (!await _CustomerRepo.DeleteCustomer(customerToDelete))
             {
-                return new ApiResponse(500);
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
 
-            return new ApiOkResponse(true);
+            return CommonResponse.Send(ResponseCodes.SUCCESS);
         }
 
-        public async Task<ApiResponse> GetAllCustomers()
+        public async Task<ApiCommonResponse> GetAllCustomers()
         {
             var Customers = await _CustomerRepo.FindAllCustomer();
             if (Customers == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var CustomerTransferDTOs = _mapper.Map<IEnumerable<CustomerTransferDTO>>(Customers);
             return new ApiOkResponse(CustomerTransferDTOs);
         }
 
-        public async Task<ApiResponse> GetCustomersByGroupType(long groupTypeId)
+        public async Task<ApiCommonResponse> GetCustomersByGroupType(long groupTypeId)
         {
             try{
                 var customers = await _CustomerRepo.FindCustomersByGroupType(groupTypeId);
@@ -82,37 +82,37 @@ namespace HaloBiz.MyServices.Impl.LAMS
             {
                 _logger.LogError(e.Message);
                 _logger.LogError(e.StackTrace);
-                return new ApiResponse(500);
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
         }
 
-        public async Task<ApiResponse> GetCustomerByName(string name)
+        public async Task<ApiCommonResponse> GetCustomerByName(string name)
         {
             var Customer = await _CustomerRepo.FindCustomerByName(name);
             if (Customer == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var CustomerTransferDTOs = _mapper.Map<CustomerTransferDTO>(Customer);
             return new ApiOkResponse(CustomerTransferDTOs);
         }
 
-        public async Task<ApiResponse> GetCustomerById(long id)
+        public async Task<ApiCommonResponse> GetCustomerById(long id)
         {
             var Customer = await _CustomerRepo.FindCustomerById(id);
             if (Customer == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var CustomerTransferDTOs = _mapper.Map<CustomerTransferDTO>(Customer);
             return new ApiOkResponse(CustomerTransferDTOs);
         }
-        public async Task<ApiResponse> UpdateCustomer(HttpContext context, long id, CustomerReceivingDTO CustomerReceivingDTO)
+        public async Task<ApiCommonResponse> UpdateCustomer(HttpContext context, long id, CustomerReceivingDTO CustomerReceivingDTO)
         {
             var CustomerToUpdate = await _CustomerRepo.FindCustomerById(id);
             if (CustomerToUpdate == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var summary = $"Initial details before change, \n {CustomerToUpdate.ToString()} \n";
             CustomerToUpdate.GroupName = CustomerReceivingDTO.GroupName;
@@ -125,7 +125,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
             if (updatedCustomer == null)
             {
-                return new ApiResponse(500);
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
             ModificationHistory history = new ModificationHistory()
             {

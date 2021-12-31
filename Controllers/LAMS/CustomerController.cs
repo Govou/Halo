@@ -19,7 +19,7 @@ namespace HaloBiz.Controllers.LAMS
         }
 
         [HttpGet("")]
-        public async Task<ActionResult> GetCustomers()
+        public async Task<ApiCommonResponse> GetCustomers()
         {
             var response = await _customerService.GetAllCustomers();
             if (response.StatusCode >= 400)
@@ -29,7 +29,7 @@ namespace HaloBiz.Controllers.LAMS
         }
 
         [HttpGet("GroupType/{groupType}")]
-        public async Task<ActionResult> GetCustomersByGroupTypeId(long groupType)
+        public async Task<ApiCommonResponse> GetCustomersByGroupTypeId(long groupType)
         {
             var response = await _customerService.GetCustomersByGroupType(groupType);
             if (response.StatusCode >= 400)
@@ -39,7 +39,7 @@ namespace HaloBiz.Controllers.LAMS
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult> GetById(long id)
+        public async Task<ApiCommonResponse> GetById(long id)
         {
             var response = await _customerService.GetCustomerById(id);
             if (response.StatusCode >= 400)
@@ -49,7 +49,7 @@ namespace HaloBiz.Controllers.LAMS
         }
 
         [HttpPost("")]
-        public async Task<ActionResult> AddNewCustomer(CustomerReceivingDTO customerReceiving)
+        public async Task<ApiCommonResponse> AddNewCustomer(CustomerReceivingDTO customerReceiving)
         {
             var response = await _customerService.AddCustomer(HttpContext, customerReceiving);
             if (response.StatusCode >= 400)
@@ -69,7 +69,7 @@ namespace HaloBiz.Controllers.LAMS
         }
 
         [HttpDelete("{id}")]
-        public async Task<ActionResult> DeleteById(int id)
+        public async Task<ApiCommonResponse> DeleteById(int id)
         {
             var response = await _customerService.DeleteCustomer(id);
             return StatusCode(response.StatusCode);

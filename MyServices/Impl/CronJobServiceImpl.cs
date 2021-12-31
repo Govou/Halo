@@ -43,7 +43,7 @@ namespace HaloBiz.MyServices.Impl
             _dTrackPassword = config["DTrackPassword"] ?? config.GetSection("AppSettings:DTrackPassword").Value;
         }
 
-        public async Task<ApiResponse> MigrateNewCustomersToDTRACK(HttpContext context)
+        public async Task<ApiCommonResponse> MigrateNewCustomersToDTRACK(HttpContext context)
         {
             try
             {
@@ -173,18 +173,18 @@ namespace HaloBiz.MyServices.Impl
                     }
                 }
 
-                return new ApiOkResponse(true);
+                return CommonResponse.Send(ResponseCodes.SUCCESS);
             }
             catch (Exception ex)
             {
                 _logger.LogError($"An exception occured while running customer creation job");
                 _logger.LogError($"Exception details => {ex.Message}");
                 _logger.LogError($"Exception details => {ex.StackTrace}");
-                return new ApiResponse(500, ex.Message);
+                return  CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
         }
 
-        public async Task<ApiResponse> PostNewAccountingRecordsToDTRACK(HttpContext context)
+        public async Task<ApiCommonResponse> PostNewAccountingRecordsToDTRACK(HttpContext context)
         {
             try
             {
@@ -365,14 +365,14 @@ namespace HaloBiz.MyServices.Impl
                     }                                       
                 }
 
-                return new ApiOkResponse(true);
+                return CommonResponse.Send(ResponseCodes.SUCCESS);
             }
             catch (Exception ex)
             {
                 _logger.LogError($"An exception occured while running account posting job");
                 _logger.LogError($"Exception details => {ex.Message}");
                 _logger.LogError($"Exception details => {ex.StackTrace}");
-                return new ApiResponse(500, ex.Message);
+                return  CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
         }
 

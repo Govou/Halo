@@ -24,7 +24,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpGet("")]
-        public async Task<ActionResult> GetTarget()
+        public async Task<ApiCommonResponse> GetTarget()
         {
             var response = await _targetService.GetAllTarget();
             if (response.StatusCode >= 400)
@@ -33,7 +33,7 @@ namespace HaloBiz.Controllers
             return Ok(target);
         }
         [HttpGet("caption/{name}")]
-        public async Task<ActionResult> GetByCaption(string name)
+        public async Task<ApiCommonResponse> GetByCaption(string name)
         {
             var response = await _targetService.GetTargetByName(name);
             if (response.StatusCode >= 400)
@@ -43,7 +43,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult> GetById(long id)
+        public async Task<ApiCommonResponse> GetById(long id)
         {
             var response = await _targetService.GetTargetById(id);
             if (response.StatusCode >= 400)
@@ -53,7 +53,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpPost("")]
-        public async Task<ActionResult> AddNewtarget(TargetReceivingDTO targetReceiving)
+        public async Task<ApiCommonResponse> AddNewtarget(TargetReceivingDTO targetReceiving)
         {
             var response = await _targetService.AddTarget(HttpContext, targetReceiving);
             if (response.StatusCode >= 400)
@@ -73,7 +73,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpDelete("{id}")]
-        public async Task<ActionResult> DeleteById(int id)
+        public async Task<ApiCommonResponse> DeleteById(int id)
         {
             var response = await _targetService.DeleteTarget(id);
             return StatusCode(response.StatusCode);

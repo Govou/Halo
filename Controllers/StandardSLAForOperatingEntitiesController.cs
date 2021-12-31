@@ -25,7 +25,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpGet("")]
-        public async Task<ActionResult> GetStandardSlaforOperatingEntity()
+        public async Task<ApiCommonResponse> GetStandardSlaforOperatingEntity()
         {
             var response = await _standardSLAForOperatingEntitiesService.GetAllStandardSlaforOperatingEntity();
             if (response.StatusCode >= 400)
@@ -34,7 +34,7 @@ namespace HaloBiz.Controllers
             return Ok(standardSLAForOperatingEntities);
         }
         [HttpGet("caption/{name}")]
-        public async Task<ActionResult> GetByCaption(string name)
+        public async Task<ApiCommonResponse> GetByCaption(string name)
         {
             var response = await _standardSLAForOperatingEntitiesService.GetStandardSlaforOperatingEntityByName(name);
             if (response.StatusCode >= 400)
@@ -44,7 +44,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult> GetById(long id)
+        public async Task<ApiCommonResponse> GetById(long id)
         {
             var response = await _standardSLAForOperatingEntitiesService.GetStandardSlaforOperatingEntityById(id);
             if (response.StatusCode >= 400)
@@ -54,7 +54,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpPost("")]
-        public async Task<ActionResult> AddNewStandardSlaforOperatingEntity(StandardSlaforOperatingEntityReceivingDTO standardSLAForOperatingEntitiesReceiving)
+        public async Task<ApiCommonResponse> AddNewStandardSlaforOperatingEntity(StandardSlaforOperatingEntityReceivingDTO standardSLAForOperatingEntitiesReceiving)
         {
             var response = await _standardSLAForOperatingEntitiesService.AddStandardSlaforOperatingEntity(HttpContext, standardSLAForOperatingEntitiesReceiving);
             if (response.StatusCode >= 400)
@@ -74,7 +74,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpDelete("{id}")]
-        public async Task<ActionResult> DeleteById(int id)
+        public async Task<ApiCommonResponse> DeleteById(int id)
         {
             var response = await _standardSLAForOperatingEntitiesService.DeleteStandardSlaforOperatingEntity(id);
             return StatusCode(response.StatusCode);

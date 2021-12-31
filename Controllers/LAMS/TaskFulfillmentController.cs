@@ -23,7 +23,7 @@ namespace Controllers.Controllers
         }
 
         [HttpGet("")]
-        public async Task<ActionResult> GetTaskFulfillment()
+        public async Task<ApiCommonResponse> GetTaskFulfillment()
         {
             var response = await _taskFulfillmentService.GetAllTaskFulfillment();
             if (response.StatusCode >= 400)
@@ -33,7 +33,7 @@ namespace Controllers.Controllers
         }
 
         [HttpGet("TaskOwnerPmWidget/{taskMasterId}")]
-        public async Task<ActionResult> TaskOwnerPmWidget(long taskMasterId)
+        public async Task<ApiCommonResponse> TaskOwnerPmWidget(long taskMasterId)
         {
             var response = await _taskFulfillmentService.GetPMWidgetStatistics(taskMasterId);
             if (response.StatusCode >= 400)
@@ -43,7 +43,7 @@ namespace Controllers.Controllers
         }
 
         [HttpGet("TaskDeliverableSummary/{userId}")]
-        public async Task<ActionResult> GetTAskDeliverableSummaryForUser(long userId)
+        public async Task<ApiCommonResponse> GetTAskDeliverableSummaryForUser(long userId)
         {
             var response = await _taskFulfillmentService.GetTaskDeliverableSummary(userId);
             if (response.StatusCode >= 400)
@@ -54,7 +54,7 @@ namespace Controllers.Controllers
         
 
         [HttpGet("UnCompletedTaskFulfillmentForTaskOwner/{taskOwnerId}")]
-        public async Task<ActionResult> GetUnCompletedTaskFulfillmentForTaskMaster(long taskOwnerId)
+        public async Task<ApiCommonResponse> GetUnCompletedTaskFulfillmentForTaskMaster(long taskOwnerId)
         {
             var response = await _taskFulfillmentService. GetAllUnCompletedTaskFulfillmentForTaskOwner(taskOwnerId);
             if (response.StatusCode >= 400)
@@ -64,7 +64,7 @@ namespace Controllers.Controllers
         }
 
         [HttpGet("AllTaskFulfillmentForTaskOwner/{taskOwnerId}")]
-        public async Task<ActionResult> GetAllTaskFulfillmentForTaskMaster(long taskOwnerId)
+        public async Task<ApiCommonResponse> GetAllTaskFulfillmentForTaskMaster(long taskOwnerId)
         {
             var response = await _taskFulfillmentService.GetAllTaskFulfillmentForTaskOwner(taskOwnerId);
             if (response.StatusCode >= 400)
@@ -74,7 +74,7 @@ namespace Controllers.Controllers
         }
 
         [HttpGet("caption/{name}")]
-        public async Task<ActionResult> GetByCaption(string name)
+        public async Task<ApiCommonResponse> GetByCaption(string name)
         {
             var response = await _taskFulfillmentService.GetTaskFulfillmentByName(name);
             if (response.StatusCode >= 400)
@@ -84,7 +84,7 @@ namespace Controllers.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult> GetById(long id)
+        public async Task<ApiCommonResponse> GetById(long id)
         {
             var response = await _taskFulfillmentService.GetTaskFulfillmentById(id);
             if (response.StatusCode >= 400)
@@ -94,7 +94,7 @@ namespace Controllers.Controllers
         }
 
         [HttpPost("")]
-        public async Task<ActionResult> AddNewTaskFulfillment(TaskFulfillmentReceivingDTO taskFulfillmentReceiving)
+        public async Task<ApiCommonResponse> AddNewTaskFulfillment(TaskFulfillmentReceivingDTO taskFulfillmentReceiving)
         {
             var response = await _taskFulfillmentService.AddTaskFulfillment(HttpContext, taskFulfillmentReceiving);
             if (response.StatusCode >= 400)
@@ -114,7 +114,7 @@ namespace Controllers.Controllers
         }
 
         /*[HttpDelete("{id}")]
-        public async Task<ActionResult> DeleteById(int id)
+        public async Task<ApiCommonResponse> DeleteById(int id)
         {
             var response = await _taskFulfillmentService.DeleteTaskFulfillment(id);
             return StatusCode(response.StatusCode);
@@ -141,7 +141,7 @@ namespace Controllers.Controllers
         }
 
         [HttpGet("GetTaskFulfillmentsByOperatingEntityHeadId/{id}")]
-        public async Task<ActionResult> GetTaskFulfillmentsByOperatingEntityHeadId(long id)
+        public async Task<ApiCommonResponse> GetTaskFulfillmentsByOperatingEntityHeadId(long id)
         {
             var response = await _taskFulfillmentService.GetTaskFulfillmentsByOperatingEntityHeadId(id);
             if (response.StatusCode >= 400)
@@ -151,7 +151,7 @@ namespace Controllers.Controllers
         }
 
         [HttpGet("GetTaskFulfillmentDetails/{id}")]
-        public async Task<ActionResult> GetTaskFulfillmentDetails(long id)
+        public async Task<ApiCommonResponse> GetTaskFulfillmentDetails(long id)
         {
             var response = await _taskFulfillmentService.GetTaskFulfillmentDetails(id);
             if (response.StatusCode >= 400)

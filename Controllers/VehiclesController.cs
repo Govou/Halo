@@ -22,7 +22,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpGet("GetAllVehicleTypes")]
-        public async Task<ActionResult> GetAllVehicleTypes()
+        public async Task<ApiCommonResponse> GetAllVehicleTypes()
         {
             var response = await _vehicleService.GetAllVehicleTypes();
             if (response.StatusCode >= 400)
@@ -32,7 +32,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpGet("GetTypeById/{id}")]
-        public async Task<ActionResult> GetTypeById(long id)
+        public async Task<ApiCommonResponse> GetTypeById(long id)
         {
             var response = await _vehicleService.GetVehicleTypeById(id);
             if (response.StatusCode >= 400)
@@ -42,7 +42,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpPost("AddNewType")]
-        public async Task<ActionResult> AddNewType(VehicleTypeReceivingDTO TypeReceivingDTO)
+        public async Task<ApiCommonResponse> AddNewType(VehicleTypeReceivingDTO TypeReceivingDTO)
         {
             var response = await _vehicleService.AddVehicleType(HttpContext, TypeReceivingDTO);
             if (response.StatusCode >= 400)
@@ -62,7 +62,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpDelete("DeleteTypeById/{id}")] //{id}
-        public async Task<ActionResult> DeleteTypeById(int id)
+        public async Task<ApiCommonResponse> DeleteTypeById(int id)
         {
             var response = await _vehicleService.DeleteVehicleType(id);
             return StatusCode(response.StatusCode);

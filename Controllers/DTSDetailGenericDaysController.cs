@@ -22,7 +22,7 @@ namespace HaloBiz.Controllers
 
         //ArmedEscort
         [HttpGet("GetAllArmedEscortGenerics")]
-        public async Task<ActionResult> GetAllArmedEscortGenerics()
+        public async Task<ApiCommonResponse> GetAllArmedEscortGenerics()
         {
             var response = await _dTSDetailGenericDaysService.GetAllArmedEscortGenerics();
             if (response.StatusCode >= 400)
@@ -32,7 +32,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpGet("GetArmedEscortGenericsById/{id}")]
-        public async Task<ActionResult> GetArmedEscortGenericsById(long id)
+        public async Task<ApiCommonResponse> GetArmedEscortGenericsById(long id)
         {
             var response = await _dTSDetailGenericDaysService.GetArmedEscortGenericById(id);
             if (response.StatusCode >= 400)
@@ -41,7 +41,7 @@ namespace HaloBiz.Controllers
             return Ok(Rank);
         }
         [HttpGet("GetArmedEscortGenericsByMasterId/{id}")]
-        public async Task<ActionResult> GetArmedEscortGenericsByMasterId(long id)
+        public async Task<ApiCommonResponse> GetArmedEscortGenericsByMasterId(long id)
         {
             var response = await _dTSDetailGenericDaysService.GetArmedEscortGenericByMasterId(id);
             if (response.StatusCode >= 400)
@@ -51,7 +51,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpPost("AddNewArmedEscortGeneric")]
-        public async Task<ActionResult> AddNewArmedEscortGeneric(ArmedEscortDTSDetailGenericDaysReceivingDTO ReceivingDTO)
+        public async Task<ApiCommonResponse> AddNewArmedEscortGeneric(ArmedEscortDTSDetailGenericDaysReceivingDTO ReceivingDTO)
         {
             var response = await _dTSDetailGenericDaysService.AddArmedEscortGeneric(HttpContext, ReceivingDTO);
 
@@ -71,7 +71,7 @@ namespace HaloBiz.Controllers
             return Ok(type);
         }
         [HttpDelete("DeleteArmedEscortGenericById/{id}")]
-        public async Task<ActionResult> DeleteArmedEscortMasterById(int id)
+        public async Task<ApiCommonResponse> DeleteArmedEscortMasterById(int id)
         {
             var response = await _dTSDetailGenericDaysService.DeleteArmedEscortGeneric(id);
             return StatusCode(response.StatusCode);
@@ -79,7 +79,7 @@ namespace HaloBiz.Controllers
 
         //Commander
         [HttpGet("GetAllCommanderGenerics")]
-        public async Task<ActionResult> GetAllCommanderGenerics()
+        public async Task<ApiCommonResponse> GetAllCommanderGenerics()
         {
             var response = await _dTSDetailGenericDaysService.GetAllCommanderGenerics();
             if (response.StatusCode >= 400)
@@ -89,7 +89,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpGet("GetCommanderGenericsById/{id}")]
-        public async Task<ActionResult> GetCommanderGenericsById(long id)
+        public async Task<ApiCommonResponse> GetCommanderGenericsById(long id)
         {
             var response = await _dTSDetailGenericDaysService.GetCommanderGenericById(id);
             if (response.StatusCode >= 400)
@@ -98,7 +98,7 @@ namespace HaloBiz.Controllers
             return Ok(Rank);
         }
         [HttpGet("GetCommanderGenericsByMasterId/{id}")]
-        public async Task<ActionResult> GetCommanderGenericsByMasterId(long id)
+        public async Task<ApiCommonResponse> GetCommanderGenericsByMasterId(long id)
         {
             var response = await _dTSDetailGenericDaysService.GetCommanderGenericByMasterId(id);
             if (response.StatusCode >= 400)
@@ -108,7 +108,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpPost("AddNewCommanderGeneric")]
-        public async Task<ActionResult> AddNewCommanderGeneric(CommanderDTSDetailGenericDaysReceivingDTO ReceivingDTO)
+        public async Task<ApiCommonResponse> AddNewCommanderGeneric(CommanderDTSDetailGenericDaysReceivingDTO ReceivingDTO)
         {
             var response = await _dTSDetailGenericDaysService.AddCommanderGeneric(HttpContext, ReceivingDTO);
 
@@ -128,7 +128,7 @@ namespace HaloBiz.Controllers
             return Ok(type);
         }
         [HttpDelete("DeleteCommanderGenericById/{id}")]
-        public async Task<ActionResult> DeleteCommanderGenericById(int id)
+        public async Task<ApiCommonResponse> DeleteCommanderGenericById(int id)
         {
             var response = await _dTSDetailGenericDaysService.DeleteCommanderGeneric(id);
             return StatusCode(response.StatusCode);
@@ -136,7 +136,7 @@ namespace HaloBiz.Controllers
 
         //Pilot
         [HttpGet("GetAllPilotGenerics")]
-        public async Task<ActionResult> GetAllPilotGenerics()
+        public async Task<ApiCommonResponse> GetAllPilotGenerics()
         {
             var response = await _dTSDetailGenericDaysService.GetAllPilotGenerics();
             if (response.StatusCode >= 400)
@@ -146,7 +146,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpGet("GetPilotGenericsById/{id}")]
-        public async Task<ActionResult> GetPilotGenericsById(long id)
+        public async Task<ApiCommonResponse> GetPilotGenericsById(long id)
         {
             var response = await _dTSDetailGenericDaysService.GetPilotGenericById(id);
             if (response.StatusCode >= 400)
@@ -155,7 +155,7 @@ namespace HaloBiz.Controllers
             return Ok(Rank);
         }
         [HttpGet("GetPilotGenericsByMasterId/{id}")]
-        public async Task<ActionResult> GetPilotGenericsByMasterId(long id)
+        public async Task<ApiCommonResponse> GetPilotGenericsByMasterId(long id)
         {
             var response = await _dTSDetailGenericDaysService.GetPilotGenericByMasterId(id);
             if (response.StatusCode >= 400)
@@ -165,7 +165,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpPost("AddNewPilotGeneric")]
-        public async Task<ActionResult> AddNewPilotGeneric(PilotDTSDetailGenericDaysReceivingDTO ReceivingDTO)
+        public async Task<ApiCommonResponse> AddNewPilotGeneric(PilotDTSDetailGenericDaysReceivingDTO ReceivingDTO)
         {
             var response = await _dTSDetailGenericDaysService.AddPilotGeneric(HttpContext, ReceivingDTO);
 
@@ -185,7 +185,7 @@ namespace HaloBiz.Controllers
             return Ok(type);
         }
         [HttpDelete("DeletePilotGenericById/{id}")]
-        public async Task<ActionResult> DeletePilotGenericById(int id)
+        public async Task<ApiCommonResponse> DeletePilotGenericById(int id)
         {
             var response = await _dTSDetailGenericDaysService.DeletePilotGeneric(id);
             return StatusCode(response.StatusCode);
@@ -193,7 +193,7 @@ namespace HaloBiz.Controllers
 
         //Vehicle
         [HttpGet("GetAllVehicleGenerics")]
-        public async Task<ActionResult> GetAllVehicleGenerics()
+        public async Task<ApiCommonResponse> GetAllVehicleGenerics()
         {
             var response = await _dTSDetailGenericDaysService.GetAllVehicleGenerics();
             if (response.StatusCode >= 400)
@@ -203,7 +203,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpGet("GetVehicleGenericsById/{id}")]
-        public async Task<ActionResult> GetVehicleGenericsById(long id)
+        public async Task<ApiCommonResponse> GetVehicleGenericsById(long id)
         {
             var response = await _dTSDetailGenericDaysService.GetVehicleGenericById(id);
             if (response.StatusCode >= 400)
@@ -213,7 +213,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpGet("GetVehicleGenericsByMasterId/{id}")]
-        public async Task<ActionResult> GetVehicleGenericsByMasterId(long id)
+        public async Task<ApiCommonResponse> GetVehicleGenericsByMasterId(long id)
         {
             var response = await _dTSDetailGenericDaysService.GetVehicleGenericByMasterId(id);
             if (response.StatusCode >= 400)
@@ -223,7 +223,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpPost("AddNewVehicleGeneric")]
-        public async Task<ActionResult> AddNewVehicleGeneric(VehicleDTSDetailGenericDaysReceivingDTO ReceivingDTO)
+        public async Task<ApiCommonResponse> AddNewVehicleGeneric(VehicleDTSDetailGenericDaysReceivingDTO ReceivingDTO)
         {
             var response = await _dTSDetailGenericDaysService.AddVehicleGeneric(HttpContext, ReceivingDTO);
 
@@ -243,7 +243,7 @@ namespace HaloBiz.Controllers
             return Ok(type);
         }
         [HttpDelete("DeleteVehicleGenericById/{id}")]
-        public async Task<ActionResult> DeleteVehicleGenericById(int id)
+        public async Task<ApiCommonResponse> DeleteVehicleGenericById(int id)
         {
             var response = await _dTSDetailGenericDaysService.DeleteVehicleGeneric(id);
             return StatusCode(response.StatusCode);

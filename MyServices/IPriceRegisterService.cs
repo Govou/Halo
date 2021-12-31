@@ -10,12 +10,12 @@ namespace HaloBiz.MyServices
 {
     public interface IPriceRegisterService
     {
-        Task<ApiResponse> AddPriceRegister(HttpContext context, PriceRegisterReceivingDTO priceRegisterReceivingDTO);
-        Task<ApiResponse> GetAllPriceRegisters();
-        Task<ApiResponse> GetAllPriceRegistersByRouteId(long routeId);
-        //Task<ApiResponse> GetAllRoutesWithPriceRegisters(string routeName);
-        Task<ApiResponse> GetPriceRegisterId(long id);
-        Task<ApiResponse> UpdatePriceRegister(HttpContext context, long id, PriceRegisterReceivingDTO priceRegisterReceivingDTO);
-        Task<ApiResponse> DeletePriceRegister(long id);
+        Task<ApiCommonResponse> AddPriceRegister(HttpContext context, PriceRegisterReceivingDTO priceRegisterReceivingDTO);
+        Task<ApiCommonResponse> GetAllPriceRegisters();
+        Task<ApiCommonResponse> GetAllPriceRegistersByRouteId(long routeId);
+        //Task<ApiCommonResponse> GetAllRoutesWithPriceRegisters(string routeName);
+        Task<ApiCommonResponse> GetPriceRegisterId(long id);
+        Task<ApiCommonResponse> UpdatePriceRegister(HttpContext context, long id, PriceRegisterReceivingDTO priceRegisterReceivingDTO);
+        Task<ApiCommonResponse> DeletePriceRegister(long id);
     }
 }

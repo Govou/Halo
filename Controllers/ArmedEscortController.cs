@@ -22,7 +22,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpGet("GetAllArmedEscortRanks")]
-        public async Task<ActionResult> GetAllArmedEscortRanks()
+        public async Task<ApiCommonResponse> GetAllArmedEscortRanks()
         {
             var response = await _armedEscortService.GetAllArmedEscortRanks();
             if (response.StatusCode >= 400)
@@ -32,7 +32,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpGet("GetAllArmedEscortTypes")]
-        public async Task<ActionResult> GetAllArmedEscortTypes()
+        public async Task<ApiCommonResponse> GetAllArmedEscortTypes()
         {
             var response = await _armedEscortService.GetAllArmedEscortTypes();
             if (response.StatusCode >= 400)
@@ -42,7 +42,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpGet("GetRankById/{id}")]
-        public async Task<ActionResult> GetRankById(long id)
+        public async Task<ApiCommonResponse> GetRankById(long id)
         {
             var response = await _armedEscortService.GetArmedEscortRankById(id);
             if (response.StatusCode >= 400)
@@ -52,7 +52,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpGet("GetTypeById/{id}")]
-        public async Task<ActionResult> GetTypeById(long id)
+        public async Task<ApiCommonResponse> GetTypeById(long id)
         {
             var response = await _armedEscortService.GetArmedEscortTypeById(id);
             if (response.StatusCode >= 400)
@@ -62,7 +62,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpPost("AddNewType")]
-        public async Task<ActionResult> AddNewType(ArmedEscortTypeReceivingDTO TypeReceivingDTO)
+        public async Task<ApiCommonResponse> AddNewType(ArmedEscortTypeReceivingDTO TypeReceivingDTO)
         {
             var response = await _armedEscortService.AddArmedEscortType(HttpContext, TypeReceivingDTO);
             if (response.StatusCode >= 400)
@@ -72,7 +72,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpPost("AddNewRank")]
-        public async Task<ActionResult> AddNewRank(ArmedEscortRankReceivingDTO RankReceivingDTO)
+        public async Task<ApiCommonResponse> AddNewRank(ArmedEscortRankReceivingDTO RankReceivingDTO)
         {
             var response = await _armedEscortService.AddArmedEscortRank(HttpContext, RankReceivingDTO);
 
@@ -103,14 +103,14 @@ namespace HaloBiz.Controllers
         }
 
         [HttpDelete("DeleterankById/{id}")]
-        public async Task<ActionResult> DeleteRankById(int id)
+        public async Task<ApiCommonResponse> DeleteRankById(int id)
         {
             var response = await _armedEscortService.DeleteArmedEscortRank(id);
             return StatusCode(response.StatusCode);
         }
 
         [HttpDelete("DeleteTypeById/{id}")] //{id}
-        public async Task<ActionResult> DeleteTypeById(int id)
+        public async Task<ApiCommonResponse> DeleteTypeById(int id)
         {
             var response = await _armedEscortService.DeleteArmedEscortType(id);
             return StatusCode(response.StatusCode);

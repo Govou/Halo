@@ -38,7 +38,7 @@ namespace HaloBiz.MyServices.Impl
             this._logger = logger;
         }
 
-        public async Task<ApiResponse> AddEscalationMatrix(HttpContext context, EscalationMatrixReceivingDTO escalationMatrixReceivingDTO)
+        public async Task<ApiCommonResponse> AddEscalationMatrix(HttpContext context, EscalationMatrixReceivingDTO escalationMatrixReceivingDTO)
         {
             var matrix = await _context.EscalationMatrices.SingleOrDefaultAsync(x => x.ComplaintTypeId == escalationMatrixReceivingDTO.ComplaintTypeId && x.IsDeleted == false);
 
@@ -54,13 +54,13 @@ namespace HaloBiz.MyServices.Impl
             var savedescalationMatrix = await _escalationMatrixRepo.SaveEscalationMatrix(escalationMatrix);
             if (savedescalationMatrix == null)
             {
-                return new ApiResponse(500);
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
             var escalationMatrixTransferDTO = _mapper.Map<EscalationMatrixTransferDTO>(escalationMatrix);
             return new ApiOkResponse(escalationMatrixTransferDTO);
         }
 
-        public async Task<ApiResponse> GetHandlers(long complaintTypeId)
+        public async Task<ApiCommonResponse> GetHandlers(long complaintTypeId)
         {
             var handlers = new List<UserProfile>();
             var matrix = await _context.EscalationMatrices.SingleOrDefaultAsync(x => x.ComplaintTypeId == complaintTypeId);
@@ -79,61 +79,61 @@ namespace HaloBiz.MyServices.Impl
             return new ApiOkResponse(handlersTransferDTO);
         }
 
-        public async Task<ApiResponse> DeleteEscalationMatrix(long id)
+        public async Task<ApiCommonResponse> DeleteEscalationMatrix(long id)
         {
             var escalationMatrixToDelete = await _escalationMatrixRepo.FindEscalationMatrixById(id);
             if (escalationMatrixToDelete == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
 
             if (!await _escalationMatrixRepo.DeleteEscalationMatrix(escalationMatrixToDelete))
             {
-                return new ApiResponse(500);
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
 
-            return new ApiOkResponse(true);
+            return CommonResponse.Send(ResponseCodes.SUCCESS);
         }
 
-        public async Task<ApiResponse> GetAllEscalationMatrix()
+        public async Task<ApiCommonResponse> GetAllEscalationMatrix()
         {
             var escalationMatrixs = await _escalationMatrixRepo.FindAllEscalationMatrixs();
             if (escalationMatrixs == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var escalationMatrixTransferDTO = _mapper.Map<IEnumerable<EscalationMatrixTransferDTO>>(escalationMatrixs);
             return new ApiOkResponse(escalationMatrixTransferDTO);
         }
 
-        public async Task<ApiResponse> GetEscalationMatrixById(long id)
+        public async Task<ApiCommonResponse> GetEscalationMatrixById(long id)
         {
             var escalationMatrix = await _escalationMatrixRepo.FindEscalationMatrixById(id);
             if (escalationMatrix == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var escalationMatrixTransferDTOs = _mapper.Map<EscalationMatrixTransferDTO>(escalationMatrix);
             return new ApiOkResponse(escalationMatrixTransferDTOs);
         }
 
-        /*public async Task<ApiResponse> GetEscalationMatrixByName(string name)
+        /*public async Task<ApiCommonResponse> GetEscalationMatrixByName(string name)
         {
             var escalationMatrix = await _escalationMatrixRepo.FindEscalationMatrixByName(name);
             if (escalationMatrix == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var escalationMatrixTransferDTOs = _mapper.Map<EscalationMatrixTransferDTO>(escalationMatrix);
             return new ApiOkResponse(escalationMatrixTransferDTOs);
         }*/
 
-        public async Task<ApiResponse> UpdateEscalationMatrix(HttpContext context, long id, EscalationMatrixReceivingDTO escalationMatrixReceivingDTO)
+        public async Task<ApiCommonResponse> UpdateEscalationMatrix(HttpContext context, long id, EscalationMatrixReceivingDTO escalationMatrixReceivingDTO)
         {
             var escalationMatrixToUpdate = await _escalationMatrixRepo.FindEscalationMatrixById(id);
             if (escalationMatrixToUpdate == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
 
             if(escalationMatrixToUpdate.ComplaintTypeId != escalationMatrixReceivingDTO.ComplaintTypeId)
@@ -154,7 +154,7 @@ namespace HaloBiz.MyServices.Impl
 
             if (updatedescalationMatrix == null)
             {
-                return new ApiResponse(500);
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
             ModificationHistory history = new ModificationHistory()
             {

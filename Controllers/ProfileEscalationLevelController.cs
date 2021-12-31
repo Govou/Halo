@@ -23,7 +23,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpGet("")]
-        public async Task<ActionResult> GetProfileEscalationLevel()
+        public async Task<ApiCommonResponse> GetProfileEscalationLevel()
         {
             var response = await _ProfileEscalationLevelService.GetAllProfileEscalationLevel();
             if (response.StatusCode >= 400)
@@ -33,7 +33,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpGet("GetAllHandlers")]
-        public async Task<ActionResult> GetAllHandlers()
+        public async Task<ApiCommonResponse> GetAllHandlers()
         {
             var response = await _ProfileEscalationLevelService.GetAllHandlerProfileEscalationLevel();
             if (response.StatusCode >= 400)
@@ -42,7 +42,7 @@ namespace HaloBiz.Controllers
             return Ok(ProfileEscalationLevel);
         }
         /*[HttpGet("caption/{name}")]
-        public async Task<ActionResult> GetByCaption(string name)
+        public async Task<ApiCommonResponse> GetByCaption(string name)
         {
             var response = await _ProfileEscalationLevelService.GetProfileEscalationLevelByName(name);
             if (response.StatusCode >= 400)
@@ -52,7 +52,7 @@ namespace HaloBiz.Controllers
         }*/
 
         [HttpGet("{id}")]
-        public async Task<ActionResult> GetById(long id)
+        public async Task<ApiCommonResponse> GetById(long id)
         {
             var response = await _ProfileEscalationLevelService.GetProfileEscalationLevelById(id);
             if (response.StatusCode >= 400)
@@ -62,7 +62,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpPost("")]
-        public async Task<ActionResult> AddNewProfileEscalationLevel(ProfileEscalationLevelReceivingDTO ProfileEscalationLevelReceiving)
+        public async Task<ApiCommonResponse> AddNewProfileEscalationLevel(ProfileEscalationLevelReceivingDTO ProfileEscalationLevelReceiving)
         {
             var response = await _ProfileEscalationLevelService.AddProfileEscalationLevel(HttpContext, ProfileEscalationLevelReceiving);
             if (response.StatusCode >= 400)
@@ -82,7 +82,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpDelete("{id}")]
-        public async Task<ActionResult> DeleteById(int id)
+        public async Task<ApiCommonResponse> DeleteById(int id)
         {
             var response = await _ProfileEscalationLevelService.DeleteProfileEscalationLevel(id);
             return StatusCode(response.StatusCode);

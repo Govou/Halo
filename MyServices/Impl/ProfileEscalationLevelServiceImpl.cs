@@ -30,7 +30,7 @@ namespace HaloBiz.MyServices.Impl
             this._logger = logger;
         }
 
-        public async Task<ApiResponse> AddProfileEscalationLevel(HttpContext context, ProfileEscalationLevelReceivingDTO profileEscalationLevelReceivingDTO)
+        public async Task<ApiCommonResponse> AddProfileEscalationLevel(HttpContext context, ProfileEscalationLevelReceivingDTO profileEscalationLevelReceivingDTO)
         {
             //Check If User already is already configured for profile escalation level
            if(await _profileEscalationLevelRepo.AlreadyHasProfileEscalationConfigured(profileEscalationLevelReceivingDTO.UserProfileId))
@@ -43,79 +43,79 @@ namespace HaloBiz.MyServices.Impl
             var savedprofileEscalationLevel = await _profileEscalationLevelRepo.SaveProfileEscalationLevel(profileEscalationLevel);
             if (savedprofileEscalationLevel == null)
             {
-                return new ApiResponse(500);
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
             var profileEscalationLevelTransferDTO = _mapper.Map<ProfileEscalationLevelTransferDTO>(profileEscalationLevel);
             return new ApiOkResponse(profileEscalationLevelTransferDTO);
         }
 
-        public async Task<ApiResponse> DeleteProfileEscalationLevel(long id)
+        public async Task<ApiCommonResponse> DeleteProfileEscalationLevel(long id)
         {
             var profileEscalationLevelToDelete = await _profileEscalationLevelRepo.FindProfileEscalationLevelById(id);
             if (profileEscalationLevelToDelete == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
 
             if (!await _profileEscalationLevelRepo.DeleteProfileEscalationLevel(profileEscalationLevelToDelete))
             {
-                return new ApiResponse(500);
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
 
-            return new ApiOkResponse(true);
+            return CommonResponse.Send(ResponseCodes.SUCCESS);
         }
 
-        public async Task<ApiResponse> GetAllHandlerProfileEscalationLevel()
+        public async Task<ApiCommonResponse> GetAllHandlerProfileEscalationLevel()
         {
             var profileEscalationLevels = await _profileEscalationLevelRepo.FindAllProfileEscalationLevels();
             var handlersOnly = profileEscalationLevels.Where(x => x.EscalationLevel.Caption.ToLower().Contains("handler")).ToList();
             if (handlersOnly == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var profileEscalationLevelTransferDTO = _mapper.Map<IEnumerable<ProfileEscalationLevelTransferDTO>>(handlersOnly);
             return new ApiOkResponse(profileEscalationLevelTransferDTO);
         }
 
-        public async Task<ApiResponse> GetAllProfileEscalationLevel()
+        public async Task<ApiCommonResponse> GetAllProfileEscalationLevel()
         {
             var profileEscalationLevels = await _profileEscalationLevelRepo.FindAllProfileEscalationLevels();
             if (profileEscalationLevels == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var profileEscalationLevelTransferDTO = _mapper.Map<IEnumerable<ProfileEscalationLevelTransferDTO>>(profileEscalationLevels);
             return new ApiOkResponse(profileEscalationLevelTransferDTO);
         }
 
-        public async Task<ApiResponse> GetProfileEscalationLevelById(long id)
+        public async Task<ApiCommonResponse> GetProfileEscalationLevelById(long id)
         {
             var profileEscalationLevel = await _profileEscalationLevelRepo.FindProfileEscalationLevelById(id);
             if (profileEscalationLevel == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var profileEscalationLevelTransferDTOs = _mapper.Map<ProfileEscalationLevelTransferDTO>(profileEscalationLevel);
             return new ApiOkResponse(profileEscalationLevelTransferDTOs);
         }
 
-        /*public async Task<ApiResponse> GetProfileEscalationLevelByName(string name)
+        /*public async Task<ApiCommonResponse> GetProfileEscalationLevelByName(string name)
         {
             var profileEscalationLevel = await _profileEscalationLevelRepo.FindProfileEscalationLevelByName(name);
             if (profileEscalationLevel == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var profileEscalationLevelTransferDTOs = _mapper.Map<ProfileEscalationLevelTransferDTO>(profileEscalationLevel);
             return new ApiOkResponse(profileEscalationLevelTransferDTOs);
         }*/
 
-        public async Task<ApiResponse> UpdateProfileEscalationLevel(HttpContext context, long id, ProfileEscalationLevelReceivingDTO profileEscalationLevelReceivingDTO)
+        public async Task<ApiCommonResponse> UpdateProfileEscalationLevel(HttpContext context, long id, ProfileEscalationLevelReceivingDTO profileEscalationLevelReceivingDTO)
         {
             var profileEscalationLevelToUpdate = await _profileEscalationLevelRepo.FindProfileEscalationLevelById(id);
             if (profileEscalationLevelToUpdate == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
 
             var summary = $"Initial details before change, \n {profileEscalationLevelToUpdate.ToString()} \n";
@@ -128,7 +128,7 @@ namespace HaloBiz.MyServices.Impl
 
             if (updatedprofileEscalationLevel == null)
             {
-                return new ApiResponse(500);
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
             ModificationHistory history = new ModificationHistory()
             {

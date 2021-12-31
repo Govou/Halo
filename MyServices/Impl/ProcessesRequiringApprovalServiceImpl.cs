@@ -26,51 +26,51 @@ namespace HaloBiz.MyServices.Impl
             this._processesRequiringApprovalRepo = processesRequiringApprovalRepo;
             this._logger = logger;
         }
-        public async  Task<ApiResponse> AddProcessesRequiringApproval(HttpContext context, ProcessesRequiringApprovalReceivingDTO processesRequiringApprovalReceivingDTO)
+        public async  Task<ApiCommonResponse> AddProcessesRequiringApproval(HttpContext context, ProcessesRequiringApprovalReceivingDTO processesRequiringApprovalReceivingDTO)
         {
             var processesRequiringApproval = _mapper.Map<ProcessesRequiringApproval>(processesRequiringApprovalReceivingDTO);
             processesRequiringApproval.CreatedById = context.GetLoggedInUserId();
             var savedProcessesRequiringApproval = await _processesRequiringApprovalRepo.SaveProcessesRequiringApproval(processesRequiringApproval);
             if (savedProcessesRequiringApproval == null)
             {
-                return new ApiResponse(500);
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
             var processesRequiringApprovalTransferDTO = _mapper.Map<ProcessesRequiringApprovalTransferDTO>(processesRequiringApproval);
             return new ApiOkResponse(processesRequiringApprovalTransferDTO);
         }
 
-        public async Task<ApiResponse> DeleteProcessesRequiringApproval(long id)
+        public async Task<ApiCommonResponse> DeleteProcessesRequiringApproval(long id)
         {
             var processesRequiringApprovalToDelete = await _processesRequiringApprovalRepo.FindProcessesRequiringApprovalById(id);
             if(processesRequiringApprovalToDelete == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             if (!await _processesRequiringApprovalRepo.DeleteProcessesRequiringApproval(processesRequiringApprovalToDelete))
             {
-                return new ApiResponse(500);
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
 
-            return new ApiOkResponse(true);
+            return CommonResponse.Send(ResponseCodes.SUCCESS);
         }
 
-        public async Task<ApiResponse> GetAllProcessesRequiringApproval()
+        public async Task<ApiCommonResponse> GetAllProcessesRequiringApproval()
         {
             var processesRequiringApproval = await _processesRequiringApprovalRepo.GetProcessesRequiringApprovals();
             if (processesRequiringApproval == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var processesRequiringApprovalTransferDTO = _mapper.Map<IEnumerable<ProcessesRequiringApprovalTransferDTO>>(processesRequiringApproval);
             return new ApiOkResponse(processesRequiringApprovalTransferDTO);
         }
 
-        public  async Task<ApiResponse> UpdateProcessesRequiringApproval(HttpContext context, long id, ProcessesRequiringApprovalReceivingDTO processesRequiringApprovalReceivingDTO)
+        public  async Task<ApiCommonResponse> UpdateProcessesRequiringApproval(HttpContext context, long id, ProcessesRequiringApprovalReceivingDTO processesRequiringApprovalReceivingDTO)
         {
             var processesRequiringApprovalToUpdate = await _processesRequiringApprovalRepo.FindProcessesRequiringApprovalById(id);
             if (processesRequiringApprovalToUpdate == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             
             var summary = $"Initial details before change, \n {processesRequiringApprovalToUpdate.ToString()} \n" ;
@@ -83,7 +83,7 @@ namespace HaloBiz.MyServices.Impl
 
             if (updatedProcessesRequiringApproval == null)
             {
-                return new ApiResponse(500);
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
             ModificationHistory history = new ModificationHistory(){
                 ModelChanged = "ProcessesRequiringApproval",

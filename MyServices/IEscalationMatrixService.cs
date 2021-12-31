@@ -10,12 +10,12 @@ namespace HaloBiz.MyServices
 {
     public interface IEscalationMatrixService
     {
-        Task<ApiResponse> AddEscalationMatrix(HttpContext context, EscalationMatrixReceivingDTO escalationMatrixReceivingDTO);
-        Task<ApiResponse> GetAllEscalationMatrix();
-        Task<ApiResponse> GetHandlers(long complaintTypeId);
-        Task<ApiResponse> GetEscalationMatrixById(long id);
-        //Task<ApiResponse> GetEscalationMatrixByName(string name);
-        Task<ApiResponse> UpdateEscalationMatrix(HttpContext context, long id, EscalationMatrixReceivingDTO escalationMatrixReceivingDTO);
-        Task<ApiResponse> DeleteEscalationMatrix(long id);
+        Task<ApiCommonResponse> AddEscalationMatrix(HttpContext context, EscalationMatrixReceivingDTO escalationMatrixReceivingDTO);
+        Task<ApiCommonResponse> GetAllEscalationMatrix();
+        Task<ApiCommonResponse> GetHandlers(long complaintTypeId);
+        Task<ApiCommonResponse> GetEscalationMatrixById(long id);
+        //Task<ApiCommonResponse> GetEscalationMatrixByName(string name);
+        Task<ApiCommonResponse> UpdateEscalationMatrix(HttpContext context, long id, EscalationMatrixReceivingDTO escalationMatrixReceivingDTO);
+        Task<ApiCommonResponse> DeleteEscalationMatrix(long id);
     }
 }

@@ -24,58 +24,58 @@ namespace HaloBiz.MyServices.Impl
             this._zoneRepo = _zoneRepo;
         }
 
-        public async Task<ApiResponse> AddZone(HttpContext context, ZoneReceivingDTO zoneReceivingDTO)
+        public async Task<ApiCommonResponse> AddZone(HttpContext context, ZoneReceivingDTO zoneReceivingDTO)
         {
             var zone = _mapper.Map<Zone>(zoneReceivingDTO);
             zone.CreatedById = context.GetLoggedInUserId();
             var savedZone = await _zoneRepo.SaveZone(zone);
             if (savedZone == null)
             {
-                return new ApiResponse(500);
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
             var zoneTransferDTO = _mapper.Map<ZoneTransferDTO>(zone);
             return new ApiOkResponse(zoneTransferDTO);
         }
 
-        public async Task<ApiResponse> GetAllZones()
+        public async Task<ApiCommonResponse> GetAllZones()
         {
             var zones = await _zoneRepo.FindAllZones();
             if (zones == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var zoneTransferDTO = _mapper.Map<IEnumerable<ZoneTransferDTO>>(zones);
             return new ApiOkResponse(zoneTransferDTO);
         }
 
-        public async Task<ApiResponse> GetZoneById(long id)
+        public async Task<ApiCommonResponse> GetZoneById(long id)
         {
             var zone = await _zoneRepo.FindZoneById(id);
             if (zone == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var zoneTransferDTO = _mapper.Map<ZoneTransferDTO>(zone);
             return new ApiOkResponse(zoneTransferDTO);
         }
 
-        public async Task<ApiResponse> GetZoneByName(string name)
+        public async Task<ApiCommonResponse> GetZoneByName(string name)
         {
             var zone = await _zoneRepo.FindZoneByName(name);
             if (zone == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var zoneTransferDTOs = _mapper.Map<ZoneTransferDTO>(zone);
             return new ApiOkResponse(zoneTransferDTOs);
         }
 
-        public async Task<ApiResponse> UpdateZone(HttpContext context, long id, ZoneReceivingDTO zoneReceivingDTO)
+        public async Task<ApiCommonResponse> UpdateZone(HttpContext context, long id, ZoneReceivingDTO zoneReceivingDTO)
         {
             var zoneToUpdate = await _zoneRepo.FindZoneById(id);
             if (zoneToUpdate == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             
             var summary = $"Initial details before change, \n {zoneToUpdate.ToString()} \n" ;
@@ -92,7 +92,7 @@ namespace HaloBiz.MyServices.Impl
 
             if (updatedZone == null)
             {
-                return new ApiResponse(500);
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
             ModificationHistory history = new ModificationHistory(){
                 ModelChanged = "Zone",
@@ -108,21 +108,21 @@ namespace HaloBiz.MyServices.Impl
 
         }
 
-        public async Task<ApiResponse> DeleteZone(long id)
+        public async Task<ApiCommonResponse> DeleteZone(long id)
         {
             var zoneToDelete = await _zoneRepo.FindZoneById(id);
 
             if (zoneToDelete == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
 
             if (!await _zoneRepo.DeleteZone(zoneToDelete))
             {
-                return new ApiResponse(500);
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
 
-            return new ApiOkResponse(true);
+            return CommonResponse.Send(ResponseCodes.SUCCESS);
         }
 
        

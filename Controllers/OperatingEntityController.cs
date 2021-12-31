@@ -23,7 +23,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpGet("")]
-        public async Task<ActionResult> GetOperatingEntities()
+        public async Task<ApiCommonResponse> GetOperatingEntities()
         {
             var response = await _operatingEntityService.GetAllOperatingEntities();
             if (response.StatusCode >= 400)
@@ -32,7 +32,7 @@ namespace HaloBiz.Controllers
             return Ok((IEnumerable<OperatingEntityTransferDTO>)operatingEntity);
         }
         [HttpGet("SbuProportion")]
-        public async Task<ActionResult> GetOperatingEntitiesAndSbuproportion()
+        public async Task<ApiCommonResponse> GetOperatingEntitiesAndSbuproportion()
         {
             var response = await _operatingEntityService.GetAllOperatingEntitiesAndSbuproportion();
             if (response.StatusCode >= 400)
@@ -41,7 +41,7 @@ namespace HaloBiz.Controllers
             return Ok(operatingEntity);
         }
         [HttpGet("name/{name}")]
-        public async Task<ActionResult> GetByName(string name)
+        public async Task<ApiCommonResponse> GetByName(string name)
         {
             var response = await _operatingEntityService.GetOperatingEntityByName(name);
             if (response.StatusCode >= 400)
@@ -51,7 +51,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult> GetById(long id)
+        public async Task<ApiCommonResponse> GetById(long id)
         {
             var response = await _operatingEntityService.GetOperatingEntityById(id);
             if (response.StatusCode >= 400)
@@ -61,7 +61,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpPost("")]
-        public async Task<ActionResult> AddNew(OperatingEntityReceivingDTO operatingEntityReceiving)
+        public async Task<ApiCommonResponse> AddNew(OperatingEntityReceivingDTO operatingEntityReceiving)
         {
             var response = await _operatingEntityService.AddOperatingEntity(operatingEntityReceiving);
             if (response.StatusCode >= 400)
@@ -81,7 +81,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpDelete("{id}")]
-        public async Task<ActionResult> DeleteById(int id)
+        public async Task<ApiCommonResponse> DeleteById(int id)
         {
             var response = await _operatingEntityService.DeleteOperatingEntity(id);
             return StatusCode(response.StatusCode);

@@ -20,7 +20,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpPost("MigrateNewCustomersToDTRACK")]
-        public async Task<ActionResult> MigrateNewCustomersToDTRACK()
+        public async Task<ApiCommonResponse> MigrateNewCustomersToDTRACK()
         {
             var response = await _cronJobService.MigrateNewCustomersToDTRACK(HttpContext);
             if (response.StatusCode >= 400)
@@ -30,7 +30,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpPost("PostNewAccountingRecordsToDTRACK")]
-        public async Task<ActionResult> PostNewAccountingRecordsToDTRACK()
+        public async Task<ApiCommonResponse> PostNewAccountingRecordsToDTRACK()
         {
             var response = await _cronJobService.PostNewAccountingRecordsToDTRACK(HttpContext);
             if (response.StatusCode >= 400)

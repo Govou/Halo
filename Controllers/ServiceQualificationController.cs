@@ -23,7 +23,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpGet("")]
-        public async Task<ActionResult> GetServiceQualification()
+        public async Task<ApiCommonResponse> GetServiceQualification()
         {
             var response = await _ServiceQualificationService.GetAllServiceQualification();
             if (response.StatusCode >= 400)
@@ -32,7 +32,7 @@ namespace HaloBiz.Controllers
             return Ok(ServiceQualification);
         }
         /*[HttpGet("caption/{name}")]
-        public async Task<ActionResult> GetByCaption(string name)
+        public async Task<ApiCommonResponse> GetByCaption(string name)
         {
             var response = await _ServiceQualificationService.GetServiceQualificationByName(name);
             if (response.StatusCode >= 400)
@@ -42,7 +42,7 @@ namespace HaloBiz.Controllers
         }*/
 
         [HttpGet("{id}")]
-        public async Task<ActionResult> GetById(long id)
+        public async Task<ApiCommonResponse> GetById(long id)
         {
             var response = await _ServiceQualificationService.GetServiceQualificationById(id);
             if (response.StatusCode >= 400)
@@ -52,7 +52,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpPost("")]
-        public async Task<ActionResult> AddNewServiceQualification(ServiceQualificationReceivingDTO ServiceQualificationReceiving)
+        public async Task<ApiCommonResponse> AddNewServiceQualification(ServiceQualificationReceivingDTO ServiceQualificationReceiving)
         {
             var response = await _ServiceQualificationService.AddServiceQualification(HttpContext, ServiceQualificationReceiving);
             if (response.StatusCode >= 400)
@@ -72,7 +72,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpDelete("{id}")]
-        public async Task<ActionResult> DeleteById(int id)
+        public async Task<ApiCommonResponse> DeleteById(int id)
         {
             var response = await _ServiceQualificationService.DeleteServiceQualification(id);
             return StatusCode(response.StatusCode);

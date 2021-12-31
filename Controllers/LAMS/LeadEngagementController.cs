@@ -23,7 +23,7 @@ namespace Controllers.Controllers
         }
 
         [HttpGet("")]
-        public async Task<ActionResult> GetLeadEngagement()
+        public async Task<ApiCommonResponse> GetLeadEngagement()
         {
             var response = await _leadEngagementService.GetAllLeadEngagement();
             if (response.StatusCode >= 400)
@@ -32,7 +32,7 @@ namespace Controllers.Controllers
             return Ok(leadEngagement);
         }
         [HttpGet("caption/{name}")]
-        public async Task<ActionResult> GetByCaption(string name)
+        public async Task<ApiCommonResponse> GetByCaption(string name)
         {
             var response = await _leadEngagementService.GetLeadEngagementByName(name);
             if (response.StatusCode >= 400)
@@ -42,7 +42,7 @@ namespace Controllers.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult> GetById(long id)
+        public async Task<ApiCommonResponse> GetById(long id)
         {
             var response = await _leadEngagementService.GetLeadEngagementById(id);
             if (response.StatusCode >= 400)
@@ -52,7 +52,7 @@ namespace Controllers.Controllers
         }
 
         [HttpGet("GetLeadEngagementsByLeadId/{leadId}")]
-        public async Task<ActionResult> FindLeadEngagementsByLeadId(long leadId)
+        public async Task<ApiCommonResponse> FindLeadEngagementsByLeadId(long leadId)
         {
             var response = await _leadEngagementService.FindLeadEngagementsByLeadId(leadId);
             if (response.StatusCode >= 400)
@@ -62,7 +62,7 @@ namespace Controllers.Controllers
         }
 
         [HttpPost("")]
-        public async Task<ActionResult> AddNewLeadEngagement(LeadEngagementReceivingDTO leadEngagementReceiving)
+        public async Task<ApiCommonResponse> AddNewLeadEngagement(LeadEngagementReceivingDTO leadEngagementReceiving)
         {
             var response = await _leadEngagementService.AddLeadEngagement(HttpContext, leadEngagementReceiving);
             if (response.StatusCode >= 400)
@@ -82,7 +82,7 @@ namespace Controllers.Controllers
         }
 
         [HttpDelete("{id}")]
-        public async Task<ActionResult> DeleteById(int id)
+        public async Task<ApiCommonResponse> DeleteById(int id)
         {
             var response = await _leadEngagementService.DeleteLeadEngagement(id);
             return StatusCode(response.StatusCode);

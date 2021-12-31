@@ -30,7 +30,7 @@ namespace HaloBiz.MyServices.Impl
             this._logger = logger;
         }
 
-        public async Task<ApiResponse> AddAppFeedback(HttpContext context, AppFeedbackReceivingDTO appFeedbackReceivingDTO)
+        public async Task<ApiCommonResponse> AddAppFeedback(HttpContext context, AppFeedbackReceivingDTO appFeedbackReceivingDTO)
         {
 
             var appFeedback = _mapper.Map<AppFeedback>(appFeedbackReceivingDTO);
@@ -38,56 +38,56 @@ namespace HaloBiz.MyServices.Impl
             var savedappFeedback = await _appFeedbackRepo.SaveAppFeedback(appFeedback);
             if (savedappFeedback == null)
             {
-                return new ApiResponse(500);
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
             var appFeedbackTransferDTO = _mapper.Map<AppFeedbackTransferDTO>(appFeedback);
             return new ApiOkResponse(appFeedbackTransferDTO);
         }
 
-        public async Task<ApiResponse> DeleteAppFeedback(long id)
+        public async Task<ApiCommonResponse> DeleteAppFeedback(long id)
         {
             var appFeedbackToDelete = await _appFeedbackRepo.FindAppFeedbackById(id);
             if (appFeedbackToDelete == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
 
             if (!await _appFeedbackRepo.DeleteAppFeedback(appFeedbackToDelete))
             {
-                return new ApiResponse(500);
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
 
-            return new ApiOkResponse(true);
+            return CommonResponse.Send(ResponseCodes.SUCCESS);
         }
 
-        public async Task<ApiResponse> GetAllAppFeedback()
+        public async Task<ApiCommonResponse> GetAllAppFeedback()
         {
             var appFeedbacks = await _appFeedbackRepo.FindAllAppFeedbacks();
             if (appFeedbacks == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var appFeedbackTransferDTO = _mapper.Map<IEnumerable<AppFeedbackTransferDTO>>(appFeedbacks);
             return new ApiOkResponse(appFeedbackTransferDTO);
         }
 
-        public async Task<ApiResponse> GetAppFeedbackById(long id)
+        public async Task<ApiCommonResponse> GetAppFeedbackById(long id)
         {
             var appFeedback = await _appFeedbackRepo.FindAppFeedbackById(id);
             if (appFeedback == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var appFeedbackTransferDTOs = _mapper.Map<AppFeedbackTransferDTO>(appFeedback);
             return new ApiOkResponse(appFeedbackTransferDTOs);
         }
 
-        public async Task<ApiResponse> UpdateAppFeedback(HttpContext context, long id, AppFeedbackReceivingDTO appFeedbackReceivingDTO)
+        public async Task<ApiCommonResponse> UpdateAppFeedback(HttpContext context, long id, AppFeedbackReceivingDTO appFeedbackReceivingDTO)
         {
             var appFeedbackToUpdate = await _appFeedbackRepo.FindAppFeedbackById(id);
             if (appFeedbackToUpdate == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
 
             var summary = $"Initial details before change, \n {appFeedbackToUpdate.ToString()} \n";
@@ -102,7 +102,7 @@ namespace HaloBiz.MyServices.Impl
 
             if (updatedappFeedback == null)
             {
-                return new ApiResponse(500);
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
             ModificationHistory history = new ModificationHistory()
             {

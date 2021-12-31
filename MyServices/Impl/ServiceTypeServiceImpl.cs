@@ -29,7 +29,7 @@ namespace HaloBiz.MyServices.Impl
             this._logger = logger;
         }
 
-        public async Task<ApiResponse> AddServiceType(HttpContext context, ServiceTypeReceivingDTO serviceTypeReceivingDTO)
+        public async Task<ApiCommonResponse> AddServiceType(HttpContext context, ServiceTypeReceivingDTO serviceTypeReceivingDTO)
         {
 
             var serviceType = _mapper.Map<ServiceType>(serviceTypeReceivingDTO);
@@ -37,67 +37,67 @@ namespace HaloBiz.MyServices.Impl
             var savedserviceType = await _serviceTypeRepo.SaveServiceType(serviceType);
             if (savedserviceType == null)
             {
-                return new ApiResponse(500);
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
             var serviceTypeTransferDTO = _mapper.Map<ServiceTypeTransferDTO>(serviceType);
             return new ApiOkResponse(serviceTypeTransferDTO);
         }
 
-        public async Task<ApiResponse> DeleteServiceType(long id)
+        public async Task<ApiCommonResponse> DeleteServiceType(long id)
         {
             var serviceTypeToDelete = await _serviceTypeRepo.FindServiceTypeById(id);
             if (serviceTypeToDelete == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
 
             if (!await _serviceTypeRepo.DeleteServiceType(serviceTypeToDelete))
             {
-                return new ApiResponse(500);
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
 
-            return new ApiOkResponse(true);
+            return CommonResponse.Send(ResponseCodes.SUCCESS);
         }
 
-        public async Task<ApiResponse> GetAllServiceType()
+        public async Task<ApiCommonResponse> GetAllServiceType()
         {
             var serviceTypes = await _serviceTypeRepo.FindAllServiceTypes();
             if (serviceTypes == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var serviceTypeTransferDTO = _mapper.Map<IEnumerable<ServiceTypeTransferDTO>>(serviceTypes);
             return new ApiOkResponse(serviceTypeTransferDTO);
         }
 
-        public async Task<ApiResponse> GetServiceTypeById(long id)
+        public async Task<ApiCommonResponse> GetServiceTypeById(long id)
         {
             var serviceType = await _serviceTypeRepo.FindServiceTypeById(id);
             if (serviceType == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var serviceTypeTransferDTOs = _mapper.Map<ServiceTypeTransferDTO>(serviceType);
             return new ApiOkResponse(serviceTypeTransferDTOs);
         }
 
-        public async Task<ApiResponse> GetServiceTypeByName(string name)
+        public async Task<ApiCommonResponse> GetServiceTypeByName(string name)
         {
             var serviceType = await _serviceTypeRepo.FindServiceTypeByName(name);
             if (serviceType == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var serviceTypeTransferDTOs = _mapper.Map<ServiceTypeTransferDTO>(serviceType);
             return new ApiOkResponse(serviceTypeTransferDTOs);
         }
 
-        public async Task<ApiResponse> UpdateServiceType(HttpContext context, long id, ServiceTypeReceivingDTO serviceTypeReceivingDTO)
+        public async Task<ApiCommonResponse> UpdateServiceType(HttpContext context, long id, ServiceTypeReceivingDTO serviceTypeReceivingDTO)
         {
             var serviceTypeToUpdate = await _serviceTypeRepo.FindServiceTypeById(id);
             if (serviceTypeToUpdate == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
 
             var summary = $"Initial details before change, \n {serviceTypeToUpdate.ToString()} \n";
@@ -110,7 +110,7 @@ namespace HaloBiz.MyServices.Impl
 
             if (updatedserviceType == null)
             {
-                return new ApiResponse(500);
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
             ModificationHistory history = new ModificationHistory()
             {

@@ -18,7 +18,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpGet("")]
-        public async Task<ActionResult> GetRequredServiceQualificationElement()
+        public async Task<ApiCommonResponse> GetRequredServiceQualificationElement()
         {
             var response = await _RequredServiceQualificationElementService.GetAllRequredServiceQualificationElements();
             if (response.StatusCode >= 400)
@@ -28,7 +28,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpGet("GetByServiceCategory")]
-        public async Task<ActionResult> GetRequredServiceQualificationElementByServiceCategory(long serviceCategoryId)
+        public async Task<ApiCommonResponse> GetRequredServiceQualificationElementByServiceCategory(long serviceCategoryId)
         {
             var response = await _RequredServiceQualificationElementService.GetAllRequredServiceQualificationElementsByServiceCategory(serviceCategoryId);
             if (response.StatusCode >= 400)
@@ -38,7 +38,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpGet("name/{name}")]
-        public async Task<ActionResult> GetByCaption(string name)
+        public async Task<ApiCommonResponse> GetByCaption(string name)
         {
             var response = await _RequredServiceQualificationElementService.GetRequredServiceQualificationElementByName(name);
             if (response.StatusCode >= 400)
@@ -48,7 +48,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult> GetById(long id)
+        public async Task<ApiCommonResponse> GetById(long id)
         {
             var response = await _RequredServiceQualificationElementService.GetRequredServiceQualificationElementById(id);
             if (response.StatusCode >= 400)
@@ -58,7 +58,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpPost("")]
-        public async Task<ActionResult> AddNewRequredServiceQualificationElement(RequredServiceQualificationElementReceivingDTO RequredServiceQualificationElementReceiving)
+        public async Task<ApiCommonResponse> AddNewRequredServiceQualificationElement(RequredServiceQualificationElementReceivingDTO RequredServiceQualificationElementReceiving)
         {
             var response = await _RequredServiceQualificationElementService.AddRequredServiceQualificationElement(HttpContext, RequredServiceQualificationElementReceiving);
             if (response.StatusCode >= 400)
@@ -78,7 +78,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpDelete("{id}")]
-        public async Task<ActionResult> DeleteById(int id)
+        public async Task<ApiCommonResponse> DeleteById(int id)
         {
             var response = await _RequredServiceQualificationElementService.DeleteRequredServiceQualificationElement(id);
             return StatusCode(response.StatusCode);

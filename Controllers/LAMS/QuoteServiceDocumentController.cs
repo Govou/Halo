@@ -23,7 +23,7 @@ namespace Controllers.Controllers
         }
 
         [HttpGet("")]
-        public async Task<ActionResult> GetQuoteServiceDocument()
+        public async Task<ApiCommonResponse> GetQuoteServiceDocument()
         {
             var response = await _quoteServiceDocumentService.GetAllQuoteServiceDocument();
             if (response.StatusCode >= 400)
@@ -33,7 +33,7 @@ namespace Controllers.Controllers
         }
 
         [HttpGet("QuoteService/{quoteServiceId}")]
-        public async Task<ActionResult> GetQuoteServiceDocumentsForAQuoteService(long quoteServiceId)
+        public async Task<ApiCommonResponse> GetQuoteServiceDocumentsForAQuoteService(long quoteServiceId)
         {
             var response = await _quoteServiceDocumentService.GetAllQuoteServiceDocumentForAQuoteService(quoteServiceId);
             if (response.StatusCode >= 400)
@@ -43,7 +43,7 @@ namespace Controllers.Controllers
         }
 
         [HttpGet("caption/{caption}")]
-        public async Task<ActionResult> GetByCaption(string caption)
+        public async Task<ApiCommonResponse> GetByCaption(string caption)
         {
             var response = await _quoteServiceDocumentService.GetQuoteServiceDocumentByCaption(caption);
             if (response.StatusCode >= 400)
@@ -53,7 +53,7 @@ namespace Controllers.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult> GetById(long id)
+        public async Task<ApiCommonResponse> GetById(long id)
         {
             var response = await _quoteServiceDocumentService.GetQuoteServiceDocumentById(id);
             if (response.StatusCode >= 400)
@@ -63,7 +63,7 @@ namespace Controllers.Controllers
         }
 
         [HttpPost("")]
-        public async Task<ActionResult> AddNewQuoteServiceDocument(QuoteServiceDocumentReceivingDTO quoteServiceDocumentReceiving)
+        public async Task<ApiCommonResponse> AddNewQuoteServiceDocument(QuoteServiceDocumentReceivingDTO quoteServiceDocumentReceiving)
         {
             if (quoteServiceDocumentReceiving.IsGroupUpload && quoteServiceDocumentReceiving.QuoteId == 0)
             {
@@ -92,7 +92,7 @@ namespace Controllers.Controllers
         }
 
         [HttpDelete("{id}")]
-        public async Task<ActionResult> DeleteById(int id)
+        public async Task<ApiCommonResponse> DeleteById(int id)
         {
             var response = await _quoteServiceDocumentService.DeleteQuoteServiceDocument(id);
             return StatusCode(response.StatusCode);

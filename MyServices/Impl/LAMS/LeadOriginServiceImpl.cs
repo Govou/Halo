@@ -32,58 +32,58 @@ namespace HaloBiz.MyServices.Impl.LAMS
             this._logger = logger;
         }
 
-        public async Task<ApiResponse> AddLeadOrigin(HttpContext context, LeadOriginReceivingDTO leadOriginReceivingDTO)
+        public async Task<ApiCommonResponse> AddLeadOrigin(HttpContext context, LeadOriginReceivingDTO leadOriginReceivingDTO)
         {
             var leadOrigin = _mapper.Map<LeadOrigin>(leadOriginReceivingDTO);
             leadOrigin.CreatedById = context.GetLoggedInUserId();
             var savedLeadOrigin = await _leadOriginRepo.SaveLeadOrigin(leadOrigin);
             if (savedLeadOrigin == null)
             {
-                return new ApiResponse(500);
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
             var leadOriginTransferDTO = _mapper.Map<LeadOriginTransferDTO>(savedLeadOrigin);
             return new ApiOkResponse(leadOriginTransferDTO);
         }
 
-        public async Task<ApiResponse> GetAllLeadOrigin()
+        public async Task<ApiCommonResponse> GetAllLeadOrigin()
         {
             var leadOrigins = await _leadOriginRepo.FindAllLeadOrigin();
             if (leadOrigins == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var leadOriginTransferDTO = _mapper.Map<IEnumerable<LeadOriginTransferDTO>>(leadOrigins);
             return new ApiOkResponse(leadOriginTransferDTO);
         }
 
-        public async Task<ApiResponse> GetLeadOriginById(long id)
+        public async Task<ApiCommonResponse> GetLeadOriginById(long id)
         {
             var leadOrigin = await _leadOriginRepo.FindLeadOriginById(id);
             if (leadOrigin == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var leadOriginTransferDTO = _mapper.Map<LeadOriginTransferDTO>(leadOrigin);
             return new ApiOkResponse(leadOriginTransferDTO);
         }
 
-        public async Task<ApiResponse> GetLeadOriginByName(string name)
+        public async Task<ApiCommonResponse> GetLeadOriginByName(string name)
         {
             var leadOrigin = await _leadOriginRepo.FindLeadOriginByName(name);
             if (leadOrigin == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var leadOriginTransferDTOs = _mapper.Map<LeadOriginTransferDTO>(leadOrigin);
             return new ApiOkResponse(leadOriginTransferDTOs);
         }
 
-        public async Task<ApiResponse> UpdateLeadOrigin(HttpContext context, long id, LeadOriginReceivingDTO LeadOriginReceivingDTO)
+        public async Task<ApiCommonResponse> UpdateLeadOrigin(HttpContext context, long id, LeadOriginReceivingDTO LeadOriginReceivingDTO)
         {
             var leadOriginToUpdate = await _leadOriginRepo.FindLeadOriginById(id);
             if (leadOriginToUpdate == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             
             var summary = $"Initial details before change, \n {leadOriginToUpdate.ToString()} \n" ;
@@ -97,7 +97,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
             if (updatedLeadOrigin == null)
             {
-                return new ApiResponse(500);
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
             ModificationHistory history = new ModificationHistory(){
                 ModelChanged = "LeadOrigin",
@@ -113,20 +113,20 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
         }
 
-        public async Task<ApiResponse> DeleteLeadOrigin(long id)
+        public async Task<ApiCommonResponse> DeleteLeadOrigin(long id)
         {
             var leadOriginToDelete = await _leadOriginRepo.FindLeadOriginById(id);
             if (leadOriginToDelete == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
 
             if (!await _leadOriginRepo.DeleteLeadOrigin(leadOriginToDelete))
             {
-                return new ApiResponse(500);
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
 
-            return new ApiOkResponse(true);
+            return CommonResponse.Send(ResponseCodes.SUCCESS);
         }
     }
 }

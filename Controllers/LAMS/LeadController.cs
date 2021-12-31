@@ -25,7 +25,7 @@ namespace HaloBiz.Controllers.LAMS
         }
 
         [HttpGet("")]
-        public async Task<ActionResult> GetLead()
+        public async Task<ApiCommonResponse> GetLead()
         {
             var response = await _leadService.GetAllLead();
             if (response.StatusCode >= 400)
@@ -35,7 +35,7 @@ namespace HaloBiz.Controllers.LAMS
         }
 
         [HttpGet("GetUserLeads")]
-        public async Task<ActionResult> GetUserLeads()
+        public async Task<ApiCommonResponse> GetUserLeads()
         {
             var response = await _leadService.GetUserLeads(HttpContext);
             if (response.StatusCode >= 400)
@@ -45,7 +45,7 @@ namespace HaloBiz.Controllers.LAMS
         }
 
         [HttpGet("GetUnApprovedLeads")]
-        public async Task<ActionResult> GetUnApprovedLeads()
+        public async Task<ApiCommonResponse> GetUnApprovedLeads()
         {
             var response = await _leadService.GetAllUnApprovedLeads();
             if (response.StatusCode >= 400)
@@ -55,7 +55,7 @@ namespace HaloBiz.Controllers.LAMS
         }
 
         [HttpGet("ReferenceNumber/{refNo}")]
-        public async Task<ActionResult> GetByCaption(string refNo)
+        public async Task<ApiCommonResponse> GetByCaption(string refNo)
         {
             var response = await _leadService.GetLeadByReferenceNumber(refNo);
             if (response.StatusCode >= 400)
@@ -65,7 +65,7 @@ namespace HaloBiz.Controllers.LAMS
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult> GetById(long id)
+        public async Task<ApiCommonResponse> GetById(long id)
         {
             var response = await _leadService.GetLeadById(id);
             if (response.StatusCode >= 400)
@@ -75,7 +75,7 @@ namespace HaloBiz.Controllers.LAMS
         }
         
         [HttpPut("SetUpLeadForApproval/{id}")]
-        public async Task<ActionResult> SetUpLeadForApproval(long id)
+        public async Task<ApiCommonResponse> SetUpLeadForApproval(long id)
         {
             var response = await _leadService.SetUpLeadForApproval(HttpContext, id);
             if (response.StatusCode >= 400)
@@ -85,7 +85,7 @@ namespace HaloBiz.Controllers.LAMS
         }
 
         [HttpPut("ConvertLeadToClient/{id}")]
-        public async Task<ActionResult> ConvertLeadToClient(long id)
+        public async Task<ApiCommonResponse> ConvertLeadToClient(long id)
         {
             var response = await _leadService.ConvertLeadToClient(HttpContext, id);
             if (response.StatusCode >= 400)
@@ -115,7 +115,7 @@ namespace HaloBiz.Controllers.LAMS
         }
 
         [HttpPost("")]
-        public async Task<ActionResult> AddNewLead(LeadReceivingDTO leadReceiving)
+        public async Task<ApiCommonResponse> AddNewLead(LeadReceivingDTO leadReceiving)
         {
             var response = await _leadService.AddLead(HttpContext, leadReceiving);
             if (response.StatusCode >= 400)

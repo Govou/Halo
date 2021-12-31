@@ -24,7 +24,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpPost("")]
-        public async Task<ActionResult> AttachManagerToServiceCategory(ProjectAllocationRecievingDTO projectAllocationRecievingDTO)
+        public async Task<ApiCommonResponse> AttachManagerToServiceCategory(ProjectAllocationRecievingDTO projectAllocationRecievingDTO)
         {
             var response = await _projectAllocationService.AddNewManager(HttpContext, projectAllocationRecievingDTO);
             if (response.StatusCode >= 400)
@@ -35,7 +35,7 @@ namespace HaloBiz.Controllers
 
 
         [HttpGet("{id}/{email}")]
-        public async Task<ActionResult> GetManagersAttachedToServiceCategory(string email,int id)
+        public async Task<ApiCommonResponse> GetManagersAttachedToServiceCategory(string email,int id)
         {
             var response = await _projectAllocationService.getManagersProjects(email,id);
             if (response.StatusCode >= 400)
@@ -45,7 +45,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpGet("{categoryId}")]
-        public async Task<ActionResult> GetServiceCategoryAttachedToASingleManager(int categoryId)
+        public async Task<ApiCommonResponse> GetServiceCategoryAttachedToASingleManager(int categoryId)
         {
             var response = await _projectAllocationService.getProjectManagers(categoryId);
             if (response.StatusCode >= 400)
@@ -55,7 +55,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpDelete("{id}/{categoryId}/{projectId}")]
-        public async Task<ActionResult> DetachManagerFromServiceCategory(int id,int categoryId,long projectId)
+        public async Task<ApiCommonResponse> DetachManagerFromServiceCategory(int id,int categoryId,long projectId)
         {
             var response = await _projectAllocationService.removeFromCategory(id,categoryId,projectId);
             var responseFeedback = ((ApiOkResponse)response).Result;
@@ -63,7 +63,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpPost("workspace")]
-        public async Task<ActionResult> CreateWorkspace(WorkspaceDTO workspaceDTO)
+        public async Task<ApiCommonResponse> CreateWorkspace(WorkspaceDTO workspaceDTO)
         {
             var response = await _projectAllocationService.CreateNewWorkspace(HttpContext, workspaceDTO);
             return Ok(response);
@@ -71,7 +71,7 @@ namespace HaloBiz.Controllers
 
 
         [HttpPost("defaultStatus")]
-        public async Task<ActionResult> CreateDefaultStatus(List<DefaultStatusDTO> defaultStatusFlow)
+        public async Task<ApiCommonResponse> CreateDefaultStatus(List<DefaultStatusDTO> defaultStatusFlow)
         {
             var response = await _projectAllocationService.createDefaultStatus(HttpContext, defaultStatusFlow);
             return Ok(response);
@@ -80,7 +80,7 @@ namespace HaloBiz.Controllers
 
         [HttpGet("GetAllWorkspaces")]
 
-        public async Task<ActionResult> GetAllWorkspaces()
+        public async Task<ApiCommonResponse> GetAllWorkspaces()
         {
             var response = await _projectAllocationService.getAllWorkspaces(HttpContext);
             return Ok(response);
@@ -88,7 +88,7 @@ namespace HaloBiz.Controllers
 
         [HttpGet("GetWorkspaceById/{id}")]
 
-        public async Task<ActionResult> GetWorkspaceById(long id)
+        public async Task<ApiCommonResponse> GetWorkspaceById(long id)
         {
             var response = await _projectAllocationService.getWorkspaceById(id);
             return Ok(response);
@@ -96,7 +96,7 @@ namespace HaloBiz.Controllers
 
         [HttpGet("GetWorkspaceByCaption/{caption}")]
 
-        public async Task<ActionResult> GetWorkspaceByCaption(string caption)
+        public async Task<ApiCommonResponse> GetWorkspaceByCaption(string caption)
         {
             var response = await _projectAllocationService.getWorkspaceByCaption(caption);
             return Ok(response);
@@ -105,7 +105,7 @@ namespace HaloBiz.Controllers
 
         [HttpGet("GetAllProjectManagers")]
 
-        public async Task<ActionResult> GetAllProjectManagers()
+        public async Task<ApiCommonResponse> GetAllProjectManagers()
         {
             var response = await _projectAllocationService.getAllProjectManagers();
             return Ok(response);
@@ -113,7 +113,7 @@ namespace HaloBiz.Controllers
 
         [HttpGet("GetDefaultStatus")]
 
-        public async Task<ActionResult> GetDefaultStatus()
+        public async Task<ApiCommonResponse> GetDefaultStatus()
         {
             var response = await _projectAllocationService.getAllDefaultStatus();
             return Ok(response);
@@ -123,7 +123,7 @@ namespace HaloBiz.Controllers
 
 
         [HttpDelete("workspace/{id}")]
-        public async Task<ActionResult> DisableWorkspace(int id)
+        public async Task<ApiCommonResponse> DisableWorkspace(int id)
         {
             var response = await _projectAllocationService.disableWorkspace(id);
             var responseFeedback = ((ApiOkResponse)response).Result;
@@ -131,7 +131,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpPut("workspace/{id}")]
-        public async Task<ActionResult> UpdateWorkspace(long id,UpdateWorkspaceDTO workspaceDTO)
+        public async Task<ApiCommonResponse> UpdateWorkspace(long id,UpdateWorkspaceDTO workspaceDTO)
         {
             var response = await _projectAllocationService.updateWorkspace(HttpContext, id,workspaceDTO);
             var responseFeedback = ((ApiOkResponse)response).Result;
@@ -139,7 +139,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpPut("addMoreProjectCreators/{id}")]
-        public async Task<ActionResult> AddMoreProjectCreators(long id, List<AddMoreUserDto> workspaceDTO)
+        public async Task<ApiCommonResponse> AddMoreProjectCreators(long id, List<AddMoreUserDto> workspaceDTO)
         {
             var response = await _projectAllocationService.addMoreProjectCreators(HttpContext, id, workspaceDTO);
             var responseFeedback = ((ApiOkResponse)response).Result;
@@ -148,7 +148,7 @@ namespace HaloBiz.Controllers
 
 
         [HttpDelete("RemoveProjectCreator/{workspaceId}/{creatorId}")]
-        public async Task<ActionResult> RemoveProjectCreator(long workspaceId,long creatorId)
+        public async Task<ApiCommonResponse> RemoveProjectCreator(long workspaceId,long creatorId)
         {
             var response = await _projectAllocationService.removeFromProjectCreator(workspaceId, creatorId);
             var responseFeedback = ((ApiOkResponse)response).Result;
@@ -157,7 +157,7 @@ namespace HaloBiz.Controllers
 
 
         [HttpPut("UpdateToPublic/{workspaceId}")]
-        public async Task<ActionResult> UpdateToPublic(long workspaceId)
+        public async Task<ApiCommonResponse> UpdateToPublic(long workspaceId)
         {
             var response = await _projectAllocationService.updateToPublic(workspaceId);
             var responseFeedback = ((ApiOkResponse)response).Result;
@@ -165,7 +165,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpDelete("DisablePrivateUser/{workspaceId}/{privateUserId}")]
-        public async Task<ActionResult> DisablePrivateUser(long workspaceId, long privateUserId)
+        public async Task<ApiCommonResponse> DisablePrivateUser(long workspaceId, long privateUserId)
         {
             var response = await _projectAllocationService.disablePrivateUser(workspaceId, privateUserId);
             var responseFeedback = ((ApiOkResponse)response).Result;
@@ -174,7 +174,7 @@ namespace HaloBiz.Controllers
 
 
         [HttpPut("addMorePrivateUsers/{workspaceId}")]
-        public async Task<ActionResult> AddMorePrivateUsers(long workspaceId, List<AddMoreUserDto>  addMoreUserDtos )
+        public async Task<ApiCommonResponse> AddMorePrivateUsers(long workspaceId, List<AddMoreUserDto>  addMoreUserDtos )
         {
             var response = await _projectAllocationService.addMorePrivateUser(HttpContext, workspaceId, addMoreUserDtos);
             var responseFeedback = ((ApiOkResponse)response).Result;
@@ -182,7 +182,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpPut("UpdateStatus/{workspaceId}/{statusFlowId}")]
-        public async Task<ActionResult> updateStatus(long workspaceId,long statusFlowId, StatusFlowDTO statusFlowDTO)
+        public async Task<ApiCommonResponse> updateStatus(long workspaceId,long statusFlowId, StatusFlowDTO statusFlowDTO)
         {
             var response = await _projectAllocationService.updateStatus(HttpContext, workspaceId, statusFlowId,statusFlowDTO);
             var responseFeedback = ((ApiOkResponse)response).Result;
@@ -190,7 +190,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpPut("AddMoreStatus/{workspaceId}")]
-        public async Task<ActionResult> addMoreStatus(long workspaceId, List<StatusFlowDTO> statusFlowDTO)
+        public async Task<ApiCommonResponse> addMoreStatus(long workspaceId, List<StatusFlowDTO> statusFlowDTO)
         {
             var response = await _projectAllocationService.addmoreStatus(HttpContext, workspaceId, statusFlowDTO);
             var responseFeedback = ((ApiOkResponse)response).Result;
@@ -198,7 +198,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpPut("MoveSequence/{workspaceId}")]
-        public async Task<ActionResult> MoveSequence(long workspaceId, List<StatusFlowDTO> statusFlowDTO)
+        public async Task<ApiCommonResponse> MoveSequence(long workspaceId, List<StatusFlowDTO> statusFlowDTO)
         {
             var response = await _projectAllocationService.moveStatusSequenec(HttpContext, workspaceId, statusFlowDTO);
             var responseFeedback = ((ApiOkResponse)response).Result;
@@ -206,7 +206,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpPut("ChangeStatusFlowOption/{workspaceId}/{statusOption}")]
-        public async Task<ActionResult> ChangeStatusFlowOption(long workspaceId, string statusOption,List<StatusFlowDTO> statusFlowDTOs)
+        public async Task<ApiCommonResponse> ChangeStatusFlowOption(long workspaceId, string statusOption,List<StatusFlowDTO> statusFlowDTOs)
         {
             var response = await _projectAllocationService.updateStatusFlowOpton(HttpContext, workspaceId, statusOption, statusFlowDTOs);
             var responseFeedback = ((ApiOkResponse)response).Result;
@@ -215,7 +215,7 @@ namespace HaloBiz.Controllers
 
 
         [HttpDelete("DisableStatus/{workspaceId}/{statusId}")]
-        public async Task<ActionResult> DisableStatus(long workspaceId, long statusId)
+        public async Task<ApiCommonResponse> DisableStatus(long workspaceId, long statusId)
         {
             var response = await _projectAllocationService.disableStatus(workspaceId, statusId);
             var responseFeedback = ((ApiOkResponse)response).Result;

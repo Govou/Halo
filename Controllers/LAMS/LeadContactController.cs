@@ -19,7 +19,7 @@ namespace HaloBiz.Controllers.LAMS
         }
 
         [HttpGet("")]
-        public async Task<ActionResult> GetLeadConatact()
+        public async Task<ApiCommonResponse> GetLeadConatact()
         {
             var response = await _leadContactService.GetAllLeadContact();
             if (response.StatusCode >= 400)
@@ -29,7 +29,7 @@ namespace HaloBiz.Controllers.LAMS
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult> GetById(long id)
+        public async Task<ApiCommonResponse> GetById(long id)
         {
             var response = await _leadContactService.GetLeadContactById(id);
             if (response.StatusCode >= 400)
@@ -39,7 +39,7 @@ namespace HaloBiz.Controllers.LAMS
         }
 
         [HttpPost("")]
-        public async Task<ActionResult> AddNewLeadContact(long leadId, LeadContactReceivingDTO leadContactReceiving)
+        public async Task<ApiCommonResponse> AddNewLeadContact(long leadId, LeadContactReceivingDTO leadContactReceiving)
         {
             var response = await _leadContactService.AddLeadContact(HttpContext, leadId,  leadContactReceiving);
             if (response.StatusCode >= 400)
@@ -60,7 +60,7 @@ namespace HaloBiz.Controllers.LAMS
         }
 
         [HttpDelete("{id}")]
-        public async Task<ActionResult> DeleteById(int id)
+        public async Task<ApiCommonResponse> DeleteById(int id)
         {
             var response = await _leadContactService.DeleteLeadContact(id);
             return StatusCode(response.StatusCode);

@@ -40,7 +40,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
             this._logger = logger;
         }
 
-        public async Task<ApiResponse> AddLeadDivisionContact(HttpContext context, long leadDivisionId, LeadDivisionContactReceivingDTO LeadDivisionContactReceivingDTO)
+        public async Task<ApiCommonResponse> AddLeadDivisionContact(HttpContext context, long leadDivisionId, LeadDivisionContactReceivingDTO LeadDivisionContactReceivingDTO)
         {
             using (var transaction = await _context.Database.BeginTransactionAsync())
             {
@@ -49,7 +49,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                     var leadDivision = await _context.LeadDivisions.FirstOrDefaultAsync(ld => ld.Id == leadDivisionId && ld.IsDeleted == false);
                     if (leadDivision == null)
                     {
-                        return new ApiResponse(404);
+                        return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
                     }
 
                     var LeadDivisionContact = _mapper.Map<LeadDivisionContact>(LeadDivisionContactReceivingDTO);
@@ -77,28 +77,28 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 {
                     _logger.LogError(e.Message);
                     transaction.Rollback();
-                    return new ApiResponse(500);
+                    return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
                 }
             }         
         }
 
-        public async Task<ApiResponse> GetAllLeadDivisionContact()
+        public async Task<ApiCommonResponse> GetAllLeadDivisionContact()
         {
             var LeadDivisionContacts = await _LeadDivisionContactRepo.FindAllLeadDivisionContact();
             if (LeadDivisionContacts == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var LeadDivisionContactTransferDTO = _mapper.Map<IEnumerable<LeadDivisionContactTransferDTO>>(LeadDivisionContacts);
             return new ApiOkResponse(LeadDivisionContactTransferDTO);
         }
 
-        public async Task<ApiResponse> GetLeadDivisionContactById(long id)
+        public async Task<ApiCommonResponse> GetLeadDivisionContactById(long id)
         {
             var LeadDivisionContact = await _LeadDivisionContactRepo.FindLeadDivisionContactById(id);
             if (LeadDivisionContact == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var LeadDivisionContactTransferDTO = _mapper.Map<LeadDivisionContactTransferDTO>(LeadDivisionContact);
             return new ApiOkResponse(LeadDivisionContactTransferDTO);
@@ -106,12 +106,12 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
 
 
-        public async Task<ApiResponse> UpdateLeadDivisionContact(HttpContext context, long id, LeadDivisionContactReceivingDTO LeadDivisionContactReceivingDTO)
+        public async Task<ApiCommonResponse> UpdateLeadDivisionContact(HttpContext context, long id, LeadDivisionContactReceivingDTO LeadDivisionContactReceivingDTO)
         {
             var LeadDivisionContactToUpdate = await _LeadDivisionContactRepo.FindLeadDivisionContactById(id);
             if (LeadDivisionContactToUpdate == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
 
             var summary = $"Initial details before change, \n {LeadDivisionContactToUpdate.ToString()} \n";
@@ -129,7 +129,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
             if (updatedLeadDivisionContact == null)
             {
-                return new ApiResponse(500);
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
             ModificationHistory history = new ModificationHistory()
             {

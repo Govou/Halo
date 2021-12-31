@@ -19,7 +19,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpGet("")]
-        public async Task<ActionResult> GetServiceCategories()
+        public async Task<ApiCommonResponse> GetServiceCategories()
         {
             var response = await _serviceCategoryService.GetAllServiceCategory();
             if (response.StatusCode >= 400)
@@ -29,7 +29,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpGet("name/{name}")]
-        public async Task<ActionResult> GetByName(string name)
+        public async Task<ApiCommonResponse> GetByName(string name)
         {
             var response = await _serviceCategoryService.GetServiceCategoryByName(name);
             if (response.StatusCode >= 400)
@@ -39,7 +39,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult> GetById(long id)
+        public async Task<ApiCommonResponse> GetById(long id)
         {
             var response = await _serviceCategoryService.GetServiceCategoryById(id);
             if (response.StatusCode >= 400)
@@ -49,7 +49,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpPost("")]
-        public async Task<ActionResult> AddNew(ServiceCategoryReceivingDTO serviceCategoryReceivingDTO)
+        public async Task<ApiCommonResponse> AddNew(ServiceCategoryReceivingDTO serviceCategoryReceivingDTO)
         {
             var response = await _serviceCategoryService.AddServiceCategory(serviceCategoryReceivingDTO);
             if (response.StatusCode >= 400)
@@ -69,7 +69,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpDelete("{id}")]
-        public async Task<ActionResult> DeleteById(int id)
+        public async Task<ApiCommonResponse> DeleteById(int id)
         {
             var response = await _serviceCategoryService.DeleteServiceCategory(id);
             return StatusCode(response.StatusCode);

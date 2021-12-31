@@ -23,7 +23,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpGet("")]
-        public async Task<ActionResult> GetComplaintOrigin()
+        public async Task<ApiCommonResponse> GetComplaintOrigin()
         {
             var response = await _ComplaintOriginService.GetAllComplaintOrigin();
             if (response.StatusCode >= 400)
@@ -32,7 +32,7 @@ namespace HaloBiz.Controllers
             return Ok(ComplaintOrigin);
         }
         [HttpGet("caption/{name}")]
-        public async Task<ActionResult> GetByCaption(string name)
+        public async Task<ApiCommonResponse> GetByCaption(string name)
         {
             var response = await _ComplaintOriginService.GetComplaintOriginByName(name);
             if (response.StatusCode >= 400)
@@ -42,7 +42,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult> GetById(long id)
+        public async Task<ApiCommonResponse> GetById(long id)
         {
             var response = await _ComplaintOriginService.GetComplaintOriginById(id);
             if (response.StatusCode >= 400)
@@ -52,7 +52,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpPost("")]
-        public async Task<ActionResult> AddNewComplaintOrigin(ComplaintOriginReceivingDTO ComplaintOriginReceiving)
+        public async Task<ApiCommonResponse> AddNewComplaintOrigin(ComplaintOriginReceivingDTO ComplaintOriginReceiving)
         {
             var response = await _ComplaintOriginService.AddComplaintOrigin(HttpContext, ComplaintOriginReceiving);
             if (response.StatusCode >= 400)
@@ -72,7 +72,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpDelete("{id}")]
-        public async Task<ActionResult> DeleteById(int id)
+        public async Task<ApiCommonResponse> DeleteById(int id)
         {
             var response = await _ComplaintOriginService.DeleteComplaintOrigin(id);
             return StatusCode(response.StatusCode);

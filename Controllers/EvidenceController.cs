@@ -23,7 +23,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpGet("")]
-        public async Task<ActionResult> GetEvidence()
+        public async Task<ApiCommonResponse> GetEvidence()
         {
             var response = await _EvidenceService.GetAllEvidence();
             if (response.StatusCode >= 400)
@@ -32,7 +32,7 @@ namespace HaloBiz.Controllers
             return Ok(Evidence);
         }
         [HttpGet("caption/{name}")]
-        public async Task<ActionResult> GetByCaption(string name)
+        public async Task<ApiCommonResponse> GetByCaption(string name)
         {
             var response = await _EvidenceService.GetEvidenceByName(name);
             if (response.StatusCode >= 400)
@@ -42,7 +42,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult> GetById(long id)
+        public async Task<ApiCommonResponse> GetById(long id)
         {
             var response = await _EvidenceService.GetEvidenceById(id);
             if (response.StatusCode >= 400)
@@ -52,7 +52,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpPost("")]
-        public async Task<ActionResult> AddNewEvidence(EvidenceReceivingDTO EvidenceReceiving)
+        public async Task<ApiCommonResponse> AddNewEvidence(EvidenceReceivingDTO EvidenceReceiving)
         {
             var response = await _EvidenceService.AddEvidence(HttpContext, EvidenceReceiving);
             if (response.StatusCode >= 400)
@@ -72,7 +72,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpDelete("{id}")]
-        public async Task<ActionResult> DeleteById(int id)
+        public async Task<ApiCommonResponse> DeleteById(int id)
         {
             var response = await _EvidenceService.DeleteEvidence(id);
             return StatusCode(response.StatusCode);

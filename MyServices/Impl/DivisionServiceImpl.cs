@@ -27,25 +27,25 @@ namespace HaloBiz.MyServices.Impl
             this._logger = logger;
         }
 
-        public async Task<ApiResponse> AddDivision(DivisionReceivingDTO divisionReceivingDTO)
+        public async Task<ApiCommonResponse> AddDivision(DivisionReceivingDTO divisionReceivingDTO)
         {
             var division = _mapper.Map<Division>(divisionReceivingDTO);
             division.CompanyId = 1;
             var saveddivision = await _divisionRepo.SaveDivision(division);
             if (saveddivision == null)
             {
-                return new ApiResponse(500);
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
             var divisionTransferDTOs = _mapper.Map<DivisionTransferDTO>(division);
             return new ApiOkResponse(divisionTransferDTOs);
         }
 
-        public async Task<ApiResponse> DeleteDivision(long id)
+        public async Task<ApiCommonResponse> DeleteDivision(long id)
         {
             var divisionToDelete = await _divisionRepo.FindDivisionById(id);
             if (divisionToDelete == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
 
             foreach (OperatingEntity operatingEntity in divisionToDelete.OperatingEntities)
@@ -55,60 +55,60 @@ namespace HaloBiz.MyServices.Impl
 
             if (!await _divisionRepo.RemoveDivision(divisionToDelete))
             {
-                return new ApiResponse(500);
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
 
-            return new ApiOkResponse(true);
+            return CommonResponse.Send(ResponseCodes.SUCCESS);
         }
 
-        public async Task<ApiResponse> GetAllDivisions()
+        public async Task<ApiCommonResponse> GetAllDivisions()
         {
             var divisions = await _divisionRepo.FindAllDivisions();
             if (divisions == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var divisionTransferDTOs = _mapper.Map<IEnumerable<DivisionTransferDTO>>(divisions);
             return new ApiOkResponse(divisionTransferDTOs);
         }
-        public async Task<ApiResponse> GetAllDivisionsAndSbu()
+        public async Task<ApiCommonResponse> GetAllDivisionsAndSbu()
         {
             var divisions = await _divisionRepo.GetAllDivisionAndSbu();
             if (divisions == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var divisionTransferDTOs = _mapper.Map<IEnumerable<DivisionTransferDTO>>(divisions);
             return new ApiOkResponse(divisionTransferDTOs);
         }
 
-        public async Task<ApiResponse> GetDivisionByName(string name)
+        public async Task<ApiCommonResponse> GetDivisionByName(string name)
         {
             var division = await _divisionRepo.FindDivisionByName(name);
             if (division == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var divisionTransferDTOs = _mapper.Map<DivisionTransferDTO>(division);
             return new ApiOkResponse(divisionTransferDTOs);
         }
 
-        public async Task<ApiResponse> GetDivisionnById(long id)
+        public async Task<ApiCommonResponse> GetDivisionnById(long id)
         {
             var division = await _divisionRepo.FindDivisionById(id);
             if (division == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var divisionTransferDTOs = _mapper.Map<DivisionTransferDTO>(division);
             return new ApiOkResponse(divisionTransferDTOs);
         }
-        public async Task<ApiResponse> UpdateDivision(long id, DivisionReceivingDTO divisionReceivingDTO)
+        public async Task<ApiCommonResponse> UpdateDivision(long id, DivisionReceivingDTO divisionReceivingDTO)
         {
             var divisionToUpdate = await _divisionRepo.FindDivisionById(id);
             if (divisionToUpdate == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             divisionToUpdate.Name = divisionReceivingDTO.Name;
             divisionToUpdate.Description = divisionReceivingDTO.Description;
@@ -118,7 +118,7 @@ namespace HaloBiz.MyServices.Impl
 
             if (updatedDivision == null)
             {
-                return new ApiResponse(500);
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
             var divisionTransferDTOs = _mapper.Map<DivisionTransferDTO>(updatedDivision);
             return new ApiOkResponse(divisionTransferDTOs);

@@ -41,7 +41,7 @@ namespace HaloBiz.MyServices.Impl
             this._logger = logger;
         }
 
-        public async Task<ApiResponse> AddComplaint(HttpContext context, ComplaintReceivingDTO complaintReceivingDTO)
+        public async Task<ApiCommonResponse> AddComplaint(HttpContext context, ComplaintReceivingDTO complaintReceivingDTO)
         {         
             using var transaction = await _context.Database.BeginTransactionAsync();
             try
@@ -61,7 +61,7 @@ namespace HaloBiz.MyServices.Impl
                 var savedcomplaint = await _complaintRepo.SaveComplaint(complaint);
                 if (savedcomplaint == null)
                 {
-                    return new ApiResponse(500);
+                    return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
                 }
 
                 var complaintType = await _context.ComplaintTypes.FindAsync(savedcomplaint.ComplaintTypeId);
@@ -95,11 +95,11 @@ namespace HaloBiz.MyServices.Impl
             {
                 await transaction.RollbackAsync();
                 _logger.LogError(ex.Message);
-                return new ApiResponse(500, ex.Message);
+                return  CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }           
         }
 
-        public async Task<ApiResponse> GetComplaintsStats(HttpContext context)
+        public async Task<ApiCommonResponse> GetComplaintsStats(HttpContext context)
         {
             var loggedInUserId = context.GetLoggedInUserId();
 
@@ -161,28 +161,28 @@ namespace HaloBiz.MyServices.Impl
             }
         }
 
-        public async Task<ApiResponse> DeleteComplaint(long id)
+        public async Task<ApiCommonResponse> DeleteComplaint(long id)
         {
             var complaintToDelete = await _complaintRepo.FindComplaintById(id);
             if (complaintToDelete == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
 
             if (!await _complaintRepo.DeleteComplaint(complaintToDelete))
             {
-                return new ApiResponse(500);
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
 
-            return new ApiOkResponse(true);
+            return CommonResponse.Send(ResponseCodes.SUCCESS);
         }
 
-        public async Task<ApiResponse> GetAllComplaint()
+        public async Task<ApiCommonResponse> GetAllComplaint()
         {
             var complaints = await _complaintRepo.FindAllComplaints();
             if (complaints == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var complaintTransferDTOs = _mapper.Map<IEnumerable<ComplaintTransferDTO>>(complaints);
 
@@ -207,34 +207,34 @@ namespace HaloBiz.MyServices.Impl
             return new ApiOkResponse(complaintTransferDTOs);
         }
 
-        public async Task<ApiResponse> GetComplaintById(long id)
+        public async Task<ApiCommonResponse> GetComplaintById(long id)
         {
             var complaint = await _complaintRepo.FindComplaintById(id);
             if (complaint == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var complaintTransferDTOs = _mapper.Map<ComplaintTransferDTO>(complaint);
             return new ApiOkResponse(complaintTransferDTOs);
         }
 
-        /*public async Task<ApiResponse> GetComplaintByName(string name)
+        /*public async Task<ApiCommonResponse> GetComplaintByName(string name)
         {
             var complaint = await _complaintRepo.FindComplaintByName(name);
             if (complaint == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var complaintTransferDTOs = _mapper.Map<ComplaintTransferDTO>(complaint);
             return new ApiOkResponse(complaintTransferDTOs);
         }*/
 
-        public async Task<ApiResponse> UpdateComplaint(HttpContext context, long id, ComplaintReceivingDTO complaintReceivingDTO)
+        public async Task<ApiCommonResponse> UpdateComplaint(HttpContext context, long id, ComplaintReceivingDTO complaintReceivingDTO)
         {
             var complaintToUpdate = await _complaintRepo.FindComplaintById(id);
             if (complaintToUpdate == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
 
             var summary = $"Initial details before change, \n {complaintToUpdate.ToString()} \n";
@@ -251,7 +251,7 @@ namespace HaloBiz.MyServices.Impl
 
             if (updatedcomplaint == null)
             {
-                return new ApiResponse(500);
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
             ModificationHistory history = new ModificationHistory()
             {

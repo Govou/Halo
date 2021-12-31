@@ -46,7 +46,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
             this._logger = logger;
         }
 
-        public async Task<ApiResponse> AddNewRetentionContractServiceForEndorsement(HttpContext httpContext, List<ContractServiceForEndorsementReceivingDto> contractServiceForEndorsementDtos)
+        public async Task<ApiCommonResponse> AddNewRetentionContractServiceForEndorsement(HttpContext httpContext, List<ContractServiceForEndorsementReceivingDto> contractServiceForEndorsementDtos)
         {
             var id = httpContext.GetLoggedInUserId();
             foreach (var item in contractServiceForEndorsementDtos)
@@ -87,7 +87,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                     var savedEntity = await _cntServiceForEndorsemntRepo.SaveContractServiceForEndorsement(item);
                     if (savedEntity == null)
                     {
-                        return new ApiResponse(500);
+                        return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
                     }
 
                     bool successful = await _approvalService.SetUpApprovalsForContractModificationEndorsement(savedEntity, httpContext);
@@ -100,14 +100,14 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
                 await _context.SaveChangesAsync();
                 await transaction.CommitAsync();
-                return new ApiOkResponse(true);
+                return CommonResponse.Send(ResponseCodes.SUCCESS);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex.Message);
                 _logger.LogError(ex.StackTrace);
                // await transaction.RollbackAsync();
-                return new ApiResponse(500);
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
         }       
 
@@ -136,7 +136,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
             return true;
         }
 
-        public async Task<ApiResponse> GetUnApprovedContractServiceForEndorsement()
+        public async Task<ApiCommonResponse> GetUnApprovedContractServiceForEndorsement()
         {
             var contractServiceForEndorsement = await _cntServiceForEndorsemntRepo.FindAllUnApprovedContractServicesForEndorsement();
             var contractServiceToEndorseTransferDto =
@@ -144,7 +144,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
             return new ApiOkResponse(contractServiceToEndorseTransferDto);
         }
 
-        public async Task<ApiResponse> GetEndorsementDetailsById(long endorsementId)
+        public async Task<ApiCommonResponse> GetEndorsementDetailsById(long endorsementId)
         {
             var contractServiceForEndorsement = await _cntServiceForEndorsemntRepo.GetEndorsementDetailsById(endorsementId);
             var contractServiceToEndorseTransferDto =
@@ -152,19 +152,19 @@ namespace HaloBiz.MyServices.Impl.LAMS
             return new ApiOkResponse(contractServiceToEndorseTransferDto);
         }
 
-        public async Task<ApiResponse> GetEndorsementHistory(long contractServiceId)
+        public async Task<ApiCommonResponse> GetEndorsementHistory(long contractServiceId)
         {
             var possibleDates = await _cntServiceForEndorsemntRepo.GetEndorsementHistory(contractServiceId);
             return new ApiOkResponse(possibleDates);
         }
 
-        public async Task<ApiResponse> GetAllPossibleEndorsementStartDate(long contractServiceId)
+        public async Task<ApiCommonResponse> GetAllPossibleEndorsementStartDate(long contractServiceId)
         {
             var possibleDates = await _cntServiceForEndorsemntRepo.FindAllPossibleEndorsementStartDate(contractServiceId);
             return new ApiOkResponse(possibleDates);
         }
 
-        public async Task<ApiResponse> ApproveContractServiceForEndorsement(long Id, long sequence, bool isApproved)
+        public async Task<ApiCommonResponse> ApproveContractServiceForEndorsement(long Id, long sequence, bool isApproved)
         {
             if (isApproved)
             {
@@ -174,7 +174,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
                 if (theApproval == null)
                 {
-                    return new ApiResponse(500);
+                    return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
                 }
 
                 theApproval.IsApproved = true;
@@ -186,18 +186,18 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
                 // Return scenario 1
                 // All the approvals for endorsement not yet approved.
-                if (!allApprovalsApproved) return new ApiOkResponse(true);
+                if (!allApprovalsApproved) return CommonResponse.Send(ResponseCodes.SUCCESS);
 
                 var entityToApprove = await _cntServiceForEndorsemntRepo.FindContractServiceForEndorsementById(Id);
                 if (entityToApprove == null)
                 {
-                    return new ApiResponse(404);
+                    return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
                 }
                 entityToApprove.IsApproved = isApproved;
                 var approvedEntity = await _cntServiceForEndorsemntRepo.UpdateContractServiceForEndorsement(entityToApprove);
                 if (approvedEntity == null)
                 {
-                    return new ApiResponse(500);
+                    return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
                 }
                 var contractServiceToEndorseTransferDto = _mapper.Map<ContractServiceForEndorsementTransferDto>(approvedEntity);
                 return new ApiOkResponse(contractServiceToEndorseTransferDto);
@@ -207,7 +207,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 var endorsementToUpdate = await _cntServiceForEndorsemntRepo.FindContractServiceForEndorsementById(Id);
                 if (endorsementToUpdate == null)
                 {
-                    return new ApiResponse(404);
+                    return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
                 }
 
                 endorsementToUpdate.IsDeclined = true;
@@ -216,7 +216,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
                 if (updatedEndorsement == null)
                 {
-                    return new ApiResponse(500);
+                    return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
                 }
 
                 var contractServiceToEndorseTransferDto = _mapper.Map<ContractServiceForEndorsementTransferDto>(updatedEndorsement);
@@ -224,7 +224,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
             }
         }
 
-        public async Task<ApiResponse> ConvertContractServiceForEndorsement(HttpContext httpContext, long Id)
+        public async Task<ApiCommonResponse> ConvertContractServiceForEndorsement(HttpContext httpContext, long Id)
         {
             using(var transaction =  await _context.Database.BeginTransactionAsync())
             {
@@ -236,7 +236,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
                     if(contractServiceForEndorsement == null)
                     {
-                        return new ApiResponse(404);
+                        return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
                     }
 
                     var contractServiceToRetire = await _context.ContractServices
@@ -314,14 +314,14 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
                     await transaction.CommitAsync();
 
-                    return new ApiOkResponse(true);
+                    return CommonResponse.Send(ResponseCodes.SUCCESS);
                 }
                 catch (System.Exception e)
                 {
                     await transaction.RollbackAsync();
                     _logger.LogError(e.Message);
                     _logger.LogError(e.StackTrace);
-                    return new ApiResponse(500);
+                    return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
                 }
             }
 
@@ -385,7 +385,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
             return true;
         }
 
-        public async Task<ApiResponse> ConvertDebitCreditNoteEndorsement(HttpContext httpContext, long id)
+        public async Task<ApiCommonResponse> ConvertDebitCreditNoteEndorsement(HttpContext httpContext, long id)
         {
             using (var transaction = await _context.Database.BeginTransactionAsync())
             {
@@ -397,7 +397,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
                     if (contractServiceForEndorsement == null)
                     {
-                        return new ApiResponse(404);
+                        return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
                     }
 
                     contractServiceForEndorsement.IsConvertedToContractService = true;
@@ -442,14 +442,14 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
                     await transaction.CommitAsync();
 
-                    return new ApiOkResponse(true);
+                    return CommonResponse.Send(ResponseCodes.SUCCESS);
                 }
                 catch (Exception ex)
                 {
                     await transaction.RollbackAsync();
                     _logger.LogError(ex.Message);
                     _logger.LogError(ex.StackTrace);
-                    return new ApiResponse(500);
+                    return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
                 }
             }
         }

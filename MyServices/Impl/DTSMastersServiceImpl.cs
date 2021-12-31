@@ -24,7 +24,7 @@ namespace HaloBiz.MyServices.Impl
             _dTSMastersRepository = dTSMastersRepository;
         }
 
-        public async Task<ApiResponse> AddArmedEscortMaster(HttpContext context, ArmedEscortDTSMastersReceivingDTO armedEscortReceivingDTO)
+        public async Task<ApiCommonResponse> AddArmedEscortMaster(HttpContext context, ArmedEscortDTSMastersReceivingDTO armedEscortReceivingDTO)
         {
             var armedescort = _mapper.Map<ArmedEscortDTSMaster>(armedEscortReceivingDTO);
             var profileIdExist = _dTSMastersRepository.GetArmedEscortProfileId(armedEscortReceivingDTO.ArmedEscortResourceId);
@@ -46,13 +46,13 @@ namespace HaloBiz.MyServices.Impl
             var save = await _dTSMastersRepository.SaveArmedEscortMaster(armedescort);
             if (save == null)
             {
-                return new ApiResponse(500);
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
             var TransferDTO = _mapper.Map<ArmedEscortDTSMastersTransferDTO>(armedescort);
             return new ApiOkResponse(TransferDTO);
         }
 
-        public async Task<ApiResponse> AddCommanderMaster(HttpContext context, CommanderDTSMastersReceivingDTO commanderReceivingDTO)
+        public async Task<ApiCommonResponse> AddCommanderMaster(HttpContext context, CommanderDTSMastersReceivingDTO commanderReceivingDTO)
         {
             var commander = _mapper.Map<CommanderDTSMaster>(commanderReceivingDTO);
             var profileIdExist = _dTSMastersRepository.GetCommanderProfileId(commanderReceivingDTO.CommanderResourceId);
@@ -73,13 +73,13 @@ namespace HaloBiz.MyServices.Impl
             var save = await _dTSMastersRepository.SaveCommanderMaster(commander);
             if (save == null)
             {
-                return new ApiResponse(500);
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
             var TransferDTO = _mapper.Map<CommanderDTSMastersTransferDTO>(commander);
             return new ApiOkResponse(TransferDTO);
         }
 
-        public async Task<ApiResponse> AddPilotMaster(HttpContext context, PilotDTSMastersReceivingDTO pilotReceivingDTO)
+        public async Task<ApiCommonResponse> AddPilotMaster(HttpContext context, PilotDTSMastersReceivingDTO pilotReceivingDTO)
         {
             var pilot = _mapper.Map<PilotDTSMaster>(pilotReceivingDTO);
             var profileIdExist = _dTSMastersRepository.GetPilotProfileId(pilotReceivingDTO.PilotResourceId);
@@ -100,13 +100,13 @@ namespace HaloBiz.MyServices.Impl
             var save = await _dTSMastersRepository.SavePilotMaster(pilot);
             if (save == null)
             {
-                return new ApiResponse(500);
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
             var TransferDTO = _mapper.Map<PilotDTSMastersTransferDTO>(pilot);
             return new ApiOkResponse(TransferDTO);
         }
 
-        public async Task<ApiResponse> AddVehicleMaster(HttpContext context, VehicleDTSMastersReceivingDTO vehicleReceivingDTO)
+        public async Task<ApiCommonResponse> AddVehicleMaster(HttpContext context, VehicleDTSMastersReceivingDTO vehicleReceivingDTO)
         {
             var vehicle = _mapper.Map<VehicleDTSMaster>(vehicleReceivingDTO);
             var profileIdExist = _dTSMastersRepository.GetVehicleProfileId(vehicleReceivingDTO.VehicleResourceId);
@@ -127,174 +127,174 @@ namespace HaloBiz.MyServices.Impl
             var save = await _dTSMastersRepository.SaveVehicleMaster(vehicle);
             if (save == null)
             {
-                return new ApiResponse(500);
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
             var TransferDTO = _mapper.Map<VehicleDTSMastersTransferDTO>(vehicle);
             return new ApiOkResponse(TransferDTO);
         }
 
-        public async Task<ApiResponse> DeleteArmedEscortMaster(long id)
+        public async Task<ApiCommonResponse> DeleteArmedEscortMaster(long id)
         {
             var itemToDelete = await _dTSMastersRepository.FindArmedEscortMasterById(id);
 
             if (itemToDelete == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
 
             if (!await _dTSMastersRepository.DeleteArmedEscortMaster(itemToDelete))
             {
-                return new ApiResponse(500);
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
 
-            return new ApiOkResponse(true);
+            return CommonResponse.Send(ResponseCodes.SUCCESS);
         }
 
-        public async Task<ApiResponse> DeleteCommanderMaster(long id)
+        public async Task<ApiCommonResponse> DeleteCommanderMaster(long id)
         {
             var itemToDelete = await _dTSMastersRepository.FindCommanderMasterById(id);
 
             if (itemToDelete == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
 
             if (!await _dTSMastersRepository.DeleteCommanderMaster(itemToDelete))
             {
-                return new ApiResponse(500);
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
 
-            return new ApiOkResponse(true);
+            return CommonResponse.Send(ResponseCodes.SUCCESS);
         }
 
-        public async Task<ApiResponse> DeletePilotMaster(long id)
+        public async Task<ApiCommonResponse> DeletePilotMaster(long id)
         {
             var itemToDelete = await _dTSMastersRepository.FindPilotMasterById(id);
 
             if (itemToDelete == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
 
             if (!await _dTSMastersRepository.DeletePilotMaster(itemToDelete))
             {
-                return new ApiResponse(500);
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
 
-            return new ApiOkResponse(true);
+            return CommonResponse.Send(ResponseCodes.SUCCESS);
         }
 
-        public async Task<ApiResponse> DeleteVehicleMaster(long id)
+        public async Task<ApiCommonResponse> DeleteVehicleMaster(long id)
         {
             var itemToDelete = await _dTSMastersRepository.FindVehicleMasterById(id);
 
             if (itemToDelete == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
 
             if (!await _dTSMastersRepository.DeleteVehicleMaster(itemToDelete))
             {
-                return new ApiResponse(500);
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
 
-            return new ApiOkResponse(true);
+            return CommonResponse.Send(ResponseCodes.SUCCESS);
         }
 
-        public async Task<ApiResponse> GetAllArmedEscortMasters()
+        public async Task<ApiCommonResponse> GetAllArmedEscortMasters()
         {
             var masters = await _dTSMastersRepository.FindAllArmedEscortMasters();
             if (masters == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var TransferDTO = _mapper.Map<IEnumerable<ArmedEscortDTSMastersTransferDTO>>(masters);
             return new ApiOkResponse(TransferDTO);
         }
 
-        public async Task<ApiResponse> GetAllCommanderMasters()
+        public async Task<ApiCommonResponse> GetAllCommanderMasters()
         {
             var masters = await _dTSMastersRepository.FindAllCommanderMasters();
             if (masters == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var TransferDTO = _mapper.Map<IEnumerable<CommanderDTSMastersTransferDTO>>(masters);
             return new ApiOkResponse(TransferDTO);
         }
 
-        public async Task<ApiResponse> GetAllPilotMasters()
+        public async Task<ApiCommonResponse> GetAllPilotMasters()
         {
             var masters = await _dTSMastersRepository.FindAllPilotMasters();
             if (masters == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var TransferDTO = _mapper.Map<IEnumerable<PilotDTSMastersTransferDTO>>(masters);
             return new ApiOkResponse(TransferDTO);
         }
 
-        public async Task<ApiResponse> GetAllVehicleMasters()
+        public async Task<ApiCommonResponse> GetAllVehicleMasters()
         {
             var masters = await _dTSMastersRepository.FindAllVehicleMasters();
             if (masters == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var TransferDTO = _mapper.Map<IEnumerable<VehicleDTSMastersTransferDTO>>(masters);
             return new ApiOkResponse(TransferDTO);
         }
 
-        public async Task<ApiResponse> GetArmedEscortMasterById(long id)
+        public async Task<ApiCommonResponse> GetArmedEscortMasterById(long id)
         {
             var master = await _dTSMastersRepository.FindArmedEscortMasterById(id);
             if (master == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var TransferDTO = _mapper.Map<ArmedEscortDTSMastersTransferDTO>(master);
             return new ApiOkResponse(TransferDTO);
         }
 
-        public async Task<ApiResponse> GetCommanderMasterById(long id)
+        public async Task<ApiCommonResponse> GetCommanderMasterById(long id)
         {
             var master = await _dTSMastersRepository.FindCommanderMasterById(id);
             if (master == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var TransferDTO = _mapper.Map<CommanderDTSMastersTransferDTO>(master);
             return new ApiOkResponse(TransferDTO);
         }
 
-        public async Task<ApiResponse> GetPilotMasterById(long id)
+        public async Task<ApiCommonResponse> GetPilotMasterById(long id)
         {
             var master = await _dTSMastersRepository.FindPilotMasterById(id);
             if (master == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var TransferDTO = _mapper.Map<PilotDTSMastersTransferDTO>(master);
             return new ApiOkResponse(TransferDTO);
         }
 
-        public async Task<ApiResponse> GetVehicleMasterById(long id)
+        public async Task<ApiCommonResponse> GetVehicleMasterById(long id)
         {
             var master = await _dTSMastersRepository.FindVehicleMasterById(id);
             if (master == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var TransferDTO = _mapper.Map<VehicleDTSMastersTransferDTO>(master);
             return new ApiOkResponse(TransferDTO);
         }
 
-        public async Task<ApiResponse> UpdateArmedEscortMaster(HttpContext context, long id, ArmedEscortDTSMastersReceivingDTO armedEscortReceivingDTO)
+        public async Task<ApiCommonResponse> UpdateArmedEscortMaster(HttpContext context, long id, ArmedEscortDTSMastersReceivingDTO armedEscortReceivingDTO)
         {
             var itemToUpdate = await _dTSMastersRepository.FindArmedEscortMasterById(id);
             if (itemToUpdate == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
 
             var summary = $"Initial details before change, \n {itemToUpdate.ToString()} \n";
@@ -310,19 +310,19 @@ namespace HaloBiz.MyServices.Impl
 
             if (updateMaster == null)
             {
-                return new ApiResponse(500);
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
 
             var TransferDTOs = _mapper.Map<ArmedEscortDTSMastersTransferDTO>(updateMaster);
             return new ApiOkResponse(TransferDTOs);
         }
 
-        public async Task<ApiResponse> UpdateCommanderMaster(HttpContext context, long id, CommanderDTSMastersReceivingDTO commanderReceivingDTO)
+        public async Task<ApiCommonResponse> UpdateCommanderMaster(HttpContext context, long id, CommanderDTSMastersReceivingDTO commanderReceivingDTO)
         {
             var itemToUpdate = await _dTSMastersRepository.FindCommanderMasterById(id);
             if (itemToUpdate == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
 
             var summary = $"Initial details before change, \n {itemToUpdate.ToString()} \n";
@@ -338,19 +338,19 @@ namespace HaloBiz.MyServices.Impl
 
             if (updateMaster == null)
             {
-                return new ApiResponse(500);
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
 
             var TransferDTOs = _mapper.Map<CommanderDTSMastersTransferDTO>(updateMaster);
             return new ApiOkResponse(TransferDTOs);
         }
 
-        public async Task<ApiResponse> UpdatePilotMaster(HttpContext context, long id, PilotDTSMastersReceivingDTO pilotReceivingDTO)
+        public async Task<ApiCommonResponse> UpdatePilotMaster(HttpContext context, long id, PilotDTSMastersReceivingDTO pilotReceivingDTO)
         {
             var itemToUpdate = await _dTSMastersRepository.FindPilotMasterById(id);
             if (itemToUpdate == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
 
             var summary = $"Initial details before change, \n {itemToUpdate.ToString()} \n";
@@ -366,19 +366,19 @@ namespace HaloBiz.MyServices.Impl
 
             if (updateMaster == null)
             {
-                return new ApiResponse(500);
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
 
             var TransferDTOs = _mapper.Map<PilotDTSMastersTransferDTO>(updateMaster);
             return new ApiOkResponse(TransferDTOs);
         }
 
-        public async Task<ApiResponse> UpdateVehicleMaster(HttpContext context, long id, VehicleDTSMastersReceivingDTO vehicleReceivingDTO)
+        public async Task<ApiCommonResponse> UpdateVehicleMaster(HttpContext context, long id, VehicleDTSMastersReceivingDTO vehicleReceivingDTO)
         {
             var itemToUpdate = await _dTSMastersRepository.FindVehicleMasterById(id);
             if (itemToUpdate == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
 
             var summary = $"Initial details before change, \n {itemToUpdate.ToString()} \n";
@@ -394,7 +394,7 @@ namespace HaloBiz.MyServices.Impl
 
             if (updateMaster == null)
             {
-                return new ApiResponse(500);
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
 
             var TransferDTOs = _mapper.Map<VehicleDTSMastersTransferDTO>(updateMaster);

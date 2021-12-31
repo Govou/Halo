@@ -24,7 +24,7 @@ namespace Controllers.Controllers
         }
 
         [HttpGet("")]
-        public async Task<ActionResult> GetDeliverableFulfillment()
+        public async Task<ApiCommonResponse> GetDeliverableFulfillment()
         {
             var response = await _deliverableFulfillmentService.GetAllDeliverableFulfillment();
             if (response.StatusCode >= 400)
@@ -34,7 +34,7 @@ namespace Controllers.Controllers
         }
 
         [HttpGet("GetAssignedRation/{taskMasterId}")]
-        public async Task<ActionResult> GetDeliverableFulfillmentToAssignedRatioFulfillment(long taskMasterId)
+        public async Task<ApiCommonResponse> GetDeliverableFulfillmentToAssignedRatioFulfillment(long taskMasterId)
         {
             var response = await _deliverableFulfillmentService.DeliverableToAssignedUserRatio(taskMasterId);
             if (response.StatusCode >= 400)
@@ -44,7 +44,7 @@ namespace Controllers.Controllers
         }
         
         [HttpGet("caption/{name}")]
-        public async Task<ActionResult> GetByCaption(string name)
+        public async Task<ApiCommonResponse> GetByCaption(string name)
         {
             var response = await _deliverableFulfillmentService.GetDeliverableFulfillmentByName(name);
             if (response.StatusCode >= 400)
@@ -54,7 +54,7 @@ namespace Controllers.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult> GetById(long id)
+        public async Task<ApiCommonResponse> GetById(long id)
         {
             var response = await _deliverableFulfillmentService.GetDeliverableFulfillmentById(id);
             if (response.StatusCode >= 400)
@@ -64,7 +64,7 @@ namespace Controllers.Controllers
         }
 
         [HttpGet("GetDeliverableStat/{userId}")]
-        public async Task<ActionResult> GetUserDeliverableStat(long userId)
+        public async Task<ApiCommonResponse> GetUserDeliverableStat(long userId)
         {
             var response = await _deliverableFulfillmentService.GetUserDeliverableFulfillmentStat(userId);
             if (response.StatusCode >= 400)
@@ -74,7 +74,7 @@ namespace Controllers.Controllers
         }
 
         [HttpGet("GetDeliverableDashboard/{userId}")]
-        public async Task<ActionResult> GetUserDeliverableDashboard(long userId)
+        public async Task<ApiCommonResponse> GetUserDeliverableDashboard(long userId)
         {
             var response = await _deliverableFulfillmentService.GetUserDeliverableFulfillmentDashboard(userId);
             if (response.StatusCode >= 400)
@@ -84,7 +84,7 @@ namespace Controllers.Controllers
         }
 
         [HttpPost("")]
-        public async Task<ActionResult> AddNewDeliverableFulfillment(DeliverableFulfillmentReceivingDTO deliverableFulfillmentReceiving)
+        public async Task<ApiCommonResponse> AddNewDeliverableFulfillment(DeliverableFulfillmentReceivingDTO deliverableFulfillmentReceiving)
         {
             var response = await _deliverableFulfillmentService.AddDeliverableFulfillment(HttpContext, deliverableFulfillmentReceiving);
             if (response.StatusCode >= 400)
@@ -104,7 +104,7 @@ namespace Controllers.Controllers
         }
 
         /*[HttpDelete("{id}")]
-        public async Task<ActionResult> DeleteById(int id)
+        public async Task<ApiCommonResponse> DeleteById(int id)
         {
             var response = await _deliverableFulfillmentService.DeleteDeliverableFulfillment(id);
             return StatusCode(response.StatusCode);

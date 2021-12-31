@@ -7,7 +7,7 @@ namespace HaloBiz.MyServices
 {
     public interface IReceiptService
     {
-         Task<ApiResponse> AddReceipt(HttpContext context, ReceiptReceivingDTO receiptReceivingDTO);
-         Task<ApiResponse> GetReceiptBreakDown(long invoiceId, double totalReceiptAmount);
+         Task<ApiCommonResponse> AddReceipt(HttpContext context, ReceiptReceivingDTO receiptReceivingDTO);
+         Task<ApiCommonResponse> GetReceiptBreakDown(long invoiceId, double totalReceiptAmount);
     }
 }

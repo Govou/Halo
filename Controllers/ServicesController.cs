@@ -18,7 +18,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpGet("")]
-        public async Task<ActionResult> GetService()
+        public async Task<ApiCommonResponse> GetService()
         {
             var response = await _servicesService.GetAllServices();
             if (response.StatusCode >= 400)
@@ -28,7 +28,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpGet("GetUnpublishedServices")]
-        public async Task<ActionResult> GetUnpublishedService()
+        public async Task<ApiCommonResponse> GetUnpublishedService()
         {
             var response = await _servicesService.GetUnpublishedServices();
             if (response.StatusCode >= 400)
@@ -38,7 +38,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpGet("GetOnlinePortalServices")]
-        public async Task<ActionResult> GetOnlinePortalServices()
+        public async Task<ApiCommonResponse> GetOnlinePortalServices()
         {
             var response = await _servicesService.GetOnlinePortalServices();
             if (response.StatusCode >= 400)
@@ -48,7 +48,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpGet("name/{name}")]
-        public async Task<ActionResult> GetByName(string name)
+        public async Task<ApiCommonResponse> GetByName(string name)
         {
             var response = await _servicesService.GetServiceByName(name);
             if (response.StatusCode >= 400)
@@ -58,7 +58,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult> GetById(long id)
+        public async Task<ApiCommonResponse> GetById(long id)
         {
             var response = await _servicesService.GetServiceById(id);
             if (response.StatusCode >= 400)
@@ -68,7 +68,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpPost("")]
-        public async Task<ActionResult> AddNew(ServiceReceivingDTO servicesReceivingDTO)
+        public async Task<ApiCommonResponse> AddNew(ServiceReceivingDTO servicesReceivingDTO)
         {
             var response = await _servicesService.AddService(HttpContext, servicesReceivingDTO);
             if (response.StatusCode >= 400)
@@ -120,7 +120,7 @@ namespace HaloBiz.Controllers
 
 
         [HttpDelete("{id}")]
-        public async Task<ActionResult> DeleteById(int id)
+        public async Task<ApiCommonResponse> DeleteById(int id)
         {
             var response = await _servicesService.DeleteService(id);
             return StatusCode(response.StatusCode);

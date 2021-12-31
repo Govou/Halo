@@ -7,9 +7,9 @@ namespace HaloBiz.MyServices
 {
     public interface IEngagementReasonService
     {
-        Task<ApiResponse> AddEngagementReason(HttpContext context, EngagementReasonReceivingDTO engagementReasonReceivingDTO);
-        Task<ApiResponse> GetAllEngagementReason();
-        Task<ApiResponse> UpdateEngagementReason(HttpContext context, long id, EngagementReasonReceivingDTO engagementReasonReceivingDTO);
-        Task<ApiResponse> DeleteEngagementReason(long id);
+        Task<ApiCommonResponse> AddEngagementReason(HttpContext context, EngagementReasonReceivingDTO engagementReasonReceivingDTO);
+        Task<ApiCommonResponse> GetAllEngagementReason();
+        Task<ApiCommonResponse> UpdateEngagementReason(HttpContext context, long id, EngagementReasonReceivingDTO engagementReasonReceivingDTO);
+        Task<ApiCommonResponse> DeleteEngagementReason(long id);
     }
 }

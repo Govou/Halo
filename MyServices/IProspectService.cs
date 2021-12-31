@@ -10,11 +10,11 @@ namespace HaloBiz.MyServices
 {
     public interface IProspectService
     {
-        Task<ApiResponse> AddProspect(HttpContext context, ProspectReceivingDTO prospectReceivingDTO);
-        Task<ApiResponse> GetAllProspect();
-        Task<ApiResponse> GetProspectById(long id);
-        Task<ApiResponse> GetProspectByEmail(string email);
-        Task<ApiResponse> UpdateProspect(HttpContext context, long id, ProspectReceivingDTO prospectReceivingDTO);
-        Task<ApiResponse> DeleteProspect(long id);
+        Task<ApiCommonResponse> AddProspect(HttpContext context, ProspectReceivingDTO prospectReceivingDTO);
+        Task<ApiCommonResponse> GetAllProspect();
+        Task<ApiCommonResponse> GetProspectById(long id);
+        Task<ApiCommonResponse> GetProspectByEmail(string email);
+        Task<ApiCommonResponse> UpdateProspect(HttpContext context, long id, ProspectReceivingDTO prospectReceivingDTO);
+        Task<ApiCommonResponse> DeleteProspect(long id);
     }
 }

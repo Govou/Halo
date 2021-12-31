@@ -23,7 +23,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpGet("")]
-        public async Task<ActionResult> GetAppFeedback()
+        public async Task<ApiCommonResponse> GetAppFeedback()
         {
             var response = await _AppFeedbackService.GetAllAppFeedback();
             if (response.StatusCode >= 400)
@@ -33,7 +33,7 @@ namespace HaloBiz.Controllers
         }
 
         /*[HttpGet("caption/{name}")]
-        public async Task<ActionResult> GetByCaption(string name)
+        public async Task<ApiCommonResponse> GetByCaption(string name)
         {
             var response = await _AppFeedbackService.GetAppFeedbackByName(name);
             if (response.StatusCode >= 400)
@@ -43,7 +43,7 @@ namespace HaloBiz.Controllers
         }*/
 
         [HttpGet("{id}")]
-        public async Task<ActionResult> GetById(long id)
+        public async Task<ApiCommonResponse> GetById(long id)
         {
             var response = await _AppFeedbackService.GetAppFeedbackById(id);
             if (response.StatusCode >= 400)
@@ -53,7 +53,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpPost("")]
-        public async Task<ActionResult> AddNewAppFeedback(AppFeedbackReceivingDTO AppFeedbackReceiving)
+        public async Task<ApiCommonResponse> AddNewAppFeedback(AppFeedbackReceivingDTO AppFeedbackReceiving)
         {
             var response = await _AppFeedbackService.AddAppFeedback(HttpContext, AppFeedbackReceiving);
             if (response.StatusCode >= 400)
@@ -73,7 +73,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpDelete("{id}")]
-        public async Task<ActionResult> DeleteById(int id)
+        public async Task<ApiCommonResponse> DeleteById(int id)
         {
             var response = await _AppFeedbackService.DeleteAppFeedback(id);
             return StatusCode(response.StatusCode);

@@ -24,7 +24,7 @@ namespace HaloBiz.Controllers.AccountsModel
         }
 
         [HttpGet("")]
-        public async Task<ActionResult> GetAccountMasters([FromQuery]AccountMasterTransactionDateQueryParams query)
+        public async Task<ApiCommonResponse> GetAccountMasters([FromQuery]AccountMasterTransactionDateQueryParams query)
         {
             var response = await _AccountMasterService.QueryAccountMasters( query);
             if (response.StatusCode >= 400)
@@ -34,7 +34,7 @@ namespace HaloBiz.Controllers.AccountsModel
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult> GetById(long id)
+        public async Task<ApiCommonResponse> GetById(long id)
         {
             var response = await _AccountMasterService.GetAccountMasterById(id);
             if (response.StatusCode >= 400)
@@ -44,7 +44,7 @@ namespace HaloBiz.Controllers.AccountsModel
         }
 
         [HttpPost("")]
-        public async Task<ActionResult> AddNewAccountMaster(AccountMasterReceivingDTO AccountMasterReceiving)
+        public async Task<ApiCommonResponse> AddNewAccountMaster(AccountMasterReceivingDTO AccountMasterReceiving)
         {
             var response = await _AccountMasterService.AddAccountMaster(HttpContext, AccountMasterReceiving);
             if (response.StatusCode >= 400)
@@ -54,7 +54,7 @@ namespace HaloBiz.Controllers.AccountsModel
         }
 
         [HttpGet("GetAccountMasterByTransactionId/{transactionId}")]
-        public async Task<ActionResult> GetAccountMasterByTransactionId(string transactionId)
+        public async Task<ApiCommonResponse> GetAccountMasterByTransactionId(string transactionId)
         {
             var response = await _AccountMasterService.GetAllAccountMastersByTransactionId(transactionId);
             if (response.StatusCode >= 400)
@@ -64,7 +64,7 @@ namespace HaloBiz.Controllers.AccountsModel
         }
 
         [HttpPost("GetAccountMasterByCustomerIdAndContractYears")]
-        public async Task<ActionResult> GetAccountMasterByTransactionId(AccountMasterTransactionDateQueryParams searchDto)
+        public async Task<ApiCommonResponse> GetAccountMasterByTransactionId(AccountMasterTransactionDateQueryParams searchDto)
         {
             var response = await _AccountMasterService.GetAllAccountMastersByCustomerIdAndContractYear(searchDto);
             if (response.StatusCode >= 400)
@@ -74,7 +74,7 @@ namespace HaloBiz.Controllers.AccountsModel
         }
 
         [HttpPost("PostPeriodicAccounts")]
-        public async Task<ActionResult> PostPeriodicAccount()
+        public async Task<ApiCommonResponse> PostPeriodicAccount()
         {
             var response = await _AccountMasterService.PostPeriodicAccountMaster();
             if (response.StatusCode >= 400)
@@ -93,7 +93,7 @@ namespace HaloBiz.Controllers.AccountsModel
         }
 
         [HttpDelete("{id}")]
-        public async Task<ActionResult> DeleteById(long id)
+        public async Task<ApiCommonResponse> DeleteById(long id)
         {
             var response = await _AccountMasterService.DeleteAccountMaster(id);
             return StatusCode(response.StatusCode);

@@ -10,11 +10,11 @@ namespace HaloBiz.MyServices
 {
     public interface IEscalationLevelService
     {
-        Task<ApiResponse> AddEscalationLevel(HttpContext context, EscalationLevelReceivingDTO escalationLevelReceivingDTO);
-        Task<ApiResponse> GetAllEscalationLevel();
-        Task<ApiResponse> GetEscalationLevelById(long id);
-        Task<ApiResponse> GetEscalationLevelByName(string name);
-        Task<ApiResponse> UpdateEscalationLevel(HttpContext context, long id, EscalationLevelReceivingDTO escalationLevelReceivingDTO);
-        Task<ApiResponse> DeleteEscalationLevel(long id);
+        Task<ApiCommonResponse> AddEscalationLevel(HttpContext context, EscalationLevelReceivingDTO escalationLevelReceivingDTO);
+        Task<ApiCommonResponse> GetAllEscalationLevel();
+        Task<ApiCommonResponse> GetEscalationLevelById(long id);
+        Task<ApiCommonResponse> GetEscalationLevelByName(string name);
+        Task<ApiCommonResponse> UpdateEscalationLevel(HttpContext context, long id, EscalationLevelReceivingDTO escalationLevelReceivingDTO);
+        Task<ApiCommonResponse> DeleteEscalationLevel(long id);
     }
 }

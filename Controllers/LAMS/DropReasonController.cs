@@ -23,7 +23,7 @@ namespace Controllers.Controllers
         }
 
         [HttpGet("")]
-        public async Task<ActionResult> GetDropReason()
+        public async Task<ApiCommonResponse> GetDropReason()
         {
             var response = await _DropReasonService.GetAllDropReason();
             if (response.StatusCode >= 400)
@@ -32,7 +32,7 @@ namespace Controllers.Controllers
             return Ok(DropReason);
         }
         [HttpGet("title/{title}")]
-        public async Task<ActionResult> GetByTitle(string title)
+        public async Task<ApiCommonResponse> GetByTitle(string title)
         {
             var response = await _DropReasonService.GetDropReasonByTitle(title);
             if (response.StatusCode >= 400)
@@ -42,7 +42,7 @@ namespace Controllers.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult> GetById(long id)
+        public async Task<ApiCommonResponse> GetById(long id)
         {
             var response = await _DropReasonService.GetDropReasonById(id);
             if (response.StatusCode >= 400)
@@ -52,7 +52,7 @@ namespace Controllers.Controllers
         }
 
         [HttpPost("")]
-        public async Task<ActionResult> AddNewDropReason(DropReasonReceivingDTO DropReasonReceiving)
+        public async Task<ApiCommonResponse> AddNewDropReason(DropReasonReceivingDTO DropReasonReceiving)
         {
             var response = await _DropReasonService.AddDropReason(HttpContext, DropReasonReceiving);
             if (response.StatusCode >= 400)
@@ -72,7 +72,7 @@ namespace Controllers.Controllers
         }
 
         [HttpDelete("{id}")]
-        public async Task<ActionResult> DeleteById(int id)
+        public async Task<ApiCommonResponse> DeleteById(int id)
         {
             var response = await _DropReasonService.DeleteDropReason(id);
             return StatusCode(response.StatusCode);

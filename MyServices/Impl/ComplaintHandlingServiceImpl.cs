@@ -32,7 +32,7 @@ namespace HaloBiz.MyServices.Impl
             _mailAdapter = mailAdapter;
         }
 
-        public async Task<ApiResponse> GetComplaintHandlingStats(HttpContext context)
+        public async Task<ApiCommonResponse> GetComplaintHandlingStats(HttpContext context)
         {
             try
             {
@@ -64,7 +64,7 @@ namespace HaloBiz.MyServices.Impl
             }
         }
 
-        public async Task<ApiResponse> GetComplaintsHandling(HttpContext context)
+        public async Task<ApiCommonResponse> GetComplaintsHandling(HttpContext context)
         {
             try
             {
@@ -118,7 +118,7 @@ namespace HaloBiz.MyServices.Impl
             }
         }
 
-        public async Task<ApiResponse> GetUserEscalationLevelDetails(HttpContext context)
+        public async Task<ApiCommonResponse> GetUserEscalationLevelDetails(HttpContext context)
         {
             try
             {
@@ -239,7 +239,7 @@ namespace HaloBiz.MyServices.Impl
             return data == null ? 0 : data.Id;
         }
 
-        public async Task<ApiResponse> MoveComplaintToNextStage(HttpContext context, MoveComplaintToNextStageDTO model)
+        public async Task<ApiCommonResponse> MoveComplaintToNextStage(HttpContext context, MoveComplaintToNextStageDTO model)
         {
             try
             {
@@ -347,7 +347,7 @@ namespace HaloBiz.MyServices.Impl
 
                 _context.Complaints.Update(complaint);
                 await _context.SaveChangesAsync();
-                return new ApiOkResponse(true);
+                return CommonResponse.Send(ResponseCodes.SUCCESS);
             }
             catch(Exception error)
             {
@@ -414,7 +414,7 @@ namespace HaloBiz.MyServices.Impl
             return result;
         }
 
-        public async Task<ApiResponse> PickComplaint(HttpContext context, PickComplaintDTO model)
+        public async Task<ApiCommonResponse> PickComplaint(HttpContext context, PickComplaintDTO model)
         {
             try
             {
@@ -427,7 +427,7 @@ namespace HaloBiz.MyServices.Impl
                 complaint.DatePicked = DateTime.Now;
                 _context.Complaints.Update(complaint);
                 await _context.SaveChangesAsync();
-                return new ApiOkResponse(true);
+                return CommonResponse.Send(ResponseCodes.SUCCESS);
             }
             catch(Exception error)
             {
@@ -436,7 +436,7 @@ namespace HaloBiz.MyServices.Impl
             }
         }
 
-        public async Task<ApiResponse> TrackComplaint(ComplaintTrackingRecievingDTO model)
+        public async Task<ApiCommonResponse> TrackComplaint(ComplaintTrackingRecievingDTO model)
         {
             try
             {
@@ -503,7 +503,7 @@ namespace HaloBiz.MyServices.Impl
             }
         }
 
-        public async Task<ApiResponse> ConfirmComplaintResolved(long complaintId)
+        public async Task<ApiCommonResponse> ConfirmComplaintResolved(long complaintId)
         {
             try
             {
@@ -511,7 +511,7 @@ namespace HaloBiz.MyServices.Impl
                 complaint.IsConfirmedResolved = true;
                 _context.Complaints.Update(complaint);
                 await _context.SaveChangesAsync();
-                return new ApiOkResponse(true);
+                return CommonResponse.Send(ResponseCodes.SUCCESS);
             }
             catch(Exception error)
             {
@@ -520,7 +520,7 @@ namespace HaloBiz.MyServices.Impl
             }
         }
 
-        public async Task<ApiResponse> RunComplaintConfirmationCronJob()
+        public async Task<ApiCommonResponse> RunComplaintConfirmationCronJob()
         {
             try
             {
@@ -543,7 +543,7 @@ namespace HaloBiz.MyServices.Impl
                 }
 
                 await _context.SaveChangesAsync();
-                return new ApiOkResponse(true);
+                return CommonResponse.Send(ResponseCodes.SUCCESS);
             }
             catch(Exception error)
             {
@@ -552,7 +552,7 @@ namespace HaloBiz.MyServices.Impl
             }
         }
 
-        public async Task<ApiResponse> AssignComplaintToUser(HttpContext context, AssignComplaintReceivingDTO model)
+        public async Task<ApiCommonResponse> AssignComplaintToUser(HttpContext context, AssignComplaintReceivingDTO model)
         {
             try
             {
@@ -603,7 +603,7 @@ namespace HaloBiz.MyServices.Impl
                 complaint.DatePicked = DateTime.Now;
                 _context.Complaints.Update(complaint);
                 await _context.SaveChangesAsync();
-                return new ApiOkResponse(true);
+                return CommonResponse.Send(ResponseCodes.SUCCESS);
             }
             catch(Exception error)
             {
@@ -612,7 +612,7 @@ namespace HaloBiz.MyServices.Impl
             }
         }
 
-        public async Task<ApiResponse> MiniTrackComplaint(long ComplaintId)
+        public async Task<ApiCommonResponse> MiniTrackComplaint(long ComplaintId)
         {
             try
             {
@@ -645,7 +645,7 @@ namespace HaloBiz.MyServices.Impl
             }
         }
 
-        public async Task<ApiResponse> GetHandlersRatings(HandlersRatingReceivingDTO model)
+        public async Task<ApiCommonResponse> GetHandlersRatings(HandlersRatingReceivingDTO model)
         {
             try
             {

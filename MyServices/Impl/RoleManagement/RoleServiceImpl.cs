@@ -42,7 +42,7 @@ namespace HaloBiz.MyServices.Impl.RoleManagement
             _userProfileRepo = userProfileRepo;
         }
 
-        public async Task<ApiResponse> AddRole(HttpContext context, RoleReceivingDTO roleReceivingDto)
+        public async Task<ApiCommonResponse> AddRole(HttpContext context, RoleReceivingDTO roleReceivingDto)
         {
             try
             {
@@ -65,7 +65,7 @@ namespace HaloBiz.MyServices.Impl.RoleManagement
                 var savedRole = await _roleRepo.SaveRole(role);
                 if (savedRole == null)
                 {
-                    return new ApiResponse(500);
+                    return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
                 }
 
                 var roleTransferDto = _mapper.Map<RoleTransferDTO>(role);
@@ -77,7 +77,7 @@ namespace HaloBiz.MyServices.Impl.RoleManagement
             }
         }
 
-        public async Task<ApiResponse> FindRolesByUser(long userId)
+        public async Task<ApiCommonResponse> FindRolesByUser(long userId)
         {
             var roles = await _roleRepo.FindRolesByUser(userId);
             var roleTransferDto = _mapper.Map<IEnumerable<RoleTransferDTO>>(roles);
@@ -107,7 +107,7 @@ namespace HaloBiz.MyServices.Impl.RoleManagement
             return permissionsInRole.Distinct().ToList();
         }
 
-        public async Task<ApiResponse> GetPermissionsOnUser(long userId)
+        public async Task<ApiCommonResponse> GetPermissionsOnUser(long userId)
         {
             IEnumerable<PermissionDisplay> allPermissions = PermissionDisplay.GetPermissionsToDisplay(typeof(Permissions));
 
@@ -124,7 +124,7 @@ namespace HaloBiz.MyServices.Impl.RoleManagement
         }
 
 
-        public async Task<ApiResponse> GetPermissionsOnRole(string name)
+        public async Task<ApiCommonResponse> GetPermissionsOnRole(string name)
         {
             var role = await _roleRepo.FindRoleByName(name);
             if (role == null)
@@ -145,7 +145,7 @@ namespace HaloBiz.MyServices.Impl.RoleManagement
             return new ApiOkResponse(permissions);
         }
 
-        public async Task<ApiResponse> UpdateRole(HttpContext context, long id, RoleReceivingDTO roleReceivingDto)
+        public async Task<ApiCommonResponse> UpdateRole(HttpContext context, long id, RoleReceivingDTO roleReceivingDto)
         {
             try
             {
@@ -181,12 +181,12 @@ namespace HaloBiz.MyServices.Impl.RoleManagement
             }
         }
 
-        public async Task<ApiResponse> GetAllRoles()
+        public async Task<ApiCommonResponse> GetAllRoles()
         {
             var roles = await _roleRepo.FindAllRole();
             if (roles == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }           
 
            var roleTransfer = _mapper.Map<IEnumerable<RoleTransferDTO>>(roles);
@@ -194,12 +194,12 @@ namespace HaloBiz.MyServices.Impl.RoleManagement
         }
 
        
-        public async Task<ApiResponse> GetAllClaims()
+        public async Task<ApiCommonResponse> GetAllClaims()
         {
             var claims = await _roleRepo.FindAllClaims();
             if (claims == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var claimTransferDto = _mapper.Map<IEnumerable<ClaimTransferDTO>>(claims);
             return new ApiOkResponse(claimTransferDto);
@@ -242,13 +242,13 @@ namespace HaloBiz.MyServices.Impl.RoleManagement
             return string.Join(" ", Regex.Split(source, @"(?<!^)(?=[A-Z](?![A-Z]|$))"));
         }
 
-        public async Task<ApiResponse> GetUserRoleClaims(HttpContext context)
+        public async Task<ApiCommonResponse> GetUserRoleClaims(HttpContext context)
         {
             var userId = context.GetLoggedInUserId();
             var user = await _userProfileRepo.FindUserById(userId);
             if (user == null)
             {
-                return new ApiResponse(500);
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
 
             if (user.Role.Name == ClaimConstants.SuperAdmin)
@@ -275,34 +275,34 @@ namespace HaloBiz.MyServices.Impl.RoleManagement
             return new ApiOkResponse(userDto);
         }
 
-        public async Task<ApiResponse> GetRoleById(long id)
+        public async Task<ApiCommonResponse> GetRoleById(long id)
         {
             var role = await _roleRepo.FindRoleById(id);
             if (role == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var roleTransferDtOs = _mapper.Map<RoleTransferDTO>(role);
             return new ApiOkResponse(roleTransferDtOs);
         }
 
-        public async Task<ApiResponse> GetRoleByName(string name)
+        public async Task<ApiCommonResponse> GetRoleByName(string name)
         {
             var role = await _roleRepo.FindRoleByName(name);
             if (role == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var roleTransferDtOs = _mapper.Map<RoleTransferDTO>(role);
             return new ApiOkResponse(roleTransferDtOs);
         }
 
-        //public async Task<ApiResponse> UpdateRole(HttpContext context, long id, RoleReceivingDTO roleReceivingDto)
+        //public async Task<ApiCommonResponse> UpdateRole(HttpContext context, long id, RoleReceivingDTO roleReceivingDto)
         //{
         //    var roleToUpdate = await _roleRepo.FindRoleById(id);
         //    if (roleToUpdate == null)
         //    {
-        //        return new ApiResponse(404);
+        //        return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
         //    }
 
         //    if(roleToUpdate.Name != roleReceivingDto.Name)
@@ -323,13 +323,13 @@ namespace HaloBiz.MyServices.Impl.RoleManagement
 
         //    if (updatedRole == null)
         //    {
-        //        return new ApiResponse(500);
+        //        return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
         //    }
 
         //    var roleClaimsDeleted = await _roleRepo.DeleteRoleClaims(updatedRole);
         //    if (!roleClaimsDeleted)
         //    {
-        //        return new ApiResponse(500);
+        //        return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
         //    }
 
         //    //if (roleReceivingDto.RoleClaims.Any())
@@ -358,12 +358,12 @@ namespace HaloBiz.MyServices.Impl.RoleManagement
 
         //}
 
-        public async Task<ApiResponse> DeleteRole(long id)
+        public async Task<ApiCommonResponse> DeleteRole(long id)
         {
             var roleToDelete = await _roleRepo.FindRoleById(id);
             if (roleToDelete == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
 
             if(roleToDelete.Name == ClaimConstants.SuperAdmin || roleToDelete.Name == ClaimConstants.UnAssigned)
@@ -386,10 +386,10 @@ namespace HaloBiz.MyServices.Impl.RoleManagement
 
             if (!await _roleRepo.DeleteRole(roleToDelete))
             {
-                return new ApiResponse(500);
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
 
-            return new ApiOkResponse(true);
+            return CommonResponse.Send(ResponseCodes.SUCCESS);
         }
     }
 }

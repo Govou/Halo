@@ -18,7 +18,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpGet("")]
-        public async Task<ActionResult> GetRegion()
+        public async Task<ApiCommonResponse> GetRegion()
         {
             var response = await _regionService.GetAllRegions();
             if (response.StatusCode >= 400)
@@ -28,7 +28,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpGet("name/{name}")]
-        public async Task<ActionResult> GetByName(string name)
+        public async Task<ApiCommonResponse> GetByName(string name)
         {
             var response = await _regionService.GetRegionByName(name);
             if (response.StatusCode >= 400)
@@ -38,7 +38,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult> GetById(long id)
+        public async Task<ApiCommonResponse> GetById(long id)
         {
             var response = await _regionService.GetRegionById(id);
             if (response.StatusCode >= 400)
@@ -48,7 +48,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpPost("")]
-        public async Task<ActionResult> AddNewRegion(RegionReceivingDTO RegionReceiving)
+        public async Task<ApiCommonResponse> AddNewRegion(RegionReceivingDTO RegionReceiving)
         {
             var response = await _regionService.AddRegion(HttpContext, RegionReceiving);
             if (response.StatusCode >= 400)
@@ -68,7 +68,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpDelete("{id}")]
-        public async Task<ActionResult> DeleteById(int id)
+        public async Task<ApiCommonResponse> DeleteById(int id)
         {
             var response = await _regionService.DeleteRegion(id);
             return StatusCode(response.StatusCode);

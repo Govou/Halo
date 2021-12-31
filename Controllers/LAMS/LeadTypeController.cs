@@ -23,7 +23,7 @@ namespace Controllers.Controllers
         }
 
         [HttpGet("")]
-        public async Task<ActionResult> GetLeadType()
+        public async Task<ApiCommonResponse> GetLeadType()
         {
             var response = await _leadTypeService.GetAllLeadType();
             if (response.StatusCode >= 400)
@@ -32,7 +32,7 @@ namespace Controllers.Controllers
             return Ok(leadType);
         }
         [HttpGet("caption/{name}")]
-        public async Task<ActionResult> GetByCaption(string name)
+        public async Task<ApiCommonResponse> GetByCaption(string name)
         {
             var response = await _leadTypeService.GetLeadTypeByName(name);
             if (response.StatusCode >= 400)
@@ -42,7 +42,7 @@ namespace Controllers.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult> GetById(long id)
+        public async Task<ApiCommonResponse> GetById(long id)
         {
             var response = await _leadTypeService.GetLeadTypeById(id);
             if (response.StatusCode >= 400)
@@ -52,7 +52,7 @@ namespace Controllers.Controllers
         }
 
         [HttpPost("")]
-        public async Task<ActionResult> AddNewLeadType(LeadTypeReceivingDTO leadTypeReceiving)
+        public async Task<ApiCommonResponse> AddNewLeadType(LeadTypeReceivingDTO leadTypeReceiving)
         {
             var response = await _leadTypeService.AddLeadType(HttpContext, leadTypeReceiving);
             if (response.StatusCode >= 400)
@@ -72,7 +72,7 @@ namespace Controllers.Controllers
         }
 
         [HttpDelete("{id}")]
-        public async Task<ActionResult> DeleteById(int id)
+        public async Task<ApiCommonResponse> DeleteById(int id)
         {
             var response = await _leadTypeService.DeleteLeadType(id);
             return StatusCode(response.StatusCode);

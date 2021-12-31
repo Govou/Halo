@@ -5,9 +5,9 @@ namespace HaloBiz.MyServices
 {
     public interface IStatesService
     {
-        Task<ApiResponse> GetStateById(long id);
-        Task<ApiResponse> GetStateByName(string name);
-        Task<ApiResponse> GetAllStates();
-        Task<ApiResponse> GetAllLgas();
+        Task<ApiCommonResponse> GetStateById(long id);
+        Task<ApiCommonResponse> GetStateByName(string name);
+        Task<ApiCommonResponse> GetAllStates();
+        Task<ApiCommonResponse> GetAllLgas();
     }
 }

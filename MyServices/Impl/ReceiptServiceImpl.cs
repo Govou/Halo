@@ -47,7 +47,7 @@ namespace HaloBiz.MyServices.Impl
             this._voucherRepo = voucherRepo;
         }
 
-        public async Task<ApiResponse> AddReceipt(HttpContext context, ReceiptReceivingDTO receiptReceivingDTO)
+        public async Task<ApiCommonResponse> AddReceipt(HttpContext context, ReceiptReceivingDTO receiptReceivingDTO)
         {
             LoggedInUserId = context.GetLoggedInUserId();
             if (receiptReceivingDTO.InvoiceNumber.ToUpper().Contains("GINV"))
@@ -117,12 +117,12 @@ namespace HaloBiz.MyServices.Impl
                         await trx.RollbackAsync();
                         _logger.LogError(ex.Message);
                         _logger.LogError(ex.StackTrace);                      
-                        return new ApiResponse(500, ex.Message);
+                        return  CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
                     }                                
                 }
 
                 await trx.CommitAsync();
-                return new ApiOkResponse(true);
+                return CommonResponse.Send(ResponseCodes.SUCCESS);
             }
             else
             {
@@ -165,13 +165,13 @@ namespace HaloBiz.MyServices.Impl
                         _logger.LogError(e.Message);
                         _logger.LogError(e.StackTrace);
                         await transaction.RollbackAsync();
-                        return new ApiResponse(500);
+                        return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
                     }
                 }
             }
         }
 
-        public async Task<ApiResponse> GetReceiptBreakDown(long invoiceId, double totalReceiptAmount)
+        public async Task<ApiCommonResponse> GetReceiptBreakDown(long invoiceId, double totalReceiptAmount)
         {
             var singleInvoice = await _invoiceRepo.FindInvoiceById(invoiceId);
 
@@ -236,7 +236,7 @@ namespace HaloBiz.MyServices.Impl
                 {
                     _logger.LogError(ex.Message);
                     _logger.LogError(ex.StackTrace);
-                    return new ApiResponse(500);
+                    return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
                 }
             }
             

@@ -23,7 +23,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpGet("")]
-        public async Task<ActionResult> GetRequiredServiceDocument()
+        public async Task<ApiCommonResponse> GetRequiredServiceDocument()
         {
             var response = await _requiredServiceDocumentService.GetAllRequiredServiceDocument();
             if (response.StatusCode >= 400)
@@ -33,7 +33,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpGet("caption/{name}")]
-        public async Task<ActionResult> GetByCaption(string name)
+        public async Task<ApiCommonResponse> GetByCaption(string name)
         {
             var response = await _requiredServiceDocumentService.GetRequiredServiceDocumentByName(name);
             if (response.StatusCode >= 400)
@@ -43,7 +43,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult> GetById(long id)
+        public async Task<ApiCommonResponse> GetById(long id)
         {
             var response = await _requiredServiceDocumentService.GetRequiredServiceDocumentById(id);
             if (response.StatusCode >= 400)
@@ -53,7 +53,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpPost("")]
-        public async Task<ActionResult> AddNewRequiredServiceDocument(RequiredServiceDocumentReceivingDTO requiredServiceDocumentReceiving)
+        public async Task<ApiCommonResponse> AddNewRequiredServiceDocument(RequiredServiceDocumentReceivingDTO requiredServiceDocumentReceiving)
         {
             var response = await _requiredServiceDocumentService.AddRequiredServiceDocument(HttpContext, requiredServiceDocumentReceiving);
             if (response.StatusCode >= 400)
@@ -73,7 +73,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpDelete("{id}")]
-        public async Task<ActionResult> DeleteById(int id)
+        public async Task<ApiCommonResponse> DeleteById(int id)
         {
             var response = await _requiredServiceDocumentService.DeleteRequiredServiceDocument(id);
             return StatusCode(response.StatusCode);

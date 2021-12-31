@@ -18,7 +18,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpGet("")]
-        public async Task<ActionResult> GetServiceTaskDeliverable()
+        public async Task<ApiCommonResponse> GetServiceTaskDeliverable()
         {
             var response = await _serviceTaskDeliverableService.GetAllServiceTaskDeliverables();
             if (response.StatusCode >= 400)
@@ -28,7 +28,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpGet("name/{name}")]
-        public async Task<ActionResult> GetByCaption(string name)
+        public async Task<ApiCommonResponse> GetByCaption(string name)
         {
             var response = await _serviceTaskDeliverableService.GetServiceTaskDeliverableByName(name);
             if (response.StatusCode >= 400)
@@ -38,7 +38,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult> GetById(long id)
+        public async Task<ApiCommonResponse> GetById(long id)
         {
             var response = await _serviceTaskDeliverableService.GetServiceTaskDeliverableById(id);
             if (response.StatusCode >= 400)
@@ -48,7 +48,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpPost("")]
-        public async Task<ActionResult> AddNewServiceTaskDeliverable(ServiceTaskDeliverableReceivingDTO ServiceTaskDeliverableReceiving)
+        public async Task<ApiCommonResponse> AddNewServiceTaskDeliverable(ServiceTaskDeliverableReceivingDTO ServiceTaskDeliverableReceiving)
         {
             var response = await _serviceTaskDeliverableService.AddServiceTaskDeliverable(HttpContext, ServiceTaskDeliverableReceiving);
             if (response.StatusCode >= 400)
@@ -68,7 +68,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpDelete("{id}")]
-        public async Task<ActionResult> DeleteById(int id)
+        public async Task<ApiCommonResponse> DeleteById(int id)
         {
             var response = await _serviceTaskDeliverableService.DeleteServiceTaskDeliverable(id);
             return StatusCode(response.StatusCode);

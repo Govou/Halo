@@ -24,7 +24,7 @@ namespace HaloBiz.MyServices.Impl
             this._sbuProportionRepo = sbuProportionRepo;
         }
 
-        public async Task<ApiResponse> AddSbuproportion(HttpContext context, SbuproportionReceivingDTO sBUProportionReceivingDTO)
+        public async Task<ApiCommonResponse> AddSbuproportion(HttpContext context, SbuproportionReceivingDTO sBUProportionReceivingDTO)
         {
             var sBUProportion = _mapper.Map<Sbuproportion>(sBUProportionReceivingDTO);
             if((sBUProportion.LeadClosureProportion + sBUProportion.LeadGenerationProportion) > 100)
@@ -35,41 +35,41 @@ namespace HaloBiz.MyServices.Impl
             var savedSbuproportion = await _sbuProportionRepo.SaveSbuproportion(sBUProportion);
             if (savedSbuproportion == null)
             {
-                return new ApiResponse(500);
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
             var sBUProportionTransferDTO = _mapper.Map<SbuproportionTransferDTO>(sBUProportion);
             return new ApiOkResponse(sBUProportionTransferDTO);
         }
 
-        public async Task<ApiResponse> GetAllSbuproportions()
+        public async Task<ApiCommonResponse> GetAllSbuproportions()
         {
             var sBUProportions = await _sbuProportionRepo.FindAllSbuproportions();
             if (sBUProportions == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var sBUProportionTransferDTO = _mapper.Map<IEnumerable<SbuproportionTransferDTO>>(sBUProportions);
             return new ApiOkResponse(sBUProportionTransferDTO);
         }
 
-        public async Task<ApiResponse> GetSbuproportionById(long id)
+        public async Task<ApiCommonResponse> GetSbuproportionById(long id)
         {
             var sBUProportion = await _sbuProportionRepo.FindSbuproportionById(id);
             if (sBUProportion == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var sBUProportionTransferDTO = _mapper.Map<SbuproportionTransferDTO>(sBUProportion);
             return new ApiOkResponse(sBUProportionTransferDTO);
         }
 
 
-        public async Task<ApiResponse> UpdateSbuproportion(HttpContext context, long id, SbuproportionReceivingDTO sBUProportionReceivingDTO)
+        public async Task<ApiCommonResponse> UpdateSbuproportion(HttpContext context, long id, SbuproportionReceivingDTO sBUProportionReceivingDTO)
         {
             var sBUProportionToUpdate = await _sbuProportionRepo.FindSbuproportionById(id);
             if (sBUProportionToUpdate == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             
             var summary = $"Initial details before change, \n {sBUProportionToUpdate.ToString()} \n" ;
@@ -84,7 +84,7 @@ namespace HaloBiz.MyServices.Impl
 
             if (updatedSbuproportion == null)
             {
-                return new ApiResponse(500);
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
             ModificationHistory history = new ModificationHistory(){
                 ModelChanged = "Sbuproportion",
@@ -100,21 +100,21 @@ namespace HaloBiz.MyServices.Impl
 
         }
 
-        public async Task<ApiResponse> DeleteSbuproportion(long id)
+        public async Task<ApiCommonResponse> DeleteSbuproportion(long id)
         {
             var SbuproportionToDelete = await _sbuProportionRepo.FindSbuproportionById(id);
 
             if (SbuproportionToDelete == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
 
             if (!await _sbuProportionRepo.DeleteSbuproportion(SbuproportionToDelete))
             {
-                return new ApiResponse(500);
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
 
-            return new ApiOkResponse(true);
+            return CommonResponse.Send(ResponseCodes.SUCCESS);
         }
     }
 }

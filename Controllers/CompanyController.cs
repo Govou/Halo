@@ -22,7 +22,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpGet("")]
-        public async Task<ActionResult> GetAllCompanies()
+        public async Task<ApiCommonResponse> GetAllCompanies()
         {
             var response = await _companyService.GetAllCompanies();
             if (response.StatusCode >= 400)
@@ -31,7 +31,7 @@ namespace HaloBiz.Controllers
             return Ok((IEnumerable<CompanyTransferDTO>)company);
         }
         [HttpGet("name/{name}")]
-        public async Task<ActionResult> GetByName(string name)
+        public async Task<ApiCommonResponse> GetByName(string name)
         {
             var response = await _companyService.GetCompanyByName(name);
             if (response.StatusCode >= 400)
@@ -41,7 +41,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult> GetById(long id)
+        public async Task<ApiCommonResponse> GetById(long id)
         {
             var response = await _companyService.GetCompanyById(id);
             if (response.StatusCode >= 400)
@@ -51,7 +51,7 @@ namespace HaloBiz.Controllers
         }
 
         //[HttpPost("")]
-        //public async Task<ActionResult> AddNewCompany(CompanyReceivingDTO companyReceiving)
+        //public async Task<ApiCommonResponse> AddNewCompany(CompanyReceivingDTO companyReceiving)
         //{
         //    var response = await _companyService.AddCompany(companyReceiving);
         //    if (response.StatusCode >= 400)

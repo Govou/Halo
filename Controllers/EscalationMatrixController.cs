@@ -23,7 +23,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpGet("")]
-        public async Task<ActionResult> GetEscalationMatrix()
+        public async Task<ApiCommonResponse> GetEscalationMatrix()
         {
             var response = await _EscalationMatrixService.GetAllEscalationMatrix();
             if (response.StatusCode >= 400)
@@ -33,7 +33,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpGet("GetHandlers/{complaintTypeId}")]
-        public async Task<ActionResult> GetHandlers(long complaintTypeId)
+        public async Task<ApiCommonResponse> GetHandlers(long complaintTypeId)
         {
             var response = await _EscalationMatrixService.GetHandlers(complaintTypeId);
             if (response.StatusCode >= 400)
@@ -43,7 +43,7 @@ namespace HaloBiz.Controllers
         }
 
         /*[HttpGet("caption/{name}")]
-        public async Task<ActionResult> GetByCaption(string name)
+        public async Task<ApiCommonResponse> GetByCaption(string name)
         {
             var response = await _EscalationMatrixService.GetEscalationMatrixByName(name);
             if (response.StatusCode >= 400)
@@ -53,7 +53,7 @@ namespace HaloBiz.Controllers
         }*/
 
         [HttpGet("{id}")]
-        public async Task<ActionResult> GetById(long id)
+        public async Task<ApiCommonResponse> GetById(long id)
         {
             var response = await _EscalationMatrixService.GetEscalationMatrixById(id);
             if (response.StatusCode >= 400)
@@ -63,7 +63,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpPost("")]
-        public async Task<ActionResult> AddNewEscalationMatrix(EscalationMatrixReceivingDTO EscalationMatrixReceiving)
+        public async Task<ApiCommonResponse> AddNewEscalationMatrix(EscalationMatrixReceivingDTO EscalationMatrixReceiving)
         {
             var response = await _EscalationMatrixService.AddEscalationMatrix(HttpContext, EscalationMatrixReceiving);
             if (response.StatusCode >= 400)
@@ -83,7 +83,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpDelete("{id}")]
-        public async Task<ActionResult> DeleteById(int id)
+        public async Task<ApiCommonResponse> DeleteById(int id)
         {
             var response = await _EscalationMatrixService.DeleteEscalationMatrix(id);
             return StatusCode(response.StatusCode);

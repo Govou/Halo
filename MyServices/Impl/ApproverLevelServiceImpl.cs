@@ -26,51 +26,51 @@ namespace HaloBiz.MyServices.Impl
             this._approverLevelRepo = approverLevelRepo;
             this._logger = logger;
         }
-        public async  Task<ApiResponse> AddApproverLevel(HttpContext context, ApproverLevelReceivingDTO approverLevelReceivingDTO)
+        public async  Task<ApiCommonResponse> AddApproverLevel(HttpContext context, ApproverLevelReceivingDTO approverLevelReceivingDTO)
         {
             var approverLevel = _mapper.Map<ApproverLevel>(approverLevelReceivingDTO);
             approverLevel.CreatedById = context.GetLoggedInUserId();
             var savedApproverLevel = await _approverLevelRepo.SaveApproverLevel(approverLevel);
             if (savedApproverLevel == null)
             {
-                return new ApiResponse(500);
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
             var approverLevelTransferDTO = _mapper.Map<ApproverLevelTransferDTO>(approverLevel);
             return new ApiOkResponse(approverLevelTransferDTO);
         }
 
-        public async Task<ApiResponse> DeleteApproverLevel(long id)
+        public async Task<ApiCommonResponse> DeleteApproverLevel(long id)
         {
             var approverLevelToDelete = await _approverLevelRepo.FindApproverLevelById(id);
             if(approverLevelToDelete == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             if (!await _approverLevelRepo.DeleteApproverLevel(approverLevelToDelete))
             {
-                return new ApiResponse(500);
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
 
-            return new ApiOkResponse(true);
+            return CommonResponse.Send(ResponseCodes.SUCCESS);
         }
 
-        public async Task<ApiResponse> GetAllApproverLevel()
+        public async Task<ApiCommonResponse> GetAllApproverLevel()
         {
             var approverLevel = await _approverLevelRepo.GetApproverLevels();
             if (approverLevel == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var approverLevelTransferDTO = _mapper.Map<IEnumerable<ApproverLevelTransferDTO>>(approverLevel);
             return new ApiOkResponse(approverLevelTransferDTO);
         }
 
-        public  async Task<ApiResponse> UpdateApproverLevel(HttpContext context, long id, ApproverLevelReceivingDTO approverLevelReceivingDTO)
+        public  async Task<ApiCommonResponse> UpdateApproverLevel(HttpContext context, long id, ApproverLevelReceivingDTO approverLevelReceivingDTO)
         {
             var approverLevelToUpdate = await _approverLevelRepo.FindApproverLevelById(id);
             if (approverLevelToUpdate == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             
             var summary = $"Initial details before change, \n {approverLevelToUpdate.ToString()} \n" ;
@@ -84,7 +84,7 @@ namespace HaloBiz.MyServices.Impl
 
             if (updatedApproverLevel == null)
             {
-                return new ApiResponse(500);
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
             ModificationHistory history = new ModificationHistory(){
                 ModelChanged = "ApproverLevel",

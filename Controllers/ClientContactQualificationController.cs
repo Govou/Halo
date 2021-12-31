@@ -24,7 +24,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpGet("")]
-        public async Task<ActionResult> GetClientContactQualification()
+        public async Task<ApiCommonResponse> GetClientContactQualification()
         {
             var response = await _clientContactQualificationService.GetAllClientContactQualification();
             if (response.StatusCode >= 400)
@@ -34,7 +34,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpPost("")]
-        public async Task<ActionResult> AddNewClientContactQualification(ClientContactQualificationReceivingDTO clientContactQualificationReceiving)
+        public async Task<ApiCommonResponse> AddNewClientContactQualification(ClientContactQualificationReceivingDTO clientContactQualificationReceiving)
         {
             var response = await _clientContactQualificationService.AddClientContactQualification(HttpContext, clientContactQualificationReceiving);
             if (response.StatusCode >= 400)
@@ -54,7 +54,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpDelete("{id}")]
-        public async Task<ActionResult> DeleteById(int id)
+        public async Task<ApiCommonResponse> DeleteById(int id)
         {
             var response = await _clientContactQualificationService.DeleteClientContactQualification(id);
             return StatusCode(response.StatusCode);

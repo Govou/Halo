@@ -24,7 +24,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpGet("")]
-        public async Task<ActionResult> GetIndustry()
+        public async Task<ApiCommonResponse> GetIndustry()
         {
             var response = await _industryService.GetAllIndustry();
             if (response.StatusCode >= 400)
@@ -34,7 +34,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpPost("")]
-        public async Task<ActionResult> AddNewIndustry(IndustryReceivingDTO industryReceiving)
+        public async Task<ApiCommonResponse> AddNewIndustry(IndustryReceivingDTO industryReceiving)
         {
             var response = await _industryService.AddIndustry(HttpContext, industryReceiving);
             if (response.StatusCode >= 400)
@@ -54,7 +54,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpDelete("{id}")]
-        public async Task<ActionResult> DeleteById(int id)
+        public async Task<ApiCommonResponse> DeleteById(int id)
         {
             var response = await _industryService.DeleteIndustry(id);
             return StatusCode(response.StatusCode);

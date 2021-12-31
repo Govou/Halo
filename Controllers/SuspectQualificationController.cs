@@ -23,7 +23,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpGet("")]
-        public async Task<ActionResult> GetSuspectQualification()
+        public async Task<ApiCommonResponse> GetSuspectQualification()
         {
             var response = await _SuspectQualificationService.GetAllSuspectQualification();
             if (response.StatusCode >= 400)
@@ -33,7 +33,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpGet("GetUserSuspectQualification")]
-        public async Task<ActionResult> GetUserSuspectQualification()
+        public async Task<ApiCommonResponse> GetUserSuspectQualification()
         {
             var response = await _SuspectQualificationService.GetUserSuspectQualification(HttpContext);
             if (response.StatusCode >= 400)
@@ -43,7 +43,7 @@ namespace HaloBiz.Controllers
         }
 
         /*[HttpGet("caption/{name}")]
-        public async Task<ActionResult> GetByCaption(string name)
+        public async Task<ApiCommonResponse> GetByCaption(string name)
         {
             var response = await _SuspectQualificationService.GetSuspectQualificationByName(name);
             if (response.StatusCode >= 400)
@@ -53,7 +53,7 @@ namespace HaloBiz.Controllers
         }*/
 
         [HttpGet("{id}")]
-        public async Task<ActionResult> GetById(long id)
+        public async Task<ApiCommonResponse> GetById(long id)
         {
             var response = await _SuspectQualificationService.GetSuspectQualificationById(id);
             if (response.StatusCode >= 400)
@@ -63,7 +63,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpPost("")]
-        public async Task<ActionResult> AddNewSuspectQualification(SuspectQualificationReceivingDTO SuspectQualificationReceiving)
+        public async Task<ApiCommonResponse> AddNewSuspectQualification(SuspectQualificationReceivingDTO SuspectQualificationReceiving)
         {
             var response = await _SuspectQualificationService.AddSuspectQualification(HttpContext, SuspectQualificationReceiving);
             if (response.StatusCode >= 400)
@@ -83,7 +83,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpDelete("{id}")]
-        public async Task<ActionResult> DeleteById(int id)
+        public async Task<ApiCommonResponse> DeleteById(int id)
         {
             var response = await _SuspectQualificationService.DeleteSuspectQualification(id);
             return StatusCode(response.StatusCode);

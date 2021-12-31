@@ -23,7 +23,7 @@ namespace HaloBiz.Controllers.AccountsModel
         }
 
         [HttpGet("")]
-        public async Task<ActionResult> GetAccountes()
+        public async Task<ApiCommonResponse> GetAccountes()
         {
             var response = await _accountService.GetAllAccounts();
             if (response.StatusCode >= 400)
@@ -33,7 +33,7 @@ namespace HaloBiz.Controllers.AccountsModel
         }
 
         [HttpGet("CashBookAccounts")]
-        public async Task<ActionResult> GetCashBookAccounts()
+        public async Task<ApiCommonResponse> GetCashBookAccounts()
         {
             var response = await _accountService.GetCashBookAccounts();
             if (response.StatusCode >= 400)
@@ -44,7 +44,7 @@ namespace HaloBiz.Controllers.AccountsModel
 
 
         [HttpPost("SeachAccount")]
-        public async Task<ActionResult> SeachAccount(AccountSearchDTO accountSearchDTO)
+        public async Task<ApiCommonResponse> SeachAccount(AccountSearchDTO accountSearchDTO)
         {
             var response = await _accountService.SearchForAccountDetails( accountSearchDTO);
             if (response.StatusCode >= 400)
@@ -54,7 +54,7 @@ namespace HaloBiz.Controllers.AccountsModel
         }
 
         [HttpGet("TradeIncome")]
-        public async Task<ActionResult> GetTradeIncomeAccountes()
+        public async Task<ApiCommonResponse> GetTradeIncomeAccountes()
         {
             var response = await _accountService.GetAllTradeIncomeTaxAccounts();
             if (response.StatusCode >= 400)
@@ -63,7 +63,7 @@ namespace HaloBiz.Controllers.AccountsModel
             return Ok(Account);
         }
         [HttpGet("alias/{alias}")]
-        public async Task<ActionResult> GetByAlias(string alias)
+        public async Task<ApiCommonResponse> GetByAlias(string alias)
         {
             var response = await _accountService.GetAccountByAlias(alias);
             if (response.StatusCode >= 400)
@@ -73,7 +73,7 @@ namespace HaloBiz.Controllers.AccountsModel
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult> GetById(long id)
+        public async Task<ApiCommonResponse> GetById(long id)
         {
             var response = await _accountService.GetAccountById(id);
             if (response.StatusCode >= 400)
@@ -83,7 +83,7 @@ namespace HaloBiz.Controllers.AccountsModel
         }
 
         [HttpPost("")]
-        public async Task<ActionResult> AddNewAccount(AccountReceivingDTO accountReceiving)
+        public async Task<ApiCommonResponse> AddNewAccount(AccountReceivingDTO accountReceiving)
         {
             var response = await _accountService.AddAccount(HttpContext, accountReceiving);
             if (response.StatusCode >= 400)
@@ -103,7 +103,7 @@ namespace HaloBiz.Controllers.AccountsModel
         }
 
         [HttpDelete("{id}")]
-        public async Task<ActionResult> DeleteById(int id)
+        public async Task<ApiCommonResponse> DeleteById(int id)
         {
             var response = await _accountService.DeleteAccount(id);
             return StatusCode(response.StatusCode);

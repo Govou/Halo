@@ -24,7 +24,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpGet("")]
-        public async Task<ActionResult> GetEngagementType()
+        public async Task<ApiCommonResponse> GetEngagementType()
         {
             var response = await _engagementTypeService.GetAllEngagementType();
             if (response.StatusCode >= 400)
@@ -34,7 +34,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpPost("")]
-        public async Task<ActionResult> AddNewEngagementType(EngagementTypeReceivingDTO engagementTypeReceiving)
+        public async Task<ApiCommonResponse> AddNewEngagementType(EngagementTypeReceivingDTO engagementTypeReceiving)
         {
             var response = await _engagementTypeService.AddEngagementType(HttpContext, engagementTypeReceiving);
             if (response.StatusCode >= 400)
@@ -54,7 +54,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpDelete("{id}")]
-        public async Task<ActionResult> DeleteById(int id)
+        public async Task<ApiCommonResponse> DeleteById(int id)
         {
             var response = await _engagementTypeService.DeleteEngagementType(id);
             return StatusCode(response.StatusCode);

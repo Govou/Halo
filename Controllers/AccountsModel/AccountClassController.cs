@@ -22,7 +22,7 @@ namespace HaloBiz.Controllers.AccountsModel
         }
 
         [HttpGet("")]
-        public async Task<ActionResult> GetAccountClasses()
+        public async Task<ApiCommonResponse> GetAccountClasses()
         {
             var response = await _accountClassService.GetAllAccountClasses();
             if (response.StatusCode >= 400)
@@ -31,7 +31,7 @@ namespace HaloBiz.Controllers.AccountsModel
             return Ok(accountClass);
         }
         [HttpGet("AccountClassBreakDown")]
-        public async Task<ActionResult> GetAccountClassesBreakdown()
+        public async Task<ApiCommonResponse> GetAccountClassesBreakdown()
         {
             var response = await _accountClassService.GetBreakdownOfAccountClass();
             if (response.StatusCode >= 400)
@@ -41,7 +41,7 @@ namespace HaloBiz.Controllers.AccountsModel
         }
 
         [HttpGet("caption/{caption}")]
-        public async Task<ActionResult> GetByCaption(string caption)
+        public async Task<ApiCommonResponse> GetByCaption(string caption)
         {
             var response = await _accountClassService.GetAccountClassByCaption(caption);
             if (response.StatusCode >= 400)
@@ -51,7 +51,7 @@ namespace HaloBiz.Controllers.AccountsModel
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult> GetById(long id)
+        public async Task<ApiCommonResponse> GetById(long id)
         {
             var response = await _accountClassService.GetAccountClassById(id);
             if (response.StatusCode >= 400)
@@ -61,7 +61,7 @@ namespace HaloBiz.Controllers.AccountsModel
         }
 
         [HttpPost("")]
-        public async Task<ActionResult> AddNewaccountClass(AccountClassReceivingDTO accountClassReceiving)
+        public async Task<ApiCommonResponse> AddNewaccountClass(AccountClassReceivingDTO accountClassReceiving)
         {
             var response = await _accountClassService.AddAccountClass(HttpContext, accountClassReceiving);
             if (response.StatusCode >= 400)
@@ -81,7 +81,7 @@ namespace HaloBiz.Controllers.AccountsModel
         }
 
         [HttpDelete("{id}")]
-        public async Task<ActionResult> DeleteById(long id)
+        public async Task<ApiCommonResponse> DeleteById(long id)
         {
             var response = await _accountClassService.DeleteAccountClass(id);
             return StatusCode(response.StatusCode);

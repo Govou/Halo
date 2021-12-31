@@ -22,7 +22,7 @@ namespace Controllers.Controllers
         }
 
         [HttpGet("")]
-        public async Task<ActionResult> GetQuote()
+        public async Task<ApiCommonResponse> GetQuote()
         {
             var response = await _quoteService.GetAllQuote();
             if (response.StatusCode >= 400)
@@ -31,7 +31,7 @@ namespace Controllers.Controllers
             return Ok(quote);
         }
         [HttpGet("reference/{reference}")]
-        public async Task<ActionResult> GetByReferenceNumber(string reference)
+        public async Task<ApiCommonResponse> GetByReferenceNumber(string reference)
         {
             var response = await _quoteService.GetQuoteByReferenceNumber(reference);
             if (response.StatusCode >= 400)
@@ -41,7 +41,7 @@ namespace Controllers.Controllers
         }
 
         [HttpGet("ByLeadDivision/{id}")]
-        public async Task<ActionResult> ByLeadDivision(long id)
+        public async Task<ApiCommonResponse> ByLeadDivision(long id)
         {
             var response = await _quoteService.FindByLeadDivisionId(id);
             if (response.StatusCode >= 400)
@@ -51,7 +51,7 @@ namespace Controllers.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult> GetById(long id)
+        public async Task<ApiCommonResponse> GetById(long id)
         {
             var response = await _quoteService.GetQuoteById(id);
             if (response.StatusCode >= 400)
@@ -61,7 +61,7 @@ namespace Controllers.Controllers
         }
 
         [HttpPost("")]
-        public async Task<ActionResult> AddNewQuote(QuoteReceivingDTO quoteReceiving)
+        public async Task<ApiCommonResponse> AddNewQuote(QuoteReceivingDTO quoteReceiving)
         {
             var response = await _quoteService.AddQuote(HttpContext, quoteReceiving);
             if (response.StatusCode >= 400)
@@ -81,7 +81,7 @@ namespace Controllers.Controllers
         }
 
         [HttpDelete("{id}")]
-        public async Task<ActionResult> DeleteById(int id)
+        public async Task<ApiCommonResponse> DeleteById(int id)
         {
             var response = await _quoteService.DeleteQuote(id);
             return StatusCode(response.StatusCode);

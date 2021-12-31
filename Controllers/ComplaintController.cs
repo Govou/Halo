@@ -23,7 +23,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpGet("")]
-        public async Task<ActionResult> GetComplaint()
+        public async Task<ApiCommonResponse> GetComplaint()
         {
             var response = await _ComplaintService.GetAllComplaint();
             if (response.StatusCode >= 400)
@@ -33,7 +33,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpGet("GetComplaintsStats")]
-        public async Task<ActionResult> GetComplaintsStats()
+        public async Task<ApiCommonResponse> GetComplaintsStats()
         {
             var response = await _ComplaintService.GetComplaintsStats(HttpContext);
             if (response.StatusCode >= 400)
@@ -43,7 +43,7 @@ namespace HaloBiz.Controllers
         }
 
         /*[HttpGet("caption/{name}")]
-        public async Task<ActionResult> GetByCaption(string name)
+        public async Task<ApiCommonResponse> GetByCaption(string name)
         {
             var response = await _ComplaintService.GetComplaintByName(name);
             if (response.StatusCode >= 400)
@@ -53,7 +53,7 @@ namespace HaloBiz.Controllers
         }*/
 
         [HttpGet("{id}")]
-        public async Task<ActionResult> GetById(long id)
+        public async Task<ApiCommonResponse> GetById(long id)
         {
             var response = await _ComplaintService.GetComplaintById(id);
             if (response.StatusCode >= 400)
@@ -63,7 +63,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpPost("")]
-        public async Task<ActionResult> AddNewComplaint(ComplaintReceivingDTO ComplaintReceiving)
+        public async Task<ApiCommonResponse> AddNewComplaint(ComplaintReceivingDTO ComplaintReceiving)
         {
             var response = await _ComplaintService.AddComplaint(HttpContext, ComplaintReceiving);
             if (response.StatusCode >= 400)
@@ -83,7 +83,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpDelete("{id}")]
-        public async Task<ActionResult> DeleteById(int id)
+        public async Task<ApiCommonResponse> DeleteById(int id)
         {
             var response = await _ComplaintService.DeleteComplaint(id);
             return StatusCode(response.StatusCode);

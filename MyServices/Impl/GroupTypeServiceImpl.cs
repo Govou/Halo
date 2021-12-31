@@ -27,58 +27,58 @@ namespace HaloBiz.MyServices.Impl
             this._logger = logger;
         }
 
-        public async Task<ApiResponse> AddGroupType(HttpContext context, GroupTypeReceivingDTO groupTypeReceivingDTO)
+        public async Task<ApiCommonResponse> AddGroupType(HttpContext context, GroupTypeReceivingDTO groupTypeReceivingDTO)
         {
             var groupType = _mapper.Map<GroupType>(groupTypeReceivingDTO);
             groupType.CreatedById = context.GetLoggedInUserId();
             var savedGroupType = await _groupTypeRepo.SaveGroupType(groupType);
             if (savedGroupType == null)
             {
-                return new ApiResponse(500);
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
             var groupTypeTransferDTO = _mapper.Map<GroupTypeTransferDTO>(groupType);
             return new ApiOkResponse(groupTypeTransferDTO);
         }
 
-        public async Task<ApiResponse> GetAllGroupType()
+        public async Task<ApiCommonResponse> GetAllGroupType()
         {
             var groupTypes = await _groupTypeRepo.FindAllGroupType();
             if (groupTypes == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var groupTypeTransferDTO = _mapper.Map<IEnumerable<GroupTypeTransferDTO>>(groupTypes);
             return new ApiOkResponse(groupTypeTransferDTO);
         }
 
-        public async Task<ApiResponse> GetGroupTypeById(long id)
+        public async Task<ApiCommonResponse> GetGroupTypeById(long id)
         {
             var groupType = await _groupTypeRepo.FindGroupTypeById(id);
             if (groupType == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var groupTypeTransferDTOs = _mapper.Map<GroupTypeTransferDTO>(groupType);
             return new ApiOkResponse(groupTypeTransferDTOs);
         }
 
-        public async Task<ApiResponse> GetGroupTypeByName(string name)
+        public async Task<ApiCommonResponse> GetGroupTypeByName(string name)
         {
             var groupType = await _groupTypeRepo.FindGroupTypeByName(name);
             if (groupType == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var groupTypeTransferDTOs = _mapper.Map<GroupTypeTransferDTO>(groupType);
             return new ApiOkResponse(groupTypeTransferDTOs);
         }
 
-        public async Task<ApiResponse> UpdateGroupType(HttpContext context, long id, GroupTypeReceivingDTO groupTypeReceivingDTO)
+        public async Task<ApiCommonResponse> UpdateGroupType(HttpContext context, long id, GroupTypeReceivingDTO groupTypeReceivingDTO)
         {
             var groupTypeToUpdate = await _groupTypeRepo.FindGroupTypeById(id);
             if (groupTypeToUpdate == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             
             var summary = $"Initial details before change, \n {groupTypeToUpdate.ToString()} \n" ;
@@ -91,7 +91,7 @@ namespace HaloBiz.MyServices.Impl
 
             if (updatedGroupType == null)
             {
-                return new ApiResponse(500);
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
             ModificationHistory history = new ModificationHistory(){
                 ModelChanged = "GroupType",
@@ -107,20 +107,20 @@ namespace HaloBiz.MyServices.Impl
 
         }
 
-        public async Task<ApiResponse> DeleteGroupType(long id)
+        public async Task<ApiCommonResponse> DeleteGroupType(long id)
         {
             var groupTypeToDelete = await _groupTypeRepo.FindGroupTypeById(id);
             if (groupTypeToDelete == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
 
             if (!await _groupTypeRepo.DeleteGroupType(groupTypeToDelete))
             {
-                return new ApiResponse(500);
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
 
-            return new ApiOkResponse(true);
+            return CommonResponse.Send(ResponseCodes.SUCCESS);
         }
     }
 }

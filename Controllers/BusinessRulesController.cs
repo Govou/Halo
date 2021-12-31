@@ -22,7 +22,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpGet("GetAllRules")]
-        public async Task<ActionResult> GetAllRules()
+        public async Task<ApiCommonResponse> GetAllRules()
         {
             var response = await _businessRuleService.GetAllBusinessRules();
             if (response.StatusCode >= 400)
@@ -32,7 +32,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpGet("GetAllPairableRules")]
-        public async Task<ActionResult> GetAllPairableRules()
+        public async Task<ApiCommonResponse> GetAllPairableRules()
         {
             var response = await _businessRuleService.GetAllPairableBusinessRules();
             if (response.StatusCode >= 400)
@@ -43,7 +43,7 @@ namespace HaloBiz.Controllers
 
 
         [HttpGet("GetAllPairables")]
-        public async Task<ActionResult> GetAllPairables()
+        public async Task<ApiCommonResponse> GetAllPairables()
         {
             var response = await _businessRuleService.GetAllPairables();
             if (response.StatusCode >= 400)
@@ -53,7 +53,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpGet("GetAllActivePairables")]
-        public async Task<ActionResult> GetAllActivePairables()
+        public async Task<ApiCommonResponse> GetAllActivePairables()
         {
             var response = await _businessRuleService.GetAllActivePairables();
             if (response.StatusCode >= 400)
@@ -63,7 +63,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpGet("GetRuleById/{id}")]
-        public async Task<ActionResult> GetRuleById(long id)
+        public async Task<ApiCommonResponse> GetRuleById(long id)
         {
             var response = await _businessRuleService.GetBusinessRuleById(id);
             if (response.StatusCode >= 400)
@@ -73,7 +73,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpGet("GetPairableById/{id}")]
-        public async Task<ActionResult> GetPairableById(long id)
+        public async Task<ApiCommonResponse> GetPairableById(long id)
         {
             var response = await _businessRuleService.GetPairableById(id);
             if (response.StatusCode >= 400)
@@ -83,7 +83,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpPost("AddNewRule")]
-        public async Task<ActionResult> AddNewRule(BusinessRuleReceivingDTO ReceivingDTO)
+        public async Task<ApiCommonResponse> AddNewRule(BusinessRuleReceivingDTO ReceivingDTO)
         {
             var response = await _businessRuleService.AddBusinessRule(HttpContext, ReceivingDTO);
             if (response.StatusCode >= 400)
@@ -94,7 +94,7 @@ namespace HaloBiz.Controllers
 
 
         [HttpPost("AddNewPairable")]
-        public async Task<ActionResult> AddNewPairable(BRPairableReceivingDTO ReceivingDTO)
+        public async Task<ApiCommonResponse> AddNewPairable(BRPairableReceivingDTO ReceivingDTO)
         {
             var response = await _businessRuleService.AddPairable(HttpContext, ReceivingDTO);
             if (response.StatusCode >= 400)
@@ -124,14 +124,14 @@ namespace HaloBiz.Controllers
         }
 
         [HttpDelete("DeleteRuleById/{id}")]
-        public async Task<ActionResult> DeleteRuleById(int id)
+        public async Task<ApiCommonResponse> DeleteRuleById(int id)
         {
             var response = await _businessRuleService.DeleteBusinessRule(id);
             return StatusCode(response.StatusCode);
         }
 
         [HttpDelete("DeletePairableById/{id}")]
-        public async Task<ActionResult> DeletePairableById(int id)
+        public async Task<ApiCommonResponse> DeletePairableById(int id)
         {
             var response = await _businessRuleService.DeletePairable(id);
             return StatusCode(response.StatusCode);

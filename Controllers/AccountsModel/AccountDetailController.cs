@@ -22,7 +22,7 @@ namespace HaloBiz.Controllers.AccountsModel
         }
 
         [HttpGet("")]
-        public async Task<ActionResult> GetAccountDetails()
+        public async Task<ApiCommonResponse> GetAccountDetails()
         {
             var response = await _AccountDetailService.GetAllAccountDetails();
             if (response.StatusCode >= 400)
@@ -34,7 +34,7 @@ namespace HaloBiz.Controllers.AccountsModel
      
 
         [HttpGet("{id}")]
-        public async Task<ActionResult> GetById(long id)
+        public async Task<ApiCommonResponse> GetById(long id)
         {
             var response = await _AccountDetailService.GetAccountDetailById(id);
             if (response.StatusCode >= 400)
@@ -44,7 +44,7 @@ namespace HaloBiz.Controllers.AccountsModel
         }
 
         [HttpPost("")]
-        public async Task<ActionResult> AddNewAccountDetail(AccountDetailReceivingDTO AccountDetailReceiving)
+        public async Task<ApiCommonResponse> AddNewAccountDetail(AccountDetailReceivingDTO AccountDetailReceiving)
         {
             var response = await _AccountDetailService.AddAccountDetail(HttpContext, AccountDetailReceiving);
             if (response.StatusCode >= 400)
@@ -64,7 +64,7 @@ namespace HaloBiz.Controllers.AccountsModel
         }
 
         [HttpDelete("{id}")]
-        public async Task<ActionResult> DeleteById(long id)
+        public async Task<ApiCommonResponse> DeleteById(long id)
         {
             var response = await _AccountDetailService.DeleteAccountDetail(id);
             return StatusCode(response.StatusCode);

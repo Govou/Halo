@@ -24,7 +24,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpGet("")]
-        public async Task<ActionResult> GetDesignation()
+        public async Task<ApiCommonResponse> GetDesignation()
         {
             var response = await _designationService.GetAllDesignation();
             if (response.StatusCode >= 400)
@@ -34,7 +34,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpPost("")]
-        public async Task<ActionResult> AddNewDesignation(DesignationReceivingDTO designationReceiving)
+        public async Task<ApiCommonResponse> AddNewDesignation(DesignationReceivingDTO designationReceiving)
         {
             var response = await _designationService.AddDesignation(HttpContext, designationReceiving);
             if (response.StatusCode >= 400)
@@ -54,7 +54,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpDelete("{id}")]
-        public async Task<ActionResult> DeleteById(int id)
+        public async Task<ApiCommonResponse> DeleteById(int id)
         {
             var response = await _designationService.DeleteDesignation(id);
             return StatusCode(response.StatusCode);

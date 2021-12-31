@@ -19,7 +19,7 @@ namespace HaloBiz.Controllers.LAMS
         }
 
         [HttpGet("")]
-        public async Task<ActionResult> GetLeadKeyPeople()
+        public async Task<ApiCommonResponse> GetLeadKeyPeople()
         {
             var response = await _leadDivisionKeyPersonService.GetAllLeadDivisionKeyPerson();
             if (response.StatusCode >= 400)
@@ -29,7 +29,7 @@ namespace HaloBiz.Controllers.LAMS
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult> GetById(long id)
+        public async Task<ApiCommonResponse> GetById(long id)
         {
             var response = await _leadDivisionKeyPersonService.GetLeadDivisionKeyPersonById(id);
             if (response.StatusCode >= 400)
@@ -39,7 +39,7 @@ namespace HaloBiz.Controllers.LAMS
         }
 
         [HttpGet("LeadDivision/{leadDivisionId}")]
-        public async Task<ActionResult> GetByLeadDivisionId(long leadDivisionId)
+        public async Task<ApiCommonResponse> GetByLeadDivisionId(long leadDivisionId)
         {
             var response = await _leadDivisionKeyPersonService.GetAllLeadDivisionKeyPersonsByLeadDivisionId(leadDivisionId);
             if (response.StatusCode >= 400)
@@ -59,7 +59,7 @@ namespace HaloBiz.Controllers.LAMS
         }
 
         [HttpPost("")]
-        public async Task<ActionResult> AddNewLeadDivisionKeyPerson(LeadDivisionKeyPersonReceivingDTO leadDivisionKeyPersonReceiving)
+        public async Task<ApiCommonResponse> AddNewLeadDivisionKeyPerson(LeadDivisionKeyPersonReceivingDTO leadDivisionKeyPersonReceiving)
         {
             var response = await _leadDivisionKeyPersonService.AddLeadDivisionKeyPerson(HttpContext, leadDivisionKeyPersonReceiving);
             if (response.StatusCode >= 400)
@@ -69,7 +69,7 @@ namespace HaloBiz.Controllers.LAMS
         }
 
         [HttpDelete("{id}")]
-        public async Task<ActionResult> DeleteById(int id)
+        public async Task<ApiCommonResponse> DeleteById(int id)
         {
             var response = await _leadDivisionKeyPersonService.DeleteKeyPerson(id);
             return StatusCode(response.StatusCode);

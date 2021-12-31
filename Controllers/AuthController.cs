@@ -47,7 +47,7 @@ namespace HaloBiz.Controllers
 
         [AllowAnonymous]
         [HttpPost("OtherLogin")]
-        public async Task<ActionResult> OtherLogin(LoginDTO login)
+        public async Task<ApiCommonResponse> OtherLogin(LoginDTO login)
         {
             try
             {
@@ -82,7 +82,7 @@ namespace HaloBiz.Controllers
 
         [AllowAnonymous]
         [HttpPost("Login")]
-        public async Task<ActionResult> Login(GoogleLoginReceivingDTO loginReceiving)
+        public async Task<ApiCommonResponse> Login(GoogleLoginReceivingDTO loginReceiving)
         {
             try
             {
@@ -131,7 +131,7 @@ namespace HaloBiz.Controllers
 
         [AllowAnonymous]
         [HttpPost("CreateUser")]
-        public async Task<ActionResult> CreateProfile(AuthUserProfileReceivingDTO authUserProfileReceivingDTO)
+        public async Task<ApiCommonResponse> CreateProfile(AuthUserProfileReceivingDTO authUserProfileReceivingDTO)
         {
             try
             {

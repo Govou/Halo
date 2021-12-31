@@ -23,7 +23,7 @@ namespace Controllers.Controllers
         }
 
         [HttpGet("")]
-        public async Task<ActionResult> GetNegotiationDocument()
+        public async Task<ApiCommonResponse> GetNegotiationDocument()
         {
             var response = await _negotiationDocumentService.GetAllNegotiationDocument();
             if (response.StatusCode >= 400)
@@ -32,7 +32,7 @@ namespace Controllers.Controllers
             return Ok(negotiationDocument);
         }
         [HttpGet("caption/{caption}")]
-        public async Task<ActionResult> GetByCaption(string caption)
+        public async Task<ApiCommonResponse> GetByCaption(string caption)
         {
             var response = await _negotiationDocumentService.GetNegotiationDocumentByCaption(caption);
             if (response.StatusCode >= 400)
@@ -42,7 +42,7 @@ namespace Controllers.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult> GetById(long id)
+        public async Task<ApiCommonResponse> GetById(long id)
         {
             var response = await _negotiationDocumentService.GetNegotiationDocumentById(id);
             if (response.StatusCode >= 400)
@@ -52,7 +52,7 @@ namespace Controllers.Controllers
         }
 
         [HttpPost("")]
-        public async Task<ActionResult> AddNewNegotiationDocument(NegotiationDocumentReceivingDTO negotiationDocumentReceiving)
+        public async Task<ApiCommonResponse> AddNewNegotiationDocument(NegotiationDocumentReceivingDTO negotiationDocumentReceiving)
         {
             var response = await _negotiationDocumentService.AddNegotiationDocument(HttpContext, negotiationDocumentReceiving);
             if (response.StatusCode >= 400)
@@ -72,7 +72,7 @@ namespace Controllers.Controllers
         }
 
         [HttpDelete("{id}")]
-        public async Task<ActionResult> DeleteById(int id)
+        public async Task<ApiCommonResponse> DeleteById(int id)
         {
             var response = await _negotiationDocumentService.DeleteNegotiationDocument(id);
             return StatusCode(response.StatusCode);

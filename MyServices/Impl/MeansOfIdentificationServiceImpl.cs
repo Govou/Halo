@@ -24,58 +24,58 @@ namespace HaloBiz.MyServices.Impl
             this._meansOfIdentificationRepo = meansOfIdentificationRepo;
         }
 
-        public async Task<ApiResponse> AddMeansOfIdentification(HttpContext context, MeansOfIdentificationReceivingDTO meansOfIdentificationReceivingDTO)
+        public async Task<ApiCommonResponse> AddMeansOfIdentification(HttpContext context, MeansOfIdentificationReceivingDTO meansOfIdentificationReceivingDTO)
         {
             var meansOfIdentification = _mapper.Map<MeansOfIdentification>(meansOfIdentificationReceivingDTO);
             meansOfIdentification.CreatedById = context.GetLoggedInUserId();
             var savedMeansOfIdentification = await _meansOfIdentificationRepo.SaveMeansOfIdentification(meansOfIdentification);
             if (savedMeansOfIdentification == null)
             {
-                return new ApiResponse(500);
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
             var meansOfIdentificationTransferDTO = _mapper.Map<MeansOfIdentificationTransferDTO>(meansOfIdentification);
             return new ApiOkResponse(meansOfIdentificationTransferDTO);
         }
 
-        public async Task<ApiResponse> GetAllMeansOfIdentification()
+        public async Task<ApiCommonResponse> GetAllMeansOfIdentification()
         {
             var meansOfIdentifications = await _meansOfIdentificationRepo.FindAllMeansOfIdentification();
             if (meansOfIdentifications == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var meansOfIdentificationTransferDTO = _mapper.Map<IEnumerable<MeansOfIdentificationTransferDTO>>(meansOfIdentifications);
             return new ApiOkResponse(meansOfIdentificationTransferDTO);
         }
 
-        public async Task<ApiResponse> GetMeansOfIdentificationById(long id)
+        public async Task<ApiCommonResponse> GetMeansOfIdentificationById(long id)
         {
             var meansOfIdentification = await _meansOfIdentificationRepo.FindMeansOfIdentificationById(id);
             if (meansOfIdentification == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var meansOfIdentificationTransferDTOs = _mapper.Map<MeansOfIdentificationTransferDTO>(meansOfIdentification);
             return new ApiOkResponse(meansOfIdentificationTransferDTOs);
         }
 
-        public async Task<ApiResponse> GetMeansOfIdentificationByName(string name)
+        public async Task<ApiCommonResponse> GetMeansOfIdentificationByName(string name)
         {
             var meansOfIdentification = await _meansOfIdentificationRepo.FindMeansOfIdentificationByName(name);
             if (meansOfIdentification == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var meansOfIdentificationTransferDTOs = _mapper.Map<MeansOfIdentificationTransferDTO>(meansOfIdentification);
             return new ApiOkResponse(meansOfIdentificationTransferDTOs);
         }
 
-        public async Task<ApiResponse> UpdateMeansOfIdentification(HttpContext context, long id, MeansOfIdentificationReceivingDTO meansOfIdentificationReceivingDTO)
+        public async Task<ApiCommonResponse> UpdateMeansOfIdentification(HttpContext context, long id, MeansOfIdentificationReceivingDTO meansOfIdentificationReceivingDTO)
         {
             var meansOfIdentificationToUpdate = await _meansOfIdentificationRepo.FindMeansOfIdentificationById(id);
             if (meansOfIdentificationToUpdate == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             
             var summary = $"Initial details before change, \n {meansOfIdentificationToUpdate.ToString()} \n" ;
@@ -88,7 +88,7 @@ namespace HaloBiz.MyServices.Impl
 
             if (updatedMeansOfIdentification == null)
             {
-                return new ApiResponse(500);
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
             ModificationHistory history = new ModificationHistory(){
                 ModelChanged = "MeansOfIdentification",
@@ -104,20 +104,20 @@ namespace HaloBiz.MyServices.Impl
 
         }
 
-        public async Task<ApiResponse> DeleteMeansOfIdentification(long id)
+        public async Task<ApiCommonResponse> DeleteMeansOfIdentification(long id)
         {
             var meansOfIdentificationToDelete = await _meansOfIdentificationRepo.FindMeansOfIdentificationById(id);
             if (meansOfIdentificationToDelete == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
 
             if (!await _meansOfIdentificationRepo.DeleteMeansOfIdentification(meansOfIdentificationToDelete))
             {
-                return new ApiResponse(500);
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
 
-            return new ApiOkResponse(true);
+            return CommonResponse.Send(ResponseCodes.SUCCESS);
         }
     }
 }

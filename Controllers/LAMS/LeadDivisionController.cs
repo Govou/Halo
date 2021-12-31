@@ -23,7 +23,7 @@ namespace Controllers.Controllers
         }
 
         [HttpGet("")]
-        public async Task<ActionResult> GetLeadDivision()
+        public async Task<ApiCommonResponse> GetLeadDivision()
         {
             var response = await _leadDivisionService.GetAllLeadDivision();
             if (response.StatusCode >= 400)
@@ -32,7 +32,7 @@ namespace Controllers.Controllers
             return Ok(leadDivision);
         }
         [HttpGet("getbyname/{name}")]
-        public async Task<ActionResult> GetByName(string name)
+        public async Task<ApiCommonResponse> GetByName(string name)
         {
             var response = await _leadDivisionService.GetLeadDivisionByName(name);
             if (response.StatusCode >= 400)
@@ -42,7 +42,7 @@ namespace Controllers.Controllers
         }
 
         [HttpGet("getbyrcnumber/{rcNumber}")]
-        public async Task<ActionResult> GetByReferenceNumber(string rcNumber)
+        public async Task<ApiCommonResponse> GetByReferenceNumber(string rcNumber)
         {
             var response = await _leadDivisionService.GetLeadDivisionByRCNumber(rcNumber);
             if (response.StatusCode >= 400)
@@ -52,7 +52,7 @@ namespace Controllers.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult> GetById(long id)
+        public async Task<ApiCommonResponse> GetById(long id)
         {
             var response = await _leadDivisionService.GetLeadDivisionById(id);
             if (response.StatusCode >= 400)
@@ -62,7 +62,7 @@ namespace Controllers.Controllers
         }
 
         [HttpPost("")]
-        public async Task<ActionResult> AddNewLeadDivision(LeadDivisionReceivingDTO leadDivisionReceiving)
+        public async Task<ApiCommonResponse> AddNewLeadDivision(LeadDivisionReceivingDTO leadDivisionReceiving)
         {
             var response = await _leadDivisionService.AddLeadDivision(HttpContext, leadDivisionReceiving);
             if (response.StatusCode >= 400)
@@ -82,7 +82,7 @@ namespace Controllers.Controllers
         }
 
         [HttpDelete("{id}")]
-        public async Task<ActionResult> DeleteById(int id)
+        public async Task<ApiCommonResponse> DeleteById(int id)
         {
             var response = await _leadDivisionService.DeleteLeadDivision(id);
             return StatusCode(response.StatusCode);
