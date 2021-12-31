@@ -26,51 +26,51 @@ namespace HaloBiz.MyServices.Impl
             this._designationRepo = designationRepo;
             this._logger = logger;
         }
-        public async  Task<ApiCommonResponse> AddDesignation(HttpContext context, DesignationReceivingDTO designationReceivingDTO)
+        public async  Task<ApiResponse> AddDesignation(HttpContext context, DesignationReceivingDTO designationReceivingDTO)
         {
             var designation = _mapper.Map<Designation>(designationReceivingDTO);
             designation.CreatedById = context.GetLoggedInUserId();
             var savedDesignation = await _designationRepo.SaveDesignation(designation);
             if (savedDesignation == null)
             {
-                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+                return new ApiResponse(500);
             }
             var designationTransferDTO = _mapper.Map<DesignationTransferDTO>(designation);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,designationTransferDTO);
+            return new ApiOkResponse(designationTransferDTO);
         }
 
-        public async Task<ApiCommonResponse> DeleteDesignation(long id)
+        public async Task<ApiResponse> DeleteDesignation(long id)
         {
             var designationToDelete = await _designationRepo.FindDesignationById(id);
             if(designationToDelete == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
             if (!await _designationRepo.DeleteDesignation(designationToDelete))
             {
-                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+                return new ApiResponse(500);
             }
 
-            return CommonResponse.Send(ResponseCodes.SUCCESS);
+            return new ApiOkResponse(true);
         }
 
-        public async Task<ApiCommonResponse> GetAllDesignation()
+        public async Task<ApiResponse> GetAllDesignation()
         {
             var designation = await _designationRepo.GetDesignations();
             if (designation == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
             var designationTransferDTO = _mapper.Map<IEnumerable<DesignationTransferDTO>>(designation);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,designationTransferDTO);
+            return new ApiOkResponse(designationTransferDTO);
         }
 
-        public  async Task<ApiCommonResponse> UpdateDesignation(HttpContext context, long id, DesignationReceivingDTO designationReceivingDTO)
+        public  async Task<ApiResponse> UpdateDesignation(HttpContext context, long id, DesignationReceivingDTO designationReceivingDTO)
         {
             var designationToUpdate = await _designationRepo.FindDesignationById(id);
             if (designationToUpdate == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
             
             var summary = $"Initial details before change, \n {designationToUpdate.ToString()} \n" ;
@@ -83,7 +83,7 @@ namespace HaloBiz.MyServices.Impl
 
             if (updatedDesignation == null)
             {
-                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+                return new ApiResponse(500);
             }
             ModificationHistory history = new ModificationHistory(){
                 ModelChanged = "Designation",
@@ -95,7 +95,7 @@ namespace HaloBiz.MyServices.Impl
             await _historyRepo.SaveHistory(history);
 
             var designationTransferDTOs = _mapper.Map<DesignationTransferDTO>(updatedDesignation);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,designationTransferDTOs);
+            return new ApiOkResponse(designationTransferDTOs);
         }
     }
 }

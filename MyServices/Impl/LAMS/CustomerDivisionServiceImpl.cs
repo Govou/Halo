@@ -43,71 +43,71 @@ namespace HaloBiz.MyServices.Impl.LAMS
             this._logger = logger;
         }
 
-        public async Task<ApiCommonResponse> AddCustomerDivision(HttpContext context, CustomerDivisionReceivingDTO CustomerDivisionReceivingDTO)
+        public async Task<ApiResponse> AddCustomerDivision(HttpContext context, CustomerDivisionReceivingDTO CustomerDivisionReceivingDTO)
         {
             var CustomerDivision = _mapper.Map<CustomerDivision>(CustomerDivisionReceivingDTO);
             CustomerDivision.CreatedById = context.GetLoggedInUserId();
             var savedCustomerDivision = await _CustomerDivisionRepo.SaveCustomerDivision(CustomerDivision);
             if (savedCustomerDivision == null)
             {
-                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+                return new ApiResponse(500);
             }
             var CustomerDivisionTransferDTOs = _mapper.Map<CustomerDivisionTransferDTO>(CustomerDivision);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,CustomerDivisionTransferDTOs);
+            return new ApiOkResponse(CustomerDivisionTransferDTOs);
         }
 
-        public async Task<ApiCommonResponse> DeleteCustomerDivision(long id)
+        public async Task<ApiResponse> DeleteCustomerDivision(long id)
         {
             var CustomerDivisionToDelete = await _CustomerDivisionRepo.FindCustomerDivisionById(id);
             if (CustomerDivisionToDelete == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
 
             if (!await _CustomerDivisionRepo.DeleteCustomerDivision(CustomerDivisionToDelete))
             {
-                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+                return new ApiResponse(500);
             }
 
-            return CommonResponse.Send(ResponseCodes.SUCCESS);
+            return new ApiOkResponse(true);
         }
 
-        public async Task<ApiCommonResponse> GetAllCustomerDivisions()
+        public async Task<ApiResponse> GetAllCustomerDivisions()
         {
             var CustomerDivisions = await _CustomerDivisionRepo.FindAllCustomerDivision();
             if (CustomerDivisions == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
             // var CustomerDivisionTransferDTOs = _mapper.Map<IEnumerable<CustomerDivisionTransferDTO>>(CustomerDivisions);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,CustomerDivisions);
+            return new ApiOkResponse(CustomerDivisions);
         }
-        public async Task<ApiCommonResponse> GetCustomerDivisionsByGroupType(long groupTypeId)
+        public async Task<ApiResponse> GetCustomerDivisionsByGroupType(long groupTypeId)
         {
             try{
                 var clients = await _CustomerDivisionRepo.FindCustomerDivisionsByGroupType(groupTypeId);
-                return CommonResponse.Send(ResponseCodes.SUCCESS,clients);
+                return new ApiOkResponse(clients);
             }catch(Exception e)
             {
                 _logger.LogError(e.Message);
                 _logger.LogError(e.StackTrace);
-                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+                return new ApiResponse(500);
             }
            
         }
 
-        public async Task<ApiCommonResponse> GetCustomerDivisionByName(string name)
+        public async Task<ApiResponse> GetCustomerDivisionByName(string name)
         {
             var CustomerDivision = await _CustomerDivisionRepo.FindCustomerDivisionByName(name);
             if (CustomerDivision == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
             var CustomerDivisionTransferDTOs = _mapper.Map<CustomerDivisionTransferDTO>(CustomerDivision);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,CustomerDivisionTransferDTOs);
+            return new ApiOkResponse(CustomerDivisionTransferDTOs);
         }
 
-        public async Task<ApiCommonResponse> GetCustomerDivisionBreakDownById(long id)
+        public async Task<ApiResponse> GetCustomerDivisionBreakDownById(long id)
         {
             try{
                 var client = await  _CustomerDivisionRepo.GetCustomerDivisionBreakDownById(id);
@@ -125,55 +125,55 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
                 clientTransferDto.TaskFulfillments = _mapper.Map<IEnumerable<TaskFulfillmentTransferDTO>>(taskFulfillments);
 
-                return CommonResponse.Send(ResponseCodes.SUCCESS,clientTransferDto);
+                return new ApiOkResponse(clientTransferDto);
             }catch(Exception e)
             {
                 _logger.LogError(e.Message);
                 _logger.LogError(e.StackTrace);
-                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+                return new ApiResponse(500);
             }
         }
 
 
-        public async Task<ApiCommonResponse> GetCustomerDivisionById(long id)
+        public async Task<ApiResponse> GetCustomerDivisionById(long id)
         {
             var CustomerDivision = await _CustomerDivisionRepo.FindCustomerDivisionById(id);
             if (CustomerDivision == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
             var CustomerDivisionTransferDTOs = _mapper.Map<CustomerDivisionTransferDTO>(CustomerDivision);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,CustomerDivisionTransferDTOs);
+            return new ApiOkResponse(CustomerDivisionTransferDTOs);
         }
 
-        public async Task<ApiCommonResponse> GetCustomerDivisionByDTrackCustomerNumber(string dTrackCustomerNumber)
+        public async Task<ApiResponse> GetCustomerDivisionByDTrackCustomerNumber(string dTrackCustomerNumber)
         {
             var CustomerDivision = await _CustomerDivisionRepo.FindCustomerDivisionByDTrackCustomerNumber(dTrackCustomerNumber);
             if (CustomerDivision == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
             var CustomerDivisionTransferDTOs = _mapper.Map<CustomerDivisionTransferDTO>(CustomerDivision);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,CustomerDivisionTransferDTOs);
+            return new ApiOkResponse(CustomerDivisionTransferDTOs);
         }
 
-        public async Task<ApiCommonResponse> GetTaskAndFulfillmentsByCustomerDivisionId(long customerDivisionId)
+        public async Task<ApiResponse> GetTaskAndFulfillmentsByCustomerDivisionId(long customerDivisionId)
         {
             var taskAndDeliverables = await _CustomerDivisionRepo.FindTaskAndFulfillmentsByCustomerDivisionId(customerDivisionId);
             if (taskAndDeliverables == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
             var taskAndDeliverablesDTOs = _mapper.Map<List<TaskFulfillmentTransferDTO>>(taskAndDeliverables);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,taskAndDeliverablesDTOs);
+            return new ApiOkResponse(taskAndDeliverablesDTOs);
         }
 
-        public async Task<ApiCommonResponse> UpdateCustomerDivision(HttpContext context, long id, CustomerDivisionReceivingDTO CustomerDivisionReceivingDTO)
+        public async Task<ApiResponse> UpdateCustomerDivision(HttpContext context, long id, CustomerDivisionReceivingDTO CustomerDivisionReceivingDTO)
         {
             var CustomerDivisionToUpdate = await _CustomerDivisionRepo.FindCustomerDivisionById(id);
             if (CustomerDivisionToUpdate == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
             var summary = $"Initial details before change, \n {CustomerDivisionToUpdate.ToString()} \n";
             CustomerDivisionToUpdate.DivisionName = CustomerDivisionReceivingDTO.DivisionName;
@@ -188,7 +188,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
             if (updatedCustomerDivision == null)
             {
-                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+                return new ApiResponse(500);
             }
             ModificationHistory history = new ModificationHistory()
             {
@@ -200,66 +200,66 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
             await _historyRepo.SaveHistory(history);
             var CustomerDivisionTransferDTOs = _mapper.Map<CustomerDivisionTransferDTO>(updatedCustomerDivision);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,CustomerDivisionTransferDTOs);
+            return new ApiOkResponse(CustomerDivisionTransferDTOs);
 
 
         }
 
-        public async Task<ApiCommonResponse> GetClientsWithSecuredMobilityContractServices()
+        public async Task<ApiResponse> GetClientsWithSecuredMobilityContractServices()
         {
             var CustomerDivisions = await _CustomerDivisionRepo.GetClientsWithSecuredMobilityContractServices();
             if (CustomerDivisions == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
             var CustomerDivisionTransferDTOs = _mapper.Map<IEnumerable<CustomerDivisionTransferDTO>>(CustomerDivisions);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,CustomerDivisionTransferDTOs);
+            return new ApiOkResponse(CustomerDivisionTransferDTOs);
         }
 
-        public async Task<ApiCommonResponse> GetClientsUnAssignedToRMSbu()
+        public async Task<ApiResponse> GetClientsUnAssignedToRMSbu()
         {
             try
             {
                 var clients = await _CustomerDivisionRepo.GetClientsUnAssignedToRMSbu();
                 if (clients == null)
                 {
-                    return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                    return new ApiResponse(404);
                 }
-                return CommonResponse.Send(ResponseCodes.SUCCESS,clients);
+                return new ApiOkResponse(clients);
             }
             catch (Exception e)
             {
                 _logger.LogError(e.Message);
                 _logger.LogError(e.StackTrace);
-                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+                return new ApiResponse(500);
             }
         }
 
-        public async Task<ApiCommonResponse> GetClientsAttachedToRMSbu(long sbuId)
+        public async Task<ApiResponse> GetClientsAttachedToRMSbu(long sbuId)
         {
             try
             {
                 var clients = await _CustomerDivisionRepo.GetClientsAttachedToRMSbu(sbuId);
                 if (clients == null)
                 {
-                    return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                    return new ApiResponse(404);
                 }
-                return CommonResponse.Send(ResponseCodes.SUCCESS,clients);
+                return new ApiOkResponse(clients);
             }
             catch (Exception e)
             {
                 _logger.LogError(e.Message);
                 _logger.LogError(e.StackTrace);
-                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+                return new ApiResponse(500);
             }
         }
 
-        public async Task<ApiCommonResponse> AttachClientToRMSbu(HttpContext context, long clientId, long sbuId)
+        public async Task<ApiResponse> AttachClientToRMSbu(HttpContext context, long clientId, long sbuId)
         {
             var customerDivisionToUpdate = await _context.CustomerDivisions.SingleOrDefaultAsync(x => x.Id == clientId && !x.IsDeleted);
             if (customerDivisionToUpdate == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
 
             var summary = $"Initial details before change, \n {customerDivisionToUpdate} \n";
@@ -271,7 +271,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
             if (updatedCustomerDivision == null)
             {
-                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+                return new ApiResponse(500);
             }
 
             ModificationHistory history = new ModificationHistory()
@@ -284,25 +284,25 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
             await _historyRepo.SaveHistory(history);
             var CustomerDivisionTransferDTOs = _mapper.Map<CustomerDivisionTransferDTO>(updatedCustomerDivision);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,CustomerDivisionTransferDTOs);
+            return new ApiOkResponse(CustomerDivisionTransferDTOs);
         }
 
-        public async Task<ApiCommonResponse> GetRMSbuClientsByGroupType(long sbuId, long groupTypeId)
+        public async Task<ApiResponse> GetRMSbuClientsByGroupType(long sbuId, long groupTypeId)
         {
             try
             {
                 var clients = await _CustomerDivisionRepo.GetRMSbuClientsByGroupType(sbuId, groupTypeId);
                 if (clients == null)
                 {
-                    return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                    return new ApiResponse(404);
                 }
-                return CommonResponse.Send(ResponseCodes.SUCCESS,clients);
+                return new ApiOkResponse(clients);
             }
             catch (Exception e)
             {
                 _logger.LogError(e.Message);
                 _logger.LogError(e.StackTrace);
-                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+                return new ApiResponse(500);
             }
         }
     }

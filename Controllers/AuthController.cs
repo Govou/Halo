@@ -47,45 +47,42 @@ namespace HaloBiz.Controllers
 
         [AllowAnonymous]
         [HttpPost("OtherLogin")]
-        public async Task<ApiCommonResponse> OtherLogin(LoginDTO login)
+        public async Task<ActionResult> OtherLogin(LoginDTO login)
         {
             try
             {
                 var response = await userProfileService.FindUserByEmail(login.Email);
-                
-                if(!response.responseCode.Contains("00"))
+                if (response.StatusCode >= 400)
                 {
-                    _logger.LogWarning($"Could not find user [{login.Email}] => {response.responseMsg}");
-                    return CommonResponse.Send(ResponseCodes.FAILURE, null, "Could not find the user");
-
-
+                    _logger.LogWarning($"Could not find user [{login.Email}] => {response.Message}");
+                    return StatusCode(response.StatusCode, response);
                 }
 
-                if (login.Password != "12345")
+                if(login.Password != "12345")
                 {
-                    return CommonResponse.Send(ResponseCodes.FAILURE, null, "Username or password incorrect");
+                    return StatusCode(400, "Username or password incorrect");
                 }
 
-                var user = response.responseData;
+                var user = ((ApiOkResponse)response).Result;
                 var userProfile = (UserProfileTransferDTO)user;
 
                 //get the permissions of the user
                 var permissions = await _roleService.GetPermissionEnumsOnUser(userProfile.Id);
 
                 var jwtToken =   _jwttHelper.GenerateToken(userProfile, permissions);
-                return CommonResponse.Send(ResponseCodes.SUCCESS,  new UserAuthTransferDTO { Token = jwtToken, UserProfile = userProfile });
+                return Ok(new UserAuthTransferDTO { Token = jwtToken, UserProfile = userProfile });
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex.Message);
                 _logger.LogError(ex.StackTrace);
-                return CommonResponse.Send(ResponseCodes.FAILURE, null, "System error");
+                return StatusCode(500, $"An error occured => {ex.Message}");
             }
         }
 
         [AllowAnonymous]
         [HttpPost("Login")]
-        public async Task<ApiCommonResponse> Login(GoogleLoginReceivingDTO loginReceiving)
+        public async Task<ActionResult> Login(GoogleLoginReceivingDTO loginReceiving)
         {
             try
             {
@@ -98,48 +95,43 @@ namespace HaloBiz.Controllers
                 catch (InvalidJwtException invalidJwtException)
                 {
                     _logger.LogWarning($"Could not validate Google Id Token [{loginReceiving.IdToken}] => {invalidJwtException.Message}");
-                    return CommonResponse.Send(ResponseCodes.FAILURE, null, invalidJwtException.Message);
+                    return StatusCode(404, invalidJwtException.Message);
                 }
 
                 if (!payload.EmailVerified)
                 {
                     _logger.LogWarning($"Email verification failed. Payload => {JsonConvert.SerializeObject(payload)}");
-                    return CommonResponse.Send(ResponseCodes.FAILURE, null, "Email verification failed.");
-
+                    return StatusCode(404, "Email verification failed.");
                 }
 
                 var email = payload.Email;
 
                 var response = await userProfileService.FindUserByEmail(email);
-
-                if(!response.responseCode.Contains("00"))
-                
+                if (response.StatusCode >= 400)
                 {
-                    _logger.LogWarning($"Could not find user [{email}] => {response.responseData}");
-                    return CommonResponse.Send(ResponseCodes.FAILURE, null, "Could not find user.");
-
-
+                    _logger.LogWarning($"Could not find user [{email}] => {response.Message}");
+                    return StatusCode(response.StatusCode, response);
                 }
-
-                var user = response.responseData;
+                    
+                var user = ((ApiOkResponse)response).Result;
                 var userProfile = (UserProfileTransferDTO)user;
 
                 var permissions = await _roleService.GetPermissionEnumsOnUser(userProfile.Id);
 
                 var jwtToken =  _jwttHelper.GenerateToken(userProfile, permissions);
-                return CommonResponse.Send(ResponseCodes.SUCCESS, new UserAuthTransferDTO { Token = jwtToken, UserProfile = userProfile });
+                return Ok(new UserAuthTransferDTO { Token = jwtToken, UserProfile = userProfile });
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex.Message);
                 _logger.LogError(ex.StackTrace);
-                return CommonResponse.Send(ResponseCodes.FAILURE,null, ex.Message);
+                return StatusCode(500, $"An error occured => {ex.Message}");
             }
         }
 
         [AllowAnonymous]
         [HttpPost("CreateUser")]
-        public async Task<ApiCommonResponse> CreateProfile(AuthUserProfileReceivingDTO authUserProfileReceivingDTO)
+        public async Task<ActionResult> CreateProfile(AuthUserProfileReceivingDTO authUserProfileReceivingDTO)
         {
             try
             {
@@ -153,13 +145,13 @@ namespace HaloBiz.Controllers
                 {
                     _logger.LogWarning(JsonConvert.SerializeObject(authUserProfileReceivingDTO));
                     _logger.LogWarning($"Could not validate Google Id Token [{authUserProfileReceivingDTO.IdToken}] => {invalidJwtException.Message}");
-                    return CommonResponse.Send(ResponseCodes.FAILURE, null, invalidJwtException.Message);
+                    return StatusCode(404, invalidJwtException.Message);
                 }
 
                 if (!payload.EmailVerified)
                 {
                     _logger.LogWarning($"Email verification failed. Payload => {JsonConvert.SerializeObject(payload)}");
-                    return CommonResponse.Send(ResponseCodes.FAILURE, null, "Email verification failed.");
+                    return StatusCode(404, "Email verification failed.");
                 }
 
                 var userProfileDTO = authUserProfileReceivingDTO.UserProfile;
@@ -168,13 +160,13 @@ namespace HaloBiz.Controllers
 
                 var response = await userProfileService.AddUserProfile(userProfileDTO);
 
-                if(!response.responseCode.Contains("00"))                
+                if (response.StatusCode >= 400)
                 {
-                    _logger.LogWarning($"Could not create user [{userProfileDTO.Email}] => {response.responseMsg}");
-                    
+                    _logger.LogWarning($"Could not create user [{userProfileDTO.Email}] => {response.Message}");
+                    return StatusCode(response.StatusCode, response);
                 }
 
-                var user = response.responseData;
+                var user = ((ApiOkResponse)response).Result;
                 var userProfile = (UserProfileTransferDTO)user;
 
                 var permissions = await _roleService.GetPermissionEnumsOnUser(userProfile.Id);
@@ -186,15 +178,13 @@ namespace HaloBiz.Controllers
                     UserProfile = userProfile
                 };
 
-                return CommonResponse.Send(ResponseCodes.SUCCESS, userAuthTransferDTO);
-
+                return Ok(userAuthTransferDTO);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex.Message);
                 _logger.LogError(ex.StackTrace);
-                return CommonResponse.Send(ResponseCodes.FAILURE, null, ex.Message);
-
+                return StatusCode(500, $"An error occured => {ex.Message}");
             }
         }
        

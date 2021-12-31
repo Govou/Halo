@@ -23,57 +23,80 @@ namespace HaloBiz.Controllers
         }
 
         [HttpGet("")]
-        public async Task<ApiCommonResponse> GetClientPolicies()
+        public async Task<ActionResult> GetClientPolicies()
         {
-            return await _ClientPolicyService.GetAllClientPolicies();
-
+            var response = await _ClientPolicyService.GetAllClientPolicies();
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var ClientPolicy = ((ApiOkResponse)response).Result;
+            return Ok(ClientPolicy);
         }
 
         /*[HttpGet("caption/{name}")]
-        public async Task<ApiCommonResponse> GetByCaption(string name)
+        public async Task<ActionResult> GetByCaption(string name)
         {
-            return await _ClientPolicyService.GetClientPolicyByName(name);
-            
-                
+            var response = await _ClientPolicyService.GetClientPolicyByName(name);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
             var ClientPolicy = ((ApiOkResponse)response).Result;
             return Ok(ClientPolicy);
         }*/
 
         [HttpGet("{id}")]
-        public async Task<ApiCommonResponse> GetById(long id)
+        public async Task<ActionResult> GetById(long id)
         {
-            return await _ClientPolicyService.GetClientPolicyById(id);
-
+            var response = await _ClientPolicyService.GetClientPolicyById(id);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var ClientPolicy = ((ApiOkResponse)response).Result;
+            return Ok(ClientPolicy);
         }
 
         [HttpGet("GetByContractId/{contractId}")]
-        public async Task<ApiCommonResponse> FindClientPolicyByContractId(long contractId)
+        public async Task<ActionResult> FindClientPolicyByContractId(long contractId)
         {
-            return await _ClientPolicyService.FindClientPolicyByContractId(contractId);
+            var response = await _ClientPolicyService.FindClientPolicyByContractId(contractId);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var ClientPolicy = ((ApiOkResponse)response).Result;
+            return Ok(ClientPolicy);
         }
 
         [HttpGet("GetByContractServiceId/{contractServiceId}")]
-        public async Task<ApiCommonResponse> FindClientPolicyByContractServiceId(long contractServiceId)
+        public async Task<ActionResult> FindClientPolicyByContractServiceId(long contractServiceId)
         {
-            return await _ClientPolicyService.FindClientPolicyByContractServiceId(contractServiceId);
+            var response = await _ClientPolicyService.FindClientPolicyByContractServiceId(contractServiceId);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var ClientPolicy = ((ApiOkResponse)response).Result;
+            return Ok(ClientPolicy);
         }
 
         [HttpPost("")]
-        public async Task<ApiCommonResponse> AddNewClientPolicy(ClientPolicyReceivingDTO ClientPolicyReceiving)
+        public async Task<ActionResult> AddNewClientPolicy(ClientPolicyReceivingDTO ClientPolicyReceiving)
         {
-            return await _ClientPolicyService.AddClientPolicy(HttpContext, ClientPolicyReceiving);
+            var response = await _ClientPolicyService.AddClientPolicy(HttpContext, ClientPolicyReceiving);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var ClientPolicy = ((ApiOkResponse)response).Result;
+            return Ok(ClientPolicy);
         }
 
         [HttpPut("{id}")]
-        public async Task<ApiCommonResponse> UpdateById(long id, ClientPolicyReceivingDTO ClientPolicyReceiving)
+        public async Task<IActionResult> UpdateById(long id, ClientPolicyReceivingDTO ClientPolicyReceiving)
         {
-            return await _ClientPolicyService.UpdateClientPolicy(HttpContext, id, ClientPolicyReceiving);
+            var response = await _ClientPolicyService.UpdateClientPolicy(HttpContext, id, ClientPolicyReceiving);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var ClientPolicy = ((ApiOkResponse)response).Result;
+            return Ok(ClientPolicy);
         }
 
         [HttpDelete("{id}")]
-        public async Task<ApiCommonResponse> DeleteById(int id)
+        public async Task<ActionResult> DeleteById(int id)
         {
-            return await _ClientPolicyService.DeleteClientPolicy(id);
+            var response = await _ClientPolicyService.DeleteClientPolicy(id);
+            return StatusCode(response.StatusCode);
         }
     }
 }

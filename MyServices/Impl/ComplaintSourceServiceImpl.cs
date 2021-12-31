@@ -30,7 +30,7 @@ namespace HaloBiz.MyServices.Impl
             this._logger = logger;
         }
 
-        public async Task<ApiCommonResponse> AddComplaintSource(HttpContext context, ComplaintSourceReceivingDTO complaintSourceReceivingDTO)
+        public async Task<ApiResponse> AddComplaintSource(HttpContext context, ComplaintSourceReceivingDTO complaintSourceReceivingDTO)
         {
 
             var complaintSource = _mapper.Map<ComplaintSource>(complaintSourceReceivingDTO);
@@ -38,67 +38,67 @@ namespace HaloBiz.MyServices.Impl
             var savedcomplaintSource = await _complaintSourceRepo.SaveComplaintSource(complaintSource);
             if (savedcomplaintSource == null)
             {
-                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+                return new ApiResponse(500);
             }
             var complaintSourceTransferDTO = _mapper.Map<ComplaintSourceTransferDTO>(complaintSource);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,complaintSourceTransferDTO);
+            return new ApiOkResponse(complaintSourceTransferDTO);
         }
 
-        public async Task<ApiCommonResponse> DeleteComplaintSource(long id)
+        public async Task<ApiResponse> DeleteComplaintSource(long id)
         {
             var complaintSourceToDelete = await _complaintSourceRepo.FindComplaintSourceById(id);
             if (complaintSourceToDelete == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
 
             if (!await _complaintSourceRepo.DeleteComplaintSource(complaintSourceToDelete))
             {
-                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+                return new ApiResponse(500);
             }
 
-            return CommonResponse.Send(ResponseCodes.SUCCESS);
+            return new ApiOkResponse(true);
         }
 
-        public async Task<ApiCommonResponse> GetAllComplaintSource()
+        public async Task<ApiResponse> GetAllComplaintSource()
         {
             var complaintSources = await _complaintSourceRepo.FindAllComplaintSources();
             if (complaintSources == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
             var complaintSourceTransferDTO = _mapper.Map<IEnumerable<ComplaintSourceTransferDTO>>(complaintSources);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,complaintSourceTransferDTO);
+            return new ApiOkResponse(complaintSourceTransferDTO);
         }
 
-        public async Task<ApiCommonResponse> GetComplaintSourceById(long id)
+        public async Task<ApiResponse> GetComplaintSourceById(long id)
         {
             var complaintSource = await _complaintSourceRepo.FindComplaintSourceById(id);
             if (complaintSource == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
             var complaintSourceTransferDTOs = _mapper.Map<ComplaintSourceTransferDTO>(complaintSource);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,complaintSourceTransferDTOs);
+            return new ApiOkResponse(complaintSourceTransferDTOs);
         }
 
-        public async Task<ApiCommonResponse> GetComplaintSourceByName(string name)
+        public async Task<ApiResponse> GetComplaintSourceByName(string name)
         {
             var complaintSource = await _complaintSourceRepo.FindComplaintSourceByName(name);
             if (complaintSource == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
             var complaintSourceTransferDTOs = _mapper.Map<ComplaintSourceTransferDTO>(complaintSource);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,complaintSourceTransferDTOs);
+            return new ApiOkResponse(complaintSourceTransferDTOs);
         }
 
-        public async Task<ApiCommonResponse> UpdateComplaintSource(HttpContext context, long id, ComplaintSourceReceivingDTO complaintSourceReceivingDTO)
+        public async Task<ApiResponse> UpdateComplaintSource(HttpContext context, long id, ComplaintSourceReceivingDTO complaintSourceReceivingDTO)
         {
             var complaintSourceToUpdate = await _complaintSourceRepo.FindComplaintSourceById(id);
             if (complaintSourceToUpdate == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
 
             var summary = $"Initial details before change, \n {complaintSourceToUpdate.ToString()} \n";
@@ -111,7 +111,7 @@ namespace HaloBiz.MyServices.Impl
 
             if (updatedcomplaintSource == null)
             {
-                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+                return new ApiResponse(500);
             }
             ModificationHistory history = new ModificationHistory()
             {
@@ -123,7 +123,7 @@ namespace HaloBiz.MyServices.Impl
             await _historyRepo.SaveHistory(history);
 
             var complaintSourceTransferDTOs = _mapper.Map<ComplaintSourceTransferDTO>(updatedcomplaintSource);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,complaintSourceTransferDTOs);
+            return new ApiOkResponse(complaintSourceTransferDTOs);
         }
     }
 }

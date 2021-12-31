@@ -24,69 +24,69 @@ namespace HaloBiz.MyServices.Impl
             this._RequredServiceQualificationElementRepo = _RequredServiceQualificationElementRepo;
         }
 
-        public async Task<ApiCommonResponse> AddRequredServiceQualificationElement(HttpContext context, RequredServiceQualificationElementReceivingDTO RequredServiceQualificationElementReceivingDTO)
+        public async Task<ApiResponse> AddRequredServiceQualificationElement(HttpContext context, RequredServiceQualificationElementReceivingDTO RequredServiceQualificationElementReceivingDTO)
         {
             var RequredServiceQualificationElement = _mapper.Map<RequredServiceQualificationElement>(RequredServiceQualificationElementReceivingDTO);
             RequredServiceQualificationElement.CreatedById = context.GetLoggedInUserId();
             var savedRequredServiceQualificationElement = await _RequredServiceQualificationElementRepo.SaveRequredServiceQualificationElement(RequredServiceQualificationElement);
             if (savedRequredServiceQualificationElement == null)
             {
-                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+                return new ApiResponse(500);
             }
             var RequredServiceQualificationElementTransferDTO = _mapper.Map<RequredServiceQualificationElementTransferDTO>(RequredServiceQualificationElement);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,RequredServiceQualificationElementTransferDTO);
+            return new ApiOkResponse(RequredServiceQualificationElementTransferDTO);
         }
 
-        public async Task<ApiCommonResponse> GetAllRequredServiceQualificationElements()
+        public async Task<ApiResponse> GetAllRequredServiceQualificationElements()
         {
             var requredServiceQualificationElements = await _RequredServiceQualificationElementRepo.FindAllRequredServiceQualificationElements();
             if (requredServiceQualificationElements == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
             var requredServiceQualificationElementTransferDTO = _mapper.Map<IEnumerable<RequredServiceQualificationElementTransferDTO>>(requredServiceQualificationElements);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,requredServiceQualificationElementTransferDTO);
+            return new ApiOkResponse(requredServiceQualificationElementTransferDTO);
         }
 
-        public async Task<ApiCommonResponse> GetAllRequredServiceQualificationElementsByServiceCategory(long serviceCategoryId)
+        public async Task<ApiResponse> GetAllRequredServiceQualificationElementsByServiceCategory(long serviceCategoryId)
         {
             var requredServiceQualificationElements = await _RequredServiceQualificationElementRepo.FindAllRequredServiceQualificationElementsByServiceCategory(serviceCategoryId);
             if (requredServiceQualificationElements == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
             var requredServiceQualificationElementTransferDTO = _mapper.Map<IEnumerable<RequredServiceQualificationElementTransferDTO>>(requredServiceQualificationElements);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,requredServiceQualificationElementTransferDTO);
+            return new ApiOkResponse(requredServiceQualificationElementTransferDTO);
         }
 
-        public async Task<ApiCommonResponse> GetRequredServiceQualificationElementById(long id)
+        public async Task<ApiResponse> GetRequredServiceQualificationElementById(long id)
         {
             var requredServiceQualificationElement = await _RequredServiceQualificationElementRepo.FindRequredServiceQualificationElementById(id);
             if (requredServiceQualificationElement == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
             var requredServiceQualificationElementTransferDTO = _mapper.Map<RequredServiceQualificationElementTransferDTO>(requredServiceQualificationElement);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,requredServiceQualificationElementTransferDTO);
+            return new ApiOkResponse(requredServiceQualificationElementTransferDTO);
         }
 
-        public async Task<ApiCommonResponse> GetRequredServiceQualificationElementByName(string name)
+        public async Task<ApiResponse> GetRequredServiceQualificationElementByName(string name)
         {
             var RequredServiceQualificationElement = await _RequredServiceQualificationElementRepo.FindRequredServiceQualificationElementByName(name);
             if (RequredServiceQualificationElement == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
             var RequredServiceQualificationElementTransferDTOs = _mapper.Map<RequredServiceQualificationElementTransferDTO>(RequredServiceQualificationElement);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,RequredServiceQualificationElementTransferDTOs);
+            return new ApiOkResponse(RequredServiceQualificationElementTransferDTOs);
         }
 
-        public async Task<ApiCommonResponse> UpdateRequredServiceQualificationElement(HttpContext context, long id, RequredServiceQualificationElementReceivingDTO RequredServiceQualificationElementReceivingDTO)
+        public async Task<ApiResponse> UpdateRequredServiceQualificationElement(HttpContext context, long id, RequredServiceQualificationElementReceivingDTO RequredServiceQualificationElementReceivingDTO)
         {
             var RequredServiceQualificationElementToUpdate = await _RequredServiceQualificationElementRepo.FindRequredServiceQualificationElementById(id);
             if (RequredServiceQualificationElementToUpdate == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
 
             var summary = $"Initial details before change, \n {RequredServiceQualificationElementToUpdate.ToString()} \n";
@@ -101,7 +101,7 @@ namespace HaloBiz.MyServices.Impl
 
             if (updatedRequredServiceQualificationElement == null)
             {
-                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+                return new ApiResponse(500);
             }
             ModificationHistory history = new ModificationHistory()
             {
@@ -114,25 +114,25 @@ namespace HaloBiz.MyServices.Impl
             await _historyRepo.SaveHistory(history);
 
             var RequredServiceQualificationElementTransferDTOs = _mapper.Map<RequredServiceQualificationElementTransferDTO>(updatedRequredServiceQualificationElement);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,RequredServiceQualificationElementTransferDTOs);
+            return new ApiOkResponse(RequredServiceQualificationElementTransferDTOs);
 
         }
 
-        public async Task<ApiCommonResponse> DeleteRequredServiceQualificationElement(long id)
+        public async Task<ApiResponse> DeleteRequredServiceQualificationElement(long id)
         {
             var RequredServiceQualificationElementToDelete = await _RequredServiceQualificationElementRepo.FindRequredServiceQualificationElementById(id);
 
             if (RequredServiceQualificationElementToDelete == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
 
             if (!await _RequredServiceQualificationElementRepo.DeleteRequredServiceQualificationElement(RequredServiceQualificationElementToDelete))
             {
-                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+                return new ApiResponse(500);
             }
 
-            return CommonResponse.Send(ResponseCodes.SUCCESS);
+            return new ApiOkResponse(true);
         }
 
     }

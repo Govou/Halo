@@ -29,7 +29,7 @@ namespace HaloBiz.MyServices.Impl
             this._logger = logger;
         }
 
-        public async Task<ApiCommonResponse> AddTarget(HttpContext context, TargetReceivingDTO targetReceivingDTO)
+        public async Task<ApiResponse> AddTarget(HttpContext context, TargetReceivingDTO targetReceivingDTO)
         {
 
             var target = _mapper.Map<Target>(targetReceivingDTO);
@@ -37,67 +37,67 @@ namespace HaloBiz.MyServices.Impl
             var savedTarget = await _targetRepo.SaveTarget(target);
             if (savedTarget == null)
             {
-                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+                return new ApiResponse(500);
             }
             var targetTransferDTO = _mapper.Map<TargetTransferDTO>(target);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,targetTransferDTO);
+            return new ApiOkResponse(targetTransferDTO);
         }
 
-        public async Task<ApiCommonResponse> DeleteTarget(long id)
+        public async Task<ApiResponse> DeleteTarget(long id)
         {
             var targetToDelete = await _targetRepo.FindTargetById(id);
             if (targetToDelete == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
 
             if (!await _targetRepo.DeleteTarget(targetToDelete))
             {
-                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+                return new ApiResponse(500);
             }
 
-            return CommonResponse.Send(ResponseCodes.SUCCESS);
+            return new ApiOkResponse(true);
         }
 
-        public async Task<ApiCommonResponse> GetAllTarget()
+        public async Task<ApiResponse> GetAllTarget()
         {
             var targets = await _targetRepo.FindAllTargets();
             if (targets == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
             var targetTransferDTO = _mapper.Map<IEnumerable<TargetTransferDTO>>(targets);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,targetTransferDTO);
+            return new ApiOkResponse(targetTransferDTO);
         }
 
-        public async Task<ApiCommonResponse> GetTargetById(long id)
+        public async Task<ApiResponse> GetTargetById(long id)
         {
             var target = await _targetRepo.FindTargetById(id);
             if (target == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
             var targetTransferDTOs = _mapper.Map<TargetTransferDTO>(target);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,targetTransferDTOs);
+            return new ApiOkResponse(targetTransferDTOs);
         }
 
-        public async Task<ApiCommonResponse> GetTargetByName(string name)
+        public async Task<ApiResponse> GetTargetByName(string name)
         {
             var target = await _targetRepo.FindTargetByName(name);
             if (target == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
             var targetTransferDTOs = _mapper.Map<TargetTransferDTO>(target);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,targetTransferDTOs);
+            return new ApiOkResponse(targetTransferDTOs);
         }
 
-        public async Task<ApiCommonResponse> UpdateTarget(HttpContext context, long id, TargetReceivingDTO targetReceivingDTO)
+        public async Task<ApiResponse> UpdateTarget(HttpContext context, long id, TargetReceivingDTO targetReceivingDTO)
         {
             var targetToUpdate = await _targetRepo.FindTargetById(id);
             if (targetToUpdate == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
 
             var summary = $"Initial details before change, \n {targetToUpdate.ToString()} \n";
@@ -110,7 +110,7 @@ namespace HaloBiz.MyServices.Impl
 
             if (updatedtarget == null)
             {
-                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+                return new ApiResponse(500);
             }
             ModificationHistory history = new ModificationHistory()
             {
@@ -122,7 +122,7 @@ namespace HaloBiz.MyServices.Impl
             await _historyRepo.SaveHistory(history);
 
             var targetTransferDTOs = _mapper.Map<TargetTransferDTO>(updatedtarget);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,targetTransferDTOs);
+            return new ApiOkResponse(targetTransferDTOs);
         }
     }
 }

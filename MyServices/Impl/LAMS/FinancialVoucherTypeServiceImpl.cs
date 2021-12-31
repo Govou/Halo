@@ -32,47 +32,47 @@ namespace HaloBiz.MyServices.Impl.LAMS
             this._logger = logger;
         }
 
-        public async Task<ApiCommonResponse> AddFinancialVoucherType(HttpContext context, FinancialVoucherTypeReceivingDTO voucherTypeReceivingDTO)
+        public async Task<ApiResponse> AddFinancialVoucherType(HttpContext context, FinancialVoucherTypeReceivingDTO voucherTypeReceivingDTO)
         {
             var voucherType = _mapper.Map<FinanceVoucherType>(voucherTypeReceivingDTO);
             voucherType.CreatedById = context.GetLoggedInUserId();
             var savedVoucherType = await _voucherTypeRepo.SaveFinanceVoucherType(voucherType);
             if (savedVoucherType == null)
             {
-                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+                return new ApiResponse(500);
             }
             var voucherTypeTransferDTO = _mapper.Map<FinancialVoucherTypeTransferDTO>(voucherType);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,voucherTypeTransferDTO);
+            return new ApiOkResponse(voucherTypeTransferDTO);
         }
 
-        public async Task<ApiCommonResponse> GetAllFinancialVoucherTypes()
+        public async Task<ApiResponse> GetAllFinancialVoucherTypes()
         {
             var voucherTypes = await _voucherTypeRepo.FindAllFinanceVoucherType();
             if (voucherTypes == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
             var voucherTypeTransferDTO = _mapper.Map<IEnumerable<FinancialVoucherTypeTransferDTO>>(voucherTypes);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,voucherTypeTransferDTO);
+            return new ApiOkResponse(voucherTypeTransferDTO);
         }
 
-        public async Task<ApiCommonResponse> GetFinancialVoucherTypeById(long id)
+        public async Task<ApiResponse> GetFinancialVoucherTypeById(long id)
         {
             var voucherType = await _voucherTypeRepo.FindFinanceVoucherTypeById(id);
             if (voucherType == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
             var voucherTypeTransferDTO = _mapper.Map<FinancialVoucherTypeTransferDTO>(voucherType);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,voucherTypeTransferDTO);
+            return new ApiOkResponse(voucherTypeTransferDTO);
         }
 
-        public async Task<ApiCommonResponse> UpdateFinancialVoucherType(HttpContext context, long id, FinancialVoucherTypeReceivingDTO VoucherTypeReceivingDTO)
+        public async Task<ApiResponse> UpdateFinancialVoucherType(HttpContext context, long id, FinancialVoucherTypeReceivingDTO VoucherTypeReceivingDTO)
         {
             var voucherTypeToUpdate = await _voucherTypeRepo.FindFinanceVoucherTypeById(id);
             if (voucherTypeToUpdate == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
             
             var summary = $"Initial details before change, \n {voucherTypeToUpdate.ToString()} \n" ;
@@ -86,7 +86,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
             if (updatedVoucherType == null)
             {
-                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+                return new ApiResponse(500);
             }
             ModificationHistory history = new ModificationHistory(){
                 ModelChanged = "FinanceVoucherType",
@@ -98,24 +98,24 @@ namespace HaloBiz.MyServices.Impl.LAMS
             await _historyRepo.SaveHistory(history);
 
             var voucherTypeTransferDTOs = _mapper.Map<FinancialVoucherTypeTransferDTO>(updatedVoucherType);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,voucherTypeTransferDTOs);
+            return new ApiOkResponse(voucherTypeTransferDTOs);
 
         }
 
-        public async Task<ApiCommonResponse> DeleteFinancialVoucherType(long id)
+        public async Task<ApiResponse> DeleteFinancialVoucherType(long id)
         {
             var voucherTypeToDelete = await _voucherTypeRepo.FindFinanceVoucherTypeById(id);
             if (voucherTypeToDelete == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
 
             if (!await _voucherTypeRepo.DeleteFinanceVoucherType(voucherTypeToDelete))
             {
-                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+                return new ApiResponse(500);
             }
 
-            return CommonResponse.Send(ResponseCodes.SUCCESS);
+            return new ApiOkResponse(true);
         }
 
         

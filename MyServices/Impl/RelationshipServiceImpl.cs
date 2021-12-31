@@ -24,58 +24,58 @@ namespace HaloBiz.MyServices.Impl
             this._relationshipRepo = RelationshipRepo;
         }
 
-        public async Task<ApiCommonResponse> AddRelationship(HttpContext context, RelationshipReceivingDTO relationshipReceivingDTO)
+        public async Task<ApiResponse> AddRelationship(HttpContext context, RelationshipReceivingDTO relationshipReceivingDTO)
         {
             var relationship = _mapper.Map<Relationship>(relationshipReceivingDTO);
             relationship.CreatedById = context.GetLoggedInUserId();
             var savedRelationship = await _relationshipRepo.SaveRelationship(relationship);
             if (savedRelationship == null)
             {
-                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+                return new ApiResponse(500);
             }
             var relationshipTransferDTO = _mapper.Map<RelationshipTransferDTO>(relationship);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,relationshipTransferDTO);
+            return new ApiOkResponse(relationshipTransferDTO);
         }
 
-        public async Task<ApiCommonResponse> GetAllRelationship()
+        public async Task<ApiResponse> GetAllRelationship()
         {
             var relationships = await _relationshipRepo.FindAllRelationship();
             if (relationships == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
             var relationshipTransferDTO = _mapper.Map<IEnumerable<RelationshipTransferDTO>>(relationships);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,relationshipTransferDTO);
+            return new ApiOkResponse(relationshipTransferDTO);
         }
 
-        public async Task<ApiCommonResponse> GetRelationshipById(long id)
+        public async Task<ApiResponse> GetRelationshipById(long id)
         {
             var relationship = await _relationshipRepo.FindRelationshipById(id);
             if (relationship == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
             var relationshipTransferDTOs = _mapper.Map<RelationshipTransferDTO>(relationship);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,relationshipTransferDTOs);
+            return new ApiOkResponse(relationshipTransferDTOs);
         }
 
-        public async Task<ApiCommonResponse> GetRelationshipByName(string name)
+        public async Task<ApiResponse> GetRelationshipByName(string name)
         {
             var relationship = await _relationshipRepo.FindRelationshipByName(name);
             if (relationship == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
             var relationshipTransferDTOs = _mapper.Map<RelationshipTransferDTO>(relationship);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,relationshipTransferDTOs);
+            return new ApiOkResponse(relationshipTransferDTOs);
         }
 
-        public async Task<ApiCommonResponse> UpdateRelationship(HttpContext context, long id, RelationshipReceivingDTO relationshipReceivingDTO)
+        public async Task<ApiResponse> UpdateRelationship(HttpContext context, long id, RelationshipReceivingDTO relationshipReceivingDTO)
         {
             var relationshipToUpdate = await _relationshipRepo.FindRelationshipById(id);
             if (relationshipToUpdate == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
             
             var summary = $"Initial details before change, \n {relationshipToUpdate.ToString()} \n" ;
@@ -88,7 +88,7 @@ namespace HaloBiz.MyServices.Impl
 
             if (updatedRelationship == null)
             {
-                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+                return new ApiResponse(500);
             }
             ModificationHistory history = new ModificationHistory(){
                 ModelChanged = "Relationship",
@@ -100,24 +100,24 @@ namespace HaloBiz.MyServices.Impl
             await _historyRepo.SaveHistory(history);
 
             var relationshipTransferDTO = _mapper.Map<RelationshipTransferDTO>(updatedRelationship);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,relationshipTransferDTO);
+            return new ApiOkResponse(relationshipTransferDTO);
 
         }
 
-        public async Task<ApiCommonResponse> DeleteRelationship(long id)
+        public async Task<ApiResponse> DeleteRelationship(long id)
         {
             var relationshipToDelete = await _relationshipRepo.FindRelationshipById(id);
             if (relationshipToDelete == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
 
             if (!await _relationshipRepo.DeleteRelationship(relationshipToDelete))
             {
-                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+                return new ApiResponse(500);
             }
 
-            return CommonResponse.Send(ResponseCodes.SUCCESS);
+            return new ApiOkResponse(true);
         }
     }
 }

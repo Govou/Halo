@@ -36,19 +36,10 @@ namespace HaloBiz.MyServices.Impl.LAMS
             _quoteRepository = quoteRepository;
         }
 
-        public async Task<ApiCommonResponse> AddQuoteServiceDocument(HttpContext context, QuoteServiceDocumentReceivingDTO qdd)
+        public async Task<ApiResponse> AddQuoteServiceDocument(HttpContext context, QuoteServiceDocumentReceivingDTO qdd)
         {
-            if (qdd.IsGroupUpload && qdd.QuoteId == 0)
-            {
-                return CommonResponse.Send(ResponseCodes.FAILURE, null, "You need to specify quoteId since IsGroupUpload is true");
-            }
-            else if (!qdd.IsGroupUpload && qdd.QuoteServiceId == 0)
-            {
-                return CommonResponse.Send(ResponseCodes.FAILURE, null, "You need to specify QuoteServiceId");
-
-            }
-            // var quoteServiceDocument = _mapper.Map<QuoteServiceDocument>(qdd);
-
+           // var quoteServiceDocument = _mapper.Map<QuoteServiceDocument>(qdd);
+           
             var CreatedById = context.GetLoggedInUserId();
 
             //check if this is a group upload 
@@ -92,62 +83,62 @@ namespace HaloBiz.MyServices.Impl.LAMS
            
             if (savedQuoteServiceDocument == null)
             {
-                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+                return new ApiResponse(500);
             }
 
-            var quoteServiceDocumentTransferDTO = _mapper.Map<QuoteServiceDocumentTransferDTO>(savedQuoteServiceDocument);            
-            return CommonResponse.Send(ResponseCodes.SUCCESS,quoteServiceDocumentTransferDTO);
+            var quoteServiceDocumentTransferDTO = _mapper.Map<QuoteServiceDocumentTransferDTO>(savedQuoteServiceDocument);
+            return new ApiOkResponse(quoteServiceDocumentTransferDTO);
         }
 
-        public async Task<ApiCommonResponse> GetAllQuoteServiceDocument()
+        public async Task<ApiResponse> GetAllQuoteServiceDocument()
         {
             var quoteServiceDocuments = await _quoteServiceDocumentRepo.FindAllQuoteServiceDocument();
             if (quoteServiceDocuments == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
             var quoteServiceDocumentTransferDTO = _mapper.Map<IEnumerable<QuoteServiceDocumentTransferDTO>>(quoteServiceDocuments);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,quoteServiceDocumentTransferDTO);
+            return new ApiOkResponse(quoteServiceDocumentTransferDTO);
         }
-        public async Task<ApiCommonResponse> GetAllQuoteServiceDocumentForAQuoteService(long quoteServiceId)
+        public async Task<ApiResponse> GetAllQuoteServiceDocumentForAQuoteService(long quoteServiceId)
         {
             var quoteServiceDocuments = await _quoteServiceDocumentRepo.FindAllQuoteServiceDocumentForAQuoteService(quoteServiceId);
             if (quoteServiceDocuments == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
             var quoteServiceDocumentTransferDTO = _mapper.Map<IEnumerable<QuoteServiceDocumentTransferDTO>>(quoteServiceDocuments);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,quoteServiceDocumentTransferDTO);
+            return new ApiOkResponse(quoteServiceDocumentTransferDTO);
         }
 
-        public async Task<ApiCommonResponse> GetQuoteServiceDocumentById(long id)
+        public async Task<ApiResponse> GetQuoteServiceDocumentById(long id)
         {
             var quoteServiceDocument = await _quoteServiceDocumentRepo.FindQuoteServiceDocumentById(id);
             if (quoteServiceDocument == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
             var quoteServiceDocumentTransferDTOs = _mapper.Map<QuoteServiceDocumentTransferDTO>(quoteServiceDocument);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,quoteServiceDocumentTransferDTOs);
+            return new ApiOkResponse(quoteServiceDocumentTransferDTOs);
         }
 
-        public async Task<ApiCommonResponse> GetQuoteServiceDocumentByCaption(string caption)
+        public async Task<ApiResponse> GetQuoteServiceDocumentByCaption(string caption)
         {
             var quoteServiceDocument = await _quoteServiceDocumentRepo.FindQuoteServiceDocumentByCaption(caption);
             if (quoteServiceDocument == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
             var quoteServiceDocumentTransferDTOs = _mapper.Map<QuoteServiceDocumentTransferDTO>(quoteServiceDocument);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,quoteServiceDocumentTransferDTOs);
+            return new ApiOkResponse(quoteServiceDocumentTransferDTOs);
         }
 
-        public async Task<ApiCommonResponse> UpdateQuoteServiceDocument(HttpContext context, long id, QuoteServiceDocumentReceivingDTO quoteServiceDocumentReceivingDTO)
+        public async Task<ApiResponse> UpdateQuoteServiceDocument(HttpContext context, long id, QuoteServiceDocumentReceivingDTO quoteServiceDocumentReceivingDTO)
         {
             var quoteServiceDocumentToUpdate = await _quoteServiceDocumentRepo.FindQuoteServiceDocumentById(id);
             if (quoteServiceDocumentToUpdate == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
             
             var summary = $"Initial details before change, \n {quoteServiceDocumentToUpdate.ToString()} \n" ;
@@ -162,7 +153,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
             if (updatedQuoteServiceDocument == null)
             {
-                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+                return new ApiResponse(500);
             }
             ModificationHistory history = new ModificationHistory(){
                 ModelChanged = "QuoteServiceDocument",
@@ -174,24 +165,24 @@ namespace HaloBiz.MyServices.Impl.LAMS
             await _historyRepo.SaveHistory(history);
 
             var quoteServiceDocumentTransferDTOs = _mapper.Map<QuoteServiceDocumentTransferDTO>(updatedQuoteServiceDocument);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,quoteServiceDocumentTransferDTOs);
+            return new ApiOkResponse(quoteServiceDocumentTransferDTOs);
 
         }
 
-        public async Task<ApiCommonResponse> DeleteQuoteServiceDocument(long id)
+        public async Task<ApiResponse> DeleteQuoteServiceDocument(long id)
         {
             var quoteServiceDocumentToDelete = await _quoteServiceDocumentRepo.FindQuoteServiceDocumentById(id);
             if (quoteServiceDocumentToDelete == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
 
             if (!await _quoteServiceDocumentRepo.DeleteQuoteServiceDocument(quoteServiceDocumentToDelete))
             {
-                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+                return new ApiResponse(500);
             }
 
-            return CommonResponse.Send(ResponseCodes.SUCCESS);
+            return new ApiOkResponse(true);
         }
     }
 }

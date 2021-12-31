@@ -7,16 +7,16 @@ namespace HaloBiz.MyServices
 {    
     public interface ISbuproportionService
     {
-        Task<ApiCommonResponse> AddSbuproportion(HttpContext context, SbuproportionReceivingDTO sBUProportionReceivingDTO);
+        Task<ApiResponse> AddSbuproportion(HttpContext context, SbuproportionReceivingDTO sBUProportionReceivingDTO);
 
-        Task<ApiCommonResponse> GetAllSbuproportions();
+        Task<ApiResponse> GetAllSbuproportions();
 
-        Task<ApiCommonResponse> GetSbuproportionById(long id);
+        Task<ApiResponse> GetSbuproportionById(long id);
 
 
-        Task<ApiCommonResponse> UpdateSbuproportion(HttpContext context, long id, SbuproportionReceivingDTO sBUProportionReceivingDTO);
+        Task<ApiResponse> UpdateSbuproportion(HttpContext context, long id, SbuproportionReceivingDTO sBUProportionReceivingDTO);
 
-        Task<ApiCommonResponse> DeleteSbuproportion(long id);
+        Task<ApiResponse> DeleteSbuproportion(long id);
 
     }
 }

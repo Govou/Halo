@@ -20,15 +20,23 @@ namespace HaloBiz.Controllers
         }
 
         [HttpPost("MigrateNewCustomersToDTRACK")]
-        public async Task<ApiCommonResponse> MigrateNewCustomersToDTRACK()
+        public async Task<ActionResult> MigrateNewCustomersToDTRACK()
         {
-            return await _cronJobService.MigrateNewCustomersToDTRACK(HttpContext);
+            var response = await _cronJobService.MigrateNewCustomersToDTRACK(HttpContext);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var migratedCustomerCount = ((ApiOkResponse)response).Result;
+            return Ok(migratedCustomerCount);
         }
 
         [HttpPost("PostNewAccountingRecordsToDTRACK")]
-        public async Task<ApiCommonResponse> PostNewAccountingRecordsToDTRACK()
+        public async Task<ActionResult> PostNewAccountingRecordsToDTRACK()
         {
-            return await _cronJobService.PostNewAccountingRecordsToDTRACK(HttpContext);
+            var response = await _cronJobService.PostNewAccountingRecordsToDTRACK(HttpContext);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var accountMasterRecordsMigratedPerCustomer = ((ApiOkResponse)response).Result;
+            return Ok(accountMasterRecordsMigratedPerCustomer);
         }
     }
 }

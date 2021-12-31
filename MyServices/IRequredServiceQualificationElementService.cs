@@ -10,12 +10,12 @@ namespace HaloBiz.MyServices
 {
     public interface IRequredServiceQualificationElementService
     {
-        Task<ApiCommonResponse> AddRequredServiceQualificationElement(HttpContext context, RequredServiceQualificationElementReceivingDTO RequredServiceQualificationElementReceivingDTO);
-        Task<ApiCommonResponse> GetAllRequredServiceQualificationElements();
-        Task<ApiCommonResponse> GetAllRequredServiceQualificationElementsByServiceCategory(long serviceCategoryId);
-        Task<ApiCommonResponse> GetRequredServiceQualificationElementById(long id);
-        Task<ApiCommonResponse> GetRequredServiceQualificationElementByName(string name);
-        Task<ApiCommonResponse> UpdateRequredServiceQualificationElement(HttpContext context, long id, RequredServiceQualificationElementReceivingDTO RequredServiceQualificationElementReceivingDTO);
-        Task<ApiCommonResponse> DeleteRequredServiceQualificationElement(long id);
+        Task<ApiResponse> AddRequredServiceQualificationElement(HttpContext context, RequredServiceQualificationElementReceivingDTO RequredServiceQualificationElementReceivingDTO);
+        Task<ApiResponse> GetAllRequredServiceQualificationElements();
+        Task<ApiResponse> GetAllRequredServiceQualificationElementsByServiceCategory(long serviceCategoryId);
+        Task<ApiResponse> GetRequredServiceQualificationElementById(long id);
+        Task<ApiResponse> GetRequredServiceQualificationElementByName(string name);
+        Task<ApiResponse> UpdateRequredServiceQualificationElement(HttpContext context, long id, RequredServiceQualificationElementReceivingDTO RequredServiceQualificationElementReceivingDTO);
+        Task<ApiResponse> DeleteRequredServiceQualificationElement(long id);
     }
 }

@@ -27,58 +27,58 @@ namespace HaloBiz.MyServices.Impl
             this._logger = logger;
         }
 
-        public async Task<ApiCommonResponse> AddGroupType(HttpContext context, GroupTypeReceivingDTO groupTypeReceivingDTO)
+        public async Task<ApiResponse> AddGroupType(HttpContext context, GroupTypeReceivingDTO groupTypeReceivingDTO)
         {
             var groupType = _mapper.Map<GroupType>(groupTypeReceivingDTO);
             groupType.CreatedById = context.GetLoggedInUserId();
             var savedGroupType = await _groupTypeRepo.SaveGroupType(groupType);
             if (savedGroupType == null)
             {
-                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+                return new ApiResponse(500);
             }
             var groupTypeTransferDTO = _mapper.Map<GroupTypeTransferDTO>(groupType);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,groupTypeTransferDTO);
+            return new ApiOkResponse(groupTypeTransferDTO);
         }
 
-        public async Task<ApiCommonResponse> GetAllGroupType()
+        public async Task<ApiResponse> GetAllGroupType()
         {
             var groupTypes = await _groupTypeRepo.FindAllGroupType();
             if (groupTypes == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
             var groupTypeTransferDTO = _mapper.Map<IEnumerable<GroupTypeTransferDTO>>(groupTypes);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,groupTypeTransferDTO);
+            return new ApiOkResponse(groupTypeTransferDTO);
         }
 
-        public async Task<ApiCommonResponse> GetGroupTypeById(long id)
+        public async Task<ApiResponse> GetGroupTypeById(long id)
         {
             var groupType = await _groupTypeRepo.FindGroupTypeById(id);
             if (groupType == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
             var groupTypeTransferDTOs = _mapper.Map<GroupTypeTransferDTO>(groupType);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,groupTypeTransferDTOs);
+            return new ApiOkResponse(groupTypeTransferDTOs);
         }
 
-        public async Task<ApiCommonResponse> GetGroupTypeByName(string name)
+        public async Task<ApiResponse> GetGroupTypeByName(string name)
         {
             var groupType = await _groupTypeRepo.FindGroupTypeByName(name);
             if (groupType == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
             var groupTypeTransferDTOs = _mapper.Map<GroupTypeTransferDTO>(groupType);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,groupTypeTransferDTOs);
+            return new ApiOkResponse(groupTypeTransferDTOs);
         }
 
-        public async Task<ApiCommonResponse> UpdateGroupType(HttpContext context, long id, GroupTypeReceivingDTO groupTypeReceivingDTO)
+        public async Task<ApiResponse> UpdateGroupType(HttpContext context, long id, GroupTypeReceivingDTO groupTypeReceivingDTO)
         {
             var groupTypeToUpdate = await _groupTypeRepo.FindGroupTypeById(id);
             if (groupTypeToUpdate == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
             
             var summary = $"Initial details before change, \n {groupTypeToUpdate.ToString()} \n" ;
@@ -91,7 +91,7 @@ namespace HaloBiz.MyServices.Impl
 
             if (updatedGroupType == null)
             {
-                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+                return new ApiResponse(500);
             }
             ModificationHistory history = new ModificationHistory(){
                 ModelChanged = "GroupType",
@@ -103,24 +103,24 @@ namespace HaloBiz.MyServices.Impl
             await _historyRepo.SaveHistory(history);
 
             var groupTypeTransferDTOs = _mapper.Map<GroupTypeTransferDTO>(updatedGroupType);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,groupTypeTransferDTOs);
+            return new ApiOkResponse(groupTypeTransferDTOs);
 
         }
 
-        public async Task<ApiCommonResponse> DeleteGroupType(long id)
+        public async Task<ApiResponse> DeleteGroupType(long id)
         {
             var groupTypeToDelete = await _groupTypeRepo.FindGroupTypeById(id);
             if (groupTypeToDelete == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
 
             if (!await _groupTypeRepo.DeleteGroupType(groupTypeToDelete))
             {
-                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+                return new ApiResponse(500);
             }
 
-            return CommonResponse.Send(ResponseCodes.SUCCESS);
+            return new ApiOkResponse(true);
         }
     }
 }

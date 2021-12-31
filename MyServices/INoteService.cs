@@ -10,11 +10,11 @@ namespace HaloBiz.MyServices
 {
     public interface INoteService
     {
-        Task<ApiCommonResponse> AddNote(HttpContext context, NoteReceivingDTO serviceTypeReceivingDTO);
-        Task<ApiCommonResponse> GetAllNote();
-        Task<ApiCommonResponse> GetNoteById(long id);
-        Task<ApiCommonResponse> GetNoteByName(string name);
-        Task<ApiCommonResponse> UpdateNote(HttpContext context, long id, NoteReceivingDTO serviceTypeReceivingDTO);
-        Task<ApiCommonResponse> DeleteNote(long id);
+        Task<ApiResponse> AddNote(HttpContext context, NoteReceivingDTO serviceTypeReceivingDTO);
+        Task<ApiResponse> GetAllNote();
+        Task<ApiResponse> GetNoteById(long id);
+        Task<ApiResponse> GetNoteByName(string name);
+        Task<ApiResponse> UpdateNote(HttpContext context, long id, NoteReceivingDTO serviceTypeReceivingDTO);
+        Task<ApiResponse> DeleteNote(long id);
     }
 }

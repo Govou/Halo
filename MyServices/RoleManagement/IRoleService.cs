@@ -10,19 +10,19 @@ namespace HaloBiz.MyServices.RoleManagement
 {
     public interface IRoleService
     {
-        Task<ApiCommonResponse> AddRole(HttpContext context, RoleReceivingDTO RoleReceivingDTO);
-        Task<ApiCommonResponse> GetRoleById(long id);
-        Task<ApiCommonResponse> GetRoleByName(string name);
-        Task<ApiCommonResponse> GetAllRoles();
-        Task<ApiCommonResponse> UpdateRole(HttpContext context, long id, RoleReceivingDTO RoleReceivingDTO);
-        Task<ApiCommonResponse> DeleteRole(long id);
-        Task<ApiCommonResponse> GetAllClaims();
-        Task<ApiCommonResponse> GetUserRoleClaims(HttpContext context);
-        ApiCommonResponse GetPermissions();
-        ApiCommonResponse GetGroupedPermissions();
-        Task<ApiCommonResponse> GetPermissionsOnRole(string name);
-        Task<ApiCommonResponse> FindRolesByUser(long userId);        
-        Task<ApiCommonResponse> GetPermissionsOnUser(long userId);
+        Task<ApiResponse> AddRole(HttpContext context, RoleReceivingDTO RoleReceivingDTO);
+        Task<ApiResponse> GetRoleById(long id);
+        Task<ApiResponse> GetRoleByName(string name);
+        Task<ApiResponse> GetAllRoles();
+        Task<ApiResponse> UpdateRole(HttpContext context, long id, RoleReceivingDTO RoleReceivingDTO);
+        Task<ApiResponse> DeleteRole(long id);
+        Task<ApiResponse> GetAllClaims();
+        Task<ApiResponse> GetUserRoleClaims(HttpContext context);
+        ApiResponse GetPermissions();
+        ApiResponse GetGroupedPermissions();
+        Task<ApiResponse> GetPermissionsOnRole(string name);
+        Task<ApiResponse> FindRolesByUser(long userId);        
+        Task<ApiResponse> GetPermissionsOnUser(long userId);
         Task<IEnumerable<Permissions>> GetPermissionEnumsOnUser(long userId);
 
 

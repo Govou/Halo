@@ -30,7 +30,7 @@ namespace HaloBiz.MyServices.Impl
             this._logger = logger;
         }
 
-        public async Task<ApiCommonResponse> AddServiceQualification(HttpContext context, ServiceQualificationReceivingDTO serviceQualificationReceivingDTO)
+        public async Task<ApiResponse> AddServiceQualification(HttpContext context, ServiceQualificationReceivingDTO serviceQualificationReceivingDTO)
         {
 
             var serviceQualification = _mapper.Map<ServiceQualification>(serviceQualificationReceivingDTO);
@@ -38,67 +38,67 @@ namespace HaloBiz.MyServices.Impl
             var savedserviceQualification = await _serviceQualificationRepo.SaveServiceQualification(serviceQualification);
             if (savedserviceQualification == null)
             {
-                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+                return new ApiResponse(500);
             }
             var serviceQualificationTransferDTO = _mapper.Map<ServiceQualificationTransferDTO>(serviceQualification);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,serviceQualificationTransferDTO);
+            return new ApiOkResponse(serviceQualificationTransferDTO);
         }
 
-        public async Task<ApiCommonResponse> DeleteServiceQualification(long id)
+        public async Task<ApiResponse> DeleteServiceQualification(long id)
         {
             var serviceQualificationToDelete = await _serviceQualificationRepo.FindServiceQualificationById(id);
             if (serviceQualificationToDelete == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
 
             if (!await _serviceQualificationRepo.DeleteServiceQualification(serviceQualificationToDelete))
             {
-                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+                return new ApiResponse(500);
             }
 
-            return CommonResponse.Send(ResponseCodes.SUCCESS);
+            return new ApiOkResponse(true);
         }
 
-        public async Task<ApiCommonResponse> GetAllServiceQualification()
+        public async Task<ApiResponse> GetAllServiceQualification()
         {
             var serviceQualifications = await _serviceQualificationRepo.FindAllServiceQualifications();
             if (serviceQualifications == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
             var serviceQualificationTransferDTO = _mapper.Map<IEnumerable<ServiceQualificationTransferDTO>>(serviceQualifications);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,serviceQualificationTransferDTO);
+            return new ApiOkResponse(serviceQualificationTransferDTO);
         }
 
-        public async Task<ApiCommonResponse> GetServiceQualificationById(long id)
+        public async Task<ApiResponse> GetServiceQualificationById(long id)
         {
             var serviceQualification = await _serviceQualificationRepo.FindServiceQualificationById(id);
             if (serviceQualification == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
             var serviceQualificationTransferDTOs = _mapper.Map<ServiceQualificationTransferDTO>(serviceQualification);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,serviceQualificationTransferDTOs);
+            return new ApiOkResponse(serviceQualificationTransferDTOs);
         }
 
-        /*public async Task<ApiCommonResponse> GetServiceQualificationByName(string name)
+        /*public async Task<ApiResponse> GetServiceQualificationByName(string name)
         {
             var serviceQualification = await _serviceQualificationRepo.FindServiceQualificationByName(name);
             if (serviceQualification == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
             var serviceQualificationTransferDTOs = _mapper.Map<ServiceQualificationTransferDTO>(serviceQualification);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,serviceQualificationTransferDTOs);
+            return new ApiOkResponse(serviceQualificationTransferDTOs);
         }*/
 
-        public async Task<ApiCommonResponse> UpdateServiceQualification(HttpContext context, long id, ServiceQualificationReceivingDTO serviceQualificationReceivingDTO)
+        public async Task<ApiResponse> UpdateServiceQualification(HttpContext context, long id, ServiceQualificationReceivingDTO serviceQualificationReceivingDTO)
         {
             var serviceQualificationToUpdate = await _serviceQualificationRepo.FindServiceQualificationById(id);
             if (serviceQualificationToUpdate == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
 
             var summary = $"Initial details before change, \n {serviceQualificationToUpdate.ToString()} \n";
@@ -111,7 +111,7 @@ namespace HaloBiz.MyServices.Impl
 
             if (updatedserviceQualification == null)
             {
-                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+                return new ApiResponse(500);
             }
             ModificationHistory history = new ModificationHistory()
             {
@@ -123,7 +123,7 @@ namespace HaloBiz.MyServices.Impl
             await _historyRepo.SaveHistory(history);
 
             var serviceQualificationTransferDTOs = _mapper.Map<ServiceQualificationTransferDTO>(updatedserviceQualification);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,serviceQualificationTransferDTOs);
+            return new ApiOkResponse(serviceQualificationTransferDTOs);
         }
     }
 }

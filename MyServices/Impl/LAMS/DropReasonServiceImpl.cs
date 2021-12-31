@@ -32,58 +32,58 @@ namespace HaloBiz.MyServices.Impl.LAMS
             this._logger = logger;
         }
 
-        public async Task<ApiCommonResponse> AddDropReason(HttpContext context, DropReasonReceivingDTO DropReasonReceivingDTO)
+        public async Task<ApiResponse> AddDropReason(HttpContext context, DropReasonReceivingDTO DropReasonReceivingDTO)
         {
             var DropReason = _mapper.Map<DropReason>(DropReasonReceivingDTO);
             DropReason.CreatedById = context.GetLoggedInUserId();
             var savedDropReason = await _DropReasonRepo.SaveDropReason(DropReason);
             if (savedDropReason == null)
             {
-                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+                return new ApiResponse(500);
             }
             var DropReasonTransferDTO = _mapper.Map<DropReasonTransferDTO>(DropReason);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,DropReasonTransferDTO);
+            return new ApiOkResponse(DropReasonTransferDTO);
         }
 
-        public async Task<ApiCommonResponse> GetAllDropReason()
+        public async Task<ApiResponse> GetAllDropReason()
         {
             var DropReasons = await _DropReasonRepo.FindAllDropReason();
             if (DropReasons == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
             var DropReasonTransferDTO = _mapper.Map<IEnumerable<DropReasonTransferDTO>>(DropReasons);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,DropReasonTransferDTO);
+            return new ApiOkResponse(DropReasonTransferDTO);
         }
 
-        public async Task<ApiCommonResponse> GetDropReasonById(long id)
+        public async Task<ApiResponse> GetDropReasonById(long id)
         {
             var DropReason = await _DropReasonRepo.FindDropReasonById(id);
             if (DropReason == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
             var DropReasonTransferDTOs = _mapper.Map<DropReasonTransferDTO>(DropReason);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,DropReasonTransferDTOs);
+            return new ApiOkResponse(DropReasonTransferDTOs);
         }
 
-        public async Task<ApiCommonResponse> GetDropReasonByTitle(string title)
+        public async Task<ApiResponse> GetDropReasonByTitle(string title)
         {
             var DropReason = await _DropReasonRepo.FindDropReasonByTitle(title);
             if (DropReason == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
             var DropReasonTransferDTOs = _mapper.Map<DropReasonTransferDTO>(DropReason);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,DropReasonTransferDTOs);
+            return new ApiOkResponse(DropReasonTransferDTOs);
         }
 
-        public async Task<ApiCommonResponse> UpdateDropReason(HttpContext context, long id, DropReasonReceivingDTO DropReasonReceivingDTO)
+        public async Task<ApiResponse> UpdateDropReason(HttpContext context, long id, DropReasonReceivingDTO DropReasonReceivingDTO)
         {
             var DropReasonToUpdate = await _DropReasonRepo.FindDropReasonById(id);
             if (DropReasonToUpdate == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
             
             var summary = $"Initial details before change, \n {DropReasonToUpdate.ToString()} \n" ;
@@ -95,7 +95,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
             if (updatedDropReason == null)
             {
-                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+                return new ApiResponse(500);
             }
             ModificationHistory history = new ModificationHistory(){
                 ModelChanged = "DropReason",
@@ -107,24 +107,24 @@ namespace HaloBiz.MyServices.Impl.LAMS
             await _historyRepo.SaveHistory(history);
 
             var DropReasonTransferDTOs = _mapper.Map<DropReasonTransferDTO>(updatedDropReason);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,DropReasonTransferDTOs);
+            return new ApiOkResponse(DropReasonTransferDTOs);
 
         }
 
-        public async Task<ApiCommonResponse> DeleteDropReason(long id)
+        public async Task<ApiResponse> DeleteDropReason(long id)
         {
             var DropReasonToDelete = await _DropReasonRepo.FindDropReasonById(id);
             if (DropReasonToDelete == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
 
             if (!await _DropReasonRepo.DeleteDropReason(DropReasonToDelete))
             {
-                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+                return new ApiResponse(500);
             }
 
-            return CommonResponse.Send(ResponseCodes.SUCCESS);
+            return new ApiOkResponse(true);
         }
     }
 }

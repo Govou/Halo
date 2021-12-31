@@ -26,51 +26,51 @@ namespace HaloBiz.MyServices.Impl
             this._engagementReasonRepo = engagementReasonRepo;
             this._logger = logger;
         }
-        public async  Task<ApiCommonResponse> AddEngagementReason(HttpContext context, EngagementReasonReceivingDTO engagementReasonReceivingDTO)
+        public async  Task<ApiResponse> AddEngagementReason(HttpContext context, EngagementReasonReceivingDTO engagementReasonReceivingDTO)
         {
             var engagementReason = _mapper.Map<EngagementReason>(engagementReasonReceivingDTO);
             engagementReason.CreatedById = context.GetLoggedInUserId();
             var savedEngagementReason = await _engagementReasonRepo.SaveEngagementReason(engagementReason);
             if (savedEngagementReason == null)
             {
-                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+                return new ApiResponse(500);
             }
             var engagementReasonTransferDTO = _mapper.Map<EngagementReasonTransferDTO>(engagementReason);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,engagementReasonTransferDTO);
+            return new ApiOkResponse(engagementReasonTransferDTO);
         }
 
-        public async Task<ApiCommonResponse> DeleteEngagementReason(long id)
+        public async Task<ApiResponse> DeleteEngagementReason(long id)
         {
             var engagementReasonToDelete = await _engagementReasonRepo.FindEngagementReasonById(id);
             if(engagementReasonToDelete == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
             if (!await _engagementReasonRepo.DeleteEngagementReason(engagementReasonToDelete))
             {
-                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+                return new ApiResponse(500);
             }
 
-            return CommonResponse.Send(ResponseCodes.SUCCESS);
+            return new ApiOkResponse(true);
         }
 
-        public async Task<ApiCommonResponse> GetAllEngagementReason()
+        public async Task<ApiResponse> GetAllEngagementReason()
         {
             var engagementReason = await _engagementReasonRepo.GetEngagementReasons();
             if (engagementReason == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
             var engagementReasonTransferDTO = _mapper.Map<IEnumerable<EngagementReasonTransferDTO>>(engagementReason);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,engagementReasonTransferDTO);
+            return new ApiOkResponse(engagementReasonTransferDTO);
         }
 
-        public  async Task<ApiCommonResponse> UpdateEngagementReason(HttpContext context, long id, EngagementReasonReceivingDTO engagementReasonReceivingDTO)
+        public  async Task<ApiResponse> UpdateEngagementReason(HttpContext context, long id, EngagementReasonReceivingDTO engagementReasonReceivingDTO)
         {
             var engagementReasonToUpdate = await _engagementReasonRepo.FindEngagementReasonById(id);
             if (engagementReasonToUpdate == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
             
             var summary = $"Initial details before change, \n {engagementReasonToUpdate.ToString()} \n" ;
@@ -83,7 +83,7 @@ namespace HaloBiz.MyServices.Impl
 
             if (updatedEngagementReason == null)
             {
-                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+                return new ApiResponse(500);
             }
             ModificationHistory history = new ModificationHistory(){
                 ModelChanged = "EngagementReason",
@@ -95,7 +95,7 @@ namespace HaloBiz.MyServices.Impl
             await _historyRepo.SaveHistory(history);
 
             var engagementReasonTransferDTOs = _mapper.Map<EngagementReasonTransferDTO>(updatedEngagementReason);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,engagementReasonTransferDTOs);
+            return new ApiOkResponse(engagementReasonTransferDTOs);
         }
     }
 }

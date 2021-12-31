@@ -27,49 +27,49 @@ namespace HaloBiz.MyServices.Impl.LAMS
             this._LeadDivisionKeyPersonRepo = LeadDivisionKeyPersonRepo;
         }
 
-        public async Task<ApiCommonResponse> AddLeadDivisionKeyPerson(HttpContext context, LeadDivisionKeyPersonReceivingDTO LeadDivisionKeyPersonReceivingDTO)
+        public async Task<ApiResponse> AddLeadDivisionKeyPerson(HttpContext context, LeadDivisionKeyPersonReceivingDTO LeadDivisionKeyPersonReceivingDTO)
         {
             var LeadDivisionKeyPerson = _mapper.Map<LeadDivisionKeyPerson>(LeadDivisionKeyPersonReceivingDTO);
             LeadDivisionKeyPerson.CreatedById = context.GetLoggedInUserId();
             var savedLeadDivisionKeyPerson = await _LeadDivisionKeyPersonRepo.SaveLeadDivisionKeyPerson(LeadDivisionKeyPerson);
             if (savedLeadDivisionKeyPerson == null)
             {
-                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+                return new ApiResponse(500);
             }
             var LeadDivisionKeyPersonTransferDTO = _mapper.Map<LeadDivisionKeyPersonTransferDTO>(LeadDivisionKeyPerson);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,LeadDivisionKeyPersonTransferDTO);
+            return new ApiOkResponse(LeadDivisionKeyPersonTransferDTO);
         }
 
-        public async Task<ApiCommonResponse> GetAllLeadDivisionKeyPerson()
+        public async Task<ApiResponse> GetAllLeadDivisionKeyPerson()
         {
             var LeadDivisionKeyPersons = await _LeadDivisionKeyPersonRepo.FindAllLeadDivisionKeyPerson();
             if (LeadDivisionKeyPersons == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
             var LeadDivisionKeyPersonTransferDTO = _mapper.Map<IEnumerable<LeadDivisionKeyPersonTransferDTO>>(LeadDivisionKeyPersons);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,LeadDivisionKeyPersonTransferDTO);
+            return new ApiOkResponse(LeadDivisionKeyPersonTransferDTO);
         }
 
-        public async Task<ApiCommonResponse> GetLeadDivisionKeyPersonById(long id)
+        public async Task<ApiResponse> GetLeadDivisionKeyPersonById(long id)
         {
             var LeadDivisionKeyPerson = await _LeadDivisionKeyPersonRepo.FindLeadDivisionKeyPersonById(id);
             if (LeadDivisionKeyPerson == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
             var LeadDivisionKeyPersonTransferDTO = _mapper.Map<LeadDivisionKeyPersonTransferDTO>(LeadDivisionKeyPerson);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,LeadDivisionKeyPersonTransferDTO);
+            return new ApiOkResponse(LeadDivisionKeyPersonTransferDTO);
         }
 
         
 
-        public async Task<ApiCommonResponse> UpdateLeadDivisionKeyPerson(HttpContext context, long id, LeadDivisionKeyPersonReceivingDTO LeadDivisionKeyPersonReceivingDTO)
+        public async Task<ApiResponse> UpdateLeadDivisionKeyPerson(HttpContext context, long id, LeadDivisionKeyPersonReceivingDTO LeadDivisionKeyPersonReceivingDTO)
         {
             var LeadDivisionKeyPersonToUpdate = await _LeadDivisionKeyPersonRepo.FindLeadDivisionKeyPersonById(id);
             if (LeadDivisionKeyPersonToUpdate == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
             
             var summary = $"Initial details before change, \n {LeadDivisionKeyPersonToUpdate.ToString()} \n" ;
@@ -87,7 +87,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
             if (updatedLeadDivisionKeyPerson == null)
             {
-                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+                return new ApiResponse(500);
             }
             ModificationHistory history = new ModificationHistory(){
                 ModelChanged = "LeadDivisionKeyPerson",
@@ -99,35 +99,35 @@ namespace HaloBiz.MyServices.Impl.LAMS
             await _historyRepo.SaveHistory(history);
 
             var LeadDivisionKeyPersonTransferDTOs = _mapper.Map<LeadDivisionKeyPersonTransferDTO>(updatedLeadDivisionKeyPerson);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,LeadDivisionKeyPersonTransferDTOs);
+            return new ApiOkResponse(LeadDivisionKeyPersonTransferDTOs);
 
         }
 
-        public async Task<ApiCommonResponse> GetAllLeadDivisionKeyPersonsByLeadDivisionId(long leadDivisionId)
+        public async Task<ApiResponse> GetAllLeadDivisionKeyPersonsByLeadDivisionId(long leadDivisionId)
         {
             var LeadDivisionKeyPersons = await _LeadDivisionKeyPersonRepo.FindAllLeadDivisionKeyPersonByLeadDivisionId(leadDivisionId);
             if (LeadDivisionKeyPersons == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
             var LeadDivisionKeyPersonTransferDTO = _mapper.Map<IEnumerable<LeadDivisionKeyPersonTransferDTO>>(LeadDivisionKeyPersons);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,LeadDivisionKeyPersonTransferDTO); 
+            return new ApiOkResponse(LeadDivisionKeyPersonTransferDTO); 
         }
 
-        public async Task<ApiCommonResponse> DeleteKeyPerson(long Id)
+        public async Task<ApiResponse> DeleteKeyPerson(long Id)
         {
             var leadKeyPersonToDelete = await _LeadDivisionKeyPersonRepo.FindLeadDivisionKeyPersonById(Id);
             if (leadKeyPersonToDelete == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
 
             if (!await _LeadDivisionKeyPersonRepo.DeleteLeadDivisionKeyPerson(leadKeyPersonToDelete))
             {
-                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+                return new ApiResponse(500);
             }
 
-            return CommonResponse.Send(ResponseCodes.SUCCESS);
+            return new ApiOkResponse(true);
         }
 
     }

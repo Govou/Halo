@@ -23,38 +23,59 @@ namespace HaloBiz.Controllers
         }
 
         [HttpGet("")]
-        public async Task<ApiCommonResponse> GetComplaintType()
+        public async Task<ActionResult> GetComplaintType()
         {
-            return await _ComplaintTypeService.GetAllComplaintType();
+            var response = await _ComplaintTypeService.GetAllComplaintType();
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var ComplaintType = ((ApiOkResponse)response).Result;
+            return Ok(ComplaintType);
         }
         [HttpGet("caption/{name}")]
-        public async Task<ApiCommonResponse> GetByCaption(string name)
+        public async Task<ActionResult> GetByCaption(string name)
         {
-            return await _ComplaintTypeService.GetComplaintTypeByName(name);
+            var response = await _ComplaintTypeService.GetComplaintTypeByName(name);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var ComplaintType = ((ApiOkResponse)response).Result;
+            return Ok(ComplaintType);
         }
 
         [HttpGet("{id}")]
-        public async Task<ApiCommonResponse> GetById(long id)
+        public async Task<ActionResult> GetById(long id)
         {
-            return await _ComplaintTypeService.GetComplaintTypeById(id);
+            var response = await _ComplaintTypeService.GetComplaintTypeById(id);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var ComplaintType = ((ApiOkResponse)response).Result;
+            return Ok(ComplaintType);
         }
 
         [HttpPost("")]
-        public async Task<ApiCommonResponse> AddNewComplaintType(ComplaintTypeReceivingDTO ComplaintTypeReceiving)
+        public async Task<ActionResult> AddNewComplaintType(ComplaintTypeReceivingDTO ComplaintTypeReceiving)
         {
-            return await _ComplaintTypeService.AddComplaintType(HttpContext, ComplaintTypeReceiving);
+            var response = await _ComplaintTypeService.AddComplaintType(HttpContext, ComplaintTypeReceiving);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var ComplaintType = ((ApiOkResponse)response).Result;
+            return Ok(ComplaintType);
         }
 
         [HttpPut("{id}")]
-        public async Task<ApiCommonResponse> UpdateById(long id, ComplaintTypeReceivingDTO ComplaintTypeReceiving)
+        public async Task<IActionResult> UpdateById(long id, ComplaintTypeReceivingDTO ComplaintTypeReceiving)
         {
-            return await _ComplaintTypeService.UpdateComplaintType(HttpContext, id, ComplaintTypeReceiving);
+            var response = await _ComplaintTypeService.UpdateComplaintType(HttpContext, id, ComplaintTypeReceiving);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var ComplaintType = ((ApiOkResponse)response).Result;
+            return Ok(ComplaintType);
         }
 
         [HttpDelete("{id}")]
-        public async Task<ApiCommonResponse> DeleteById(int id)
+        public async Task<ActionResult> DeleteById(int id)
         {
-            return await _ComplaintTypeService.DeleteComplaintType(id);
+            var response = await _ComplaintTypeService.DeleteComplaintType(id);
+            return StatusCode(response.StatusCode);
         }
     }
 }

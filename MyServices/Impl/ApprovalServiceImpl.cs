@@ -48,120 +48,120 @@ namespace HaloBiz.MyServices.Impl
             _context = context;
             _logger = logger;
         }
-        public async  Task<ApiCommonResponse> AddApproval(HttpContext context, ApprovalReceivingDTO approvalReceivingDTO)
+        public async  Task<ApiResponse> AddApproval(HttpContext context, ApprovalReceivingDTO approvalReceivingDTO)
         {
             var approval = _mapper.Map<Approval>(approvalReceivingDTO);
             approval.CreatedById = context.GetLoggedInUserId();
             var savedApproval = await _approvalRepo.SaveApproval(approval);
             if (savedApproval == null)
             {
-                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+                return new ApiResponse(500);
             }
             var approvalTransferDTO = _mapper.Map<ApprovalTransferDTO>(approval);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,approvalTransferDTO);
+            return new ApiOkResponse(approvalTransferDTO);
         }
 
-        public async Task<ApiCommonResponse> DeleteApproval(long id)
+        public async Task<ApiResponse> DeleteApproval(long id)
         {
             var approvalToDelete = await _approvalRepo.FindApprovalById(id);
             if(approvalToDelete == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
             if (!await _approvalRepo.DeleteApproval(approvalToDelete))
             {
-                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+                return new ApiResponse(500);
             }
 
-            return CommonResponse.Send(ResponseCodes.SUCCESS);
+            return new ApiOkResponse(true);
         }
 
-        public async Task<ApiCommonResponse> GetAllApproval()
+        public async Task<ApiResponse> GetAllApproval()
         {
             var approval = await _approvalRepo.GetApprovals();
             if (approval == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
             var approvalTransferDTO = _mapper.Map<IEnumerable<ApprovalTransferDTO>>(approval);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,approvalTransferDTO);
+            return new ApiOkResponse(approvalTransferDTO);
         }
 
-        public async Task<ApiCommonResponse> GetPendingApprovals()
+        public async Task<ApiResponse> GetPendingApprovals()
         {
             var approval = await _approvalRepo.GetPendingApprovals();
             if (approval == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
             var approvalTransferDTO = _mapper.Map<IEnumerable<ApprovalTransferDTO>>(approval);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,approvalTransferDTO);
+            return new ApiOkResponse(approvalTransferDTO);
         }
 
-        public async Task<ApiCommonResponse> GetPendingApprovalsByQuoteId(long quoteId)
+        public async Task<ApiResponse> GetPendingApprovalsByQuoteId(long quoteId)
         {
             var approval = await _approvalRepo.GetPendingApprovalsByQuoteId(quoteId);
             if (approval == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
             var approvalTransferDTO = _mapper.Map<IEnumerable<ApprovalTransferDTO>>(approval);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,approvalTransferDTO);
+            return new ApiOkResponse(approvalTransferDTO);
         }
         
-        public async Task<ApiCommonResponse> GetApprovalsByQuoteId(long quoteId)
+        public async Task<ApiResponse> GetApprovalsByQuoteId(long quoteId)
         {
             var approval = await _approvalRepo.GetApprovalsByQuoteId(quoteId);
             if (approval == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
             var approvalTransferDTO = _mapper.Map<IEnumerable<ApprovalTransferDTO>>(approval);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,approvalTransferDTO);
+            return new ApiOkResponse(approvalTransferDTO);
         }
 
-        public async Task<ApiCommonResponse> GetPendingApprovalsByServiceId(long serviceId)
+        public async Task<ApiResponse> GetPendingApprovalsByServiceId(long serviceId)
         {
             var approval = await _approvalRepo.GetPendingApprovalsByServiceId(serviceId);
             if (approval == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
             var approvalTransferDTO = _mapper.Map<IEnumerable<ApprovalTransferDTO>>(approval);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,approvalTransferDTO);
+            return new ApiOkResponse(approvalTransferDTO);
         }
 
-        public async Task<ApiCommonResponse> GetApprovalsByEndorsementId(long endorsementId)
+        public async Task<ApiResponse> GetApprovalsByEndorsementId(long endorsementId)
         {
             var approval = await _approvalRepo.GetApprovalsByEndorsementId(endorsementId);
             if (approval == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
             var approvalTransferDTO = _mapper.Map<IEnumerable<ApprovalTransferDTO>>(approval);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,approvalTransferDTO);
+            return new ApiOkResponse(approvalTransferDTO);
         }
 
-        public async Task<ApiCommonResponse> GetApprovalsByServiceId(long serviceId)
+        public async Task<ApiResponse> GetApprovalsByServiceId(long serviceId)
         {
             var approval = await _approvalRepo.GetApprovalsByServiceId(serviceId);
             if (approval == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
             var approvalTransferDTO = _mapper.Map<IEnumerable<ApprovalTransferDTO>>(approval);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,approvalTransferDTO);
+            return new ApiOkResponse(approvalTransferDTO);
         }
 
-        public async Task<ApiCommonResponse> GetUserPendingApprovals(HttpContext context)
+        public async Task<ApiResponse> GetUserPendingApprovals(HttpContext context)
         {
             var approval = await _approvalRepo.GetUserPendingApprovals(context.GetLoggedInUserId());
             if (approval == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
             var approvalTransferDTO = _mapper.Map<IEnumerable<ApprovalTransferDTO>>(approval);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,approvalTransferDTO);
+            return new ApiOkResponse(approvalTransferDTO);
         }
 
         public async Task<bool> SetUpApprovalsForClientCreation(long leadId, HttpContext context)
@@ -548,12 +548,12 @@ namespace HaloBiz.MyServices.Impl
             }
         }
 
-        public  async Task<ApiCommonResponse> UpdateApproval(HttpContext context, long id, ApprovalReceivingDTO approvalReceivingDTO)
+        public  async Task<ApiResponse> UpdateApproval(HttpContext context, long id, ApprovalReceivingDTO approvalReceivingDTO)
         {
             var approvalToUpdate = await _approvalRepo.FindApprovalById(id);
             if (approvalToUpdate == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
             
             var summary = $"Initial details before change, \n {approvalToUpdate} \n" ;
@@ -566,7 +566,7 @@ namespace HaloBiz.MyServices.Impl
 
             if (updatedApproval == null)
             {
-                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+                return new ApiResponse(500);
             }
             ModificationHistory history = new ModificationHistory(){
                 ModelChanged = "Approval",
@@ -578,7 +578,7 @@ namespace HaloBiz.MyServices.Impl
             await _historyRepo.SaveHistory(history);
 
             var approvalTransferDTOs = _mapper.Map<ApprovalTransferDTO>(updatedApproval);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,approvalTransferDTOs);
+            return new ApiOkResponse(approvalTransferDTOs);
         }
 
         private async Task SendMailsForServiceApprovals(List<Approval> approvals)

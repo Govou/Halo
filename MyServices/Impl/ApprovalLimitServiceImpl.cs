@@ -26,51 +26,51 @@ namespace HaloBiz.MyServices.Impl
             this._approvalLimitRepo = approvalLimitRepo;
             this._logger = logger;
         }
-        public async  Task<ApiCommonResponse> AddApprovalLimit(HttpContext context, ApprovalLimitReceivingDTO approvalLimitReceivingDTO)
+        public async  Task<ApiResponse> AddApprovalLimit(HttpContext context, ApprovalLimitReceivingDTO approvalLimitReceivingDTO)
         {
             var approvalLimit = _mapper.Map<ApprovalLimit>(approvalLimitReceivingDTO);
             approvalLimit.CreatedById = context.GetLoggedInUserId();
             var savedApprovalLimit = await _approvalLimitRepo.SaveApprovalLimit(approvalLimit);
             if (savedApprovalLimit == null)
             {
-                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+                return new ApiResponse(500);
             }
             var approvalLimitTransferDTO = _mapper.Map<ApprovalLimitTransferDTO>(approvalLimit);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,approvalLimitTransferDTO);
+            return new ApiOkResponse(approvalLimitTransferDTO);
         }
 
-        public async Task<ApiCommonResponse> DeleteApprovalLimit(long id)
+        public async Task<ApiResponse> DeleteApprovalLimit(long id)
         {
             var approvalLimitToDelete = await _approvalLimitRepo.FindApprovalLimitById(id);
             if(approvalLimitToDelete == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
             if (!await _approvalLimitRepo.DeleteApprovalLimit(approvalLimitToDelete))
             {
-                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+                return new ApiResponse(500);
             }
 
-            return CommonResponse.Send(ResponseCodes.SUCCESS);
+            return new ApiOkResponse(true);
         }
 
-        public async Task<ApiCommonResponse> GetAllApprovalLimit()
+        public async Task<ApiResponse> GetAllApprovalLimit()
         {
             var approvalLimit = await _approvalLimitRepo.GetApprovalLimits();
             if (approvalLimit == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
             var approvalLimitTransferDTO = _mapper.Map<IEnumerable<ApprovalLimitTransferDTO>>(approvalLimit);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,approvalLimitTransferDTO);
+            return new ApiOkResponse(approvalLimitTransferDTO);
         }
 
-        public  async Task<ApiCommonResponse> UpdateApprovalLimit(HttpContext context, long id, ApprovalLimitReceivingDTO approvalLimitReceivingDTO)
+        public  async Task<ApiResponse> UpdateApprovalLimit(HttpContext context, long id, ApprovalLimitReceivingDTO approvalLimitReceivingDTO)
         {
             var approvalLimitToUpdate = await _approvalLimitRepo.FindApprovalLimitById(id);
             if (approvalLimitToUpdate == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
             
             var summary = $"Initial details before change, \n {approvalLimitToUpdate.ToString()} \n" ;
@@ -89,7 +89,7 @@ namespace HaloBiz.MyServices.Impl
 
             if (updatedApprovalLimit == null)
             {
-                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+                return new ApiResponse(500);
             }
             ModificationHistory history = new ModificationHistory(){
                 ModelChanged = "ApprovalLimit",
@@ -101,7 +101,7 @@ namespace HaloBiz.MyServices.Impl
             await _historyRepo.SaveHistory(history);
 
             var approvalLimitTransferDTOs = _mapper.Map<ApprovalLimitTransferDTO>(updatedApprovalLimit);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,approvalLimitTransferDTOs);
+            return new ApiOkResponse(approvalLimitTransferDTOs);
         }
     }
 }

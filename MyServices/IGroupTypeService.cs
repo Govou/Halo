@@ -7,11 +7,11 @@ namespace HaloBiz.MyServices
 {
     public interface IGroupTypeService
     {
-        Task<ApiCommonResponse> AddGroupType(HttpContext context, GroupTypeReceivingDTO groupTypeReceivingDTO);
-        Task<ApiCommonResponse> GetAllGroupType();
-        Task<ApiCommonResponse> GetGroupTypeById(long id);
-        Task<ApiCommonResponse> GetGroupTypeByName(string name);
-        Task<ApiCommonResponse> UpdateGroupType(HttpContext context, long id, GroupTypeReceivingDTO groupTypeReceivingDTO);
-        Task<ApiCommonResponse> DeleteGroupType(long id);
+        Task<ApiResponse> AddGroupType(HttpContext context, GroupTypeReceivingDTO groupTypeReceivingDTO);
+        Task<ApiResponse> GetAllGroupType();
+        Task<ApiResponse> GetGroupTypeById(long id);
+        Task<ApiResponse> GetGroupTypeByName(string name);
+        Task<ApiResponse> UpdateGroupType(HttpContext context, long id, GroupTypeReceivingDTO groupTypeReceivingDTO);
+        Task<ApiResponse> DeleteGroupType(long id);
     }
 }

@@ -12,7 +12,7 @@ namespace HaloBiz.DTOs.ApiDTOs
         public string responseMsg { get; set; }
     }
 
-    public enum ResponseCodes : short
+    public enum ResponseCodes
     {
         /// <summary>
         /// Success

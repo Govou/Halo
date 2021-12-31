@@ -19,88 +19,141 @@ namespace HaloBiz.Controllers.LAMS
         }
 
         [HttpGet("")]
-        public async Task<ApiCommonResponse> GetCustomerDivisions()
+        public async Task<ActionResult> GetCustomerDivisions()
         {
-            return await _CustomerDivisionService.GetAllCustomerDivisions();
+            var response = await _CustomerDivisionService.GetAllCustomerDivisions();
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var CustomerDivision = ((ApiOkResponse)response).Result;
+            return Ok(CustomerDivision);
         }
 
         [HttpGet("GetCustomerDivisionsByGroupType/{groupTypeId}")]
-        public async Task<ApiCommonResponse> GetCustomerDivisionsByGroupType(long groupTypeId)
+        public async Task<ActionResult> GetCustomerDivisionsByGroupType(long groupTypeId)
         {
-            return await _CustomerDivisionService.GetCustomerDivisionsByGroupType(groupTypeId);
+            var response = await _CustomerDivisionService.GetCustomerDivisionsByGroupType(groupTypeId);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var CustomerDivision = ((ApiOkResponse)response).Result;
+            return Ok(CustomerDivision);
         }
 
 
         [HttpGet("{id}")]
-        public async Task<ApiCommonResponse> GetById(long id)
+        public async Task<ActionResult> GetById(long id)
         {
-            return await _CustomerDivisionService.GetCustomerDivisionById(id);
+            var response = await _CustomerDivisionService.GetCustomerDivisionById(id);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var CustomerDivision = ((ApiOkResponse)response).Result;
+            return Ok(CustomerDivision);
         }
 
         [HttpGet("TaskAndDeliverables/{customerDivisionId}")]
-        public async Task<ApiCommonResponse> GetTaskAndDeliverables(long customerDivisionId)
+        public async Task<ActionResult> GetTaskAndDeliverables(long customerDivisionId)
         {
-            return await _CustomerDivisionService.GetTaskAndFulfillmentsByCustomerDivisionId(customerDivisionId);
+            var response = await _CustomerDivisionService.GetTaskAndFulfillmentsByCustomerDivisionId(customerDivisionId);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var CustomerDivision = ((ApiOkResponse)response).Result;
+            return Ok(CustomerDivision);
         }
 
         [HttpGet("GetClientsWithSecuredMobilityContractService")]
-        public async Task<ApiCommonResponse> GetClientsWithSecuredMobilityContractService()
+        public async Task<ActionResult> GetClientsWithSecuredMobilityContractService()
         {
-            return await _CustomerDivisionService.GetClientsWithSecuredMobilityContractServices();
+            var response = await _CustomerDivisionService.GetClientsWithSecuredMobilityContractServices();
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var CustomerDivision = ((ApiOkResponse)response).Result;
+            return Ok(CustomerDivision);
         }
 
         [HttpGet("GetClientsUnAssignedToRMSbu")]
-        public async Task<ApiCommonResponse> GetClientsUnAssignedToRMSbu()
+        public async Task<ActionResult> GetClientsUnAssignedToRMSbu()
         {
-            return await _CustomerDivisionService.GetClientsUnAssignedToRMSbu();
+            var response = await _CustomerDivisionService.GetClientsUnAssignedToRMSbu();
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var CustomerDivision = ((ApiOkResponse)response).Result;
+            return Ok(CustomerDivision);
         }
 
         [HttpGet("GetClientsAttachedToRMSbu/{sbuId}")]
-        public async Task<ApiCommonResponse> GetClientsAttachedToRMSbu(long sbuId)
+        public async Task<ActionResult> GetClientsAttachedToRMSbu(long sbuId)
         {
-            return await _CustomerDivisionService.GetClientsAttachedToRMSbu(sbuId);
+            var response = await _CustomerDivisionService.GetClientsAttachedToRMSbu(sbuId);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var CustomerDivision = ((ApiOkResponse)response).Result;
+            return Ok(CustomerDivision);
         }
 
         [HttpGet("GetRMSbuClientsByGroupType/{sbuId}/{clientTypeId}")]
-        public async Task<ApiCommonResponse> GetRMSbuClientsByGroupType(long sbuId, long clientTypeId)
+        public async Task<ActionResult> GetRMSbuClientsByGroupType(long sbuId, long clientTypeId)
         {
-            return await _CustomerDivisionService.GetRMSbuClientsByGroupType(sbuId, clientTypeId);
+            var response = await _CustomerDivisionService.GetRMSbuClientsByGroupType(sbuId, clientTypeId);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var CustomerDivision = ((ApiOkResponse)response).Result;
+            return Ok(CustomerDivision);
         }
 
         [HttpPut("AttachClientToRMSbu/{customerDivisionId}/{sbuId}")]
-        public async Task<ApiCommonResponse> AttachClientToRMSbu(long customerDivisionId, long sbuId)
+        public async Task<ActionResult> AttachClientToRMSbu(long customerDivisionId, long sbuId)
         {
-            return await _CustomerDivisionService.AttachClientToRMSbu(HttpContext, customerDivisionId, sbuId);
+            var response = await _CustomerDivisionService.AttachClientToRMSbu(HttpContext, customerDivisionId, sbuId);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var CustomerDivision = ((ApiOkResponse)response).Result;
+            return Ok(CustomerDivision);
         }
 
         [HttpGet("ContractsBreakDown/{customerDivsionId}")]
-        public async Task<ApiCommonResponse> GetContractBreakDownId(long customerDivsionId)
+        public async Task<ActionResult> GetContractBreakDownId(long customerDivsionId)
         {
-            return await _CustomerDivisionService. GetCustomerDivisionBreakDownById(customerDivsionId);
+            var response = await _CustomerDivisionService. GetCustomerDivisionBreakDownById(customerDivsionId);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var CustomerDivision = ((ApiOkResponse)response).Result;
+            return Ok(CustomerDivision);
         }
 
         [HttpPost("")]
-        public async Task<ApiCommonResponse> AddNewCustomerDivision(CustomerDivisionReceivingDTO CustomerDivisionReceiving)
+        public async Task<ActionResult> AddNewCustomerDivision(CustomerDivisionReceivingDTO CustomerDivisionReceiving)
         {
-            return await _CustomerDivisionService.AddCustomerDivision(HttpContext, CustomerDivisionReceiving);
+            var response = await _CustomerDivisionService.AddCustomerDivision(HttpContext, CustomerDivisionReceiving);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var CustomerDivision = ((ApiOkResponse)response).Result;
+            return Ok(CustomerDivision);
         }
 
         [HttpPut("{id}")]
-        public async Task<ApiCommonResponse> UpdateById(long id, CustomerDivisionReceivingDTO CustomerDivisionReceiving)
+        public async Task<IActionResult> UpdateById(long id, CustomerDivisionReceivingDTO CustomerDivisionReceiving)
         {
-            return await _CustomerDivisionService.UpdateCustomerDivision(HttpContext, id, CustomerDivisionReceiving);
+            var response = await _CustomerDivisionService.UpdateCustomerDivision(HttpContext, id, CustomerDivisionReceiving);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var CustomerDivision = ((ApiOkResponse)response).Result;
+            return Ok(CustomerDivision);
         }
 
         [HttpDelete("{id}")]
-        public async Task<ApiCommonResponse> DeleteById(int id)
+        public async Task<ActionResult> DeleteById(int id)
         {
-            return await _CustomerDivisionService.DeleteCustomerDivision(id);
+            var response = await _CustomerDivisionService.DeleteCustomerDivision(id);
+            return StatusCode(response.StatusCode);
         }
 
         [HttpGet("GetByCustomerNumber/{dTrackCustomerNumber}")]
-        public async Task<ApiCommonResponse> GetByDTrackCustomerNumber(string dTrackCustomerNumber)
+        public async Task<ActionResult> GetByDTrackCustomerNumber(string dTrackCustomerNumber)
         {
-            return await _CustomerDivisionService.GetCustomerDivisionByDTrackCustomerNumber(dTrackCustomerNumber);
+            var response = await _CustomerDivisionService.GetCustomerDivisionByDTrackCustomerNumber(dTrackCustomerNumber);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var CustomerDivision = ((ApiOkResponse)response).Result;
+            return Ok(CustomerDivision);
         }
     }
 }

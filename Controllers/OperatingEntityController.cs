@@ -23,43 +23,68 @@ namespace HaloBiz.Controllers
         }
 
         [HttpGet("")]
-        public async Task<ApiCommonResponse> GetOperatingEntities()
+        public async Task<ActionResult> GetOperatingEntities()
         {
-            return await _operatingEntityService.GetAllOperatingEntities();
+            var response = await _operatingEntityService.GetAllOperatingEntities();
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var operatingEntity = ((ApiOkResponse)response).Result;
+            return Ok((IEnumerable<OperatingEntityTransferDTO>)operatingEntity);
         }
         [HttpGet("SbuProportion")]
-        public async Task<ApiCommonResponse> GetOperatingEntitiesAndSbuproportion()
+        public async Task<ActionResult> GetOperatingEntitiesAndSbuproportion()
         {
-            return await _operatingEntityService.GetAllOperatingEntitiesAndSbuproportion();
+            var response = await _operatingEntityService.GetAllOperatingEntitiesAndSbuproportion();
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var operatingEntity = ((ApiOkResponse)response).Result;
+            return Ok(operatingEntity);
         }
         [HttpGet("name/{name}")]
-        public async Task<ApiCommonResponse> GetByName(string name)
+        public async Task<ActionResult> GetByName(string name)
         {
-            return await _operatingEntityService.GetOperatingEntityByName(name);
+            var response = await _operatingEntityService.GetOperatingEntityByName(name);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var operatingEntity = ((ApiOkResponse)response).Result;
+            return Ok((OperatingEntityTransferDTO)operatingEntity);
         }
 
         [HttpGet("{id}")]
-        public async Task<ApiCommonResponse> GetById(long id)
+        public async Task<ActionResult> GetById(long id)
         {
-            return await _operatingEntityService.GetOperatingEntityById(id);
+            var response = await _operatingEntityService.GetOperatingEntityById(id);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var operatingEntity = ((ApiOkResponse)response).Result;
+            return Ok((OperatingEntityTransferDTO)operatingEntity);
         }
 
         [HttpPost("")]
-        public async Task<ApiCommonResponse> AddNew(OperatingEntityReceivingDTO operatingEntityReceiving)
+        public async Task<ActionResult> AddNew(OperatingEntityReceivingDTO operatingEntityReceiving)
         {
-            return await _operatingEntityService.AddOperatingEntity(operatingEntityReceiving);
+            var response = await _operatingEntityService.AddOperatingEntity(operatingEntityReceiving);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var operatingEntity = ((ApiOkResponse)response).Result;
+            return Ok((OperatingEntityTransferDTO)operatingEntity);
         }
 
         [HttpPut("{id}")]
-        public async Task<ApiCommonResponse> UpdateById(long id, OperatingEntityReceivingDTO operatingEntityReceiving)
+        public async Task<IActionResult> UpdateById(long id, OperatingEntityReceivingDTO operatingEntityReceiving)
         {
-            return await _operatingEntityService.UpdateOperatingEntity(id, operatingEntityReceiving);
+            var response = await _operatingEntityService.UpdateOperatingEntity(id, operatingEntityReceiving);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var operatingEntity = ((ApiOkResponse)response).Result;
+            return Ok((OperatingEntityTransferDTO)operatingEntity);
         }
 
         [HttpDelete("{id}")]
-        public async Task<ApiCommonResponse> DeleteById(int id)
+        public async Task<ActionResult> DeleteById(int id)
         {
-            return await _operatingEntityService.DeleteOperatingEntity(id);
+            var response = await _operatingEntityService.DeleteOperatingEntity(id);
+            return StatusCode(response.StatusCode);
         }
     }
 }

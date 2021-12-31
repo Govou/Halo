@@ -27,57 +27,57 @@ namespace HaloBiz.MyServices.Impl
             this._logger = logger;
         }
 
-        public async Task<ApiCommonResponse> AddBranch(BranchReceivingDTO branchReceivingDTO)
+        public async Task<ApiResponse> AddBranch(BranchReceivingDTO branchReceivingDTO)
         {
             var branch = _mapper.Map<Branch>(branchReceivingDTO);
             var savedBranch = await _branchRepo.SaveBranch(branch);
             if (savedBranch == null)
             {
-                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+                return new ApiResponse(500);
             }
             var branchTransferDTOs = _mapper.Map<BranchTransferDTO>(branch);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,branchTransferDTOs);
+            return new ApiOkResponse(branchTransferDTOs);
         }
 
-        public async Task<ApiCommonResponse> GetAllBranches()
+        public async Task<ApiResponse> GetAllBranches()
         {
             var branches = await _branchRepo.FindAllBranches();
             if (branches == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
             var branchTransferDTOs = _mapper.Map<IEnumerable<BranchTransferDTO>>(branches);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,branchTransferDTOs);
+            return new ApiOkResponse(branchTransferDTOs);
         }
 
-        public async Task<ApiCommonResponse> GetBranchById(long id)
+        public async Task<ApiResponse> GetBranchById(long id)
         {
             var branch = await _branchRepo.FindBranchById(id);
             if (branch == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
             var branchTransferDTOs = _mapper.Map<BranchTransferDTO>(branch);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,branchTransferDTOs);
+            return new ApiOkResponse(branchTransferDTOs);
         }
 
-        public async Task<ApiCommonResponse> GetBranchByName(string name)
+        public async Task<ApiResponse> GetBranchByName(string name)
         {
             var branch = await _branchRepo.FindBranchByName(name);
             if (branch == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
             var branchTransferDTOs = _mapper.Map<BranchTransferDTO>(branch);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,branchTransferDTOs);
+            return new ApiOkResponse(branchTransferDTOs);
         }
 
-        public async Task<ApiCommonResponse> UpdateBranch(long id, BranchReceivingDTO branchReceivingDTO)
+        public async Task<ApiResponse> UpdateBranch(long id, BranchReceivingDTO branchReceivingDTO)
         {
             var branchToUpdate = await _branchRepo.FindBranchById(id);
             if (branchToUpdate == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
             branchToUpdate.Name = branchReceivingDTO.Name;
             branchToUpdate.Description = branchReceivingDTO.Description;
@@ -87,20 +87,20 @@ namespace HaloBiz.MyServices.Impl
 
             if (updatedBranch == null)
             {
-                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+                return new ApiResponse(500);
             }
             var branchTransferDTOs = _mapper.Map<BranchTransferDTO>(updatedBranch);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,branchTransferDTOs);
+            return new ApiOkResponse(branchTransferDTOs);
 
 
         }
 
-        public async Task<ApiCommonResponse> DeleteBranch(long id)
+        public async Task<ApiResponse> DeleteBranch(long id)
         {
             var branchToDelete = await _branchRepo.FindBranchById(id);
             if (branchToDelete == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
 
             foreach (Office office in branchToDelete.Offices)
@@ -110,10 +110,10 @@ namespace HaloBiz.MyServices.Impl
 
             if (!await _branchRepo.DeleteBranch(branchToDelete))
             {
-                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+                return new ApiResponse(500);
             }
 
-            return CommonResponse.Send(ResponseCodes.SUCCESS);
+            return new ApiOkResponse(true);
         }
 
     }

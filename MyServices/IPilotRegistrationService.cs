@@ -10,16 +10,16 @@ namespace HaloBiz.MyServices
 {
     public interface IPilotRegistrationService
     {
-        Task<ApiCommonResponse> AddPilot(HttpContext context, PilotProfileReceivingDTO pilotReceivingDTO);
-        Task<ApiCommonResponse> GetAllPilot();
-        Task<ApiCommonResponse> GetPilotById(long id);
-        Task<ApiCommonResponse> UpdatePilot(HttpContext context, long id, PilotProfileReceivingDTO pilotReceivingDTO);
-        Task<ApiCommonResponse> DeletePilot(long id);
+        Task<ApiResponse> AddPilot(HttpContext context, PilotProfileReceivingDTO pilotReceivingDTO);
+        Task<ApiResponse> GetAllPilot();
+        Task<ApiResponse> GetPilotById(long id);
+        Task<ApiResponse> UpdatePilot(HttpContext context, long id, PilotProfileReceivingDTO pilotReceivingDTO);
+        Task<ApiResponse> DeletePilot(long id);
 
         //Tie
-        Task<ApiCommonResponse> AddPilotTie(HttpContext context, PilotSMORoutesResourceTieReceivingDTO pilotReceivingTieDTO);
-        Task<ApiCommonResponse> GetAllPilotTies();
-        Task<ApiCommonResponse> GetPilotTieById(long id);
-        Task<ApiCommonResponse> DeletePilotTie(long id);
+        Task<ApiResponse> AddPilotTie(HttpContext context, PilotSMORoutesResourceTieReceivingDTO pilotReceivingTieDTO);
+        Task<ApiResponse> GetAllPilotTies();
+        Task<ApiResponse> GetPilotTieById(long id);
+        Task<ApiResponse> DeletePilotTie(long id);
     }
 }

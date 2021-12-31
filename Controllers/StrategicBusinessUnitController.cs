@@ -23,52 +23,81 @@ namespace HaloBiz.Controllers
         }
 
         [HttpGet("")]
-        public async Task<ApiCommonResponse> GetStrategicBusinessUnits()
+        public async Task<ActionResult> GetStrategicBusinessUnits()
         {
-            return await _strategicBusinessUnitService.GetAllStrategicBusinessUnit(); 
+            var response = await _strategicBusinessUnitService.GetAllStrategicBusinessUnit();
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var strategicBusinessUnit = ((ApiOkResponse)response).Result;
+            return Ok((IEnumerable<StrategicBusinessUnitTransferDTO>)strategicBusinessUnit);
         }
 
         [HttpGet("GetRMSbus")]
-        public async Task<ApiCommonResponse> GetRMSbus()
+        public async Task<ActionResult> GetRMSbus()
         {
-            return await _strategicBusinessUnitService.GetRMSbus(); 
+            var response = await _strategicBusinessUnitService.GetRMSbus();
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var strategicBusinessUnit = ((ApiOkResponse)response).Result;
+            return Ok(strategicBusinessUnit);
         }
 
         [HttpGet("GetRMSbusWithClientsInfo")]
-        public async Task<ApiCommonResponse> GetRMSbusWithClientsInfo()
+        public async Task<ActionResult> GetRMSbusWithClientsInfo()
         {
-            return await _strategicBusinessUnitService.GetRMSbusWithClientsInfo(); 
+            var response = await _strategicBusinessUnitService.GetRMSbusWithClientsInfo();
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var strategicBusinessUnit = ((ApiOkResponse)response).Result;
+            return Ok(strategicBusinessUnit);
         }
 
 
         [HttpGet("name/{name}")]
-        public async Task<ApiCommonResponse> GetByName(string name)
+        public async Task<ActionResult> GetByName(string name)
         {
-            return await _strategicBusinessUnitService.GetStrategicBusinessUnitByName(name); 
+            var response = await _strategicBusinessUnitService.GetStrategicBusinessUnitByName(name);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var strategicBusinessUnit = ((ApiOkResponse)response).Result;
+            return Ok((StrategicBusinessUnitTransferDTO)strategicBusinessUnit);
         }
 
         [HttpGet("{id}")]
-        public async Task<ApiCommonResponse> GetById(long id)
+        public async Task<ActionResult> GetById(long id)
         {
-            return await _strategicBusinessUnitService.GetStrategicBusinessUnitById(id); 
+            var response = await _strategicBusinessUnitService.GetStrategicBusinessUnitById(id);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var strategicBusinessUnit = ((ApiOkResponse)response).Result;
+            return Ok((StrategicBusinessUnitTransferDTO)strategicBusinessUnit);
         }
 
         [HttpPost("")]
-        public async Task<ApiCommonResponse> AddNew(StrategicBusinessUnitReceivingDTO strategicBusinessUnitReceiving)
+        public async Task<ActionResult> AddNew(StrategicBusinessUnitReceivingDTO strategicBusinessUnitReceiving)
         {
-            return await _strategicBusinessUnitService.AddStrategicBusinessUnit(strategicBusinessUnitReceiving); 
+            var response = await _strategicBusinessUnitService.AddStrategicBusinessUnit(strategicBusinessUnitReceiving);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var strategicBusinessUnit = ((ApiOkResponse)response).Result;
+            return Ok((StrategicBusinessUnitTransferDTO)strategicBusinessUnit);
         }
 
         [HttpPut("{id}")]
-        public async Task<ApiCommonResponse> UpdateById(long id, StrategicBusinessUnitReceivingDTO strategicBusinessUnitReceiving)
+        public async Task<IActionResult> UpdateById(long id, StrategicBusinessUnitReceivingDTO strategicBusinessUnitReceiving)
         {
-            return await _strategicBusinessUnitService.UpdateStrategicBusinessUnit(id, strategicBusinessUnitReceiving); 
+            var response = await _strategicBusinessUnitService.UpdateStrategicBusinessUnit(id, strategicBusinessUnitReceiving);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var strategicBusinessUnit = ((ApiOkResponse)response).Result;
+            return Ok((StrategicBusinessUnitTransferDTO)strategicBusinessUnit);
         }
 
         [HttpDelete("{id}")]
-        public async Task<ApiCommonResponse> DeleteById(int id)
+        public async Task<ActionResult> DeleteById(int id)
         {
-            return await _strategicBusinessUnitService.DeleteStrategicBusinessUnit(id);
+            var response = await _strategicBusinessUnitService.DeleteStrategicBusinessUnit(id);
+            return StatusCode(response.StatusCode);
         }
     }
 }

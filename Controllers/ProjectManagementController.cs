@@ -24,80 +24,98 @@ namespace HaloBiz.Controllers
         }
 
         [HttpPost("")]
-        public async Task<ApiCommonResponse> AttachManagerToServiceCategory(ProjectAllocationRecievingDTO projectAllocationRecievingDTO)
+        public async Task<ActionResult> AttachManagerToServiceCategory(ProjectAllocationRecievingDTO projectAllocationRecievingDTO)
         {
-            return await _projectAllocationService.AddNewManager(HttpContext, projectAllocationRecievingDTO);
+            var response = await _projectAllocationService.AddNewManager(HttpContext, projectAllocationRecievingDTO);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var projectManager = ((ApiOkResponse)response).Result;
+            return Ok(projectManager);
         }
 
 
         [HttpGet("{id}/{email}")]
-        public async Task<ApiCommonResponse> GetManagersAttachedToServiceCategory(string email,int id)
+        public async Task<ActionResult> GetManagersAttachedToServiceCategory(string email,int id)
         {
-            return await _projectAllocationService.getManagersProjects(email,id);
+            var response = await _projectAllocationService.getManagersProjects(email,id);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var responseFeedback = ((ApiOkResponse)response).Result;
+            return Ok(responseFeedback);
         }
 
         [HttpGet("{categoryId}")]
-        public async Task<ApiCommonResponse> GetServiceCategoryAttachedToASingleManager(int categoryId)
+        public async Task<ActionResult> GetServiceCategoryAttachedToASingleManager(int categoryId)
         {
-            return await _projectAllocationService.getProjectManagers(categoryId);
+            var response = await _projectAllocationService.getProjectManagers(categoryId);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var responseFeedback = ((ApiOkResponse)response).Result;
+            return Ok(responseFeedback);
         }
 
         [HttpDelete("{id}/{categoryId}/{projectId}")]
-        public async Task<ApiCommonResponse> DetachManagerFromServiceCategory(int id,int categoryId,long projectId)
+        public async Task<ActionResult> DetachManagerFromServiceCategory(int id,int categoryId,long projectId)
         {
-            return await _projectAllocationService.removeFromCategory(id,categoryId,projectId);
+            var response = await _projectAllocationService.removeFromCategory(id,categoryId,projectId);
+            var responseFeedback = ((ApiOkResponse)response).Result;
+            return StatusCode(response.StatusCode, responseFeedback);
         }
 
         [HttpPost("workspace")]
-        public async Task<ApiCommonResponse> CreateWorkspace(WorkspaceDTO workspaceDTO)
+        public async Task<ActionResult> CreateWorkspace(WorkspaceDTO workspaceDTO)
         {
-            return await _projectAllocationService.CreateNewWorkspace(HttpContext, workspaceDTO);
+            var response = await _projectAllocationService.CreateNewWorkspace(HttpContext, workspaceDTO);
+            return Ok(response);
         }
 
 
         [HttpPost("defaultStatus")]
-        public async Task<ApiCommonResponse> CreateDefaultStatus(List<DefaultStatusDTO> defaultStatusFlow)
+        public async Task<ActionResult> CreateDefaultStatus(List<DefaultStatusDTO> defaultStatusFlow)
         {
-            return await _projectAllocationService.createDefaultStatus(HttpContext, defaultStatusFlow);
+            var response = await _projectAllocationService.createDefaultStatus(HttpContext, defaultStatusFlow);
+            return Ok(response);
         }
 
 
         [HttpGet("GetAllWorkspaces")]
 
-        public async Task<ApiCommonResponse> GetAllWorkspaces()
+        public async Task<ActionResult> GetAllWorkspaces()
         {
-            return await _projectAllocationService.getAllWorkspaces(HttpContext);
+            var response = await _projectAllocationService.getAllWorkspaces(HttpContext);
+            return Ok(response);
         }
 
         [HttpGet("GetWorkspaceById/{id}")]
 
-        public async Task<ApiCommonResponse> GetWorkspaceById(long id)
+        public async Task<ActionResult> GetWorkspaceById(long id)
         {
-            return await _projectAllocationService.getWorkspaceById(id);
+            var response = await _projectAllocationService.getWorkspaceById(id);
+            return Ok(response);
         }
 
         [HttpGet("GetWorkspaceByCaption/{caption}")]
 
-        public async Task<ApiCommonResponse> GetWorkspaceByCaption(string caption)
+        public async Task<ActionResult> GetWorkspaceByCaption(string caption)
         {
-            return await _projectAllocationService.getWorkspaceByCaption(caption);
-            
+            var response = await _projectAllocationService.getWorkspaceByCaption(caption);
+            return Ok(response);
         }
 
         [HttpGet("GetWorkspaceByProjectCreator")]
 
-        public async Task<ApiCommonResponse> GetWorkspaceByProjectCreator()
+        public async Task<ActionResult> GetWorkspaceByProjectCreator()
         {
-            return await _projectAllocationService.getWorkByProjectCreatorId(HttpContext);
-
+            var response = await _projectAllocationService.getWorkByProjectCreatorId(HttpContext);
+            return Ok(response);
         }
 
         [HttpGet("GetWatchersByProjectId/{projectId}")]
 
-        public async Task<ApiCommonResponse> GetWatchersByProjectId(long projectId)
+        public async Task<ActionResult> GetWatchersByProjectId(long projectId)
         {
-            return await _projectAllocationService.getWatchersByProjectId(HttpContext,projectId);
-
+            var response = await _projectAllocationService.getWatchersByProjectId(HttpContext,projectId);
+            return Ok(response);
         }
 
 
@@ -105,364 +123,387 @@ namespace HaloBiz.Controllers
 
         [HttpGet("GetAllProjectManagers")]
 
-        public async Task<ApiCommonResponse> GetAllProjectManagers()
+        public async Task<ActionResult> GetAllProjectManagers()
         {
-            return await _projectAllocationService.getAllProjectManagers();
-            
+            var response = await _projectAllocationService.getAllProjectManagers();
+            return Ok(response);
         }
 
         [HttpGet("GetDefaultStatus")]
 
-        public async Task<ApiCommonResponse> GetDefaultStatus()
+        public async Task<ActionResult> GetDefaultStatus()
         {
-            return await _projectAllocationService.getAllDefaultStatus();
-            
+            var response = await _projectAllocationService.getAllDefaultStatus();
+            return Ok(response);
         }
 
 
 
 
         [HttpDelete("workspace/{id}")]
-        public async Task<ApiCommonResponse> DisableWorkspace(int id)
+        public async Task<ActionResult> DisableWorkspace(int id)
         {
-            return await _projectAllocationService.disableWorkspace(id);
+            var response = await _projectAllocationService.disableWorkspace(id);
+            var responseFeedback = ((ApiOkResponse)response).Result;
+            return StatusCode(response.StatusCode, responseFeedback);
         }
 
         [HttpPut("workspace/{id}")]
-        public async Task<ApiCommonResponse> UpdateWorkspace(long id,UpdateWorkspaceDTO workspaceDTO)
+        public async Task<ActionResult> UpdateWorkspace(long id,UpdateWorkspaceDTO workspaceDTO)
         {
-            return await _projectAllocationService.updateWorkspace(HttpContext, id,workspaceDTO);
+            var response = await _projectAllocationService.updateWorkspace(HttpContext, id,workspaceDTO);
+            return Ok(response);
         }
 
         [HttpPut("addMoreProjectCreators/{id}")]
-        public async Task<ApiCommonResponse> AddMoreProjectCreators(long id, List<AddMoreUserDto> workspaceDTO)
+        public async Task<ActionResult> AddMoreProjectCreators(long id, List<AddMoreUserDto> workspaceDTO)
         {
-            return await _projectAllocationService.addMoreProjectCreators(HttpContext, id, workspaceDTO);
+            var response = await _projectAllocationService.addMoreProjectCreators(HttpContext, id, workspaceDTO);
+            var responseFeedback = ((ApiOkResponse)response).Result;
+            return StatusCode(response.StatusCode, responseFeedback);
         }
 
         [HttpPut("updateProject/{projectId}")]
-        public async Task<ApiCommonResponse> updateProject(long projectId, ProjectDTO projectDTO)
+        public async Task<ActionResult> updateProject(long projectId, ProjectDTO projectDTO)
         {
-            return await _projectAllocationService.updateProject(HttpContext, projectId, projectDTO);
-
+            var response = await _projectAllocationService.updateProject(HttpContext, projectId, projectDTO);
+            return Ok(response);
         }
 
 
         [HttpDelete("RemoveProjectCreator/{workspaceId}/{creatorId}")]
-        public async Task<ApiCommonResponse> RemoveProjectCreator(long workspaceId,long creatorId)
+        public async Task<ActionResult> RemoveProjectCreator(long workspaceId,long creatorId)
         {
-            return await _projectAllocationService.removeFromProjectCreator(workspaceId, creatorId);
+            var response = await _projectAllocationService.removeFromProjectCreator(workspaceId, creatorId);
+            var responseFeedback = ((ApiOkResponse)response).Result;
+            return StatusCode(response.StatusCode, responseFeedback);
         }
 
 
         [HttpPut("UpdateToPublic/{workspaceId}")]
-        public async Task<ApiCommonResponse> UpdateToPublic(long workspaceId)
+        public async Task<ActionResult> UpdateToPublic(long workspaceId)
         {
-            return await _projectAllocationService.updateToPublic(workspaceId);
+            var response = await _projectAllocationService.updateToPublic(workspaceId);
+            var responseFeedback = ((ApiOkResponse)response).Result;
+            return StatusCode(response.StatusCode, responseFeedback);
         }
 
         [HttpDelete("DisablePrivateUser/{workspaceId}/{privateUserId}")]
-        public async Task<ApiCommonResponse> DisablePrivateUser(long workspaceId, long privateUserId)
+        public async Task<ActionResult> DisablePrivateUser(long workspaceId, long privateUserId)
         {
-            return await _projectAllocationService.disablePrivateUser(workspaceId, privateUserId);
+            var response = await _projectAllocationService.disablePrivateUser(workspaceId, privateUserId);
+            var responseFeedback = ((ApiOkResponse)response).Result;
+            return StatusCode(response.StatusCode, responseFeedback);
         }
 
 
         [HttpPut("addMorePrivateUsers/{workspaceId}")]
-        public async Task<ApiCommonResponse> AddMorePrivateUsers(long workspaceId, List<AddMoreUserDto>  addMoreUserDtos )
+        public async Task<ActionResult> AddMorePrivateUsers(long workspaceId, List<AddMoreUserDto>  addMoreUserDtos )
         {
-            return await _projectAllocationService.addMorePrivateUser(HttpContext, workspaceId, addMoreUserDtos);
+            var response = await _projectAllocationService.addMorePrivateUser(HttpContext, workspaceId, addMoreUserDtos);
+            var responseFeedback = ((ApiOkResponse)response).Result;
+            return StatusCode(response.StatusCode, responseFeedback);
         }
 
         [HttpPut("UpdateStatus/{workspaceId}/{statusFlowId}")]
-        public async Task<ApiCommonResponse> updateStatus(long workspaceId,long statusFlowId, StatusFlowDTO statusFlowDTO)
+        public async Task<ActionResult> updateStatus(long workspaceId,long statusFlowId, StatusFlowDTO statusFlowDTO)
         {
-            return await _projectAllocationService.updateStatus(HttpContext, workspaceId, statusFlowId,statusFlowDTO);
+            var response = await _projectAllocationService.updateStatus(HttpContext, workspaceId, statusFlowId,statusFlowDTO);
+            var responseFeedback = ((ApiOkResponse)response).Result;
+            return StatusCode(response.StatusCode, responseFeedback);
         }
 
         [HttpPut("AddmoreWatchers/{projectId}")]
-        public async Task<ApiCommonResponse> AddmoreWatchers(long projectId,  List<WatchersDTO> watchersDTOs)
+        public async Task<ActionResult> AddmoreWatchers(long projectId,  List<WatchersDTO> watchersDTOs)
         {
-            return await _projectAllocationService.addmoreWatchers(HttpContext, projectId, watchersDTOs);
-
+            var response = await _projectAllocationService.addmoreWatchers(HttpContext, projectId, watchersDTOs);
+            return Ok(response);
         }
 
 
         [HttpPut("AddMoreStatus/{workspaceId}")]
-        public async Task<ApiCommonResponse> addMoreStatus(long workspaceId, List<StatusFlowDTO> statusFlowDTO)
+        public async Task<ActionResult> addMoreStatus(long workspaceId, List<StatusFlowDTO> statusFlowDTO)
         {
-            return await _projectAllocationService.addmoreStatus(HttpContext, workspaceId, statusFlowDTO);
+            var response = await _projectAllocationService.addmoreStatus(HttpContext, workspaceId, statusFlowDTO);
+            var responseFeedback = ((ApiOkResponse)response).Result;
+            return StatusCode(response.StatusCode, responseFeedback);
         }
 
         [HttpPut("MoveSequence/{workspaceId}")]
-        public async Task<ApiCommonResponse> MoveSequence(long workspaceId, List<StatusFlowDTO> statusFlowDTO)
+        public async Task<ActionResult> MoveSequence(long workspaceId, List<StatusFlowDTO> statusFlowDTO)
         {
-            return await _projectAllocationService.moveStatusSequenec(HttpContext, workspaceId, statusFlowDTO);
+            var response = await _projectAllocationService.moveStatusSequenec(HttpContext, workspaceId, statusFlowDTO);
+            var responseFeedback = ((ApiOkResponse)response).Result;
+            return StatusCode(response.StatusCode, responseFeedback);
         }
 
         [HttpPut("ChangeStatusFlowOption/{workspaceId}/{statusOption}")]
-        public async Task<ApiCommonResponse> ChangeStatusFlowOption(long workspaceId, string statusOption,List<StatusFlowDTO> statusFlowDTOs)
+        public async Task<ActionResult> ChangeStatusFlowOption(long workspaceId, string statusOption,List<StatusFlowDTO> statusFlowDTOs)
         {
-            return await _projectAllocationService.updateStatusFlowOpton(HttpContext, workspaceId, statusOption, statusFlowDTOs);
+            var response = await _projectAllocationService.updateStatusFlowOpton(HttpContext, workspaceId, statusOption, statusFlowDTOs);
+            var responseFeedback = ((ApiOkResponse)response).Result;
+            return StatusCode(response.StatusCode, responseFeedback);
         }
 
 
         [HttpDelete("DisableStatus/{workspaceId}/{statusId}")]
-        public async Task<ApiCommonResponse> DisableStatus(long workspaceId, long statusId)
+        public async Task<ActionResult> DisableStatus(long workspaceId, long statusId)
         {
-            return await _projectAllocationService.disableStatus(workspaceId, statusId);
+            var response = await _projectAllocationService.disableStatus(workspaceId, statusId);
+            var responseFeedback = ((ApiOkResponse)response).Result;
+            return StatusCode(response.StatusCode, responseFeedback);
         }
 
         [HttpDelete("DisableWatcher/{projectId}/{projectWatcherId}")]
-        public async Task<ApiCommonResponse> DisableWatcher(long projectId, long projectWatcherId)
+        public async Task<ActionResult> DisableWatcher(long projectId, long projectWatcherId)
         {
-            return await _projectAllocationService.removeWatcher(HttpContext, projectId, projectWatcherId);
-    
+            var response = await _projectAllocationService.removeWatcher(HttpContext, projectId, projectWatcherId);
+            return Ok(response);
         }
 
 
         [HttpPost("CreateProject")]
-        public async Task<ApiCommonResponse> CreateProject(ProjectDTO projectDTO)
+        public async Task<ActionResult> CreateProject(ProjectDTO projectDTO)
         {
-            return await _projectAllocationService.createProject(HttpContext, projectDTO);
-
+            var response = await _projectAllocationService.createProject(HttpContext, projectDTO);
+            return Ok(response);
         }
 
         [HttpPost("CreateTask/{projectId}")]
-        public async Task<ApiCommonResponse> CreateTask(long projectId,TaskDTO taskDTO)
+        public async Task<ActionResult> CreateTask(long projectId,TaskDTO taskDTO)
         {
-            return await _projectAllocationService.createNewTask(HttpContext, projectId, taskDTO);
-
+            var response = await _projectAllocationService.createNewTask(HttpContext, projectId, taskDTO);
+            return Ok(response);
         }
 
 
         [HttpPost("AssignDeliverable/{deliverableId}/{taskId}/{deliverableAssigneeId}")]
-        public async Task<ApiCommonResponse> AssignDeliverable(long taskId,long deliverableId,long deliverableAssigneeId,AssignDeliverableDTO assignDeliverableDTO)
+        public async Task<ActionResult> AssignDeliverable(long taskId,long deliverableId,long deliverableAssigneeId,AssignDeliverableDTO assignDeliverableDTO)
         {
-            return await _projectAllocationService.AssignDeliverable(HttpContext, taskId,deliverableId,deliverableAssigneeId,assignDeliverableDTO);
-
+            var response = await _projectAllocationService.AssignDeliverable(HttpContext, taskId,deliverableId,deliverableAssigneeId,assignDeliverableDTO);
+            return Ok(response);
         }
 
         [HttpPost("createDeliverableIllustration/{deliverableId}/{taskId}")]
-        public async Task<ApiCommonResponse> createDeliverableIllustration(long taskId, long deliverableId, List<IllustrationsDTO> illustrationsDTOs)
+        public async Task<ActionResult> createDeliverableIllustration(long taskId, long deliverableId, List<IllustrationsDTO> illustrationsDTOs)
         {
-            return await _projectAllocationService.createDeliverableIllustrattions(HttpContext, deliverableId, taskId, illustrationsDTOs);
-
+            var response = await _projectAllocationService.createDeliverableIllustrattions(HttpContext, deliverableId, taskId, illustrationsDTOs);
+            return Ok(response);
         }
 
         [HttpDelete("removeIllustration/{taskId}/{deliverableId}/{illustrationId}")]
-        public async Task<ApiCommonResponse> removeIllustration(long taskId, long deliverableId, long illustrationId)
+        public async Task<ActionResult> removeIllustration(long taskId, long deliverableId, long illustrationId)
         {
-            return await _projectAllocationService.DeleteIllustration(HttpContext, taskId,deliverableId, illustrationId);
-
+            var response = await _projectAllocationService.DeleteIllustration(HttpContext, taskId,deliverableId, illustrationId);
+            return Ok(response);
         }
 
 
         [HttpGet("GetTaskByCaption/{caption}")]
 
-        public async Task<ApiCommonResponse> GetTaskByCaption(string caption)
+        public async Task<ActionResult> GetTaskByCaption(string caption)
         {
-            return await _projectAllocationService.getTaskByCaption(HttpContext, caption);
-
+            var response = await _projectAllocationService.getTaskByCaption(HttpContext, caption);
+            return Ok(response);
         }
 
         [HttpGet("GetRequirementsByDeliverableId/{deliverableId}")]
 
-        public async Task<ApiCommonResponse> GetRequirementsByDeliverableId(long deliverableId)
+        public async Task<ActionResult> GetRequirementsByDeliverableId(long deliverableId)
         {
-            return await _projectAllocationService.getRequirementsByDeliverableId(HttpContext, deliverableId);
-
+            var response = await _projectAllocationService.getRequirementsByDeliverableId(HttpContext, deliverableId);
+            return Ok(response);
         }
 
         [HttpGet("GetAssignedTask")]
 
-        public async Task<ApiCommonResponse> GetAssignedTask()
+        public async Task<ActionResult> GetAssignedTask()
         {
-            return await _projectAllocationService.getAssignedTask(HttpContext);
-
+            var response = await _projectAllocationService.getAssignedTask(HttpContext);
+            return Ok(response);
         }
 
         [HttpGet("GetAllProjects")]
 
-        public async Task<ApiCommonResponse> GetAllProjects()
+        public async Task<ActionResult> GetAllProjects()
         {
-            return await _projectAllocationService.getAllProjects(HttpContext);
-
+            var response = await _projectAllocationService.getAllProjects(HttpContext);
+            return Ok(response);
         }
 
         [HttpGet("GetAllWorkspaceForProjectCreator")]
 
-        public async Task<ApiCommonResponse> GetAllWorkspaceForProjectCreator()
+        public async Task<ActionResult> GetAllWorkspaceForProjectCreator()
         {
-            return await _projectAllocationService.getWorkByProjectCreatorId(HttpContext);
-
+            var response = await _projectAllocationService.getWorkByProjectCreatorId(HttpContext);
+            return Ok(response);
         }
 
         [HttpGet("GetAllPickedTask")]
 
-        public async Task<ApiCommonResponse> GetAllPickedTask()
+        public async Task<ActionResult> GetAllPickedTask()
         {
-            return await _projectAllocationService.getAllPickedTask(HttpContext);
-
+            var response = await _projectAllocationService.getAllPickedTask(HttpContext);
+            return Ok(response);
         }
 
 
         [HttpPost("CreateTaskIllustration/{taskId}")]
 
-        public async Task<ApiCommonResponse> CreateTaskIllustration(List<IllustrationsDTO> illustrations,long taskId)
+        public async Task<ActionResult> CreateTaskIllustration(List<IllustrationsDTO> illustrations,long taskId)
         {
-            return await _projectAllocationService.createTaskIllustration( illustrations,taskId,HttpContext);
-
+            var response = await _projectAllocationService.createTaskIllustration( illustrations,taskId,HttpContext);
+            return Ok(response);
         }
 
         [HttpDelete("removeTaskIllustration/{taskId}/{illustrationId}")]
-        public async Task<ApiCommonResponse> removeTaskIllustration(long taskId,long illustrationId)
+        public async Task<ActionResult> removeTaskIllustration(long taskId,long illustrationId)
         {
-            return await _projectAllocationService.removeIllustrationById(taskId, illustrationId);
-
+            var response = await _projectAllocationService.removeIllustrationById(taskId, illustrationId);
+            return Ok(response);
         }
 
         [HttpDelete("DisableTaskAssignee/{taskId}/{assigneeId}")]
-        public async Task<ApiCommonResponse> DisableTaskAssignee(long taskId, long assigneeId)
+        public async Task<ActionResult> DisableTaskAssignee(long taskId, long assigneeId)
         {
-            return await _projectAllocationService.disableTaskAssignee(HttpContext,taskId, assigneeId);
-
+            var response = await _projectAllocationService.disableTaskAssignee(HttpContext,taskId, assigneeId);
+            return Ok(response);
         }
 
         [HttpDelete("DisableDeliverable/{taskId}/{deliverableId}")]
-        public async Task<ApiCommonResponse> DisableDeliverable(long taskId, long deliverableId)
+        public async Task<ActionResult> DisableDeliverable(long taskId, long deliverableId)
         {
-            return await _projectAllocationService.disableDeliverable(HttpContext, taskId, deliverableId);
-
+            var response = await _projectAllocationService.disableDeliverable(HttpContext, taskId, deliverableId);
+            return Ok(response);
         }
 
         [HttpGet("GetAllTaskIllustrations/{taskId}")]
 
-        public async Task<ApiCommonResponse> GetAllTaskIllustrations(long taskId)
+        public async Task<ActionResult> GetAllTaskIllustrations(long taskId)
         {
-            return await _projectAllocationService.getTaskIllustrationById(taskId);
-
+            var response = await _projectAllocationService.getTaskIllustrationById(taskId);
+            return Ok(response);
         }
 
         [HttpGet("GetAllTaskByProjectId/{projectId}")]
 
-        public async Task<ApiCommonResponse> GetAllTaskByProjectId(long projectId)
+        public async Task<ActionResult> GetAllTaskByProjectId(long projectId)
         {
-            return await _projectAllocationService.getTaskByProjectId(HttpContext, projectId);
-
+            var response = await _projectAllocationService.getTaskByProjectId(HttpContext, projectId);
+            return Ok(response);
         }
 
 
         [HttpGet("GetAllProjectByWorkspaceId/{workspaceId}")]
 
-        public async Task<ApiCommonResponse> GetAllProjectByWorkspaceId(long workspaceId)
+        public async Task<ActionResult> GetAllProjectByWorkspaceId(long workspaceId)
         {
-            return await _projectAllocationService.getProjectByWorkspaceId(HttpContext, workspaceId);
-
+            var response = await _projectAllocationService.getProjectByWorkspaceId(HttpContext, workspaceId);
+            return Ok(response);
         }
 
         [HttpGet("GetTaskByTaskId/{taskId}")]
 
-        public async Task<ApiCommonResponse> GetTaskByTaskId(long taskId)
+        public async Task<ActionResult> GetTaskByTaskId(long taskId)
         {
-            return await _projectAllocationService.getTaskById(HttpContext, taskId);
-
+            var response = await _projectAllocationService.getTaskById(HttpContext, taskId);
+            return Ok(response);
         }
 
         [HttpPut("UpdateTask/{taskId}")]
-        public async Task<ApiCommonResponse> UpdateTask(long taskId, TaskDTO taskDTO)
+        public async Task<ActionResult> UpdateTask(long taskId, TaskDTO taskDTO)
         {
-            return await _projectAllocationService.updateTask(HttpContext, taskId, taskDTO);
-
+            var response = await _projectAllocationService.updateTask(HttpContext, taskId, taskDTO);
+            return Ok(response);
         }
 
         [HttpPut("PickUpTask/{taskId}")]
-        public async Task<ApiCommonResponse> PickUpTask(long taskId)
+        public async Task<ActionResult> PickUpTask(long taskId)
         {
-            return await _projectAllocationService.pickUptask(taskId,HttpContext);
-
+            var response = await _projectAllocationService.pickUptask(taskId,HttpContext);
+            return Ok(response);
         }
 
         [HttpPut("DropTask/{taskId}/{taskOwnershipId}")]
-        public async Task<ApiCommonResponse> DropTask(long taskId, long taskOwnershipId)
+        public async Task<ActionResult> DropTask(long taskId, long taskOwnershipId)
         {
-            return await _projectAllocationService.dropTask(taskId,taskOwnershipId, HttpContext);
-
+            var response = await _projectAllocationService.dropTask(taskId,taskOwnershipId, HttpContext);
+            return Ok(response);
         }
 
         [HttpPut("UpdateDeliverable/{taskId}/{deliverableId}")]
-        public async Task<ApiCommonResponse> DropTask(long taskId, long deliverableId,DeliverableDTO deliverableDTO)
+        public async Task<ActionResult> DropTask(long taskId, long deliverableId,DeliverableDTO deliverableDTO)
         {
-            return await _projectAllocationService.updateDeliverable(HttpContext,taskId, deliverableId, deliverableDTO);
-
+            var response = await _projectAllocationService.updateDeliverable(HttpContext,taskId, deliverableId, deliverableDTO);
+            return Ok(response);
         }
 
 
         [HttpGet("GetAllTask")]
 
-        public async Task<ApiCommonResponse> GetAllTask()
+        public async Task<ActionResult> GetAllTask()
         {
-            return await _projectAllocationService.getAllTask(HttpContext);
-
+            var response = await _projectAllocationService.getAllTask(HttpContext);
+            return Ok(response);
         }
 
         [HttpGet("GetProjectByName/{caption}")]
 
-        public async Task<ApiCommonResponse> GetProjectByName(string caption)
+        public async Task<ActionResult> GetProjectByName(string caption)
         {
-            return await _projectAllocationService.getProjectByProjectName(HttpContext,caption);
-
+            var response = await _projectAllocationService.getProjectByProjectName(HttpContext,caption);
+            return Ok(response);
         }
 
         [HttpGet("GetAllDeliverable")]
 
-        public async Task<ApiCommonResponse> GetAllDeliverable()
+        public async Task<ActionResult> GetAllDeliverable()
         {
-            return await _projectAllocationService.getAllDeliverables(HttpContext);
-
+            var response = await _projectAllocationService.getAllDeliverables(HttpContext);
+            return Ok(response);
         }
 
         [HttpGet("GetDeliverableByTaskId/{taskId}")]
-        public async Task<ApiCommonResponse> GetDeliverableByTaskId(long taskId)
+        public async Task<ActionResult> GetDeliverableByTaskId(long taskId)
         {
-            return await _projectAllocationService.getAllDeliverablesByTaskId(HttpContext, taskId);
-
+            var response = await _projectAllocationService.getAllDeliverablesByTaskId(HttpContext, taskId);
+            return Ok(response);
         }
 
         [HttpGet("GetDeliverableById/{Id}")]
-        public async Task<ApiCommonResponse> GetDeliverableById(long Id)
+        public async Task<ActionResult> GetDeliverableById(long Id)
         {
-            return await _projectAllocationService.getDeliverablesById(HttpContext, Id);
-
+            var response = await _projectAllocationService.getDeliverablesById(HttpContext, Id);
+            return Ok(response);
         }
 
 
         [HttpGet("GetPrivacyAccessByWorkspaceId/{workspaceId}")]
-        public async Task<ApiCommonResponse> GetPrivacyAccessByWorkspaceId(long workspaceId)
+        public async Task<ActionResult> GetPrivacyAccessByWorkspaceId(long workspaceId)
         {
-            return await _projectAllocationService.getAllPrivacyAccessByWorkspaceId(HttpContext, workspaceId);
-
+            var response = await _projectAllocationService.getAllPrivacyAccessByWorkspaceId(HttpContext, workspaceId);
+            return Ok(response);
         }
 
         [HttpPost("CreateNewDeliverable/{taskId}")]
-        public async Task<ApiCommonResponse> createNewDeliverable(long taskId,DeliverableDTO deliverableDTO)
+        public async Task<ActionResult> createNewDeliverable(long taskId,DeliverableDTO deliverableDTO)
         {
-            return await _projectAllocationService.createNewDeliverable(HttpContext, taskId,deliverableDTO);
-
+            var response = await _projectAllocationService.createNewDeliverable(HttpContext, taskId,deliverableDTO);
+            return Ok(response);
         }
 
         [HttpPost("CreateNewDeliverableOnTask/{taskId}")]
-        public async Task<ApiCommonResponse> CreateNewDeliverableOnTask(long taskId, DeliverableDTO deliverableDTO)
+        public async Task<ActionResult> CreateNewDeliverableOnTask(long taskId, DeliverableDTO deliverableDTO)
         {
-            return await _projectAllocationService.createNewDeliverableFromTask(HttpContext, taskId, deliverableDTO);
-
+            var response = await _projectAllocationService.createNewDeliverableFromTask(HttpContext, taskId, deliverableDTO);
+            return Ok(response);
         }
 
         [HttpPost("AddmoreTaskAssignees/{taskId}")]
-        public async Task<ApiCommonResponse> AddmoreTaskAssignees(long taskId, List<TaskAssigneeDTO> taskAssigneeDTO)
+        public async Task<ActionResult> AddmoreTaskAssignees(long taskId, List<TaskAssigneeDTO> taskAssigneeDTO)
         {
-            return await _projectAllocationService.addMoreTaskAssignees(HttpContext, taskId, taskAssigneeDTO);
-
+            var response = await _projectAllocationService.addMoreTaskAssignees(HttpContext, taskId, taskAssigneeDTO);
+            return Ok(response);
         }
 
 

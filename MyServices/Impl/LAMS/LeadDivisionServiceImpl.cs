@@ -32,69 +32,69 @@ namespace HaloBiz.MyServices.Impl.LAMS
             this._logger = logger;
         }
 
-        public async Task<ApiCommonResponse> AddLeadDivision(HttpContext context, LeadDivisionReceivingDTO leadDivisionReceivingDTO)
+        public async Task<ApiResponse> AddLeadDivision(HttpContext context, LeadDivisionReceivingDTO leadDivisionReceivingDTO)
         {
             var leadDivision = _mapper.Map<LeadDivision>(leadDivisionReceivingDTO);
             leadDivision.CreatedById = context.GetLoggedInUserId();
             var savedLeadDivision = await _leadDivisionRepo.SaveLeadDivision(leadDivision);
             if (savedLeadDivision == null)
             {
-                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+                return new ApiResponse(500);
             }
             var leadDivisionTransferDTO = _mapper.Map<LeadDivisionTransferDTO>(savedLeadDivision);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,leadDivisionTransferDTO);
+            return new ApiOkResponse(leadDivisionTransferDTO);
         }
 
-        public async Task<ApiCommonResponse> GetAllLeadDivision()
+        public async Task<ApiResponse> GetAllLeadDivision()
         {
             var leadDivisions = await _leadDivisionRepo.FindAllLeadDivision();
             if (leadDivisions == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
             var leadDivisionTransferDTO = _mapper.Map<IEnumerable<LeadDivisionTransferDTO>>(leadDivisions);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,leadDivisionTransferDTO);
+            return new ApiOkResponse(leadDivisionTransferDTO);
         }
 
-        public async Task<ApiCommonResponse> GetLeadDivisionById(long id)
+        public async Task<ApiResponse> GetLeadDivisionById(long id)
         {
             var leadDivision = await _leadDivisionRepo.FindLeadDivisionById(id);
             if (leadDivision == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
             var leadDivisionTransferDTOs = _mapper.Map<LeadDivisionTransferDTO>(leadDivision);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,leadDivisionTransferDTOs);
+            return new ApiOkResponse(leadDivisionTransferDTOs);
         }
 
-        public async Task<ApiCommonResponse> GetLeadDivisionByName(string name)
+        public async Task<ApiResponse> GetLeadDivisionByName(string name)
         {
             var leadDivision = await _leadDivisionRepo.FindLeadDivisionByName(name);
             if (leadDivision == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
             var leadDivisionTransferDTOs = _mapper.Map<LeadDivisionTransferDTO>(leadDivision);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,leadDivisionTransferDTOs);
+            return new ApiOkResponse(leadDivisionTransferDTOs);
         }
 
-        public async Task<ApiCommonResponse> GetLeadDivisionByRCNumber(string rcNumber)
+        public async Task<ApiResponse> GetLeadDivisionByRCNumber(string rcNumber)
         {
             var leadDivision = await _leadDivisionRepo.FindLeadDivisionByRCNumber(rcNumber);
             if (leadDivision == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
             var leadDivisionTransferDTOs = _mapper.Map<LeadDivisionTransferDTO>(leadDivision);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,leadDivisionTransferDTOs);
+            return new ApiOkResponse(leadDivisionTransferDTOs);
         }
 
-        public async Task<ApiCommonResponse> UpdateLeadDivision(HttpContext context, long id, LeadDivisionReceivingDTO leadDivisionReceivingDTO)
+        public async Task<ApiResponse> UpdateLeadDivision(HttpContext context, long id, LeadDivisionReceivingDTO leadDivisionReceivingDTO)
         {
             var leadDivisionToUpdate = await _leadDivisionRepo.FindLeadDivisionById(id);
             if (leadDivisionToUpdate == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
             
             var summary = $"Initial details before change, \n {leadDivisionToUpdate.ToString()} \n" ;
@@ -123,7 +123,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
             if (updatedLeadDivision == null)
             {
-                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+                return new ApiResponse(500);
             }
             ModificationHistory history = new ModificationHistory(){
                 ModelChanged = "LeadDivision",
@@ -135,24 +135,24 @@ namespace HaloBiz.MyServices.Impl.LAMS
             await _historyRepo.SaveHistory(history);
 
             var leadDivisionTransferDTOs = _mapper.Map<LeadDivisionTransferDTO>(updatedLeadDivision);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,leadDivisionTransferDTOs);
+            return new ApiOkResponse(leadDivisionTransferDTOs);
 
         }
 
-        public async Task<ApiCommonResponse> DeleteLeadDivision(long id)
+        public async Task<ApiResponse> DeleteLeadDivision(long id)
         {
             var leadDivisionToDelete = await _leadDivisionRepo.FindLeadDivisionById(id);
             if (leadDivisionToDelete == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
 
             if (!await _leadDivisionRepo.DeleteLeadDivision(leadDivisionToDelete))
             {
-                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+                return new ApiResponse(500);
             }
 
-            return CommonResponse.Send(ResponseCodes.SUCCESS);
+            return new ApiOkResponse(true);
         }
     }
 }

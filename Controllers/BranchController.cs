@@ -22,38 +22,59 @@ namespace HaloBiz.Controllers
         }
 
         [HttpGet("")]
-        public async Task<ApiCommonResponse> GetBranches()
+        public async Task<ActionResult> GetBranches()
         {
-            return await _branchService.GetAllBranches();
+            var response = await _branchService.GetAllBranches();
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var branch = ((ApiOkResponse)response).Result;
+            return Ok((IEnumerable<BranchTransferDTO>)branch);
         }
         [HttpGet("name/{name}")]
-        public async Task<ApiCommonResponse> GetByName(string name)
+        public async Task<ActionResult> GetByName(string name)
         {
-            return await _branchService.GetBranchByName(name);
+            var response = await _branchService.GetBranchByName(name);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var branch = ((ApiOkResponse)response).Result;
+            return Ok((BranchTransferDTO)branch);
         }
 
         [HttpGet("{id}")]
-        public async Task<ApiCommonResponse> GetById(long id)
+        public async Task<ActionResult> GetById(long id)
         {
-            return await _branchService.GetBranchById(id);
+            var response = await _branchService.GetBranchById(id);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var branch = ((ApiOkResponse)response).Result;
+            return Ok((BranchTransferDTO)branch);
         }
 
         [HttpPost("")]
-        public async Task<ApiCommonResponse> AddNewBranch(BranchReceivingDTO branchReceiving)
+        public async Task<ActionResult> AddNewBranch(BranchReceivingDTO branchReceiving)
         {
-            return await _branchService.AddBranch(branchReceiving);
+            var response = await _branchService.AddBranch(branchReceiving);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var branch = ((ApiOkResponse)response).Result;
+            return Ok((BranchTransferDTO)branch);
         }
 
         [HttpPut("{id}")]
-        public async Task<ApiCommonResponse> UpdateById(long id, BranchReceivingDTO branchReceiving)
+        public async Task<IActionResult> UpdateById(long id, BranchReceivingDTO branchReceiving)
         {
-            return await _branchService.UpdateBranch(id, branchReceiving);
+            var response = await _branchService.UpdateBranch(id, branchReceiving);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var branch = ((ApiOkResponse)response).Result;
+            return Ok((BranchTransferDTO)branch);
         }
 
         [HttpDelete("{id}")]
-        public async Task<ApiCommonResponse> DeleteById(int id)
+        public async Task<ActionResult> DeleteById(int id)
         {
-            return await _branchService.DeleteBranch(id);
+            var response = await _branchService.DeleteBranch(id);
+            return StatusCode(response.StatusCode);
         }
     }
 }

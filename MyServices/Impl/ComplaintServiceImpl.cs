@@ -41,7 +41,7 @@ namespace HaloBiz.MyServices.Impl
             this._logger = logger;
         }
 
-        public async Task<ApiCommonResponse> AddComplaint(HttpContext context, ComplaintReceivingDTO complaintReceivingDTO)
+        public async Task<ApiResponse> AddComplaint(HttpContext context, ComplaintReceivingDTO complaintReceivingDTO)
         {         
             using var transaction = await _context.Database.BeginTransactionAsync();
             try
@@ -61,7 +61,7 @@ namespace HaloBiz.MyServices.Impl
                 var savedcomplaint = await _complaintRepo.SaveComplaint(complaint);
                 if (savedcomplaint == null)
                 {
-                    return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+                    return new ApiResponse(500);
                 }
 
                 var complaintType = await _context.ComplaintTypes.FindAsync(savedcomplaint.ComplaintTypeId);
@@ -89,17 +89,17 @@ namespace HaloBiz.MyServices.Impl
                 await transaction.CommitAsync();
 
                 var complaintTransferDTO = _mapper.Map<ComplaintTransferDTO>(complaint);
-                return CommonResponse.Send(ResponseCodes.SUCCESS,complaintTransferDTO);
+                return new ApiOkResponse(complaintTransferDTO);
             }
             catch (Exception ex)
             {
                 await transaction.RollbackAsync();
                 _logger.LogError(ex.Message);
-                return  CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+                return new ApiResponse(500, ex.Message);
             }           
         }
 
-        public async Task<ApiCommonResponse> GetComplaintsStats(HttpContext context)
+        public async Task<ApiResponse> GetComplaintsStats(HttpContext context)
         {
             var loggedInUserId = context.GetLoggedInUserId();
 
@@ -135,7 +135,7 @@ namespace HaloBiz.MyServices.Impl
                 var resolvedPercentage = (Convert.ToDecimal(resolvedOnlyComplaints.Count) / Convert.ToDecimal(userComplaints.Count)) * 100m;
                 var closedPercentage = (Convert.ToDecimal(closedOnlyComplaints.Count) / Convert.ToDecimal(userComplaints.Count)) * 100m;
 
-                var response =  new
+                var response = new
                 {
                     ResgisteredPercentage = Math.Round(registeredPercentage, 2),
                     AssesedPercentage = Math.Round(assesedPercentage, 2),
@@ -144,7 +144,7 @@ namespace HaloBiz.MyServices.Impl
                     ClosedPercentage = Math.Round(closedPercentage, 2),
                 };
 
-                return CommonResponse.Send(ResponseCodes.SUCCESS,response);
+                return new ApiOkResponse(response);
             }
             else
             {
@@ -157,32 +157,32 @@ namespace HaloBiz.MyServices.Impl
                     ClosedPercentage = 0,
                 };
 
-                return CommonResponse.Send(ResponseCodes.SUCCESS,response);
+                return new ApiOkResponse(response);
             }
         }
 
-        public async Task<ApiCommonResponse> DeleteComplaint(long id)
+        public async Task<ApiResponse> DeleteComplaint(long id)
         {
             var complaintToDelete = await _complaintRepo.FindComplaintById(id);
             if (complaintToDelete == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
 
             if (!await _complaintRepo.DeleteComplaint(complaintToDelete))
             {
-                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+                return new ApiResponse(500);
             }
 
-            return CommonResponse.Send(ResponseCodes.SUCCESS);
+            return new ApiOkResponse(true);
         }
 
-        public async Task<ApiCommonResponse> GetAllComplaint()
+        public async Task<ApiResponse> GetAllComplaint()
         {
             var complaints = await _complaintRepo.FindAllComplaints();
             if (complaints == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
             var complaintTransferDTOs = _mapper.Map<IEnumerable<ComplaintTransferDTO>>(complaints);
 
@@ -204,37 +204,37 @@ namespace HaloBiz.MyServices.Impl
                 complaint.EvidenceUrls = await _context.Evidences.Where(x => x.ComplaintId == complaint.Id).Select(x => x.ImageUrl).ToListAsync();
             }
 
-            return CommonResponse.Send(ResponseCodes.SUCCESS,complaintTransferDTOs);
+            return new ApiOkResponse(complaintTransferDTOs);
         }
 
-        public async Task<ApiCommonResponse> GetComplaintById(long id)
+        public async Task<ApiResponse> GetComplaintById(long id)
         {
             var complaint = await _complaintRepo.FindComplaintById(id);
             if (complaint == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
             var complaintTransferDTOs = _mapper.Map<ComplaintTransferDTO>(complaint);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,complaintTransferDTOs);
+            return new ApiOkResponse(complaintTransferDTOs);
         }
 
-        /*public async Task<ApiCommonResponse> GetComplaintByName(string name)
+        /*public async Task<ApiResponse> GetComplaintByName(string name)
         {
             var complaint = await _complaintRepo.FindComplaintByName(name);
             if (complaint == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
             var complaintTransferDTOs = _mapper.Map<ComplaintTransferDTO>(complaint);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,complaintTransferDTOs);
+            return new ApiOkResponse(complaintTransferDTOs);
         }*/
 
-        public async Task<ApiCommonResponse> UpdateComplaint(HttpContext context, long id, ComplaintReceivingDTO complaintReceivingDTO)
+        public async Task<ApiResponse> UpdateComplaint(HttpContext context, long id, ComplaintReceivingDTO complaintReceivingDTO)
         {
             var complaintToUpdate = await _complaintRepo.FindComplaintById(id);
             if (complaintToUpdate == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
 
             var summary = $"Initial details before change, \n {complaintToUpdate.ToString()} \n";
@@ -251,7 +251,7 @@ namespace HaloBiz.MyServices.Impl
 
             if (updatedcomplaint == null)
             {
-                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+                return new ApiResponse(500);
             }
             ModificationHistory history = new ModificationHistory()
             {
@@ -263,7 +263,7 @@ namespace HaloBiz.MyServices.Impl
             await _historyRepo.SaveHistory(history);
 
             var complaintTransferDTOs = _mapper.Map<ComplaintTransferDTO>(updatedcomplaint);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,complaintTransferDTOs);
+            return new ApiOkResponse(complaintTransferDTOs);
         }
     }
 }

@@ -23,38 +23,59 @@ namespace HaloBiz.Controllers
         }
 
         [HttpGet("")]
-        public async Task<ApiCommonResponse> GetComplaintSource()
+        public async Task<ActionResult> GetComplaintSource()
         {
-            return await _ComplaintSourceService.GetAllComplaintSource();
+            var response = await _ComplaintSourceService.GetAllComplaintSource();
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var ComplaintSource = ((ApiOkResponse)response).Result;
+            return Ok(ComplaintSource);
         }
         [HttpGet("caption/{name}")]
-        public async Task<ApiCommonResponse> GetByCaption(string name)
+        public async Task<ActionResult> GetByCaption(string name)
         {
-            return await _ComplaintSourceService.GetComplaintSourceByName(name);
+            var response = await _ComplaintSourceService.GetComplaintSourceByName(name);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var ComplaintSource = ((ApiOkResponse)response).Result;
+            return Ok(ComplaintSource);
         }
 
         [HttpGet("{id}")]
-        public async Task<ApiCommonResponse> GetById(long id)
+        public async Task<ActionResult> GetById(long id)
         {
-            return await _ComplaintSourceService.GetComplaintSourceById(id);
+            var response = await _ComplaintSourceService.GetComplaintSourceById(id);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var ComplaintSource = ((ApiOkResponse)response).Result;
+            return Ok(ComplaintSource);
         }
 
         [HttpPost("")]
-        public async Task<ApiCommonResponse> AddNewComplaintSource(ComplaintSourceReceivingDTO ComplaintSourceReceiving)
+        public async Task<ActionResult> AddNewComplaintSource(ComplaintSourceReceivingDTO ComplaintSourceReceiving)
         {
-            return await _ComplaintSourceService.AddComplaintSource(HttpContext, ComplaintSourceReceiving);
+            var response = await _ComplaintSourceService.AddComplaintSource(HttpContext, ComplaintSourceReceiving);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var ComplaintSource = ((ApiOkResponse)response).Result;
+            return Ok(ComplaintSource);
         }
 
         [HttpPut("{id}")]
-        public async Task<ApiCommonResponse> UpdateById(long id, ComplaintSourceReceivingDTO ComplaintSourceReceiving)
+        public async Task<IActionResult> UpdateById(long id, ComplaintSourceReceivingDTO ComplaintSourceReceiving)
         {
-            return await _ComplaintSourceService.UpdateComplaintSource(HttpContext, id, ComplaintSourceReceiving);
+            var response = await _ComplaintSourceService.UpdateComplaintSource(HttpContext, id, ComplaintSourceReceiving);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var ComplaintSource = ((ApiOkResponse)response).Result;
+            return Ok(ComplaintSource);
         }
 
         [HttpDelete("{id}")]
-        public async Task<ApiCommonResponse> DeleteById(int id)
+        public async Task<ActionResult> DeleteById(int id)
         {
-            return await _ComplaintSourceService.DeleteComplaintSource(id);
+            var response = await _ComplaintSourceService.DeleteComplaintSource(id);
+            return StatusCode(response.StatusCode);
         }
     }
 }

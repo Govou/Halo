@@ -19,34 +19,51 @@ namespace HaloBiz.Controllers.LAMS
         }
 
         [HttpGet("")]
-        public async Task<ApiCommonResponse> GetLeadConatact()
+        public async Task<ActionResult> GetLeadConatact()
         {
-            return await _leadContactService.GetAllLeadContact();
+            var response = await _leadContactService.GetAllLeadContact();
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var leadContact = ((ApiOkResponse)response).Result;
+            return Ok(leadContact);
         }
 
         [HttpGet("{id}")]
-        public async Task<ApiCommonResponse> GetById(long id)
+        public async Task<ActionResult> GetById(long id)
         {
-            return await _leadContactService.GetLeadContactById(id);
+            var response = await _leadContactService.GetLeadContactById(id);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var leadContact = ((ApiOkResponse)response).Result;
+            return Ok(leadContact);
         }
 
         [HttpPost("")]
-        public async Task<ApiCommonResponse> AddNewLeadContact(long leadId, LeadContactReceivingDTO leadContactReceiving)
+        public async Task<ActionResult> AddNewLeadContact(long leadId, LeadContactReceivingDTO leadContactReceiving)
         {
-            return await _leadContactService.AddLeadContact(HttpContext, leadId,  leadContactReceiving);
+            var response = await _leadContactService.AddLeadContact(HttpContext, leadId,  leadContactReceiving);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var leadContact = ((ApiOkResponse)response).Result;
+            return Ok(leadContact);
         }
 
 
         [HttpPut("{id}")]
-        public async Task<ApiCommonResponse> UpdateById(long id, LeadContactReceivingDTO leadContactReceivingDTO)
+        public async Task<IActionResult> UpdateById(long id, LeadContactReceivingDTO leadContactReceivingDTO)
         {
-            return await _leadContactService.UpdateLeadContact(HttpContext, id, leadContactReceivingDTO);
+            var response = await _leadContactService.UpdateLeadContact(HttpContext, id, leadContactReceivingDTO);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var leadContact = ((ApiOkResponse)response).Result;
+            return Ok(leadContact);
         }
 
         [HttpDelete("{id}")]
-        public async Task<ApiCommonResponse> DeleteById(int id)
+        public async Task<ActionResult> DeleteById(int id)
         {
-            return await _leadContactService.DeleteLeadContact(id);
+            var response = await _leadContactService.DeleteLeadContact(id);
+            return StatusCode(response.StatusCode);
         }
 
 

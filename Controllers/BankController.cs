@@ -19,39 +19,60 @@ namespace HaloBiz.Controllers
         }
 
         [HttpGet("")]
-        public async Task<ApiCommonResponse> GetBank()
+        public async Task<ActionResult> GetBank()
         {
-            return await _bankService.GetAllBank();
+            var response = await _bankService.GetAllBank();
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var bank = ((ApiOkResponse)response).Result;
+            return Ok(bank);
         }
 
         [HttpGet("name/{name}")]
-        public async Task<ApiCommonResponse> GetByCaption(string name)
+        public async Task<ActionResult> GetByCaption(string name)
         {
-            return await _bankService.GetBankByName(name);
+            var response = await _bankService.GetBankByName(name);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var bank = ((ApiOkResponse)response).Result;
+            return Ok(bank);
         }
 
         [HttpGet("{id}")]
-        public async Task<ApiCommonResponse> GetById(long id)
+        public async Task<ActionResult> GetById(long id)
         {
-            return await _bankService.GetBankById(id);
+            var response = await _bankService.GetBankById(id);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var bank = ((ApiOkResponse)response).Result;
+            return Ok(bank);
         }
 
         [HttpPost("")]
-        public async Task<ApiCommonResponse> AddNewBank(BankReceivingDTO bankReceiving)
+        public async Task<ActionResult> AddNewBank(BankReceivingDTO bankReceiving)
         {
-            return await _bankService.AddBank(HttpContext, bankReceiving);
+            var response = await _bankService.AddBank(HttpContext, bankReceiving);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var bank = ((ApiOkResponse)response).Result;
+            return Ok(bank);
         }
 
         [HttpPut("{id}")]
-        public async Task<ApiCommonResponse> UpdateById(long id, BankReceivingDTO bankReceiving)
+        public async Task<IActionResult> UpdateById(long id, BankReceivingDTO bankReceiving)
         {
-            return await _bankService.UpdateBank(HttpContext, id, bankReceiving);
+            var response = await _bankService.UpdateBank(HttpContext, id, bankReceiving);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var bank = ((ApiOkResponse)response).Result;
+            return Ok(bank);
         }
 
         [HttpDelete("{id}")]
-        public async Task<ApiCommonResponse> DeleteById(int id)
+        public async Task<ActionResult> DeleteById(int id)
         {
-            return await _bankService.DeleteBank(id);
+            var response = await _bankService.DeleteBank(id);
+            return StatusCode(response.StatusCode);
         }
     }
 }

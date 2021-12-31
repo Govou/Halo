@@ -18,38 +18,59 @@ namespace HaloBiz.Controllers.LAMS
         }
 
         [HttpGet("")]
-        public async Task<ApiCommonResponse> GetLeadOrigin()
+        public async Task<ActionResult> GetLeadOrigin()
         {
-            return await _leadOriginService.GetAllLeadOrigin();
+            var response = await _leadOriginService.GetAllLeadOrigin();
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var leadOrigin = ((ApiOkResponse)response).Result;
+            return Ok(leadOrigin);
         }
         [HttpGet("caption/{name}")]
-        public async Task<ApiCommonResponse> GetByCaption(string name)
+        public async Task<ActionResult> GetByCaption(string name)
         {
-            return await _leadOriginService.GetLeadOriginByName(name);
+            var response = await _leadOriginService.GetLeadOriginByName(name);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var leadOrigin = ((ApiOkResponse)response).Result;
+            return Ok(leadOrigin);
         }
 
         [HttpGet("{id}")]
-        public async Task<ApiCommonResponse> GetById(long id)
+        public async Task<ActionResult> GetById(long id)
         {
-            return await _leadOriginService.GetLeadOriginById(id);
+            var response = await _leadOriginService.GetLeadOriginById(id);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var leadOrigin = ((ApiOkResponse)response).Result;
+            return Ok(leadOrigin);
         }
 
         [HttpPost("")]
-        public async Task<ApiCommonResponse> AddNewLeadOrigin(LeadOriginReceivingDTO leadOriginReceiving)
+        public async Task<ActionResult> AddNewLeadOrigin(LeadOriginReceivingDTO leadOriginReceiving)
         {
-            return await _leadOriginService.AddLeadOrigin(HttpContext, leadOriginReceiving);
+            var response = await _leadOriginService.AddLeadOrigin(HttpContext, leadOriginReceiving);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var leadOrigin = ((ApiOkResponse)response).Result;
+            return Ok(leadOrigin);
         }
 
         [HttpPut("{id}")]
-        public async Task<ApiCommonResponse> UpdateById(long id, LeadOriginReceivingDTO leadOriginReceiving)
+        public async Task<IActionResult> UpdateById(long id, LeadOriginReceivingDTO leadOriginReceiving)
         {
-            return await _leadOriginService.UpdateLeadOrigin(HttpContext, id, leadOriginReceiving);
+            var response = await _leadOriginService.UpdateLeadOrigin(HttpContext, id, leadOriginReceiving);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var leadOrigin = ((ApiOkResponse)response).Result;
+            return Ok(leadOrigin);
         }
 
         [HttpDelete("{id}")]
-        public async Task<ApiCommonResponse> DeleteById(int id)
+        public async Task<ActionResult> DeleteById(int id)
         {
-            return await _leadOriginService.DeleteLeadOrigin(id);
+            var response = await _leadOriginService.DeleteLeadOrigin(id);
+            return StatusCode(response.StatusCode);
         }
     }
 }

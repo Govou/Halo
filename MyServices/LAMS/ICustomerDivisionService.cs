@@ -12,20 +12,20 @@ namespace HaloBiz.MyServices.LAMS
 {
     public interface ICustomerDivisionService
     {
-        Task<ApiCommonResponse> AddCustomerDivision(HttpContext context, CustomerDivisionReceivingDTO CustomerDivisionReceivingDTO);
-        Task<ApiCommonResponse> GetAllCustomerDivisions();
-        Task<ApiCommonResponse> GetCustomerDivisionById(long id);
-        Task<ApiCommonResponse> GetCustomerDivisionByDTrackCustomerNumber(string dTrackCustomerNumber);
-        Task<ApiCommonResponse> GetTaskAndFulfillmentsByCustomerDivisionId(long customerDivisionId);
-        Task<ApiCommonResponse> GetClientsWithSecuredMobilityContractServices();
-        Task<ApiCommonResponse> GetCustomerDivisionByName(string name);
-        Task<ApiCommonResponse> UpdateCustomerDivision(HttpContext context, long id, CustomerDivisionReceivingDTO CustomerDivisionReceivingDTO);
-        Task<ApiCommonResponse> DeleteCustomerDivision(long id);
-        Task<ApiCommonResponse> GetCustomerDivisionsByGroupType(long groupTypeId);
-        Task<ApiCommonResponse> GetCustomerDivisionBreakDownById(long id);
-        Task<ApiCommonResponse> GetClientsUnAssignedToRMSbu();
-        Task<ApiCommonResponse> GetClientsAttachedToRMSbu(long sbuId);
-        Task<ApiCommonResponse> GetRMSbuClientsByGroupType(long sbuId, long groupTypeId);
-        Task<ApiCommonResponse> AttachClientToRMSbu(HttpContext context, long id, long sbuId);
+        Task<ApiResponse> AddCustomerDivision(HttpContext context, CustomerDivisionReceivingDTO CustomerDivisionReceivingDTO);
+        Task<ApiResponse> GetAllCustomerDivisions();
+        Task<ApiResponse> GetCustomerDivisionById(long id);
+        Task<ApiResponse> GetCustomerDivisionByDTrackCustomerNumber(string dTrackCustomerNumber);
+        Task<ApiResponse> GetTaskAndFulfillmentsByCustomerDivisionId(long customerDivisionId);
+        Task<ApiResponse> GetClientsWithSecuredMobilityContractServices();
+        Task<ApiResponse> GetCustomerDivisionByName(string name);
+        Task<ApiResponse> UpdateCustomerDivision(HttpContext context, long id, CustomerDivisionReceivingDTO CustomerDivisionReceivingDTO);
+        Task<ApiResponse> DeleteCustomerDivision(long id);
+        Task<ApiResponse> GetCustomerDivisionsByGroupType(long groupTypeId);
+        Task<ApiResponse> GetCustomerDivisionBreakDownById(long id);
+        Task<ApiResponse> GetClientsUnAssignedToRMSbu();
+        Task<ApiResponse> GetClientsAttachedToRMSbu(long sbuId);
+        Task<ApiResponse> GetRMSbuClientsByGroupType(long sbuId, long groupTypeId);
+        Task<ApiResponse> AttachClientToRMSbu(HttpContext context, long id, long sbuId);
     }
 }

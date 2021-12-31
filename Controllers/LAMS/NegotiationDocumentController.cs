@@ -23,38 +23,59 @@ namespace Controllers.Controllers
         }
 
         [HttpGet("")]
-        public async Task<ApiCommonResponse> GetNegotiationDocument()
+        public async Task<ActionResult> GetNegotiationDocument()
         {
-            return await _negotiationDocumentService.GetAllNegotiationDocument();
+            var response = await _negotiationDocumentService.GetAllNegotiationDocument();
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var negotiationDocument = ((ApiOkResponse)response).Result;
+            return Ok(negotiationDocument);
         }
         [HttpGet("caption/{caption}")]
-        public async Task<ApiCommonResponse> GetByCaption(string caption)
+        public async Task<ActionResult> GetByCaption(string caption)
         {
-            return await _negotiationDocumentService.GetNegotiationDocumentByCaption(caption);
+            var response = await _negotiationDocumentService.GetNegotiationDocumentByCaption(caption);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var negotiationDocument = ((ApiOkResponse)response).Result;
+            return Ok(negotiationDocument);
         }
 
         [HttpGet("{id}")]
-        public async Task<ApiCommonResponse> GetById(long id)
+        public async Task<ActionResult> GetById(long id)
         {
-            return await _negotiationDocumentService.GetNegotiationDocumentById(id);
+            var response = await _negotiationDocumentService.GetNegotiationDocumentById(id);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var negotiationDocument = ((ApiOkResponse)response).Result;
+            return Ok(negotiationDocument);
         }
 
         [HttpPost("")]
-        public async Task<ApiCommonResponse> AddNewNegotiationDocument(NegotiationDocumentReceivingDTO negotiationDocumentReceiving)
+        public async Task<ActionResult> AddNewNegotiationDocument(NegotiationDocumentReceivingDTO negotiationDocumentReceiving)
         {
-            return await _negotiationDocumentService.AddNegotiationDocument(HttpContext, negotiationDocumentReceiving);
+            var response = await _negotiationDocumentService.AddNegotiationDocument(HttpContext, negotiationDocumentReceiving);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var negotiationDocument = ((ApiOkResponse)response).Result;
+            return Ok(negotiationDocument);
         }
 
         [HttpPut("{id}")]
-        public async Task<ApiCommonResponse> UpdateById(long id, NegotiationDocumentReceivingDTO negotiationDocumentReceivingDTO)
+        public async Task<IActionResult> UpdateById(long id, NegotiationDocumentReceivingDTO negotiationDocumentReceivingDTO)
         {
-            return await _negotiationDocumentService.UpdateNegotiationDocument(HttpContext, id, negotiationDocumentReceivingDTO);            
+            var response = await _negotiationDocumentService.UpdateNegotiationDocument(HttpContext, id, negotiationDocumentReceivingDTO);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var negotiationDocument = ((ApiOkResponse)response).Result;
+            return Ok(negotiationDocument);
         }
 
         [HttpDelete("{id}")]
-        public async Task<ApiCommonResponse> DeleteById(int id)
+        public async Task<ActionResult> DeleteById(int id)
         {
-            return await _negotiationDocumentService.DeleteNegotiationDocument(id);
+            var response = await _negotiationDocumentService.DeleteNegotiationDocument(id);
+            return StatusCode(response.StatusCode);
         }
     }
 }

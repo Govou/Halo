@@ -26,51 +26,51 @@ namespace HaloBiz.MyServices.Impl
             this._engagementTypeRepo = engagementTypeRepo;
             this._logger = logger;
         }
-        public async  Task<ApiCommonResponse> AddEngagementType(HttpContext context, EngagementTypeReceivingDTO engagementTypeReceivingDTO)
+        public async  Task<ApiResponse> AddEngagementType(HttpContext context, EngagementTypeReceivingDTO engagementTypeReceivingDTO)
         {
             var engagementType = _mapper.Map<EngagementType>(engagementTypeReceivingDTO);
             engagementType.CreatedById = context.GetLoggedInUserId();
             var savedEngagementType = await _engagementTypeRepo.SaveEngagementType(engagementType);
             if (savedEngagementType == null)
             {
-                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+                return new ApiResponse(500);
             }
             var engagementTypeTransferDTO = _mapper.Map<EngagementTypeTransferDTO>(engagementType);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,engagementTypeTransferDTO);
+            return new ApiOkResponse(engagementTypeTransferDTO);
         }
 
-        public async Task<ApiCommonResponse> DeleteEngagementType(long id)
+        public async Task<ApiResponse> DeleteEngagementType(long id)
         {
             var engagementTypeToDelete = await _engagementTypeRepo.FindEngagementTypeById(id);
             if(engagementTypeToDelete == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
             if (!await _engagementTypeRepo.DeleteEngagementType(engagementTypeToDelete))
             {
-                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+                return new ApiResponse(500);
             }
 
-            return CommonResponse.Send(ResponseCodes.SUCCESS);
+            return new ApiOkResponse(true);
         }
 
-        public async Task<ApiCommonResponse> GetAllEngagementType()
+        public async Task<ApiResponse> GetAllEngagementType()
         {
             var engagementType = await _engagementTypeRepo.GetEngagementTypes();
             if (engagementType == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
             var engagementTypeTransferDTO = _mapper.Map<IEnumerable<EngagementTypeTransferDTO>>(engagementType);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,engagementTypeTransferDTO);
+            return new ApiOkResponse(engagementTypeTransferDTO);
         }
 
-        public  async Task<ApiCommonResponse> UpdateEngagementType(HttpContext context, long id, EngagementTypeReceivingDTO engagementTypeReceivingDTO)
+        public  async Task<ApiResponse> UpdateEngagementType(HttpContext context, long id, EngagementTypeReceivingDTO engagementTypeReceivingDTO)
         {
             var engagementTypeToUpdate = await _engagementTypeRepo.FindEngagementTypeById(id);
             if (engagementTypeToUpdate == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
             
             var summary = $"Initial details before change, \n {engagementTypeToUpdate.ToString()} \n" ;
@@ -83,7 +83,7 @@ namespace HaloBiz.MyServices.Impl
 
             if (updatedEngagementType == null)
             {
-                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+                return new ApiResponse(500);
             }
             ModificationHistory history = new ModificationHistory(){
                 ModelChanged = "EngagementType",
@@ -95,7 +95,7 @@ namespace HaloBiz.MyServices.Impl
             await _historyRepo.SaveHistory(history);
 
             var engagementTypeTransferDTOs = _mapper.Map<EngagementTypeTransferDTO>(updatedEngagementType);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,engagementTypeTransferDTOs);
+            return new ApiOkResponse(engagementTypeTransferDTOs);
         }
     }
 }

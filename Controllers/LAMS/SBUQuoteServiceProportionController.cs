@@ -23,15 +23,23 @@ namespace HaloBiz.Controllers.LAMS
         }
 
         [HttpPost("")]
-        public async Task<ApiCommonResponse> AddNewQuoteServiceDocument( IEnumerable<SbutoQuoteServiceProportionReceivingDTO> listOfsQSSP)
+        public async Task<ActionResult> AddNewQuoteServiceDocument( IEnumerable<SbutoQuoteServiceProportionReceivingDTO> listOfsQSSP)
         {
-            return await _sQSSP.SaveSBUToQuoteProp(HttpContext, listOfsQSSP);
+            var response = await _sQSSP.SaveSBUToQuoteProp(HttpContext, listOfsQSSP);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var sbuToQuoteServiceProp = ((ApiOkResponse)response).Result;
+            return Ok(sbuToQuoteServiceProp);
         }
 
         [HttpGet("{serviceQuoteId}")]
-        public async Task<ApiCommonResponse> GetById(long serviceQuoteId)
+        public async Task<ActionResult> GetById(long serviceQuoteId)
         {
-            return await _sQSSP.GetAllSBUQuoteProportionForQuoteService(serviceQuoteId);
+            var response = await _sQSSP.GetAllSBUQuoteProportionForQuoteService(serviceQuoteId);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var sbuToQuoteServiceProp = ((ApiOkResponse)response).Result;
+            return Ok(sbuToQuoteServiceProp);
         }
 
     }

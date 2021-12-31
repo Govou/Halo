@@ -18,45 +18,70 @@ namespace HaloBiz.Controllers.AccountsModel
         }
 
         [HttpGet("")]
-        public async Task<ApiCommonResponse> GetControlAccounts()
+        public async Task<ActionResult> GetControlAccounts()
         {
-            return await _controlAccountService.GetAllControlAccounts();
+            var response = await _controlAccountService.GetAllControlAccounts();
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var controlAccount = ((ApiOkResponse)response).Result;
+            return Ok(controlAccount);
         }
 
         [HttpGet("GetIncomeControlAccounts")]
-        public async Task<ApiCommonResponse> GetIncomeControlAccounts()
+        public async Task<ActionResult> GetIncomeControlAccounts()
         {
-            return await _controlAccountService.GetAllIncomeControlAccounts();
+            var response = await _controlAccountService.GetAllIncomeControlAccounts();
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var controlAccount = ((ApiOkResponse)response).Result;
+            return Ok(controlAccount);
         }
 
         [HttpGet("alias/{alias}")]
-        public async Task<ApiCommonResponse> GetByAlias(string alias)
+        public async Task<ActionResult> GetByAlias(string alias)
         {
-            return await _controlAccountService.GetControlAccountByAlias(alias);
+            var response = await _controlAccountService.GetControlAccountByAlias(alias);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var controlAccount = ((ApiOkResponse)response).Result;
+            return Ok(controlAccount);
         }
 
         [HttpGet("{id}")]
-        public async Task<ApiCommonResponse> GetById(long id)
+        public async Task<ActionResult> GetById(long id)
         {
-            return await _controlAccountService.GetControlAccountById(id);
+            var response = await _controlAccountService.GetControlAccountById(id);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var controlAccount = ((ApiOkResponse)response).Result;
+            return Ok(controlAccount);
         }
 
         [HttpPost("")]
-        public async Task<ApiCommonResponse> AddNewAccount(ControlAccountReceivingDTO controlAccountReceiving)
+        public async Task<ActionResult> AddNewAccount(ControlAccountReceivingDTO controlAccountReceiving)
         {
-            return await _controlAccountService.AddControlAccount(HttpContext, controlAccountReceiving);
+            var response = await _controlAccountService.AddControlAccount(HttpContext, controlAccountReceiving);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var controlAccount = ((ApiOkResponse)response).Result;
+            return Ok(controlAccount);
         }
 
         [HttpPut("{id}")]
-        public async Task<ApiCommonResponse> UpdateById(long id, ControlAccountReceivingDTO controlAccountReceiving)
+        public async Task<IActionResult> UpdateById(long id, ControlAccountReceivingDTO controlAccountReceiving)
         {
-            return await _controlAccountService.UpdateControlAccount(id, controlAccountReceiving);
+            var response = await _controlAccountService.UpdateControlAccount(id, controlAccountReceiving);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var controlAccount = ((ApiOkResponse)response).Result;
+            return Ok(controlAccount);
         }
 
         [HttpDelete("{id}")]
-        public async Task<ApiCommonResponse> DeleteById(int id)
+        public async Task<ActionResult> DeleteById(int id)
         {
-            return await _controlAccountService.DeleteControlAccount(id);
+            var response = await _controlAccountService.DeleteControlAccount(id);
+            return StatusCode(response.StatusCode);
         }
     }
 }

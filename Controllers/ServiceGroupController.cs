@@ -19,39 +19,60 @@ namespace HaloBiz.Controllers
         }
 
         [HttpGet("")]
-        public async Task<ApiCommonResponse> GetServiceGroup()
+        public async Task<ActionResult> GetServiceGroup()
         {
-            return await _serviceGroupService.GetAllServiceGroups();
+            var response = await _serviceGroupService.GetAllServiceGroups();
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var serviceGroups = ((ApiOkResponse)response).Result;
+            return Ok(serviceGroups);
         }
 
         [HttpGet("name/{name}")]
-        public async Task<ApiCommonResponse> GetByName(string name)
+        public async Task<ActionResult> GetByName(string name)
         {
-            return await _serviceGroupService.GetServiceGroupByName(name);
+            var response = await _serviceGroupService.GetServiceGroupByName(name);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var serviceGroup = ((ApiOkResponse)response).Result;
+            return Ok(serviceGroup);
         }
 
         [HttpGet("{id}")]
-        public async Task<ApiCommonResponse> GetById(long id)
+        public async Task<ActionResult> GetById(long id)
         {
-            return await _serviceGroupService.GetServiceGroupById(id);
+            var response = await _serviceGroupService.GetServiceGroupById(id);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var serviceGroup = ((ApiOkResponse)response).Result;
+            return Ok(serviceGroup);
         }
 
         [HttpPost("")]
-        public async Task<ApiCommonResponse> AddNew(ServiceGroupReceivingDTO serviceGroupReceivingDTO)
+        public async Task<ActionResult> AddNew(ServiceGroupReceivingDTO serviceGroupReceivingDTO)
         {
-            return await _serviceGroupService.AddServiceGroup(serviceGroupReceivingDTO);
+            var response = await _serviceGroupService.AddServiceGroup(serviceGroupReceivingDTO);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var serviceGroup = ((ApiOkResponse)response).Result;
+            return Ok(serviceGroup);
         }
 
         [HttpPut("{id}")]
-        public async Task<ApiCommonResponse> UpdateById(long id, ServiceGroupReceivingDTO serviceGroupReceivingDTO)
+        public async Task<IActionResult> UpdateById(long id, ServiceGroupReceivingDTO serviceGroupReceivingDTO)
         {
-            return await _serviceGroupService.UpdateServiceGroup(id, serviceGroupReceivingDTO);
+            var response = await _serviceGroupService.UpdateServiceGroup(id, serviceGroupReceivingDTO);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var serviceGroup = ((ApiOkResponse)response).Result;
+            return Ok(serviceGroup);
         }
 
         [HttpDelete("{id}")]
-        public async Task<ApiCommonResponse> DeleteById(int id)
+        public async Task<ActionResult> DeleteById(int id)
         {
-            return await _serviceGroupService.DeleteServiceGroup(id);
+            var response = await _serviceGroupService.DeleteServiceGroup(id);
+            return StatusCode(response.StatusCode);
         }
     }
 }

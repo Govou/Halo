@@ -24,13 +24,13 @@ namespace HaloBiz.MyServices.Impl
             _businessRulesRepository = businessRulesRepository;
         }
 
-        public async Task<ApiCommonResponse> AddBusinessRule(HttpContext context, BusinessRuleReceivingDTO businessRuleReceivingDTO)
+        public async Task<ApiResponse> AddBusinessRule(HttpContext context, BusinessRuleReceivingDTO businessRuleReceivingDTO)
         {
             var rule = _mapper.Map<BusinessRule>(businessRuleReceivingDTO);
             var IdExist = _businessRulesRepository.GetRegServiceId(businessRuleReceivingDTO.ServiceRegistrationId);
             if (IdExist != null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE, null, "No record exists");
+                return new ApiResponse(409);
             }
 
             rule.CreatedById = context.GetLoggedInUserId();
@@ -38,19 +38,19 @@ namespace HaloBiz.MyServices.Impl
             var savedType = await _businessRulesRepository.SaveRule(rule);
             if (savedType == null)
             {
-                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+                return new ApiResponse(500);
             }
             var TransferDTO = _mapper.Map<BusinessRuleTransferDTO>(rule);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,TransferDTO);
+            return new ApiOkResponse(TransferDTO);
         }
 
-        public async Task<ApiCommonResponse> AddPairable(HttpContext context, BRPairableReceivingDTO bRPairableReceivingDTO)
+        public async Task<ApiResponse> AddPairable(HttpContext context, BRPairableReceivingDTO bRPairableReceivingDTO)
         {
             //var pair = _mapper.Map<BRPairable>(bRPairableReceivingDTO);
             //var IdExist = _businessRulesRepository.GetBusinessRileRegServiceId(bRPairableReceivingDTO.BusinessRuleId);
             //if (IdExist != null)
             //{
-            //    return                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE,null, "No record exists");;
+            //    return new ApiResponse(409);
             //}
             var pair = new BRPairable();
 
@@ -68,124 +68,124 @@ namespace HaloBiz.MyServices.Impl
                     var savedType = await _businessRulesRepository.SavePairable(pair);
                     if (savedType == null)
                     {
-                        return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+                        return new ApiResponse(500);
                     }
-                    //return                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE,null, "No record exists");;
+                    //return new ApiResponse(409);
                 }
                
             }
 
-            return CommonResponse.Send(ResponseCodes.SUCCESS,"Records Added");
+            return new ApiOkResponse("Records Added");
         }
 
 
 
-        public async Task<ApiCommonResponse> DeleteBusinessRule(long id)
+        public async Task<ApiResponse> DeleteBusinessRule(long id)
         {
             var itemToDelete = await _businessRulesRepository.FindRuleById(id);
 
             if (itemToDelete == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
 
             if (!await _businessRulesRepository.DeleteRule(itemToDelete))
             {
-                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+                return new ApiResponse(500);
             }
 
-            return CommonResponse.Send(ResponseCodes.SUCCESS);
+            return new ApiOkResponse(true);
         }
 
-        public async Task<ApiCommonResponse> DeletePairable(long id)
+        public async Task<ApiResponse> DeletePairable(long id)
         {
             var itemToDelete = await _businessRulesRepository.FindPairableById(id);
 
             if (itemToDelete == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
 
             if (!await _businessRulesRepository.DeletePairable(itemToDelete))
             {
-                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+                return new ApiResponse(500);
             }
 
-            return CommonResponse.Send(ResponseCodes.SUCCESS);
+            return new ApiOkResponse(true);
         }
 
-        public async Task<ApiCommonResponse> GetAllActivePairables()
+        public async Task<ApiResponse> GetAllActivePairables()
         {
             var pairables = await _businessRulesRepository.FindAllActivePairables();
             if (pairables == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
             var TransferDTO = _mapper.Map<IEnumerable<BRPairableTransferDTO>>(pairables);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,TransferDTO);
+            return new ApiOkResponse(TransferDTO);
         }
 
-        public async Task<ApiCommonResponse> GetAllBusinessRules()
+        public async Task<ApiResponse> GetAllBusinessRules()
         {
             var rule = await _businessRulesRepository.FindAllRules();
             if (rule == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
             var TransferDTO = _mapper.Map<IEnumerable<BusinessRuleTransferDTO>>(rule);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,TransferDTO);
+            return new ApiOkResponse(TransferDTO);
         }
 
-        public async Task<ApiCommonResponse> GetAllPairableBusinessRules()
+        public async Task<ApiResponse> GetAllPairableBusinessRules()
         {
             var rule = await _businessRulesRepository.FindAllPairableRules();
             if (rule == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
             var TransferDTO = _mapper.Map<IEnumerable<BusinessRuleTransferDTO>>(rule);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,TransferDTO);
+            return new ApiOkResponse(TransferDTO);
         }
 
-        public async Task<ApiCommonResponse> GetAllPairables()
+        public async Task<ApiResponse> GetAllPairables()
         {
             var pairables = await _businessRulesRepository.FindAllPairables();
             if (pairables == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
             var TransferDTO = _mapper.Map<IEnumerable<BRPairableTransferDTO>>(pairables);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,TransferDTO);
+            return new ApiOkResponse(TransferDTO);
         }
 
-        public async Task<ApiCommonResponse> GetBusinessRuleById(long id)
+        public async Task<ApiResponse> GetBusinessRuleById(long id)
         {
             var rule = await _businessRulesRepository.FindRuleById(id);
             if (rule == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
             var TransferDTO = _mapper.Map<BusinessRuleTransferDTO>(rule);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,TransferDTO);
+            return new ApiOkResponse(TransferDTO);
         }
 
-        public async Task<ApiCommonResponse> GetPairableById(long id)
+        public async Task<ApiResponse> GetPairableById(long id)
         {
             var pair = await _businessRulesRepository.FindPairableById(id);
             if (pair == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
             var TransferDTO = _mapper.Map<BRPairableTransferDTO>(pair);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,TransferDTO);
+            return new ApiOkResponse(TransferDTO);
         }
 
-        public async Task<ApiCommonResponse> UpdateBusinessRule(HttpContext context, long id, BusinessRuleReceivingDTO businessRuleReceivingDTO)
+        public async Task<ApiResponse> UpdateBusinessRule(HttpContext context, long id, BusinessRuleReceivingDTO businessRuleReceivingDTO)
         {
             var itemToUpdate = await _businessRulesRepository.FindRuleById(id);
             if (itemToUpdate == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
 
             var summary = $"Initial details before change, \n {itemToUpdate.ToString()} \n";
@@ -203,14 +203,14 @@ namespace HaloBiz.MyServices.Impl
 
             if (updated == null)
             {
-                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+                return new ApiResponse(500);
             }
 
             var TransferDTOs = _mapper.Map<BusinessRuleTransferDTO>(updated);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,TransferDTOs);
+            return new ApiOkResponse(TransferDTOs);
         }
 
-        public async Task<ApiCommonResponse> UpdatePairable(HttpContext context, long id, BRPairableReceivingDTO bRPairableReceivingDTO)
+        public async Task<ApiResponse> UpdatePairable(HttpContext context, long id, BRPairableReceivingDTO bRPairableReceivingDTO)
         {
             //var summary = "";
             //var itemToUpdate =[];
@@ -219,7 +219,7 @@ namespace HaloBiz.MyServices.Impl
             var itemToUpdate = await _businessRulesRepository.FindPairableById(id);
             if (itemToUpdate == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
 
             for (int i = 0; i < bRPairableReceivingDTO.ServiceRegistrationId.Length; i++)
@@ -232,7 +232,7 @@ namespace HaloBiz.MyServices.Impl
                 var updated = await _businessRulesRepository.UpdatePairable(itemToUpdate);
                 if (updated == null)
                 {
-                    return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+                    return new ApiResponse(500);
                 }
             }
 
@@ -241,7 +241,7 @@ namespace HaloBiz.MyServices.Impl
 
 
 
-            return CommonResponse.Send(ResponseCodes.SUCCESS,200);
+            return new ApiOkResponse(200);
         }
     }
 }

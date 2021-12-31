@@ -23,38 +23,59 @@ namespace Controllers.Controllers
         }
 
         [HttpGet("")]
-        public async Task<ApiCommonResponse> GetDropReason()
+        public async Task<ActionResult> GetDropReason()
         {
-            return await _DropReasonService.GetAllDropReason();
+            var response = await _DropReasonService.GetAllDropReason();
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var DropReason = ((ApiOkResponse)response).Result;
+            return Ok(DropReason);
         }
         [HttpGet("title/{title}")]
-        public async Task<ApiCommonResponse> GetByTitle(string title)
+        public async Task<ActionResult> GetByTitle(string title)
         {
-            return await _DropReasonService.GetDropReasonByTitle(title);
+            var response = await _DropReasonService.GetDropReasonByTitle(title);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var DropReason = ((ApiOkResponse)response).Result;
+            return Ok(DropReason);
         }
 
         [HttpGet("{id}")]
-        public async Task<ApiCommonResponse> GetById(long id)
+        public async Task<ActionResult> GetById(long id)
         {
-            return await _DropReasonService.GetDropReasonById(id);
+            var response = await _DropReasonService.GetDropReasonById(id);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var DropReason = ((ApiOkResponse)response).Result;
+            return Ok(DropReason);
         }
 
         [HttpPost("")]
-        public async Task<ApiCommonResponse> AddNewDropReason(DropReasonReceivingDTO DropReasonReceiving)
+        public async Task<ActionResult> AddNewDropReason(DropReasonReceivingDTO DropReasonReceiving)
         {
-            return await _DropReasonService.AddDropReason(HttpContext, DropReasonReceiving);
+            var response = await _DropReasonService.AddDropReason(HttpContext, DropReasonReceiving);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var DropReason = ((ApiOkResponse)response).Result;
+            return Ok(DropReason);
         }
 
         [HttpPut("{id}")]
-        public async Task<ApiCommonResponse> UpdateById(long id, DropReasonReceivingDTO DropReasonReceiving)
+        public async Task<IActionResult> UpdateById(long id, DropReasonReceivingDTO DropReasonReceiving)
         {
-            return await _DropReasonService.UpdateDropReason(HttpContext, id, DropReasonReceiving);
+            var response = await _DropReasonService.UpdateDropReason(HttpContext, id, DropReasonReceiving);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var DropReason = ((ApiOkResponse)response).Result;
+            return Ok(DropReason);
         }
 
         [HttpDelete("{id}")]
-        public async Task<ApiCommonResponse> DeleteById(int id)
+        public async Task<ActionResult> DeleteById(int id)
         {
-            return await _DropReasonService.DeleteDropReason(id);
+            var response = await _DropReasonService.DeleteDropReason(id);
+            return StatusCode(response.StatusCode);
         }
     }
 }

@@ -7,13 +7,13 @@ namespace HaloBiz.MyServices.LAMS
 {
     public interface IQuoteService
     {
-        Task<ApiCommonResponse> AddQuote(HttpContext context, QuoteReceivingDTO quoteReceivingDTO);
-        Task<ApiCommonResponse> GetAllQuote();
-        Task<ApiCommonResponse> GetQuoteById(long id);
-        Task<ApiCommonResponse> FindByLeadDivisionId(long id);
-        Task<ApiCommonResponse> GetQuoteByReferenceNumber(string referenceNumber);
-        Task<ApiCommonResponse> UpdateQuote(HttpContext context, long id, QuoteReceivingDTO quoteReceivingDTO);
-        Task<ApiCommonResponse> DeleteQuote(long id);
+        Task<ApiResponse> AddQuote(HttpContext context, QuoteReceivingDTO quoteReceivingDTO);
+        Task<ApiResponse> GetAllQuote();
+        Task<ApiResponse> GetQuoteById(long id);
+        Task<ApiResponse> FindByLeadDivisionId(long id);
+        Task<ApiResponse> GetQuoteByReferenceNumber(string referenceNumber);
+        Task<ApiResponse> UpdateQuote(HttpContext context, long id, QuoteReceivingDTO quoteReceivingDTO);
+        Task<ApiResponse> DeleteQuote(long id);
 
     }
 }

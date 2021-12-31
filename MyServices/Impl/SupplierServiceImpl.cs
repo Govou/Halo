@@ -26,64 +26,64 @@ namespace HaloBiz.MyServices.Impl
             this._supplierCategoryRepo = supplierCategoryRepo;
             this._logger = logger;
         }
-        public async  Task<ApiCommonResponse> AddSupplier(HttpContext context, SupplierReceivingDTO supplierCategoryReceivingDTO)
+        public async  Task<ApiResponse> AddSupplier(HttpContext context, SupplierReceivingDTO supplierCategoryReceivingDTO)
         {
             var supplierCategory = _mapper.Map<Supplier>(supplierCategoryReceivingDTO);
             supplierCategory.CreatedById = context.GetLoggedInUserId();
             var savedSupplier = await _supplierCategoryRepo.SaveSupplier(supplierCategory);
             if (savedSupplier == null)
             {
-                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+                return new ApiResponse(500);
             }
             var supplierCategoryTransferDTO = _mapper.Map<SupplierTransferDTO>(supplierCategory);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,supplierCategoryTransferDTO);
+            return new ApiOkResponse(supplierCategoryTransferDTO);
         }
 
-        public async Task<ApiCommonResponse> GetSupplierById(long id)
+        public async Task<ApiResponse> GetSupplierById(long id)
         {
             var Supplier = await _supplierCategoryRepo.FindSupplierById(id);
             if (Supplier == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
             var SupplierTransferDTOs = _mapper.Map<SupplierTransferDTO>(Supplier);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,SupplierTransferDTOs);
+            return new ApiOkResponse(SupplierTransferDTOs);
         }
 
-        public async Task<ApiCommonResponse> DeleteSupplier(long id)
+        public async Task<ApiResponse> DeleteSupplier(long id)
         {
             var supplierCategoryToDelete = await _supplierCategoryRepo.FindSupplierById(id);
             if(supplierCategoryToDelete == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
             if (!await _supplierCategoryRepo.DeleteSupplier(supplierCategoryToDelete))
             {
-                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+                return new ApiResponse(500);
             }
 
-            return CommonResponse.Send(ResponseCodes.SUCCESS);
+            return new ApiOkResponse(true);
         }
 
-        public async Task<ApiCommonResponse> GetAllSupplierCategories()
+        public async Task<ApiResponse> GetAllSupplierCategories()
         {
             var supplierCategory = await _supplierCategoryRepo.GetSuppliers();
             if (supplierCategory == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
             var supplierCategoryTransferDTO = _mapper.Map<IEnumerable<SupplierTransferDTO>>(supplierCategory);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,supplierCategoryTransferDTO);
+            return new ApiOkResponse(supplierCategoryTransferDTO);
         }
 
-        public  async Task<ApiCommonResponse> UpdateSupplier(HttpContext context, long id, SupplierReceivingDTO supplierCategoryReceivingDTO)
+        public  async Task<ApiResponse> UpdateSupplier(HttpContext context, long id, SupplierReceivingDTO supplierCategoryReceivingDTO)
         {
             try
             {
                 var supplierCategoryToUpdate = await _supplierCategoryRepo.FindSupplierById(id);
                 if (supplierCategoryToUpdate == null)
                 {
-                    return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                    return new ApiResponse(404);
                 }
 
                 var summary = $"Initial details before change, \n {supplierCategoryToUpdate.ToString()} \n";
@@ -107,7 +107,7 @@ namespace HaloBiz.MyServices.Impl
 
                 if (updatedSupplier == null)
                 {
-                    return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+                    return new ApiResponse(500);
                 }
                 ModificationHistory history = new ModificationHistory()
                 {
@@ -120,11 +120,11 @@ namespace HaloBiz.MyServices.Impl
                 await _historyRepo.SaveHistory(history);
 
                 var supplierCategoryTransferDTOs = _mapper.Map<SupplierTransferDTO>(updatedSupplier);
-                return CommonResponse.Send(ResponseCodes.SUCCESS,supplierCategoryTransferDTOs);
+                return new ApiOkResponse(supplierCategoryTransferDTOs);
             }
             catch(System.Exception error)
             {
-                return  CommonResponse.Send(ResponseCodes.FAILURE,null, "System errors");
+                return new ApiResponse(500, error.Message);
             }
         }
     }

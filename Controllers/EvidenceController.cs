@@ -23,38 +23,59 @@ namespace HaloBiz.Controllers
         }
 
         [HttpGet("")]
-        public async Task<ApiCommonResponse> GetEvidence()
+        public async Task<ActionResult> GetEvidence()
         {
-            return await _EvidenceService.GetAllEvidence();
+            var response = await _EvidenceService.GetAllEvidence();
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var Evidence = ((ApiOkResponse)response).Result;
+            return Ok(Evidence);
         }
         [HttpGet("caption/{name}")]
-        public async Task<ApiCommonResponse> GetByCaption(string name)
+        public async Task<ActionResult> GetByCaption(string name)
         {
-            return await _EvidenceService.GetEvidenceByName(name);
+            var response = await _EvidenceService.GetEvidenceByName(name);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var Evidence = ((ApiOkResponse)response).Result;
+            return Ok(Evidence);
         }
 
         [HttpGet("{id}")]
-        public async Task<ApiCommonResponse> GetById(long id)
+        public async Task<ActionResult> GetById(long id)
         {
-            return await _EvidenceService.GetEvidenceById(id);
+            var response = await _EvidenceService.GetEvidenceById(id);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var Evidence = ((ApiOkResponse)response).Result;
+            return Ok(Evidence);
         }
 
         [HttpPost("")]
-        public async Task<ApiCommonResponse> AddNewEvidence(EvidenceReceivingDTO EvidenceReceiving)
+        public async Task<ActionResult> AddNewEvidence(EvidenceReceivingDTO EvidenceReceiving)
         {
-            return await _EvidenceService.AddEvidence(HttpContext, EvidenceReceiving);
+            var response = await _EvidenceService.AddEvidence(HttpContext, EvidenceReceiving);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var Evidence = ((ApiOkResponse)response).Result;
+            return Ok(Evidence);
         }
 
         [HttpPut("{id}")]
-        public async Task<ApiCommonResponse> UpdateById(long id, EvidenceReceivingDTO EvidenceReceiving)
+        public async Task<IActionResult> UpdateById(long id, EvidenceReceivingDTO EvidenceReceiving)
         {
-            return await _EvidenceService.UpdateEvidence(HttpContext, id, EvidenceReceiving);
+            var response = await _EvidenceService.UpdateEvidence(HttpContext, id, EvidenceReceiving);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var Evidence = ((ApiOkResponse)response).Result;
+            return Ok(Evidence);
         }
 
         [HttpDelete("{id}")]
-        public async Task<ApiCommonResponse> DeleteById(int id)
+        public async Task<ActionResult> DeleteById(int id)
         {
-            return await _EvidenceService.DeleteEvidence(id);
+            var response = await _EvidenceService.DeleteEvidence(id);
+            return StatusCode(response.StatusCode);
         }
     }
 }

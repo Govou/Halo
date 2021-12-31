@@ -11,10 +11,10 @@ namespace HaloBiz.MyServices
     public interface IVehicleService
     {
         //Type
-        Task<ApiCommonResponse> AddVehicleType(HttpContext context, VehicleTypeReceivingDTO vehicleTypeReceivingDTO);
-        Task<ApiCommonResponse> GetAllVehicleTypes();
-        Task<ApiCommonResponse> GetVehicleTypeById(long id);
-        Task<ApiCommonResponse> UpdateVehicleType(HttpContext context, long id, VehicleTypeReceivingDTO vehicleTypeReceivingDTO);
-        Task<ApiCommonResponse> DeleteVehicleType(long id);
+        Task<ApiResponse> AddVehicleType(HttpContext context, VehicleTypeReceivingDTO vehicleTypeReceivingDTO);
+        Task<ApiResponse> GetAllVehicleTypes();
+        Task<ApiResponse> GetVehicleTypeById(long id);
+        Task<ApiResponse> UpdateVehicleType(HttpContext context, long id, VehicleTypeReceivingDTO vehicleTypeReceivingDTO);
+        Task<ApiResponse> DeleteVehicleType(long id);
     }
 }

@@ -41,7 +41,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
             this._logger = logger;
         }
 
-        public async Task<ApiCommonResponse> AddLeadEngagement(HttpContext context, LeadEngagementReceivingDTO leadEngagementReceivingDTO)
+        public async Task<ApiResponse> AddLeadEngagement(HttpContext context, LeadEngagementReceivingDTO leadEngagementReceivingDTO)
         {
             var leadEngagement = _mapper.Map<LeadEngagement>(leadEngagementReceivingDTO);
 
@@ -53,62 +53,62 @@ namespace HaloBiz.MyServices.Impl.LAMS
             var savedLeadEngagement = await _leadEngagementRepo.SaveLeadEngagement(leadEngagement);
             if (savedLeadEngagement == null)
             {
-                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+                return new ApiResponse(500);
             }
             var leadEngagementTransferDTO = _mapper.Map<LeadEngagementTransferDTO>(savedLeadEngagement);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,leadEngagementTransferDTO);
+            return new ApiOkResponse(leadEngagementTransferDTO);
         }
 
-        public async Task<ApiCommonResponse> GetAllLeadEngagement()
+        public async Task<ApiResponse> GetAllLeadEngagement()
         {
             var leadEngagements = await _leadEngagementRepo.FindAllLeadEngagement();
             if (leadEngagements == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
             var leadEngagementTransferDTO = _mapper.Map<IEnumerable<LeadEngagementTransferDTO>>(leadEngagements);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,leadEngagementTransferDTO);
+            return new ApiOkResponse(leadEngagementTransferDTO);
         }
 
-        public async Task<ApiCommonResponse> GetLeadEngagementById(long id)
+        public async Task<ApiResponse> GetLeadEngagementById(long id)
         {
             var leadEngagement = await _leadEngagementRepo.FindLeadEngagementById(id);
             if (leadEngagement == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
             var leadEngagementTransferDTOs = _mapper.Map<LeadEngagementTransferDTO>(leadEngagement);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,leadEngagementTransferDTOs);
+            return new ApiOkResponse(leadEngagementTransferDTOs);
         }
 
-        public async Task<ApiCommonResponse> FindLeadEngagementsByLeadId(long leadId)
+        public async Task<ApiResponse> FindLeadEngagementsByLeadId(long leadId)
         {
             var leadEngagement = await _leadEngagementRepo.FindLeadEngagementsByLeadId(leadId);
             if (leadEngagement == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
             var leadEngagementTransferDTOs = _mapper.Map<List<LeadEngagementTransferDTO>>(leadEngagement);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,leadEngagementTransferDTOs);
+            return new ApiOkResponse(leadEngagementTransferDTOs);
         }
 
-        public async Task<ApiCommonResponse> GetLeadEngagementByName(string name)
+        public async Task<ApiResponse> GetLeadEngagementByName(string name)
         {
             var leadEngagement = await _leadEngagementRepo.FindLeadEngagementByName(name);
             if (leadEngagement == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
             var leadEngagementTransferDTOs = _mapper.Map<LeadEngagementTransferDTO>(leadEngagement);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,leadEngagementTransferDTOs);
+            return new ApiOkResponse(leadEngagementTransferDTOs);
         }
 
-        public async Task<ApiCommonResponse> UpdateLeadEngagement(HttpContext context, long id, LeadEngagementReceivingDTO leadEngagementReceivingDTO)
+        public async Task<ApiResponse> UpdateLeadEngagement(HttpContext context, long id, LeadEngagementReceivingDTO leadEngagementReceivingDTO)
         {
             var leadEngagementToUpdate = await _leadEngagementRepo.FindLeadEngagementById(id);
             if (leadEngagementToUpdate == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
             
             var summary = $"Initial details before change, \n {leadEngagementToUpdate.ToString()} \n" ;
@@ -127,7 +127,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
             if (updatedLeadEngagement == null)
             {
-                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+                return new ApiResponse(500);
             }
             ModificationHistory history = new ModificationHistory(){
                 ModelChanged = "LeadEngagement",
@@ -139,24 +139,24 @@ namespace HaloBiz.MyServices.Impl.LAMS
             await _historyRepo.SaveHistory(history);
 
             var leadEngagementTransferDTOs = _mapper.Map<LeadEngagementTransferDTO>(updatedLeadEngagement);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,leadEngagementTransferDTOs);
+            return new ApiOkResponse(leadEngagementTransferDTOs);
 
         }
 
-        public async Task<ApiCommonResponse> DeleteLeadEngagement(long id)
+        public async Task<ApiResponse> DeleteLeadEngagement(long id)
         {
             var leadEngagementToDelete = await _leadEngagementRepo.FindLeadEngagementById(id);
             if (leadEngagementToDelete == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
 
             if (!await _leadEngagementRepo.DeleteLeadEngagement(leadEngagementToDelete))
             {
-                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+                return new ApiResponse(500);
             }
 
-            return CommonResponse.Send(ResponseCodes.SUCCESS);
+            return new ApiOkResponse(true);
         }
     }
 }

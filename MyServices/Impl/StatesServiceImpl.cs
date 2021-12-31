@@ -22,49 +22,49 @@ namespace HaloBiz.MyServices.Impl
         }
 
 
-        public async Task<ApiCommonResponse> GetStateById(long id)
+        public async Task<ApiResponse> GetStateById(long id)
         {
             var state = await _stateRepo.FindStateById(id);
             if (state == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
             var stateTransferDto = _mapper.Map<StateTransferDTO>(state);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,stateTransferDto);
+            return new ApiOkResponse(stateTransferDto);
 
         }
 
-        public async Task<ApiCommonResponse> GetStateByName(string name)
+        public async Task<ApiResponse> GetStateByName(string name)
         {
             var state = await _stateRepo.FindStateByName(name);
             if (state == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
             var stateTransferDto = _mapper.Map<StateTransferDTO>(state);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,stateTransferDto);
+            return new ApiOkResponse(stateTransferDto);
         }
 
-        public async Task<ApiCommonResponse> GetAllStates()
+        public async Task<ApiResponse> GetAllStates()
         {
             var states = await _stateRepo.FindAllStates();
             if (states == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
             var statesTransferDto = _mapper.Map<IEnumerable<StateTransferDTO>>(states);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,statesTransferDto);
+            return new ApiOkResponse(statesTransferDto);
         }
 
-        public async Task<ApiCommonResponse> GetAllLgas()
+        public async Task<ApiResponse> GetAllLgas()
         {
             var lgas = await _stateRepo.FindAllLgas();
             if(lgas == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
             var lgasTransferDto = _mapper.Map<IEnumerable<LgasTransferDTO>>(lgas);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,lgasTransferDto);
+            return new ApiOkResponse(lgasTransferDto);
         }
     }
 }

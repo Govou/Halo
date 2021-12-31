@@ -22,77 +22,119 @@ namespace HaloBiz.Controllers
         }
 
         [HttpGet("GetAllRules")]
-        public async Task<ApiCommonResponse> GetAllRules()
+        public async Task<ActionResult> GetAllRules()
         {
-            return await _businessRuleService.GetAllBusinessRules();
+            var response = await _businessRuleService.GetAllBusinessRules();
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var rule = ((ApiOkResponse)response).Result;
+            return Ok(rule);
         }
 
         [HttpGet("GetAllPairableRules")]
-        public async Task<ApiCommonResponse> GetAllPairableRules()
+        public async Task<ActionResult> GetAllPairableRules()
         {
-            return await _businessRuleService.GetAllPairableBusinessRules();
+            var response = await _businessRuleService.GetAllPairableBusinessRules();
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var rule = ((ApiOkResponse)response).Result;
+            return Ok(rule);
         }
 
 
         [HttpGet("GetAllPairables")]
-        public async Task<ApiCommonResponse> GetAllPairables()
+        public async Task<ActionResult> GetAllPairables()
         {
-            return await _businessRuleService.GetAllPairables();
+            var response = await _businessRuleService.GetAllPairables();
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var rule = ((ApiOkResponse)response).Result;
+            return Ok(rule);
         }
 
         [HttpGet("GetAllActivePairables")]
-        public async Task<ApiCommonResponse> GetAllActivePairables()
+        public async Task<ActionResult> GetAllActivePairables()
         {
-            return await _businessRuleService.GetAllActivePairables();
+            var response = await _businessRuleService.GetAllActivePairables();
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var rule = ((ApiOkResponse)response).Result;
+            return Ok(rule);
         }
 
         [HttpGet("GetRuleById/{id}")]
-        public async Task<ApiCommonResponse> GetRuleById(long id)
+        public async Task<ActionResult> GetRuleById(long id)
         {
-            return await _businessRuleService.GetBusinessRuleById(id);
+            var response = await _businessRuleService.GetBusinessRuleById(id);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var rule = ((ApiOkResponse)response).Result;
+            return Ok(rule);
         }
 
         [HttpGet("GetPairableById/{id}")]
-        public async Task<ApiCommonResponse> GetPairableById(long id)
+        public async Task<ActionResult> GetPairableById(long id)
         {
-            return await _businessRuleService.GetPairableById(id);
+            var response = await _businessRuleService.GetPairableById(id);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var rule = ((ApiOkResponse)response).Result;
+            return Ok(rule);
         }
 
         [HttpPost("AddNewRule")]
-        public async Task<ApiCommonResponse> AddNewRule(BusinessRuleReceivingDTO ReceivingDTO)
+        public async Task<ActionResult> AddNewRule(BusinessRuleReceivingDTO ReceivingDTO)
         {
-            return await _businessRuleService.AddBusinessRule(HttpContext, ReceivingDTO);
+            var response = await _businessRuleService.AddBusinessRule(HttpContext, ReceivingDTO);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var rule = ((ApiOkResponse)response).Result;
+            return Ok(rule);
         }
 
 
         [HttpPost("AddNewPairable")]
-        public async Task<ApiCommonResponse> AddNewPairable(BRPairableReceivingDTO ReceivingDTO)
+        public async Task<ActionResult> AddNewPairable(BRPairableReceivingDTO ReceivingDTO)
         {
-            return await _businessRuleService.AddPairable(HttpContext, ReceivingDTO);
+            var response = await _businessRuleService.AddPairable(HttpContext, ReceivingDTO);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var rule = ((ApiOkResponse)response).Result;
+            return Ok(rule);
         }
 
         [HttpPut("UpdateRuleById/{id}")]
-        public async Task<ApiCommonResponse> UpdateRuleById(long id, BusinessRuleReceivingDTO ReceivingDTO)
+        public async Task<IActionResult> UpdateRuleById(long id, BusinessRuleReceivingDTO ReceivingDTO)
         {
-            return await _businessRuleService.UpdateBusinessRule(HttpContext, id, ReceivingDTO);
+            var response = await _businessRuleService.UpdateBusinessRule(HttpContext, id, ReceivingDTO);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var type = ((ApiOkResponse)response).Result;
+            return Ok(type);
         }
 
         [HttpPut("UpdatePairableById/{id}")]
-        public async Task<ApiCommonResponse> UpdatePairableById(long id, BRPairableReceivingDTO ReceivingDTO)
+        public async Task<IActionResult> UpdatePairableById(long id, BRPairableReceivingDTO ReceivingDTO)
         {
-            return await _businessRuleService.UpdatePairable(HttpContext, id, ReceivingDTO);
+            var response = await _businessRuleService.UpdatePairable(HttpContext, id, ReceivingDTO);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var type = ((ApiOkResponse)response).Result;
+            return Ok(type);
         }
 
         [HttpDelete("DeleteRuleById/{id}")]
-        public async Task<ApiCommonResponse> DeleteRuleById(int id)
+        public async Task<ActionResult> DeleteRuleById(int id)
         {
-            return await _businessRuleService.DeleteBusinessRule(id);
+            var response = await _businessRuleService.DeleteBusinessRule(id);
+            return StatusCode(response.StatusCode);
         }
 
         [HttpDelete("DeletePairableById/{id}")]
-        public async Task<ApiCommonResponse> DeletePairableById(int id)
+        public async Task<ActionResult> DeletePairableById(int id)
         {
-            return await _businessRuleService.DeletePairable(id);
+            var response = await _businessRuleService.DeletePairable(id);
+            return StatusCode(response.StatusCode);
         }
     }
 }

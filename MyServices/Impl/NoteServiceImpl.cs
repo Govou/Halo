@@ -30,7 +30,7 @@ namespace HaloBiz.MyServices.Impl
             this._logger = logger;
         }
 
-        public async Task<ApiCommonResponse> AddNote(HttpContext context, NoteReceivingDTO serviceTypeReceivingDTO)
+        public async Task<ApiResponse> AddNote(HttpContext context, NoteReceivingDTO serviceTypeReceivingDTO)
         {
 
             var serviceType = _mapper.Map<Note>(serviceTypeReceivingDTO);
@@ -38,67 +38,67 @@ namespace HaloBiz.MyServices.Impl
             var savedserviceType = await _serviceTypeRepo.SaveNote(serviceType);
             if (savedserviceType == null)
             {
-                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+                return new ApiResponse(500);
             }
             var serviceTypeTransferDTO = _mapper.Map<NoteTransferDTO>(serviceType);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,serviceTypeTransferDTO);
+            return new ApiOkResponse(serviceTypeTransferDTO);
         }
 
-        public async Task<ApiCommonResponse> DeleteNote(long id)
+        public async Task<ApiResponse> DeleteNote(long id)
         {
             var serviceTypeToDelete = await _serviceTypeRepo.FindNoteById(id);
             if (serviceTypeToDelete == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
 
             if (!await _serviceTypeRepo.DeleteNote(serviceTypeToDelete))
             {
-                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+                return new ApiResponse(500);
             }
 
-            return CommonResponse.Send(ResponseCodes.SUCCESS);
+            return new ApiOkResponse(true);
         }
 
-        public async Task<ApiCommonResponse> GetAllNote()
+        public async Task<ApiResponse> GetAllNote()
         {
             var serviceTypes = await _serviceTypeRepo.FindAllNotes();
             if (serviceTypes == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
             var serviceTypeTransferDTO = _mapper.Map<IEnumerable<NoteTransferDTO>>(serviceTypes);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,serviceTypeTransferDTO);
+            return new ApiOkResponse(serviceTypeTransferDTO);
         }
 
-        public async Task<ApiCommonResponse> GetNoteById(long id)
+        public async Task<ApiResponse> GetNoteById(long id)
         {
             var serviceType = await _serviceTypeRepo.FindNoteById(id);
             if (serviceType == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
             var serviceTypeTransferDTOs = _mapper.Map<NoteTransferDTO>(serviceType);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,serviceTypeTransferDTOs);
+            return new ApiOkResponse(serviceTypeTransferDTOs);
         }
 
-        public async Task<ApiCommonResponse> GetNoteByName(string name)
+        public async Task<ApiResponse> GetNoteByName(string name)
         {
             var serviceType = await _serviceTypeRepo.FindNoteByName(name);
             if (serviceType == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
             var serviceTypeTransferDTOs = _mapper.Map<NoteTransferDTO>(serviceType);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,serviceTypeTransferDTOs);
+            return new ApiOkResponse(serviceTypeTransferDTOs);
         }
 
-        public async Task<ApiCommonResponse> UpdateNote(HttpContext context, long id, NoteReceivingDTO serviceTypeReceivingDTO)
+        public async Task<ApiResponse> UpdateNote(HttpContext context, long id, NoteReceivingDTO serviceTypeReceivingDTO)
         {
             var serviceTypeToUpdate = await _serviceTypeRepo.FindNoteById(id);
             if (serviceTypeToUpdate == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
 
             var summary = $"Initial details before change, \n {serviceTypeToUpdate.ToString()} \n";
@@ -111,7 +111,7 @@ namespace HaloBiz.MyServices.Impl
 
             if (updatedserviceType == null)
             {
-                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+                return new ApiResponse(500);
             }
             ModificationHistory history = new ModificationHistory()
             {
@@ -123,7 +123,7 @@ namespace HaloBiz.MyServices.Impl
             await _historyRepo.SaveHistory(history);
 
             var serviceTypeTransferDTOs = _mapper.Map<NoteTransferDTO>(updatedserviceType);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,serviceTypeTransferDTOs);
+            return new ApiOkResponse(serviceTypeTransferDTOs);
         }
     }
 }

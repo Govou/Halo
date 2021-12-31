@@ -22,44 +22,69 @@ namespace HaloBiz.Controllers.AccountsModel
         }
 
         [HttpGet("")]
-        public async Task<ApiCommonResponse> GetAccountClasses()
+        public async Task<ActionResult> GetAccountClasses()
         {
-            return await _accountClassService.GetAllAccountClasses();
+            var response = await _accountClassService.GetAllAccountClasses();
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var accountClass = ((ApiOkResponse)response).Result;
+            return Ok(accountClass);
         }
         [HttpGet("AccountClassBreakDown")]
-        public async Task<ApiCommonResponse> GetAccountClassesBreakdown()
+        public async Task<ActionResult> GetAccountClassesBreakdown()
         {
-            return await _accountClassService.GetBreakdownOfAccountClass();
+            var response = await _accountClassService.GetBreakdownOfAccountClass();
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var accountClass = ((ApiOkResponse)response).Result;
+            return Ok(accountClass);
         }
 
         [HttpGet("caption/{caption}")]
-        public async Task<ApiCommonResponse> GetByCaption(string caption)
+        public async Task<ActionResult> GetByCaption(string caption)
         {
-            return await _accountClassService.GetAccountClassByCaption(caption);
+            var response = await _accountClassService.GetAccountClassByCaption(caption);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var accountClass = ((ApiOkResponse)response).Result;
+            return Ok((AccountClassTransferDTO)accountClass);
         }
 
         [HttpGet("{id}")]
-        public async Task<ApiCommonResponse> GetById(long id)
+        public async Task<ActionResult> GetById(long id)
         {
-            return await _accountClassService.GetAccountClassById(id);
+            var response = await _accountClassService.GetAccountClassById(id);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var accountClass = ((ApiOkResponse)response).Result;
+            return Ok((AccountClassTransferDTO)accountClass);
         }
 
         [HttpPost("")]
-        public async Task<ApiCommonResponse> AddNewaccountClass(AccountClassReceivingDTO accountClassReceiving)
+        public async Task<ActionResult> AddNewaccountClass(AccountClassReceivingDTO accountClassReceiving)
         {
-            return await _accountClassService.AddAccountClass(HttpContext, accountClassReceiving);
+            var response = await _accountClassService.AddAccountClass(HttpContext, accountClassReceiving);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var accountClass = ((ApiOkResponse)response).Result;
+            return Ok((AccountClassTransferDTO)accountClass);
         }
 
         [HttpPut("{id}")]
-        public async Task<ApiCommonResponse> UpdateById(long id, AccountClassReceivingDTO accountClassReceiving)
+        public async Task<IActionResult> UpdateById(long id, AccountClassReceivingDTO accountClassReceiving)
         {
-            return await _accountClassService.UpdateAccountClass(id, accountClassReceiving);
+            var response = await _accountClassService.UpdateAccountClass(id, accountClassReceiving);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var accountClass = ((ApiOkResponse)response).Result;
+            return Ok((AccountClassTransferDTO)accountClass);
         }
 
         [HttpDelete("{id}")]
-        public async Task<ApiCommonResponse> DeleteById(long id)
+        public async Task<ActionResult> DeleteById(long id)
         {
-            return await _accountClassService.DeleteAccountClass(id);
+            var response = await _accountClassService.DeleteAccountClass(id);
+            return StatusCode(response.StatusCode);
         }
     }
 }

@@ -23,57 +23,90 @@ namespace HaloBiz.Controllers.AccountsModel
         }
 
         [HttpGet("")]
-        public async Task<ApiCommonResponse> GetAccountes()
+        public async Task<ActionResult> GetAccountes()
         {
-            return await _accountService.GetAllAccounts();
+            var response = await _accountService.GetAllAccounts();
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var Account = ((ApiOkResponse)response).Result;
+            return Ok((IEnumerable<AccountTransferDTO>)Account);
         }
 
         [HttpGet("CashBookAccounts")]
-        public async Task<ApiCommonResponse> GetCashBookAccounts()
+        public async Task<ActionResult> GetCashBookAccounts()
         {
-            return await _accountService.GetCashBookAccounts();
+            var response = await _accountService.GetCashBookAccounts();
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var Account = ((ApiOkResponse)response).Result;
+            return Ok((IEnumerable<AccountTransferDTO>)Account);
         }
 
 
         [HttpPost("SeachAccount")]
-        public async Task<ApiCommonResponse> SeachAccount(AccountSearchDTO accountSearchDTO)
+        public async Task<ActionResult> SeachAccount(AccountSearchDTO accountSearchDTO)
         {
-            return await _accountService.SearchForAccountDetails( accountSearchDTO);
+            var response = await _accountService.SearchForAccountDetails( accountSearchDTO);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var Account = ((ApiOkResponse)response).Result;
+            return Ok(Account);
         }
 
         [HttpGet("TradeIncome")]
-        public async Task<ApiCommonResponse> GetTradeIncomeAccountes()
+        public async Task<ActionResult> GetTradeIncomeAccountes()
         {
-            return await _accountService.GetAllTradeIncomeTaxAccounts();
+            var response = await _accountService.GetAllTradeIncomeTaxAccounts();
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var Account = ((ApiOkResponse)response).Result;
+            return Ok(Account);
         }
         [HttpGet("alias/{alias}")]
-        public async Task<ApiCommonResponse> GetByAlias(string alias)
+        public async Task<ActionResult> GetByAlias(string alias)
         {
-            return await _accountService.GetAccountByAlias(alias);
+            var response = await _accountService.GetAccountByAlias(alias);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var Account = ((ApiOkResponse)response).Result;
+            return Ok((AccountTransferDTO)Account);
         }
 
         [HttpGet("{id}")]
-        public async Task<ApiCommonResponse> GetById(long id)
+        public async Task<ActionResult> GetById(long id)
         {
-            return await _accountService.GetAccountById(id);
+            var response = await _accountService.GetAccountById(id);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var Account = ((ApiOkResponse)response).Result;
+            return Ok((AccountTransferDTO)Account);
         }
 
         [HttpPost("")]
-        public async Task<ApiCommonResponse> AddNewAccount(AccountReceivingDTO accountReceiving)
+        public async Task<ActionResult> AddNewAccount(AccountReceivingDTO accountReceiving)
         {
-            return await _accountService.AddAccount(HttpContext, accountReceiving);
+            var response = await _accountService.AddAccount(HttpContext, accountReceiving);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var Account = ((ApiOkResponse)response).Result;
+            return Ok((AccountTransferDTO)Account);
         }
 
         [HttpPut("{id}")]
-        public async Task<ApiCommonResponse> UpdateById(long id, AccountReceivingDTO accountReceiving)
+        public async Task<IActionResult> UpdateById(long id, AccountReceivingDTO accountReceiving)
         {
-            return await _accountService.UpdateAccount(id, accountReceiving);
+            var response = await _accountService.UpdateAccount(id, accountReceiving);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var Account = ((ApiOkResponse)response).Result;
+            return Ok((AccountTransferDTO)Account);
         }
 
         [HttpDelete("{id}")]
-        public async Task<ApiCommonResponse> DeleteById(int id)
+        public async Task<ActionResult> DeleteById(int id)
         {
-            return await _accountService.DeleteAccount(id);
+            var response = await _accountService.DeleteAccount(id);
+            return StatusCode(response.StatusCode);
         }
     }
 }

@@ -24,13 +24,13 @@ namespace HaloBiz.MyServices.Impl
             _pilotProfileRepository = pilotProfileRepository;
         }
 
-        public async Task<ApiCommonResponse> AddPilot(HttpContext context, PilotProfileReceivingDTO pilotReceivingDTO)
+        public async Task<ApiResponse> AddPilot(HttpContext context, PilotProfileReceivingDTO pilotReceivingDTO)
         {
             var pilot = _mapper.Map<PilotProfile>(pilotReceivingDTO);
             //var NameExist = _pilotRepository.GetTypename(pilotReceivingDTO.na);
             //if (NameExist != null)
             //{
-            //    return                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE,null, "No record exists");;
+            //    return new ApiResponse(409);
             //}
             pilot.CreatedById = context.GetLoggedInUserId();
             pilot.IsDeleted = false;
@@ -38,13 +38,13 @@ namespace HaloBiz.MyServices.Impl
             var savedRank = await _pilotProfileRepository.SavePilot(pilot);
             if (savedRank == null)
             {
-                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+                return new ApiResponse(500);
             }
             var TransferDTO = _mapper.Map<PilotProfileTransferDTO>(pilot);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,TransferDTO);
+            return new ApiOkResponse(TransferDTO);
         }
 
-        public async Task<ApiCommonResponse> AddPilotTie(HttpContext context, PilotSMORoutesResourceTieReceivingDTO pilotReceivingTieDTO)
+        public async Task<ApiResponse> AddPilotTie(HttpContext context, PilotSMORoutesResourceTieReceivingDTO pilotReceivingTieDTO)
         {
             var pilot = new PilotSMORoutesResourceTie();
 
@@ -63,99 +63,99 @@ namespace HaloBiz.MyServices.Impl
                     var savedType = await _pilotProfileRepository.SavePilotTie(pilot);
                     if (savedType == null)
                     {
-                        return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+                        return new ApiResponse(500);
                     }
-                    //return                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE,null, "No record exists");;
+                    //return new ApiResponse(409);
                 }
 
             }
-            return CommonResponse.Send(ResponseCodes.SUCCESS,"Record(s) Added");
+            return new ApiOkResponse("Record(s) Added");
         }
 
-        public async Task<ApiCommonResponse> DeletePilot(long id)
+        public async Task<ApiResponse> DeletePilot(long id)
         {
             var ToDelete = await _pilotProfileRepository.FindPilotById(id);
 
             if (ToDelete == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
 
             if (!await _pilotProfileRepository.DeletePilot(ToDelete))
             {
-                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+                return new ApiResponse(500);
             }
 
-            return CommonResponse.Send(ResponseCodes.SUCCESS);
+            return new ApiOkResponse(true);
         }
 
-        public async Task<ApiCommonResponse> DeletePilotTie(long id)
+        public async Task<ApiResponse> DeletePilotTie(long id)
         {
             var ToDelete = await _pilotProfileRepository.FindPilotTieById(id);
 
             if (ToDelete == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
 
             if (!await _pilotProfileRepository.DeletePilotTie(ToDelete))
             {
-                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+                return new ApiResponse(500);
             }
 
-            return CommonResponse.Send(ResponseCodes.SUCCESS);
+            return new ApiOkResponse(true);
         }
 
-        public async Task<ApiCommonResponse> GetAllPilot()
+        public async Task<ApiResponse> GetAllPilot()
         {
             var pilot = await _pilotProfileRepository.FindAllPilots();
             if (pilot == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
             var TransferDTO = _mapper.Map<IEnumerable<PilotProfileTransferDTO>>(pilot);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,TransferDTO);
+            return new ApiOkResponse(TransferDTO);
         }
 
-        public async Task<ApiCommonResponse> GetAllPilotTies()
+        public async Task<ApiResponse> GetAllPilotTies()
         {
             var pilot = await _pilotProfileRepository.FindAllPilotTies();
             if (pilot == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
             var TransferDTO = _mapper.Map<IEnumerable<PilotSMORoutesResourceTieTransferDTO>>(pilot);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,TransferDTO);
+            return new ApiOkResponse(TransferDTO);
         }
 
-        public async Task<ApiCommonResponse> GetPilotById(long id)
+        public async Task<ApiResponse> GetPilotById(long id)
         {
             var pilot = await _pilotProfileRepository.FindPilotById(id);
             if (pilot == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
             var TransferDTO = _mapper.Map<PilotProfileTransferDTO>(pilot);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,TransferDTO);
+            return new ApiOkResponse(TransferDTO);
         }
 
-        public async Task<ApiCommonResponse> GetPilotTieById(long id)
+        public async Task<ApiResponse> GetPilotTieById(long id)
         {
             var pilot = await _pilotProfileRepository.FindPilotTieById(id);
             if (pilot == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
             var TransferDTO = _mapper.Map<PilotSMORoutesResourceTieTransferDTO>(pilot);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,TransferDTO);
+            return new ApiOkResponse(TransferDTO);
         }
 
-        public async Task<ApiCommonResponse> UpdatePilot(HttpContext context, long id, PilotProfileReceivingDTO pilotReceivingDTO)
+        public async Task<ApiResponse> UpdatePilot(HttpContext context, long id, PilotProfileReceivingDTO pilotReceivingDTO)
         {
             var ToUpdate = await _pilotProfileRepository.FindPilotById(id);
             if (ToUpdate == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
 
             var summary = $"Initial details before change, \n {ToUpdate.ToString()} \n";
@@ -178,11 +178,11 @@ namespace HaloBiz.MyServices.Impl
 
             if (updatedRank == null)
             {
-                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+                return new ApiResponse(500);
             }
 
             var TransferDTOs = _mapper.Map<PilotProfileTransferDTO>(updatedRank);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,TransferDTOs);
+            return new ApiOkResponse(TransferDTOs);
         }
     }
 }

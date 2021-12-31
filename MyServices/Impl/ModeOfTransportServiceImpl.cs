@@ -24,58 +24,58 @@ namespace HaloBiz.MyServices.Impl
             this._modeOfTransportRepo = modeOfTransportRepo;
         }
 
-        public async Task<ApiCommonResponse> AddModeOfTransport(HttpContext context, ModeOfTransportReceivingDTO modeOfTransportReceivingDTO)
+        public async Task<ApiResponse> AddModeOfTransport(HttpContext context, ModeOfTransportReceivingDTO modeOfTransportReceivingDTO)
         {
             var modeOfTransport = _mapper.Map<ModeOfTransport>(modeOfTransportReceivingDTO);
             modeOfTransport.CreatedById = context.GetLoggedInUserId();
             var savedModeOfTransport = await _modeOfTransportRepo.SaveModeOfTransport(modeOfTransport);
             if (savedModeOfTransport == null)
             {
-                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+                return new ApiResponse(500);
             }
             var modeOfTransportTransferDTO = _mapper.Map<ModeOfTransportTransferDTO>(modeOfTransport);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,modeOfTransportTransferDTO);
+            return new ApiOkResponse(modeOfTransportTransferDTO);
         }
 
-        public async Task<ApiCommonResponse> GetAllModeOfTransport()
+        public async Task<ApiResponse> GetAllModeOfTransport()
         {
             var modeOfTransports = await _modeOfTransportRepo.FindAllModeOfTransport();
             if (modeOfTransports == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
             var modeOfTransportTransferDTO = _mapper.Map<IEnumerable<ModeOfTransportTransferDTO>>(modeOfTransports);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,modeOfTransportTransferDTO);
+            return new ApiOkResponse(modeOfTransportTransferDTO);
         }
 
-        public async Task<ApiCommonResponse> GetModeOfTransportById(long id)
+        public async Task<ApiResponse> GetModeOfTransportById(long id)
         {
             var modeOfTransport = await _modeOfTransportRepo.FindModeOfTransportById(id);
             if (modeOfTransport == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
             var modeOfTransportTransferDTOs = _mapper.Map<ModeOfTransportTransferDTO>(modeOfTransport);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,modeOfTransportTransferDTOs);
+            return new ApiOkResponse(modeOfTransportTransferDTOs);
         }
 
-        public async Task<ApiCommonResponse> GetModeOfTransportByName(string name)
+        public async Task<ApiResponse> GetModeOfTransportByName(string name)
         {
             var modeOfTransport = await _modeOfTransportRepo.FindModeOfTransportByName(name);
             if (modeOfTransport == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
             var modeOfTransportTransferDTOs = _mapper.Map<ModeOfTransportTransferDTO>(modeOfTransport);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,modeOfTransportTransferDTOs);
+            return new ApiOkResponse(modeOfTransportTransferDTOs);
         }
 
-        public async Task<ApiCommonResponse> UpdateModeOfTransport(HttpContext context, long id, ModeOfTransportReceivingDTO modeOfTransportReceivingDTO)
+        public async Task<ApiResponse> UpdateModeOfTransport(HttpContext context, long id, ModeOfTransportReceivingDTO modeOfTransportReceivingDTO)
         {
             var modeOfTransportToUpdate = await _modeOfTransportRepo.FindModeOfTransportById(id);
             if (modeOfTransportToUpdate == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
             
             var summary = $"Initial details before change, \n {modeOfTransportToUpdate.ToString()} \n" ;
@@ -88,7 +88,7 @@ namespace HaloBiz.MyServices.Impl
 
             if (updatedModeOfTransport == null)
             {
-                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+                return new ApiResponse(500);
             }
             ModificationHistory history = new ModificationHistory(){
                 ModelChanged = "ModeOfTransport",
@@ -100,24 +100,24 @@ namespace HaloBiz.MyServices.Impl
             await _historyRepo.SaveHistory(history);
 
             var modeOfTransportTransferDTOs = _mapper.Map<ModeOfTransportTransferDTO>(updatedModeOfTransport);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,modeOfTransportTransferDTOs);
+            return new ApiOkResponse(modeOfTransportTransferDTOs);
 
         }
 
-        public async Task<ApiCommonResponse> DeleteModeOfTransport(long id)
+        public async Task<ApiResponse> DeleteModeOfTransport(long id)
         {
             var modeOfTransportToDelete = await _modeOfTransportRepo.FindModeOfTransportById(id);
             if (modeOfTransportToDelete == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
 
             if (!await _modeOfTransportRepo.DeleteModeOfTransport(modeOfTransportToDelete))
             {
-                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+                return new ApiResponse(500);
             }
 
-            return CommonResponse.Send(ResponseCodes.SUCCESS);
+            return new ApiOkResponse(true);
         }
     }
 }

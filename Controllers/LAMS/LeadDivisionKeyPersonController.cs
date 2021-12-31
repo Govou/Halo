@@ -19,39 +19,60 @@ namespace HaloBiz.Controllers.LAMS
         }
 
         [HttpGet("")]
-        public async Task<ApiCommonResponse> GetLeadKeyPeople()
+        public async Task<ActionResult> GetLeadKeyPeople()
         {
-            return await _leadDivisionKeyPersonService.GetAllLeadDivisionKeyPerson();
+            var response = await _leadDivisionKeyPersonService.GetAllLeadDivisionKeyPerson();
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var LeadDivisionKeyPerson = ((ApiOkResponse)response).Result;
+            return Ok(LeadDivisionKeyPerson);
         }
 
         [HttpGet("{id}")]
-        public async Task<ApiCommonResponse> GetById(long id)
+        public async Task<ActionResult> GetById(long id)
         {
-            return await _leadDivisionKeyPersonService.GetLeadDivisionKeyPersonById(id);
+            var response = await _leadDivisionKeyPersonService.GetLeadDivisionKeyPersonById(id);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var LeadDivisionKeyPerson = ((ApiOkResponse)response).Result;
+            return Ok(LeadDivisionKeyPerson);
         }
 
         [HttpGet("LeadDivision/{leadDivisionId}")]
-        public async Task<ApiCommonResponse> GetByLeadDivisionId(long leadDivisionId)
+        public async Task<ActionResult> GetByLeadDivisionId(long leadDivisionId)
         {
-            return await _leadDivisionKeyPersonService.GetAllLeadDivisionKeyPersonsByLeadDivisionId(leadDivisionId);
+            var response = await _leadDivisionKeyPersonService.GetAllLeadDivisionKeyPersonsByLeadDivisionId(leadDivisionId);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var LeadDivisionKeyPerson = ((ApiOkResponse)response).Result;
+            return Ok(LeadDivisionKeyPerson);
         }
 
         [HttpPut("{id}")]
-        public async Task<ApiCommonResponse> UpdateById(long id, LeadDivisionKeyPersonReceivingDTO LeadDivisionKeyPersonReceiving)
+        public async Task<IActionResult> UpdateById(long id, LeadDivisionKeyPersonReceivingDTO LeadDivisionKeyPersonReceiving)
         {
-            return await _leadDivisionKeyPersonService.UpdateLeadDivisionKeyPerson(HttpContext, id, LeadDivisionKeyPersonReceiving);
+            var response = await _leadDivisionKeyPersonService.UpdateLeadDivisionKeyPerson(HttpContext, id, LeadDivisionKeyPersonReceiving);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var LeadDivisionKeyPerson = ((ApiOkResponse)response).Result;
+            return Ok(LeadDivisionKeyPerson);
         }
 
         [HttpPost("")]
-        public async Task<ApiCommonResponse> AddNewLeadDivisionKeyPerson(LeadDivisionKeyPersonReceivingDTO leadDivisionKeyPersonReceiving)
+        public async Task<ActionResult> AddNewLeadDivisionKeyPerson(LeadDivisionKeyPersonReceivingDTO leadDivisionKeyPersonReceiving)
         {
-            return await _leadDivisionKeyPersonService.AddLeadDivisionKeyPerson(HttpContext, leadDivisionKeyPersonReceiving);
+            var response = await _leadDivisionKeyPersonService.AddLeadDivisionKeyPerson(HttpContext, leadDivisionKeyPersonReceiving);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var leadDivision = ((ApiOkResponse)response).Result;
+            return Ok(leadDivision);
         }
 
         [HttpDelete("{id}")]
-        public async Task<ApiCommonResponse> DeleteById(int id)
+        public async Task<ActionResult> DeleteById(int id)
         {
-            return await _leadDivisionKeyPersonService.DeleteKeyPerson(id);
+            var response = await _leadDivisionKeyPersonService.DeleteKeyPerson(id);
+            return StatusCode(response.StatusCode);
         }
 
   

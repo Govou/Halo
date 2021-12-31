@@ -22,38 +22,59 @@ namespace Controllers.Controllers
         }
 
         [HttpGet("")]
-        public async Task<ApiCommonResponse> GetClientBeneficiary()
+        public async Task<ActionResult> GetClientBeneficiary()
         {
-            return await _clientBeneficiaryService.GetAllClientBeneficiary();
+            var response = await _clientBeneficiaryService.GetAllClientBeneficiary();
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var clientBeneficiary = ((ApiOkResponse)response).Result;
+            return Ok(clientBeneficiary);
         }
         [HttpGet("code/{code}")]
-        public async Task<ApiCommonResponse> GetByCode(string code)
+        public async Task<ActionResult> GetByCode(string code)
         {
-            return await _clientBeneficiaryService.GetClientBeneficiaryByCode(code);
+            var response = await _clientBeneficiaryService.GetClientBeneficiaryByCode(code);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var clientBeneficiary = ((ApiOkResponse)response).Result;
+            return Ok(clientBeneficiary);
         }
 
         [HttpGet("{id}")]
-        public async Task<ApiCommonResponse> GetById(long id)
+        public async Task<ActionResult> GetById(long id)
         {
-            return await _clientBeneficiaryService.GetClientBeneficiaryById(id);
+            var response = await _clientBeneficiaryService.GetClientBeneficiaryById(id);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var clientBeneficiary = ((ApiOkResponse)response).Result;
+            return Ok(clientBeneficiary);
         }
 
         [HttpPost("")]
-        public async Task<ApiCommonResponse> AddNewClientBeneficiary(ClientBeneficiaryReceivingDTO clientBeneficiaryReceiving)
+        public async Task<ActionResult> AddNewClientBeneficiary(ClientBeneficiaryReceivingDTO clientBeneficiaryReceiving)
         {
-            return await _clientBeneficiaryService.AddClientBeneficiary(HttpContext, clientBeneficiaryReceiving);
+            var response = await _clientBeneficiaryService.AddClientBeneficiary(HttpContext, clientBeneficiaryReceiving);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var clientBeneficiary = ((ApiOkResponse)response).Result;
+            return Ok(clientBeneficiary);
         }
 
         [HttpPut("{id}")]
-        public async Task<ApiCommonResponse> UpdateById(long id, ClientBeneficiaryReceivingDTO clientBeneficiaryReceivingDTO)
+        public async Task<IActionResult> UpdateById(long id, ClientBeneficiaryReceivingDTO clientBeneficiaryReceivingDTO)
         {
-            return await _clientBeneficiaryService.UpdateClientBeneficiary(HttpContext, id, clientBeneficiaryReceivingDTO);
+            var response = await _clientBeneficiaryService.UpdateClientBeneficiary(HttpContext, id, clientBeneficiaryReceivingDTO);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var clientBeneficiary = ((ApiOkResponse)response).Result;
+            return Ok(clientBeneficiary);
         }
 
         [HttpDelete("{id}")]
-        public async Task<ApiCommonResponse> DeleteById(int id)
+        public async Task<ActionResult> DeleteById(int id)
         {
-            return await _clientBeneficiaryService.DeleteClientBeneficiary(id);
+            var response = await _clientBeneficiaryService.DeleteClientBeneficiary(id);
+            return StatusCode(response.StatusCode);
         }
     }
 }

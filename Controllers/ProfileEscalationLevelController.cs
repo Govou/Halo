@@ -23,50 +23,69 @@ namespace HaloBiz.Controllers
         }
 
         [HttpGet("")]
-        public async Task<ApiCommonResponse> GetProfileEscalationLevel()
+        public async Task<ActionResult> GetProfileEscalationLevel()
         {
-            return await _ProfileEscalationLevelService.GetAllProfileEscalationLevel();
+            var response = await _ProfileEscalationLevelService.GetAllProfileEscalationLevel();
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var ProfileEscalationLevel = ((ApiOkResponse)response).Result;
+            return Ok(ProfileEscalationLevel);
         }
 
         [HttpGet("GetAllHandlers")]
-        public async Task<ApiCommonResponse> GetAllHandlers()
+        public async Task<ActionResult> GetAllHandlers()
         {
-            return await _ProfileEscalationLevelService.GetAllHandlerProfileEscalationLevel();
+            var response = await _ProfileEscalationLevelService.GetAllHandlerProfileEscalationLevel();
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var ProfileEscalationLevel = ((ApiOkResponse)response).Result;
+            return Ok(ProfileEscalationLevel);
         }
         /*[HttpGet("caption/{name}")]
-        public async Task<ApiCommonResponse> GetByCaption(string name)
+        public async Task<ActionResult> GetByCaption(string name)
         {
-            return await _ProfileEscalationLevelService.GetProfileEscalationLevelByName(name);
-            
-                
+            var response = await _ProfileEscalationLevelService.GetProfileEscalationLevelByName(name);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
             var ProfileEscalationLevel = ((ApiOkResponse)response).Result;
             return Ok(ProfileEscalationLevel);
         }*/
 
         [HttpGet("{id}")]
-        public async Task<ApiCommonResponse> GetById(long id)
+        public async Task<ActionResult> GetById(long id)
         {
-            return await _ProfileEscalationLevelService.GetProfileEscalationLevelById(id);
+            var response = await _ProfileEscalationLevelService.GetProfileEscalationLevelById(id);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var ProfileEscalationLevel = ((ApiOkResponse)response).Result;
+            return Ok(ProfileEscalationLevel);
         }
 
         [HttpPost("")]
-        public async Task<ApiCommonResponse> AddNewProfileEscalationLevel(ProfileEscalationLevelReceivingDTO ProfileEscalationLevelReceiving)
+        public async Task<ActionResult> AddNewProfileEscalationLevel(ProfileEscalationLevelReceivingDTO ProfileEscalationLevelReceiving)
         {
-            return await _ProfileEscalationLevelService.AddProfileEscalationLevel(HttpContext, ProfileEscalationLevelReceiving);
-            
+            var response = await _ProfileEscalationLevelService.AddProfileEscalationLevel(HttpContext, ProfileEscalationLevelReceiving);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var ProfileEscalationLevel = ((ApiOkResponse)response).Result;
+            return Ok(ProfileEscalationLevel);
         }
 
         [HttpPut("{id}")]
-        public async Task<ApiCommonResponse> UpdateById(long id, ProfileEscalationLevelReceivingDTO ProfileEscalationLevelReceiving)
+        public async Task<IActionResult> UpdateById(long id, ProfileEscalationLevelReceivingDTO ProfileEscalationLevelReceiving)
         {
-            return await _ProfileEscalationLevelService.UpdateProfileEscalationLevel(HttpContext, id, ProfileEscalationLevelReceiving);
-          
+            var response = await _ProfileEscalationLevelService.UpdateProfileEscalationLevel(HttpContext, id, ProfileEscalationLevelReceiving);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var ProfileEscalationLevel = ((ApiOkResponse)response).Result;
+            return Ok(ProfileEscalationLevel);
         }
 
         [HttpDelete("{id}")]
-        public async Task<ApiCommonResponse> DeleteById(int id)
+        public async Task<ActionResult> DeleteById(int id)
         {
-            return await _ProfileEscalationLevelService.DeleteProfileEscalationLevel(id);
+            var response = await _ProfileEscalationLevelService.DeleteProfileEscalationLevel(id);
+            return StatusCode(response.StatusCode);
         }
     }
 }

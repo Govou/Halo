@@ -22,143 +22,231 @@ namespace HaloBiz.Controllers
 
         //ArmedEscort
         [HttpGet("GetAllArmedEscortGenerics")]
-        public async Task<ApiCommonResponse> GetAllArmedEscortGenerics()
+        public async Task<ActionResult> GetAllArmedEscortGenerics()
         {
-            return await _dTSDetailGenericDaysService.GetAllArmedEscortGenerics();
+            var response = await _dTSDetailGenericDaysService.GetAllArmedEscortGenerics();
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var cType = ((ApiOkResponse)response).Result;
+            return Ok(cType);
         }
 
         [HttpGet("GetArmedEscortGenericsById/{id}")]
-        public async Task<ApiCommonResponse> GetArmedEscortGenericsById(long id)
+        public async Task<ActionResult> GetArmedEscortGenericsById(long id)
         {
-            return await _dTSDetailGenericDaysService.GetArmedEscortGenericById(id);
+            var response = await _dTSDetailGenericDaysService.GetArmedEscortGenericById(id);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var Rank = ((ApiOkResponse)response).Result;
+            return Ok(Rank);
         }
         [HttpGet("GetArmedEscortGenericsByMasterId/{id}")]
-        public async Task<ApiCommonResponse> GetArmedEscortGenericsByMasterId(long id)
+        public async Task<ActionResult> GetArmedEscortGenericsByMasterId(long id)
         {
-            return await _dTSDetailGenericDaysService.GetArmedEscortGenericByMasterId(id);
+            var response = await _dTSDetailGenericDaysService.GetArmedEscortGenericByMasterId(id);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var Rank = ((ApiOkResponse)response).Result;
+            return Ok(Rank);
         }
 
         [HttpPost("AddNewArmedEscortGeneric")]
-        public async Task<ApiCommonResponse> AddNewArmedEscortGeneric(ArmedEscortDTSDetailGenericDaysReceivingDTO ReceivingDTO)
+        public async Task<ActionResult> AddNewArmedEscortGeneric(ArmedEscortDTSDetailGenericDaysReceivingDTO ReceivingDTO)
         {
-            return await _dTSDetailGenericDaysService.AddArmedEscortGeneric(HttpContext, ReceivingDTO);
+            var response = await _dTSDetailGenericDaysService.AddArmedEscortGeneric(HttpContext, ReceivingDTO);
+
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var rank = ((ApiOkResponse)response).Result;
+            return Ok(rank);
         }
 
         [HttpPut("UpdateArmedEscortGenericById/{id}")]
-        public async Task<ApiCommonResponse> UpdateArmedEscortGenericById(long id, ArmedEscortDTSDetailGenericDaysReceivingDTO Receiving)
+        public async Task<IActionResult> UpdateArmedEscortGenericById(long id, ArmedEscortDTSDetailGenericDaysReceivingDTO Receiving)
         {
-            return await _dTSDetailGenericDaysService.UpdateArmedEscortGeneric(HttpContext, id, Receiving);
+            var response = await _dTSDetailGenericDaysService.UpdateArmedEscortGeneric(HttpContext, id, Receiving);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var type = ((ApiOkResponse)response).Result;
+            return Ok(type);
         }
         [HttpDelete("DeleteArmedEscortGenericById/{id}")]
-        public async Task<ApiCommonResponse> DeleteArmedEscortMasterById(int id)
+        public async Task<ActionResult> DeleteArmedEscortMasterById(int id)
         {
-            return await _dTSDetailGenericDaysService.DeleteArmedEscortGeneric(id);
+            var response = await _dTSDetailGenericDaysService.DeleteArmedEscortGeneric(id);
+            return StatusCode(response.StatusCode);
         }
 
         //Commander
         [HttpGet("GetAllCommanderGenerics")]
-        public async Task<ApiCommonResponse> GetAllCommanderGenerics()
+        public async Task<ActionResult> GetAllCommanderGenerics()
         {
-            return await _dTSDetailGenericDaysService.GetAllCommanderGenerics();
+            var response = await _dTSDetailGenericDaysService.GetAllCommanderGenerics();
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var cType = ((ApiOkResponse)response).Result;
+            return Ok(cType);
         }
 
         [HttpGet("GetCommanderGenericsById/{id}")]
-        public async Task<ApiCommonResponse> GetCommanderGenericsById(long id)
+        public async Task<ActionResult> GetCommanderGenericsById(long id)
         {
-            return await _dTSDetailGenericDaysService.GetCommanderGenericById(id);
+            var response = await _dTSDetailGenericDaysService.GetCommanderGenericById(id);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var Rank = ((ApiOkResponse)response).Result;
+            return Ok(Rank);
         }
         [HttpGet("GetCommanderGenericsByMasterId/{id}")]
-        public async Task<ApiCommonResponse> GetCommanderGenericsByMasterId(long id)
+        public async Task<ActionResult> GetCommanderGenericsByMasterId(long id)
         {
-            return await _dTSDetailGenericDaysService.GetCommanderGenericByMasterId(id);
+            var response = await _dTSDetailGenericDaysService.GetCommanderGenericByMasterId(id);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var Rank = ((ApiOkResponse)response).Result;
+            return Ok(Rank);
         }
 
         [HttpPost("AddNewCommanderGeneric")]
-        public async Task<ApiCommonResponse> AddNewCommanderGeneric(CommanderDTSDetailGenericDaysReceivingDTO ReceivingDTO)
+        public async Task<ActionResult> AddNewCommanderGeneric(CommanderDTSDetailGenericDaysReceivingDTO ReceivingDTO)
         {
-            return await _dTSDetailGenericDaysService.AddCommanderGeneric(HttpContext, ReceivingDTO);
+            var response = await _dTSDetailGenericDaysService.AddCommanderGeneric(HttpContext, ReceivingDTO);
+
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var rank = ((ApiOkResponse)response).Result;
+            return Ok(rank);
         }
 
         [HttpPut("UpdateCommanderGenericById/{id}")]
-        public async Task<ApiCommonResponse> UpdateCommanderGenericById(long id, CommanderDTSDetailGenericDaysReceivingDTO Receiving)
+        public async Task<IActionResult> UpdateCommanderGenericById(long id, CommanderDTSDetailGenericDaysReceivingDTO Receiving)
         {
-            return await _dTSDetailGenericDaysService.UpdateCommanderGeneric(HttpContext, id, Receiving);
+            var response = await _dTSDetailGenericDaysService.UpdateCommanderGeneric(HttpContext, id, Receiving);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var type = ((ApiOkResponse)response).Result;
+            return Ok(type);
         }
         [HttpDelete("DeleteCommanderGenericById/{id}")]
-        public async Task<ApiCommonResponse> DeleteCommanderGenericById(int id)
+        public async Task<ActionResult> DeleteCommanderGenericById(int id)
         {
-            return await _dTSDetailGenericDaysService.DeleteCommanderGeneric(id);
+            var response = await _dTSDetailGenericDaysService.DeleteCommanderGeneric(id);
+            return StatusCode(response.StatusCode);
         }
 
         //Pilot
         [HttpGet("GetAllPilotGenerics")]
-        public async Task<ApiCommonResponse> GetAllPilotGenerics()
+        public async Task<ActionResult> GetAllPilotGenerics()
         {
-            return await _dTSDetailGenericDaysService.GetAllPilotGenerics();
+            var response = await _dTSDetailGenericDaysService.GetAllPilotGenerics();
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var cType = ((ApiOkResponse)response).Result;
+            return Ok(cType);
         }
 
         [HttpGet("GetPilotGenericsById/{id}")]
-        public async Task<ApiCommonResponse> GetPilotGenericsById(long id)
+        public async Task<ActionResult> GetPilotGenericsById(long id)
         {
-            return await _dTSDetailGenericDaysService.GetPilotGenericById(id);
+            var response = await _dTSDetailGenericDaysService.GetPilotGenericById(id);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var Rank = ((ApiOkResponse)response).Result;
+            return Ok(Rank);
         }
         [HttpGet("GetPilotGenericsByMasterId/{id}")]
-        public async Task<ApiCommonResponse> GetPilotGenericsByMasterId(long id)
+        public async Task<ActionResult> GetPilotGenericsByMasterId(long id)
         {
-            return await _dTSDetailGenericDaysService.GetPilotGenericByMasterId(id);
+            var response = await _dTSDetailGenericDaysService.GetPilotGenericByMasterId(id);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var Rank = ((ApiOkResponse)response).Result;
+            return Ok(Rank);
         }
 
         [HttpPost("AddNewPilotGeneric")]
-        public async Task<ApiCommonResponse> AddNewPilotGeneric(PilotDTSDetailGenericDaysReceivingDTO ReceivingDTO)
+        public async Task<ActionResult> AddNewPilotGeneric(PilotDTSDetailGenericDaysReceivingDTO ReceivingDTO)
         {
-            return await _dTSDetailGenericDaysService.AddPilotGeneric(HttpContext, ReceivingDTO);
+            var response = await _dTSDetailGenericDaysService.AddPilotGeneric(HttpContext, ReceivingDTO);
+
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var rank = ((ApiOkResponse)response).Result;
+            return Ok(rank);
         }
 
         [HttpPut("UpdatePilotGenericById/{id}")]
-        public async Task<ApiCommonResponse> UpdatePilotGenericById(long id, PilotDTSDetailGenericDaysReceivingDTO Receiving)
+        public async Task<IActionResult> UpdatePilotGenericById(long id, PilotDTSDetailGenericDaysReceivingDTO Receiving)
         {
-            return await _dTSDetailGenericDaysService.UpdatePilotGeneric(HttpContext, id, Receiving);
+            var response = await _dTSDetailGenericDaysService.UpdatePilotGeneric(HttpContext, id, Receiving);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var type = ((ApiOkResponse)response).Result;
+            return Ok(type);
         }
         [HttpDelete("DeletePilotGenericById/{id}")]
-        public async Task<ApiCommonResponse> DeletePilotGenericById(int id)
+        public async Task<ActionResult> DeletePilotGenericById(int id)
         {
-            return await _dTSDetailGenericDaysService.DeletePilotGeneric(id);
+            var response = await _dTSDetailGenericDaysService.DeletePilotGeneric(id);
+            return StatusCode(response.StatusCode);
         }
 
         //Vehicle
         [HttpGet("GetAllVehicleGenerics")]
-        public async Task<ApiCommonResponse> GetAllVehicleGenerics()
+        public async Task<ActionResult> GetAllVehicleGenerics()
         {
-            return await _dTSDetailGenericDaysService.GetAllVehicleGenerics();
+            var response = await _dTSDetailGenericDaysService.GetAllVehicleGenerics();
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var cType = ((ApiOkResponse)response).Result;
+            return Ok(cType);
         }
 
         [HttpGet("GetVehicleGenericsById/{id}")]
-        public async Task<ApiCommonResponse> GetVehicleGenericsById(long id)
+        public async Task<ActionResult> GetVehicleGenericsById(long id)
         {
-            return await _dTSDetailGenericDaysService.GetVehicleGenericById(id);
+            var response = await _dTSDetailGenericDaysService.GetVehicleGenericById(id);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var Rank = ((ApiOkResponse)response).Result;
+            return Ok(Rank);
         }
 
         [HttpGet("GetVehicleGenericsByMasterId/{id}")]
-        public async Task<ApiCommonResponse> GetVehicleGenericsByMasterId(long id)
+        public async Task<ActionResult> GetVehicleGenericsByMasterId(long id)
         {
-            return await _dTSDetailGenericDaysService.GetVehicleGenericByMasterId(id);
+            var response = await _dTSDetailGenericDaysService.GetVehicleGenericByMasterId(id);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var Rank = ((ApiOkResponse)response).Result;
+            return Ok(Rank);
         }
 
         [HttpPost("AddNewVehicleGeneric")]
-        public async Task<ApiCommonResponse> AddNewVehicleGeneric(VehicleDTSDetailGenericDaysReceivingDTO ReceivingDTO)
+        public async Task<ActionResult> AddNewVehicleGeneric(VehicleDTSDetailGenericDaysReceivingDTO ReceivingDTO)
         {
-            return await _dTSDetailGenericDaysService.AddVehicleGeneric(HttpContext, ReceivingDTO);
+            var response = await _dTSDetailGenericDaysService.AddVehicleGeneric(HttpContext, ReceivingDTO);
+
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var rank = ((ApiOkResponse)response).Result;
+            return Ok(rank);
         }
 
         [HttpPut("UpdateVehicleGenericById/{id}")]
-        public async Task<ApiCommonResponse> UpdateVehicleGenericById(long id, VehicleDTSDetailGenericDaysReceivingDTO Receiving)
+        public async Task<IActionResult> UpdateVehicleGenericById(long id, VehicleDTSDetailGenericDaysReceivingDTO Receiving)
         {
-            return await _dTSDetailGenericDaysService.UpdateVehicleGeneric(HttpContext, id, Receiving);
+            var response = await _dTSDetailGenericDaysService.UpdateVehicleGeneric(HttpContext, id, Receiving);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var type = ((ApiOkResponse)response).Result;
+            return Ok(type);
         }
         [HttpDelete("DeleteVehicleGenericById/{id}")]
-        public async Task<ApiCommonResponse> DeleteVehicleGenericById(int id)
+        public async Task<ActionResult> DeleteVehicleGenericById(int id)
         {
-            return await _dTSDetailGenericDaysService.DeleteVehicleGeneric(id);
+            var response = await _dTSDetailGenericDaysService.DeleteVehicleGeneric(id);
+            return StatusCode(response.StatusCode);
         }
     }
 }

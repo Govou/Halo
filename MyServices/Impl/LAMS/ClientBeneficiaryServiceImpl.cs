@@ -32,58 +32,58 @@ namespace HaloBiz.MyServices.Impl.LAMS
             _logger = logger;
         }
 
-        public async Task<ApiCommonResponse> AddClientBeneficiary(HttpContext context, ClientBeneficiaryReceivingDTO clientBeneficiaryReceivingDTO)
+        public async Task<ApiResponse> AddClientBeneficiary(HttpContext context, ClientBeneficiaryReceivingDTO clientBeneficiaryReceivingDTO)
         {
             var clientBeneficiary = _mapper.Map<ClientBeneficiary>(clientBeneficiaryReceivingDTO);
             clientBeneficiary.CreatedById = context.GetLoggedInUserId();
             var savedClientBeneficiary = await _clientBeneficiaryRepo.SaveClientBeneficiary(clientBeneficiary);
             if (savedClientBeneficiary == null)
             {
-                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+                return new ApiResponse(500);
             }
             var clientBeneficiaryTransferDTO = _mapper.Map<ClientBeneficiaryTransferDTO>(savedClientBeneficiary);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,clientBeneficiaryTransferDTO);
+            return new ApiOkResponse(clientBeneficiaryTransferDTO);
         }
 
-        public async Task<ApiCommonResponse> GetAllClientBeneficiary()
+        public async Task<ApiResponse> GetAllClientBeneficiary()
         {
             var clientBeneficiarys = await _clientBeneficiaryRepo.FindAllClientBeneficiary();
             if (clientBeneficiarys == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
             var clientBeneficiaryTransferDTO = _mapper.Map<IEnumerable<ClientBeneficiaryTransferDTO>>(clientBeneficiarys);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,clientBeneficiaryTransferDTO);
+            return new ApiOkResponse(clientBeneficiaryTransferDTO);
         }
 
-        public async Task<ApiCommonResponse> GetClientBeneficiaryById(long id)
+        public async Task<ApiResponse> GetClientBeneficiaryById(long id)
         {
             var clientBeneficiary = await _clientBeneficiaryRepo.FindClientBeneficiaryById(id);
             if (clientBeneficiary == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
             var clientBeneficiaryTransferDTOs = _mapper.Map<ClientBeneficiaryTransferDTO>(clientBeneficiary);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,clientBeneficiaryTransferDTOs);
+            return new ApiOkResponse(clientBeneficiaryTransferDTOs);
         }
 
-        public async Task<ApiCommonResponse> GetClientBeneficiaryByCode(string code)
+        public async Task<ApiResponse> GetClientBeneficiaryByCode(string code)
         {
             var clientBeneficiary = await _clientBeneficiaryRepo.FindClientBeneficiaryByCode(code);
             if (clientBeneficiary == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
             var clientBeneficiaryTransferDTOs = _mapper.Map<ClientBeneficiaryTransferDTO>(clientBeneficiary);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,clientBeneficiaryTransferDTOs);
+            return new ApiOkResponse(clientBeneficiaryTransferDTOs);
         }
 
-        public async Task<ApiCommonResponse> UpdateClientBeneficiary(HttpContext context, long id, ClientBeneficiaryReceivingDTO clientBeneficiaryReceivingDTO)
+        public async Task<ApiResponse> UpdateClientBeneficiary(HttpContext context, long id, ClientBeneficiaryReceivingDTO clientBeneficiaryReceivingDTO)
         {
             var clientBeneficiaryToUpdate = await _clientBeneficiaryRepo.FindClientBeneficiaryById(id);
             if (clientBeneficiaryToUpdate == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
             
             var summary = $"Initial details before change, \n {clientBeneficiaryToUpdate.ToString()} \n" ;
@@ -110,7 +110,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
             if (updatedClientBeneficiary == null)
             {
-                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+                return new ApiResponse(500);
             }
             ModificationHistory history = new ModificationHistory(){
                 ModelChanged = "ClientBeneficiary",
@@ -122,24 +122,24 @@ namespace HaloBiz.MyServices.Impl.LAMS
             await _historyRepo.SaveHistory(history);
 
             var clientBeneficiaryTransferDTOs = _mapper.Map<ClientBeneficiaryTransferDTO>(updatedClientBeneficiary);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,clientBeneficiaryTransferDTOs);
+            return new ApiOkResponse(clientBeneficiaryTransferDTOs);
 
         }
 
-        public async Task<ApiCommonResponse> DeleteClientBeneficiary(long id)
+        public async Task<ApiResponse> DeleteClientBeneficiary(long id)
         {
             var clientBeneficiaryToDelete = await _clientBeneficiaryRepo.FindClientBeneficiaryById(id);
             if (clientBeneficiaryToDelete == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
 
             if (!await _clientBeneficiaryRepo.DeleteClientBeneficiary(clientBeneficiaryToDelete))
             {
-                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+                return new ApiResponse(500);
             }
 
-            return CommonResponse.Send(ResponseCodes.SUCCESS);
+            return new ApiOkResponse(true);
         }
     }
 }

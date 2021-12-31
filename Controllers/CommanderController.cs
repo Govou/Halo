@@ -22,63 +22,97 @@ namespace HaloBiz.Controllers
         }
 
         [HttpGet("GetAllCommanderRanks")]
-        public async Task<ApiCommonResponse> GetAllCommanderRanks()
+        public async Task<ActionResult> GetAllCommanderRanks()
         {
-            return await _commanderService.GetAllCommanderRanks();
+            var response = await _commanderService.GetAllCommanderRanks();
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var cRank = ((ApiOkResponse)response).Result;
+            return Ok(cRank);
         }
 
         [HttpGet("GetAllCommanderTypes")]
-        public async Task<ApiCommonResponse> GetAllCommanderTypes()
+        public async Task<ActionResult> GetAllCommanderTypes()
         {
-            return await _commanderService.GetAllCommanderTypes();
+            var response = await _commanderService.GetAllCommanderTypes();
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var cType = ((ApiOkResponse)response).Result;
+            return Ok(cType);
         }
 
         [HttpGet("GetRankById/{id}")]
-        public async Task<ApiCommonResponse> GetRankById(long id)
+        public async Task<ActionResult> GetRankById(long id)
         {
-            return await _commanderService.GetCommanderRankById(id);
+            var response = await _commanderService.GetCommanderRankById(id);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var Rank = ((ApiOkResponse)response).Result;
+            return Ok(Rank);
         }
 
         [HttpGet("GetTypeById/{id}")]
-        public async Task<ApiCommonResponse> GetTypeById(long id)
+        public async Task<ActionResult> GetTypeById(long id)
         {
-            return await _commanderService.GetCommanderTypeById(id);
+            var response = await _commanderService.GetCommanderTypeById(id);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var type = ((ApiOkResponse)response).Result;
+            return Ok(type);
         }
 
         [HttpPost("AddNewCommanderType")]
-        public async Task<ApiCommonResponse> AddNewCommanderType(CommanderTypeAndRankReceivingDTO TypeReceivingDTO)
+        public async Task<ActionResult> AddNewCommanderType(CommanderTypeAndRankReceivingDTO TypeReceivingDTO)
         {
-                return await _commanderService.AddCommanderType(HttpContext, TypeReceivingDTO);
+            var response = await _commanderService.AddCommanderType(HttpContext, TypeReceivingDTO);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var type = ((ApiOkResponse)response).Result;
+            return Ok(type);
         }
 
         [HttpPost("AddNewCommanderRank")]
-        public async Task<ApiCommonResponse> AddNewCommanderRank(CommanderRankReceivingDTO RankReceivingDTO)
+        public async Task<ActionResult> AddNewCommanderRank(CommanderRankReceivingDTO RankReceivingDTO)
         {
-            return await _commanderService.AddCommanderRank(HttpContext, RankReceivingDTO);
+            var response = await _commanderService.AddCommanderRank(HttpContext, RankReceivingDTO);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var rank = ((ApiOkResponse)response).Result;
+            return Ok(rank);
         }
 
         [HttpPut("UpdateTypeById/{id}")] //{id}
-        public async Task<ApiCommonResponse> UpdateTypeById(long id, CommanderTypeAndRankReceivingDTO TypeReceiving)
+        public async Task<IActionResult> UpdateTypeById(long id, CommanderTypeAndRankReceivingDTO TypeReceiving)
         {
-            return await _commanderService.UpdateCommanderType(HttpContext, id, TypeReceiving);
+            var response = await _commanderService.UpdateCommanderType(HttpContext, id, TypeReceiving);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var type = ((ApiOkResponse)response).Result;
+            return Ok(type);
         }
 
         [HttpPut("UpdateRankById/{id}")]
-        public async Task<ApiCommonResponse> UpdateRankById(long id, CommanderRankReceivingDTO RankReceiving)
+        public async Task<IActionResult> UpdateRankById(long id, CommanderRankReceivingDTO RankReceiving)
         {
-            return await _commanderService.UpdateCommanderRank(HttpContext, id, RankReceiving);
+            var response = await _commanderService.UpdateCommanderRank(HttpContext, id, RankReceiving);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var rank = ((ApiOkResponse)response).Result;
+            return Ok(rank);
         }
 
         [HttpDelete("DeleterankById/{id}")]
-        public async Task<ApiCommonResponse> DeleteRankById(int id)
+        public async Task<ActionResult> DeleteRankById(int id)
         {
-            return await _commanderService.DeleteCommanderRank(id);
+            var response = await _commanderService.DeleteCommanderRank(id);
+            return StatusCode(response.StatusCode);
         }
 
         [HttpDelete("DeleteTypeById/{id}")] //{id}
-        public async Task<ApiCommonResponse> DeleteTypeById(int id)
+        public async Task<ActionResult> DeleteTypeById(int id)
         {
-            return await _commanderService.DeleteCommanderType(id);
+            var response = await _commanderService.DeleteCommanderType(id);
+            return StatusCode(response.StatusCode);
         }
     }
 }

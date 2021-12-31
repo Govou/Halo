@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using HaloBiz.DTOs.ApiDTOs;
 using HaloBiz.MyServices;
 using Microsoft.AspNetCore.Mvc;
 
@@ -19,31 +18,31 @@ namespace HaloBiz.Controllers
         }
 
         [HttpGet("")]
-        public async Task<ApiCommonResponse> GetStates()
+        public async Task<ActionResult> GetStates()
         {
-            return await stateService.GetAllStates();
-            
+            var response = await stateService.GetAllStates();
+            return StatusCode(response.StatusCode, response);
         }
 
         [HttpGet("name/{name}")]
-        public async Task<ApiCommonResponse> GetStateByName(string name)
+        public async Task<ActionResult> GetStateByName(string name)
         {
-            return await stateService.GetStateByName(name);
-            
+            var response = await stateService.GetStateByName(name);
+            return StatusCode(response.StatusCode, response);
         }
 
         [HttpGet("{id}")]
-        public async Task<ApiCommonResponse> GetStateById(int id)
+        public async Task<ActionResult> GetStateById(int id)
         {
-            return await stateService.GetStateById(id);
-            
+            var response = await stateService.GetStateById(id);
+            return StatusCode(response.StatusCode, response);
         }
 
         [HttpGet("GetAllLgas")]
-        public async Task<ApiCommonResponse> GetAllLGAs()
+        public async Task<ActionResult> GetAllLGAs()
         {
-            return await stateService.GetAllLgas();
-            
+            var response = await stateService.GetAllLgas();
+            return StatusCode(response.StatusCode, response);
         }
         
     }

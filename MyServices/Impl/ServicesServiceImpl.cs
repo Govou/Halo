@@ -53,14 +53,14 @@ namespace HaloBiz.MyServices.Impl
             this._servicesRepository = servicesRepository;
         }
 
-        public async Task<ApiCommonResponse> AddService(HttpContext context, ServiceReceivingDTO servicesReceivingDTO)
+        public async Task<ApiResponse> AddService(HttpContext context, ServiceReceivingDTO servicesReceivingDTO)
         {
             //check if this is an admin and if the direct service is specified
             if (servicesReceivingDTO.ServiceRelationshipEnum == ServiceRelationshipEnum.Admin)
             {
                 //check if the direct service is specified
                 if(servicesReceivingDTO.DirectServiceId == null)
-                    return CommonResponse.Send(ResponseCodes.FAILURE,null, "The direct service is not specified for this admin service.");
+                    return new ApiResponse(400, "The direct service is not specified for this admin service.");
             }
 
             using (var transaction = await _context.Database.BeginTransactionAsync())
@@ -102,84 +102,84 @@ namespace HaloBiz.MyServices.Impl
                     if (!successful) 
                     {
                         await transaction.RollbackAsync();
-                        return CommonResponse.Send(ResponseCodes.FAILURE,null, "Could not set up approvals for the service."); 
+                        return new ApiResponse(500, "Could not set up approvals for the service."); 
                     }
 
                     var servicesTransferDTO = _mapper.Map<ServiceTransferDTO>(savedService);
                     await transaction.CommitAsync();
-                    return CommonResponse.Send(ResponseCodes.SUCCESS,servicesTransferDTO);
+                    return new ApiOkResponse(servicesTransferDTO);
 
                 }catch(Exception e)
                 {
                     _logger.LogError(e.Message);
                     _logger.LogError(e.StackTrace);
                     await transaction.RollbackAsync();
-                    return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+                    return new ApiResponse(500);
                 }
             }
         }
 
-        public async Task<ApiCommonResponse> GetAllServices()
+        public async Task<ApiResponse> GetAllServices()
         {
             var services = await _servicesRepository.FindAllServices();
             if (services == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
             var serviceTransferDTO = _mapper.Map<IEnumerable<ServiceTransferDTO>>(services);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,serviceTransferDTO);
+            return new ApiOkResponse(serviceTransferDTO);
         }
 
-        public async Task<ApiCommonResponse> GetUnpublishedServices()
+        public async Task<ApiResponse> GetUnpublishedServices()
         {
             var services = await _servicesRepository.FindAllUnplishedServices();
             if (services == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
             var serviceTransferDTO = _mapper.Map<IEnumerable<ServiceTransferDTO>>(services);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,serviceTransferDTO);
+            return new ApiOkResponse(serviceTransferDTO);
         }
 
-        public async Task<ApiCommonResponse> GetOnlinePortalServices()
+        public async Task<ApiResponse> GetOnlinePortalServices()
         {
             var services = await _servicesRepository.FindOnlinePortalServices();
             if (services == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
             var serviceTransferDTO = _mapper.Map<IEnumerable<ServiceTransferDTO>>(services);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,serviceTransferDTO);
+            return new ApiOkResponse(serviceTransferDTO);
         }
 
-        public async Task<ApiCommonResponse> GetServiceById(long id)
+        public async Task<ApiResponse> GetServiceById(long id)
         {
             var service = await _servicesRepository.FindServicesById(id);
             if (service == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
             var serviceTransferDTO = _mapper.Map<ServiceTransferDTO>(service);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,serviceTransferDTO);
+            return new ApiOkResponse(serviceTransferDTO);
         }
 
-        public async Task<ApiCommonResponse> GetServiceByName(string name)
+        public async Task<ApiResponse> GetServiceByName(string name)
         {
             var service = await _servicesRepository.FindServiceByName(name);
             if (service == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
             var serviceTransferDTO = _mapper.Map<ServiceTransferDTO>(service);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,serviceTransferDTO);
+            return new ApiOkResponse(serviceTransferDTO);
         }
 
-        public async Task<ApiCommonResponse> UpdateService(HttpContext context, long id, ServiceReceivingDTO serviceReceivingDTO)
+        public async Task<ApiResponse> UpdateService(HttpContext context, long id, ServiceReceivingDTO serviceReceivingDTO)
         {
             var serviceToUpdate = await _servicesRepository.FindServicesById(id);
             if (serviceToUpdate == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
 
             var summary = $"Initial details before change, \n {serviceToUpdate.ToString()} \n";
@@ -199,7 +199,7 @@ namespace HaloBiz.MyServices.Impl
 
             if (updatedService == null)
             {
-                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+                return new ApiResponse(500);
             }
 
             summary += $"Details after change, \n {serviceToUpdate.ToString()} \n";
@@ -214,10 +214,10 @@ namespace HaloBiz.MyServices.Impl
 
             await _modificationRepo.SaveHistory(history);
             var serviceTransferDTO = _mapper.Map<ServiceTransferDTO>(updatedService);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,serviceTransferDTO);
+            return new ApiOkResponse(serviceTransferDTO);
 
         }
-        public async Task<ApiCommonResponse> UpdateServices(HttpContext context, long id, ServiceReceivingDTO serviceReceivingDTO)
+        public async Task<ApiResponse> UpdateServices(HttpContext context, long id, ServiceReceivingDTO serviceReceivingDTO)
         {
             using (var transaction = _context.Database.BeginTransaction())
             {
@@ -235,7 +235,7 @@ namespace HaloBiz.MyServices.Impl
                     
                     if (serviceToUpdate == null)
                     {
-                        return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                        return new ApiResponse(404);
                     }
                     
                     var listOfDocToAdd = new List<ServiceRequiredServiceDocument>(); 
@@ -328,17 +328,17 @@ namespace HaloBiz.MyServices.Impl
                     var service = await _servicesRepository.FindServicesById(id);
 
                     var serviceTransferDTO = _mapper.Map<ServiceTransferDTO>(service);
-                    return CommonResponse.Send(ResponseCodes.SUCCESS,serviceTransferDTO);
+                    return new ApiOkResponse(serviceTransferDTO);
 
                 }
                 catch (System.Exception)
                 {
                     transaction.Rollback();
-                    return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+                    return new ApiResponse(500);
                 }
             }
         }
-        public async Task<ApiCommonResponse> ApproveService(HttpContext context, long id, long sequence)
+        public async Task<ApiResponse> ApproveService(HttpContext context, long id, long sequence)
         {
 
             var approvalsForTheService = await _context.Approvals.Where(x => !x.IsDeleted && x.ServicesId == id).ToListAsync();
@@ -347,7 +347,7 @@ namespace HaloBiz.MyServices.Impl
 
             if(theApproval == null)
             {
-                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+                return new ApiResponse(500);
             }
 
             theApproval.IsApproved = true;
@@ -359,12 +359,12 @@ namespace HaloBiz.MyServices.Impl
 
             // Return scenario 1
             // All the approvals for service not yet approved.
-            if (!allApprovalsApproved) return CommonResponse.Send(ResponseCodes.SUCCESS);
+            if (!allApprovalsApproved) return new ApiOkResponse(true);
 
             var serviceToUpdate = await _servicesRepository.FindServicesById(id);
             if (serviceToUpdate == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
 
             serviceToUpdate.PublishedApprovedStatus = true;
@@ -375,7 +375,7 @@ namespace HaloBiz.MyServices.Impl
 
             if (updatedService == null)
             {
-                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+                return new ApiResponse(500);
             }
             ModificationHistory history = new ModificationHistory()
             {
@@ -388,15 +388,15 @@ namespace HaloBiz.MyServices.Impl
             await _modificationRepo.SaveHistory(history);
 
             var serviceTransferDTO = _mapper.Map<ServiceTransferDTO>(updatedService);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,serviceTransferDTO);
+            return new ApiOkResponse(serviceTransferDTO);
         }
 
-        public async Task<ApiCommonResponse> RequestPublishService(HttpContext context, long id)
+        public async Task<ApiResponse> RequestPublishService(HttpContext context, long id)
         {
             var serviceToUpdate = await _servicesRepository.FindServicesById(id);
             if (serviceToUpdate == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
 
             serviceToUpdate.IsRequestedForPublish = true;
@@ -405,7 +405,7 @@ namespace HaloBiz.MyServices.Impl
 
             if (updatedService == null)
             {
-                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+                return new ApiResponse(500);
             }
 
             ModificationHistory history = new ModificationHistory()
@@ -419,15 +419,15 @@ namespace HaloBiz.MyServices.Impl
             await _modificationRepo.SaveHistory(history);
 
             var serviceTransferDTO = _mapper.Map<ServiceTransferDTO>(updatedService);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,serviceTransferDTO);
+            return new ApiOkResponse(serviceTransferDTO);
 
         }
-        public async Task<ApiCommonResponse> DisapproveService(HttpContext context, long serviceId, long sequence)
+        public async Task<ApiResponse> DisapproveService(HttpContext context, long serviceId, long sequence)
         {
             var serviceToUpdate = await _servicesRepository.FindServicesById(serviceId);
             if (serviceToUpdate == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
 
             serviceToUpdate.PublishedApprovedStatus = false;
@@ -439,7 +439,7 @@ namespace HaloBiz.MyServices.Impl
 
             if (updatedService == null)
             {
-                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+                return new ApiResponse(500);
             }
             ModificationHistory history = new ModificationHistory()
             {
@@ -452,21 +452,21 @@ namespace HaloBiz.MyServices.Impl
             await _modificationRepo.SaveHistory(history);
 
             var serviceTransferDTO = _mapper.Map<ServiceTransferDTO>(updatedService);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,serviceTransferDTO);
+            return new ApiOkResponse(serviceTransferDTO);
 
         }
 
-        public async Task<ApiCommonResponse> DeleteService(HttpContext context, long id)
+        public async Task<ApiResponse> DeleteService(HttpContext context, long id)
         {
             var serviceToDelete = await _servicesRepository.FindServicesById(id);
             if (serviceToDelete == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
 
             if (!await _servicesRepository.DeleteService(serviceToDelete))
             {
-                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+                return new ApiResponse(500);
             }
 
             DeleteLog deleteLog = new DeleteLog()
@@ -479,22 +479,22 @@ namespace HaloBiz.MyServices.Impl
 
             await _deleteLogRepo.SaveDeleteLog(deleteLog);
 
-            return CommonResponse.Send(ResponseCodes.SUCCESS);
+            return new ApiOkResponse(true);
         }
-        public async Task<ApiCommonResponse> DeleteService(long id)
+        public async Task<ApiResponse> DeleteService(long id)
         {
             var serviceToDelete = await _servicesRepository.FindServicesById(id);
             if (serviceToDelete == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
 
             if (!await _servicesRepository.DeleteService(serviceToDelete))
             {
-                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+                return new ApiResponse(500);
             }
 
-            return CommonResponse.Send(ResponseCodes.SUCCESS);
+            return new ApiOkResponse(true);
         }
     }
 }

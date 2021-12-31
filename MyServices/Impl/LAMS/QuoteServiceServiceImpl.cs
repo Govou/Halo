@@ -32,66 +32,66 @@ namespace HaloBiz.MyServices.Impl.LAMS
             this._logger = logger;
         }
 
-        public async Task<ApiCommonResponse> AddQuoteService(HttpContext context, QuoteServiceReceivingDTO quoteServiceReceivingDTO)
+        public async Task<ApiResponse> AddQuoteService(HttpContext context, QuoteServiceReceivingDTO quoteServiceReceivingDTO)
         {
             var quoteService = _mapper.Map<QuoteService>(quoteServiceReceivingDTO);
             quoteService.CreatedById = context.GetLoggedInUserId();
             var savedQuoteService = await _quoteServiceRepo.SaveQuoteService(quoteService);
             if (savedQuoteService == null)
             {
-                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+                return new ApiResponse(500);
             }
             var quoteServiceTransferDTO = _mapper.Map<QuoteServiceTransferDTO>(savedQuoteService);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,quoteServiceTransferDTO);
+            return new ApiOkResponse(quoteServiceTransferDTO);
         }
 
-        public async Task<ApiCommonResponse> GetAllQuoteService()
+        public async Task<ApiResponse> GetAllQuoteService()
         {
             var quoteService = await _quoteServiceRepo.FindAllQuoteService();
             if (quoteService == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
             var quoteServiceTransferDTO = _mapper.Map<IEnumerable<QuoteServiceTransferDTO>>(quoteService);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,quoteServiceTransferDTO);
+            return new ApiOkResponse(quoteServiceTransferDTO);
         }
 
-        public async Task<ApiCommonResponse> GetQuoteServiceById(long id)
+        public async Task<ApiResponse> GetQuoteServiceById(long id)
         {
             var quoteService = await _quoteServiceRepo.FindQuoteServiceById(id);
             if (quoteService == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
             var quoteServiceTransferDTOs = _mapper.Map<QuoteServiceTransferDTO>(quoteService);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,quoteServiceTransferDTOs);
+            return new ApiOkResponse(quoteServiceTransferDTOs);
         }
 
-        public async Task<ApiCommonResponse> GetQuoteServiceByTag(string tag)
+        public async Task<ApiResponse> GetQuoteServiceByTag(string tag)
         {
             var quoteService = await _quoteServiceRepo.FindQuoteServiceByTag(tag);
             if (quoteService == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
             var quoteServiceTransferDTOs = _mapper.Map<QuoteServiceTransferDTO>(quoteService);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,quoteServiceTransferDTOs);
+            return new ApiOkResponse(quoteServiceTransferDTOs);
         }
 
-        public async Task<ApiCommonResponse> UpdateQuoteServicesByQuoteId(HttpContext context, long quoteId, IEnumerable<QuoteServiceReceivingDTO> quoteServices)
+        public async Task<ApiResponse> UpdateQuoteServicesByQuoteId(HttpContext context, long quoteId, IEnumerable<QuoteServiceReceivingDTO> quoteServices)
         {
             var userId = context.GetLoggedInUserId();
             var _quoteServices = _mapper.Map<IEnumerable<QuoteService>>(quoteServices);
             var response = await _quoteServiceRepo.UpdateQuoteServicesByQuoteId(quoteId, _quoteServices);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,response);
+            return new ApiOkResponse(response);
 
         }
-        public async Task<ApiCommonResponse> UpdateQuoteService(HttpContext context, long id, QuoteServiceReceivingDTO quoteServiceReceivingDTO)
+        public async Task<ApiResponse> UpdateQuoteService(HttpContext context, long id, QuoteServiceReceivingDTO quoteServiceReceivingDTO)
         {
             var quoteServiceToUpdate = await _quoteServiceRepo.FindQuoteServiceById(id);
             if (quoteServiceToUpdate == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
             
             var summary = $"Initial details before change, \n {quoteServiceToUpdate.ToString()} \n" ;
@@ -137,7 +137,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
             if (updatedQuoteService == null)
             {
-                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+                return new ApiResponse(500);
             }
             ModificationHistory history = new ModificationHistory(){
                 ModelChanged = "QuoteService",
@@ -149,24 +149,24 @@ namespace HaloBiz.MyServices.Impl.LAMS
             await _historyRepo.SaveHistory(history);
 
             var quoteServiceTransferDTOs = _mapper.Map<QuoteServiceTransferDTO>(updatedQuoteService);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,quoteServiceTransferDTOs);
+            return new ApiOkResponse(quoteServiceTransferDTOs);
 
         }
 
-        public async Task<ApiCommonResponse> DeleteQuoteService(long id)
+        public async Task<ApiResponse> DeleteQuoteService(long id)
         {
             var quoteServiceToDelete = await _quoteServiceRepo.FindQuoteServiceById(id);
             if (quoteServiceToDelete == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
 
             if (!await _quoteServiceRepo.DeleteQuoteService(quoteServiceToDelete))
             {
-                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+                return new ApiResponse(500);
             }
 
-            return CommonResponse.Send(ResponseCodes.SUCCESS);
+            return new ApiOkResponse(true);
         }
     }
 }

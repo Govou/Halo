@@ -12,15 +12,15 @@ namespace HaloBiz.MyServices
 {
     public interface IAccountMasterService
     {
-        Task<ApiCommonResponse> AddAccountMaster(HttpContext context, AccountMasterReceivingDTO accountMasterReceivingDTO);
-        Task<ApiCommonResponse> GetAccountMasterById(long id);
-        Task<ApiCommonResponse> GetAllAccountMasters();
-         Task<ApiCommonResponse> QueryAccountMasters(AccountMasterTransactionDateQueryParams query);
-        Task<ApiCommonResponse> UpdateAccountMaster(long id, AccountMasterReceivingDTO accountMasterReceivingDTO);
-        Task<ApiCommonResponse> DeleteAccountMaster(long id);
-        Task<ApiCommonResponse> GetAllAccountMastersByTransactionId(string transactionId);
-        Task<ApiCommonResponse> GetAllAccountMastersByCustomerIdAndContractYear(AccountMasterTransactionDateQueryParams searcDto);
-        Task<ApiCommonResponse> GetAllAccountMastersByTransactionDate(AccountMasterTransactionDateQueryParams query);
-        Task<ApiCommonResponse> PostPeriodicAccountMaster();
+        Task<ApiResponse> AddAccountMaster(HttpContext context, AccountMasterReceivingDTO accountMasterReceivingDTO);
+        Task<ApiResponse> GetAccountMasterById(long id);
+        Task<ApiResponse> GetAllAccountMasters();
+         Task<ApiResponse> QueryAccountMasters(AccountMasterTransactionDateQueryParams query);
+        Task<ApiResponse> UpdateAccountMaster(long id, AccountMasterReceivingDTO accountMasterReceivingDTO);
+        Task<ApiResponse> DeleteAccountMaster(long id);
+        Task<ApiResponse> GetAllAccountMastersByTransactionId(string transactionId);
+        Task<ApiResponse> GetAllAccountMastersByCustomerIdAndContractYear(AccountMasterTransactionDateQueryParams searcDto);
+        Task<ApiResponse> GetAllAccountMastersByTransactionDate(AccountMasterTransactionDateQueryParams query);
+        Task<ApiResponse> PostPeriodicAccountMaster();
     }
 }

@@ -32,58 +32,58 @@ namespace HaloBiz.MyServices.Impl.LAMS
             this._logger = logger;
         }
 
-        public async Task<ApiCommonResponse> AddClosureDocument(HttpContext context, ClosureDocumentReceivingDTO closureDocumentReceivingDTO)
+        public async Task<ApiResponse> AddClosureDocument(HttpContext context, ClosureDocumentReceivingDTO closureDocumentReceivingDTO)
         {
             var closureDocument = _mapper.Map<ClosureDocument>(closureDocumentReceivingDTO);
             closureDocument.CreatedById = context.GetLoggedInUserId();
             var savedClosureDocument = await _closureDocumentRepo.SaveClosureDocument(closureDocument);
             if (savedClosureDocument == null)
             {
-                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+                return new ApiResponse(500);
             }
             var closureDocumentTransferDTO = _mapper.Map<ClosureDocumentTransferDTO>(savedClosureDocument);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,closureDocumentTransferDTO);
+            return new ApiOkResponse(closureDocumentTransferDTO);
         }
 
-        public async Task<ApiCommonResponse> GetAllClosureDocument()
+        public async Task<ApiResponse> GetAllClosureDocument()
         {
             var closureDocuments = await _closureDocumentRepo.FindAllClosureDocument();
             if (closureDocuments == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
             var closureDocumentTransferDTO = _mapper.Map<IEnumerable<ClosureDocumentTransferDTO>>(closureDocuments);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,closureDocumentTransferDTO);
+            return new ApiOkResponse(closureDocumentTransferDTO);
         }
 
-        public async Task<ApiCommonResponse> GetClosureDocumentById(long id)
+        public async Task<ApiResponse> GetClosureDocumentById(long id)
         {
             var closureDocument = await _closureDocumentRepo.FindClosureDocumentById(id);
             if (closureDocument == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
             var closureDocumentTransferDTOs = _mapper.Map<ClosureDocumentTransferDTO>(closureDocument);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,closureDocumentTransferDTOs);
+            return new ApiOkResponse(closureDocumentTransferDTOs);
         }
 
-        public async Task<ApiCommonResponse> GetClosureDocumentByCaption(string caption)
+        public async Task<ApiResponse> GetClosureDocumentByCaption(string caption)
         {
             var closureDocument = await _closureDocumentRepo.FindClosureDocumentByCaption(caption);
             if (closureDocument == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
             var closureDocumentTransferDTOs = _mapper.Map<ClosureDocumentTransferDTO>(closureDocument);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,closureDocumentTransferDTOs);
+            return new ApiOkResponse(closureDocumentTransferDTOs);
         }
 
-        public async Task<ApiCommonResponse> UpdateClosureDocument(HttpContext context, long id, ClosureDocumentReceivingDTO closureDocumentReceivingDTO)
+        public async Task<ApiResponse> UpdateClosureDocument(HttpContext context, long id, ClosureDocumentReceivingDTO closureDocumentReceivingDTO)
         {
             var closureDocumentToUpdate = await _closureDocumentRepo.FindClosureDocumentById(id);
             if (closureDocumentToUpdate == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
             
             var summary = $"Initial details before change, \n {closureDocumentToUpdate.ToString()} \n" ;
@@ -98,7 +98,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
             if (updatedClosureDocument == null)
             {
-                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+                return new ApiResponse(500);
             }
             ModificationHistory history = new ModificationHistory(){
                 ModelChanged = "ClosureDocument",
@@ -110,24 +110,24 @@ namespace HaloBiz.MyServices.Impl.LAMS
             await _historyRepo.SaveHistory(history);
 
             var closureDocumentTransferDTOs = _mapper.Map<ClosureDocumentTransferDTO>(updatedClosureDocument);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,closureDocumentTransferDTOs);
+            return new ApiOkResponse(closureDocumentTransferDTOs);
 
         }
 
-        public async Task<ApiCommonResponse> DeleteClosureDocument(long id)
+        public async Task<ApiResponse> DeleteClosureDocument(long id)
         {
             var closureDocumentToDelete = await _closureDocumentRepo.FindClosureDocumentById(id);
             if (closureDocumentToDelete == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
 
             if (!await _closureDocumentRepo.DeleteClosureDocument(closureDocumentToDelete))
             {
-                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+                return new ApiResponse(500);
             }
 
-            return CommonResponse.Send(ResponseCodes.SUCCESS);
+            return new ApiOkResponse(true);
         }
     }
 }

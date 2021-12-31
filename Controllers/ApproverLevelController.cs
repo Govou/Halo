@@ -24,27 +24,40 @@ namespace HaloBiz.Controllers
         }
 
         [HttpGet("")]
-        public async Task<ApiCommonResponse> GetApproverLevel()
+        public async Task<ActionResult> GetApproverLevel()
         {
-            return await _approverLevelService.GetAllApproverLevel();
+            var response = await _approverLevelService.GetAllApproverLevel();
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var approverLevel = ((ApiOkResponse)response).Result;
+            return Ok(approverLevel);
         }
 
         [HttpPost("")]
-        public async Task<ApiCommonResponse> AddNewApproverLevel(ApproverLevelReceivingDTO approverLevelReceiving)
+        public async Task<ActionResult> AddNewApproverLevel(ApproverLevelReceivingDTO approverLevelReceiving)
         {
-            return await _approverLevelService.AddApproverLevel(HttpContext, approverLevelReceiving);
+            var response = await _approverLevelService.AddApproverLevel(HttpContext, approverLevelReceiving);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var approverLevel = ((ApiOkResponse)response).Result;
+            return Ok(approverLevel);
         }
 
         [HttpPut("{id}")]
-        public async Task<ApiCommonResponse> UpdateById(long id, ApproverLevelReceivingDTO approverLevelReceiving)
+        public async Task<IActionResult> UpdateById(long id, ApproverLevelReceivingDTO approverLevelReceiving)
         {
-            return await _approverLevelService.UpdateApproverLevel(HttpContext, id, approverLevelReceiving);
+            var response = await _approverLevelService.UpdateApproverLevel(HttpContext, id, approverLevelReceiving);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var approverLevel = ((ApiOkResponse)response).Result;
+            return Ok(approverLevel);
         }
 
         [HttpDelete("{id}")]
-        public async Task<ApiCommonResponse> DeleteById(int id)
+        public async Task<ActionResult> DeleteById(int id)
         {
-            return await _approverLevelService.DeleteApproverLevel(id);
+            var response = await _approverLevelService.DeleteApproverLevel(id);
+            return StatusCode(response.StatusCode);
         }
 
     }

@@ -24,27 +24,40 @@ namespace HaloBiz.Controllers
         }
 
         [HttpGet("")]
-        public async Task<ApiCommonResponse> GetEngagementReason()
+        public async Task<ActionResult> GetEngagementReason()
         {
-            return await _engagementReasonService.GetAllEngagementReason();
+            var response = await _engagementReasonService.GetAllEngagementReason();
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var engagementReason = ((ApiOkResponse)response).Result;
+            return Ok(engagementReason);
         }
 
         [HttpPost("")]
-        public async Task<ApiCommonResponse> AddNewEngagementReason(EngagementReasonReceivingDTO engagementReasonReceiving)
+        public async Task<ActionResult> AddNewEngagementReason(EngagementReasonReceivingDTO engagementReasonReceiving)
         {
-            return await _engagementReasonService.AddEngagementReason(HttpContext, engagementReasonReceiving);
+            var response = await _engagementReasonService.AddEngagementReason(HttpContext, engagementReasonReceiving);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var engagementReason = ((ApiOkResponse)response).Result;
+            return Ok(engagementReason);
         }
 
         [HttpPut("{id}")]
-        public async Task<ApiCommonResponse> UpdateById(long id, EngagementReasonReceivingDTO engagementReasonReceiving)
+        public async Task<IActionResult> UpdateById(long id, EngagementReasonReceivingDTO engagementReasonReceiving)
         {
-            return await _engagementReasonService.UpdateEngagementReason(HttpContext, id, engagementReasonReceiving);
+            var response = await _engagementReasonService.UpdateEngagementReason(HttpContext, id, engagementReasonReceiving);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var engagementReason = ((ApiOkResponse)response).Result;
+            return Ok(engagementReason);
         }
 
         [HttpDelete("{id}")]
-        public async Task<ApiCommonResponse> DeleteById(int id)
+        public async Task<ActionResult> DeleteById(int id)
         {
-            return await _engagementReasonService.DeleteEngagementReason(id);
+            var response = await _engagementReasonService.DeleteEngagementReason(id);
+            return StatusCode(response.StatusCode);
         }
 
     }
