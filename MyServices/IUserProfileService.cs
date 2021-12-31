@@ -9,16 +9,16 @@ namespace HaloBiz.MyServices
 {
     public interface IUserProfileService
     {
-        Task<ApiCommonResponse> AddUserProfile(UserProfileReceivingDTO userProfileReceivingDTO);
-        Task<ApiCommonResponse> FindUserById(long id);
-        Task<ApiCommonResponse> FindUserByEmail(string email);
-        Task<ApiCommonResponse> FindAllUsers();
-        Task<ApiCommonResponse> FindAllUsersNotInAnSBU(long sbuId);
-        Task<ApiCommonResponse> UpdateUserProfile(long userId, UserProfileReceivingDTO userProfileReceivingDTO);
-        Task<ApiCommonResponse> DeleteUserProfile(long userId);
-        Task<ApiCommonResponse> UpdateUserRole(HttpContext context, long userId, List<RoleReceivingDTO> roles);
-        Task<ApiCommonResponse> AssignUserToSBU(long userId, long SBUId);
-        Task<ApiCommonResponse> DetachUserFromSBU(long id);
-        Task<ApiCommonResponse> FetchAllUserProfilesWithEscalationLevelConfiguration();
+        Task<ApiResponse> AddUserProfile(UserProfileReceivingDTO userProfileReceivingDTO);
+        Task<ApiResponse> FindUserById(long id);
+        Task<ApiResponse> FindUserByEmail(string email);
+        Task<ApiResponse> FindAllUsers();
+        Task<ApiResponse> FindAllUsersNotInAnSBU(long sbuId);
+        Task<ApiResponse> UpdateUserProfile(long userId, UserProfileReceivingDTO userProfileReceivingDTO);
+        Task<ApiResponse> DeleteUserProfile(long userId);
+        Task<ApiResponse> UpdateUserRole(HttpContext context, long userId, List<RoleReceivingDTO> roles);
+        Task<ApiResponse> AssignUserToSBU(long userId, long SBUId);
+        Task<ApiResponse> DetachUserFromSBU(long id);
+        Task<ApiResponse> FetchAllUserProfilesWithEscalationLevelConfiguration();
     }
 }

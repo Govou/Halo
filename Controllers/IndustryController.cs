@@ -24,27 +24,40 @@ namespace HaloBiz.Controllers
         }
 
         [HttpGet("")]
-        public async Task<ApiCommonResponse> GetIndustry()
+        public async Task<ActionResult> GetIndustry()
         {
-            return await _industryService.GetAllIndustry();
+            var response = await _industryService.GetAllIndustry();
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var industry = ((ApiOkResponse)response).Result;
+            return Ok(industry);
         }
 
         [HttpPost("")]
-        public async Task<ApiCommonResponse> AddNewIndustry(IndustryReceivingDTO industryReceiving)
+        public async Task<ActionResult> AddNewIndustry(IndustryReceivingDTO industryReceiving)
         {
-            return await _industryService.AddIndustry(HttpContext, industryReceiving);
+            var response = await _industryService.AddIndustry(HttpContext, industryReceiving);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var industry = ((ApiOkResponse)response).Result;
+            return Ok(industry);
         }
 
         [HttpPut("{id}")]
-        public async Task<ApiCommonResponse> UpdateById(long id, IndustryReceivingDTO industryReceiving)
+        public async Task<IActionResult> UpdateById(long id, IndustryReceivingDTO industryReceiving)
         {
-            return await _industryService.UpdateIndustry(HttpContext, id, industryReceiving);
+            var response = await _industryService.UpdateIndustry(HttpContext, id, industryReceiving);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var industry = ((ApiOkResponse)response).Result;
+            return Ok(industry);
         }
 
         [HttpDelete("{id}")]
-        public async Task<ApiCommonResponse> DeleteById(int id)
+        public async Task<ActionResult> DeleteById(int id)
         {
-            return await _industryService.DeleteIndustry(id);
+            var response = await _industryService.DeleteIndustry(id);
+            return StatusCode(response.StatusCode);
         }
 
     }

@@ -19,91 +19,120 @@ namespace HaloBiz.Controllers.AccountsModel
         }
 
         [HttpGet("")]
-        public async Task<ApiCommonResponse> GetInvoices()
+        public async Task<ActionResult> GetInvoices()
         {
-            return await _invoiceService.GetAllInvoice();
+            var response = await _invoiceService.GetAllInvoice();
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var invoice = ((ApiOkResponse)response).Result;
+            return Ok(invoice);
         }
 
         [HttpGet("ContractDivision/{contractDivisionId}")]
-        public async Task<ApiCommonResponse> GetInvoicesByContractDivisionId(long contractDivisionId)
+        public async Task<ActionResult> GetInvoicesByContractDivisionId(long contractDivisionId)
         {
-            return await _invoiceService.GetAllInvoicesByContactserviceId(contractDivisionId);
+            var response = await _invoiceService.GetAllInvoicesByContactserviceId(contractDivisionId);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var invoices = ((ApiOkResponse)response).Result;
+            return Ok(invoices);
         }
 
         [HttpGet("Proforma/ContractDivision/{contractDivisionId}")]
-        public async Task<ApiCommonResponse> GetProformaInvoicesByContractDivisionId(long contractDivisionId)
+        public async Task<ActionResult> GetProformaInvoicesByContractDivisionId(long contractDivisionId)
         {
-            return await _invoiceService.GetAllProformaInvoicesByContactserviceId(contractDivisionId);
+            var response = await _invoiceService.GetAllProformaInvoicesByContactserviceId(contractDivisionId);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var invoices = ((ApiOkResponse)response).Result;
+            return Ok(invoices);
         }
 
         [HttpGet("{id}")]
-        public async Task<ApiCommonResponse> GetById(long id)
+        public async Task<ActionResult> GetById(long id)
         {
-            return await _invoiceService.GetAllInvoicesById(id);
+            var response = await _invoiceService.GetAllInvoicesById(id);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var invoice = ((ApiOkResponse)response).Result;
+            return Ok(invoice);
         }
 
         [HttpGet("SendInvoice/{invoiceId}")]
-        public async Task<ApiCommonResponse> SendInvoice(long invoiceId)
+        public async Task<ActionResult> SendInvoice(long invoiceId)
         {
-            return await _invoiceService.SendInvoice(invoiceId);
+            var response = await _invoiceService.SendInvoice(invoiceId);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var invoice = ((ApiOkResponse)response).Result;
+            return Ok(invoice);
         }
 
         [HttpGet("GetInvoiceDetails/{invoiceId}")]
-        [HttpGet("GetInvoiceDetails/{invoiceId}/{isAdhocAndGrouped}")]
-
-        public async Task<ApiCommonResponse> SendInvoiceDetails(long invoiceId, bool isAdhocAndGrouped = false)
+        public async Task<ActionResult> SendInvoiceDetails(long invoiceId)
         {
-            return await _invoiceService.GetInvoiceDetails(invoiceId, isAdhocAndGrouped);
+            var response = await _invoiceService.GetInvoiceDetails(invoiceId);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var invoice = ((ApiOkResponse)response).Result;
+            return Ok(invoice);
         }
 
-        //[HttpGet("GetInvoiceDetails/{groupinvoicenumber}/{startdate}")]
-        //public async Task<ApiCommonResponse> GetInvoiceDetails(string groupinvoicenumber, string startdate)
-        //{
-        //    return await _invoiceService.GetInvoiceDetails(groupinvoicenumber, startdate);
-        //}
-
-
         [HttpPost("AdHocInvoice")]
-        public async Task<ApiCommonResponse> AddNewinvoice(InvoiceReceivingDTO invoiceReceivingDTO)
+        public async Task<ActionResult> AddNewinvoice(InvoiceReceivingDTO invoiceReceivingDTO)
         {
-            return await _invoiceService.AddInvoice(HttpContext, invoiceReceivingDTO);
+            var response = await _invoiceService.AddInvoice(HttpContext, invoiceReceivingDTO);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var invoice = ((ApiOkResponse)response).Result;
+            return Ok(invoice);
         }
 
         [HttpPost("GroupAdHocInvoice")]
-        public async Task<ApiCommonResponse> AddNewGroupInvoice(GroupInvoiceDto groupInvoiceDto)
+        public async Task<ActionResult> AddNewGroupInvoice(GroupInvoiceDto groupInvoiceDto)
         {
-            return await _invoiceService.AddGroupInvoice(HttpContext, groupInvoiceDto);
+            var response = await _invoiceService.AddGroupInvoice(HttpContext, groupInvoiceDto);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var invoice = ((ApiOkResponse)response).Result;
+            return Ok(invoice);
         }
 
-
         [HttpPut("{id}")]
-        public async Task<ApiCommonResponse> UpdateById(long id, InvoiceReceivingDTO invoiceReceiving)
+        public async Task<IActionResult> UpdateById(long id, InvoiceReceivingDTO invoiceReceiving)
         {
-            return await _invoiceService.UpdateInvoice(HttpContext, id, invoiceReceiving);
+            var response = await _invoiceService.UpdateInvoice(HttpContext, id, invoiceReceiving);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var invoice = ((ApiOkResponse)response).Result;
+            return Ok(invoice);
         }
 
         [HttpPut("ConvertToFinalInvoice/{invoiceId}")]
-        public async Task<ApiCommonResponse> ConverToFinal(long invoiceId)
+        public async Task<IActionResult> ConverToFinal(long invoiceId)
         {
-            return await _invoiceService.ConvertProformaInvoiceToFinalInvoice(HttpContext ,invoiceId);
-        }
-
-        [HttpPut("RemoveProformaInvoice/{invoiceId}")]
-        public async Task<ApiCommonResponse> RemoveProformaInvoice(long invoiceId)
-        {
-            return await _invoiceService.RemoveProformaInvoice(invoiceId);
+            var response = await _invoiceService.ConvertProformaInvoiceToFinalInvoice(HttpContext ,invoiceId);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var invoice = ((ApiOkResponse)response).Result;
+            return Ok(invoice);
         }
 
         [HttpDelete("{id}")]
-        public async Task<ApiCommonResponse> DeleteById(long id)
+        public async Task<ActionResult> DeleteById(long id)
         {
-            return await _invoiceService.DeleteInvoice(id);
+            var response = await _invoiceService.DeleteInvoice(id);
+            return StatusCode(response.StatusCode);
         }
 
         [HttpPost("PostPeriodicInvoice")]
-        public async Task<ApiCommonResponse> SendPeriodicInvoices()
+        public async Task<ActionResult> SendPeriodicInvoices()
         {
-            return await _invoiceService.SendPeriodicInvoices();
+            var response = await _invoiceService.SendPeriodicInvoices();
+             if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var res = ((ApiOkResponse)response).Result;
+            return Ok(res);
         }
     }
 }

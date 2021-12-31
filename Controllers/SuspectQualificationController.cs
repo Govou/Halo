@@ -23,49 +23,70 @@ namespace HaloBiz.Controllers
         }
 
         [HttpGet("")]
-        public async Task<ApiCommonResponse> GetSuspectQualification()
+        public async Task<ActionResult> GetSuspectQualification()
         {
-            return await _SuspectQualificationService.GetAllSuspectQualification(); 
+            var response = await _SuspectQualificationService.GetAllSuspectQualification();
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var SuspectQualification = ((ApiOkResponse)response).Result;
+            return Ok(SuspectQualification);
         }
 
         [HttpGet("GetUserSuspectQualification")]
-        public async Task<ApiCommonResponse> GetUserSuspectQualification()
+        public async Task<ActionResult> GetUserSuspectQualification()
         {
-            return await _SuspectQualificationService.GetUserSuspectQualification(HttpContext); 
+            var response = await _SuspectQualificationService.GetUserSuspectQualification(HttpContext);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var SuspectQualification = ((ApiOkResponse)response).Result;
+            return Ok(SuspectQualification);
         }
 
         /*[HttpGet("caption/{name}")]
-        public async Task<ApiCommonResponse> GetByCaption(string name)
+        public async Task<ActionResult> GetByCaption(string name)
         {
-            return await _SuspectQualificationService.GetSuspectQualificationByName(name);
-            
-                
+            var response = await _SuspectQualificationService.GetSuspectQualificationByName(name);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
             var SuspectQualification = ((ApiOkResponse)response).Result;
             return Ok(SuspectQualification);
         }*/
 
         [HttpGet("{id}")]
-        public async Task<ApiCommonResponse> GetById(long id)
+        public async Task<ActionResult> GetById(long id)
         {
-            return await _SuspectQualificationService.GetSuspectQualificationById(id); 
+            var response = await _SuspectQualificationService.GetSuspectQualificationById(id);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var SuspectQualification = ((ApiOkResponse)response).Result;
+            return Ok(SuspectQualification);
         }
 
         [HttpPost("")]
-        public async Task<ApiCommonResponse> AddNewSuspectQualification(SuspectQualificationReceivingDTO SuspectQualificationReceiving)
+        public async Task<ActionResult> AddNewSuspectQualification(SuspectQualificationReceivingDTO SuspectQualificationReceiving)
         {
-            return await _SuspectQualificationService.AddSuspectQualification(HttpContext, SuspectQualificationReceiving); 
+            var response = await _SuspectQualificationService.AddSuspectQualification(HttpContext, SuspectQualificationReceiving);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var SuspectQualification = ((ApiOkResponse)response).Result;
+            return Ok(SuspectQualification);
         }
 
         [HttpPut("{id}")]
-        public async Task<ApiCommonResponse> UpdateById(long id, SuspectQualificationReceivingDTO SuspectQualificationReceiving)
+        public async Task<IActionResult> UpdateById(long id, SuspectQualificationReceivingDTO SuspectQualificationReceiving)
         {
-            return await _SuspectQualificationService.UpdateSuspectQualification(HttpContext, id, SuspectQualificationReceiving); 
+            var response = await _SuspectQualificationService.UpdateSuspectQualification(HttpContext, id, SuspectQualificationReceiving);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var SuspectQualification = ((ApiOkResponse)response).Result;
+            return Ok(SuspectQualification);
         }
 
         [HttpDelete("{id}")]
-        public async Task<ApiCommonResponse> DeleteById(int id)
+        public async Task<ActionResult> DeleteById(int id)
         {
-            return await _SuspectQualificationService.DeleteSuspectQualification(id);
+            var response = await _SuspectQualificationService.DeleteSuspectQualification(id);
+            return StatusCode(response.StatusCode);
         }
     }
 }

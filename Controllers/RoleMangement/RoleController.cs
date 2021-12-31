@@ -23,83 +23,146 @@ namespace HaloBiz.Controllers.RoleMangement
         }
   
         [HttpGet("")]
-        public async Task<ApiCommonResponse> GetRoles()
+        public async Task<ActionResult> GetRoles()
         {
-            return await _roleService.GetAllRoles();
+            var response = await _roleService.GetAllRoles();
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var role = ((ApiOkResponse)response).Result;
+            return Ok(role);
         }
 
         [HttpGet("GetAllApplicationClaims")]
-        public async Task<ApiCommonResponse> GetApplicationClaims()
+        public async Task<ActionResult> GetApplicationClaims()
         {
-            return await _roleService.GetAllClaims();
+            var response = await _roleService.GetAllClaims();
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+
+            var claims = ((ApiOkResponse)response).Result as IEnumerable<ClaimTransferDTO>;
+
+            return Ok(claims);
         }
 
         [HttpGet("GetUserRoleClaims")]
-        public async Task<ApiCommonResponse> GetUserRoleClaims()
+        public async Task<ActionResult> GetUserRoleClaims()
         {
-            return await _roleService.GetUserRoleClaims(HttpContext);
+            var response = await _roleService.GetUserRoleClaims(HttpContext);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+
+            var claims = ((ApiOkResponse)response).Result as UserProfileTransferDTO;
+
+            return Ok(claims);
         }
 
         [HttpGet("GetPermissions")]
-        public ApiCommonResponse GetPermissions()
+        public ActionResult GetPermissions()
         {
-            return _roleService.GetPermissions();
+            var response =  _roleService.GetPermissions();
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+
+            var claims = ((ApiOkResponse)response).Result;
+
+            return Ok(claims);
         }
 
         [HttpGet("GetPermissionsOnRole/{name}")]
-        public async Task<ApiCommonResponse> GetPermissionsOnRole(string name)
+        public async Task<ActionResult> GetPermissionsOnRole(string name)
         {
-            return await _roleService.GetPermissionsOnRole(name);
+            var response = await _roleService.GetPermissionsOnRole(name);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+
+            var claims = ((ApiOkResponse)response).Result;
+
+            return Ok(claims);
         }
 
         [HttpGet("GetPermissionsOnUser/{id}")]
-        public async Task<ApiCommonResponse> GetPermissionsOnUser(long id)
+        public async Task<ActionResult> GetPermissionsOnUser(long id)
         {
-            return await _roleService.GetPermissionsOnUser(id);
+            var response = await _roleService.GetPermissionsOnUser(id);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+
+            var claims = ((ApiOkResponse)response).Result;
+
+            return Ok(claims);
         }
 
         [HttpGet("GetGroupedPermissions")]
-        public ApiCommonResponse GetGroupedPermissions()
+        public ActionResult GetGroupedPermissions()
         {
-            return _roleService.GetGroupedPermissions();
+            var response = _roleService.GetGroupedPermissions();
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+
+            var claims = ((ApiOkResponse)response).Result;
+
+            return Ok(claims);
         }
 
         [HttpGet("GetRolesByUser/{id}")]
-        public async Task<ApiCommonResponse> GetRolesByUser(long id)
+        public async Task<ActionResult> GetRolesByUser(long id)
         {
-            return await _roleService.FindRolesByUser(id);
+            var response = await _roleService.FindRolesByUser(id);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+
+            var claims = ((ApiOkResponse)response).Result;
+
+            return Ok(claims);
         }
 
         [HttpGet("name/{name}")]
-        public async Task<ApiCommonResponse> GetByName(string name)
+        public async Task<ActionResult> GetByName(string name)
         {
-            return await _roleService.GetRoleByName(name);
+            var response = await _roleService.GetRoleByName(name);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var role = ((ApiOkResponse)response).Result;
+            return Ok(role);
         }
      
         [HttpGet("{id}")]
-        public async Task<ApiCommonResponse> GetById(long id)
+        public async Task<ActionResult> GetById(long id)
         {
-            return await _roleService.GetRoleById(id);
+            var response = await _roleService.GetRoleById(id);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var role = ((ApiOkResponse)response).Result;
+            return Ok(role);
         }
      
         [HttpPost("")]
-        public async Task<ApiCommonResponse> AddNewRole(RoleReceivingDTO roleReceiving)
+        public async Task<ActionResult> AddNewRole(RoleReceivingDTO roleReceiving)
         {
-            return await _roleService.AddRole(HttpContext, roleReceiving);
+            var response = await _roleService.AddRole(HttpContext, roleReceiving);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var role = ((ApiOkResponse)response).Result;
+            return Ok(role);
         }
 
         
         [HttpPut("{id}")]
-        public async Task<ApiCommonResponse> UpdateById(long id, RoleReceivingDTO roleReceiving)
+        public async Task<IActionResult> UpdateById(long id, RoleReceivingDTO roleReceiving)
         {
-            return await _roleService.UpdateRole(HttpContext, id, roleReceiving);
+            var response = await _roleService.UpdateRole(HttpContext, id, roleReceiving);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var role = ((ApiOkResponse)response).Result;
+            return Ok(role);
         }
 
         
         [HttpDelete("{id}")]
-        public async Task<ApiCommonResponse> DeleteById(int id)
+        public async Task<ActionResult> DeleteById(int id)
         {
-            return await _roleService.DeleteRole(id);
+            var response = await _roleService.DeleteRole(id);
+            return StatusCode(response.StatusCode);
         }
     }
 }

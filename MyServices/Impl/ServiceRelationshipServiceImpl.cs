@@ -38,7 +38,7 @@ namespace HaloBiz.MyServices.Impl
             _mapper = mapper;
         }
 
-        public async Task<ApiCommonResponse> FindAllUnmappedDirects()
+        public async Task<ApiResponse> FindAllUnmappedDirects()
         {
             try
             {
@@ -46,59 +46,59 @@ namespace HaloBiz.MyServices.Impl
 
                 if (services == null)
                 {
-                    return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                    return new ApiResponse(404);
                 }
                 
                 var leanformatService = _mapper.Map<IEnumerable<ServicesLeanformatDTO>>(services);
-                return CommonResponse.Send(ResponseCodes.SUCCESS,leanformatService);
+                return new ApiOkResponse(leanformatService);
             }
             catch (Exception ex)
             {
                 _logger.LogError("Error in FindAllUnmappedDirects", ex);
-                return  CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+                return new ApiResponse(500, ex.Message);
             }
         }
 
-        public async Task<ApiCommonResponse> FindAllRelationships()
+        public async Task<ApiResponse> FindAllRelationships()
         {           
 
             try
             {
                 var services = await _servicesRepository.FindAllRelationships();
-                return services == null ? CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE) : CommonResponse.Send(ResponseCodes.SUCCESS, services);
+                return services == null ? new ApiResponse(404) : new ApiOkResponse(services);
             }
             catch (Exception ex)
             {
                 _logger.LogError("Error in FindAllRelationships", ex);
-                return  CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+                return new ApiResponse(500, ex.Message);
             }
         }
 
-        public async Task<ApiCommonResponse> FindServiceRelationshipByAdminId(long id)
+        public async Task<ApiResponse> FindServiceRelationshipByAdminId(long id)
         {            
             try
             {
                 var services = await _servicesRepository.FindServiceRelationshipByAdminId(id);
-                return services == null ? CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE) : CommonResponse.Send(ResponseCodes.SUCCESS, services);
+                return services == null ? new ApiResponse(404) : new ApiOkResponse(services);
             }
             catch (Exception ex)
             {
                 _logger.LogError("Error in FindServiceRelationshipByAdminId", ex);
-                return  CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+                return new ApiResponse(500, ex.Message);
             }
         }
 
-        public async Task<ApiCommonResponse> FindServiceRelationshipByDirectId(long id)
+        public async Task<ApiResponse> FindServiceRelationshipByDirectId(long id)
         {           
             try
             {
                 var services = await _servicesRepository.FindServiceRelationshipByDirectId(id);
-                return services == null ? CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE) : CommonResponse.Send(ResponseCodes.SUCCESS, services);
+                return services == null ? new ApiResponse(404) : new ApiOkResponse(services);
             }
             catch (Exception ex)
             {
                 _logger.LogError("Error in FindServiceRelationshipByDirectId", ex);
-                return  CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+                return new ApiResponse(500, ex.Message);
             }
         }      
     }

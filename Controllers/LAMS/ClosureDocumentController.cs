@@ -23,39 +23,59 @@ namespace Controllers.Controllers
         }
 
         [HttpGet("")]
-        public async Task<ApiCommonResponse> GetClosureDocument()
+        public async Task<ActionResult> GetClosureDocument()
         {
-            return await _closureDocumentService.GetAllClosureDocument();
-           
+            var response = await _closureDocumentService.GetAllClosureDocument();
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var closureDocument = ((ApiOkResponse)response).Result;
+            return Ok(closureDocument);
         }
         [HttpGet("caption/{caption}")]
-        public async Task<ApiCommonResponse> GetByCaption(string caption)
+        public async Task<ActionResult> GetByCaption(string caption)
         {
-            return await _closureDocumentService.GetClosureDocumentByCaption(caption);
+            var response = await _closureDocumentService.GetClosureDocumentByCaption(caption);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var closureDocument = ((ApiOkResponse)response).Result;
+            return Ok(closureDocument);
         }
 
         [HttpGet("{id}")]
-        public async Task<ApiCommonResponse> GetById(long id)
+        public async Task<ActionResult> GetById(long id)
         {
-            return await _closureDocumentService.GetClosureDocumentById(id);
+            var response = await _closureDocumentService.GetClosureDocumentById(id);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var closureDocument = ((ApiOkResponse)response).Result;
+            return Ok(closureDocument);
         }
 
         [HttpPost("")]
-        public async Task<ApiCommonResponse> AddNewClosureDocument(ClosureDocumentReceivingDTO closureDocumentReceiving)
+        public async Task<ActionResult> AddNewClosureDocument(ClosureDocumentReceivingDTO closureDocumentReceiving)
         {
-            return await _closureDocumentService.AddClosureDocument(HttpContext, closureDocumentReceiving);
+            var response = await _closureDocumentService.AddClosureDocument(HttpContext, closureDocumentReceiving);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var closureDocument = ((ApiOkResponse)response).Result;
+            return Ok(closureDocument);
         }
 
         [HttpPut("{id}")]
-        public async Task<ApiCommonResponse> UpdateById(long id, ClosureDocumentReceivingDTO closureDocumentReceivingDTO)
+        public async Task<IActionResult> UpdateById(long id, ClosureDocumentReceivingDTO closureDocumentReceivingDTO)
         {
-            return await _closureDocumentService.UpdateClosureDocument(HttpContext, id, closureDocumentReceivingDTO);
+            var response = await _closureDocumentService.UpdateClosureDocument(HttpContext, id, closureDocumentReceivingDTO);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var closureDocument = ((ApiOkResponse)response).Result;
+            return Ok(closureDocument);
         }
 
         [HttpDelete("{id}")]
-        public async Task<ApiCommonResponse> DeleteById(int id)
+        public async Task<ActionResult> DeleteById(int id)
         {
-            return await _closureDocumentService.DeleteClosureDocument(id);
+            var response = await _closureDocumentService.DeleteClosureDocument(id);
+            return StatusCode(response.StatusCode);
         }
     }
 }

@@ -24,61 +24,94 @@ namespace Controllers.Controllers
         }
 
         [HttpGet("GetEndorsementDetails/{endorsementId}")]
-        public async Task<ApiCommonResponse> GetEndorsementDetails(long endorsementId)
+        public async Task<ActionResult> GetEndorsementDetails(long endorsementId)
         {
-            return await _contractServiceForEndorsementService.GetEndorsementDetailsById(endorsementId);
+            var response = await _contractServiceForEndorsementService.GetEndorsementDetailsById(endorsementId);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var endorsements = ((ApiOkResponse)response).Result;
+            return Ok(endorsements);
         }
 
         [HttpGet("UnApprovedEndorsements")]
-        public async Task<ApiCommonResponse> GetDropReason()
+        public async Task<ActionResult> GetDropReason()
         {
-            return await _contractServiceForEndorsementService.GetUnApprovedContractServiceForEndorsement();
+            var response = await _contractServiceForEndorsementService.GetUnApprovedContractServiceForEndorsement();
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var endorsements = ((ApiOkResponse)response).Result;
+            return Ok(endorsements);
         }
 
         [HttpGet("GetEndorsementHistory/{contractServiceId}")]
-        public async Task<ApiCommonResponse> GetEndorsementHistory(long contractServiceId)
+        public async Task<ActionResult> GetEndorsementHistory(long contractServiceId)
         {
-            return await _contractServiceForEndorsementService.GetEndorsementHistory(contractServiceId);
+            var response = await _contractServiceForEndorsementService.GetEndorsementHistory(contractServiceId);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var endorsements = ((ApiOkResponse)response).Result;
+            return Ok(endorsements);
         }
 
         [HttpGet("EndorsementPossibleStartDates/{contractServiceId}")]
-        public async Task<ApiCommonResponse> GetEndorsementPossibleStartDates(long contractServiceId)
+        public async Task<ActionResult> GetEndorsementPossibleStartDates(long contractServiceId)
         {
-            return await _contractServiceForEndorsementService.GetAllPossibleEndorsementStartDate(contractServiceId);
+            var response = await _contractServiceForEndorsementService.GetAllPossibleEndorsementStartDate(contractServiceId);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var dates = ((ApiOkResponse)response).Result;
+            return Ok(dates);
         }
 
         [HttpPut("ApproveEndorsement/{id}/{sequence}")]
-        public async Task<ApiCommonResponse> ApproveEndorsement(long id, long sequence)
+        public async Task<ActionResult> ApproveEndorsement(long id, long sequence)
         {
-            return await _contractServiceForEndorsementService.ApproveContractServiceForEndorsement(id, sequence, true);
+            var response = await _contractServiceForEndorsementService.ApproveContractServiceForEndorsement(id, sequence, true);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var endorsements = ((ApiOkResponse)response).Result;
+            return Ok(endorsements);
         }
 
         [HttpPut("DeclineEndorsementApproval/{id}/{sequence}")]
-        public async Task<ApiCommonResponse> DeclineEndorsementApproval(long id, long sequence)
+        public async Task<ActionResult> DeclineEndorsementApproval(long id, long sequence)
         {
-            return await _contractServiceForEndorsementService.ApproveContractServiceForEndorsement(id, sequence, false);
+            var response = await _contractServiceForEndorsementService.ApproveContractServiceForEndorsement(id, sequence, false);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var endorsements = ((ApiOkResponse)response).Result;
+            return Ok(endorsements);
         }       
 
         [HttpPost("")]
-        public async Task<ApiCommonResponse> PostEndorsement(List<ContractServiceForEndorsementReceivingDto> dto)
+        public async Task<ActionResult> PostEndorsement(List<ContractServiceForEndorsementReceivingDto> dto)
         {
-            return await _contractServiceForEndorsementService.AddNewRetentionContractServiceForEndorsement(HttpContext, dto);
-            
+            var response = await _contractServiceForEndorsementService.AddNewRetentionContractServiceForEndorsement(HttpContext, dto);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var endorsements = ((ApiOkResponse)response).Result;
+            return Ok(endorsements);
         }
 
 
         [HttpPut("ConverToContract/{contractServiceForEndorsementId}")]
-        public async Task<ApiCommonResponse> ConvertEndorsementToCOntract(long contractServiceForEndorsementId)
+        public async Task<ActionResult> ConvertEndorsementToCOntract(long contractServiceForEndorsementId)
         {
-            return await _contractServiceForEndorsementService.ConvertContractServiceForEndorsement(HttpContext ,contractServiceForEndorsementId);
-            
+            var response = await _contractServiceForEndorsementService.ConvertContractServiceForEndorsement(HttpContext ,contractServiceForEndorsementId);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var endorsements = ((ApiOkResponse)response).Result;
+            return Ok(endorsements);
         }
 
         [HttpPut("ConvertDebitCreditNote/{contractServiceForEndorsementId}")]
-        public async Task<ApiCommonResponse> ConvertDebitCreditNote(long contractServiceForEndorsementId)
+        public async Task<ActionResult> ConvertDebitCreditNote(long contractServiceForEndorsementId)
         {
-            return await _contractServiceForEndorsementService.ConvertDebitCreditNoteEndorsement(HttpContext, contractServiceForEndorsementId);
-            
+            var response = await _contractServiceForEndorsementService.ConvertDebitCreditNoteEndorsement(HttpContext, contractServiceForEndorsementId);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var endorsements = ((ApiOkResponse)response).Result;
+            return Ok(endorsements);
         }
     }
 }

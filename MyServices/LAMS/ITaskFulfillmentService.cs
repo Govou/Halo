@@ -7,18 +7,18 @@ namespace HaloBiz.MyServices.LAMS
 {
     public interface ITaskFulfillmentService
     {
-        Task<ApiCommonResponse> AddTaskFulfillment(HttpContext context, TaskFulfillmentReceivingDTO taskFulfillmentReceivingDTO);
-        Task<ApiCommonResponse> GetAllTaskFulfillment();
-        Task<ApiCommonResponse> GetTaskFulfillmentById(long id);
-        Task<ApiCommonResponse> GetTaskFulfillmentByName(string name);
-        Task<ApiCommonResponse> GetAllUnCompletedTaskFulfillmentForTaskOwner(long taskOwnerId);
-        Task<ApiCommonResponse> GetAllTaskFulfillmentForTaskOwner(long taskOwnerId);
-        Task<ApiCommonResponse> GetPMWidgetStatistics(long taskOwnerId);
-        Task<ApiCommonResponse> UpdateTaskFulfillment(HttpContext context, long id, TaskFulfillmentReceivingDTO taskFulfillmentReceivingDTO);
-        Task<ApiCommonResponse> DeleteTaskFulfillment(long id);
-        Task<ApiCommonResponse> GetTaskFulfillmentsByOperatingEntityHeadId(long id);
-        Task<ApiCommonResponse> GetTaskFulfillmentDetails(long id);
-        Task<ApiCommonResponse> GetTaskDeliverableSummary(long responsibleId);
-        Task<ApiCommonResponse> SetIsPicked(HttpContext context, long id, bool isPicked);
+        Task<ApiResponse> AddTaskFulfillment(HttpContext context, TaskFulfillmentReceivingDTO taskFulfillmentReceivingDTO);
+        Task<ApiResponse> GetAllTaskFulfillment();
+        Task<ApiResponse> GetTaskFulfillmentById(long id);
+        Task<ApiResponse> GetTaskFulfillmentByName(string name);
+        Task<ApiResponse> GetAllUnCompletedTaskFulfillmentForTaskOwner(long taskOwnerId);
+        Task<ApiResponse> GetAllTaskFulfillmentForTaskOwner(long taskOwnerId);
+        Task<ApiResponse> GetPMWidgetStatistics(long taskOwnerId);
+        Task<ApiResponse> UpdateTaskFulfillment(HttpContext context, long id, TaskFulfillmentReceivingDTO taskFulfillmentReceivingDTO);
+        Task<ApiResponse> DeleteTaskFulfillment(long id);
+        Task<ApiResponse> GetTaskFulfillmentsByOperatingEntityHeadId(long id);
+        Task<ApiResponse> GetTaskFulfillmentDetails(long id);
+        Task<ApiResponse> GetTaskDeliverableSummary(long responsibleId);
+        Task<ApiResponse> SetIsPicked(HttpContext context, long id, bool isPicked);
     }
 }

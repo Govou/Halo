@@ -8,14 +8,14 @@ namespace HaloBiz.MyServices.LAMS
 {
     public interface IContractServiceForEndorsementService
     {
-       // Task<ApiCommonResponse> AddNewContractServiceForEndorsement (HttpContext httpContext, ContractServiceForEndorsementReceivingDto contractServiceForEndorsementReceiving);
-        Task<ApiCommonResponse> GetUnApprovedContractServiceForEndorsement();
-        Task<ApiCommonResponse> GetEndorsementDetailsById(long endorsementId);
-        Task<ApiCommonResponse> ApproveContractServiceForEndorsement(long Id, long sequence, bool isApproved);
-        Task<ApiCommonResponse> ConvertContractServiceForEndorsement(HttpContext httpContext, long Id);
-        Task<ApiCommonResponse> ConvertDebitCreditNoteEndorsement(HttpContext httpContext, long Id);
-        Task<ApiCommonResponse> GetAllPossibleEndorsementStartDate(long contractServiceId);
-        Task<ApiCommonResponse> GetEndorsementHistory(long contractServiceId);
-        Task<ApiCommonResponse> AddNewRetentionContractServiceForEndorsement (HttpContext httpContext, List<ContractServiceForEndorsementReceivingDto> contractServiceForEndorsementDtos);
+       // Task<ApiResponse> AddNewContractServiceForEndorsement (HttpContext httpContext, ContractServiceForEndorsementReceivingDto contractServiceForEndorsementReceiving);
+        Task<ApiResponse> GetUnApprovedContractServiceForEndorsement();
+        Task<ApiResponse> GetEndorsementDetailsById(long endorsementId);
+        Task<ApiResponse> ApproveContractServiceForEndorsement(long Id, long sequence, bool isApproved);
+        Task<ApiResponse> ConvertContractServiceForEndorsement(HttpContext httpContext, long Id);
+        Task<ApiResponse> ConvertDebitCreditNoteEndorsement(HttpContext httpContext, long Id);
+        Task<ApiResponse> GetAllPossibleEndorsementStartDate(long contractServiceId);
+        Task<ApiResponse> GetEndorsementHistory(long contractServiceId);
+        Task<ApiResponse> AddNewRetentionContractServiceForEndorsement (HttpContext httpContext, List<ContractServiceForEndorsementReceivingDto> contractServiceForEndorsementDtos);
     }
 }

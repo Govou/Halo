@@ -8,7 +8,7 @@ namespace HaloBiz.MyServices.LAMS
 {
     public interface ISbutoQuoteServiceProportionsService
     {
-        Task<ApiCommonResponse> GetAllSBUQuoteProportionForQuoteService(long quoteServiceId);
-        Task<ApiCommonResponse> SaveSBUToQuoteProp(HttpContext context, IEnumerable<SbutoQuoteServiceProportionReceivingDTO> entities);
+        Task<ApiResponse> GetAllSBUQuoteProportionForQuoteService(long quoteServiceId);
+        Task<ApiResponse> SaveSBUToQuoteProp(HttpContext context, IEnumerable<SbutoQuoteServiceProportionReceivingDTO> entities);
     }
 }

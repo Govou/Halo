@@ -24,58 +24,58 @@ namespace HaloBiz.MyServices.Impl
             this._bankRepo = BankRepo;
         }
 
-        public async Task<ApiCommonResponse> AddBank(HttpContext context, BankReceivingDTO bankReceivingDTO)
+        public async Task<ApiResponse> AddBank(HttpContext context, BankReceivingDTO bankReceivingDTO)
         {
             var bank = _mapper.Map<Bank>(bankReceivingDTO);
             bank.CreatedById = context.GetLoggedInUserId();
             var savedBank = await _bankRepo.SaveBank(bank);
             if (savedBank == null)
             {
-                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+                return new ApiResponse(500);
             }
             var bankTransferDTO = _mapper.Map<BankTransferDTO>(bank);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,bankTransferDTO);
+            return new ApiOkResponse(bankTransferDTO);
         }
 
-        public async Task<ApiCommonResponse> GetAllBank()
+        public async Task<ApiResponse> GetAllBank()
         {
             var banks = await _bankRepo.FindAllBank();
             if (banks == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
             var bankTransferDTO = _mapper.Map<IEnumerable<BankTransferDTO>>(banks);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,bankTransferDTO);
+            return new ApiOkResponse(bankTransferDTO);
         }
 
-        public async Task<ApiCommonResponse> GetBankById(long id)
+        public async Task<ApiResponse> GetBankById(long id)
         {
             var bank = await _bankRepo.FindBankById(id);
             if (bank == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
             var bankTransferDTOs = _mapper.Map<BankTransferDTO>(bank);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,bankTransferDTOs);
+            return new ApiOkResponse(bankTransferDTOs);
         }
 
-        public async Task<ApiCommonResponse> GetBankByName(string name)
+        public async Task<ApiResponse> GetBankByName(string name)
         {
             var bank = await _bankRepo.FindBankByName(name);
             if (bank == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
             var bankTransferDTOs = _mapper.Map<BankTransferDTO>(bank);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,bankTransferDTOs);
+            return new ApiOkResponse(bankTransferDTOs);
         }
 
-        public async Task<ApiCommonResponse> UpdateBank(HttpContext context, long id, BankReceivingDTO bankReceivingDTO)
+        public async Task<ApiResponse> UpdateBank(HttpContext context, long id, BankReceivingDTO bankReceivingDTO)
         {
             var bankToUpdate = await _bankRepo.FindBankById(id);
             if (bankToUpdate == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
             
             var summary = $"Initial details before change, \n {bankToUpdate.ToString()} \n" ;
@@ -90,7 +90,7 @@ namespace HaloBiz.MyServices.Impl
 
             if (updatedBank == null)
             {
-                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+                return new ApiResponse(500);
             }
             ModificationHistory history = new ModificationHistory(){
                 ModelChanged = "Bank",
@@ -102,24 +102,24 @@ namespace HaloBiz.MyServices.Impl
             await _historyRepo.SaveHistory(history);
 
             var bankTransferDTO = _mapper.Map<BankTransferDTO>(updatedBank);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,bankTransferDTO);
+            return new ApiOkResponse(bankTransferDTO);
 
         }
 
-        public async Task<ApiCommonResponse> DeleteBank(long id)
+        public async Task<ApiResponse> DeleteBank(long id)
         {
             var bankToDelete = await _bankRepo.FindBankById(id);
             if (bankToDelete == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
 
             if (!await _bankRepo.DeleteBank(bankToDelete))
             {
-                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+                return new ApiResponse(500);
             }
 
-            return CommonResponse.Send(ResponseCodes.SUCCESS);
+            return new ApiOkResponse(true);
         }
     }
 }

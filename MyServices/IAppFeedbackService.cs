@@ -10,10 +10,10 @@ namespace HaloBiz.MyServices
 {
     public interface IAppFeedbackService
     {
-        Task<ApiCommonResponse> AddAppFeedback(HttpContext context, AppFeedbackReceivingDTO serviceTypeReceivingDTO);
-        Task<ApiCommonResponse> GetAllAppFeedback();
-        Task<ApiCommonResponse> GetAppFeedbackById(long id);
-        Task<ApiCommonResponse> UpdateAppFeedback(HttpContext context, long id, AppFeedbackReceivingDTO serviceTypeReceivingDTO);
-        Task<ApiCommonResponse> DeleteAppFeedback(long id);
+        Task<ApiResponse> AddAppFeedback(HttpContext context, AppFeedbackReceivingDTO serviceTypeReceivingDTO);
+        Task<ApiResponse> GetAllAppFeedback();
+        Task<ApiResponse> GetAppFeedbackById(long id);
+        Task<ApiResponse> UpdateAppFeedback(HttpContext context, long id, AppFeedbackReceivingDTO serviceTypeReceivingDTO);
+        Task<ApiResponse> DeleteAppFeedback(long id);
     }
 }

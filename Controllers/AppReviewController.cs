@@ -23,43 +23,60 @@ namespace HaloBiz.Controllers
         }
 
         [HttpGet("")]
-        public async Task<ApiCommonResponse> GetAppReview()
+        public async Task<ActionResult> GetAppReview()
         {
-            return await _AppReviewService.GetAllAppReview();
+            var response = await _AppReviewService.GetAllAppReview();
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var AppReview = ((ApiOkResponse)response).Result;
+            return Ok(AppReview);
         }
         
         /*[HttpGet("caption/{name}")]
-        public async Task<ApiCommonResponse> GetByCaption(string name)
+        public async Task<ActionResult> GetByCaption(string name)
         {
-            return await _AppReviewService.GetAppReviewByName(name);
-            
-                
+            var response = await _AppReviewService.GetAppReviewByName(name);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
             var AppReview = ((ApiOkResponse)response).Result;
             return Ok(AppReview);
         }*/
 
         [HttpGet("{id}")]
-        public async Task<ApiCommonResponse> GetById(long id)
+        public async Task<ActionResult> GetById(long id)
         {
-            return await _AppReviewService.GetAppReviewById(id);
+            var response = await _AppReviewService.GetAppReviewById(id);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var AppReview = ((ApiOkResponse)response).Result;
+            return Ok(AppReview);
         }
 
         [HttpPost("")]
-        public async Task<ApiCommonResponse> AddNewAppReview(AppReviewReceivingDTO AppReviewReceiving)
+        public async Task<ActionResult> AddNewAppReview(AppReviewReceivingDTO AppReviewReceiving)
         {
-            return await _AppReviewService.AddAppReview(HttpContext, AppReviewReceiving);
+            var response = await _AppReviewService.AddAppReview(HttpContext, AppReviewReceiving);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var AppReview = ((ApiOkResponse)response).Result;
+            return Ok(AppReview);
         }
 
         [HttpPut("{id}")]
-        public async Task<ApiCommonResponse> UpdateById(long id, AppReviewReceivingDTO AppReviewReceiving)
+        public async Task<IActionResult> UpdateById(long id, AppReviewReceivingDTO AppReviewReceiving)
         {
-            return await _AppReviewService.UpdateAppReview(HttpContext, id, AppReviewReceiving);
+            var response = await _AppReviewService.UpdateAppReview(HttpContext, id, AppReviewReceiving);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var AppReview = ((ApiOkResponse)response).Result;
+            return Ok(AppReview);
         }
 
         [HttpDelete("{id}")]
-        public async Task<ApiCommonResponse> DeleteById(int id)
+        public async Task<ActionResult> DeleteById(int id)
         {
-            return await _AppReviewService.DeleteAppReview(id);
+            var response = await _AppReviewService.DeleteAppReview(id);
+            return StatusCode(response.StatusCode);
         }
     }
 }

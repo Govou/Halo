@@ -24,27 +24,40 @@ namespace HaloBiz.Controllers
         }
 
         [HttpGet("")]
-        public async Task<ApiCommonResponse> GetApprovalLimit()
+        public async Task<ActionResult> GetApprovalLimit()
         {
-            return await _approvalLimitService.GetAllApprovalLimit();
+            var response = await _approvalLimitService.GetAllApprovalLimit();
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var approvalLimit = ((ApiOkResponse)response).Result;
+            return Ok(approvalLimit);
         }
 
         [HttpPost("")]
-        public async Task<ApiCommonResponse> AddNewApprovalLimit(ApprovalLimitReceivingDTO approvalLimitReceiving)
+        public async Task<ActionResult> AddNewApprovalLimit(ApprovalLimitReceivingDTO approvalLimitReceiving)
         {
-            return await _approvalLimitService.AddApprovalLimit(HttpContext, approvalLimitReceiving);
+            var response = await _approvalLimitService.AddApprovalLimit(HttpContext, approvalLimitReceiving);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var approvalLimit = ((ApiOkResponse)response).Result;
+            return Ok(approvalLimit);
         }
 
         [HttpPut("{id}")]
-        public async Task<ApiCommonResponse> UpdateById(long id, ApprovalLimitReceivingDTO approvalLimitReceiving)
+        public async Task<IActionResult> UpdateById(long id, ApprovalLimitReceivingDTO approvalLimitReceiving)
         {
-            return await _approvalLimitService.UpdateApprovalLimit(HttpContext, id, approvalLimitReceiving);
+            var response = await _approvalLimitService.UpdateApprovalLimit(HttpContext, id, approvalLimitReceiving);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var approvalLimit = ((ApiOkResponse)response).Result;
+            return Ok(approvalLimit);
         }
 
         [HttpDelete("{id}")]
-        public async Task<ApiCommonResponse> DeleteById(int id)
+        public async Task<ActionResult> DeleteById(int id)
         {
-            return await _approvalLimitService.DeleteApprovalLimit(id);
+            var response = await _approvalLimitService.DeleteApprovalLimit(id);
+            return StatusCode(response.StatusCode);
         }
 
     }

@@ -5,14 +5,14 @@ namespace HaloBiz.MyServices.LAMS
 {
     public interface IContractServiceService
     {
-        Task<ApiCommonResponse> DeleteContractService(long id);
+        Task<ApiResponse> DeleteContractService(long id);
 
-        Task<ApiCommonResponse> GetAllContractsServcieForAContract(long contractId);
-        Task<ApiCommonResponse> GetContractServiceByGroupInvoiceNumber(string refNo);
-        Task<ApiCommonResponse> GetContractServiceByTag(string tag);
+        Task<ApiResponse> GetAllContractsServcieForAContract(long contractId);
+        Task<ApiResponse> GetContractServiceByGroupInvoiceNumber(string refNo);
+        Task<ApiResponse> GetContractServiceByTag(string tag);
 
-        Task<ApiCommonResponse> GetContractServiceByReferenceNumber(string refNo);
+        Task<ApiResponse> GetContractServiceByReferenceNumber(string refNo);
 
-        Task<ApiCommonResponse> GetContractServiceById(long id);
+        Task<ApiResponse> GetContractServiceById(long id);
     }
 }

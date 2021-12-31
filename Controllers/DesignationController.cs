@@ -24,27 +24,40 @@ namespace HaloBiz.Controllers
         }
 
         [HttpGet("")]
-        public async Task<ApiCommonResponse> GetDesignation()
+        public async Task<ActionResult> GetDesignation()
         {
-            return await _designationService.GetAllDesignation();
+            var response = await _designationService.GetAllDesignation();
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var designation = ((ApiOkResponse)response).Result;
+            return Ok(designation);
         }
 
         [HttpPost("")]
-        public async Task<ApiCommonResponse> AddNewDesignation(DesignationReceivingDTO designationReceiving)
+        public async Task<ActionResult> AddNewDesignation(DesignationReceivingDTO designationReceiving)
         {
-            return await _designationService.AddDesignation(HttpContext, designationReceiving);
+            var response = await _designationService.AddDesignation(HttpContext, designationReceiving);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var designation = ((ApiOkResponse)response).Result;
+            return Ok(designation);
         }
 
         [HttpPut("{id}")]
-        public async Task<ApiCommonResponse> UpdateById(long id, DesignationReceivingDTO designationReceiving)
+        public async Task<IActionResult> UpdateById(long id, DesignationReceivingDTO designationReceiving)
         {
-            return await _designationService.UpdateDesignation(HttpContext, id, designationReceiving);
+            var response = await _designationService.UpdateDesignation(HttpContext, id, designationReceiving);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var designation = ((ApiOkResponse)response).Result;
+            return Ok(designation);
         }
 
         [HttpDelete("{id}")]
-        public async Task<ApiCommonResponse> DeleteById(int id)
+        public async Task<ActionResult> DeleteById(int id)
         {
-            return await _designationService.DeleteDesignation(id);
+            var response = await _designationService.DeleteDesignation(id);
+            return StatusCode(response.StatusCode);
         }
 
     }

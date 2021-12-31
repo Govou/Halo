@@ -10,10 +10,10 @@ namespace HaloBiz.MyServices
 {
     public interface IAppReviewService
     {
-        Task<ApiCommonResponse> AddAppReview(HttpContext context, AppReviewReceivingDTO appReviewReceivingDTO);
-        Task<ApiCommonResponse> GetAllAppReview();
-        Task<ApiCommonResponse> GetAppReviewById(long id);
-        Task<ApiCommonResponse> UpdateAppReview(HttpContext context, long id, AppReviewReceivingDTO appReviewReceivingDTO);
-        Task<ApiCommonResponse> DeleteAppReview(long id);
+        Task<ApiResponse> AddAppReview(HttpContext context, AppReviewReceivingDTO appReviewReceivingDTO);
+        Task<ApiResponse> GetAllAppReview();
+        Task<ApiResponse> GetAppReviewById(long id);
+        Task<ApiResponse> UpdateAppReview(HttpContext context, long id, AppReviewReceivingDTO appReviewReceivingDTO);
+        Task<ApiResponse> DeleteAppReview(long id);
     }
 }

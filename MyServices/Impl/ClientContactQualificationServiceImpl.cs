@@ -26,51 +26,51 @@ namespace HaloBiz.MyServices.Impl
             this._clientContactQualificationRepo = clientContactQualificationRepo;
             this._logger = logger;
         }
-        public async  Task<ApiCommonResponse> AddClientContactQualification(HttpContext context, ClientContactQualificationReceivingDTO clientContactQualificationReceivingDTO)
+        public async  Task<ApiResponse> AddClientContactQualification(HttpContext context, ClientContactQualificationReceivingDTO clientContactQualificationReceivingDTO)
         {
             var clientContactQualification = _mapper.Map<ClientContactQualification>(clientContactQualificationReceivingDTO);
             clientContactQualification.CreatedById = context.GetLoggedInUserId();
             var savedClientContactQualification = await _clientContactQualificationRepo.SaveClientContactQualification(clientContactQualification);
             if (savedClientContactQualification == null)
             {
-                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+                return new ApiResponse(500);
             }
             var clientContactQualificationTransferDTO = _mapper.Map<ClientContactQualificationTransferDTO>(clientContactQualification);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,clientContactQualificationTransferDTO);
+            return new ApiOkResponse(clientContactQualificationTransferDTO);
         }
 
-        public async Task<ApiCommonResponse> DeleteClientContactQualification(long id)
+        public async Task<ApiResponse> DeleteClientContactQualification(long id)
         {
             var clientContactQualificationToDelete = await _clientContactQualificationRepo.FindClientContactQualificationById(id);
             if(clientContactQualificationToDelete == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
             if (!await _clientContactQualificationRepo.DeleteClientContactQualification(clientContactQualificationToDelete))
             {
-                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+                return new ApiResponse(500);
             }
 
-            return CommonResponse.Send(ResponseCodes.SUCCESS);
+            return new ApiOkResponse(true);
         }
 
-        public async Task<ApiCommonResponse> GetAllClientContactQualification()
+        public async Task<ApiResponse> GetAllClientContactQualification()
         {
             var clientContactQualification = await _clientContactQualificationRepo.GetClientContactQualifications();
             if (clientContactQualification == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
             var clientContactQualificationTransferDTO = _mapper.Map<IEnumerable<ClientContactQualificationTransferDTO>>(clientContactQualification);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,clientContactQualificationTransferDTO);
+            return new ApiOkResponse(clientContactQualificationTransferDTO);
         }
 
-        public  async Task<ApiCommonResponse> UpdateClientContactQualification(HttpContext context, long id, ClientContactQualificationReceivingDTO clientContactQualificationReceivingDTO)
+        public  async Task<ApiResponse> UpdateClientContactQualification(HttpContext context, long id, ClientContactQualificationReceivingDTO clientContactQualificationReceivingDTO)
         {
             var clientContactQualificationToUpdate = await _clientContactQualificationRepo.FindClientContactQualificationById(id);
             if (clientContactQualificationToUpdate == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
             
             var summary = $"Initial details before change, \n {clientContactQualificationToUpdate.ToString()} \n" ;
@@ -83,7 +83,7 @@ namespace HaloBiz.MyServices.Impl
 
             if (updatedClientContactQualification == null)
             {
-                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+                return new ApiResponse(500);
             }
             ModificationHistory history = new ModificationHistory(){
                 ModelChanged = "ClientContactQualification",
@@ -95,7 +95,7 @@ namespace HaloBiz.MyServices.Impl
             await _historyRepo.SaveHistory(history);
 
             var clientContactQualificationTransferDTOs = _mapper.Map<ClientContactQualificationTransferDTO>(updatedClientContactQualification);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,clientContactQualificationTransferDTOs);
+            return new ApiOkResponse(clientContactQualificationTransferDTOs);
         }
     }
 }

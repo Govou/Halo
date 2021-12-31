@@ -10,10 +10,10 @@ namespace HaloBiz.MyServices.LAMS
 {
     public interface ILeadDivisionContactService
     {
-        Task<ApiCommonResponse> AddLeadDivisionContact(HttpContext context, long leadDivisionId, LeadDivisionContactReceivingDTO leadDivisionContactReceivingDTO);
-        Task<ApiCommonResponse> GetAllLeadDivisionContact();
-        Task<ApiCommonResponse> GetLeadDivisionContactById(long id);
-        Task<ApiCommonResponse> UpdateLeadDivisionContact(HttpContext context, long id, LeadDivisionContactReceivingDTO leadDivisionContactReceivingDTO);
+        Task<ApiResponse> AddLeadDivisionContact(HttpContext context, long leadDivisionId, LeadDivisionContactReceivingDTO leadDivisionContactReceivingDTO);
+        Task<ApiResponse> GetAllLeadDivisionContact();
+        Task<ApiResponse> GetLeadDivisionContactById(long id);
+        Task<ApiResponse> UpdateLeadDivisionContact(HttpContext context, long id, LeadDivisionContactReceivingDTO leadDivisionContactReceivingDTO);
 
     }
 }

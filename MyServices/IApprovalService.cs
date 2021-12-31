@@ -10,20 +10,20 @@ namespace HaloBiz.MyServices
 {
     public interface IApprovalService
     {
-        Task<ApiCommonResponse> AddApproval(HttpContext context, ApprovalReceivingDTO approvalReceivingDTO);
-        Task<ApiCommonResponse> GetAllApproval();
-        Task<ApiCommonResponse> UpdateApproval(HttpContext context, long id, ApprovalReceivingDTO approvalReceivingDTO);
-        Task<ApiCommonResponse> DeleteApproval(long id);
-        Task<ApiCommonResponse> GetPendingApprovals();
-        Task<ApiCommonResponse> GetUserPendingApprovals(HttpContext httpContext);
+        Task<ApiResponse> AddApproval(HttpContext context, ApprovalReceivingDTO approvalReceivingDTO);
+        Task<ApiResponse> GetAllApproval();
+        Task<ApiResponse> UpdateApproval(HttpContext context, long id, ApprovalReceivingDTO approvalReceivingDTO);
+        Task<ApiResponse> DeleteApproval(long id);
+        Task<ApiResponse> GetPendingApprovals();
+        Task<ApiResponse> GetUserPendingApprovals(HttpContext httpContext);
         Task<bool> SetUpApprovalsForServiceCreation(Service service, HttpContext httpContext);
         Task<bool> SetUpApprovalsForClientCreation(long id, HttpContext httpContext);
         Task<bool> SetUpApprovalsForContractModificationEndorsement(ContractServiceForEndorsement contractServiceForEndorsement, HttpContext httpContext);
         Task<bool> SetUpApprovalsForContractRenewalEndorsement(List<ContractServiceForEndorsement> contractServiceForEndorsements, HttpContext httpContext);
-        Task<ApiCommonResponse> GetPendingApprovalsByServiceId(long serviceId);
-        Task<ApiCommonResponse> GetApprovalsByServiceId(long serviceId);
-        Task<ApiCommonResponse> GetPendingApprovalsByQuoteId(long quoteId);
-        Task<ApiCommonResponse> GetApprovalsByEndorsementId(long endorsement);
-        Task<ApiCommonResponse> GetApprovalsByQuoteId(long quoteId);
+        Task<ApiResponse> GetPendingApprovalsByServiceId(long serviceId);
+        Task<ApiResponse> GetApprovalsByServiceId(long serviceId);
+        Task<ApiResponse> GetPendingApprovalsByQuoteId(long quoteId);
+        Task<ApiResponse> GetApprovalsByEndorsementId(long endorsement);
+        Task<ApiResponse> GetApprovalsByQuoteId(long quoteId);
     }
 }

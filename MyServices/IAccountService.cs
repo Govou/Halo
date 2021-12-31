@@ -11,14 +11,14 @@ namespace HaloBiz.MyServices
 {
     public interface IAccountService
     {
-        Task<ApiCommonResponse> AddAccount(HttpContext context, AccountReceivingDTO accountClassReceivingDTO);
-        Task<ApiCommonResponse> GetAccountById(long id);
-        Task<ApiCommonResponse> SearchForAccountDetails(AccountSearchDTO accountSearchDTO);
-        Task<ApiCommonResponse> GetAccountByAlias(string alias);
-        Task<ApiCommonResponse> GetAllAccounts();
-        Task<ApiCommonResponse> UpdateAccount(long id, AccountReceivingDTO accountClassReceivingDTO);
-        Task<ApiCommonResponse> DeleteAccount(long id);
-        Task<ApiCommonResponse> GetAllTradeIncomeTaxAccounts();
-        Task<ApiCommonResponse> GetCashBookAccounts();
+        Task<ApiResponse> AddAccount(HttpContext context, AccountReceivingDTO accountClassReceivingDTO);
+        Task<ApiResponse> GetAccountById(long id);
+        Task<ApiResponse> SearchForAccountDetails(AccountSearchDTO accountSearchDTO);
+        Task<ApiResponse> GetAccountByAlias(string alias);
+        Task<ApiResponse> GetAllAccounts();
+        Task<ApiResponse> UpdateAccount(long id, AccountReceivingDTO accountClassReceivingDTO);
+        Task<ApiResponse> DeleteAccount(long id);
+        Task<ApiResponse> GetAllTradeIncomeTaxAccounts();
+        Task<ApiResponse> GetCashBookAccounts();
     }
 }

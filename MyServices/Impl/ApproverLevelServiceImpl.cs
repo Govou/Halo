@@ -26,51 +26,51 @@ namespace HaloBiz.MyServices.Impl
             this._approverLevelRepo = approverLevelRepo;
             this._logger = logger;
         }
-        public async  Task<ApiCommonResponse> AddApproverLevel(HttpContext context, ApproverLevelReceivingDTO approverLevelReceivingDTO)
+        public async  Task<ApiResponse> AddApproverLevel(HttpContext context, ApproverLevelReceivingDTO approverLevelReceivingDTO)
         {
             var approverLevel = _mapper.Map<ApproverLevel>(approverLevelReceivingDTO);
             approverLevel.CreatedById = context.GetLoggedInUserId();
             var savedApproverLevel = await _approverLevelRepo.SaveApproverLevel(approverLevel);
             if (savedApproverLevel == null)
             {
-                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+                return new ApiResponse(500);
             }
             var approverLevelTransferDTO = _mapper.Map<ApproverLevelTransferDTO>(approverLevel);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,approverLevelTransferDTO);
+            return new ApiOkResponse(approverLevelTransferDTO);
         }
 
-        public async Task<ApiCommonResponse> DeleteApproverLevel(long id)
+        public async Task<ApiResponse> DeleteApproverLevel(long id)
         {
             var approverLevelToDelete = await _approverLevelRepo.FindApproverLevelById(id);
             if(approverLevelToDelete == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
             if (!await _approverLevelRepo.DeleteApproverLevel(approverLevelToDelete))
             {
-                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+                return new ApiResponse(500);
             }
 
-            return CommonResponse.Send(ResponseCodes.SUCCESS);
+            return new ApiOkResponse(true);
         }
 
-        public async Task<ApiCommonResponse> GetAllApproverLevel()
+        public async Task<ApiResponse> GetAllApproverLevel()
         {
             var approverLevel = await _approverLevelRepo.GetApproverLevels();
             if (approverLevel == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
             var approverLevelTransferDTO = _mapper.Map<IEnumerable<ApproverLevelTransferDTO>>(approverLevel);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,approverLevelTransferDTO);
+            return new ApiOkResponse(approverLevelTransferDTO);
         }
 
-        public  async Task<ApiCommonResponse> UpdateApproverLevel(HttpContext context, long id, ApproverLevelReceivingDTO approverLevelReceivingDTO)
+        public  async Task<ApiResponse> UpdateApproverLevel(HttpContext context, long id, ApproverLevelReceivingDTO approverLevelReceivingDTO)
         {
             var approverLevelToUpdate = await _approverLevelRepo.FindApproverLevelById(id);
             if (approverLevelToUpdate == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
             
             var summary = $"Initial details before change, \n {approverLevelToUpdate.ToString()} \n" ;
@@ -84,7 +84,7 @@ namespace HaloBiz.MyServices.Impl
 
             if (updatedApproverLevel == null)
             {
-                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+                return new ApiResponse(500);
             }
             ModificationHistory history = new ModificationHistory(){
                 ModelChanged = "ApproverLevel",
@@ -96,7 +96,7 @@ namespace HaloBiz.MyServices.Impl
             await _historyRepo.SaveHistory(history);
 
             var approverLevelTransferDTOs = _mapper.Map<ApproverLevelTransferDTO>(updatedApproverLevel);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,approverLevelTransferDTOs);
+            return new ApiOkResponse(approverLevelTransferDTOs);
         }
     }
 }

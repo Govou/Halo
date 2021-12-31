@@ -7,11 +7,11 @@ namespace HaloBiz.MyServices
 {
     public interface  IRegionService
     {
-        Task<ApiCommonResponse> AddRegion(HttpContext context, RegionReceivingDTO serviceCategoryTaskReceivingDTO);
-        Task<ApiCommonResponse> GetAllRegions();
-        Task<ApiCommonResponse> GetRegionById(long id);
-        Task<ApiCommonResponse> GetRegionByName(string name);
-        Task<ApiCommonResponse> UpdateRegion(HttpContext context, long id, RegionReceivingDTO serviceCategoryTaskReceivingDTO);
-        Task<ApiCommonResponse> DeleteRegion(long id);
+        Task<ApiResponse> AddRegion(HttpContext context, RegionReceivingDTO serviceCategoryTaskReceivingDTO);
+        Task<ApiResponse> GetAllRegions();
+        Task<ApiResponse> GetRegionById(long id);
+        Task<ApiResponse> GetRegionByName(string name);
+        Task<ApiResponse> UpdateRegion(HttpContext context, long id, RegionReceivingDTO serviceCategoryTaskReceivingDTO);
+        Task<ApiResponse> DeleteRegion(long id);
     }
 }

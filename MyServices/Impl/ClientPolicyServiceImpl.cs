@@ -30,7 +30,7 @@ namespace HaloBiz.MyServices.Impl
             this._logger = logger;
         }
 
-        public async Task<ApiCommonResponse> AddClientPolicy(HttpContext context, ClientPolicyReceivingDTO clientPolicyReceivingDTO)
+        public async Task<ApiResponse> AddClientPolicy(HttpContext context, ClientPolicyReceivingDTO clientPolicyReceivingDTO)
         {
 
             var clientPolicy = _mapper.Map<ClientPolicy>(clientPolicyReceivingDTO);
@@ -38,89 +38,89 @@ namespace HaloBiz.MyServices.Impl
             var savedclientPolicy = await _clientPolicyRepo.SaveClientPolicy(clientPolicy);
             if (savedclientPolicy == null)
             {
-                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+                return new ApiResponse(500);
             }
             var clientPolicyTransferDTO = _mapper.Map<ClientPolicyTransferDTO>(clientPolicy);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,clientPolicyTransferDTO);
+            return new ApiOkResponse(clientPolicyTransferDTO);
         }
 
-        public async Task<ApiCommonResponse> DeleteClientPolicy(long id)
+        public async Task<ApiResponse> DeleteClientPolicy(long id)
         {
             var clientPolicyToDelete = await _clientPolicyRepo.FindClientPolicyById(id);
             if (clientPolicyToDelete == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
 
             if (!await _clientPolicyRepo.DeleteClientPolicy(clientPolicyToDelete))
             {
-                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+                return new ApiResponse(500);
             }
 
-            return CommonResponse.Send(ResponseCodes.SUCCESS);
+            return new ApiOkResponse(true);
         }
 
-        public async Task<ApiCommonResponse> GetAllClientPolicies()
+        public async Task<ApiResponse> GetAllClientPolicies()
         {
             var clientPolicys = await _clientPolicyRepo.FindAllClientPolicies();
             if (clientPolicys == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
             var clientPolicyTransferDTO = _mapper.Map<IEnumerable<ClientPolicyTransferDTO>>(clientPolicys);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,clientPolicyTransferDTO);
+            return new ApiOkResponse(clientPolicyTransferDTO);
         }
 
-        public async Task<ApiCommonResponse> GetClientPolicyById(long id)
+        public async Task<ApiResponse> GetClientPolicyById(long id)
         {
             var clientPolicy = await _clientPolicyRepo.FindClientPolicyById(id);
             if (clientPolicy == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
             var clientPolicyTransferDTOs = _mapper.Map<ClientPolicyTransferDTO>(clientPolicy);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,clientPolicyTransferDTOs);
+            return new ApiOkResponse(clientPolicyTransferDTOs);
         }
 
-        public async Task<ApiCommonResponse> FindClientPolicyByContractId(long id)
+        public async Task<ApiResponse> FindClientPolicyByContractId(long id)
         {
             var clientPolicy = await _clientPolicyRepo.FindClientPolicyByContractId(id);
             if (clientPolicy == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
             var clientPolicyTransferDTOs = _mapper.Map<ClientPolicyTransferDTO>(clientPolicy);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,clientPolicyTransferDTOs);
+            return new ApiOkResponse(clientPolicyTransferDTOs);
         }
 
-        public async Task<ApiCommonResponse> FindClientPolicyByContractServiceId(long id)
+        public async Task<ApiResponse> FindClientPolicyByContractServiceId(long id)
         {
             var clientPolicy = await _clientPolicyRepo.FindClientPolicyByContractServiceId(id);
             if (clientPolicy == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
             var clientPolicyTransferDTOs = _mapper.Map<ClientPolicyTransferDTO>(clientPolicy);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,clientPolicyTransferDTOs);
+            return new ApiOkResponse(clientPolicyTransferDTOs);
         }
 
-        /*public async Task<ApiCommonResponse> GetClientPolicyByName(string name)
+        /*public async Task<ApiResponse> GetClientPolicyByName(string name)
         {
             var clientPolicy = await _clientPolicyRepo.FindClientPolicyByName(name);
             if (clientPolicy == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
             var clientPolicyTransferDTOs = _mapper.Map<ClientPolicyTransferDTO>(clientPolicy);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,clientPolicyTransferDTOs);
+            return new ApiOkResponse(clientPolicyTransferDTOs);
         }*/
 
-        public async Task<ApiCommonResponse> UpdateClientPolicy(HttpContext context, long id, ClientPolicyReceivingDTO clientPolicyReceivingDTO)
+        public async Task<ApiResponse> UpdateClientPolicy(HttpContext context, long id, ClientPolicyReceivingDTO clientPolicyReceivingDTO)
         {
             var clientPolicyToUpdate = await _clientPolicyRepo.FindClientPolicyById(id);
             if (clientPolicyToUpdate == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
 
             var summary = $"Initial details before change, \n {clientPolicyToUpdate.ToString()} \n";
@@ -138,7 +138,7 @@ namespace HaloBiz.MyServices.Impl
 
             if (updatedclientPolicy == null)
             {
-                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+                return new ApiResponse(500);
             }
             ModificationHistory history = new ModificationHistory()
             {
@@ -150,7 +150,7 @@ namespace HaloBiz.MyServices.Impl
             await _historyRepo.SaveHistory(history);
 
             var clientPolicyTransferDTOs = _mapper.Map<ClientPolicyTransferDTO>(updatedclientPolicy);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,clientPolicyTransferDTOs);
+            return new ApiOkResponse(clientPolicyTransferDTOs);
         }
     }
 }

@@ -23,38 +23,59 @@ namespace HaloBiz.Controllers
         }
 
         [HttpGet("")]
-        public async Task<ApiCommonResponse> GetComplaintOrigin()
+        public async Task<ActionResult> GetComplaintOrigin()
         {
-            return await _ComplaintOriginService.GetAllComplaintOrigin();
+            var response = await _ComplaintOriginService.GetAllComplaintOrigin();
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var ComplaintOrigin = ((ApiOkResponse)response).Result;
+            return Ok(ComplaintOrigin);
         }
         [HttpGet("caption/{name}")]
-        public async Task<ApiCommonResponse> GetByCaption(string name)
+        public async Task<ActionResult> GetByCaption(string name)
         {
-            return await _ComplaintOriginService.GetComplaintOriginByName(name);
+            var response = await _ComplaintOriginService.GetComplaintOriginByName(name);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var ComplaintOrigin = ((ApiOkResponse)response).Result;
+            return Ok(ComplaintOrigin);
         }
 
         [HttpGet("{id}")]
-        public async Task<ApiCommonResponse> GetById(long id)
+        public async Task<ActionResult> GetById(long id)
         {
-            return await _ComplaintOriginService.GetComplaintOriginById(id);
+            var response = await _ComplaintOriginService.GetComplaintOriginById(id);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var ComplaintOrigin = ((ApiOkResponse)response).Result;
+            return Ok(ComplaintOrigin);
         }
 
         [HttpPost("")]
-        public async Task<ApiCommonResponse> AddNewComplaintOrigin(ComplaintOriginReceivingDTO ComplaintOriginReceiving)
+        public async Task<ActionResult> AddNewComplaintOrigin(ComplaintOriginReceivingDTO ComplaintOriginReceiving)
         {
-            return await _ComplaintOriginService.AddComplaintOrigin(HttpContext, ComplaintOriginReceiving);
+            var response = await _ComplaintOriginService.AddComplaintOrigin(HttpContext, ComplaintOriginReceiving);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var ComplaintOrigin = ((ApiOkResponse)response).Result;
+            return Ok(ComplaintOrigin);
         }
 
         [HttpPut("{id}")]
-        public async Task<ApiCommonResponse> UpdateById(long id, ComplaintOriginReceivingDTO ComplaintOriginReceiving)
+        public async Task<IActionResult> UpdateById(long id, ComplaintOriginReceivingDTO ComplaintOriginReceiving)
         {
-            return await _ComplaintOriginService.UpdateComplaintOrigin(HttpContext, id, ComplaintOriginReceiving);
+            var response = await _ComplaintOriginService.UpdateComplaintOrigin(HttpContext, id, ComplaintOriginReceiving);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var ComplaintOrigin = ((ApiOkResponse)response).Result;
+            return Ok(ComplaintOrigin);
         }
 
         [HttpDelete("{id}")]
-        public async Task<ApiCommonResponse> DeleteById(int id)
+        public async Task<ActionResult> DeleteById(int id)
         {
-            return await _ComplaintOriginService.DeleteComplaintOrigin(id);
+            var response = await _ComplaintOriginService.DeleteComplaintOrigin(id);
+            return StatusCode(response.StatusCode);
         }
     }
 }

@@ -10,11 +10,11 @@ namespace HaloBiz.MyServices
 {
     public interface IActivityService
     {
-        Task<ApiCommonResponse> AddActivity(HttpContext context, ActivityReceivingDTO serviceTypeReceivingDTO);
-        Task<ApiCommonResponse> GetAllActivity();
-        Task<ApiCommonResponse> GetActivityById(long id);
-        Task<ApiCommonResponse> GetActivityByName(string name);
-        Task<ApiCommonResponse> UpdateActivity(HttpContext context, long id, ActivityReceivingDTO serviceTypeReceivingDTO);
-        Task<ApiCommonResponse> DeleteActivity(long id);
+        Task<ApiResponse> AddActivity(HttpContext context, ActivityReceivingDTO serviceTypeReceivingDTO);
+        Task<ApiResponse> GetAllActivity();
+        Task<ApiResponse> GetActivityById(long id);
+        Task<ApiResponse> GetActivityByName(string name);
+        Task<ApiResponse> UpdateActivity(HttpContext context, long id, ActivityReceivingDTO serviceTypeReceivingDTO);
+        Task<ApiResponse> DeleteActivity(long id);
     }
 }

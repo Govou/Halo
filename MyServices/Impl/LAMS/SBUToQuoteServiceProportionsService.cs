@@ -37,19 +37,19 @@ namespace HaloBiz.MyServices.Impl.LAMS
             this._sbuRepo = sbuRepo;
         }
 
-        public async Task<ApiCommonResponse> GetAllSBUQuoteProportionForQuoteService(long quoteServiceId)
+        public async Task<ApiResponse> GetAllSBUQuoteProportionForQuoteService(long quoteServiceId)
         {
             var sbuQuoteProp = await _sbuToQuotePropRepo
                 .FindAllSbutoQuoteServiceProportionByQuoteServiceId(quoteServiceId);
             if (sbuQuoteProp == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
             var sbuQuotePropTransferDTOs = _mapper.Map<IEnumerable<SbutoQuoteServiceProportionTransferDTO>>(sbuQuoteProp);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,sbuQuotePropTransferDTOs);
+            return new ApiOkResponse(sbuQuotePropTransferDTOs);
         }
 
-        public async Task<ApiCommonResponse> SaveSBUToQuoteProp(HttpContext context, IEnumerable<SbutoQuoteServiceProportionReceivingDTO> entities)
+        public async Task<ApiResponse> SaveSBUToQuoteProp(HttpContext context, IEnumerable<SbutoQuoteServiceProportionReceivingDTO> entities)
         {
 
             var entitiesToSave = _mapper.Map<IEnumerable<SbutoQuoteServiceProportion>>(entities);
@@ -81,13 +81,13 @@ namespace HaloBiz.MyServices.Impl.LAMS
             var savedEntities = await _sbuToQuotePropRepo.SaveSbutoQuoteServiceProportion(entitiesToSaveFiltered);
             if (savedEntities == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
 
             var sbuToQuoteProportionTransferDTOs = _mapper
                                         .Map<IEnumerable<SbutoQuoteServiceProportionTransferDTO>>(savedEntities);
            
-            return CommonResponse.Send(ResponseCodes.SUCCESS,sbuToQuoteProportionTransferDTOs);
+            return new ApiOkResponse(sbuToQuoteProportionTransferDTOs);
         }
 
         private async Task<IEnumerable<SbutoQuoteServiceProportion>> SetProportionValue(IEnumerable<SbutoQuoteServiceProportion> entities, HttpContext context) 

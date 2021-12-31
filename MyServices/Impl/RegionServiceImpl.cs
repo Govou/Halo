@@ -24,58 +24,58 @@ namespace HaloBiz.MyServices.Impl
             this._regionRepo = _regionRepo;
         }
 
-        public async Task<ApiCommonResponse> AddRegion(HttpContext context, RegionReceivingDTO regionReceivingDTO)
+        public async Task<ApiResponse> AddRegion(HttpContext context, RegionReceivingDTO regionReceivingDTO)
         {
             var region = _mapper.Map<Region>(regionReceivingDTO);
             region.CreatedById = context.GetLoggedInUserId();
             var savedRegion = await _regionRepo.SaveRegion(region);
             if (savedRegion == null)
             {
-                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+                return new ApiResponse(500);
             }
             var regionTransferDTO = _mapper.Map<RegionTransferDTO>(region);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,regionTransferDTO);
+            return new ApiOkResponse(regionTransferDTO);
         }
 
-        public async Task<ApiCommonResponse> GetAllRegions()
+        public async Task<ApiResponse> GetAllRegions()
         {
             var regions = await _regionRepo.FindAllRegions();
             if (regions == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
             var regionTransferDTO = _mapper.Map<IEnumerable<RegionTransferDTO>>(regions);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,regionTransferDTO);
+            return new ApiOkResponse(regionTransferDTO);
         }
 
-        public async Task<ApiCommonResponse> GetRegionById(long id)
+        public async Task<ApiResponse> GetRegionById(long id)
         {
             var region = await _regionRepo.FindRegionById(id);
             if (region == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
             var regionTransferDTO = _mapper.Map<RegionTransferDTO>(region);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,regionTransferDTO);
+            return new ApiOkResponse(regionTransferDTO);
         }
 
-        public async Task<ApiCommonResponse> GetRegionByName(string name)
+        public async Task<ApiResponse> GetRegionByName(string name)
         {
             var region = await _regionRepo.FindRegionByName(name);
             if (region == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
             var regionTransferDTOs = _mapper.Map<RegionTransferDTO>(region);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,regionTransferDTOs);
+            return new ApiOkResponse(regionTransferDTOs);
         }
 
-        public async Task<ApiCommonResponse> UpdateRegion(HttpContext context, long id, RegionReceivingDTO regionReceivingDTO)
+        public async Task<ApiResponse> UpdateRegion(HttpContext context, long id, RegionReceivingDTO regionReceivingDTO)
         {
             var regionToUpdate = await _regionRepo.FindRegionById(id);
             if (regionToUpdate == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
             
             var summary = $"Initial details before change, \n {regionToUpdate.ToString()} \n" ;
@@ -90,7 +90,7 @@ namespace HaloBiz.MyServices.Impl
 
             if (updatedRegion == null)
             {
-                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+                return new ApiResponse(500);
             }
             ModificationHistory history = new ModificationHistory(){
                 ModelChanged = "Region",
@@ -102,25 +102,25 @@ namespace HaloBiz.MyServices.Impl
             await _historyRepo.SaveHistory(history);
 
             var regionTransferDTOs = _mapper.Map<RegionTransferDTO>(updatedRegion);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,regionTransferDTOs);
+            return new ApiOkResponse(regionTransferDTOs);
 
         }
 
-        public async Task<ApiCommonResponse> DeleteRegion(long id)
+        public async Task<ApiResponse> DeleteRegion(long id)
         {
             var regionToDelete = await _regionRepo.FindRegionById(id);
 
             if (regionToDelete == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
 
             if (!await _regionRepo.DeleteRegion(regionToDelete))
             {
-                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+                return new ApiResponse(500);
             }
 
-            return CommonResponse.Send(ResponseCodes.SUCCESS);
+            return new ApiOkResponse(true);
         }
 
        

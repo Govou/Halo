@@ -27,65 +27,65 @@ namespace HaloBiz.MyServices.Impl
         this._logger = logger;
     }
 
-    public async Task<ApiCommonResponse> AddAccountDetail(HttpContext context, AccountDetailReceivingDTO accountDetailReceivingDTO)
+    public async Task<ApiResponse> AddAccountDetail(HttpContext context, AccountDetailReceivingDTO accountDetailReceivingDTO)
     {
         var acctClass = _mapper.Map<AccountDetail>(accountDetailReceivingDTO);
             acctClass.CreatedById = context.GetLoggedInUserId();
             var savedAccountDetail = await _AccountDetailsRepo.SaveAccountDetail(acctClass);
         if (savedAccountDetail == null)
         {
-            return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+            return new ApiResponse(500);
         }
         var AccountDetailTransferDTOs = _mapper.Map<AccountDetailTransferDTO>(acctClass);
-        return CommonResponse.Send(ResponseCodes.SUCCESS,AccountDetailTransferDTOs);
+        return new ApiOkResponse(AccountDetailTransferDTOs);
     }
 
-    public async Task<ApiCommonResponse> DeleteAccountDetail(long id)
+    public async Task<ApiResponse> DeleteAccountDetail(long id)
     {
         var AccountDetailToDelete = await _AccountDetailsRepo.FindAccountDetailById(id);
         if (AccountDetailToDelete == null)
         {
-            return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+            return new ApiResponse(404);
         }
 
         if (!await _AccountDetailsRepo.DeleteAccountDetail(AccountDetailToDelete))
         {
-            return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+            return new ApiResponse(500);
         }
 
-        return CommonResponse.Send(ResponseCodes.SUCCESS);
+        return new ApiOkResponse(true);
     }
 
 
-    public async Task<ApiCommonResponse> GetAccountDetailById(long id)
+    public async Task<ApiResponse> GetAccountDetailById(long id)
     {
         var AccountDetail = await _AccountDetailsRepo.FindAccountDetailById(id);
         if (AccountDetail == null)
         {
-            return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+            return new ApiResponse(404);
         }
         var AccountDetailTransferDTOs = _mapper.Map<AccountDetailTransferDTO>(AccountDetail);
-        return CommonResponse.Send(ResponseCodes.SUCCESS,AccountDetailTransferDTOs);
+        return new ApiOkResponse(AccountDetailTransferDTOs);
     }
 
-    public async Task<ApiCommonResponse> GetAllAccountDetails()
+    public async Task<ApiResponse> GetAllAccountDetails()
     {
         var AccountDetail = await _AccountDetailsRepo.FindAllAccountDetails();
         if (AccountDetail == null)
         {
-            return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+            return new ApiResponse(404);
         }
         var AccountDetailTransferDTOs = _mapper.Map<IEnumerable<AccountDetailTransferDTO>>(AccountDetail);
-        return CommonResponse.Send(ResponseCodes.SUCCESS,AccountDetailTransferDTOs);
+        return new ApiOkResponse(AccountDetailTransferDTOs);
     }
 
 
-        public async Task<ApiCommonResponse> UpdateAccountDetail(long id, AccountDetailReceivingDTO accountDetailReceivingDTO)
+        public async Task<ApiResponse> UpdateAccountDetail(long id, AccountDetailReceivingDTO accountDetailReceivingDTO)
     {
         var AccountDetailToUpdate = await _AccountDetailsRepo.FindAccountDetailById(id);
         if (AccountDetailToUpdate == null)
         {
-            return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+            return new ApiResponse(404);
         }
             AccountDetailToUpdate.Description = accountDetailReceivingDTO.Description; 
             AccountDetailToUpdate.OfficeId = accountDetailReceivingDTO.OfficeId;
@@ -96,10 +96,10 @@ namespace HaloBiz.MyServices.Impl
 
         if (updatedAccountDetail == null)
         {
-            return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+            return new ApiResponse(500);
         }
         var AccountDetailTransferDTOs = _mapper.Map<AccountDetailTransferDTO>(updatedAccountDetail);
-        return CommonResponse.Send(ResponseCodes.SUCCESS,AccountDetailTransferDTOs);
+        return new ApiOkResponse(AccountDetailTransferDTOs);
     }
 }
 }

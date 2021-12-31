@@ -7,9 +7,9 @@ namespace HaloBiz.MyServices
 {
     public interface IIndustryService
     {
-        Task<ApiCommonResponse> AddIndustry(HttpContext context, IndustryReceivingDTO IndustryReceivingDTO);
-        Task<ApiCommonResponse> GetAllIndustry();
-        Task<ApiCommonResponse> UpdateIndustry(HttpContext context, long id, IndustryReceivingDTO IndustryReceivingDTO);
-        Task<ApiCommonResponse> DeleteIndustry(long id);
+        Task<ApiResponse> AddIndustry(HttpContext context, IndustryReceivingDTO IndustryReceivingDTO);
+        Task<ApiResponse> GetAllIndustry();
+        Task<ApiResponse> UpdateIndustry(HttpContext context, long id, IndustryReceivingDTO IndustryReceivingDTO);
+        Task<ApiResponse> DeleteIndustry(long id);
     }
 }

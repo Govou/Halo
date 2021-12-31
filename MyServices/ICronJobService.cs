@@ -9,7 +9,7 @@ namespace HaloBiz.MyServices
 {
     public interface ICronJobService
     {
-        Task<ApiCommonResponse> MigrateNewCustomersToDTRACK(HttpContext context);
-        Task<ApiCommonResponse> PostNewAccountingRecordsToDTRACK(HttpContext context);
+        Task<ApiResponse> MigrateNewCustomersToDTRACK(HttpContext context);
+        Task<ApiResponse> PostNewAccountingRecordsToDTRACK(HttpContext context);
     }
 }

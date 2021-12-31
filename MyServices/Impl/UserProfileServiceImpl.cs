@@ -41,7 +41,7 @@ namespace HaloBiz.MyServices.Impl
 
         }
 
-        public async Task<ApiCommonResponse> AddUserProfile(UserProfileReceivingDTO userProfileReceivingDTO)
+        public async Task<ApiResponse> AddUserProfile(UserProfileReceivingDTO userProfileReceivingDTO)
         {
             if(
                 !(userProfileReceivingDTO.Email.Trim().EndsWith("halogen-group.com") || 
@@ -53,7 +53,7 @@ namespace HaloBiz.MyServices.Impl
                 userProfileReceivingDTO.Email.Trim().EndsWith("armadahalogen.com") )
                 )
             {
-                return CommonResponse.Send(ResponseCodes.FAILURE,null, "Invalid email address");
+                return new ApiResponse(400, "Invalid email address");
             }
 
             if(userProfileReceivingDTO.ImageUrl.Length > 255)
@@ -65,29 +65,29 @@ namespace HaloBiz.MyServices.Impl
             var savedUserProfile = await _userRepo.SaveUserProfile(userProfile);
             if(savedUserProfile == null)
             {
-                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+                return new ApiResponse(500);
             }
             var userProfileTransferDto = _mapper.Map<UserProfileTransferDTO>(userProfile);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,userProfileTransferDto);
+            return new ApiOkResponse(userProfileTransferDto);
         }
 
-        public async Task<ApiCommonResponse> FindUserById(long id)
+        public async Task<ApiResponse> FindUserById(long id)
         {
             var userProfile = await _userRepo.FindUserById(id);
             if(userProfile == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
             var userProfileTransferDto = _mapper.Map<UserProfileTransferDTO>(userProfile);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,userProfileTransferDto);
+            return new ApiOkResponse(userProfileTransferDto);
         }
 
-        public async Task<ApiCommonResponse> FindUserByEmail(string email)
+        public async Task<ApiResponse> FindUserByEmail(string email)
         {
             var userProfile = await _userRepo.FindUserByEmail(email);
             if(userProfile == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
 
             // Super Admin
@@ -112,37 +112,37 @@ namespace HaloBiz.MyServices.Impl
             }
 
             var userProfileTransferDto = _mapper.Map<UserProfileTransferDTO>(userProfile);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,userProfileTransferDto);
+            return new ApiOkResponse(userProfileTransferDto);
         }
         
 
-        public async Task<ApiCommonResponse> FindAllUsers()
+        public async Task<ApiResponse> FindAllUsers()
         {
             var userProfiles = await _userRepo.FindAllUserProfile();
             if(userProfiles == null )
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
             var userProfilesTransferDto = _mapper.Map<IEnumerable<UserProfileTransferDTO>>(userProfiles);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,userProfilesTransferDto);
+            return new ApiOkResponse(userProfilesTransferDto);
         }
 
-        public async  Task<ApiCommonResponse> FindAllUsersNotInAnSBU(long sbuId)
+        public async  Task<ApiResponse> FindAllUsersNotInAnSBU(long sbuId)
         {
             var users = await _userRepo.FindAllUsersNotInAnProfile(sbuId);
             if(users == null )
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             } 
-            return CommonResponse.Send(ResponseCodes.SUCCESS,users);
+            return new ApiOkResponse(users);
         }
 
-        public async Task<ApiCommonResponse> UpdateUserProfile(long userId, UserProfileReceivingDTO userProfileReceivingDTO)
+        public async Task<ApiResponse> UpdateUserProfile(long userId, UserProfileReceivingDTO userProfileReceivingDTO)
         {
             var userToUpdate = await _userRepo.FindUserById(userId);
             if(userToUpdate == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
             var summary = $"Initial details before change, \n {userToUpdate.ToString()} \n" ;
             userToUpdate.Address = userProfileReceivingDTO.Address;
@@ -168,7 +168,7 @@ namespace HaloBiz.MyServices.Impl
 
             if(updatedUser == null)
             {
-                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+                return new ApiResponse(500);
             }
 
             // send the sign up mail when the user profile completion hits a 100%.
@@ -188,7 +188,7 @@ namespace HaloBiz.MyServices.Impl
                     var superAdmins = await _userRepo.FindAllSuperAdmins();
                     if(superAdmins == null)
                     {
-                        return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+                        return new ApiResponse(500);
                     }
 
                     var superAdminEmails = superAdmins.Select(x => x.Email).ToArray();
@@ -202,7 +202,7 @@ namespace HaloBiz.MyServices.Impl
                     updatedUser = await _userRepo.UpdateUserProfile(updatedUser);
                     if (updatedUser == null)
                     {
-                        return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+                        return new ApiResponse(500);
                     }
                 }
             }    
@@ -218,15 +218,15 @@ namespace HaloBiz.MyServices.Impl
             await _historyRepo.SaveHistory(history);
 
             var userProfileTransferDto = _mapper.Map<UserProfileTransferDTO>(updatedUser);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,userProfileTransferDto);
+            return new ApiOkResponse(userProfileTransferDto);
 
         }
-        public async Task<ApiCommonResponse> AssignUserToSBU(long userId, long SBUId)
+        public async Task<ApiResponse> AssignUserToSBU(long userId, long SBUId)
         {
             var userToUpdate = await _userRepo.FindUserById(userId);
             if(userToUpdate == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
             userToUpdate.Sbuid = SBUId;
 
@@ -235,7 +235,7 @@ namespace HaloBiz.MyServices.Impl
 
             if(updatedUser == null)
             {
-                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+                return new ApiResponse(500);
             }
 
             ModificationHistory history = new ModificationHistory(){
@@ -248,16 +248,16 @@ namespace HaloBiz.MyServices.Impl
             await _historyRepo.SaveHistory(history);
 
             var userProfileTransferDto = _mapper.Map<UserProfileTransferDTO>(updatedUser);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,userProfileTransferDto);
+            return new ApiOkResponse(userProfileTransferDto);
 
         }
 
-        public async Task<ApiCommonResponse> DetachUserFromSBU(long userId)
+        public async Task<ApiResponse> DetachUserFromSBU(long userId)
         {
             var userToUpdate = await _userRepo.FindUserById(userId);
             if (userToUpdate == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
             userToUpdate.Sbuid = null;
 
@@ -266,7 +266,7 @@ namespace HaloBiz.MyServices.Impl
 
             if (updatedUser == null)
             {
-                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+                return new ApiResponse(500);
             }
 
             ModificationHistory history = new ModificationHistory()
@@ -280,24 +280,24 @@ namespace HaloBiz.MyServices.Impl
             await _historyRepo.SaveHistory(history);
 
             var userProfileTransferDto = _mapper.Map<UserProfileTransferDTO>(updatedUser);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,userProfileTransferDto);
+            return new ApiOkResponse(userProfileTransferDto);
 
         }
 
-        public async Task<ApiCommonResponse> UpdateUserRole(HttpContext context, long userId, List<RoleReceivingDTO> roles)
+        public async Task<ApiResponse> UpdateUserRole(HttpContext context, long userId, List<RoleReceivingDTO> roles)
         {
             try
             {
                 var userToUpdate = await _userRepo.FindUserById(userId);
                 if (userToUpdate == null)
                 {
-                    return CommonResponse.Send(ResponseCodes.FAILURE,null, "User not found");
+                    return new ApiResponse(404, "User not found");
                 }
 
                 var thisUserId = context.GetLoggedInUserId();
                 if (thisUserId == userId)
                 {
-                    return CommonResponse.Send(ResponseCodes.FAILURE,null, "You cannot add/update role for yourself");
+                    return new ApiResponse(404, "You cannot add/update role for yourself");
                 }
 
                 //remove all the role assignment for this user
@@ -324,7 +324,7 @@ namespace HaloBiz.MyServices.Impl
 
                 await _context.UserRoles.AddRangeAsync(userRoles);
                 await _context.SaveChangesAsync();
-                return CommonResponse.Send(ResponseCodes.SUCCESS,userRoles);
+                return new ApiOkResponse(userRoles);
             }
             catch (Exception ex)
             {
@@ -335,12 +335,12 @@ namespace HaloBiz.MyServices.Impl
 
         }
 
-        //public async Task<ApiCommonResponse> UpdateUserRole(long userId, long roleId)
+        //public async Task<ApiResponse> UpdateUserRole(long userId, long roleId)
         //{
         //    var userToUpdate = await _userRepo.FindUserById(userId);
         //    if (userToUpdate == null)
         //    {
-        //        return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+        //        return new ApiResponse(404);
         //    }
         //    var summary = $"Initial details before change, \n {userToUpdate} \n";
         //    userToUpdate.RoleId = roleId;
@@ -351,7 +351,7 @@ namespace HaloBiz.MyServices.Impl
 
         //    if (updatedUser == null)
         //    {
-        //        return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+        //        return new ApiResponse(500);
         //    }
 
         //    var serializedUser = JsonConvert.SerializeObject(updatedUser, new JsonSerializerSettings { 
@@ -373,24 +373,24 @@ namespace HaloBiz.MyServices.Impl
         //    await _historyRepo.SaveHistory(history);
 
         //    var userProfileTransferDto = _mapper.Map<UserProfileTransferDTO>(updatedUser);
-        //    return CommonResponse.Send(ResponseCodes.SUCCESS,userProfileTransferDto);
+        //    return new ApiOkResponse(userProfileTransferDto);
         //}
 
 
-        public async Task<ApiCommonResponse> DeleteUserProfile(long userId)
+        public async Task<ApiResponse> DeleteUserProfile(long userId)
         {
             var userToDelete = await _userRepo.FindUserById(userId);
             if(userToDelete == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
 
             if(! await _userRepo.RemoveUserProfile(userToDelete))
             {
-                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+                return new ApiResponse(500);
             }
 
-            return CommonResponse.Send(ResponseCodes.SUCCESS);
+            return new ApiOkResponse(true);
         }
 
         private bool ProfileIs100Percent(UserProfile userProfile)
@@ -413,10 +413,10 @@ namespace HaloBiz.MyServices.Impl
             Task.Run(action);
         }
 
-        public async Task<ApiCommonResponse> FetchAllUserProfilesWithEscalationLevelConfiguration()
+        public async Task<ApiResponse> FetchAllUserProfilesWithEscalationLevelConfiguration()
         {
             var resultObject = await _userRepo.FetchAllUserProfilesWithEscalationLevelConfiguration();
-            return CommonResponse.Send(ResponseCodes.SUCCESS,resultObject);
+            return new ApiOkResponse(resultObject);
         }
     }
 }

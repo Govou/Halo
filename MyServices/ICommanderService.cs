@@ -11,17 +11,17 @@ namespace HaloBiz.MyServices
     public interface ICommanderService
     {
         //Type
-        Task<ApiCommonResponse> AddCommanderType(HttpContext context, CommanderTypeAndRankReceivingDTO commanderTypeReceivingDTO);
-        Task<ApiCommonResponse> GetAllCommanderTypes();
-        Task<ApiCommonResponse> GetCommanderTypeById(long id);
-        Task<ApiCommonResponse> UpdateCommanderType(HttpContext context, long id, CommanderTypeAndRankReceivingDTO commanderTypeReceivingDTO);
-        Task<ApiCommonResponse> DeleteCommanderType(long id);
+        Task<ApiResponse> AddCommanderType(HttpContext context, CommanderTypeAndRankReceivingDTO commanderTypeReceivingDTO);
+        Task<ApiResponse> GetAllCommanderTypes();
+        Task<ApiResponse> GetCommanderTypeById(long id);
+        Task<ApiResponse> UpdateCommanderType(HttpContext context, long id, CommanderTypeAndRankReceivingDTO commanderTypeReceivingDTO);
+        Task<ApiResponse> DeleteCommanderType(long id);
 
         //Rank
-        Task<ApiCommonResponse> AddCommanderRank(HttpContext context, CommanderRankReceivingDTO commanderRankReceivingDTO);
-        Task<ApiCommonResponse> GetAllCommanderRanks();
-        Task<ApiCommonResponse> GetCommanderRankById(long id);
-        Task<ApiCommonResponse> UpdateCommanderRank(HttpContext context, long id, CommanderRankReceivingDTO commanderRankReceivingDTO);
-        Task<ApiCommonResponse> DeleteCommanderRank(long id);
+        Task<ApiResponse> AddCommanderRank(HttpContext context, CommanderRankReceivingDTO commanderRankReceivingDTO);
+        Task<ApiResponse> GetAllCommanderRanks();
+        Task<ApiResponse> GetCommanderRankById(long id);
+        Task<ApiResponse> UpdateCommanderRank(HttpContext context, long id, CommanderRankReceivingDTO commanderRankReceivingDTO);
+        Task<ApiResponse> DeleteCommanderRank(long id);
     }
 }

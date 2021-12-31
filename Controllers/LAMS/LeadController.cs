@@ -25,110 +25,174 @@ namespace HaloBiz.Controllers.LAMS
         }
 
         [HttpGet("")]
-        public async Task<ApiCommonResponse> GetLead()
+        public async Task<ActionResult> GetLead()
         {
-            return await _leadService.GetAllLead();
+            var response = await _leadService.GetAllLead();
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var lead = ((ApiOkResponse)response).Result;
+            return Ok(lead);
         }
 
         [HttpGet("GetUserLeads")]
-        public async Task<ApiCommonResponse> GetUserLeads()
+        public async Task<ActionResult> GetUserLeads()
         {
-            return await _leadService.GetUserLeads(HttpContext); 
+            var response = await _leadService.GetUserLeads(HttpContext);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var lead = ((ApiOkResponse)response).Result;
+            return Ok(lead);
         }
 
         [HttpGet("GetUnApprovedLeads")]
-        public async Task<ApiCommonResponse> GetUnApprovedLeads()
+        public async Task<ActionResult> GetUnApprovedLeads()
         {
-            return await _leadService.GetAllUnApprovedLeads();
+            var response = await _leadService.GetAllUnApprovedLeads();
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var lead = ((ApiOkResponse)response).Result;
+            return Ok(lead);
         }
 
         [HttpGet("ReferenceNumber/{refNo}")]
-        public async Task<ApiCommonResponse> GetByCaption(string refNo)
+        public async Task<ActionResult> GetByCaption(string refNo)
         {
-            return await _leadService.GetLeadByReferenceNumber(refNo);
+            var response = await _leadService.GetLeadByReferenceNumber(refNo);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var lead = ((ApiOkResponse)response).Result;
+            return Ok(lead);
         }
 
         [HttpGet("{id}")]
-        public async Task<ApiCommonResponse> GetById(long id)
+        public async Task<ActionResult> GetById(long id)
         {
-            return await _leadService.GetLeadById(id);
+            var response = await _leadService.GetLeadById(id);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var lead = ((ApiOkResponse)response).Result;
+            return Ok(lead);
         }
         
         [HttpPut("SetUpLeadForApproval/{id}")]
-        public async Task<ApiCommonResponse> SetUpLeadForApproval(long id)
+        public async Task<ActionResult> SetUpLeadForApproval(long id)
         {
-            return await _leadService.SetUpLeadForApproval(HttpContext, id);
+            var response = await _leadService.SetUpLeadForApproval(HttpContext, id);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var lead = ((ApiOkResponse)response).Result;
+            return Ok(lead);
         }
 
         [HttpPut("ConvertLeadToClient/{id}")]
-        public async Task<ApiCommonResponse> ConvertLeadToClient(long id)
+        public async Task<ActionResult> ConvertLeadToClient(long id)
         {
-            return await _leadService.ConvertLeadToClient(HttpContext, id);
+            var response = await _leadService.ConvertLeadToClient(HttpContext, id);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var lead = ((ApiOkResponse)response).Result;
+            return Ok(lead);
         }
 
         [HttpPut("approve-quote-service/{leadId}/{quoteServiceId}/{sequence}")]
-        public async Task<ApiCommonResponse> ApproveQuoteServiceById(long leadId, long quoteServiceId, long sequence)
+        public async Task<IActionResult> ApproveQuoteServiceById(long leadId, long quoteServiceId, long sequence)
         {
-            return await _leadService.ApproveQuoteService(HttpContext, leadId, quoteServiceId, sequence);
+            var response = await _leadService.ApproveQuoteService(HttpContext, leadId, quoteServiceId, sequence);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var serviceGroup = ((ApiOkResponse)response).Result;
+            return Ok(serviceGroup);
         }
 
         [HttpPut("disapprove-quote-service/{leadId}/{quoteServiceId}/{sequence}")]
-        public async Task<ApiCommonResponse> DisapproveQuoteServiceById(long leadId, long quoteServiceId, long sequence)
+        public async Task<IActionResult> DisapproveQuoteServiceById(long leadId, long quoteServiceId, long sequence)
         {
-            return await _leadService.DisapproveQuoteService(HttpContext, leadId, quoteServiceId, sequence);
+            var response = await _leadService.DisapproveQuoteService(HttpContext, leadId, quoteServiceId, sequence);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var serviceGroup = ((ApiOkResponse)response).Result;
+            return Ok(serviceGroup);
         }
 
         [HttpPost("")]
-        public async Task<ApiCommonResponse> AddNewLead(LeadReceivingDTO leadReceiving)
+        public async Task<ActionResult> AddNewLead(LeadReceivingDTO leadReceiving)
         {
-            return await _leadService.AddLead(HttpContext, leadReceiving);
+            var response = await _leadService.AddLead(HttpContext, leadReceiving);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var lead = ((ApiOkResponse)response).Result;
+            return Ok(lead);
         }
 
         [HttpPut("{id}/UpdateLeadCaptured")]
-        public async Task<ApiCommonResponse> UpdateCaptureStatus(long id, LeadCaptureReceivingDTO leadCaptureReceivingDTO)
+        public async Task<IActionResult> UpdateCaptureStatus(long id, LeadCaptureReceivingDTO leadCaptureReceivingDTO)
         {
-            return await _leadService.UpdateLeadStagesStatus(id, LeadStages.Capture, leadCaptureReceivingDTO);
+            var response = await _leadService.UpdateLeadStagesStatus(id, LeadStages.Capture, leadCaptureReceivingDTO);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var lead = ((ApiOkResponse)response).Result;
+            return Ok(lead);
         }
 
         [HttpPut("{id}/UpdateLeadOpportunity")]
-        public async Task<ApiCommonResponse> UpdateOpportunityStatus(long id)
+        public async Task<IActionResult> UpdateOpportunityStatus(long id)
         {
-            return await _leadService.UpdateLeadStagesStatus(id, LeadStages.Opportunity);
+            var response = await _leadService.UpdateLeadStagesStatus(id, LeadStages.Opportunity);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var lead = ((ApiOkResponse)response).Result;
+            return Ok(lead);
         }
 
         [HttpPut("{id}/UpdateLeadClosure")]
-        public async Task<ApiCommonResponse> UpdateClosureStatus(long id)
+        public async Task<IActionResult> UpdateClosureStatus(long id)
         {
-            return await _leadService.UpdateLeadStagesStatus(id, LeadStages.Closure);
+            var response = await _leadService.UpdateLeadStagesStatus(id, LeadStages.Closure);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var lead = ((ApiOkResponse)response).Result;
+            return Ok(lead);
         }
 
         [HttpPut("{id}/DropLead")]
-        public async Task<ApiCommonResponse> DropLead(long id, DropLeadReceivingDTO dropReasonDto)
+        public async Task<IActionResult> DropLead(long id, DropLeadReceivingDTO dropReasonDto)
         {
-            return await _leadService.DropLead(HttpContext, id, dropReasonDto);
+            var response = await _leadService.DropLead(HttpContext, id, dropReasonDto);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var lead = ((ApiOkResponse)response).Result;
+            return Ok(lead);
         }
 
         // [HttpPut("{id}/UpdateLeadConversion")]
-        // public async Task<ApiCommonResponse> UpdateConversionStatus(long id)
+        // public async Task<IActionResult> UpdateConversionStatus(long id)
         // {
-        //     return await _leadService.UpdateLeadStagesStatus(id, LeadStages.Conversion);
-        //     
-        //         
+        //     var response = await _leadService.UpdateLeadStagesStatus(id, LeadStages.Conversion);
+        //     if (response.StatusCode >= 400)
+        //         return StatusCode(response.StatusCode, response);
         //     var lead = ((ApiOkResponse)response).Result;
         //     return Ok(lead);
         // }
 
         [HttpPut("{id}/UpdateLeadQualification")]
-        public async Task<ApiCommonResponse> UpdateQualificationStatus(long id)
+        public async Task<IActionResult> UpdateQualificationStatus(long id)
         {
-            return await _leadService.UpdateLeadStagesStatus(id, LeadStages.Qualification);
+            var response = await _leadService.UpdateLeadStagesStatus(id, LeadStages.Qualification);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var lead = ((ApiOkResponse)response).Result;
+            return Ok(lead);
         }
 
 
         [HttpPut("{id}")]
-        public async Task<ApiCommonResponse> UpdateById(long id, LeadReceivingDTO leadReceivingDTO)
+        public async Task<IActionResult> UpdateById(long id, LeadReceivingDTO leadReceivingDTO)
         {
-            return await _leadService.UpdateLead(HttpContext, id, leadReceivingDTO);
+            var response = await _leadService.UpdateLead(HttpContext, id, leadReceivingDTO);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var lead = ((ApiOkResponse)response).Result;
+            return Ok(lead);
         }
 
     }

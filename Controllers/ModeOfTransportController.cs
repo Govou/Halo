@@ -24,38 +24,59 @@ namespace HaloBiz.Controllers
         }
 
         [HttpGet("")]
-        public async Task<ApiCommonResponse> GetModeOfTransport()
+        public async Task<ActionResult> GetModeOfTransport()
         {
-            return await _modeOfTransportService.GetAllModeOfTransport();
+            var response = await _modeOfTransportService.GetAllModeOfTransport();
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var modeOfTransport = ((ApiOkResponse)response).Result;
+            return Ok(modeOfTransport);
         }
         [HttpGet("caption/{name}")]
-        public async Task<ApiCommonResponse> GetByCaption(string name)
+        public async Task<ActionResult> GetByCaption(string name)
         {
-            return await _modeOfTransportService.GetModeOfTransportByName(name);
+            var response = await _modeOfTransportService.GetModeOfTransportByName(name);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var modeOfTransport = ((ApiOkResponse)response).Result;
+            return Ok(modeOfTransport);
         }
 
         [HttpGet("{id}")]
-        public async Task<ApiCommonResponse> GetById(long id)
+        public async Task<ActionResult> GetById(long id)
         {
-            return await _modeOfTransportService.GetModeOfTransportById(id);
+            var response = await _modeOfTransportService.GetModeOfTransportById(id);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var modeOfTransport = ((ApiOkResponse)response).Result;
+            return Ok(modeOfTransport);
         }
 
         [HttpPost("")]
-        public async Task<ApiCommonResponse> AddNewModeOfTransport(ModeOfTransportReceivingDTO modeOfTransportReceiving)
+        public async Task<ActionResult> AddNewModeOfTransport(ModeOfTransportReceivingDTO modeOfTransportReceiving)
         {
-            return await _modeOfTransportService.AddModeOfTransport(HttpContext, modeOfTransportReceiving);
+            var response = await _modeOfTransportService.AddModeOfTransport(HttpContext, modeOfTransportReceiving);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var modeOfTransport = ((ApiOkResponse)response).Result;
+            return Ok(modeOfTransport);
         }
 
         [HttpPut("{id}")]
-        public async Task<ApiCommonResponse> UpdateById(long id, ModeOfTransportReceivingDTO modeOfTransportReceiving)
+        public async Task<IActionResult> UpdateById(long id, ModeOfTransportReceivingDTO modeOfTransportReceiving)
         {
-            return await _modeOfTransportService.UpdateModeOfTransport(HttpContext, id, modeOfTransportReceiving);
+            var response = await _modeOfTransportService.UpdateModeOfTransport(HttpContext, id, modeOfTransportReceiving);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var modeOfTransport = ((ApiOkResponse)response).Result;
+            return Ok(modeOfTransport);
         }
 
         [HttpDelete("{id}")]
-        public async Task<ApiCommonResponse> DeleteById(int id)
+        public async Task<ActionResult> DeleteById(int id)
         {
-            return await _modeOfTransportService.DeleteModeOfTransport(id);
+            var response = await _modeOfTransportService.DeleteModeOfTransport(id);
+            return StatusCode(response.StatusCode);
         }
     }
 }

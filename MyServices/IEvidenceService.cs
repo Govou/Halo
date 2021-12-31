@@ -10,11 +10,11 @@ namespace HaloBiz.MyServices
 {
     public interface IEvidenceService
     {
-        Task<ApiCommonResponse> AddEvidence(HttpContext context, EvidenceReceivingDTO evidenceReceivingDTO);
-        Task<ApiCommonResponse> GetAllEvidence();
-        Task<ApiCommonResponse> GetEvidenceById(long id);
-        Task<ApiCommonResponse> GetEvidenceByName(string name);
-        Task<ApiCommonResponse> UpdateEvidence(HttpContext context, long id, EvidenceReceivingDTO evidenceReceivingDTO);
-        Task<ApiCommonResponse> DeleteEvidence(long id);
+        Task<ApiResponse> AddEvidence(HttpContext context, EvidenceReceivingDTO evidenceReceivingDTO);
+        Task<ApiResponse> GetAllEvidence();
+        Task<ApiResponse> GetEvidenceById(long id);
+        Task<ApiResponse> GetEvidenceByName(string name);
+        Task<ApiResponse> UpdateEvidence(HttpContext context, long id, EvidenceReceivingDTO evidenceReceivingDTO);
+        Task<ApiResponse> DeleteEvidence(long id);
     }
 }

@@ -22,38 +22,59 @@ namespace Controllers.Controllers
         }
 
         [HttpGet("")]
-        public async Task<ApiCommonResponse> GetEndorsementType()
+        public async Task<ActionResult> GetEndorsementType()
         {
-            return await _endorsementTypeService.GetAllEndorsementType();
+            var response = await _endorsementTypeService.GetAllEndorsementType();
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var endorsementType = ((ApiOkResponse)response).Result;
+            return Ok(endorsementType);
         }
         [HttpGet("caption/{name}")]
-        public async Task<ApiCommonResponse> GetByCaption(string name)
+        public async Task<ActionResult> GetByCaption(string name)
         {
-            return await _endorsementTypeService.GetEndorsementTypeByName(name);
+            var response = await _endorsementTypeService.GetEndorsementTypeByName(name);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var endorsementType = ((ApiOkResponse)response).Result;
+            return Ok(endorsementType);
         }
 
         [HttpGet("{id}")]
-        public async Task<ApiCommonResponse> GetById(long id)
+        public async Task<ActionResult> GetById(long id)
         {
-            return await _endorsementTypeService.GetEndorsementTypeById(id);
+            var response = await _endorsementTypeService.GetEndorsementTypeById(id);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var endorsementType = ((ApiOkResponse)response).Result;
+            return Ok(endorsementType);
         }
 
         [HttpPost("")]
-        public async Task<ApiCommonResponse> AddNewEndorsementType(EndorsementTypeReceivingDTO endorsementTypeReceiving)
+        public async Task<ActionResult> AddNewEndorsementType(EndorsementTypeReceivingDTO endorsementTypeReceiving)
         {
-            return await _endorsementTypeService.AddEndorsementType(HttpContext, endorsementTypeReceiving);
+            var response = await _endorsementTypeService.AddEndorsementType(HttpContext, endorsementTypeReceiving);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var endorsementType = ((ApiOkResponse)response).Result;
+            return Ok(endorsementType);
         }
 
         [HttpPut("{id}")]
-        public async Task<ApiCommonResponse> UpdateById(long id, EndorsementTypeReceivingDTO endorsementTypeReceivingDTO)
+        public async Task<IActionResult> UpdateById(long id, EndorsementTypeReceivingDTO endorsementTypeReceivingDTO)
         {
-            return await _endorsementTypeService.UpdateEndorsementType(HttpContext, id, endorsementTypeReceivingDTO);
+            var response = await _endorsementTypeService.UpdateEndorsementType(HttpContext, id, endorsementTypeReceivingDTO);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var endorsementType = ((ApiOkResponse)response).Result;
+            return Ok(endorsementType);
         }
 
         [HttpDelete("{id}")]
-        public async Task<ApiCommonResponse> DeleteById(int id)
+        public async Task<ActionResult> DeleteById(int id)
         {
-            return await _endorsementTypeService.DeleteEndorsementType(id);
+            var response = await _endorsementTypeService.DeleteEndorsementType(id);
+            return StatusCode(response.StatusCode);
         }
     }
 }

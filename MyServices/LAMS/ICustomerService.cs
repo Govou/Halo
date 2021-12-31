@@ -11,12 +11,12 @@ namespace HaloBiz.MyServices.LAMS
 {
     public interface ICustomerService
     {
-        Task<ApiCommonResponse> AddCustomer(HttpContext context, CustomerReceivingDTO customerReceivingDTO);
-        Task<ApiCommonResponse> GetAllCustomers();
-        Task<ApiCommonResponse> GetCustomersByGroupType(long groupTypeId);
-        Task<ApiCommonResponse> GetCustomerById(long id);
-        Task<ApiCommonResponse> GetCustomerByName(string name);
-        Task<ApiCommonResponse> UpdateCustomer(HttpContext context, long id, CustomerReceivingDTO customerReceivingDTO);
-        Task<ApiCommonResponse> DeleteCustomer(long id);
+        Task<ApiResponse> AddCustomer(HttpContext context, CustomerReceivingDTO customerReceivingDTO);
+        Task<ApiResponse> GetAllCustomers();
+        Task<ApiResponse> GetCustomersByGroupType(long groupTypeId);
+        Task<ApiResponse> GetCustomerById(long id);
+        Task<ApiResponse> GetCustomerByName(string name);
+        Task<ApiResponse> UpdateCustomer(HttpContext context, long id, CustomerReceivingDTO customerReceivingDTO);
+        Task<ApiResponse> DeleteCustomer(long id);
     }
 }

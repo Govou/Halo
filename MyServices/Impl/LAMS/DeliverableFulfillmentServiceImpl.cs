@@ -54,28 +54,28 @@ namespace HaloBiz.MyServices.Impl.LAMS
             this._logger = logger;
         }
 
-        public async Task<ApiCommonResponse> AddDeliverableFulfillment(HttpContext context, DeliverableFulfillmentReceivingDTO deliverableFulfillmentReceivingDTO)
+        public async Task<ApiResponse> AddDeliverableFulfillment(HttpContext context, DeliverableFulfillmentReceivingDTO deliverableFulfillmentReceivingDTO)
         {
             var deliverableFulfillment = _mapper.Map<DeliverableFulfillment>(deliverableFulfillmentReceivingDTO);
             deliverableFulfillment.CreatedById = context.GetLoggedInUserId();
             var savedDeliverableFulfillment = await _deliverableFulfillmentRepo.SaveDeliverableFulfillment(deliverableFulfillment);
             if (savedDeliverableFulfillment == null)
             {
-                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+                return new ApiResponse(500);
             }
 
             var deliverableFulfillmentTransferDTO = _mapper.Map<DeliverableFulfillmentTransferDTO>(savedDeliverableFulfillment);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,deliverableFulfillmentTransferDTO);
+            return new ApiOkResponse(deliverableFulfillmentTransferDTO);
         }
 
-        public async Task<ApiCommonResponse> DeliverableToAssignedUserRatio(long taskMasterId)
+        public async Task<ApiResponse> DeliverableToAssignedUserRatio(long taskMasterId)
         {
             var listOfDeliverableToAssignedPeronRation = new List<DeliverableToAssignedUserRatioTransferDTO>(); 
             try{
 
             var deliverables = await _deliverableFulfillmentRepo.FindAllAssignedDeliverableFulfillmentForTaskMaster(taskMasterId);
             if(deliverables.Count() == 0){
-                return CommonResponse.Send(ResponseCodes.SUCCESS,listOfDeliverableToAssignedPeronRation);
+                return new ApiOkResponse(listOfDeliverableToAssignedPeronRation);
             }
 
             var userTaskDictionary = new Dictionary<UserProfile, int>();
@@ -97,77 +97,77 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 });
             });
 
-            return CommonResponse.Send(ResponseCodes.SUCCESS,listOfDeliverableToAssignedPeronRation);
+            return new ApiOkResponse(listOfDeliverableToAssignedPeronRation);
 
             }catch(Exception e )
             {
                 _logger.LogError(e.Message);
-                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+                return new ApiResponse(500);
             }
             
         }
 
-        public async Task<ApiCommonResponse> GetAllDeliverableFulfillment()
+        public async Task<ApiResponse> GetAllDeliverableFulfillment()
         {
             var deliverableFulfillments = await _deliverableFulfillmentRepo.FindAllDeliverableFulfillment();
             if (deliverableFulfillments == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
             var deliverableFulfillmentTransferDTO = _mapper.Map<IEnumerable<DeliverableFulfillmentTransferDTO>>(deliverableFulfillments);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,deliverableFulfillmentTransferDTO);
+            return new ApiOkResponse(deliverableFulfillmentTransferDTO);
         }
 
-        public async Task<ApiCommonResponse> GetDeliverableFulfillmentById(long id)
+        public async Task<ApiResponse> GetDeliverableFulfillmentById(long id)
         {
             var deliverableFulfillment = await _deliverableFulfillmentRepo.FindDeliverableFulfillmentById(id);
             if (deliverableFulfillment == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
             var deliverableFulfillmentTransferDTOs = _mapper.Map<DeliverableFulfillmentTransferDTO>(deliverableFulfillment);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,deliverableFulfillmentTransferDTOs);
+            return new ApiOkResponse(deliverableFulfillmentTransferDTOs);
         }
 
-        public async Task<ApiCommonResponse> GetDeliverableFulfillmentByName(string name)
+        public async Task<ApiResponse> GetDeliverableFulfillmentByName(string name)
         {
             var deliverableFulfillment = await _deliverableFulfillmentRepo.FindDeliverableFulfillmentByName(name);
             if (deliverableFulfillment == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
             var deliverableFulfillmentTransferDTOs = _mapper.Map<DeliverableFulfillmentTransferDTO>(deliverableFulfillment);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,deliverableFulfillmentTransferDTOs);
+            return new ApiOkResponse(deliverableFulfillmentTransferDTOs);
         }
-        public async Task<ApiCommonResponse> GetUserDeliverableFulfillmentStat(long userId)
+        public async Task<ApiResponse> GetUserDeliverableFulfillmentStat(long userId)
         {
             try{
                 var stat = await _deliverableFulfillmentRepo.GetUserDeliverableStat(userId);
-                return CommonResponse.Send(ResponseCodes.SUCCESS,stat);
+                return new ApiOkResponse(stat);
             }catch(Exception e)
             {
                 _logger.LogError(e.Message);
                 _logger.LogError(e.StackTrace);
-                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+                return new ApiResponse(500);
             }
         }
 
-        public async Task<ApiCommonResponse> GetUserDeliverableFulfillmentDashboard(long userId)
+        public async Task<ApiResponse> GetUserDeliverableFulfillmentDashboard(long userId)
         {
             try
             {
                 var stat = await _deliverableFulfillmentRepo.GetUserDeliverableDashboard(userId);
-                return CommonResponse.Send(ResponseCodes.SUCCESS,stat);
+                return new ApiOkResponse(stat);
             }
             catch (Exception e)
             {
                 _logger.LogError(e.Message);
                 _logger.LogError(e.StackTrace);
-                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+                return new ApiResponse(500);
             }
         }
 
-        public async Task<ApiCommonResponse> UpdateDeliverableFulfillment(HttpContext context, long deliverableId, DeliverableFulfillmentReceivingDTO deliverableFulfillmentReceivingDTO)
+        public async Task<ApiResponse> UpdateDeliverableFulfillment(HttpContext context, long deliverableId, DeliverableFulfillmentReceivingDTO deliverableFulfillmentReceivingDTO)
         {
             var isUpdateToAssignResponsible = false;
             var isUpdateThatAssignsDeliverable = false;
@@ -178,7 +178,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                     var deliverableFulfillmentToUpdate = await _context.DeliverableFulfillments.FirstOrDefaultAsync( x => x.Id == deliverableId && x.IsDeleted == false);
                     if (deliverableFulfillmentToUpdate == null)
                     {
-                        return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                        return new ApiResponse(404);
                     }
 
                     isUpdateToAssignResponsible = deliverableFulfillmentToUpdate.ResponsibleId == 0 && deliverableFulfillmentReceivingDTO.ResponsibleId > 0;
@@ -226,31 +226,31 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
                     await transaction.CommitAsync();
                     var deliverableFulfillmentTransferDTOs = _mapper.Map<DeliverableFulfillmentTransferDTO>(updatedDeliverableFulfillment);
-                    return CommonResponse.Send(ResponseCodes.SUCCESS,deliverableFulfillmentTransferDTOs);
+                    return new ApiOkResponse(deliverableFulfillmentTransferDTOs);
                 }catch(Exception e){
                     await transaction.RollbackAsync();
                     _logger.LogError(e.Message);
                     _logger.LogError(e.StackTrace);
-                    return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+                    return new ApiResponse(500);
                 }
             }
 
         }
 
-        public async Task<ApiCommonResponse> DeleteDeliverableFulfillment(long id)
+        public async Task<ApiResponse> DeleteDeliverableFulfillment(long id)
         {
             var deliverableFulfillmentToDelete = await _deliverableFulfillmentRepo.FindDeliverableFulfillmentById(id);
             if (deliverableFulfillmentToDelete == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
 
             if (!await _deliverableFulfillmentRepo.DeleteDeliverableFulfillment(deliverableFulfillmentToDelete))
             {
-                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+                return new ApiResponse(500);
             }
 
-            return CommonResponse.Send(ResponseCodes.SUCCESS);
+            return new ApiOkResponse(true);
         }
 
 
@@ -276,7 +276,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
             return true;
         } 
 
-        public async Task<ApiCommonResponse> ReAssignDeliverableFulfillment(HttpContext context, long id, DeliverableFulfillmentReceivingDTO deliverableFulfillmentReceivingDTO)
+        public async Task<ApiResponse> ReAssignDeliverableFulfillment(HttpContext context, long id, DeliverableFulfillmentReceivingDTO deliverableFulfillmentReceivingDTO)
         {
             using (var transaction = await _context.Database.BeginTransactionAsync())
             {
@@ -285,13 +285,13 @@ namespace HaloBiz.MyServices.Impl.LAMS
                     var deliverableFulfillmentToUpdate = await _deliverableFulfillmentRepo.FindDeliverableFulfillmentById(id);
                     if (deliverableFulfillmentToUpdate == null)
                     {
-                        return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                        return new ApiResponse(404);
                     }
 
                     var userProfile = await _userProfileRepo.FindUserById(deliverableFulfillmentReceivingDTO.ResponsibleId.Value);
                     if (userProfile == null)
                     {
-                        return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+                        return new ApiResponse(500);
                     }
 
                     var deliverableFulfillment = _mapper.Map<DeliverableFulfillment>(deliverableFulfillmentReceivingDTO);
@@ -300,7 +300,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                     var savedDeliverableFulfillment = await _deliverableFulfillmentRepo.SaveDeliverableFulfillment(deliverableFulfillment);
                     if (savedDeliverableFulfillment == null)
                     {
-                        return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+                        return new ApiResponse(500);
                     }
 
                     var summary = $"Initial details before change, \n {deliverableFulfillmentToUpdate.ToString()} \n";
@@ -315,7 +315,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
                     if (updatedDeliverableFulfillment == null)
                     {
-                        return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+                        return new ApiResponse(500);
                     }
                     ModificationHistory history = new ModificationHistory()
                     {
@@ -333,24 +333,24 @@ namespace HaloBiz.MyServices.Impl.LAMS
                     await transaction.CommitAsync();
 
                     var deliverableFulfillmentTransferDTOs = _mapper.Map<DeliverableFulfillmentTransferDTO>(savedDeliverableFulfillment);
-                    return CommonResponse.Send(ResponseCodes.SUCCESS,deliverableFulfillmentTransferDTOs);
+                    return new ApiOkResponse(deliverableFulfillmentTransferDTOs);
                 }
                 catch (Exception e)
                 {
                     await transaction.RollbackAsync();
                     _logger.LogError(e.Message);
                     _logger.LogError(e.StackTrace);
-                    return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+                    return new ApiResponse(500);
                 }
             }        
         }
 
-        public async Task<ApiCommonResponse> SetIsPicked(HttpContext context, long id)
+        public async Task<ApiResponse> SetIsPicked(HttpContext context, long id)
         {
             var deliverableFulfillmentToUpdate = await _deliverableFulfillmentRepo.FindDeliverableFulfillmentById(id);
             if (deliverableFulfillmentToUpdate == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
 
             var summary = $"Initial details before change, \n {deliverableFulfillmentToUpdate.ToString()} \n";
@@ -364,7 +364,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
             if (updatedDeliverableFulfillment == null)
             {
-                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+                return new ApiResponse(500);
             }
             ModificationHistory history = new ModificationHistory()
             {
@@ -377,16 +377,16 @@ namespace HaloBiz.MyServices.Impl.LAMS
             await _historyRepo.SaveHistory(history);
 
             var deliverableFulfillmentTransferDTOs = _mapper.Map<DeliverableFulfillmentTransferDTO>(updatedDeliverableFulfillment);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,deliverableFulfillmentTransferDTOs);
+            return new ApiOkResponse(deliverableFulfillmentTransferDTOs);
 
         }
 
-        public async Task<ApiCommonResponse> SetRequestedForValidation(HttpContext context, long id, DeliverableFulfillmentApprovalReceivingDTO dto)
+        public async Task<ApiResponse> SetRequestedForValidation(HttpContext context, long id, DeliverableFulfillmentApprovalReceivingDTO dto)
         {
             var deliverableFulfillmentToUpdate = await _deliverableFulfillmentRepo.FindDeliverableFulfillmentById(id);
             if (deliverableFulfillmentToUpdate == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
 
             var summary = $"Initial details before change, \n {deliverableFulfillmentToUpdate.ToString()} \n";
@@ -401,7 +401,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
             if (updatedDeliverableFulfillment == null)
             {
-                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+                return new ApiResponse(500);
             }
 
             ModificationHistory history = new ModificationHistory()
@@ -415,11 +415,11 @@ namespace HaloBiz.MyServices.Impl.LAMS
             await _historyRepo.SaveHistory(history);
 
             var deliverableFulfillmentTransferDTOs = _mapper.Map<DeliverableFulfillmentTransferDTO>(updatedDeliverableFulfillment);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,deliverableFulfillmentTransferDTOs);
+            return new ApiOkResponse(deliverableFulfillmentTransferDTOs);
 
         }
 
-        public async Task<ApiCommonResponse> SetDeliveredStatus(HttpContext context, long id)
+        public async Task<ApiResponse> SetDeliveredStatus(HttpContext context, long id)
         {
             using (var transaction = await _context.Database.BeginTransactionAsync())
             {
@@ -428,7 +428,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                     var deliverableFulfillmentToUpdate = await _deliverableFulfillmentRepo.FindDeliverableFulfillmentById(id);
                     if (deliverableFulfillmentToUpdate == null)
                     {
-                        return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                        return new ApiResponse(404);
                     }
 
                     var summary = $"Initial details before change, \n {deliverableFulfillmentToUpdate.ToString()} \n";
@@ -442,7 +442,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
                     if (updatedDeliverableFulfillment == null)
                     {
-                        return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+                        return new ApiResponse(500);
                     }
 
                     bool allTaskDeliverablesDelivered = _context.DeliverableFulfillments.Where(x => x.TaskFullfillmentId == updatedDeliverableFulfillment.TaskFullfillmentId).All(x => x.DeliverableStatus == true);
@@ -456,7 +456,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
                         if (updatedTaskFulfillment == null)
                         {
-                            return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+                            return new ApiResponse(500);
                         }
                     }
 
@@ -474,14 +474,14 @@ namespace HaloBiz.MyServices.Impl.LAMS
                     await transaction.CommitAsync();
 
                     var deliverableFulfillmentTransferDTOs = _mapper.Map<DeliverableFulfillmentTransferDTO>(updatedDeliverableFulfillment);
-                    return CommonResponse.Send(ResponseCodes.SUCCESS,deliverableFulfillmentTransferDTOs);
+                    return new ApiOkResponse(deliverableFulfillmentTransferDTOs);
                 }
                 catch (Exception e)
                 {
                     await transaction.RollbackAsync();
                     _logger.LogError(e.Message);
                     _logger.LogError(e.StackTrace);
-                    return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+                    return new ApiResponse(500);
                 }
             }
         }

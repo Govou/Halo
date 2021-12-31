@@ -24,27 +24,40 @@ namespace HaloBiz.Controllers
         }
 
         [HttpGet("")]
-        public async Task<ApiCommonResponse> GetProcessesRequiringApproval()
+        public async Task<ActionResult> GetProcessesRequiringApproval()
         {
-            return await _approverLevelService.GetAllProcessesRequiringApproval();
+            var response = await _approverLevelService.GetAllProcessesRequiringApproval();
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var approverLevel = ((ApiOkResponse)response).Result;
+            return Ok(approverLevel);
         }
 
         [HttpPost("")]
-        public async Task<ApiCommonResponse> AddNewProcessesRequiringApproval(ProcessesRequiringApprovalReceivingDTO approverLevelReceiving)
+        public async Task<ActionResult> AddNewProcessesRequiringApproval(ProcessesRequiringApprovalReceivingDTO approverLevelReceiving)
         {
-            return await _approverLevelService.AddProcessesRequiringApproval(HttpContext, approverLevelReceiving);
+            var response = await _approverLevelService.AddProcessesRequiringApproval(HttpContext, approverLevelReceiving);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var approverLevel = ((ApiOkResponse)response).Result;
+            return Ok(approverLevel);
         }
 
         [HttpPut("{id}")]
-        public async Task<ApiCommonResponse> UpdateById(long id, ProcessesRequiringApprovalReceivingDTO approverLevelReceiving)
+        public async Task<IActionResult> UpdateById(long id, ProcessesRequiringApprovalReceivingDTO approverLevelReceiving)
         {
-            return await _approverLevelService.UpdateProcessesRequiringApproval(HttpContext, id, approverLevelReceiving);
+            var response = await _approverLevelService.UpdateProcessesRequiringApproval(HttpContext, id, approverLevelReceiving);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var approverLevel = ((ApiOkResponse)response).Result;
+            return Ok(approverLevel);
         }
 
         [HttpDelete("{id}")]
-        public async Task<ApiCommonResponse> DeleteById(int id)
+        public async Task<ActionResult> DeleteById(int id)
         {
-            return await _approverLevelService.DeleteProcessesRequiringApproval(id);
+            var response = await _approverLevelService.DeleteProcessesRequiringApproval(id);
+            return StatusCode(response.StatusCode);
         }
 
     }

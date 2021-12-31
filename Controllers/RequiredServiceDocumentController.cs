@@ -23,40 +23,60 @@ namespace HaloBiz.Controllers
         }
 
         [HttpGet("")]
-        public async Task<ApiCommonResponse> GetRequiredServiceDocument()
+        public async Task<ActionResult> GetRequiredServiceDocument()
         {
-            return await _requiredServiceDocumentService.GetAllRequiredServiceDocument();
+            var response = await _requiredServiceDocumentService.GetAllRequiredServiceDocument();
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var requiredServiceDocument = ((ApiOkResponse)response).Result;
+            return Ok(requiredServiceDocument);
         }
 
         [HttpGet("caption/{name}")]
-        public async Task<ApiCommonResponse> GetByCaption(string name)
+        public async Task<ActionResult> GetByCaption(string name)
         {
-            return await _requiredServiceDocumentService.GetRequiredServiceDocumentByName(name);
+            var response = await _requiredServiceDocumentService.GetRequiredServiceDocumentByName(name);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var requiredServiceDocument = ((ApiOkResponse)response).Result;
+            return Ok(requiredServiceDocument);
         }
 
         [HttpGet("{id}")]
-        public async Task<ApiCommonResponse> GetById(long id)
+        public async Task<ActionResult> GetById(long id)
         {
-            return await _requiredServiceDocumentService.GetRequiredServiceDocumentById(id);
+            var response = await _requiredServiceDocumentService.GetRequiredServiceDocumentById(id);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var requiredServiceDocument = ((ApiOkResponse)response).Result;
+            return Ok(requiredServiceDocument);
         }
 
         [HttpPost("")]
-        public async Task<ApiCommonResponse> AddNewRequiredServiceDocument(RequiredServiceDocumentReceivingDTO requiredServiceDocumentReceiving)
+        public async Task<ActionResult> AddNewRequiredServiceDocument(RequiredServiceDocumentReceivingDTO requiredServiceDocumentReceiving)
         {
-            return await _requiredServiceDocumentService.AddRequiredServiceDocument(HttpContext, requiredServiceDocumentReceiving);
+            var response = await _requiredServiceDocumentService.AddRequiredServiceDocument(HttpContext, requiredServiceDocumentReceiving);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var requiredServiceDocument = ((ApiOkResponse)response).Result;
+            return Ok(requiredServiceDocument);
         }
 
         [HttpPut("{id}")]
-        public async Task<ApiCommonResponse> UpdateById(long id, RequiredServiceDocumentReceivingDTO requiredServiceDocumentReceiving)
+        public async Task<IActionResult> UpdateById(long id, RequiredServiceDocumentReceivingDTO requiredServiceDocumentReceiving)
         {
-            return await _requiredServiceDocumentService.UpdateRequiredServiceDocument(HttpContext, id, requiredServiceDocumentReceiving);
-            
+            var response = await _requiredServiceDocumentService.UpdateRequiredServiceDocument(HttpContext, id, requiredServiceDocumentReceiving);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var requiredServiceDocument = ((ApiOkResponse)response).Result;
+            return Ok(requiredServiceDocument);
         }
 
         [HttpDelete("{id}")]
-        public async Task<ApiCommonResponse> DeleteById(int id)
+        public async Task<ActionResult> DeleteById(int id)
         {
-            return await _requiredServiceDocumentService.DeleteRequiredServiceDocument(id);
+            var response = await _requiredServiceDocumentService.DeleteRequiredServiceDocument(id);
+            return StatusCode(response.StatusCode);
         }
     }
 }

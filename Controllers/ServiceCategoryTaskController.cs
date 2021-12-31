@@ -18,39 +18,60 @@ namespace HaloBiz.Controllers
         }
 
         [HttpGet("")]
-        public async Task<ApiCommonResponse> GetServiceCategoryTask()
+        public async Task<ActionResult> GetServiceCategoryTask()
         {
-            return await _serviceCategoryTaskService.GetAllServiceCategoryTasks();
+            var response = await _serviceCategoryTaskService.GetAllServiceCategoryTasks();
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var serviceCategoryTask = ((ApiOkResponse)response).Result;
+            return Ok(serviceCategoryTask);
         }
 
         [HttpGet("name/{name}")]
-        public async Task<ApiCommonResponse> GetByCaption(string name)
+        public async Task<ActionResult> GetByCaption(string name)
         {
-            return await _serviceCategoryTaskService.GetServiceCategoryTaskByName(name);
+            var response = await _serviceCategoryTaskService.GetServiceCategoryTaskByName(name);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var ServiceCategoryTask = ((ApiOkResponse)response).Result;
+            return Ok(ServiceCategoryTask);
         }
 
         [HttpGet("{id}")]
-        public async Task<ApiCommonResponse> GetById(long id)
+        public async Task<ActionResult> GetById(long id)
         {
-            return await _serviceCategoryTaskService.GetServiceCategoryTaskById(id);
+            var response = await _serviceCategoryTaskService.GetServiceCategoryTaskById(id);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var ServiceCategoryTask = ((ApiOkResponse)response).Result;
+            return Ok(ServiceCategoryTask);
         }
 
         [HttpPost("")]
-        public async Task<ApiCommonResponse> AddNewServiceCategoryTask(ServiceCategoryTaskReceivingDTO ServiceCategoryTaskReceiving)
+        public async Task<ActionResult> AddNewServiceCategoryTask(ServiceCategoryTaskReceivingDTO ServiceCategoryTaskReceiving)
         {
-            return await _serviceCategoryTaskService.AddServiceCategoryTask(HttpContext, ServiceCategoryTaskReceiving);
+            var response = await _serviceCategoryTaskService.AddServiceCategoryTask(HttpContext, ServiceCategoryTaskReceiving);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var serviceCategoryTask = ((ApiOkResponse)response).Result;
+            return Ok(serviceCategoryTask);
         }
 
         [HttpPut("{id}")]
-        public async Task<ApiCommonResponse> UpdateById(long id, ServiceCategoryTaskReceivingDTO ServiceCategoryTaskReceiving)
+        public async Task<IActionResult> UpdateById(long id, ServiceCategoryTaskReceivingDTO ServiceCategoryTaskReceiving)
         {
-            return await _serviceCategoryTaskService.UpdateServiceCategoryTask(HttpContext, id, ServiceCategoryTaskReceiving);
+            var response = await _serviceCategoryTaskService.UpdateServiceCategoryTask(HttpContext, id, ServiceCategoryTaskReceiving);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var serviceCategoryTask = ((ApiOkResponse)response).Result;
+            return Ok(serviceCategoryTask);
         }
 
         [HttpDelete("{id}")]
-        public async Task<ApiCommonResponse> DeleteById(int id)
+        public async Task<ActionResult> DeleteById(int id)
         {
-            return await _serviceCategoryTaskService.DeleteServiceCategoryTask(id);
+            var response = await _serviceCategoryTaskService.DeleteServiceCategoryTask(id);
+            return StatusCode(response.StatusCode);
         }
     }
 }

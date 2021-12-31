@@ -8,18 +8,18 @@ namespace HaloBiz.MyServices.LAMS
 {
     public interface IDeliverableFulfillmentService
     {
-        Task<ApiCommonResponse> AddDeliverableFulfillment(HttpContext context, DeliverableFulfillmentReceivingDTO deliverableFulfillmentReceivingDTO);
-        Task<ApiCommonResponse> GetAllDeliverableFulfillment();
-        Task<ApiCommonResponse> DeliverableToAssignedUserRatio(long taskMasterId);
-        Task<ApiCommonResponse> GetDeliverableFulfillmentById(long id);
-        Task<ApiCommonResponse> GetDeliverableFulfillmentByName(string name);
-        Task<ApiCommonResponse> UpdateDeliverableFulfillment(HttpContext context, long id, DeliverableFulfillmentReceivingDTO deliverableFulfillmentReceivingDTO);
-        Task<ApiCommonResponse> DeleteDeliverableFulfillment(long id);        
-        Task<ApiCommonResponse> ReAssignDeliverableFulfillment(HttpContext context, long id, DeliverableFulfillmentReceivingDTO deliverableFulfillmentReceivingDTO);
-        Task<ApiCommonResponse> SetIsPicked(HttpContext context, long id);
-        Task<ApiCommonResponse> SetRequestedForValidation(HttpContext context, long id,  DeliverableFulfillmentApprovalReceivingDTO dto);
-        Task<ApiCommonResponse> SetDeliveredStatus(HttpContext context, long id);
-        Task<ApiCommonResponse> GetUserDeliverableFulfillmentStat(long userId);
-        Task<ApiCommonResponse> GetUserDeliverableFulfillmentDashboard(long userId);
+        Task<ApiResponse> AddDeliverableFulfillment(HttpContext context, DeliverableFulfillmentReceivingDTO deliverableFulfillmentReceivingDTO);
+        Task<ApiResponse> GetAllDeliverableFulfillment();
+        Task<ApiResponse> DeliverableToAssignedUserRatio(long taskMasterId);
+        Task<ApiResponse> GetDeliverableFulfillmentById(long id);
+        Task<ApiResponse> GetDeliverableFulfillmentByName(string name);
+        Task<ApiResponse> UpdateDeliverableFulfillment(HttpContext context, long id, DeliverableFulfillmentReceivingDTO deliverableFulfillmentReceivingDTO);
+        Task<ApiResponse> DeleteDeliverableFulfillment(long id);        
+        Task<ApiResponse> ReAssignDeliverableFulfillment(HttpContext context, long id, DeliverableFulfillmentReceivingDTO deliverableFulfillmentReceivingDTO);
+        Task<ApiResponse> SetIsPicked(HttpContext context, long id);
+        Task<ApiResponse> SetRequestedForValidation(HttpContext context, long id,  DeliverableFulfillmentApprovalReceivingDTO dto);
+        Task<ApiResponse> SetDeliveredStatus(HttpContext context, long id);
+        Task<ApiResponse> GetUserDeliverableFulfillmentStat(long userId);
+        Task<ApiResponse> GetUserDeliverableFulfillmentDashboard(long userId);
     }
 }

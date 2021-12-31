@@ -23,49 +23,70 @@ namespace HaloBiz.Controllers
         }
 
         [HttpGet("")]
-        public async Task<ApiCommonResponse> GetComplaint()
+        public async Task<ActionResult> GetComplaint()
         {
-            return await _ComplaintService.GetAllComplaint();
+            var response = await _ComplaintService.GetAllComplaint();
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var Complaint = ((ApiOkResponse)response).Result;
+            return Ok(Complaint);
         }
 
         [HttpGet("GetComplaintsStats")]
-        public async Task<ApiCommonResponse> GetComplaintsStats()
+        public async Task<ActionResult> GetComplaintsStats()
         {
-            return await _ComplaintService.GetComplaintsStats(HttpContext);
+            var response = await _ComplaintService.GetComplaintsStats(HttpContext);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var Complaint = ((ApiOkResponse)response).Result;
+            return Ok(Complaint);
         }
 
         /*[HttpGet("caption/{name}")]
-        public async Task<ApiCommonResponse> GetByCaption(string name)
+        public async Task<ActionResult> GetByCaption(string name)
         {
-            return await _ComplaintService.GetComplaintByName(name);
-            
-                
+            var response = await _ComplaintService.GetComplaintByName(name);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
             var Complaint = ((ApiOkResponse)response).Result;
             return Ok(Complaint);
         }*/
 
         [HttpGet("{id}")]
-        public async Task<ApiCommonResponse> GetById(long id)
+        public async Task<ActionResult> GetById(long id)
         {
-            return await _ComplaintService.GetComplaintById(id);
+            var response = await _ComplaintService.GetComplaintById(id);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var Complaint = ((ApiOkResponse)response).Result;
+            return Ok(Complaint);
         }
 
         [HttpPost("")]
-        public async Task<ApiCommonResponse> AddNewComplaint(ComplaintReceivingDTO ComplaintReceiving)
+        public async Task<ActionResult> AddNewComplaint(ComplaintReceivingDTO ComplaintReceiving)
         {
-            return await _ComplaintService.AddComplaint(HttpContext, ComplaintReceiving);
+            var response = await _ComplaintService.AddComplaint(HttpContext, ComplaintReceiving);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var Complaint = ((ApiOkResponse)response).Result;
+            return Ok(Complaint);
         }
 
         [HttpPut("{id}")]
-        public async Task<ApiCommonResponse> UpdateById(long id, ComplaintReceivingDTO ComplaintReceiving)
+        public async Task<IActionResult> UpdateById(long id, ComplaintReceivingDTO ComplaintReceiving)
         {
-            return await _ComplaintService.UpdateComplaint(HttpContext, id, ComplaintReceiving);
+            var response = await _ComplaintService.UpdateComplaint(HttpContext, id, ComplaintReceiving);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var Complaint = ((ApiOkResponse)response).Result;
+            return Ok(Complaint);
         }
 
         [HttpDelete("{id}")]
-        public async Task<ApiCommonResponse> DeleteById(int id)
+        public async Task<ActionResult> DeleteById(int id)
         {
-            return await _ComplaintService.DeleteComplaint(id);
+            var response = await _ComplaintService.DeleteComplaint(id);
+            return StatusCode(response.StatusCode);
         }
     }
 }

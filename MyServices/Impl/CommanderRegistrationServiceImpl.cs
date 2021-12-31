@@ -24,13 +24,13 @@ namespace HaloBiz.MyServices.Impl
             _commanderRepository = commanderRepository;
         }
 
-        public async Task<ApiCommonResponse> AddCommander(HttpContext context, CommanderProfileReceivingDTO commanderReceivingDTO)
+        public async Task<ApiResponse> AddCommander(HttpContext context, CommanderProfileReceivingDTO commanderReceivingDTO)
         {
             var commander = _mapper.Map<CommanderProfile>(commanderReceivingDTO);
             var IdExist = _commanderRepository.FindCommanderUserProfileById(commanderReceivingDTO.ProfileId);
             if (IdExist != null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE, null, "No record exists");
+                return new ApiResponse(409);
             }
 
             commander.CreatedById = context.GetLoggedInUserId();
@@ -38,13 +38,13 @@ namespace HaloBiz.MyServices.Impl
             var savedType = await _commanderRepository.SaveCommander(commander);
             if (savedType == null)
             {
-                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+                return new ApiResponse(500);
             }
             var typeTransferDTO = _mapper.Map<CommanderProfileTransferDTO>(commander);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,typeTransferDTO);
+            return new ApiOkResponse(typeTransferDTO);
         }
 
-        public async Task<ApiCommonResponse> AddCommanderTie(HttpContext context, CommanderSMORoutesResourceTieReceivingDTO commanderReceivingDTO)
+        public async Task<ApiResponse> AddCommanderTie(HttpContext context, CommanderSMORoutesResourceTieReceivingDTO commanderReceivingDTO)
         {
             var commander = new CommanderSMORoutesResourceTie();
 
@@ -63,99 +63,99 @@ namespace HaloBiz.MyServices.Impl
                     var savedType = await _commanderRepository.SaveCommanderTie(commander);
                     if (savedType == null)
                     {
-                        return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+                        return new ApiResponse(500);
                     }
-                    //return                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE,null, "No record exists");;
+                    //return new ApiResponse(409);
                 }
 
             }
-            return CommonResponse.Send(ResponseCodes.SUCCESS,"Record(s) Added");
+            return new ApiOkResponse("Record(s) Added");
         }
 
-        public async Task<ApiCommonResponse> DeleteCommander(long id)
+        public async Task<ApiResponse> DeleteCommander(long id)
         {
             var itemToDelete = await _commanderRepository.FindCommanderById(id);
 
             if (itemToDelete == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
 
             if (!await _commanderRepository.DeleteCommander(itemToDelete))
             {
-                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+                return new ApiResponse(500);
             }
 
-            return CommonResponse.Send(ResponseCodes.SUCCESS);
+            return new ApiOkResponse(true);
         }
 
-        public async Task<ApiCommonResponse> DeleteCommanderTie(long id)
+        public async Task<ApiResponse> DeleteCommanderTie(long id)
         {
             var itemToDelete = await _commanderRepository.FindCommanderTieById(id);
 
             if (itemToDelete == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
 
             if (!await _commanderRepository.DeleteCommanderTie(itemToDelete))
             {
-                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+                return new ApiResponse(500);
             }
 
-            return CommonResponse.Send(ResponseCodes.SUCCESS);
+            return new ApiOkResponse(true);
         }
 
-        public async Task<ApiCommonResponse> GetAllCommanders()
+        public async Task<ApiResponse> GetAllCommanders()
         {
             var commanders = await _commanderRepository.FindAllCommanders();
             if (commanders == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
             var TransferDTO = _mapper.Map<IEnumerable<CommanderProfileTransferDTO>>(commanders);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,TransferDTO);
+            return new ApiOkResponse(TransferDTO);
         }
 
-        public async Task<ApiCommonResponse> GetAllCommanderTies()
+        public async Task<ApiResponse> GetAllCommanderTies()
         {
             var commanders = await _commanderRepository.FindAllCommanderTies();
             if (commanders == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
             var TransferDTO = _mapper.Map<IEnumerable<CommanderSMORoutesResourceTieTransferDTO>>(commanders);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,TransferDTO);
+            return new ApiOkResponse(TransferDTO);
         }
 
-        public async Task<ApiCommonResponse> GetCommanderById(long id)
+        public async Task<ApiResponse> GetCommanderById(long id)
         {
             var commander = await _commanderRepository.FindCommanderById(id);
             if (commander == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
             var TransferDTO = _mapper.Map<CommanderProfileTransferDTO>(commander);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,TransferDTO);
+            return new ApiOkResponse(TransferDTO);
         }
 
-        public async Task<ApiCommonResponse> GetCommanderTieById(long id)
+        public async Task<ApiResponse> GetCommanderTieById(long id)
         {
             var commander = await _commanderRepository.FindCommanderTieById(id);
             if (commander == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
             var TransferDTO = _mapper.Map<CommanderSMORoutesResourceTieTransferDTO>(commander);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,TransferDTO);
+            return new ApiOkResponse(TransferDTO);
         }
 
-        public async Task<ApiCommonResponse> UpdateCommander(HttpContext context, long id, CommanderProfileReceivingDTO commanderReceivingDTO)
+        public async Task<ApiResponse> UpdateCommander(HttpContext context, long id, CommanderProfileReceivingDTO commanderReceivingDTO)
         {
             var itemToUpdate = await _commanderRepository.FindCommanderById(id);
             if (itemToUpdate == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
 
             var summary = $"Initial details before change, \n {itemToUpdate.ToString()} \n";
@@ -173,11 +173,11 @@ namespace HaloBiz.MyServices.Impl
 
             if (updatedRank == null)
             {
-                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+                return new ApiResponse(500);
             }
 
             var rankTransferDTOs = _mapper.Map<CommanderProfileTransferDTO>(updatedRank);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,rankTransferDTOs);
+            return new ApiOkResponse(rankTransferDTOs);
         }
     }
 }

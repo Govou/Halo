@@ -10,12 +10,12 @@ namespace HaloBiz.MyServices
 {
     public interface IAccountClassService
     {
-        Task<ApiCommonResponse> AddAccountClass(HttpContext context, AccountClassReceivingDTO accountClassReceivingDTO);
-        Task<ApiCommonResponse> GetAccountClassById(long id);
-        Task<ApiCommonResponse> GetAccountClassByCaption(string caption);
-        Task<ApiCommonResponse> GetAllAccountClasses();
-        Task<ApiCommonResponse> UpdateAccountClass(long id, AccountClassReceivingDTO accountClassReceivingDTO);
-        Task<ApiCommonResponse> DeleteAccountClass(long id);
-        Task<ApiCommonResponse> GetBreakdownOfAccountClass();
+        Task<ApiResponse> AddAccountClass(HttpContext context, AccountClassReceivingDTO accountClassReceivingDTO);
+        Task<ApiResponse> GetAccountClassById(long id);
+        Task<ApiResponse> GetAccountClassByCaption(string caption);
+        Task<ApiResponse> GetAllAccountClasses();
+        Task<ApiResponse> UpdateAccountClass(long id, AccountClassReceivingDTO accountClassReceivingDTO);
+        Task<ApiResponse> DeleteAccountClass(long id);
+        Task<ApiResponse> GetBreakdownOfAccountClass();
     }
 }

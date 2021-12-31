@@ -19,29 +19,45 @@ namespace HaloBiz.Controllers
 
         [HttpGet]
         [Route("FindAllUnmappedDirects")]
-        public async Task<ApiCommonResponse> FindAllUnmappedDirects()
+        public async Task<ActionResult> FindAllUnmappedDirects()
         {
-            return await _servicesService.FindAllUnmappedDirects();
+            var response = await _servicesService.FindAllUnmappedDirects();
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var services = ((ApiOkResponse)response).Result;
+            return Ok(services);
         }
 
         [HttpGet]
         [Route("FindAllRelationships")]
-        public async Task<ApiCommonResponse> FindAllRelationships()
+        public async Task<ActionResult> FindAllRelationships()
         {
-            return await _servicesService.FindAllRelationships();
+            var response = await _servicesService.FindAllRelationships();
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var services = ((ApiOkResponse)response).Result;
+            return Ok(services);
         }
 
 
         [HttpGet("FindByAdminId/{id}")]
-        public async Task<ApiCommonResponse> FindServiceRelationshipByAdminId(long id)
+        public async Task<ActionResult> FindServiceRelationshipByAdminId(long id)
         {
-            return await _servicesService.FindServiceRelationshipByAdminId(id);
+            var response = await _servicesService.FindServiceRelationshipByAdminId(id);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var service = ((ApiOkResponse)response).Result;
+            return Ok(service);
         }
 
         [HttpGet("FindByDirectId/{id}")]
-        public async Task<ApiCommonResponse> FindServiceRelationshipByDirectId(long id)
+        public async Task<ActionResult> FindServiceRelationshipByDirectId(long id)
         {
-            return await _servicesService.FindServiceRelationshipByDirectId(id);
+            var response = await _servicesService.FindServiceRelationshipByDirectId(id);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var service = ((ApiOkResponse)response).Result;
+            return Ok(service);
         }
 
 

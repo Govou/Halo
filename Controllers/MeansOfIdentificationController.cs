@@ -24,40 +24,59 @@ namespace HaloBiz.Controllers
         }
 
         [HttpGet("")]
-        public async Task<ApiCommonResponse> GetMeansOfIdentification()
+        public async Task<ActionResult> GetMeansOfIdentification()
         {
-            return await _meansOfIdentificationService.GetAllMeansOfIdentification();
+            var response = await _meansOfIdentificationService.GetAllMeansOfIdentification();
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var meansOfIdentification = ((ApiOkResponse)response).Result;
+            return Ok(meansOfIdentification);
         }
         [HttpGet("caption/{name}")]
-        public async Task<ApiCommonResponse> GetByCaption(string name)
+        public async Task<ActionResult> GetByCaption(string name)
         {
-            return await _meansOfIdentificationService.GetMeansOfIdentificationByName(name);
+            var response = await _meansOfIdentificationService.GetMeansOfIdentificationByName(name);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var meansOfIdentification = ((ApiOkResponse)response).Result;
+            return Ok(meansOfIdentification);
         }
 
         [HttpGet("{id}")]
-        public async Task<ApiCommonResponse> GetById(long id)
+        public async Task<ActionResult> GetById(long id)
         {
-            return await _meansOfIdentificationService.GetMeansOfIdentificationById(id);
+            var response = await _meansOfIdentificationService.GetMeansOfIdentificationById(id);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var meansOfIdentification = ((ApiOkResponse)response).Result;
+            return Ok(meansOfIdentification);
         }
 
         [HttpPost("")]
-        public async Task<ApiCommonResponse> AddNewMeansOfIdentification(MeansOfIdentificationReceivingDTO meansOfIdentificationReceiving)
+        public async Task<ActionResult> AddNewMeansOfIdentification(MeansOfIdentificationReceivingDTO meansOfIdentificationReceiving)
         {
-            return await _meansOfIdentificationService.AddMeansOfIdentification(HttpContext, meansOfIdentificationReceiving);
-            
+            var response = await _meansOfIdentificationService.AddMeansOfIdentification(HttpContext, meansOfIdentificationReceiving);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var meansOfIdentification = ((ApiOkResponse)response).Result;
+            return Ok(meansOfIdentification);
         }
 
         [HttpPut("{id}")]
-        public async Task<ApiCommonResponse> UpdateById(long id, MeansOfIdentificationReceivingDTO meansOfIdentificationReceiving)
+        public async Task<IActionResult> UpdateById(long id, MeansOfIdentificationReceivingDTO meansOfIdentificationReceiving)
         {
-            return await _meansOfIdentificationService.UpdateMeansOfIdentification(HttpContext, id, meansOfIdentificationReceiving);
-          
+            var response = await _meansOfIdentificationService.UpdateMeansOfIdentification(HttpContext, id, meansOfIdentificationReceiving);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var meansOfIdentification = ((ApiOkResponse)response).Result;
+            return Ok(meansOfIdentification);
         }
 
         [HttpDelete("{id}")]
-        public async Task<ApiCommonResponse> DeleteById(int id)
+        public async Task<ActionResult> DeleteById(int id)
         {
-            return await _meansOfIdentificationService.DeleteMeansOfIdentification(id);
+            var response = await _meansOfIdentificationService.DeleteMeansOfIdentification(id);
+            return StatusCode(response.StatusCode);
         }
     }
 }

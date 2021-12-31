@@ -19,29 +19,43 @@ namespace HaloBiz.Controllers.LAMS
         }
 
         [HttpGet("")]
-        public async Task<ApiCommonResponse> GetLeadContacts()
+        public async Task<ActionResult> GetLeadContacts()
         {
-            return await _LeadDivisionContactService.GetAllLeadDivisionContact();
+            var response = await _LeadDivisionContactService.GetAllLeadDivisionContact();
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var LeadDivisionContact = ((ApiOkResponse)response).Result;
+            return Ok(LeadDivisionContact);
         }
 
         [HttpGet("{id}")]
-        public async Task<ApiCommonResponse> GetById(long id)
+        public async Task<ActionResult> GetById(long id)
         {
-            return await _LeadDivisionContactService.GetLeadDivisionContactById(id);
+            var response = await _LeadDivisionContactService.GetLeadDivisionContactById(id);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var LeadDivisionContact = ((ApiOkResponse)response).Result;
+            return Ok(LeadDivisionContact);
         }
 
         [HttpPost("")]
-        public async Task<ApiCommonResponse> AddNewLeadDivisionContact(long leadDivisionId, LeadDivisionContactReceivingDTO leadDivisionContactReceiving)
+        public async Task<ActionResult> AddNewLeadDivisionContact(long leadDivisionId, LeadDivisionContactReceivingDTO leadDivisionContactReceiving)
         {
-            return await _LeadDivisionContactService.AddLeadDivisionContact(HttpContext, leadDivisionId, leadDivisionContactReceiving);
-            
+            var response = await _LeadDivisionContactService.AddLeadDivisionContact(HttpContext, leadDivisionId, leadDivisionContactReceiving);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var leadContact = ((ApiOkResponse)response).Result;
+            return Ok(leadContact);
         }
 
         [HttpPut("{id}")]
-        public async Task<ApiCommonResponse> UpdateById(long id, LeadDivisionContactReceivingDTO LeadDivisionContactReceiving)
+        public async Task<IActionResult> UpdateById(long id, LeadDivisionContactReceivingDTO LeadDivisionContactReceiving)
         {
-            return await _LeadDivisionContactService.UpdateLeadDivisionContact(HttpContext, id, LeadDivisionContactReceiving);
-            
+            var response = await _LeadDivisionContactService.UpdateLeadDivisionContact(HttpContext, id, LeadDivisionContactReceiving);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var LeadDivisionContact = ((ApiOkResponse)response).Result;
+            return Ok(LeadDivisionContact);
         }
     }
 }

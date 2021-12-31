@@ -24,58 +24,58 @@ namespace HaloBiz.MyServices.Impl
             this._serviceTaskDeliverableRepo = _serviceTaskDeliverableRepo;
         }
 
-        public async Task<ApiCommonResponse> AddServiceTaskDeliverable(HttpContext context, ServiceTaskDeliverableReceivingDTO serviceTaskDeliverableReceivingDTO)
+        public async Task<ApiResponse> AddServiceTaskDeliverable(HttpContext context, ServiceTaskDeliverableReceivingDTO serviceTaskDeliverableReceivingDTO)
         {
             var serviceTaskDeliverable = _mapper.Map<ServiceTaskDeliverable>(serviceTaskDeliverableReceivingDTO);
             serviceTaskDeliverable.CreatedById = context.GetLoggedInUserId();
             var savedServiceTaskDeliverable = await _serviceTaskDeliverableRepo.SaveServiceTaskDeliverable(serviceTaskDeliverable);
             if (savedServiceTaskDeliverable == null)
             {
-                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+                return new ApiResponse(500);
             }
             var serviceTaskDeliverableTransferDTO = _mapper.Map<ServiceTaskDeliverableTransferDTO>(serviceTaskDeliverable);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,serviceTaskDeliverableTransferDTO);
+            return new ApiOkResponse(serviceTaskDeliverableTransferDTO);
         }
 
-        public async Task<ApiCommonResponse> GetAllServiceTaskDeliverables()
+        public async Task<ApiResponse> GetAllServiceTaskDeliverables()
         {
             var serviceTaskDeliverables = await _serviceTaskDeliverableRepo.FindAllServiceTaskDeliverables();
             if (serviceTaskDeliverables == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
             var serviceTaskDeliverableTransferDTO = _mapper.Map<IEnumerable<ServiceTaskDeliverableTransferDTO>>(serviceTaskDeliverables);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,serviceTaskDeliverableTransferDTO);
+            return new ApiOkResponse(serviceTaskDeliverableTransferDTO);
         }
 
-        public async Task<ApiCommonResponse> GetServiceTaskDeliverableById(long id)
+        public async Task<ApiResponse> GetServiceTaskDeliverableById(long id)
         {
             var serviceTaskDeliverable = await _serviceTaskDeliverableRepo.FindServiceTaskDeliverableById(id);
             if (serviceTaskDeliverable == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
             var serviceTaskDeliverableTransferDTO = _mapper.Map<ServiceTaskDeliverableTransferDTO>(serviceTaskDeliverable);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,serviceTaskDeliverableTransferDTO);
+            return new ApiOkResponse(serviceTaskDeliverableTransferDTO);
         }
 
-        public async Task<ApiCommonResponse> GetServiceTaskDeliverableByName(string name)
+        public async Task<ApiResponse> GetServiceTaskDeliverableByName(string name)
         {
             var serviceTaskDeliverable = await _serviceTaskDeliverableRepo.FindServiceTaskDeliverableByName(name);
             if (serviceTaskDeliverable == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
             var serviceTaskDeliverableTransferDTOs = _mapper.Map<ServiceTaskDeliverableTransferDTO>(serviceTaskDeliverable);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,serviceTaskDeliverableTransferDTOs);
+            return new ApiOkResponse(serviceTaskDeliverableTransferDTOs);
         }
 
-        public async Task<ApiCommonResponse> UpdateServiceTaskDeliverable(HttpContext context, long id, ServiceTaskDeliverableReceivingDTO serviceTaskDeliverableReceivingDTO)
+        public async Task<ApiResponse> UpdateServiceTaskDeliverable(HttpContext context, long id, ServiceTaskDeliverableReceivingDTO serviceTaskDeliverableReceivingDTO)
         {
             var serviceTaskDeliverableToUpdate = await _serviceTaskDeliverableRepo.FindServiceTaskDeliverableById(id);
             if (serviceTaskDeliverableToUpdate == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
             
             var summary = $"Initial details before change, \n {serviceTaskDeliverableToUpdate.ToString()} \n" ;
@@ -88,7 +88,7 @@ namespace HaloBiz.MyServices.Impl
 
             if (updatedServiceTaskDeliverable == null)
             {
-                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+                return new ApiResponse(500);
             }
             ModificationHistory history = new ModificationHistory(){
                 ModelChanged = "ServiceTaskDeliverable",
@@ -100,25 +100,25 @@ namespace HaloBiz.MyServices.Impl
             await _historyRepo.SaveHistory(history);
 
             var serviceTaskDeliverableTransferDTOs = _mapper.Map<ServiceTaskDeliverableTransferDTO>(updatedServiceTaskDeliverable);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,serviceTaskDeliverableTransferDTOs);
+            return new ApiOkResponse(serviceTaskDeliverableTransferDTOs);
 
         }
 
-        public async Task<ApiCommonResponse> DeleteServiceTaskDeliverable(long id)
+        public async Task<ApiResponse> DeleteServiceTaskDeliverable(long id)
         {
             var serviceTaskDeliverableToDelete = await _serviceTaskDeliverableRepo.FindServiceTaskDeliverableById(id);
             
             if (serviceTaskDeliverableToDelete == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
 
             if (!await _serviceTaskDeliverableRepo.DeleteServiceTaskDeliverable(serviceTaskDeliverableToDelete))
             {
-                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+                return new ApiResponse(500);
             }
 
-            return CommonResponse.Send(ResponseCodes.SUCCESS);
+            return new ApiOkResponse(true);
         }
 
     }

@@ -24,51 +24,79 @@ namespace HaloBiz.Controllers.AccountsModel
         }
 
         [HttpGet("")]
-        public async Task<ApiCommonResponse> GetAccountMasters([FromQuery]AccountMasterTransactionDateQueryParams query)
+        public async Task<ActionResult> GetAccountMasters([FromQuery]AccountMasterTransactionDateQueryParams query)
         {
-            return await _AccountMasterService.QueryAccountMasters( query);
+            var response = await _AccountMasterService.QueryAccountMasters( query);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var AccountMaster = ((ApiOkResponse)response).Result;
+            return Ok((IEnumerable<AccountMasterTransferDTO>)AccountMaster);
         }
 
         [HttpGet("{id}")]
-        public async Task<ApiCommonResponse> GetById(long id)
+        public async Task<ActionResult> GetById(long id)
         {
-            return await _AccountMasterService.GetAccountMasterById(id);
+            var response = await _AccountMasterService.GetAccountMasterById(id);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var AccountMaster = ((ApiOkResponse)response).Result;
+            return Ok((AccountMasterTransferDTO)AccountMaster);
         }
 
         [HttpPost("")]
-        public async Task<ApiCommonResponse> AddNewAccountMaster(AccountMasterReceivingDTO AccountMasterReceiving)
+        public async Task<ActionResult> AddNewAccountMaster(AccountMasterReceivingDTO AccountMasterReceiving)
         {
-            return await _AccountMasterService.AddAccountMaster(HttpContext, AccountMasterReceiving);
+            var response = await _AccountMasterService.AddAccountMaster(HttpContext, AccountMasterReceiving);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var AccountMaster = ((ApiOkResponse)response).Result;
+            return Ok((AccountMasterTransferDTO)AccountMaster);
         }
 
         [HttpGet("GetAccountMasterByTransactionId/{transactionId}")]
-        public async Task<ApiCommonResponse> GetAccountMasterByTransactionId(string transactionId)
+        public async Task<ActionResult> GetAccountMasterByTransactionId(string transactionId)
         {
-            return await _AccountMasterService.GetAllAccountMastersByTransactionId(transactionId);
+            var response = await _AccountMasterService.GetAllAccountMastersByTransactionId(transactionId);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var AccountMaster = ((ApiOkResponse)response).Result;
+            return Ok(AccountMaster);
         }
 
         [HttpPost("GetAccountMasterByCustomerIdAndContractYears")]
-        public async Task<ApiCommonResponse> GetAccountMasterByTransactionId(AccountMasterTransactionDateQueryParams searchDto)
+        public async Task<ActionResult> GetAccountMasterByTransactionId(AccountMasterTransactionDateQueryParams searchDto)
         {
-            return await _AccountMasterService.GetAllAccountMastersByCustomerIdAndContractYear(searchDto);
+            var response = await _AccountMasterService.GetAllAccountMastersByCustomerIdAndContractYear(searchDto);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var accountMasters = ((ApiOkResponse)response).Result;
+            return Ok(accountMasters);
         }
 
         [HttpPost("PostPeriodicAccounts")]
-        public async Task<ApiCommonResponse> PostPeriodicAccount()
+        public async Task<ActionResult> PostPeriodicAccount()
         {
-            return await _AccountMasterService.PostPeriodicAccountMaster();
+            var response = await _AccountMasterService.PostPeriodicAccountMaster();
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            return Ok();
         }
 
         [HttpPut("{id}")]
-        public async Task<ApiCommonResponse> UpdateById(long id, AccountMasterReceivingDTO AccountMasterReceiving)
+        public async Task<IActionResult> UpdateById(long id, AccountMasterReceivingDTO AccountMasterReceiving)
         {
-            return await _AccountMasterService.UpdateAccountMaster(id, AccountMasterReceiving);
+            var response = await _AccountMasterService.UpdateAccountMaster(id, AccountMasterReceiving);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var AccountMaster = ((ApiOkResponse)response).Result;
+            return Ok((AccountMasterTransferDTO)AccountMaster);
         }
 
         [HttpDelete("{id}")]
-        public async Task<ApiCommonResponse> DeleteById(long id)
+        public async Task<ActionResult> DeleteById(long id)
         {
-            return await _AccountMasterService.DeleteAccountMaster(id);
+            var response = await _AccountMasterService.DeleteAccountMaster(id);
+            return StatusCode(response.StatusCode);
         }
     }
 }

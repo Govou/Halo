@@ -23,69 +23,110 @@ namespace HaloBiz.Controllers
         }
 
         [HttpGet("")]
-        public async Task<ApiCommonResponse> GetApproval()
+        public async Task<ActionResult> GetApproval()
         {
-            return await _approvalService.GetAllApproval();
+            var response = await _approvalService.GetAllApproval();
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var approval = ((ApiOkResponse)response).Result;
+            return Ok(approval);
         }
 
         [HttpGet("GetPendingApprovals")]
-        public async Task<ApiCommonResponse> GetPendingApprovals()
+        public async Task<ActionResult> GetPendingApprovals()
         {
-            return await _approvalService.GetPendingApprovals();
+            var response = await _approvalService.GetPendingApprovals();
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var approval = ((ApiOkResponse)response).Result;
+            return Ok(approval);
         }
 
         [HttpGet("GetPendingApprovalsByServiceId/{serviceId}")]
-        public async Task<ApiCommonResponse> GetPendingApprovalsByServiceId(long serviceId)
+        public async Task<ActionResult> GetPendingApprovalsByServiceId(long serviceId)
         {
-            return await _approvalService.GetPendingApprovalsByServiceId(serviceId);
+            var response = await _approvalService.GetPendingApprovalsByServiceId(serviceId);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var approval = ((ApiOkResponse)response).Result;
+            return Ok(approval);
         }
         
         [HttpGet("GetApprovalsByServiceId/{serviceId}")]
-        public async Task<ApiCommonResponse> GetApprovalsByServiceId(long serviceId)
+        public async Task<ActionResult> GetApprovalsByServiceId(long serviceId)
         {
-            return await _approvalService.GetApprovalsByServiceId(serviceId);
+            var response = await _approvalService.GetApprovalsByServiceId(serviceId);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var approval = ((ApiOkResponse)response).Result;
+            return Ok(approval);
         }
 
         [HttpGet("GetPendingApprovalsByQuoteId/{quoteId}")]
-        public async Task<ApiCommonResponse> GetPendingApprovalsByQuoteId(long quoteId)
+        public async Task<ActionResult> GetPendingApprovalsByQuoteId(long quoteId)
         {
-            return await _approvalService.GetPendingApprovalsByQuoteId(quoteId);
+            var response = await _approvalService.GetPendingApprovalsByQuoteId(quoteId);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var approval = ((ApiOkResponse)response).Result;
+            return Ok(approval);
         }
         
         [HttpGet("GetApprovalsByQuoteId/{quoteId}")]
-        public async Task<ApiCommonResponse> GetApprovalsByQuoteId(long quoteId)
+        public async Task<ActionResult> GetApprovalsByQuoteId(long quoteId)
         {
-            return await _approvalService.GetApprovalsByQuoteId(quoteId);
+            var response = await _approvalService.GetApprovalsByQuoteId(quoteId);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var approval = ((ApiOkResponse)response).Result;
+            return Ok(approval);
         }
 
         [HttpGet("GetApprovalsByEndorsementId/{endorsementId}")]
-        public async Task<ApiCommonResponse> GetApprovalsByEndorsementId(long endorsementId)
+        public async Task<ActionResult> GetApprovalsByEndorsementId(long endorsementId)
         {
-            return await _approvalService.GetApprovalsByEndorsementId(endorsementId);
+            var response = await _approvalService.GetApprovalsByEndorsementId(endorsementId);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var approval = ((ApiOkResponse)response).Result;
+            return Ok(approval);
         }
 
         [HttpGet("GetUserPendingApprovals")]
-        public async Task<ApiCommonResponse> GetUserPendingApprovals()
+        public async Task<ActionResult> GetUserPendingApprovals()
         {
-            return await _approvalService.GetUserPendingApprovals(HttpContext);
+            var response = await _approvalService.GetUserPendingApprovals(HttpContext);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var approval = ((ApiOkResponse)response).Result;
+            return Ok(approval);
         }
 
         [HttpPost("")]
-        public async Task<ApiCommonResponse> AddNewApproval(ApprovalReceivingDTO approvalReceiving)
+        public async Task<ActionResult> AddNewApproval(ApprovalReceivingDTO approvalReceiving)
         {
-            return await _approvalService.AddApproval(HttpContext, approvalReceiving);
+            var response = await _approvalService.AddApproval(HttpContext, approvalReceiving);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var approval = ((ApiOkResponse)response).Result;
+            return Ok(approval);
         }
 
         [HttpPut("{id}")]
-        public async Task<ApiCommonResponse> UpdateById(long id, ApprovalReceivingDTO approvalReceiving)
+        public async Task<IActionResult> UpdateById(long id, ApprovalReceivingDTO approvalReceiving)
         {
-            return await _approvalService.UpdateApproval(HttpContext, id, approvalReceiving);
+            var response = await _approvalService.UpdateApproval(HttpContext, id, approvalReceiving);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var approval = ((ApiOkResponse)response).Result;
+            return Ok(approval);
         }
 
         [HttpDelete("{id}")]
-        public async Task<ApiCommonResponse> DeleteById(int id)
+        public async Task<ActionResult> DeleteById(int id)
         {
-            return await _approvalService.DeleteApproval(id);
+            var response = await _approvalService.DeleteApproval(id);
+            return StatusCode(response.StatusCode);
         }
 
     }

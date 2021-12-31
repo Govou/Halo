@@ -10,12 +10,12 @@ namespace HaloBiz.MyServices
 {
     public interface IProfileEscalationLevelService
     {
-        Task<ApiCommonResponse> AddProfileEscalationLevel(HttpContext context, ProfileEscalationLevelReceivingDTO profileEscalationLevelReceivingDTO);
-        Task<ApiCommonResponse> GetAllProfileEscalationLevel();
-        Task<ApiCommonResponse> GetAllHandlerProfileEscalationLevel();
-        Task<ApiCommonResponse> GetProfileEscalationLevelById(long id);
-        //Task<ApiCommonResponse> GetProfileEscalationLevelByName(string name);
-        Task<ApiCommonResponse> UpdateProfileEscalationLevel(HttpContext context, long id, ProfileEscalationLevelReceivingDTO profileEscalationLevelReceivingDTO);
-        Task<ApiCommonResponse> DeleteProfileEscalationLevel(long id);
+        Task<ApiResponse> AddProfileEscalationLevel(HttpContext context, ProfileEscalationLevelReceivingDTO profileEscalationLevelReceivingDTO);
+        Task<ApiResponse> GetAllProfileEscalationLevel();
+        Task<ApiResponse> GetAllHandlerProfileEscalationLevel();
+        Task<ApiResponse> GetProfileEscalationLevelById(long id);
+        //Task<ApiResponse> GetProfileEscalationLevelByName(string name);
+        Task<ApiResponse> UpdateProfileEscalationLevel(HttpContext context, long id, ProfileEscalationLevelReceivingDTO profileEscalationLevelReceivingDTO);
+        Task<ApiResponse> DeleteProfileEscalationLevel(long id);
     }
 }

@@ -32,57 +32,57 @@ namespace HaloBiz.MyServices.Impl.LAMS
             this._logger = logger;
         }
 
-        public async Task<ApiCommonResponse> AddOtherLeadCaptureInfo(HttpContext context, OtherLeadCaptureInfoReceivingDTO otherLeadCaptureInfoReceivingDTO)
+        public async Task<ApiResponse> AddOtherLeadCaptureInfo(HttpContext context, OtherLeadCaptureInfoReceivingDTO otherLeadCaptureInfoReceivingDTO)
         {
             var otherLeadCaptureInfo = _mapper.Map<OtherLeadCaptureInfo>(otherLeadCaptureInfoReceivingDTO);
             otherLeadCaptureInfo.CreatedById = context.GetLoggedInUserId();
             var savedOtherLeadCaptureInfo = await _otherLeadCaptureInfoRepo.SaveOtherLeadCaptureInfo(otherLeadCaptureInfo);
             if (savedOtherLeadCaptureInfo == null)
             {
-                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+                return new ApiResponse(500);
             }
             var otherLeadCaptureInfoTransferDTO = _mapper.Map<OtherLeadCaptureInfoTransferDTO>(savedOtherLeadCaptureInfo);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,otherLeadCaptureInfoTransferDTO);
+            return new ApiOkResponse(otherLeadCaptureInfoTransferDTO);
         }
 
-        public async Task<ApiCommonResponse> GetAllOtherLeadCaptureInfo()
+        public async Task<ApiResponse> GetAllOtherLeadCaptureInfo()
         {
             var otherLeadCaptureInfos = await _otherLeadCaptureInfoRepo.FindAllOtherLeadCaptureInfo();
             if (otherLeadCaptureInfos == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
             var otherLeadCaptureInfoTransferDTO = _mapper.Map<IEnumerable<OtherLeadCaptureInfoTransferDTO>>(otherLeadCaptureInfos);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,otherLeadCaptureInfoTransferDTO);
+            return new ApiOkResponse(otherLeadCaptureInfoTransferDTO);
         }
 
-        public async Task<ApiCommonResponse> GetOtherLeadCaptureInfoById(long id)
+        public async Task<ApiResponse> GetOtherLeadCaptureInfoById(long id)
         {
             var otherLeadCaptureInfo = await _otherLeadCaptureInfoRepo.FindOtherLeadCaptureInfoById(id);
             if (otherLeadCaptureInfo == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
             var otherLeadCaptureInfoTransferDTOs = _mapper.Map<OtherLeadCaptureInfoTransferDTO>(otherLeadCaptureInfo);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,otherLeadCaptureInfoTransferDTOs);
+            return new ApiOkResponse(otherLeadCaptureInfoTransferDTOs);
         }
-        public async Task<ApiCommonResponse> GetOtherLeadCaptureInfoByLeadDivisionId(long leadDivisionId)
+        public async Task<ApiResponse> GetOtherLeadCaptureInfoByLeadDivisionId(long leadDivisionId)
         {
             var otherLeadCaptureInfo = await _otherLeadCaptureInfoRepo.FindOtherLeadCaptureInfoByLeadDivisionId(leadDivisionId);
             if (otherLeadCaptureInfo == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
             var otherLeadCaptureInfoTransferDTOs = _mapper.Map<OtherLeadCaptureInfoTransferDTO>(otherLeadCaptureInfo);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,otherLeadCaptureInfoTransferDTOs);
+            return new ApiOkResponse(otherLeadCaptureInfoTransferDTOs);
         }
 
-        public async Task<ApiCommonResponse> UpdateOtherLeadCaptureInfo(HttpContext context, long id, OtherLeadCaptureInfoReceivingDTO otherLeadCaptureInfoReceivingDTO)
+        public async Task<ApiResponse> UpdateOtherLeadCaptureInfo(HttpContext context, long id, OtherLeadCaptureInfoReceivingDTO otherLeadCaptureInfoReceivingDTO)
         {
             var otherLeadCaptureInfoToUpdate = await _otherLeadCaptureInfoRepo.FindOtherLeadCaptureInfoById(id);
             if (otherLeadCaptureInfoToUpdate == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
             
             var summary = $"Initial details before change, \n {otherLeadCaptureInfoToUpdate.ToString()} \n" ;
@@ -103,7 +103,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
             if (updatedOtherLeadCaptureInfo == null)
             {
-                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+                return new ApiResponse(500);
             }
             ModificationHistory history = new ModificationHistory(){
                 ModelChanged = "OtherLeadCaptureInfo",
@@ -115,24 +115,24 @@ namespace HaloBiz.MyServices.Impl.LAMS
             await _historyRepo.SaveHistory(history);
 
             var otherLeadCaptureInfoTransferDTOs = _mapper.Map<OtherLeadCaptureInfoTransferDTO>(updatedOtherLeadCaptureInfo);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,otherLeadCaptureInfoTransferDTOs);
+            return new ApiOkResponse(otherLeadCaptureInfoTransferDTOs);
 
         }
 
-        public async Task<ApiCommonResponse> DeleteOtherLeadCaptureInfo(long id)
+        public async Task<ApiResponse> DeleteOtherLeadCaptureInfo(long id)
         {
             var otherLeadCaptureInfoToDelete = await _otherLeadCaptureInfoRepo.FindOtherLeadCaptureInfoById(id);
             if (otherLeadCaptureInfoToDelete == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
 
             if (!await _otherLeadCaptureInfoRepo.DeleteOtherLeadCaptureInfo(otherLeadCaptureInfoToDelete))
             {
-                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+                return new ApiResponse(500);
             }
 
-            return CommonResponse.Send(ResponseCodes.SUCCESS);
+            return new ApiOkResponse(true);
         }
     }
 }

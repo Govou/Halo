@@ -9,11 +9,11 @@ namespace HaloBiz.MyServices
 {
     public interface IBranchService
     {
-        Task<ApiCommonResponse> AddBranch(BranchReceivingDTO branchReceivingDTO);
-        Task<ApiCommonResponse> GetBranchById(long id);
-        Task<ApiCommonResponse> GetBranchByName(string name);
-        Task<ApiCommonResponse> GetAllBranches();
-        Task<ApiCommonResponse> UpdateBranch(long id, BranchReceivingDTO branchReceivingDTO);
-        Task<ApiCommonResponse> DeleteBranch(long id);
+        Task<ApiResponse> AddBranch(BranchReceivingDTO branchReceivingDTO);
+        Task<ApiResponse> GetBranchById(long id);
+        Task<ApiResponse> GetBranchByName(string name);
+        Task<ApiResponse> GetAllBranches();
+        Task<ApiResponse> UpdateBranch(long id, BranchReceivingDTO branchReceivingDTO);
+        Task<ApiResponse> DeleteBranch(long id);
     }
 }

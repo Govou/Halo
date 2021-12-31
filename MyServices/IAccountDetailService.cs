@@ -10,10 +10,10 @@ namespace HaloBiz.MyServices
 {
     public interface IAccountDetailService
     {
-        Task<ApiCommonResponse> AddAccountDetail(HttpContext context, AccountDetailReceivingDTO accountDetailReceivingDTO);
-        Task<ApiCommonResponse> GetAccountDetailById(long id);
-        Task<ApiCommonResponse> GetAllAccountDetails();
-        Task<ApiCommonResponse> UpdateAccountDetail(long id, AccountDetailReceivingDTO accountDetailReceivingDTO);
-        Task<ApiCommonResponse> DeleteAccountDetail(long id);
+        Task<ApiResponse> AddAccountDetail(HttpContext context, AccountDetailReceivingDTO accountDetailReceivingDTO);
+        Task<ApiResponse> GetAccountDetailById(long id);
+        Task<ApiResponse> GetAllAccountDetails();
+        Task<ApiResponse> UpdateAccountDetail(long id, AccountDetailReceivingDTO accountDetailReceivingDTO);
+        Task<ApiResponse> DeleteAccountDetail(long id);
     }
 }

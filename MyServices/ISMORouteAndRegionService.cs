@@ -14,31 +14,31 @@ namespace HaloBiz.MyServices
     public interface ISMORouteAndRegionService
     {
         //Route
-        Task<ApiCommonResponse> AddSMORoute(HttpContext context, SMORouteReceivingDTO sMORouteReceivingDTO);
-        Task<ApiCommonResponse> UpdateSMORoute(HttpContext context, long id, SMORouteReceivingDTO sMORouteReceivingDTO);
-        Task<ApiCommonResponse> GetSMORouteById(long id);
+        Task<ApiResponse> AddSMORoute(HttpContext context, SMORouteReceivingDTO sMORouteReceivingDTO);
+        Task<ApiResponse> UpdateSMORoute(HttpContext context, long id, SMORouteReceivingDTO sMORouteReceivingDTO);
+        Task<ApiResponse> GetSMORouteById(long id);
 
-        Task<ApiCommonResponse> GetAllSMORoutes();
-        Task<ApiCommonResponse> GetAllSMORoutesByName(string routeName);
+        Task<ApiResponse> GetAllSMORoutes();
+        Task<ApiResponse> GetAllSMORoutesByName(string routeName);
 
-        //Task<ApiCommonResponse> GetAllSMORouteAndRegions();
-        Task<ApiCommonResponse> GetAllSMORoutesWithReturnRoute();
-        Task<ApiCommonResponse> DeleteSMORoute(long id);
+        //Task<ApiResponse> GetAllSMORouteAndRegions();
+        Task<ApiResponse> GetAllSMORoutesWithReturnRoute();
+        Task<ApiResponse> DeleteSMORoute(long id);
 
         ////Region
-        Task<ApiCommonResponse> AddSMORegion(HttpContext context, SMORegionReceivingDTO sMOReceivingDTO);
-        Task<ApiCommonResponse> UpdateSMORegion(HttpContext context, long id, SMORegionReceivingDTO sMOReceivingDTO);
-        Task<ApiCommonResponse> GetSMORegionById(long id);
+        Task<ApiResponse> AddSMORegion(HttpContext context, SMORegionReceivingDTO sMOReceivingDTO);
+        Task<ApiResponse> UpdateSMORegion(HttpContext context, long id, SMORegionReceivingDTO sMOReceivingDTO);
+        Task<ApiResponse> GetSMORegionById(long id);
 
-        Task<ApiCommonResponse> GetAllSMORegions();
-        Task<ApiCommonResponse> DeleteSMORegion(long id);
+        Task<ApiResponse> GetAllSMORegions();
+        Task<ApiResponse> DeleteSMORegion(long id);
 
         //ReturnRoute
-        Task<ApiCommonResponse> AddSMOReturnRoute(HttpContext context, SMOReturnRouteReceivingDTO sMOReturnRouteReceivingDTO);
-        Task<ApiCommonResponse> UpdateSMOReturnRoute(HttpContext context, long id, SMOReturnRouteReceivingDTO sMOReturnRouteReceivingDTO);
-        Task<ApiCommonResponse> GetSMOReturnRouteById(long id);
+        Task<ApiResponse> AddSMOReturnRoute(HttpContext context, SMOReturnRouteReceivingDTO sMOReturnRouteReceivingDTO);
+        Task<ApiResponse> UpdateSMOReturnRoute(HttpContext context, long id, SMOReturnRouteReceivingDTO sMOReturnRouteReceivingDTO);
+        Task<ApiResponse> GetSMOReturnRouteById(long id);
 
-        Task<ApiCommonResponse> GetAllSMOReturnRoutes();
-        Task<ApiCommonResponse> DeleteSMOReturnRoute(long id);
+        Task<ApiResponse> GetAllSMOReturnRoutes();
+        Task<ApiResponse> DeleteSMOReturnRoute(long id);
     }
 }

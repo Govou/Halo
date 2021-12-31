@@ -80,7 +80,7 @@ namespace HaloBiz.MyServices.Impl
             _leadConversionService = leadConversionService;
         }
 
-        public async  Task<ApiCommonResponse> AddInvoice(HttpContext context, InvoiceReceivingDTO invoiceReceivingDTO)
+        public async  Task<ApiResponse> AddInvoice(HttpContext context, InvoiceReceivingDTO invoiceReceivingDTO)
         {
             using(var transaction  = await _context.Database.BeginTransactionAsync())
             {
@@ -127,25 +127,25 @@ namespace HaloBiz.MyServices.Impl
                     await _context.SaveChangesAsync();
                     var invoiceTransferDTO = _mapper.Map<InvoiceTransferDTO>(savedInvoice.Entity);                    
                     await transaction.CommitAsync();
-                    return CommonResponse.Send(ResponseCodes.SUCCESS,invoiceTransferDTO);
+                    return new ApiOkResponse(invoiceTransferDTO);
                 }
                 catch(InvalidAdHocBillableAmount e)
                 {
                     _logger.LogError(e.Message);
                     _logger.LogError(e.StackTrace);
                     await transaction.RollbackAsync();
-                    return CommonResponse.Send(ResponseCodes.FAILURE,null,e.Message);
+                    return new ApiResponse(400, e.Message);
                 }catch(Exception e)
                 {
                     _logger.LogError(e.Message);
                     _logger.LogError(e.StackTrace);
                     await transaction.RollbackAsync();
-                    return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+                    return new ApiResponse(500);
                 }
             }
         }
 
-        public async Task<ApiCommonResponse> AddGroupInvoice(HttpContext httpContext, GroupInvoiceDto groupInvoiceDto)
+        public async Task<ApiResponse> AddGroupInvoice(HttpContext httpContext, GroupInvoiceDto groupInvoiceDto)
         {
             var currentDate = DateTime.Now;
 
@@ -230,31 +230,31 @@ namespace HaloBiz.MyServices.Impl
                     {
                         _logger.LogError("Total Billable is far too much for the group invoice");
                         await transaction.RollbackAsync();
-                        return CommonResponse.Send(ResponseCodes.FAILURE,null, "Billable is more than the group amount not invoiced");
+                        return new ApiResponse(400, "Billable is more than the group amount not invoiced");
                     }
                     #endregion
 
                     await transaction.CommitAsync();
-                    return CommonResponse.Send(ResponseCodes.SUCCESS);
+                    return new ApiOkResponse(true);
                 }
                 catch(Exception e)
                 {
                     _logger.LogError(e.Message);
                     _logger.LogError(e.StackTrace);
                     await transaction.RollbackAsync();
-                    return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+                    return new ApiResponse(500);
                 }
             }
         }
 
-        public async Task<ApiCommonResponse> ConvertProformaInvoiceToFinalInvoice(HttpContext httpContext, long invoiceId)
+        public async Task<ApiResponse> ConvertProformaInvoiceToFinalInvoice(HttpContext httpContext, long invoiceId)
         {
              var invoiceToUpdate = await _invoiceRepo.FindInvoiceById(invoiceId);
              invoiceToUpdate.IsAccountPosted = true;
              this.LoggedInUserId = httpContext.GetLoggedInUserId();
              if(invoiceToUpdate == null)
              {
-                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                 return new ApiResponse(404);
              }
              
              if(String.IsNullOrWhiteSpace(invoiceToUpdate.GroupInvoiceNumber))
@@ -267,7 +267,7 @@ namespace HaloBiz.MyServices.Impl
              }
         }
         
-        private async Task<ApiCommonResponse> ConvertGroupInvoiceToFinalInvoice(Invoice invoice)
+        private async Task<ApiResponse> ConvertGroupInvoiceToFinalInvoice(Invoice invoice)
         {
             using(var transaction  = await _context.Database.BeginTransactionAsync())
             {
@@ -291,7 +291,7 @@ namespace HaloBiz.MyServices.Impl
                         if(contractService.AdHocInvoicedAmount > contractService.BillableAmount)
                         {
                             await transaction.RollbackAsync();
-                            return CommonResponse.Send(ResponseCodes.FAILURE,null, "The adhoc invoice will be greater than the billable amount.");
+                            return new ApiResponse(400, "The adhoc invoice will be greater than the billable amount.");
                         }
 
                         _context.ContractServices.Update(contractService);
@@ -327,7 +327,7 @@ namespace HaloBiz.MyServices.Impl
                     var invoiceTransferDTO = _mapper.Map<InvoiceTransferDTO>(invoice);
                     
                     await transaction.CommitAsync();
-                    return CommonResponse.Send(ResponseCodes.SUCCESS,invoice);
+                    return new ApiOkResponse(invoice);
 
                 }
                 catch(Exception e)
@@ -335,12 +335,12 @@ namespace HaloBiz.MyServices.Impl
                     _logger.LogError(e.Message);
                     _logger.LogError(e.StackTrace);
                     await transaction.RollbackAsync();
-                    return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+                    return new ApiResponse(500);
                 }
             }        
         }
 
-        private async Task<ApiCommonResponse> ConvertInvoiceToFinalInvoice(Invoice invoice)
+        private async Task<ApiResponse> ConvertInvoiceToFinalInvoice(Invoice invoice)
         {
             using(var transaction  = await _context.Database.BeginTransactionAsync())
             {
@@ -381,14 +381,14 @@ namespace HaloBiz.MyServices.Impl
                                     invoice.Value);
                     await _context.SaveChangesAsync();
                     await transaction.CommitAsync();
-                    return CommonResponse.Send(ResponseCodes.SUCCESS,invoiceTransferDTO);
+                    return new ApiOkResponse(invoiceTransferDTO);
                 }
                 catch(Exception e)
                 {
                     _logger.LogError(e.Message);
                     _logger.LogError(e.StackTrace);
                     await transaction.RollbackAsync();
-                    return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+                    return new ApiResponse(500);
                 }
             }
         }
@@ -902,71 +902,71 @@ namespace HaloBiz.MyServices.Impl
             return priceOfService * numberOfMonth;
         }
         
-        public async Task<ApiCommonResponse> DeleteInvoice(long id)
+        public async Task<ApiResponse> DeleteInvoice(long id)
         {
             var invoiceToDelete = await _invoiceRepo.FindInvoiceById(id);
             if(invoiceToDelete == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
             if (!await _invoiceRepo.DeleteInvoice(invoiceToDelete))
             {
-                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+                return new ApiResponse(500);
             }
 
-            return CommonResponse.Send(ResponseCodes.SUCCESS);
+            return new ApiOkResponse(true);
         }
 
-        public async Task<ApiCommonResponse> GetAllInvoice()
+        public async Task<ApiResponse> GetAllInvoice()
         {
             var invoice = await _invoiceRepo.GetInvoice();
             if (invoice == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
             var invoiceTransferDTO = _mapper.Map<IEnumerable<InvoiceTransferDTO>>(invoice);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,invoiceTransferDTO);
+            return new ApiOkResponse(invoiceTransferDTO);
         }
 
-        public async Task<ApiCommonResponse> GetAllInvoicesByContactserviceId(long contractServiceId)
+        public async Task<ApiResponse> GetAllInvoicesByContactserviceId(long contractServiceId)
         {
             var invoice = await _invoiceRepo.GetInvoiceByContractServiceId(contractServiceId);
             if (invoice == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
             var invoiceTransferDTO = _mapper.Map<IEnumerable<InvoiceTransferDTO>>(invoice);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,invoiceTransferDTO);
+            return new ApiOkResponse(invoiceTransferDTO);
         }
 
-        public async Task<ApiCommonResponse> GetAllProformaInvoicesByContactserviceId(long contractServiceId)
+        public async Task<ApiResponse> GetAllProformaInvoicesByContactserviceId(long contractServiceId)
         {
             var invoice = await _invoiceRepo.GetProformaInvoiceByContractServiceId(contractServiceId);
             if (invoice == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
             var invoiceTransferDTO = _mapper.Map<IEnumerable<InvoiceTransferDTO>>(invoice);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,invoiceTransferDTO);
+            return new ApiOkResponse(invoiceTransferDTO);
         }
 
-        public async Task<ApiCommonResponse> GetAllInvoicesById(long id)
+        public async Task<ApiResponse> GetAllInvoicesById(long id)
         {
             var invoice = await _invoiceRepo.FindInvoiceById(id);
             if (invoice == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
             var invoiceTransferDTO = _mapper.Map<InvoiceTransferDTO>(invoice);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,invoiceTransferDTO);
+            return new ApiOkResponse(invoiceTransferDTO);
         }
 
-        public  async Task<ApiCommonResponse> UpdateInvoice(HttpContext context, long id, InvoiceReceivingDTO invoiceReceivingDTO)
+        public  async Task<ApiResponse> UpdateInvoice(HttpContext context, long id, InvoiceReceivingDTO invoiceReceivingDTO)
         {
             var invoiceToUpdate = await _invoiceRepo.FindInvoiceById(id);
             if (invoiceToUpdate == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
             
             var summary = $"Initial details before change, \n {invoiceToUpdate.ToString()} \n" ;
@@ -987,7 +987,7 @@ namespace HaloBiz.MyServices.Impl
 
             if (updatedInvoice == null)
             {
-                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+                return new ApiResponse(500);
             }
 
             ModificationHistory history = new ModificationHistory(){
@@ -1000,10 +1000,10 @@ namespace HaloBiz.MyServices.Impl
             await _historyRepo.SaveHistory(history);
 
             var invoiceTransferDTOs = _mapper.Map<InvoiceTransferDTO>(updatedInvoice);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,invoiceTransferDTOs);
+            return new ApiOkResponse(invoiceTransferDTOs);
         }
 
-        public async Task<ApiCommonResponse> SendPeriodicInvoices()
+        public async Task<ApiResponse> SendPeriodicInvoices()
         {
             List<Invoice> invoices = new List<Invoice>();
             List<Invoice> theGroupInvoices = new List<Invoice>();
@@ -1018,7 +1018,7 @@ namespace HaloBiz.MyServices.Impl
                 
                 foreach (var invoice in invoices)
                 {
-                    invoice.IsInvoiceSent = ((Invoice)(await SendInvoice(invoice)).responseData).IsInvoiceSent;
+                    invoice.IsInvoiceSent = await SendInvoice(invoice);
                 }
 
                 await _context.SaveChangesAsync();
@@ -1031,7 +1031,7 @@ namespace HaloBiz.MyServices.Impl
                 var groupings = theGroupInvoices.GroupBy(x => x.GroupInvoiceNumber);
                 foreach (var group in groupings)
                 {
-                    var invoiceSent = ((Invoice)(await SendInvoice(group.FirstOrDefault())).responseData).IsInvoiceSent; //await SendInvoice(group.FirstOrDefault());
+                    var invoiceSent = await SendInvoice(group.FirstOrDefault());
                     if (invoiceSent)
                     {
                         foreach (var invoice in group)
@@ -1044,13 +1044,13 @@ namespace HaloBiz.MyServices.Impl
                 await _context.SaveChangesAsync();
                 #endregion
 
-                return CommonResponse.Send(ResponseCodes.SUCCESS);
+                return new ApiOkResponse(true);
             }
             catch (System.Exception e)
             {
                 _logger.LogError(e.Message);
                 _logger.LogError(e.StackTrace);
-                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+                return new ApiResponse(500);
             }finally{
                 try
                 {
@@ -1069,24 +1069,25 @@ namespace HaloBiz.MyServices.Impl
             
         }
 
-        private async Task<ApiCommonResponse> SendInvoice(Invoice invoice)
+        private async Task<bool> SendInvoice(Invoice invoice)
         {
             try
             {
                 InvoiceMailDTO invoiceMailDTO = await GenerateInvoiceMailDTO(invoice);
-                return await _mailAdapter.SendPeriodicInvoice(invoiceMailDTO);
+                ApiResponse response = await _mailAdapter.SendPeriodicInvoice(invoiceMailDTO);
+                return response.StatusCode == 200;
             }
             catch (System.Exception ex)
             {
                 _logger.LogError($"An Error occured while trying to send Invoice with Id: {invoice.Id}");
                 _logger.LogError($"Error: {ex.Message}");
                 _logger.LogError($"Error: {ex.StackTrace}");
-                return CommonResponse.Send(ResponseCodes.FAILURE,null,ex.Message);
+                return false;
             }
 
         }
 
-        public async Task<ApiCommonResponse> GetInvoiceDetails(long invoiceId, bool isAdhocAndGrouped = false)
+        public async Task<ApiResponse> GetInvoiceDetails(long invoiceId)
         {
             try
             {
@@ -1096,45 +1097,51 @@ namespace HaloBiz.MyServices.Impl
 
                 if(invoice == null)
                 {
-                    return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
-                }
-
-                InvoiceMailDTO invoiceMailDTO = await GenerateInvoiceMailDTO(invoice, isAdhocAndGrouped);
-                return CommonResponse.Send(ResponseCodes.SUCCESS,invoiceMailDTO);
-            }
-            catch (System.Exception ex)
-            {
-                _logger.LogError($"An Error occured while trying to send Invoice with Id: {invoiceId}");
-                _logger.LogError($"Error: {ex.Message}");
-                _logger.LogError($"Error: {ex.StackTrace}");
-                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
-            }
-        }
-
-        public async Task<ApiCommonResponse> SendInvoice(long invoiceId)
-        {
-            try
-            {
-                Invoice invoice = await _context.Invoices
-                            .Where(x => x.Id == invoiceId && !x.IsDeleted)
-                            .FirstOrDefaultAsync();
-
-                if(invoice == null)
-                {
-                    return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                    return new ApiResponse(404);
                 }
 
                 InvoiceMailDTO invoiceMailDTO = await GenerateInvoiceMailDTO(invoice);
-                return await _mailAdapter.SendPeriodicInvoice(invoiceMailDTO);
-              
+                return new ApiOkResponse(invoiceMailDTO);
             }
             catch (System.Exception ex)
             {
                 _logger.LogError($"An Error occured while trying to send Invoice with Id: {invoiceId}");
                 _logger.LogError($"Error: {ex.Message}");
                 _logger.LogError($"Error: {ex.StackTrace}");
-                return CommonResponse.Send(ResponseCodes.FAILURE,null, "Invoice Not Sent");
+                return new ApiResponse(500);
             }
+
+        }
+
+        public async Task<ApiResponse> SendInvoice(long invoiceId)
+        {
+            try
+            {
+                Invoice invoice = await _context.Invoices
+                            .Where(x => x.Id == invoiceId && !x.IsDeleted)
+                            .FirstOrDefaultAsync();
+
+                if(invoice == null)
+                {
+                    return new ApiResponse(404);
+                }
+
+                InvoiceMailDTO invoiceMailDTO = await GenerateInvoiceMailDTO(invoice);
+                ApiResponse response = await _mailAdapter.SendPeriodicInvoice(invoiceMailDTO);
+                if(response.StatusCode == 200)
+                {
+                    return new ApiOkResponse(true);
+                }
+                return new ApiResponse(500, "Invoice Not Sent");
+            }
+            catch (System.Exception ex)
+            {
+                _logger.LogError($"An Error occured while trying to send Invoice with Id: {invoiceId}");
+                _logger.LogError($"Error: {ex.Message}");
+                _logger.LogError($"Error: {ex.StackTrace}");
+                return new ApiResponse(500, "Invoice Not Sent");
+            }
+
         }
 
         /*private async Task<InvoiceMailDTO> GenerateInvoiceMailDTO(Invoice invoice)
@@ -1227,30 +1234,7 @@ namespace HaloBiz.MyServices.Impl
                 return invoiceMailDTO;
         }*/
 
-        public async Task<ApiCommonResponse> GetInvoiceDetails(string groupinvoiceNumber, string startdate)
-        {
-            List<Invoice> invoices = new List<Invoice>();
-
-            try
-            {
-                DateTime date = DateTime.Parse(startdate).Date;
-
-                invoices = await _context.Invoices
-                    .Where(x => !x.IsDeleted && x.GroupInvoiceNumber == groupinvoiceNumber
-                            && x.StartDate.Date == date && !x.IsInvoiceSent).ToListAsync();
-
-                return CommonResponse.Send(ResponseCodes.SUCCESS, invoices);             
-
-            }
-            catch (System.Exception e)
-            {
-                _logger.LogError(e.StackTrace);
-                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
-            }
-        }
-
-
-        private async Task<InvoiceMailDTO> GenerateInvoiceMailDTO(Invoice invoice, bool isAdhocAndGrouped = false)
+        private async Task<InvoiceMailDTO> GenerateInvoiceMailDTO(Invoice invoice)
         {
             bool isProforma = invoice.IsFinalInvoice == false;
 
@@ -1275,18 +1259,15 @@ namespace HaloBiz.MyServices.Impl
             else
             {
                 invoices = await _context.Invoices.AsNoTracking()
-                       .Include(x => x.ContractService)
-                       .ThenInclude(x => x.Service)
-                       .Where(x => x.GroupInvoiceNumber == invoice.GroupInvoiceNumber && !x.IsDeleted && ((bool)x.IsFinalInvoice || isProforma))
-                       .ToListAsync();
+                        .Include(x => x.ContractService)
+                        .ThenInclude(x => x.Service)
+                        .Where(x => x.GroupInvoiceNumber == invoice.GroupInvoiceNumber && !x.IsDeleted && ((bool)x.IsFinalInvoice || isProforma))
+                        .ToListAsync();
 
                 var contractService = await _context.ContractServices.FindAsync(invoice.ContractServiceId);
                 if(contractService.InvoicingInterval == (int)TimeCycle.Adhoc)
                 {
-                    if(isAdhocAndGrouped)
-                        invoices = invoices.Where(x => x.Id == invoice.Id);
-                    else
-                        invoices = invoices.Where(x => x.StartDate.ToString("G") == invoice.StartDate.ToString("G"));
+                    invoices = invoices.Where(x => x.StartDate.ToString("G") == invoice.StartDate.ToString("G"));
                 }
                 else
                 {
@@ -1300,7 +1281,6 @@ namespace HaloBiz.MyServices.Impl
             double VAT = 0.0;
             string invoiceCycle = null;
             string keyServiceName = "";
-
             List<string> recepients = new List<string>();
             recepients.Add(customerDivision.Email);
             if (customerDivision.SecondaryContact != null)
@@ -1330,9 +1310,8 @@ namespace HaloBiz.MyServices.Impl
                     Total = theInvoice.Value,
                     Discount = theInvoice.Discount,
                     UniqueTag = theInvoice.ContractService.UniqueTag,
-                    AdminDirectTie = theInvoice.ContractService.AdminDirectTie,
-                    Id = theInvoice.ContractServiceId,
-                    StartDate = theInvoice.StartDate.ToString("G")
+                    AdminDirectTie = theInvoice.ContractService.AdminDirectTie
+
                 });
 
             }
@@ -1428,30 +1407,6 @@ namespace HaloBiz.MyServices.Impl
             }
 
             return accountId;
-        }
-
-        public async Task<ApiCommonResponse> RemoveProformaInvoice(long invoiceId)
-        {
-            try
-            {
-                var invoice = await _context.Invoices.Where(x => x.Id == invoiceId).FirstOrDefaultAsync();
-
-                if (invoice == null)
-                {
-                    return CommonResponse.Send(ResponseCodes.FAILURE, null, $"No invoice with id: {invoiceId}");
-                }
-                else
-                {
-                    invoice.IsDeleted = true;
-                    await _context.SaveChangesAsync();
-                    return CommonResponse.Send(ResponseCodes.SUCCESS, null);
-                }
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex.StackTrace);
-                return CommonResponse.Send(ResponseCodes.FAILURE, null, $"Some system errors occurred");
-            }
         }
     }
 }

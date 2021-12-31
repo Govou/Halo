@@ -7,11 +7,11 @@ namespace HaloBiz.MyServices
 {
     public interface  IServiceCategoryTaskService
     {
-        Task<ApiCommonResponse> AddServiceCategoryTask(HttpContext context, ServiceCategoryTaskReceivingDTO serviceCategoryTaskReceivingDTO);
-        Task<ApiCommonResponse> GetAllServiceCategoryTasks();
-        Task<ApiCommonResponse> GetServiceCategoryTaskById(long id);
-        Task<ApiCommonResponse> GetServiceCategoryTaskByName(string name);
-        Task<ApiCommonResponse> UpdateServiceCategoryTask(HttpContext context, long id, ServiceCategoryTaskReceivingDTO serviceCategoryTaskReceivingDTO);
-        Task<ApiCommonResponse> DeleteServiceCategoryTask(long id);
+        Task<ApiResponse> AddServiceCategoryTask(HttpContext context, ServiceCategoryTaskReceivingDTO serviceCategoryTaskReceivingDTO);
+        Task<ApiResponse> GetAllServiceCategoryTasks();
+        Task<ApiResponse> GetServiceCategoryTaskById(long id);
+        Task<ApiResponse> GetServiceCategoryTaskByName(string name);
+        Task<ApiResponse> UpdateServiceCategoryTask(HttpContext context, long id, ServiceCategoryTaskReceivingDTO serviceCategoryTaskReceivingDTO);
+        Task<ApiResponse> DeleteServiceCategoryTask(long id);
     }
 }

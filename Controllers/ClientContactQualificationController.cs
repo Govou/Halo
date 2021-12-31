@@ -24,29 +24,40 @@ namespace HaloBiz.Controllers
         }
 
         [HttpGet("")]
-        public async Task<ApiCommonResponse> GetClientContactQualification()
+        public async Task<ActionResult> GetClientContactQualification()
         {
-            return await _clientContactQualificationService.GetAllClientContactQualification();
+            var response = await _clientContactQualificationService.GetAllClientContactQualification();
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var clientContactQualification = ((ApiOkResponse)response).Result;
+            return Ok(clientContactQualification);
         }
 
         [HttpPost("")]
-        public async Task<ApiCommonResponse> AddNewClientContactQualification(ClientContactQualificationReceivingDTO clientContactQualificationReceiving)
+        public async Task<ActionResult> AddNewClientContactQualification(ClientContactQualificationReceivingDTO clientContactQualificationReceiving)
         {
-            return await _clientContactQualificationService.AddClientContactQualification(HttpContext, clientContactQualificationReceiving);
-            
+            var response = await _clientContactQualificationService.AddClientContactQualification(HttpContext, clientContactQualificationReceiving);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var clientContactQualification = ((ApiOkResponse)response).Result;
+            return Ok(clientContactQualification);
         }
 
         [HttpPut("{id}")]
-        public async Task<ApiCommonResponse> UpdateById(long id, ClientContactQualificationReceivingDTO clientContactQualificationReceiving)
+        public async Task<IActionResult> UpdateById(long id, ClientContactQualificationReceivingDTO clientContactQualificationReceiving)
         {
-            return await _clientContactQualificationService.UpdateClientContactQualification(HttpContext, id, clientContactQualificationReceiving);
-            
+            var response = await _clientContactQualificationService.UpdateClientContactQualification(HttpContext, id, clientContactQualificationReceiving);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var clientContactQualification = ((ApiOkResponse)response).Result;
+            return Ok(clientContactQualification);
         }
 
         [HttpDelete("{id}")]
-        public async Task<ApiCommonResponse> DeleteById(int id)
+        public async Task<ActionResult> DeleteById(int id)
         {
-            return await _clientContactQualificationService.DeleteClientContactQualification(id);
+            var response = await _clientContactQualificationService.DeleteClientContactQualification(id);
+            return StatusCode(response.StatusCode);
         }
 
     }

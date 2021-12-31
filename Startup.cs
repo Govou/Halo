@@ -160,6 +160,7 @@ namespace HaloBiz
             app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "HaloBiz v1"));
 
 
+            PrepDb.PrepDatabase(app);
 
             app.UseCors(cors => cors.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
 

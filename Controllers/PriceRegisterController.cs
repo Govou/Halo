@@ -22,38 +22,59 @@ namespace HaloBiz.Controllers
         }
 
         [HttpGet("GetAllPriceRegisters")]
-        public async Task<ApiCommonResponse> GetAllPriceRegisters()
+        public async Task<ActionResult> GetAllPriceRegisters()
         {
-            return await _priceRegisterService.GetAllPriceRegisters();
+            var response = await _priceRegisterService.GetAllPriceRegisters();
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var priceReg = ((ApiOkResponse)response).Result;
+            return Ok(priceReg);
         }
 
         [HttpGet("GetAllPriceRegistersByRouteId/{routeId}")]
-        public async Task<ApiCommonResponse> GetAllPriceRegistersByRouteId(long routeId)
+        public async Task<ActionResult> GetAllPriceRegistersByRouteId(long routeId)
         {
-            return await _priceRegisterService.GetAllPriceRegistersByRouteId(routeId);
+            var response = await _priceRegisterService.GetAllPriceRegistersByRouteId(routeId);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var priceReg = ((ApiOkResponse)response).Result;
+            return Ok(priceReg);
         }
         [HttpGet("GetPriceRegisterById/{id}")]
-        public async Task<ApiCommonResponse> GetPriceRegisterById(long id)
+        public async Task<ActionResult> GetPriceRegisterById(long id)
         {
-            return await _priceRegisterService.GetPriceRegisterId(id);
+            var response = await _priceRegisterService.GetPriceRegisterId(id);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var Rank = ((ApiOkResponse)response).Result;
+            return Ok(Rank);
         }
 
         [HttpPost("AddNewPriceRegister")]
-        public async Task<ApiCommonResponse> AddNewPriceRegister(PriceRegisterReceivingDTO ReceivingDTO)
+        public async Task<ActionResult> AddNewPriceRegister(PriceRegisterReceivingDTO ReceivingDTO)
         {
-            return await _priceRegisterService.AddPriceRegister(HttpContext, ReceivingDTO);
+            var response = await _priceRegisterService.AddPriceRegister(HttpContext, ReceivingDTO);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var type = ((ApiOkResponse)response).Result;
+            return Ok(type);
         }
 
         [HttpPut("UpdatePriceRegisterById/{id}")]
-        public async Task<ApiCommonResponse> UpdateTypeById(long id, PriceRegisterReceivingDTO Receiving)
+        public async Task<IActionResult> UpdateTypeById(long id, PriceRegisterReceivingDTO Receiving)
         {
-            return await _priceRegisterService.UpdatePriceRegister(HttpContext, id, Receiving);
+            var response = await _priceRegisterService.UpdatePriceRegister(HttpContext, id, Receiving);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var type = ((ApiOkResponse)response).Result;
+            return Ok(type);
         }
 
         [HttpDelete("DeletePriceRegisterById/{id}")] //{id}
-        public async Task<ApiCommonResponse> DeletePriceRegisterById(int id)
+        public async Task<ActionResult> DeletePriceRegisterById(int id)
         {
-            return await _priceRegisterService.DeletePriceRegister(id);
+            var response = await _priceRegisterService.DeletePriceRegister(id);
+            return StatusCode(response.StatusCode);
         }
     }
 }

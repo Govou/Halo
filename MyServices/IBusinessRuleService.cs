@@ -10,20 +10,20 @@ namespace HaloBiz.MyServices
 {
     public interface IBusinessRuleService
     {
-        Task<ApiCommonResponse> AddBusinessRule(HttpContext context, BusinessRuleReceivingDTO businessRuleReceivingDTO);
-        Task<ApiCommonResponse> GetAllBusinessRules();
-        Task<ApiCommonResponse> GetAllPairableBusinessRules();
-        Task<ApiCommonResponse> GetBusinessRuleById(long id);
-        Task<ApiCommonResponse> UpdateBusinessRule(HttpContext context, long id, BusinessRuleReceivingDTO businessRuleReceivingDTO);
-        Task<ApiCommonResponse> DeleteBusinessRule(long id);
+        Task<ApiResponse> AddBusinessRule(HttpContext context, BusinessRuleReceivingDTO businessRuleReceivingDTO);
+        Task<ApiResponse> GetAllBusinessRules();
+        Task<ApiResponse> GetAllPairableBusinessRules();
+        Task<ApiResponse> GetBusinessRuleById(long id);
+        Task<ApiResponse> UpdateBusinessRule(HttpContext context, long id, BusinessRuleReceivingDTO businessRuleReceivingDTO);
+        Task<ApiResponse> DeleteBusinessRule(long id);
 
         //BRPairable
-        Task<ApiCommonResponse> AddPairable(HttpContext context, BRPairableReceivingDTO bRPairableReceivingDTO);
-        //Task<ApiCommonResponse> AddPairables(HttpContext context, BRPairableReceivingDTO[] bRPairableReceivingDTO);
-        Task<ApiCommonResponse> GetAllPairables();
-        Task<ApiCommonResponse> GetAllActivePairables();
-        Task<ApiCommonResponse> GetPairableById(long id);
-        Task<ApiCommonResponse> UpdatePairable(HttpContext context, long id, BRPairableReceivingDTO bRPairableReceivingDTO);
-        Task<ApiCommonResponse> DeletePairable(long id);
+        Task<ApiResponse> AddPairable(HttpContext context, BRPairableReceivingDTO bRPairableReceivingDTO);
+        //Task<ApiResponse> AddPairables(HttpContext context, BRPairableReceivingDTO[] bRPairableReceivingDTO);
+        Task<ApiResponse> GetAllPairables();
+        Task<ApiResponse> GetAllActivePairables();
+        Task<ApiResponse> GetPairableById(long id);
+        Task<ApiResponse> UpdatePairable(HttpContext context, long id, BRPairableReceivingDTO bRPairableReceivingDTO);
+        Task<ApiResponse> DeletePairable(long id);
     }
 }

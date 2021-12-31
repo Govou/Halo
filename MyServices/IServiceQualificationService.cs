@@ -10,11 +10,11 @@ namespace HaloBiz.MyServices
 {
     public interface IServiceQualificationService
     {
-        Task<ApiCommonResponse> AddServiceQualification(HttpContext context, ServiceQualificationReceivingDTO serviceQualificationReceivingDTO);
-        Task<ApiCommonResponse> GetAllServiceQualification();
-        Task<ApiCommonResponse> GetServiceQualificationById(long id);
-        //Task<ApiCommonResponse> GetServiceQualificationByName(string name);
-        Task<ApiCommonResponse> UpdateServiceQualification(HttpContext context, long id, ServiceQualificationReceivingDTO serviceQualificationReceivingDTO);
-        Task<ApiCommonResponse> DeleteServiceQualification(long id);
+        Task<ApiResponse> AddServiceQualification(HttpContext context, ServiceQualificationReceivingDTO serviceQualificationReceivingDTO);
+        Task<ApiResponse> GetAllServiceQualification();
+        Task<ApiResponse> GetServiceQualificationById(long id);
+        //Task<ApiResponse> GetServiceQualificationByName(string name);
+        Task<ApiResponse> UpdateServiceQualification(HttpContext context, long id, ServiceQualificationReceivingDTO serviceQualificationReceivingDTO);
+        Task<ApiResponse> DeleteServiceQualification(long id);
     }
 }

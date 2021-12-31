@@ -23,44 +23,59 @@ namespace HaloBiz.Controllers
         }
 
         [HttpGet("")]
-        public async Task<ApiCommonResponse> GetServiceQualification()
+        public async Task<ActionResult> GetServiceQualification()
         {
-            return await _ServiceQualificationService.GetAllServiceQualification();
+            var response = await _ServiceQualificationService.GetAllServiceQualification();
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var ServiceQualification = ((ApiOkResponse)response).Result;
+            return Ok(ServiceQualification);
         }
         /*[HttpGet("caption/{name}")]
-        public async Task<ApiCommonResponse> GetByCaption(string name)
+        public async Task<ActionResult> GetByCaption(string name)
         {
-            return await _ServiceQualificationService.GetServiceQualificationByName(name);
-            
-                
+            var response = await _ServiceQualificationService.GetServiceQualificationByName(name);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
             var ServiceQualification = ((ApiOkResponse)response).Result;
             return Ok(ServiceQualification);
         }*/
 
         [HttpGet("{id}")]
-        public async Task<ApiCommonResponse> GetById(long id)
+        public async Task<ActionResult> GetById(long id)
         {
-            return await _ServiceQualificationService.GetServiceQualificationById(id);
+            var response = await _ServiceQualificationService.GetServiceQualificationById(id);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var ServiceQualification = ((ApiOkResponse)response).Result;
+            return Ok(ServiceQualification);
         }
 
         [HttpPost("")]
-        public async Task<ApiCommonResponse> AddNewServiceQualification(ServiceQualificationReceivingDTO ServiceQualificationReceiving)
+        public async Task<ActionResult> AddNewServiceQualification(ServiceQualificationReceivingDTO ServiceQualificationReceiving)
         {
-            return await _ServiceQualificationService.AddServiceQualification(HttpContext, ServiceQualificationReceiving);
-            
+            var response = await _ServiceQualificationService.AddServiceQualification(HttpContext, ServiceQualificationReceiving);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var ServiceQualification = ((ApiOkResponse)response).Result;
+            return Ok(ServiceQualification);
         }
 
         [HttpPut("{id}")]
-        public async Task<ApiCommonResponse> UpdateById(long id, ServiceQualificationReceivingDTO ServiceQualificationReceiving)
+        public async Task<IActionResult> UpdateById(long id, ServiceQualificationReceivingDTO ServiceQualificationReceiving)
         {
-            return await _ServiceQualificationService.UpdateServiceQualification(HttpContext, id, ServiceQualificationReceiving);
-        
+            var response = await _ServiceQualificationService.UpdateServiceQualification(HttpContext, id, ServiceQualificationReceiving);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var ServiceQualification = ((ApiOkResponse)response).Result;
+            return Ok(ServiceQualification);
         }
 
         [HttpDelete("{id}")]
-        public async Task<ApiCommonResponse> DeleteById(int id)
+        public async Task<ActionResult> DeleteById(int id)
         {
-            return await _ServiceQualificationService.DeleteServiceQualification(id);
+            var response = await _ServiceQualificationService.DeleteServiceQualification(id);
+            return StatusCode(response.StatusCode);
         }
     }
 }

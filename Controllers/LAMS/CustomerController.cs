@@ -19,39 +19,60 @@ namespace HaloBiz.Controllers.LAMS
         }
 
         [HttpGet("")]
-        public async Task<ApiCommonResponse> GetCustomers()
+        public async Task<ActionResult> GetCustomers()
         {
-            return await _customerService.GetAllCustomers();
+            var response = await _customerService.GetAllCustomers();
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var customer = ((ApiOkResponse)response).Result;
+            return Ok(customer);
         }
 
         [HttpGet("GroupType/{groupType}")]
-        public async Task<ApiCommonResponse> GetCustomersByGroupTypeId(long groupType)
+        public async Task<ActionResult> GetCustomersByGroupTypeId(long groupType)
         {
-            return await _customerService.GetCustomersByGroupType(groupType);
+            var response = await _customerService.GetCustomersByGroupType(groupType);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var customer = ((ApiOkResponse)response).Result;
+            return Ok(customer);
         }
 
         [HttpGet("{id}")]
-        public async Task<ApiCommonResponse> GetById(long id)
+        public async Task<ActionResult> GetById(long id)
         {
-            return await _customerService.GetCustomerById(id);
+            var response = await _customerService.GetCustomerById(id);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var customer = ((ApiOkResponse)response).Result;
+            return Ok(customer);
         }
 
         [HttpPost("")]
-        public async Task<ApiCommonResponse> AddNewCustomer(CustomerReceivingDTO customerReceiving)
+        public async Task<ActionResult> AddNewCustomer(CustomerReceivingDTO customerReceiving)
         {
-            return await _customerService.AddCustomer(HttpContext, customerReceiving);
+            var response = await _customerService.AddCustomer(HttpContext, customerReceiving);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var customer = ((ApiOkResponse)response).Result;
+            return Ok(customer);
         }
 
         [HttpPut("{id}")]
-        public async Task<ApiCommonResponse> UpdateById(long id, CustomerReceivingDTO customerReceiving)
+        public async Task<IActionResult> UpdateById(long id, CustomerReceivingDTO customerReceiving)
         {
-            return await _customerService.UpdateCustomer(HttpContext, id, customerReceiving);
+            var response = await _customerService.UpdateCustomer(HttpContext, id, customerReceiving);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var customer = ((ApiOkResponse)response).Result;
+            return Ok(customer);
         }
 
         [HttpDelete("{id}")]
-        public async Task<ApiCommonResponse> DeleteById(int id)
+        public async Task<ActionResult> DeleteById(int id)
         {
-            return await _customerService.DeleteCustomer(id);
+            var response = await _customerService.DeleteCustomer(id);
+            return StatusCode(response.StatusCode);
         }
     }
 }

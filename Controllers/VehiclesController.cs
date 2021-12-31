@@ -22,33 +22,50 @@ namespace HaloBiz.Controllers
         }
 
         [HttpGet("GetAllVehicleTypes")]
-        public async Task<ApiCommonResponse> GetAllVehicleTypes()
+        public async Task<ActionResult> GetAllVehicleTypes()
         {
-            return await _vehicleService.GetAllVehicleTypes(); 
+            var response = await _vehicleService.GetAllVehicleTypes();
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var cType = ((ApiOkResponse)response).Result;
+            return Ok(cType);
         }
 
         [HttpGet("GetTypeById/{id}")]
-        public async Task<ApiCommonResponse> GetTypeById(long id)
+        public async Task<ActionResult> GetTypeById(long id)
         {
-            return await _vehicleService.GetVehicleTypeById(id); 
+            var response = await _vehicleService.GetVehicleTypeById(id);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var type = ((ApiOkResponse)response).Result;
+            return Ok(type);
         }
 
         [HttpPost("AddNewType")]
-        public async Task<ApiCommonResponse> AddNewType(VehicleTypeReceivingDTO TypeReceivingDTO)
+        public async Task<ActionResult> AddNewType(VehicleTypeReceivingDTO TypeReceivingDTO)
         {
-            return await _vehicleService.AddVehicleType(HttpContext, TypeReceivingDTO); 
+            var response = await _vehicleService.AddVehicleType(HttpContext, TypeReceivingDTO);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var type = ((ApiOkResponse)response).Result;
+            return Ok(type);
         }
 
         [HttpPut("UpdateTypeById/{id}")]
-        public async Task<ApiCommonResponse> UpdateTypeById(long id, VehicleTypeReceivingDTO TypeReceiving)
+        public async Task<IActionResult> UpdateTypeById(long id, VehicleTypeReceivingDTO TypeReceiving)
         {
-            return await _vehicleService.UpdateVehicleType(HttpContext, id, TypeReceiving); 
+            var response = await _vehicleService.UpdateVehicleType(HttpContext, id, TypeReceiving);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var type = ((ApiOkResponse)response).Result;
+            return Ok(type);
         }
 
         [HttpDelete("DeleteTypeById/{id}")] //{id}
-        public async Task<ApiCommonResponse> DeleteTypeById(int id)
+        public async Task<ActionResult> DeleteTypeById(int id)
         {
-            return await _vehicleService.DeleteVehicleType(id);
+            var response = await _vehicleService.DeleteVehicleType(id);
+            return StatusCode(response.StatusCode);
         }
 
     }

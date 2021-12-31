@@ -9,12 +9,12 @@ namespace HaloBiz.MyServices
 {
     public interface IDivisonService
     {
-        Task<ApiCommonResponse> AddDivision(DivisionReceivingDTO divisionReceivingDTO);
-        Task<ApiCommonResponse> GetDivisionnById(long id);
-        Task<ApiCommonResponse> GetDivisionByName(string name);
-        Task<ApiCommonResponse> GetAllDivisions();
-        Task<ApiCommonResponse> UpdateDivision(long id, DivisionReceivingDTO branchReceivingDTO);
-        Task<ApiCommonResponse> DeleteDivision(long id);
-        Task<ApiCommonResponse> GetAllDivisionsAndSbu();
+        Task<ApiResponse> AddDivision(DivisionReceivingDTO divisionReceivingDTO);
+        Task<ApiResponse> GetDivisionnById(long id);
+        Task<ApiResponse> GetDivisionByName(string name);
+        Task<ApiResponse> GetAllDivisions();
+        Task<ApiResponse> UpdateDivision(long id, DivisionReceivingDTO branchReceivingDTO);
+        Task<ApiResponse> DeleteDivision(long id);
+        Task<ApiResponse> GetAllDivisionsAndSbu();
     }
 }

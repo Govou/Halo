@@ -22,58 +22,88 @@ namespace HaloBiz.Controllers
         }
 
         [HttpGet("GetAllPilotProfiles")]
-        public async Task<ApiCommonResponse> GetAllPilotProfiles()
+        public async Task<ActionResult> GetAllPilotProfiles()
         {
-            return await _pilotService.GetAllPilot();
+            var response = await _pilotService.GetAllPilot();
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var res = ((ApiOkResponse)response).Result;
+            return Ok(res);
         }
 
         [HttpGet("GetAllPilotTies")]
-        public async Task<ApiCommonResponse> GetAllPilotTies()
+        public async Task<ActionResult> GetAllPilotTies()
         {
-            return await _pilotService.GetAllPilotTies();
+            var response = await _pilotService.GetAllPilotTies();
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var res = ((ApiOkResponse)response).Result;
+            return Ok(res);
         }
 
 
         [HttpGet("GetProfileById/{id}")]
-        public async Task<ApiCommonResponse> GetProfileById(long id)
+        public async Task<ActionResult> GetProfileById(long id)
         {
-            return await _pilotService.GetPilotById(id);
+            var response = await _pilotService.GetPilotById(id);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var res = ((ApiOkResponse)response).Result;
+            return Ok(res);
         }
 
         [HttpGet("GetProfileTieById/{id}")]
-        public async Task<ApiCommonResponse> GetProfileTieById(long id)
+        public async Task<ActionResult> GetProfileTieById(long id)
         {
-            return await _pilotService.GetPilotTieById(id);
+            var response = await _pilotService.GetPilotTieById(id);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var res = ((ApiOkResponse)response).Result;
+            return Ok(res);
         }
 
         [HttpPost("AddNewProfile")]
-        public async Task<ApiCommonResponse> AddNewProfile(PilotProfileReceivingDTO pilotReceivingDTO)
+        public async Task<ActionResult> AddNewProfile(PilotProfileReceivingDTO pilotReceivingDTO)
         {
-            return await _pilotService.AddPilot(HttpContext, pilotReceivingDTO);
+            var response = await _pilotService.AddPilot(HttpContext, pilotReceivingDTO);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var res = ((ApiOkResponse)response).Result;
+            return Ok(res);
         }
 
         [HttpPost("AddNewProfileTie")]
-        public async Task<ApiCommonResponse> AddNewProfileTie(PilotSMORoutesResourceTieReceivingDTO pilotReceivingDTO)
+        public async Task<ActionResult> AddNewProfileTie(PilotSMORoutesResourceTieReceivingDTO pilotReceivingDTO)
         {
-            return await _pilotService.AddPilotTie(HttpContext, pilotReceivingDTO);
+            var response = await _pilotService.AddPilotTie(HttpContext, pilotReceivingDTO);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var res = ((ApiOkResponse)response).Result;
+            return Ok(res);
         }
 
         [HttpPut("UpdateProfileById/{id}")]
-        public async Task<ApiCommonResponse> UpdateProfileById(long id, PilotProfileReceivingDTO pilotReceivingDTO)
+        public async Task<IActionResult> UpdateProfileById(long id, PilotProfileReceivingDTO pilotReceivingDTO)
         {
-            return await _pilotService.UpdatePilot(HttpContext, id, pilotReceivingDTO);
+            var response = await _pilotService.UpdatePilot(HttpContext, id, pilotReceivingDTO);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var res = ((ApiOkResponse)response).Result;
+            return Ok(res);
         }
 
         [HttpDelete("DeleteProfileById/{id}")]
-        public async Task<ApiCommonResponse> DeleteProfileById(int id)
+        public async Task<ActionResult> DeleteProfileById(int id)
         {
-            return await _pilotService.DeletePilot(id);
+            var response = await _pilotService.DeletePilot(id);
+            return StatusCode(response.StatusCode);
         }
 
         [HttpDelete("DeleteProfileTieById/{id}")]
-        public async Task<ApiCommonResponse> DeleteProfileTieById(int id)
+        public async Task<ActionResult> DeleteProfileTieById(int id)
         {
-            return await _pilotService.DeletePilotTie(id);
+            var response = await _pilotService.DeletePilotTie(id);
+            return StatusCode(response.StatusCode);
         }
     }
 }

@@ -33,7 +33,7 @@ namespace HaloBiz.MyServices.Impl
             _vehiclesRepository = vehiclesRepository;
         }
 
-        public async Task<ApiCommonResponse> AddResourceRequired(HttpContext context, AllResourceTypesPerServiceRegReceivingDTO ResouredRequiredReceivingDTO)
+        public async Task<ApiResponse> AddResourceRequired(HttpContext context, AllResourceTypesPerServiceRegReceivingDTO ResouredRequiredReceivingDTO)
         {
             var escort = new ArmedEscortResourceRequiredPerService();
             var commander = new CommanderResourceRequiredPerService();
@@ -54,9 +54,9 @@ namespace HaloBiz.MyServices.Impl
                     var savedType = await _serviceregRepository.SaveArmedEscortResource(escort);
                     if (savedType == null)
                     {
-                        return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+                        return new ApiResponse(500);
                     }
-                    //return                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE,null, "No record exists");;
+                    //return new ApiResponse(409);
                 }
 
             }
@@ -75,9 +75,9 @@ namespace HaloBiz.MyServices.Impl
                     var savedType = await _serviceregRepository.SaveCommanderResource(commander);
                     if (savedType == null)
                     {
-                        return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+                        return new ApiResponse(500);
                     }
-                    //return                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE,null, "No record exists");;
+                    //return new ApiResponse(409);
                 }
 
             }
@@ -95,9 +95,9 @@ namespace HaloBiz.MyServices.Impl
                     var savedType = await _serviceregRepository.SavePilotResource(pilot);
                     if (savedType == null)
                     {
-                        return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+                        return new ApiResponse(500);
                     }
-                    //return                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE,null, "No record exists");;
+                    //return new ApiResponse(409);
                 }
 
             }
@@ -115,23 +115,23 @@ namespace HaloBiz.MyServices.Impl
                     var savedType = await _serviceregRepository.SaveResourceVehicle(vehicle);
                     if (savedType == null)
                     {
-                        return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+                        return new ApiResponse(500);
                     }
-                    //return                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE,null, "No record exists");;
+                    //return new ApiResponse(409);
                 }
 
             }
 
-            return CommonResponse.Send(ResponseCodes.SUCCESS,"Records Added");
+            return new ApiOkResponse("Records Added");
         }
 
-        public async Task<ApiCommonResponse> AddServiceReg(HttpContext context, ServiceRegistrationReceivingDTO serviceRegReceivingDTO)
+        public async Task<ApiResponse> AddServiceReg(HttpContext context, ServiceRegistrationReceivingDTO serviceRegReceivingDTO)
         {
             var service = _mapper.Map<ServiceRegistration>(serviceRegReceivingDTO);
             var IdExist = _serviceregRepository.GetserviceId(serviceRegReceivingDTO.ServiceId);
             if (IdExist != null)
             {
-                                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE,null, "No record exists");;
+                return new ApiResponse(409);
             }
 
             service.CreatedById = context.GetLoggedInUserId();
@@ -140,219 +140,219 @@ namespace HaloBiz.MyServices.Impl
             var savedType = await _serviceregRepository.SaveService(service);
             if (savedType == null)
             {
-                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+                return new ApiResponse(500);
             }
             var TransferDTO = _mapper.Map<ServiceRegistrationTransferDTO>(service);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,TransferDTO);
+            return new ApiOkResponse(TransferDTO);
         }
 
-        public async Task<ApiCommonResponse> DeleteArmedEscortResource(long id)
+        public async Task<ApiResponse> DeleteArmedEscortResource(long id)
         {
             var itemToDelete = await _serviceregRepository.FindArmedEsxortResourceById(id);
 
             if (itemToDelete == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
 
             if (!await _serviceregRepository.DeleteArmedEscortResource(itemToDelete))
             {
-                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+                return new ApiResponse(500);
             }
 
-            return CommonResponse.Send(ResponseCodes.SUCCESS);
+            return new ApiOkResponse(true);
         }
 
-        public async Task<ApiCommonResponse> DeleteCommanderResource(long id)
+        public async Task<ApiResponse> DeleteCommanderResource(long id)
         {
             var itemToDelete = await _serviceregRepository.FindCommanderResourceById(id);
 
             if (itemToDelete == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
 
             if (!await _serviceregRepository.DeleteCommanderResource(itemToDelete))
             {
-                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+                return new ApiResponse(500);
             }
 
-            return CommonResponse.Send(ResponseCodes.SUCCESS);
+            return new ApiOkResponse(true);
         }
 
-        public async Task<ApiCommonResponse> DeletePilotResource(long id)
+        public async Task<ApiResponse> DeletePilotResource(long id)
         {
             var itemToDelete = await _serviceregRepository.FindPilotResourceById(id);
 
             if (itemToDelete == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
 
             if (!await _serviceregRepository.DeletePilotResource(itemToDelete))
             {
-                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+                return new ApiResponse(500);
             }
 
-            return CommonResponse.Send(ResponseCodes.SUCCESS);
+            return new ApiOkResponse(true);
         }
 
-        public async Task<ApiCommonResponse> DeleteServiceReg(long id)
+        public async Task<ApiResponse> DeleteServiceReg(long id)
         {
             var itemToDelete = await _serviceregRepository.FindServiceById(id);
 
             if (itemToDelete == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
 
             if (!await _serviceregRepository.DeleteService(itemToDelete))
             {
-                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+                return new ApiResponse(500);
             }
 
-            return CommonResponse.Send(ResponseCodes.SUCCESS);
+            return new ApiOkResponse(true);
         }
 
-        public async Task<ApiCommonResponse> DeleteVehicleResource(long id)
+        public async Task<ApiResponse> DeleteVehicleResource(long id)
         {
             var itemToDelete = await _serviceregRepository.FindVehicleResourceById(id);
 
             if (itemToDelete == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
 
             if (!await _serviceregRepository.DeleteVehicleResource(itemToDelete))
             {
-                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+                return new ApiResponse(500);
             }
 
-            return CommonResponse.Send(ResponseCodes.SUCCESS);
+            return new ApiOkResponse(true);
         }
 
-        public async Task<ApiCommonResponse> GetAllArmedEscortResourceRequired()
+        public async Task<ApiResponse> GetAllArmedEscortResourceRequired()
         {
             var services = await _serviceregRepository.FindAllArmedEscortResources();
             if (services == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
             var TransferDTO = _mapper.Map<IEnumerable<ArmedEscortResourceRequiredTransferDTO>>(services);
              
-            return CommonResponse.Send(ResponseCodes.SUCCESS,TransferDTO);
+            return new ApiOkResponse(TransferDTO);
         }
 
-        public async Task<ApiCommonResponse> GetAllCommanderResourceRequired()
+        public async Task<ApiResponse> GetAllCommanderResourceRequired()
         {
             var services = await _serviceregRepository.FindAllCommanderResources();
             if (services == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
             var TransferDTO = _mapper.Map<IEnumerable<CommanderResourceRequiredTransferDTO>>(services);
              
-            return CommonResponse.Send(ResponseCodes.SUCCESS,TransferDTO);
+            return new ApiOkResponse(TransferDTO);
         }
 
-        public async Task<ApiCommonResponse> GetAllPilotResourceRequired()
+        public async Task<ApiResponse> GetAllPilotResourceRequired()
         {
             var services = await _serviceregRepository.FindAllPilotResources();
             if (services == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
             var TransferDTO = _mapper.Map<IEnumerable<PilotResourceRequiredTransferDTO>>(services);
             
-            return CommonResponse.Send(ResponseCodes.SUCCESS,TransferDTO);
+            return new ApiOkResponse(TransferDTO);
         }
 
-        public async Task<ApiCommonResponse> GetAllServiceRegs()
+        public async Task<ApiResponse> GetAllServiceRegs()
         {
 
             var services = await _serviceregRepository.FindAllServicess();
             if (services == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
             var TransferDTO = _mapper.Map<IEnumerable<ServiceRegistrationTransferDTO>>(services);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,TransferDTO);
+            return new ApiOkResponse(TransferDTO);
         }
 
-        public async Task<ApiCommonResponse> GetAllVehicleResourceRequired()
+        public async Task<ApiResponse> GetAllVehicleResourceRequired()
         {
             var services = await _serviceregRepository.FindAllVehicleResources();
             if (services == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
             var TransferDTO = _mapper.Map<IEnumerable<VehicleResourceRequiredTransferDTO>>(services);
 
-            return CommonResponse.Send(ResponseCodes.SUCCESS,TransferDTO);
+            return new ApiOkResponse(TransferDTO);
         }
 
-        public async Task<ApiCommonResponse> GetArmedEscortResourceById(long id)
+        public async Task<ApiResponse> GetArmedEscortResourceById(long id)
         {
             var service = await _serviceregRepository.FindArmedEsxortResourceById(id);
             if (service == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
             var TransferDTO = _mapper.Map<ArmedEscortResourceRequiredTransferDTO>(service);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,TransferDTO);
+            return new ApiOkResponse(TransferDTO);
         }
 
-        public async Task<ApiCommonResponse> GetCommanderResourceById(long id)
+        public async Task<ApiResponse> GetCommanderResourceById(long id)
         {
             var service = await _serviceregRepository.FindCommanderResourceById(id);
             if (service == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
             var TransferDTO = _mapper.Map<CommanderResourceRequiredTransferDTO>(service);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,TransferDTO);
+            return new ApiOkResponse(TransferDTO);
         }
 
-        public async Task<ApiCommonResponse> GetPilotResourceById(long id)
+        public async Task<ApiResponse> GetPilotResourceById(long id)
         {
             var service = await _serviceregRepository.FindPilotResourceById(id);
             if (service == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
             var TransferDTO = _mapper.Map<PilotResourceRequiredTransferDTO>(service);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,TransferDTO);
+            return new ApiOkResponse(TransferDTO);
         }
 
-        public async Task<ApiCommonResponse> GetServiceRegById(long id)
+        public async Task<ApiResponse> GetServiceRegById(long id)
         {
 
             var service = await _serviceregRepository.FindServiceById(id);
             if (service == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
             var TransferDTO = _mapper.Map<ServiceRegistrationTransferDTO>(service);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,TransferDTO);
+            return new ApiOkResponse(TransferDTO);
         }
 
-        public async Task<ApiCommonResponse> GetVehicleResourceById(long id)
+        public async Task<ApiResponse> GetVehicleResourceById(long id)
         {
             var service = await _serviceregRepository.FindVehicleResourceById(id);
             if (service == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
             var TransferDTO = _mapper.Map<VehicleResourceRequiredTransferDTO>(service);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,TransferDTO);
+            return new ApiOkResponse(TransferDTO);
         }
 
-        public async Task<ApiCommonResponse> UpdateServiceReg(HttpContext context, long id, ServiceRegistrationReceivingDTO serviceRegReceivingDTO)
+        public async Task<ApiResponse> UpdateServiceReg(HttpContext context, long id, ServiceRegistrationReceivingDTO serviceRegReceivingDTO)
         {
             var itemToUpdate = await _serviceregRepository.FindServiceById(id);
             if (itemToUpdate == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
 
             var summary = $"Initial details before change, \n {itemToUpdate.ToString()} \n";
@@ -376,11 +376,11 @@ namespace HaloBiz.MyServices.Impl
 
             if (updated == null)
             {
-                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+                return new ApiResponse(500);
             }
 
             var TransferDTOs = _mapper.Map<ServiceRegistrationTransferDTO>(updated);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,TransferDTOs);
+            return new ApiOkResponse(TransferDTOs);
         }
     }
 }

@@ -10,11 +10,11 @@ namespace HaloBiz.MyServices
 {
     public interface IServiceTypeService
     {
-        Task<ApiCommonResponse> AddServiceType(HttpContext context, ServiceTypeReceivingDTO serviceTypeReceivingDTO);
-        Task<ApiCommonResponse> GetAllServiceType();
-        Task<ApiCommonResponse> GetServiceTypeById(long id);
-        Task<ApiCommonResponse> GetServiceTypeByName(string name);
-        Task<ApiCommonResponse> UpdateServiceType(HttpContext context, long id, ServiceTypeReceivingDTO serviceTypeReceivingDTO);
-        Task<ApiCommonResponse> DeleteServiceType(long id);
+        Task<ApiResponse> AddServiceType(HttpContext context, ServiceTypeReceivingDTO serviceTypeReceivingDTO);
+        Task<ApiResponse> GetAllServiceType();
+        Task<ApiResponse> GetServiceTypeById(long id);
+        Task<ApiResponse> GetServiceTypeByName(string name);
+        Task<ApiResponse> UpdateServiceType(HttpContext context, long id, ServiceTypeReceivingDTO serviceTypeReceivingDTO);
+        Task<ApiResponse> DeleteServiceType(long id);
     }
 }

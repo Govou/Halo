@@ -30,7 +30,7 @@ namespace HaloBiz.MyServices.Impl
             this._logger = logger;
         }
 
-        public async Task<ApiCommonResponse> AddAccountClass(HttpContext context, AccountClassReceivingDTO accountClassReceivingDTO)
+        public async Task<ApiResponse> AddAccountClass(HttpContext context, AccountClassReceivingDTO accountClassReceivingDTO)
         {
             var acctClass = _mapper.Map<AccountClass>(accountClassReceivingDTO);
           
@@ -38,65 +38,62 @@ namespace HaloBiz.MyServices.Impl
             var savedAccountClass = await _accountClassRepo.SaveAccountClass(acctClass);
             if (savedAccountClass == null)
             {
-                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+                return new ApiResponse(500);
             }
             var accountClassTransferDTOs = _mapper.Map<AccountClassTransferDTO>(acctClass);
-            return CommonResponse.Send(ResponseCodes.SUCCESS, accountClassTransferDTOs); ;
+            return new ApiOkResponse(accountClassTransferDTOs);
         }
 
-        public async Task<ApiCommonResponse> DeleteAccountClass(long id)
+        public async Task<ApiResponse> DeleteAccountClass(long id)
         {
             var accountClassTodelete = await _accountClassRepo.FindAccountClassById(id);
             if (accountClassTodelete == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
 
             if (!await _accountClassRepo.DeleteAccountClass(accountClassTodelete))
             {
-                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+                return new ApiResponse(500);
             }
 
-            return CommonResponse.Send(ResponseCodes.SUCCESS);
-
-
+            return new ApiOkResponse(true);
         }
 
-        public async Task<ApiCommonResponse> GetAccountClassByCaption(string caption)
+        public async Task<ApiResponse> GetAccountClassByCaption(string caption)
         {
             var accountClass = await _accountClassRepo.FindAccountClassByCaption(caption);
             if (accountClass == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);
-
+                return new ApiResponse(404);
             }
             var accountClassTransferDTOs = _mapper.Map<AccountClassTransferDTO>(accountClass);
-            return CommonResponse.Send(ResponseCodes.SUCCESS, accountClassTransferDTOs); ;
+            return new ApiOkResponse(accountClassTransferDTOs);
         }
 
-        public async Task<ApiCommonResponse> GetAccountClassById(long id)
+        public async Task<ApiResponse> GetAccountClassById(long id)
         {
             var accountClass = await _accountClassRepo.FindAccountClassById(id);
             if (accountClass == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
             var accountClassTransferDTOs = _mapper.Map<AccountClassTransferDTO>(accountClass);
-            return CommonResponse.Send(ResponseCodes.SUCCESS, accountClassTransferDTOs); ;
+            return new ApiOkResponse(accountClassTransferDTOs);
         }
 
-        public async Task<ApiCommonResponse> GetAllAccountClasses()
+        public async Task<ApiResponse> GetAllAccountClasses()
         {
             var accountClasses = await _accountClassRepo.FindAllAccountClasses();
             if (accountClasses == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
             var accountClassTransferDTOs = _mapper.Map<IEnumerable<AccountClassTransferDTO>>(accountClasses);
-            return CommonResponse.Send(ResponseCodes.SUCCESS, accountClassTransferDTOs); ;
+            return new ApiOkResponse(accountClassTransferDTOs);
         }
 
-        public async Task<ApiCommonResponse> GetBreakdownOfAccountClass()
+        public async Task<ApiResponse> GetBreakdownOfAccountClass()
         {
             try{
                 var accountsClasses = await _accountClassRepo.FindAllAccountClassesDownToAccountDetails();
@@ -105,14 +102,13 @@ namespace HaloBiz.MyServices.Impl
                 {
                     accountClassesWithValue.Add(CalculateAccountClassBalance(accountClass));
                 }
-                return CommonResponse.Send(ResponseCodes.SUCCESS, accountClassesWithValue);
+                return new ApiOkResponse(accountClassesWithValue);
 
-            }
-            catch(Exception e)
+            }catch(Exception e)
             {
                 _logger.LogError(e.Message);
                 _logger.LogError(e.StackTrace);
-                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+                return new ApiResponse(500);
             }
         } 
 
@@ -164,12 +160,12 @@ namespace HaloBiz.MyServices.Impl
             return account.IsDebitBalance ? total : (total * -1);
         }
 
-        public async Task<ApiCommonResponse> UpdateAccountClass(long id, AccountClassReceivingDTO accountClassReceivingDTO)
+        public async Task<ApiResponse> UpdateAccountClass(long id, AccountClassReceivingDTO accountClassReceivingDTO)
         {
             var accountClassToUpdate = await _accountClassRepo.FindAccountClassById(id);
             if (accountClassToUpdate == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return new ApiResponse(404);
             }
             accountClassToUpdate.Caption = accountClassReceivingDTO.Caption;
             accountClassToUpdate.Description = accountClassReceivingDTO.Description;
@@ -177,10 +173,10 @@ namespace HaloBiz.MyServices.Impl
 
             if (updatedaccountClass == null)
             {
-                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+                return new ApiResponse(500);
             }
             var accountClassTransferDTOs = _mapper.Map<AccountClassTransferDTO>(updatedaccountClass);
-            return CommonResponse.Send(ResponseCodes.SUCCESS, accountClassTransferDTOs); ;
+            return new ApiOkResponse(accountClassTransferDTOs);
         }
     }
 }

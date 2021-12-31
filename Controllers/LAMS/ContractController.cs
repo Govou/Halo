@@ -19,47 +19,72 @@ namespace HaloBiz.Controllers.LAMS
         }
 
         [HttpGet("")]
-        public async Task<ApiCommonResponse> GetContract()
+        public async Task<ActionResult> GetContract()
         {
-            return await _contractService.GetAllContracts();
+            var response = await _contractService.GetAllContracts();
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var contract = ((ApiOkResponse)response).Result;
+            return Ok(contract);
         }
 
         [HttpGet("ReferenceNumber/{refNo}")]
-        public async Task<ApiCommonResponse> GetByCaption(string refNo)
+        public async Task<ActionResult> GetByCaption(string refNo)
         {
-            return await _contractService.GetContractByReferenceNumber(refNo);
+            var response = await _contractService.GetContractByReferenceNumber(refNo);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var contract = ((ApiOkResponse)response).Result;
+            return Ok(contract);
         }
 
         [HttpGet("{id}/ContractService")]
-        public async Task<ApiCommonResponse> GetByAllContractServiceForAContract(long id)
+        public async Task<ActionResult> GetByAllContractServiceForAContract(long id)
         {
-            return await _contractServiceService.GetAllContractsServcieForAContract(id);
+            var response = await _contractServiceService.GetAllContractsServcieForAContract(id);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var contract = ((ApiOkResponse)response).Result;
+            return Ok(contract);
         }
 
         [HttpGet("GetContractsByLeadId/{leadId}")]
-        public async Task<ApiCommonResponse> GetContractsByLeadId(long leadId)
+        public async Task<ActionResult> GetContractsByLeadId(long leadId)
         {
-            return await _contractService.GetContractsByLeadId(leadId);
+            var response = await _contractService.GetContractsByLeadId(leadId);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var contract = ((ApiOkResponse)response).Result;
+            return Ok(contract);
         }
 
         [HttpGet("GetContractsByCustomerId/{customerId}")]
         [Microsoft.AspNetCore.Authorization.AllowAnonymous]
-        public async Task<ApiCommonResponse> GetContractsByCustomerId(long customerId)
+        public async Task<ActionResult> GetContractsByCustomerId(long customerId)
         {
-            return await _contractService.GetContractsByCustomerId(customerId);
+            var response = await _contractService.GetContractsByCustomerId(customerId);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var contract = ((ApiOkResponse)response).Result;
+            return Ok(contract);
         }
 
         [HttpGet("{id}")]
-        public async Task<ApiCommonResponse> GetById(long id)
+        public async Task<ActionResult> GetById(long id)
         {
-            return await _contractService.GetContractById(id);
+            var response = await _contractService.GetContractById(id);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var contract = ((ApiOkResponse)response).Result;
+            return Ok(contract);
         }
 
 
         [HttpDelete("{id}")]
-        public async Task<ApiCommonResponse> DeleteById(int id)
+        public async Task<ActionResult> DeleteById(int id)
         {
-            return await _contractService.DeleteContract(id);
+            var response = await _contractService.DeleteContract(id);
+            return StatusCode(response.StatusCode);
         }
     }
 }

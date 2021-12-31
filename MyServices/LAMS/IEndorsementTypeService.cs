@@ -7,12 +7,12 @@ namespace HaloBiz.MyServices.LAMS
 {
     public interface IEndorsementTypeService
     {
-        Task<ApiCommonResponse> AddEndorsementType(HttpContext context, EndorsementTypeReceivingDTO endorsementTypeReceivingDTO);
-        Task<ApiCommonResponse> GetAllEndorsementType();
-        Task<ApiCommonResponse> GetEndorsementTypeById(long id);
-        Task<ApiCommonResponse> GetEndorsementTypeByName(string name);
-        Task<ApiCommonResponse> UpdateEndorsementType(HttpContext context, long id, EndorsementTypeReceivingDTO endorsementTypeReceivingDTO);
-        Task<ApiCommonResponse> DeleteEndorsementType(long id);
+        Task<ApiResponse> AddEndorsementType(HttpContext context, EndorsementTypeReceivingDTO endorsementTypeReceivingDTO);
+        Task<ApiResponse> GetAllEndorsementType();
+        Task<ApiResponse> GetEndorsementTypeById(long id);
+        Task<ApiResponse> GetEndorsementTypeByName(string name);
+        Task<ApiResponse> UpdateEndorsementType(HttpContext context, long id, EndorsementTypeReceivingDTO endorsementTypeReceivingDTO);
+        Task<ApiResponse> DeleteEndorsementType(long id);
 
     }
 }

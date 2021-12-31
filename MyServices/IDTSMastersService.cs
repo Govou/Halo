@@ -11,31 +11,31 @@ namespace HaloBiz.MyServices
     public interface IDTSMastersService
     {
         //ArmedEscort
-        Task<ApiCommonResponse> AddArmedEscortMaster(HttpContext context, ArmedEscortDTSMastersReceivingDTO armedEscortReceivingDTO);
-        Task<ApiCommonResponse> GetAllArmedEscortMasters();
-        Task<ApiCommonResponse> GetArmedEscortMasterById(long id);
-        Task<ApiCommonResponse> UpdateArmedEscortMaster(HttpContext context, long id, ArmedEscortDTSMastersReceivingDTO armedEscortReceivingDTO);
-        Task<ApiCommonResponse> DeleteArmedEscortMaster(long id);
+        Task<ApiResponse> AddArmedEscortMaster(HttpContext context, ArmedEscortDTSMastersReceivingDTO armedEscortReceivingDTO);
+        Task<ApiResponse> GetAllArmedEscortMasters();
+        Task<ApiResponse> GetArmedEscortMasterById(long id);
+        Task<ApiResponse> UpdateArmedEscortMaster(HttpContext context, long id, ArmedEscortDTSMastersReceivingDTO armedEscortReceivingDTO);
+        Task<ApiResponse> DeleteArmedEscortMaster(long id);
 
         //Commander
-        Task<ApiCommonResponse> AddCommanderMaster(HttpContext context, CommanderDTSMastersReceivingDTO commanderReceivingDTO);
-        Task<ApiCommonResponse> GetAllCommanderMasters();
-        Task<ApiCommonResponse> GetCommanderMasterById(long id);
-        Task<ApiCommonResponse> UpdateCommanderMaster(HttpContext context, long id, CommanderDTSMastersReceivingDTO commanderReceivingDTO);
-        Task<ApiCommonResponse> DeleteCommanderMaster(long id);
+        Task<ApiResponse> AddCommanderMaster(HttpContext context, CommanderDTSMastersReceivingDTO commanderReceivingDTO);
+        Task<ApiResponse> GetAllCommanderMasters();
+        Task<ApiResponse> GetCommanderMasterById(long id);
+        Task<ApiResponse> UpdateCommanderMaster(HttpContext context, long id, CommanderDTSMastersReceivingDTO commanderReceivingDTO);
+        Task<ApiResponse> DeleteCommanderMaster(long id);
 
         //Pilot
-        Task<ApiCommonResponse> AddPilotMaster(HttpContext context, PilotDTSMastersReceivingDTO pilotReceivingDTO);
-        Task<ApiCommonResponse> GetAllPilotMasters();
-        Task<ApiCommonResponse> GetPilotMasterById(long id);
-        Task<ApiCommonResponse> UpdatePilotMaster(HttpContext context, long id, PilotDTSMastersReceivingDTO pilotReceivingDTO);
-        Task<ApiCommonResponse> DeletePilotMaster(long id);
+        Task<ApiResponse> AddPilotMaster(HttpContext context, PilotDTSMastersReceivingDTO pilotReceivingDTO);
+        Task<ApiResponse> GetAllPilotMasters();
+        Task<ApiResponse> GetPilotMasterById(long id);
+        Task<ApiResponse> UpdatePilotMaster(HttpContext context, long id, PilotDTSMastersReceivingDTO pilotReceivingDTO);
+        Task<ApiResponse> DeletePilotMaster(long id);
 
         //Vehicle
-        Task<ApiCommonResponse> AddVehicleMaster(HttpContext context, VehicleDTSMastersReceivingDTO vehicleReceivingDTO);
-        Task<ApiCommonResponse> GetAllVehicleMasters();
-        Task<ApiCommonResponse> GetVehicleMasterById(long id);
-        Task<ApiCommonResponse> UpdateVehicleMaster(HttpContext context, long id, VehicleDTSMastersReceivingDTO vehicleReceivingDTO);
-        Task<ApiCommonResponse> DeleteVehicleMaster(long id);
+        Task<ApiResponse> AddVehicleMaster(HttpContext context, VehicleDTSMastersReceivingDTO vehicleReceivingDTO);
+        Task<ApiResponse> GetAllVehicleMasters();
+        Task<ApiResponse> GetVehicleMasterById(long id);
+        Task<ApiResponse> UpdateVehicleMaster(HttpContext context, long id, VehicleDTSMastersReceivingDTO vehicleReceivingDTO);
+        Task<ApiResponse> DeleteVehicleMaster(long id);
     }
 }
