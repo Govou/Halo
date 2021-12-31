@@ -25,57 +25,37 @@ namespace Controllers.Controllers
         [HttpGet("")]
         public async Task<ApiCommonResponse> GetLeadType()
         {
-            var response = await _leadTypeService.GetAllLeadType();
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var leadType = ((ApiOkResponse)response).Result;
-            return Ok(leadType);
+            return await _leadTypeService.GetAllLeadType();
         }
         [HttpGet("caption/{name}")]
         public async Task<ApiCommonResponse> GetByCaption(string name)
         {
-            var response = await _leadTypeService.GetLeadTypeByName(name);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var leadType = ((ApiOkResponse)response).Result;
-            return Ok(leadType);
+            return await _leadTypeService.GetLeadTypeByName(name);
         }
 
         [HttpGet("{id}")]
         public async Task<ApiCommonResponse> GetById(long id)
         {
-            var response = await _leadTypeService.GetLeadTypeById(id);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var leadType = ((ApiOkResponse)response).Result;
-            return Ok(leadType);
+            return await _leadTypeService.GetLeadTypeById(id);
+
         }
 
         [HttpPost("")]
         public async Task<ApiCommonResponse> AddNewLeadType(LeadTypeReceivingDTO leadTypeReceiving)
         {
-            var response = await _leadTypeService.AddLeadType(HttpContext, leadTypeReceiving);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var leadType = ((ApiOkResponse)response).Result;
-            return Ok(leadType);
+            return await _leadTypeService.AddLeadType(HttpContext, leadTypeReceiving);
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateById(long id, LeadTypeReceivingDTO leadTypeReceivingDTO)
+        public async Task<ApiCommonResponse> UpdateById(long id, LeadTypeReceivingDTO leadTypeReceivingDTO)
         {
-            var response = await _leadTypeService.UpdateLeadType(HttpContext, id, leadTypeReceivingDTO);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var leadType = ((ApiOkResponse)response).Result;
-            return Ok(leadType);
+            return await _leadTypeService.UpdateLeadType(HttpContext, id, leadTypeReceivingDTO);
         }
 
         [HttpDelete("{id}")]
         public async Task<ApiCommonResponse> DeleteById(int id)
         {
-            var response = await _leadTypeService.DeleteLeadType(id);
-            return StatusCode(response.StatusCode);
+            return await _leadTypeService.DeleteLeadType(id);
         }
     }
 }

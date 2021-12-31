@@ -25,66 +25,41 @@ namespace HaloBiz.Controllers
         [HttpGet("")]
         public async Task<ApiCommonResponse> GetOperatingEntities()
         {
-            var response = await _operatingEntityService.GetAllOperatingEntities();
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var operatingEntity = ((ApiOkResponse)response).Result;
-            return Ok((IEnumerable<OperatingEntityTransferDTO>)operatingEntity);
+            return await _operatingEntityService.GetAllOperatingEntities();
         }
         [HttpGet("SbuProportion")]
         public async Task<ApiCommonResponse> GetOperatingEntitiesAndSbuproportion()
         {
-            var response = await _operatingEntityService.GetAllOperatingEntitiesAndSbuproportion();
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var operatingEntity = ((ApiOkResponse)response).Result;
-            return Ok(operatingEntity);
+            return await _operatingEntityService.GetAllOperatingEntitiesAndSbuproportion();
         }
         [HttpGet("name/{name}")]
         public async Task<ApiCommonResponse> GetByName(string name)
         {
-            var response = await _operatingEntityService.GetOperatingEntityByName(name);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var operatingEntity = ((ApiOkResponse)response).Result;
-            return Ok((OperatingEntityTransferDTO)operatingEntity);
+            return await _operatingEntityService.GetOperatingEntityByName(name);
         }
 
         [HttpGet("{id}")]
         public async Task<ApiCommonResponse> GetById(long id)
         {
-            var response = await _operatingEntityService.GetOperatingEntityById(id);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var operatingEntity = ((ApiOkResponse)response).Result;
-            return Ok((OperatingEntityTransferDTO)operatingEntity);
+            return await _operatingEntityService.GetOperatingEntityById(id);
         }
 
         [HttpPost("")]
         public async Task<ApiCommonResponse> AddNew(OperatingEntityReceivingDTO operatingEntityReceiving)
         {
-            var response = await _operatingEntityService.AddOperatingEntity(operatingEntityReceiving);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var operatingEntity = ((ApiOkResponse)response).Result;
-            return Ok((OperatingEntityTransferDTO)operatingEntity);
+            return await _operatingEntityService.AddOperatingEntity(operatingEntityReceiving);
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateById(long id, OperatingEntityReceivingDTO operatingEntityReceiving)
+        public async Task<ApiCommonResponse> UpdateById(long id, OperatingEntityReceivingDTO operatingEntityReceiving)
         {
-            var response = await _operatingEntityService.UpdateOperatingEntity(id, operatingEntityReceiving);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var operatingEntity = ((ApiOkResponse)response).Result;
-            return Ok((OperatingEntityTransferDTO)operatingEntity);
+            return await _operatingEntityService.UpdateOperatingEntity(id, operatingEntityReceiving);
         }
 
         [HttpDelete("{id}")]
         public async Task<ApiCommonResponse> DeleteById(int id)
         {
-            var response = await _operatingEntityService.DeleteOperatingEntity(id);
-            return StatusCode(response.StatusCode);
+            return await _operatingEntityService.DeleteOperatingEntity(id);
         }
     }
 }

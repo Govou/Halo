@@ -41,7 +41,7 @@ namespace HaloBiz.MyServices.Impl
                     return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
                 }
                 var controlAccountTransferDTOs = _mapper.Map<ControlAccountTransferDTO>(controlAcc);
-                return new ApiOkResponse(controlAccountTransferDTOs);
+                return CommonResponse.Send(ResponseCodes.SUCCESS,controlAccountTransferDTOs);
 
         }
 
@@ -69,7 +69,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var controlAccountTransferDTOs = _mapper.Map<ControlAccountTransferDTO>(controlAccount);
-            return new ApiOkResponse(controlAccountTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,controlAccountTransferDTOs);
         }
         public async Task<ApiCommonResponse> GetControlAccountByCaption(string caption)
         {
@@ -79,7 +79,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var controlAccountTransferDTOs = _mapper.Map<ControlAccountTransferDTO>(controlAccount);
-            return new ApiOkResponse(controlAccountTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,controlAccountTransferDTOs);
         }
 
         public async Task<ApiCommonResponse> GetControlAccountById(long id)
@@ -90,7 +90,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var controlAccountTransferDTOs = _mapper.Map<ControlAccountTransferDTO>(controlAccount);
-            return new ApiOkResponse(controlAccountTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,controlAccountTransferDTOs);
         }
 
         public async Task<ApiCommonResponse> GetAllControlAccounts()
@@ -101,7 +101,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var controlAccountTransferDTOs = _mapper.Map<IEnumerable<ControlAccountTransferDTO>>(controlAccountes);
-            return new ApiOkResponse(controlAccountTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,controlAccountTransferDTOs);
         }
         public async Task<ApiCommonResponse> GetAllIncomeControlAccounts()
         {
@@ -111,7 +111,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var controlAccountTransferDTOs = _mapper.Map<IEnumerable<ControlAccountTransferDTO>>(controlAccounts);
-            return new ApiOkResponse(controlAccountTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,controlAccountTransferDTOs);
         }
 
         public async Task<ApiCommonResponse> UpdateControlAccount(long id, ControlAccountReceivingDTO controlAccountReceivingDTO)
@@ -130,7 +130,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
             var controlAccountTransferDTOs = _mapper.Map<ControlAccountTransferDTO>(updatedControlAccount);
-            return new ApiOkResponse(controlAccountTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,controlAccountTransferDTOs);
         }
     }
 }

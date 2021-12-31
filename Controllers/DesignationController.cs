@@ -26,38 +26,25 @@ namespace HaloBiz.Controllers
         [HttpGet("")]
         public async Task<ApiCommonResponse> GetDesignation()
         {
-            var response = await _designationService.GetAllDesignation();
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var designation = ((ApiOkResponse)response).Result;
-            return Ok(designation);
+            return await _designationService.GetAllDesignation();
         }
 
         [HttpPost("")]
         public async Task<ApiCommonResponse> AddNewDesignation(DesignationReceivingDTO designationReceiving)
         {
-            var response = await _designationService.AddDesignation(HttpContext, designationReceiving);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var designation = ((ApiOkResponse)response).Result;
-            return Ok(designation);
+            return await _designationService.AddDesignation(HttpContext, designationReceiving);
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateById(long id, DesignationReceivingDTO designationReceiving)
+        public async Task<ApiCommonResponse> UpdateById(long id, DesignationReceivingDTO designationReceiving)
         {
-            var response = await _designationService.UpdateDesignation(HttpContext, id, designationReceiving);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var designation = ((ApiOkResponse)response).Result;
-            return Ok(designation);
+            return await _designationService.UpdateDesignation(HttpContext, id, designationReceiving);
         }
 
         [HttpDelete("{id}")]
         public async Task<ApiCommonResponse> DeleteById(int id)
         {
-            var response = await _designationService.DeleteDesignation(id);
-            return StatusCode(response.StatusCode);
+            return await _designationService.DeleteDesignation(id);
         }
 
     }

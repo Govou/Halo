@@ -36,7 +36,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
             var approverLevelTransferDTO = _mapper.Map<ApproverLevelTransferDTO>(approverLevel);
-            return new ApiOkResponse(approverLevelTransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,approverLevelTransferDTO);
         }
 
         public async Task<ApiCommonResponse> DeleteApproverLevel(long id)
@@ -62,7 +62,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var approverLevelTransferDTO = _mapper.Map<IEnumerable<ApproverLevelTransferDTO>>(approverLevel);
-            return new ApiOkResponse(approverLevelTransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,approverLevelTransferDTO);
         }
 
         public  async Task<ApiCommonResponse> UpdateApproverLevel(HttpContext context, long id, ApproverLevelReceivingDTO approverLevelReceivingDTO)
@@ -96,7 +96,7 @@ namespace HaloBiz.MyServices.Impl
             await _historyRepo.SaveHistory(history);
 
             var approverLevelTransferDTOs = _mapper.Map<ApproverLevelTransferDTO>(updatedApproverLevel);
-            return new ApiOkResponse(approverLevelTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,approverLevelTransferDTOs);
         }
     }
 }

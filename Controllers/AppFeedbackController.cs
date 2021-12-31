@@ -25,19 +25,15 @@ namespace HaloBiz.Controllers
         [HttpGet("")]
         public async Task<ApiCommonResponse> GetAppFeedback()
         {
-            var response = await _AppFeedbackService.GetAllAppFeedback();
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var AppFeedback = ((ApiOkResponse)response).Result;
-            return Ok(AppFeedback);
+            return await _AppFeedbackService.GetAllAppFeedback();
         }
 
         /*[HttpGet("caption/{name}")]
         public async Task<ApiCommonResponse> GetByCaption(string name)
         {
-            var response = await _AppFeedbackService.GetAppFeedbackByName(name);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
+            return await _AppFeedbackService.GetAppFeedbackByName(name);
+            
+                
             var AppFeedback = ((ApiOkResponse)response).Result;
             return Ok(AppFeedback);
         }*/
@@ -45,38 +41,25 @@ namespace HaloBiz.Controllers
         [HttpGet("{id}")]
         public async Task<ApiCommonResponse> GetById(long id)
         {
-            var response = await _AppFeedbackService.GetAppFeedbackById(id);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var AppFeedback = ((ApiOkResponse)response).Result;
-            return Ok(AppFeedback);
+            return await _AppFeedbackService.GetAppFeedbackById(id);
         }
 
         [HttpPost("")]
         public async Task<ApiCommonResponse> AddNewAppFeedback(AppFeedbackReceivingDTO AppFeedbackReceiving)
         {
-            var response = await _AppFeedbackService.AddAppFeedback(HttpContext, AppFeedbackReceiving);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var AppFeedback = ((ApiOkResponse)response).Result;
-            return Ok(AppFeedback);
+            return await _AppFeedbackService.AddAppFeedback(HttpContext, AppFeedbackReceiving);
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateById(long id, AppFeedbackReceivingDTO AppFeedbackReceiving)
+        public async Task<ApiCommonResponse> UpdateById(long id, AppFeedbackReceivingDTO AppFeedbackReceiving)
         {
-            var response = await _AppFeedbackService.UpdateAppFeedback(HttpContext, id, AppFeedbackReceiving);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var AppFeedback = ((ApiOkResponse)response).Result;
-            return Ok(AppFeedback);
+            return await _AppFeedbackService.UpdateAppFeedback(HttpContext, id, AppFeedbackReceiving);
         }
 
         [HttpDelete("{id}")]
         public async Task<ApiCommonResponse> DeleteById(int id)
         {
-            var response = await _AppFeedbackService.DeleteAppFeedback(id);
-            return StatusCode(response.StatusCode);
+            return await _AppFeedbackService.DeleteAppFeedback(id);
         }
     }
 }

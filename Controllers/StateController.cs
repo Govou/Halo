@@ -21,29 +21,29 @@ namespace HaloBiz.Controllers
         [HttpGet("")]
         public async Task<ApiCommonResponse> GetStates()
         {
-            var response = await stateService.GetAllStates();
-            return StatusCode(response.StatusCode, response);
+            return await stateService.GetAllStates();
+            
         }
 
         [HttpGet("name/{name}")]
         public async Task<ApiCommonResponse> GetStateByName(string name)
         {
-            var response = await stateService.GetStateByName(name);
-            return StatusCode(response.StatusCode, response);
+            return await stateService.GetStateByName(name);
+            
         }
 
         [HttpGet("{id}")]
         public async Task<ApiCommonResponse> GetStateById(int id)
         {
-            var response = await stateService.GetStateById(id);
-            return StatusCode(response.StatusCode, response);
+            return await stateService.GetStateById(id);
+            
         }
 
         [HttpGet("GetAllLgas")]
         public async Task<ApiCommonResponse> GetAllLGAs()
         {
-            var response = await stateService.GetAllLgas();
-            return StatusCode(response.StatusCode, response);
+            return await stateService.GetAllLgas();
+            
         }
         
     }

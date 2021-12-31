@@ -34,7 +34,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
             var bankTransferDTO = _mapper.Map<BankTransferDTO>(bank);
-            return new ApiOkResponse(bankTransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,bankTransferDTO);
         }
 
         public async Task<ApiCommonResponse> GetAllBank()
@@ -45,7 +45,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var bankTransferDTO = _mapper.Map<IEnumerable<BankTransferDTO>>(banks);
-            return new ApiOkResponse(bankTransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,bankTransferDTO);
         }
 
         public async Task<ApiCommonResponse> GetBankById(long id)
@@ -56,7 +56,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var bankTransferDTOs = _mapper.Map<BankTransferDTO>(bank);
-            return new ApiOkResponse(bankTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,bankTransferDTOs);
         }
 
         public async Task<ApiCommonResponse> GetBankByName(string name)
@@ -67,7 +67,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var bankTransferDTOs = _mapper.Map<BankTransferDTO>(bank);
-            return new ApiOkResponse(bankTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,bankTransferDTOs);
         }
 
         public async Task<ApiCommonResponse> UpdateBank(HttpContext context, long id, BankReceivingDTO bankReceivingDTO)
@@ -102,7 +102,7 @@ namespace HaloBiz.MyServices.Impl
             await _historyRepo.SaveHistory(history);
 
             var bankTransferDTO = _mapper.Map<BankTransferDTO>(updatedBank);
-            return new ApiOkResponse(bankTransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,bankTransferDTO);
 
         }
 

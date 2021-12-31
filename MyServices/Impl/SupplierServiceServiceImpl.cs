@@ -37,7 +37,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
             var supplierServiceTransferDTO = _mapper.Map<SupplierServiceTransferDTO>(supplierService);
-            return new ApiOkResponse(supplierServiceTransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,supplierServiceTransferDTO);
         }
 
         public async Task<ApiCommonResponse> DeleteSupplierService(long id)
@@ -62,7 +62,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var SupplierServiceTransferDTOs = _mapper.Map<SupplierServiceTransferDTO>(SupplierService);
-            return new ApiOkResponse(SupplierServiceTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,SupplierServiceTransferDTOs);
         }
         public async Task<ApiCommonResponse> GetAllSupplierServiceCategories()
         {
@@ -72,7 +72,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var supplierServiceTransferDTO = _mapper.Map<IEnumerable<SupplierServiceTransferDTO>>(supplierService);
-            return new ApiOkResponse(supplierServiceTransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,supplierServiceTransferDTO);
         }
 
         public  async Task<ApiCommonResponse> UpdateSupplierService(HttpContext context, long id, SupplierServiceReceivingDTO supplierServiceReceivingDTO)
@@ -115,7 +115,7 @@ namespace HaloBiz.MyServices.Impl
             await _historyRepo.SaveHistory(history);
 
             var supplierServiceTransferDTOs = _mapper.Map<SupplierServiceTransferDTO>(updatedSupplierService);
-            return new ApiOkResponse(supplierServiceTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,supplierServiceTransferDTOs);
         }
     }
 }

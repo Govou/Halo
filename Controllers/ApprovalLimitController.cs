@@ -26,38 +26,25 @@ namespace HaloBiz.Controllers
         [HttpGet("")]
         public async Task<ApiCommonResponse> GetApprovalLimit()
         {
-            var response = await _approvalLimitService.GetAllApprovalLimit();
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var approvalLimit = ((ApiOkResponse)response).Result;
-            return Ok(approvalLimit);
+            return await _approvalLimitService.GetAllApprovalLimit();
         }
 
         [HttpPost("")]
         public async Task<ApiCommonResponse> AddNewApprovalLimit(ApprovalLimitReceivingDTO approvalLimitReceiving)
         {
-            var response = await _approvalLimitService.AddApprovalLimit(HttpContext, approvalLimitReceiving);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var approvalLimit = ((ApiOkResponse)response).Result;
-            return Ok(approvalLimit);
+            return await _approvalLimitService.AddApprovalLimit(HttpContext, approvalLimitReceiving);
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateById(long id, ApprovalLimitReceivingDTO approvalLimitReceiving)
+        public async Task<ApiCommonResponse> UpdateById(long id, ApprovalLimitReceivingDTO approvalLimitReceiving)
         {
-            var response = await _approvalLimitService.UpdateApprovalLimit(HttpContext, id, approvalLimitReceiving);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var approvalLimit = ((ApiOkResponse)response).Result;
-            return Ok(approvalLimit);
+            return await _approvalLimitService.UpdateApprovalLimit(HttpContext, id, approvalLimitReceiving);
         }
 
         [HttpDelete("{id}")]
         public async Task<ApiCommonResponse> DeleteById(int id)
         {
-            var response = await _approvalLimitService.DeleteApprovalLimit(id);
-            return StatusCode(response.StatusCode);
+            return await _approvalLimitService.DeleteApprovalLimit(id);
         }
 
     }

@@ -34,7 +34,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
             var regionTransferDTO = _mapper.Map<RegionTransferDTO>(region);
-            return new ApiOkResponse(regionTransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,regionTransferDTO);
         }
 
         public async Task<ApiCommonResponse> GetAllRegions()
@@ -45,7 +45,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var regionTransferDTO = _mapper.Map<IEnumerable<RegionTransferDTO>>(regions);
-            return new ApiOkResponse(regionTransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,regionTransferDTO);
         }
 
         public async Task<ApiCommonResponse> GetRegionById(long id)
@@ -56,7 +56,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var regionTransferDTO = _mapper.Map<RegionTransferDTO>(region);
-            return new ApiOkResponse(regionTransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,regionTransferDTO);
         }
 
         public async Task<ApiCommonResponse> GetRegionByName(string name)
@@ -67,7 +67,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var regionTransferDTOs = _mapper.Map<RegionTransferDTO>(region);
-            return new ApiOkResponse(regionTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,regionTransferDTOs);
         }
 
         public async Task<ApiCommonResponse> UpdateRegion(HttpContext context, long id, RegionReceivingDTO regionReceivingDTO)
@@ -102,7 +102,7 @@ namespace HaloBiz.MyServices.Impl
             await _historyRepo.SaveHistory(history);
 
             var regionTransferDTOs = _mapper.Map<RegionTransferDTO>(updatedRegion);
-            return new ApiOkResponse(regionTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,regionTransferDTOs);
 
         }
 

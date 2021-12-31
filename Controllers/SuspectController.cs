@@ -25,29 +25,21 @@ namespace HaloBiz.Controllers
         [HttpGet("")]
         public async Task<ApiCommonResponse> GetSuspect()
         {
-            var response = await _SuspectService.GetAllSuspect();
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var Suspect = ((ApiOkResponse)response).Result;
-            return Ok(Suspect);
+            return await _SuspectService.GetAllSuspect(); 
         }
 
         [HttpGet("GetUserSuspects")]
         public async Task<ApiCommonResponse> GetUserSuspects()
         {
-            var response = await _SuspectService.GetUserSuspects(HttpContext);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var Suspect = ((ApiOkResponse)response).Result;
-            return Ok(Suspect);
+            return await _SuspectService.GetUserSuspects(HttpContext); 
         }
 
         /*[HttpGet("caption/{name}")]
         public async Task<ApiCommonResponse> GetByCaption(string name)
         {
-            var response = await _SuspectService.GetSuspectByName(name);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
+            return await _SuspectService.GetSuspectByName(name);
+            
+                
             var Suspect = ((ApiOkResponse)response).Result;
             return Ok(Suspect);
         }*/
@@ -55,48 +47,31 @@ namespace HaloBiz.Controllers
         [HttpGet("{id}")]
         public async Task<ApiCommonResponse> GetById(long id)
         {
-            var response = await _SuspectService.GetSuspectById(id);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var Suspect = ((ApiOkResponse)response).Result;
-            return Ok(Suspect);
+            return await _SuspectService.GetSuspectById(id); 
         }
 
         [HttpPost("ConvertSuspect/{suspectId}")]
         public async Task<ApiCommonResponse> ConvertSuspect(long suspectId)
         {
-            var response = await _SuspectService.ConvertSuspect(HttpContext, suspectId);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var Suspect = ((ApiOkResponse)response).Result;
-            return Ok(Suspect);
+            return await _SuspectService.ConvertSuspect(HttpContext, suspectId); 
         }
 
         [HttpPost("")]
         public async Task<ApiCommonResponse> AddNewSuspect(SuspectReceivingDTO SuspectReceiving)
         {
-            var response = await _SuspectService.AddSuspect(HttpContext, SuspectReceiving);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var Suspect = ((ApiOkResponse)response).Result;
-            return Ok(Suspect);
+            return await _SuspectService.AddSuspect(HttpContext, SuspectReceiving); 
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateById(long id, SuspectReceivingDTO SuspectReceiving)
+        public async Task<ApiCommonResponse> UpdateById(long id, SuspectReceivingDTO SuspectReceiving)
         {
-            var response = await _SuspectService.UpdateSuspect(HttpContext, id, SuspectReceiving);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var Suspect = ((ApiOkResponse)response).Result;
-            return Ok(Suspect);
+            return await _SuspectService.UpdateSuspect(HttpContext, id, SuspectReceiving); 
         }
 
         [HttpDelete("{id}")]
         public async Task<ApiCommonResponse> DeleteById(int id)
         {
-            var response = await _SuspectService.DeleteSuspect(id);
-            return StatusCode(response.StatusCode);
+            return await _SuspectService.DeleteSuspect(id); 
         }
     }
 }

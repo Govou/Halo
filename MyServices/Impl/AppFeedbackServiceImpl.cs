@@ -41,7 +41,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
             var appFeedbackTransferDTO = _mapper.Map<AppFeedbackTransferDTO>(appFeedback);
-            return new ApiOkResponse(appFeedbackTransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,appFeedbackTransferDTO);
         }
 
         public async Task<ApiCommonResponse> DeleteAppFeedback(long id)
@@ -68,7 +68,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var appFeedbackTransferDTO = _mapper.Map<IEnumerable<AppFeedbackTransferDTO>>(appFeedbacks);
-            return new ApiOkResponse(appFeedbackTransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,appFeedbackTransferDTO);
         }
 
         public async Task<ApiCommonResponse> GetAppFeedbackById(long id)
@@ -79,7 +79,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var appFeedbackTransferDTOs = _mapper.Map<AppFeedbackTransferDTO>(appFeedback);
-            return new ApiOkResponse(appFeedbackTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,appFeedbackTransferDTOs);
         }
 
         public async Task<ApiCommonResponse> UpdateAppFeedback(HttpContext context, long id, AppFeedbackReceivingDTO appFeedbackReceivingDTO)
@@ -114,7 +114,7 @@ namespace HaloBiz.MyServices.Impl
             await _historyRepo.SaveHistory(history);
 
             var appFeedbackTransferDTOs = _mapper.Map<AppFeedbackTransferDTO>(updatedappFeedback);
-            return new ApiOkResponse(appFeedbackTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,appFeedbackTransferDTOs);
         }
     }
 }

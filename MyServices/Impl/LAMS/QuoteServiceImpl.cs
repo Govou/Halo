@@ -58,7 +58,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                     || quoteService.InvoicingInterval == null || quoteService.PaymentCycle == null || quoteService.FirstInvoiceSendDate == null
                     || quoteService.FulfillmentStartDate == null || quoteService.FulfillmentEndDate == null)
                 {
-                    return new ApiResponse(400, "Missing Quote Service Parameters");
+                    return CommonResponse.Send(ResponseCodes.FAILURE,null, "Missing Quote Service Parameters");
                 }
             }
 
@@ -113,7 +113,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
             //};
             //action.RunAsTask();
             var quoteTransferDTO = _mapper.Map<QuoteTransferDTO>(quoteFromDatabase);
-            return new ApiOkResponse(quoteTransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,quoteTransferDTO);
         }
 
         public async Task<ApiCommonResponse> GetAllQuote()
@@ -124,7 +124,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var quoteTransferDTO = _mapper.Map<IEnumerable<QuoteTransferDTO>>(quotes);
-            return new ApiOkResponse(quoteTransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,quoteTransferDTO);
         }
 
         public async Task<ApiCommonResponse> GetQuoteById(long id)
@@ -135,7 +135,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var quoteTransferDTOs = _mapper.Map<QuoteTransferDTO>(quote);
-            return new ApiOkResponse(quoteTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,quoteTransferDTOs);
         } 
 
         public async Task<ApiCommonResponse> FindByLeadDivisionId(long id)
@@ -146,7 +146,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var quoteTransferDTOs = _mapper.Map<QuoteTransferDTO>(quote);
-            return new ApiOkResponse(quoteTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,quoteTransferDTOs);
         }
 
         public async Task<ApiCommonResponse> GetQuoteByReferenceNumber(string reference)
@@ -157,7 +157,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var quoteTransferDTOs = _mapper.Map<QuoteTransferDTO>(quote);
-            return new ApiOkResponse(quoteTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,quoteTransferDTOs);
         }
 
         public async Task<ApiCommonResponse> UpdateQuote(HttpContext context, long id, QuoteReceivingDTO quoteReceivingDTO)
@@ -167,14 +167,14 @@ namespace HaloBiz.MyServices.Impl.LAMS
             {
                 if (quoteReceivingDTO.QuoteServices.Count() < 1)
                 {
-                    return new ApiResponse(400, "There should be at least 1 quote service for an update.");
+                    return CommonResponse.Send(ResponseCodes.FAILURE,null, "There should be at least 1 quote service for an update.");
                 }
 
                 var createdById = context.GetLoggedInUserId();
                 var quote = await _quoteRepo.FindQuoteById(id);
                 if (quote == null)
                 {
-                    return new ApiResponse(404, "Quote was not found");
+                    return CommonResponse.Send(ResponseCodes.FAILURE,null, "Quote was not found");
                 }
 
                 var summary = $"Initial details before change, \n {quote} \n";
@@ -227,7 +227,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 var quoteTransferDTOs = _mapper.Map<QuoteTransferDTO>(updatedQuote);
 
                 await transaction.CommitAsync();
-                return new ApiOkResponse(quoteTransferDTOs);
+                return CommonResponse.Send(ResponseCodes.SUCCESS,quoteTransferDTOs);
             }
             catch (Exception e)
             {

@@ -76,22 +76,22 @@ namespace HaloBiz.MyServices.Impl
                     {
                         return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
                     }
-                    return new ApiOkResponse(savedProjectManager);
+                    return CommonResponse.Send(ResponseCodes.SUCCESS,savedProjectManager);
 
                 }
 
-                return new ApiOkResponse(409);
+                return CommonResponse.Send(ResponseCodes.SUCCESS,409);
 
 
             }
 
-            return new ApiOkResponse(409);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,409);
 
 
         }
 
 
-        public async Task<ApiGenericResponse<Workspace>> CreateNewWorkspace(HttpContext context, WorkspaceDTO workspaceDTO) {
+        public async Task<ApiCommonResponse> CreateNewWorkspace(HttpContext context, WorkspaceDTO workspaceDTO) {
 
 
 
@@ -99,24 +99,22 @@ namespace HaloBiz.MyServices.Impl
                 
                 if (savedWorkSpaces == null)
                 {
-                        return new ApiGenericResponse<Workspace>
-                        {
-                            responseCode = 500,
-                            responseMessage = ResponseMessage.ENTITYNOTSAVED,
-                            data = null
-                        };
+
+                    return CommonResponse.Send
+                    (
+                        ResponseCodes.FAILURE,
+                        null,
+                        ResponseMessage.ENTITYNOTSAVED
+                    );
                 }
                 else
                 {
-                       
-
-                return new ApiGenericResponse<Workspace>
-                        {
-                            responseCode = 202,
-                            responseMessage = ResponseMessage.EntitySuccessfullySaved,
-                            data = savedWorkSpaces
-                        };
-
+                    return CommonResponse.Send
+                    (
+                        ResponseCodes.SUCCESS,
+                        savedWorkSpaces,
+                        ResponseMessage.ENTITYNOTSAVED
+                    );
                 }
                       
         }
@@ -131,10 +129,10 @@ namespace HaloBiz.MyServices.Impl
 
             if (getManagers == null)
             {
-                return new ApiOkResponse(getManagers);
+                return CommonResponse.Send(ResponseCodes.SUCCESS,getManagers);
             }
 
-            return  new ApiOkResponse(getManagers);
+            return  CommonResponse.Send(ResponseCodes.SUCCESS,getManagers);
 
             
         }
@@ -166,10 +164,10 @@ namespace HaloBiz.MyServices.Impl
           
             if (workspaceArr == null)
             {
-                return new ApiOkResponse(workspaceArr);
+                return CommonResponse.Send(ResponseCodes.SUCCESS,workspaceArr);
             }
 
-            return new ApiOkResponse(workspaceArr);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,workspaceArr);
 
         }
 
@@ -181,10 +179,10 @@ namespace HaloBiz.MyServices.Impl
 
             if (getWorkspace == null)
             {
-                return new ApiOkResponse(getWorkspace);
+                return CommonResponse.Send(ResponseCodes.SUCCESS,getWorkspace);
             }
 
-            return new ApiOkResponse(getWorkspace);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,getWorkspace);
 
         }
 
@@ -197,10 +195,10 @@ namespace HaloBiz.MyServices.Impl
 
             if (result == null)
             {
-                return new ApiOkResponse(result);
+                return CommonResponse.Send(ResponseCodes.SUCCESS,result);
             }
 
-            return new ApiOkResponse(result);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,result);
 
         }
 
@@ -212,10 +210,10 @@ namespace HaloBiz.MyServices.Impl
 
             if (getAllManagers == null)
             {
-                return new ApiOkResponse(getAllManagers);
+                return CommonResponse.Send(ResponseCodes.SUCCESS,getAllManagers);
             }
 
-            return new ApiOkResponse(getAllManagers);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,getAllManagers);
 
         }
 
@@ -228,10 +226,10 @@ namespace HaloBiz.MyServices.Impl
 
             if (getDefaultStatus == null)
             {
-                return new ApiOkResponse(getDefaultStatus);
+                return CommonResponse.Send(ResponseCodes.SUCCESS,getDefaultStatus);
             }
 
-            return new ApiOkResponse(getDefaultStatus);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,getDefaultStatus);
 
         }
 
@@ -261,7 +259,7 @@ namespace HaloBiz.MyServices.Impl
             _context.ProjectCreators.Update(creatorToDelete);
             await _context.SaveChangesAsync();
             var remainderUser = await _context.ProjectCreators.Where(x => x.WorkspaceId == workspaceId && x.IsActive != false).ToListAsync();
-            return new ApiOkResponse(remainderUser);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,remainderUser);
         }
 
         public async Task<ApiCommonResponse> updateToPublic(long workspaceId)
@@ -288,7 +286,7 @@ namespace HaloBiz.MyServices.Impl
             await _context.SaveChangesAsync();
             var newprivateUserArr = await _context.ProjectCreators.Where(x => x.WorkspaceId == workspaceId && x.IsActive != false).ToListAsync();
 
-            return new ApiOkResponse(newprivateUserArr);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,newprivateUserArr);
 
         }
 
@@ -308,7 +306,7 @@ namespace HaloBiz.MyServices.Impl
             _context.PrivacyAccesses.Update(privateUser);
             await _context.SaveChangesAsync();
             var remainderUser = await _context.PrivacyAccesses.Where(x => x.WorkspaceId == workspaceId && x.IsActive != false).ToListAsync();
-            return new ApiOkResponse(remainderUser);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,remainderUser);
         }
 
         public async Task<ApiCommonResponse> disableStatus(long workspaceId, long statusId)
@@ -325,7 +323,7 @@ namespace HaloBiz.MyServices.Impl
             _context.StatusFlows.Update(status);
             await _context.SaveChangesAsync();
             var allActveStatus = await _context.StatusFlows.Where(x => x.WorkspaceId == workspaceId && x.IsDeleted == false).ToListAsync();
-            return new ApiOkResponse(allActveStatus);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,allActveStatus);
         }
 
 
@@ -355,7 +353,7 @@ namespace HaloBiz.MyServices.Impl
             workspace.Description = workspaceDTO.Description;
             _context.Workspaces.Update(workspace);
             await _context.SaveChangesAsync();
-            return new ApiOkResponse(workspace);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,workspace);
         }
 
 
@@ -394,7 +392,7 @@ namespace HaloBiz.MyServices.Impl
             await _context.ProjectCreators.AddRangeAsync(projectCreatorsList);
             await _context.SaveChangesAsync();
             var remainderUser = await _context.ProjectCreators.Where(x => x.WorkspaceId == id && x.IsActive != false).ToListAsync();
-            return new ApiOkResponse(remainderUser);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,remainderUser);
         }
 
 
@@ -436,7 +434,7 @@ namespace HaloBiz.MyServices.Impl
             await _context.PrivacyAccesses.AddRangeAsync(privacyList);
             await _context.SaveChangesAsync();
             var remainderUser = await _context.PrivacyAccesses.Where(x => x.WorkspaceId == workspaceId && x.IsActive != false).ToListAsync();
-            return new ApiOkResponse(remainderUser);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,remainderUser);
 
         }
 
@@ -460,7 +458,7 @@ namespace HaloBiz.MyServices.Impl
 
             _context.StatusFlows.Update(gottenStatusFlow);
             await _context.SaveChangesAsync();
-            return new ApiOkResponse(gottenStatusFlow);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,gottenStatusFlow);
 
         }
 
@@ -489,7 +487,7 @@ namespace HaloBiz.MyServices.Impl
             await _context.StatusFlows.AddRangeAsync(statusArray);
             await _context.SaveChangesAsync();
             var currentStatus = await _context.StatusFlows.Where(x => x.WorkspaceId == workspaceId  &&x.CreatedById == httpContext.GetLoggedInUserId() && x.IsDeleted == false).ToListAsync();
-            return new ApiOkResponse(currentStatus);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,currentStatus);
 
         }
 
@@ -529,7 +527,7 @@ namespace HaloBiz.MyServices.Impl
             _context.StatusFlows.AddRange(statusArray);
             await _context.SaveChangesAsync();
             var currentStatus = await _context.StatusFlows.Where(x => x.WorkspaceId == workspaceId && x.IsDeleted == false).ToListAsync();
-            return new ApiOkResponse(statusArray);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,statusArray);
 
         }
 
@@ -559,7 +557,7 @@ namespace HaloBiz.MyServices.Impl
             await _context.DefaultStatusFlows.AddRangeAsync(defaultStatusArray);
             await _context.SaveChangesAsync();
             var currentStatus = await _context.StatusFlows.Where(x=>x.IsDeleted == false).ToListAsync();
-            return new ApiOkResponse(defaultStatusArray);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,defaultStatusArray);
 
         }
 
@@ -609,7 +607,7 @@ namespace HaloBiz.MyServices.Impl
            }
             await _context.StatusFlows.AddRangeAsync(statusArray);
             await _context.SaveChangesAsync();
-            return new ApiOkResponse(statusArray);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,statusArray);
         }
 
 
@@ -621,10 +619,10 @@ namespace HaloBiz.MyServices.Impl
 
             if (allDefaultStatus == null)
             {
-                return new ApiResponse(400);
+                return CommonResponse.Send(ResponseCodes.FAILURE);
             }
 
-            return new ApiOkResponse(allDefaultStatus);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,allDefaultStatus);
 
 
         }
@@ -641,10 +639,10 @@ namespace HaloBiz.MyServices.Impl
 
             if (getProjects == null)
             {
-                return new ApiResponse(400);
+                return CommonResponse.Send(ResponseCodes.FAILURE);
             }
 
-            return new ApiOkResponse(getProjects);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,getProjects);
 
 
         }

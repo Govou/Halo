@@ -42,7 +42,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
             var leadDivisionTransferDTO = _mapper.Map<LeadDivisionTransferDTO>(savedLeadDivision);
-            return new ApiOkResponse(leadDivisionTransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,leadDivisionTransferDTO);
         }
 
         public async Task<ApiCommonResponse> GetAllLeadDivision()
@@ -53,7 +53,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var leadDivisionTransferDTO = _mapper.Map<IEnumerable<LeadDivisionTransferDTO>>(leadDivisions);
-            return new ApiOkResponse(leadDivisionTransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,leadDivisionTransferDTO);
         }
 
         public async Task<ApiCommonResponse> GetLeadDivisionById(long id)
@@ -64,7 +64,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var leadDivisionTransferDTOs = _mapper.Map<LeadDivisionTransferDTO>(leadDivision);
-            return new ApiOkResponse(leadDivisionTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,leadDivisionTransferDTOs);
         }
 
         public async Task<ApiCommonResponse> GetLeadDivisionByName(string name)
@@ -75,7 +75,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var leadDivisionTransferDTOs = _mapper.Map<LeadDivisionTransferDTO>(leadDivision);
-            return new ApiOkResponse(leadDivisionTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,leadDivisionTransferDTOs);
         }
 
         public async Task<ApiCommonResponse> GetLeadDivisionByRCNumber(string rcNumber)
@@ -86,7 +86,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var leadDivisionTransferDTOs = _mapper.Map<LeadDivisionTransferDTO>(leadDivision);
-            return new ApiOkResponse(leadDivisionTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,leadDivisionTransferDTOs);
         }
 
         public async Task<ApiCommonResponse> UpdateLeadDivision(HttpContext context, long id, LeadDivisionReceivingDTO leadDivisionReceivingDTO)
@@ -135,7 +135,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
             await _historyRepo.SaveHistory(history);
 
             var leadDivisionTransferDTOs = _mapper.Map<LeadDivisionTransferDTO>(updatedLeadDivision);
-            return new ApiOkResponse(leadDivisionTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,leadDivisionTransferDTOs);
 
         }
 

@@ -34,7 +34,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
             var serviceTaskDeliverableTransferDTO = _mapper.Map<ServiceTaskDeliverableTransferDTO>(serviceTaskDeliverable);
-            return new ApiOkResponse(serviceTaskDeliverableTransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,serviceTaskDeliverableTransferDTO);
         }
 
         public async Task<ApiCommonResponse> GetAllServiceTaskDeliverables()
@@ -45,7 +45,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var serviceTaskDeliverableTransferDTO = _mapper.Map<IEnumerable<ServiceTaskDeliverableTransferDTO>>(serviceTaskDeliverables);
-            return new ApiOkResponse(serviceTaskDeliverableTransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,serviceTaskDeliverableTransferDTO);
         }
 
         public async Task<ApiCommonResponse> GetServiceTaskDeliverableById(long id)
@@ -56,7 +56,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var serviceTaskDeliverableTransferDTO = _mapper.Map<ServiceTaskDeliverableTransferDTO>(serviceTaskDeliverable);
-            return new ApiOkResponse(serviceTaskDeliverableTransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,serviceTaskDeliverableTransferDTO);
         }
 
         public async Task<ApiCommonResponse> GetServiceTaskDeliverableByName(string name)
@@ -67,7 +67,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var serviceTaskDeliverableTransferDTOs = _mapper.Map<ServiceTaskDeliverableTransferDTO>(serviceTaskDeliverable);
-            return new ApiOkResponse(serviceTaskDeliverableTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,serviceTaskDeliverableTransferDTOs);
         }
 
         public async Task<ApiCommonResponse> UpdateServiceTaskDeliverable(HttpContext context, long id, ServiceTaskDeliverableReceivingDTO serviceTaskDeliverableReceivingDTO)
@@ -100,7 +100,7 @@ namespace HaloBiz.MyServices.Impl
             await _historyRepo.SaveHistory(history);
 
             var serviceTaskDeliverableTransferDTOs = _mapper.Map<ServiceTaskDeliverableTransferDTO>(updatedServiceTaskDeliverable);
-            return new ApiOkResponse(serviceTaskDeliverableTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,serviceTaskDeliverableTransferDTOs);
 
         }
 

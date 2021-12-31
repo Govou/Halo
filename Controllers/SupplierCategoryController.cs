@@ -25,48 +25,31 @@ namespace HaloBiz.Controllers
         [HttpGet("")]
         public async Task<ApiCommonResponse> GetSupplierCategory()
         {
-            var response = await _supplierCategoryService.GetAllSupplierCategories();
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var supplierCategory = ((ApiOkResponse)response).Result;
-            return Ok(supplierCategory);
+            return await _supplierCategoryService.GetAllSupplierCategories(); 
         }
 
         [HttpPost("")]
         public async Task<ApiCommonResponse> AddNewSupplierCategory(SupplierCategoryReceivingDTO supplierCategoryReceiving)
         {
-            var response = await _supplierCategoryService.AddSupplierCategory(HttpContext, supplierCategoryReceiving);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var supplierCategory = ((ApiOkResponse)response).Result;
-            return Ok(supplierCategory);
+            return await _supplierCategoryService.AddSupplierCategory(HttpContext, supplierCategoryReceiving); 
         }
         [HttpGet("{id}")]
         public async Task<ApiCommonResponse> GetById(long id)
         {
-            var response = await _supplierCategoryService.GetSupplierCategoryById(id);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var groupType = ((ApiOkResponse)response).Result;
-            return Ok(groupType);
+            return await _supplierCategoryService.GetSupplierCategoryById(id); 
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateById(long id, SupplierCategoryReceivingDTO supplierCategoryReceiving)
+        public async Task<ApiCommonResponse> UpdateById(long id, SupplierCategoryReceivingDTO supplierCategoryReceiving)
         {
-            var response = await _supplierCategoryService.UpdateSupplierCategory(HttpContext, id, supplierCategoryReceiving);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var supplierCategory = ((ApiOkResponse)response).Result;
-            return Ok(supplierCategory);
+            return await _supplierCategoryService.UpdateSupplierCategory(HttpContext, id, supplierCategoryReceiving); 
         }
 
         [HttpDelete("{id}")]
         public async Task<ApiCommonResponse> DeleteById(int id)
         {
-            var response = await _supplierCategoryService.DeleteSupplierCategory(id);
-            return StatusCode(response.StatusCode);
-        }
+            return await _supplierCategoryService.DeleteSupplierCategory(id);
+         }
 
     }
 }

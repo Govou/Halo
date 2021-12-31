@@ -25,58 +25,37 @@ namespace HaloBiz.Controllers
         [HttpGet("")]
         public async Task<ApiCommonResponse> GetProspect()
         {
-            var response = await _ProspectService.GetAllProspect();
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var Prospect = ((ApiOkResponse)response).Result;
-            return Ok(Prospect);
+            return await _ProspectService.GetAllProspect();
         }
 
         [HttpGet("{id}")]
         public async Task<ApiCommonResponse> GetById(long id)
         {
-            var response = await _ProspectService.GetProspectById(id);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var Prospect = ((ApiOkResponse)response).Result;
-            return Ok(Prospect);
+            return await _ProspectService.GetProspectById(id);
         }
 
         [HttpGet("GetByEmail/{email}")]
         public async Task<ApiCommonResponse> GetByEmail(string email)
         {
-            var response = await _ProspectService.GetProspectByEmail(email);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var Prospect = ((ApiOkResponse)response).Result;
-            return Ok(Prospect);
+            return await _ProspectService.GetProspectByEmail(email);
         }
 
         [HttpPost("")]
         public async Task<ApiCommonResponse> AddNewProspect(ProspectReceivingDTO ProspectReceiving)
         {
-            var response = await _ProspectService.AddProspect(HttpContext, ProspectReceiving);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var Prospect = ((ApiOkResponse)response).Result;
-            return Ok(Prospect);
+            return await _ProspectService.AddProspect(HttpContext, ProspectReceiving);
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateById(long id, ProspectReceivingDTO ProspectReceiving)
+        public async Task<ApiCommonResponse> UpdateById(long id, ProspectReceivingDTO ProspectReceiving)
         {
-            var response = await _ProspectService.UpdateProspect(HttpContext, id, ProspectReceiving);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var Prospect = ((ApiOkResponse)response).Result;
-            return Ok(Prospect);
+            return await _ProspectService.UpdateProspect(HttpContext, id, ProspectReceiving);
         }
 
         [HttpDelete("{id}")]
         public async Task<ApiCommonResponse> DeleteById(int id)
         {
-            var response = await _ProspectService.DeleteProspect(id);
-            return StatusCode(response.StatusCode);
+            return await _ProspectService.DeleteProspect(id);
         }
     }
 }

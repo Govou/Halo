@@ -38,7 +38,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
             var typeTransferDTO = _mapper.Map<ArmedEscortProfileTransferDTO>(armedescort);
-            return new ApiOkResponse(typeTransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,typeTransferDTO);
         }
 
         public async Task<ApiCommonResponse> AddArmedEscortTie(HttpContext context, ArmedEscortSMORoutesResourceTieReceivingDTO armedEscortTieReceivingDTO)
@@ -62,11 +62,11 @@ namespace HaloBiz.MyServices.Impl
                     {
                         return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
                     }
-                    //return new ApiResponse(409);
+                    //return                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE,null, "No record exists");;
                 }
 
             }
-            return new ApiOkResponse("Record(s) Added");
+            return CommonResponse.Send(ResponseCodes.SUCCESS,"Record(s) Added");
         }
 
         public async Task<ApiCommonResponse> DeleteArmedEscort(long id)
@@ -111,7 +111,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var rankTransferDTO = _mapper.Map<IEnumerable<ArmedEscortProfileTransferDTO>>(armedescorts);
-            return new ApiOkResponse(rankTransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,rankTransferDTO);
         }
 
         public async Task<ApiCommonResponse> GetAllArmedEscortTies()
@@ -122,7 +122,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var rankTransferDTO = _mapper.Map<IEnumerable<ArmedEscortSMORoutesResourceTieTransferDTO>>(armedescorts);
-            return new ApiOkResponse(rankTransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,rankTransferDTO);
         }
 
         public async Task<ApiCommonResponse> GetArmedEscortById(long id)
@@ -133,7 +133,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var rankTransferDTO = _mapper.Map<ArmedEscortProfileTransferDTO>(escort);
-            return new ApiOkResponse(rankTransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,rankTransferDTO);
         }
 
         public async Task<ApiCommonResponse> GetArmedEscortTieById(long id)
@@ -144,7 +144,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var rankTransferDTO = _mapper.Map<ArmedEscortSMORoutesResourceTieTransferDTO>(escort);
-            return new ApiOkResponse(rankTransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,rankTransferDTO);
         }
 
         public async Task<ApiCommonResponse> UpdateArmedEscort(HttpContext context, long id, ArmedEscortProfileReceivingDTO armedEscortReceivingDTO)
@@ -178,7 +178,7 @@ namespace HaloBiz.MyServices.Impl
             }
 
             var rankTransferDTOs = _mapper.Map<ArmedEscortProfileTransferDTO>(updatedRank);
-            return new ApiOkResponse(rankTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,rankTransferDTOs);
         }
     }
 }

@@ -25,192 +25,120 @@ namespace HaloBiz.Controllers
         [HttpGet("GetAllArmedEscortMasters")]
         public async Task<ApiCommonResponse> GetAllArmedEscortMasters()
         {
-            var response = await _dTSMastersService.GetAllArmedEscortMasters();
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var cType = ((ApiOkResponse)response).Result;
-            return Ok(cType);
+            return await _dTSMastersService.GetAllArmedEscortMasters();
         }
 
         [HttpGet("GetArmedEscortMasterById/{id}")]
         public async Task<ApiCommonResponse> GetArmedEscortMasterById(long id)
         {
-            var response = await _dTSMastersService.GetArmedEscortMasterById(id);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var Rank = ((ApiOkResponse)response).Result;
-            return Ok(Rank);
+            return await _dTSMastersService.GetArmedEscortMasterById(id);
         }
 
         [HttpPost("AddNewArmedEscortMaster")]
         public async Task<ApiCommonResponse> AddNewArmedEscortMaster(ArmedEscortDTSMastersReceivingDTO ReceivingDTO)
         {
-            var response = await _dTSMastersService.AddArmedEscortMaster(HttpContext, ReceivingDTO);
-
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var rank = ((ApiOkResponse)response).Result;
-            return Ok(rank);
+            return await _dTSMastersService.AddArmedEscortMaster(HttpContext, ReceivingDTO);
         }
 
         [HttpPut("UpdateArmedEscortMasterById/{id}")]
-        public async Task<IActionResult> UpdateArmedEscortMasterById(long id, ArmedEscortDTSMastersReceivingDTO Receiving)
+        public async Task<ApiCommonResponse> UpdateArmedEscortMasterById(long id, ArmedEscortDTSMastersReceivingDTO Receiving)
         {
-            var response = await _dTSMastersService.UpdateArmedEscortMaster(HttpContext, id, Receiving);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var type = ((ApiOkResponse)response).Result;
-            return Ok(type);
+            return await _dTSMastersService.UpdateArmedEscortMaster(HttpContext, id, Receiving);
         }
         [HttpDelete("DeleteArmedEscortMasterById/{id}")]
         public async Task<ApiCommonResponse> DeleteArmedEscortMasterById(int id)
         {
-            var response = await _dTSMastersService.DeleteArmedEscortMaster(id);
-            return StatusCode(response.StatusCode);
+            return await _dTSMastersService.DeleteArmedEscortMaster(id);
         }
 
         //Commander
         [HttpGet("GetAllCommanderMasters")]
         public async Task<ApiCommonResponse> GetAllCommanderMasters()
         {
-            var response = await _dTSMastersService.GetAllCommanderMasters();
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var cType = ((ApiOkResponse)response).Result;
-            return Ok(cType);
+            return await _dTSMastersService.GetAllCommanderMasters();
         }
 
         [HttpGet("GetCommanderMasterById/{id}")]
         public async Task<ApiCommonResponse> GetCommanderMasterById(long id)
         {
-            var response = await _dTSMastersService.GetCommanderMasterById(id);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var Rank = ((ApiOkResponse)response).Result;
-            return Ok(Rank);
+            return await _dTSMastersService.GetCommanderMasterById(id);
         }
 
         [HttpPost("AddNewCommanderMaster")]
         public async Task<ApiCommonResponse> AddNewCommanderMaster(CommanderDTSMastersReceivingDTO ReceivingDTO)
         {
-            var response = await _dTSMastersService.AddCommanderMaster(HttpContext, ReceivingDTO);
-
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var rank = ((ApiOkResponse)response).Result;
-            return Ok(rank);
+            return await _dTSMastersService.AddCommanderMaster(HttpContext, ReceivingDTO);
         }
 
         [HttpPut("UpdateCommanderMasterById/{id}")]
-        public async Task<IActionResult> UpdateCommanderMasterById(long id, CommanderDTSMastersReceivingDTO Receiving)
+        public async Task<ApiCommonResponse> UpdateCommanderMasterById(long id, CommanderDTSMastersReceivingDTO Receiving)
         {
-            var response = await _dTSMastersService.UpdateCommanderMaster(HttpContext, id, Receiving);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var type = ((ApiOkResponse)response).Result;
-            return Ok(type);
+            return await _dTSMastersService.UpdateCommanderMaster(HttpContext, id, Receiving);
         }
         [HttpDelete("DeleteCommanderMasterById/{id}")]
         public async Task<ApiCommonResponse> DeleteCommanderMasterById(int id)
         {
-            var response = await _dTSMastersService.DeleteCommanderMaster(id);
-            return StatusCode(response.StatusCode);
+            return await _dTSMastersService.DeleteCommanderMaster(id);
         }
 
         //Pilot
         [HttpGet("GetAllPilotMasters")]
         public async Task<ApiCommonResponse> GetAllPilotMasters()
         {
-            var response = await _dTSMastersService.GetAllPilotMasters();
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var cType = ((ApiOkResponse)response).Result;
-            return Ok(cType);
+            return await _dTSMastersService.GetAllPilotMasters();
         }
 
         [HttpGet("GetPilotMasterById/{id}")]
         public async Task<ApiCommonResponse> GetPilotMasterById(long id)
         {
-            var response = await _dTSMastersService.GetPilotMasterById(id);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var Rank = ((ApiOkResponse)response).Result;
-            return Ok(Rank);
+            return await _dTSMastersService.GetPilotMasterById(id);
         }
 
         [HttpPost("AddNewPilotMaster")]
         public async Task<ApiCommonResponse> AddNewPilotMaster(PilotDTSMastersReceivingDTO ReceivingDTO)
         {
-            var response = await _dTSMastersService.AddPilotMaster(HttpContext, ReceivingDTO);
-
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var rank = ((ApiOkResponse)response).Result;
-            return Ok(rank);
+            return await _dTSMastersService.AddPilotMaster(HttpContext, ReceivingDTO);
         }
 
         [HttpPut("UpdatePilotMasterById/{id}")]
-        public async Task<IActionResult> UpdatePilotMasterById(long id, PilotDTSMastersReceivingDTO Receiving)
+        public async Task<ApiCommonResponse> UpdatePilotMasterById(long id, PilotDTSMastersReceivingDTO Receiving)
         {
-            var response = await _dTSMastersService.UpdatePilotMaster(HttpContext, id, Receiving);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var type = ((ApiOkResponse)response).Result;
-            return Ok(type);
+            return await _dTSMastersService.UpdatePilotMaster(HttpContext, id, Receiving);
         }
         [HttpDelete("DeletePilotMasterById/{id}")]
         public async Task<ApiCommonResponse> DeletePilotMasterById(int id)
         {
-            var response = await _dTSMastersService.DeletePilotMaster(id);
-            return StatusCode(response.StatusCode);
+            return await _dTSMastersService.DeletePilotMaster(id);
         }
 
         //Vehicle
         [HttpGet("GetAllVehicleMasters")]
         public async Task<ApiCommonResponse> GetAllVehicleMasters()
         {
-            var response = await _dTSMastersService.GetAllVehicleMasters();
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var cType = ((ApiOkResponse)response).Result;
-            return Ok(cType);
+            return await _dTSMastersService.GetAllVehicleMasters();
         }
 
         [HttpGet("GetVehicleMasterById/{id}")]
         public async Task<ApiCommonResponse> GetVehicleMasterById(long id)
         {
-            var response = await _dTSMastersService.GetVehicleMasterById(id);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var Rank = ((ApiOkResponse)response).Result;
-            return Ok(Rank);
+            return await _dTSMastersService.GetVehicleMasterById(id);
         }
 
         [HttpPost("AddNewVehicleMaster")]
         public async Task<ApiCommonResponse> AddNewVehicleMaster(VehicleDTSMastersReceivingDTO ReceivingDTO)
         {
-            var response = await _dTSMastersService.AddVehicleMaster(HttpContext, ReceivingDTO);
-
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var rank = ((ApiOkResponse)response).Result;
-            return Ok(rank);
+            return await _dTSMastersService.AddVehicleMaster(HttpContext, ReceivingDTO);
         }
 
         [HttpPut("UpdateVehicleMasterById/{id}")]
-        public async Task<IActionResult> UpdateVehicleMasterById(long id, VehicleDTSMastersReceivingDTO Receiving)
+        public async Task<ApiCommonResponse> UpdateVehicleMasterById(long id, VehicleDTSMastersReceivingDTO Receiving)
         {
-            var response = await _dTSMastersService.UpdateVehicleMaster(HttpContext, id, Receiving);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var type = ((ApiOkResponse)response).Result;
-            return Ok(type);
+            return await _dTSMastersService.UpdateVehicleMaster(HttpContext, id, Receiving);
         }
         [HttpDelete("DeleteVehicleMasterById/{id}")]
         public async Task<ApiCommonResponse> DeleteVehicleMasterById(int id)
         {
-            var response = await _dTSMastersService.DeleteVehicleMaster(id);
-            return StatusCode(response.StatusCode);
+            return await _dTSMastersService.DeleteVehicleMaster(id);
         }
     }
 }

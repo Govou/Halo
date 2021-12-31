@@ -51,7 +51,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var contractServiceTransferDTOs = _mapper.Map<IEnumerable<ContractServiceTransferDTO>>(contractService);
-            return new ApiOkResponse(contractServiceTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,contractServiceTransferDTOs);
         }
 
         public async Task<ApiCommonResponse> GetContractServiceByTag(string tag)
@@ -62,7 +62,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var contractTransferDTOs = _mapper.Map<ContractServiceForContractTransferDTO>(contractService);
-            return new ApiOkResponse(contractTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,contractTransferDTOs);
         }
         public async Task<ApiCommonResponse> GetContractServiceByReferenceNumber(string refNo)
         {
@@ -72,7 +72,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var contractTransferDTOs = _mapper.Map<IEnumerable<ContractServiceTransferDTO>>(contractService);
-            return new ApiOkResponse(contractTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,contractTransferDTOs);
         }
 
         public async Task<ApiCommonResponse> GetContractServiceByGroupInvoiceNumber(string refNo)
@@ -83,7 +83,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var contractTransferDTOs = _mapper.Map<IEnumerable<ContractServiceTransferDTO>>(contractService);
-            return new ApiOkResponse(contractTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,contractTransferDTOs);
         }
 
         public async Task<ApiCommonResponse> GetContractServiceById(long id)
@@ -94,7 +94,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var contractTransferDTOs = _mapper.Map<ContractServiceTransferDTO>(contractService);
-            return new ApiOkResponse(contractTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,contractTransferDTOs);
         }
     }
 }

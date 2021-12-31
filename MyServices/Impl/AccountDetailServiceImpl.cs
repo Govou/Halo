@@ -37,7 +37,7 @@ namespace HaloBiz.MyServices.Impl
             return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
         }
         var AccountDetailTransferDTOs = _mapper.Map<AccountDetailTransferDTO>(acctClass);
-        return new ApiOkResponse(AccountDetailTransferDTOs);
+        return CommonResponse.Send(ResponseCodes.SUCCESS,AccountDetailTransferDTOs);
     }
 
     public async Task<ApiCommonResponse> DeleteAccountDetail(long id)
@@ -65,7 +65,7 @@ namespace HaloBiz.MyServices.Impl
             return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
         }
         var AccountDetailTransferDTOs = _mapper.Map<AccountDetailTransferDTO>(AccountDetail);
-        return new ApiOkResponse(AccountDetailTransferDTOs);
+        return CommonResponse.Send(ResponseCodes.SUCCESS,AccountDetailTransferDTOs);
     }
 
     public async Task<ApiCommonResponse> GetAllAccountDetails()
@@ -76,7 +76,7 @@ namespace HaloBiz.MyServices.Impl
             return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
         }
         var AccountDetailTransferDTOs = _mapper.Map<IEnumerable<AccountDetailTransferDTO>>(AccountDetail);
-        return new ApiOkResponse(AccountDetailTransferDTOs);
+        return CommonResponse.Send(ResponseCodes.SUCCESS,AccountDetailTransferDTOs);
     }
 
 
@@ -99,7 +99,7 @@ namespace HaloBiz.MyServices.Impl
             return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
         }
         var AccountDetailTransferDTOs = _mapper.Map<AccountDetailTransferDTO>(updatedAccountDetail);
-        return new ApiOkResponse(AccountDetailTransferDTOs);
+        return CommonResponse.Send(ResponseCodes.SUCCESS,AccountDetailTransferDTOs);
     }
 }
 }

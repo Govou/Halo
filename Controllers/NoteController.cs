@@ -25,57 +25,36 @@ namespace HaloBiz.Controllers
         [HttpGet("")]
         public async Task<ApiCommonResponse> GetNote()
         {
-            var response = await _NoteService.GetAllNote();
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var Note = ((ApiOkResponse)response).Result;
-            return Ok(Note);
+            return await _NoteService.GetAllNote();
         }
         [HttpGet("caption/{name}")]
         public async Task<ApiCommonResponse> GetByCaption(string name)
         {
-            var response = await _NoteService.GetNoteByName(name);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var Note = ((ApiOkResponse)response).Result;
-            return Ok(Note);
+            return await _NoteService.GetNoteByName(name);
         }
 
         [HttpGet("{id}")]
         public async Task<ApiCommonResponse> GetById(long id)
         {
-            var response = await _NoteService.GetNoteById(id);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var Note = ((ApiOkResponse)response).Result;
-            return Ok(Note);
+            return await _NoteService.GetNoteById(id);
         }
 
         [HttpPost("")]
         public async Task<ApiCommonResponse> AddNewNote(NoteReceivingDTO NoteReceiving)
         {
-            var response = await _NoteService.AddNote(HttpContext, NoteReceiving);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var Note = ((ApiOkResponse)response).Result;
-            return Ok(Note);
+            return await _NoteService.AddNote(HttpContext, NoteReceiving);
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateById(long id, NoteReceivingDTO NoteReceiving)
+        public async Task<ApiCommonResponse> UpdateById(long id, NoteReceivingDTO NoteReceiving)
         {
-            var response = await _NoteService.UpdateNote(HttpContext, id, NoteReceiving);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var Note = ((ApiOkResponse)response).Result;
-            return Ok(Note);
+            return await _NoteService.UpdateNote(HttpContext, id, NoteReceiving);
         }
 
         [HttpDelete("{id}")]
         public async Task<ApiCommonResponse> DeleteById(int id)
         {
-            var response = await _NoteService.DeleteNote(id);
-            return StatusCode(response.StatusCode);
+            return await _NoteService.DeleteNote(id);
         }
     }
 }

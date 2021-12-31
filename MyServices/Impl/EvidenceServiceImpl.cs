@@ -41,7 +41,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
             var evidenceTransferDTO = _mapper.Map<EvidenceTransferDTO>(evidence);
-            return new ApiOkResponse(evidenceTransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,evidenceTransferDTO);
         }
 
         public async Task<ApiCommonResponse> DeleteEvidence(long id)
@@ -68,7 +68,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var evidenceTransferDTO = _mapper.Map<IEnumerable<EvidenceTransferDTO>>(evidences);
-            return new ApiOkResponse(evidenceTransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,evidenceTransferDTO);
         }
 
         public async Task<ApiCommonResponse> GetEvidenceById(long id)
@@ -79,7 +79,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var evidenceTransferDTOs = _mapper.Map<EvidenceTransferDTO>(evidence);
-            return new ApiOkResponse(evidenceTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,evidenceTransferDTOs);
         }
 
         public async Task<ApiCommonResponse> GetEvidenceByName(string name)
@@ -90,7 +90,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var evidenceTransferDTOs = _mapper.Map<EvidenceTransferDTO>(evidence);
-            return new ApiOkResponse(evidenceTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,evidenceTransferDTOs);
         }
 
         public async Task<ApiCommonResponse> UpdateEvidence(HttpContext context, long id, EvidenceReceivingDTO evidenceReceivingDTO)
@@ -126,7 +126,7 @@ namespace HaloBiz.MyServices.Impl
             await _historyRepo.SaveHistory(history);
 
             var evidenceTransferDTOs = _mapper.Map<EvidenceTransferDTO>(updatedevidence);
-            return new ApiOkResponse(evidenceTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,evidenceTransferDTOs);
         }
     }
 }

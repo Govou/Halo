@@ -42,7 +42,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
             var otherLeadCaptureInfoTransferDTO = _mapper.Map<OtherLeadCaptureInfoTransferDTO>(savedOtherLeadCaptureInfo);
-            return new ApiOkResponse(otherLeadCaptureInfoTransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,otherLeadCaptureInfoTransferDTO);
         }
 
         public async Task<ApiCommonResponse> GetAllOtherLeadCaptureInfo()
@@ -53,7 +53,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var otherLeadCaptureInfoTransferDTO = _mapper.Map<IEnumerable<OtherLeadCaptureInfoTransferDTO>>(otherLeadCaptureInfos);
-            return new ApiOkResponse(otherLeadCaptureInfoTransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,otherLeadCaptureInfoTransferDTO);
         }
 
         public async Task<ApiCommonResponse> GetOtherLeadCaptureInfoById(long id)
@@ -64,7 +64,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var otherLeadCaptureInfoTransferDTOs = _mapper.Map<OtherLeadCaptureInfoTransferDTO>(otherLeadCaptureInfo);
-            return new ApiOkResponse(otherLeadCaptureInfoTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,otherLeadCaptureInfoTransferDTOs);
         }
         public async Task<ApiCommonResponse> GetOtherLeadCaptureInfoByLeadDivisionId(long leadDivisionId)
         {
@@ -74,7 +74,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var otherLeadCaptureInfoTransferDTOs = _mapper.Map<OtherLeadCaptureInfoTransferDTO>(otherLeadCaptureInfo);
-            return new ApiOkResponse(otherLeadCaptureInfoTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,otherLeadCaptureInfoTransferDTOs);
         }
 
         public async Task<ApiCommonResponse> UpdateOtherLeadCaptureInfo(HttpContext context, long id, OtherLeadCaptureInfoReceivingDTO otherLeadCaptureInfoReceivingDTO)
@@ -115,7 +115,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
             await _historyRepo.SaveHistory(history);
 
             var otherLeadCaptureInfoTransferDTOs = _mapper.Map<OtherLeadCaptureInfoTransferDTO>(updatedOtherLeadCaptureInfo);
-            return new ApiOkResponse(otherLeadCaptureInfoTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,otherLeadCaptureInfoTransferDTOs);
 
         }
 

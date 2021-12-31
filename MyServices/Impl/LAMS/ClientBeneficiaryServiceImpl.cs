@@ -42,7 +42,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
             var clientBeneficiaryTransferDTO = _mapper.Map<ClientBeneficiaryTransferDTO>(savedClientBeneficiary);
-            return new ApiOkResponse(clientBeneficiaryTransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,clientBeneficiaryTransferDTO);
         }
 
         public async Task<ApiCommonResponse> GetAllClientBeneficiary()
@@ -53,7 +53,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var clientBeneficiaryTransferDTO = _mapper.Map<IEnumerable<ClientBeneficiaryTransferDTO>>(clientBeneficiarys);
-            return new ApiOkResponse(clientBeneficiaryTransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,clientBeneficiaryTransferDTO);
         }
 
         public async Task<ApiCommonResponse> GetClientBeneficiaryById(long id)
@@ -64,7 +64,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var clientBeneficiaryTransferDTOs = _mapper.Map<ClientBeneficiaryTransferDTO>(clientBeneficiary);
-            return new ApiOkResponse(clientBeneficiaryTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,clientBeneficiaryTransferDTOs);
         }
 
         public async Task<ApiCommonResponse> GetClientBeneficiaryByCode(string code)
@@ -75,7 +75,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var clientBeneficiaryTransferDTOs = _mapper.Map<ClientBeneficiaryTransferDTO>(clientBeneficiary);
-            return new ApiOkResponse(clientBeneficiaryTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,clientBeneficiaryTransferDTOs);
         }
 
         public async Task<ApiCommonResponse> UpdateClientBeneficiary(HttpContext context, long id, ClientBeneficiaryReceivingDTO clientBeneficiaryReceivingDTO)
@@ -122,7 +122,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
             await _historyRepo.SaveHistory(history);
 
             var clientBeneficiaryTransferDTOs = _mapper.Map<ClientBeneficiaryTransferDTO>(updatedClientBeneficiary);
-            return new ApiOkResponse(clientBeneficiaryTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,clientBeneficiaryTransferDTOs);
 
         }
 

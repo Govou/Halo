@@ -36,7 +36,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
             var requiredServiceDocumentTransferDTO = _mapper.Map<RequiredServiceDocumentTransferDTO>(requiredServiceDocument);
-            return new ApiOkResponse(requiredServiceDocumentTransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,requiredServiceDocumentTransferDTO);
         }
 
         public async Task<ApiCommonResponse> GetAllRequiredServiceDocument()
@@ -47,7 +47,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var requiredServiceDocumentTransferDTO = _mapper.Map<IEnumerable<RequiredServiceDocumentTransferDTO>>(requiredServiceDocuments);
-            return new ApiOkResponse(requiredServiceDocumentTransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,requiredServiceDocumentTransferDTO);
         }
 
         public async Task<ApiCommonResponse> GetRequiredServiceDocumentById(long id)
@@ -58,7 +58,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var requiredServiceDocumentTransferDTOs = _mapper.Map<RequiredServiceDocumentTransferDTO>(requiredServiceDocument);
-            return new ApiOkResponse(requiredServiceDocumentTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,requiredServiceDocumentTransferDTOs);
         }
 
         public async Task<ApiCommonResponse> GetRequiredServiceDocumentByName(string name)
@@ -69,7 +69,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var requiredServiceDocumentTransferDTOs = _mapper.Map<RequiredServiceDocumentTransferDTO>(requiredServiceDocument);
-            return new ApiOkResponse(requiredServiceDocumentTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,requiredServiceDocumentTransferDTOs);
         }
 
         public async Task<ApiCommonResponse> UpdateRequiredServiceDocument(HttpContext context, long id, RequiredServiceDocumentReceivingDTO requiredServiceDocumentReceivingDTO)
@@ -103,7 +103,7 @@ namespace HaloBiz.MyServices.Impl
             await _historyRepo.SaveHistory(history);
 
             var requiredServiceDocumentTransferDTO = _mapper.Map<RequiredServiceDocumentTransferDTO>(updatedRequiredServiceDocument);
-            return new ApiOkResponse(requiredServiceDocumentTransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,requiredServiceDocumentTransferDTO);
 
         }
 

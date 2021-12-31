@@ -50,7 +50,7 @@ namespace HaloBiz.MyServices.Impl
                 }
                 
                 var leanformatService = _mapper.Map<IEnumerable<ServicesLeanformatDTO>>(services);
-                return new ApiOkResponse(leanformatService);
+                return CommonResponse.Send(ResponseCodes.SUCCESS,leanformatService);
             }
             catch (Exception ex)
             {

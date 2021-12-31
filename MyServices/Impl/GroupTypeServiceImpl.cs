@@ -37,7 +37,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
             var groupTypeTransferDTO = _mapper.Map<GroupTypeTransferDTO>(groupType);
-            return new ApiOkResponse(groupTypeTransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,groupTypeTransferDTO);
         }
 
         public async Task<ApiCommonResponse> GetAllGroupType()
@@ -48,7 +48,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var groupTypeTransferDTO = _mapper.Map<IEnumerable<GroupTypeTransferDTO>>(groupTypes);
-            return new ApiOkResponse(groupTypeTransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,groupTypeTransferDTO);
         }
 
         public async Task<ApiCommonResponse> GetGroupTypeById(long id)
@@ -59,7 +59,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var groupTypeTransferDTOs = _mapper.Map<GroupTypeTransferDTO>(groupType);
-            return new ApiOkResponse(groupTypeTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,groupTypeTransferDTOs);
         }
 
         public async Task<ApiCommonResponse> GetGroupTypeByName(string name)
@@ -70,7 +70,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var groupTypeTransferDTOs = _mapper.Map<GroupTypeTransferDTO>(groupType);
-            return new ApiOkResponse(groupTypeTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,groupTypeTransferDTOs);
         }
 
         public async Task<ApiCommonResponse> UpdateGroupType(HttpContext context, long id, GroupTypeReceivingDTO groupTypeReceivingDTO)
@@ -103,7 +103,7 @@ namespace HaloBiz.MyServices.Impl
             await _historyRepo.SaveHistory(history);
 
             var groupTypeTransferDTOs = _mapper.Map<GroupTypeTransferDTO>(updatedGroupType);
-            return new ApiOkResponse(groupTypeTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,groupTypeTransferDTOs);
 
         }
 

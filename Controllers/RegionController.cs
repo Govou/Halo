@@ -20,58 +20,37 @@ namespace HaloBiz.Controllers
         [HttpGet("")]
         public async Task<ApiCommonResponse> GetRegion()
         {
-            var response = await _regionService.GetAllRegions();
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var region = ((ApiOkResponse)response).Result;
-            return Ok(region);
+            return await _regionService.GetAllRegions();
         }
 
         [HttpGet("name/{name}")]
         public async Task<ApiCommonResponse> GetByName(string name)
         {
-            var response = await _regionService.GetRegionByName(name);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var Region = ((ApiOkResponse)response).Result;
-            return Ok(Region);
+            return await _regionService.GetRegionByName(name);
         }
 
         [HttpGet("{id}")]
         public async Task<ApiCommonResponse> GetById(long id)
         {
-            var response = await _regionService.GetRegionById(id);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var Region = ((ApiOkResponse)response).Result;
-            return Ok(Region);
+            return await _regionService.GetRegionById(id);
         }
 
         [HttpPost("")]
         public async Task<ApiCommonResponse> AddNewRegion(RegionReceivingDTO RegionReceiving)
         {
-            var response = await _regionService.AddRegion(HttpContext, RegionReceiving);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var region = ((ApiOkResponse)response).Result;
-            return Ok(region);
+            return await _regionService.AddRegion(HttpContext, RegionReceiving);
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateById(long id, RegionReceivingDTO RegionReceiving)
+        public async Task<ApiCommonResponse> UpdateById(long id, RegionReceivingDTO RegionReceiving)
         {
-            var response = await _regionService.UpdateRegion(HttpContext, id, RegionReceiving);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var region = ((ApiOkResponse)response).Result;
-            return Ok(region);
+            return await _regionService.UpdateRegion(HttpContext, id, RegionReceiving);
         }
 
         [HttpDelete("{id}")]
         public async Task<ApiCommonResponse> DeleteById(int id)
         {
-            var response = await _regionService.DeleteRegion(id);
-            return StatusCode(response.StatusCode);
+            return await _regionService.DeleteRegion(id);
         }
     }
 }

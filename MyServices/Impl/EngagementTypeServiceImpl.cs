@@ -36,7 +36,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
             var engagementTypeTransferDTO = _mapper.Map<EngagementTypeTransferDTO>(engagementType);
-            return new ApiOkResponse(engagementTypeTransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,engagementTypeTransferDTO);
         }
 
         public async Task<ApiCommonResponse> DeleteEngagementType(long id)
@@ -62,7 +62,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var engagementTypeTransferDTO = _mapper.Map<IEnumerable<EngagementTypeTransferDTO>>(engagementType);
-            return new ApiOkResponse(engagementTypeTransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,engagementTypeTransferDTO);
         }
 
         public  async Task<ApiCommonResponse> UpdateEngagementType(HttpContext context, long id, EngagementTypeReceivingDTO engagementTypeReceivingDTO)
@@ -95,7 +95,7 @@ namespace HaloBiz.MyServices.Impl
             await _historyRepo.SaveHistory(history);
 
             var engagementTypeTransferDTOs = _mapper.Map<EngagementTypeTransferDTO>(updatedEngagementType);
-            return new ApiOkResponse(engagementTypeTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,engagementTypeTransferDTOs);
         }
     }
 }

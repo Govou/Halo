@@ -36,7 +36,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
             var serviceCategoryTaskTransferDTO = _mapper.Map<ServiceCategoryTaskTransferDTO>(serviceCategoryTask);
-            return new ApiOkResponse(serviceCategoryTaskTransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,serviceCategoryTaskTransferDTO);
         }
 
         public async Task<ApiCommonResponse> GetAllServiceCategoryTasks()
@@ -47,7 +47,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var serviceCategoryTaskTransferDTO = _mapper.Map<IEnumerable<ServiceCategoryTaskTransferDTO>>(serviceCategoryTasks);
-            return new ApiOkResponse(serviceCategoryTaskTransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,serviceCategoryTaskTransferDTO);
         }
 
         public async Task<ApiCommonResponse> GetServiceCategoryTaskById(long id)
@@ -58,7 +58,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var serviceCategoryTaskTransferDTO = _mapper.Map<ServiceCategoryTaskTransferDTO>(serviceCategoryTask);
-            return new ApiOkResponse(serviceCategoryTaskTransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,serviceCategoryTaskTransferDTO);
         }
 
         public async Task<ApiCommonResponse> GetServiceCategoryTaskByName(string name)
@@ -69,7 +69,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var serviceCategoryTaskTransferDTOs = _mapper.Map<ServiceCategoryTaskTransferDTO>(serviceCategoryTask);
-            return new ApiOkResponse(serviceCategoryTaskTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,serviceCategoryTaskTransferDTOs);
         }
 
         public async Task<ApiCommonResponse> UpdateServiceCategoryTask(HttpContext context, long id, ServiceCategoryTaskReceivingDTO serviceCategoryTaskReceivingDTO)
@@ -102,7 +102,7 @@ namespace HaloBiz.MyServices.Impl
             await _historyRepo.SaveHistory(history);
 
             var serviceCategoryTaskTransferDTOs = _mapper.Map<ServiceCategoryTaskTransferDTO>(updatedServiceCategoryTask);
-            return new ApiOkResponse(serviceCategoryTaskTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,serviceCategoryTaskTransferDTOs);
 
         }
 

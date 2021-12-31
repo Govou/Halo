@@ -82,7 +82,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
             var leadTransferDTO = _mapper.Map<LeadTransferDTO>(savedLead);
-            return new ApiOkResponse(leadTransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,leadTransferDTO);
         }
 
         public async Task<ApiCommonResponse> GetAllLead()
@@ -93,7 +93,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var leadTransferDTO = _mapper.Map<IEnumerable<LeadTransferDTO>>(leads);
-            return new ApiOkResponse(leadTransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,leadTransferDTO);
         }
 
         public async Task<ApiCommonResponse> GetUserLeads(HttpContext context)
@@ -104,7 +104,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var leadTransferDTO = _mapper.Map<IEnumerable<LeadTransferDTO>>(leads);
-            return new ApiOkResponse(leadTransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,leadTransferDTO);
         }
 
         public async Task<ApiCommonResponse> GetAllUnApprovedLeads()
@@ -115,7 +115,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var leadTransferDTO = _mapper.Map<IEnumerable<LeadTransferDTO>>(leads);
-            return new ApiOkResponse(leadTransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,leadTransferDTO);
         }
 
         public async Task<ApiCommonResponse> SetUpLeadForApproval(HttpContext httpContext, long id)
@@ -140,7 +140,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var leadTransferDTOs = _mapper.Map<LeadTransferDTO>(lead);
-            return new ApiOkResponse(leadTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,leadTransferDTOs);
         }
 
         public async Task<ApiCommonResponse> GetLeadByReferenceNumber(string refNumber)
@@ -151,7 +151,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var leadTransferDTOs = _mapper.Map<LeadTransferDTO>(lead);
-            return new ApiOkResponse(leadTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,leadTransferDTOs);
         }
 
         public async Task<ApiCommonResponse> DropLead(HttpContext context, long id, DropLeadReceivingDTO dropLeadReceivingDTO)
@@ -185,7 +185,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
             await _historyRepo.SaveHistory(history);
 
             var leadTransferDTOs = _mapper.Map<LeadTransferDTO>(updatedLead);
-            return new ApiOkResponse(leadTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,leadTransferDTOs);
         }
         public async Task<ApiCommonResponse> UpdateLead(HttpContext context, long id, LeadReceivingDTO leadReceivingDTO)
         {
@@ -226,7 +226,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
             await _historyRepo.SaveHistory(history);
 
             var leadTransferDTOs = _mapper.Map<LeadTransferDTO>(updatedLead);
-            return new ApiOkResponse(leadTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,leadTransferDTOs);
 
 
         }
@@ -271,7 +271,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
             }
 
             var leadTransferDTOs = _mapper.Map<LeadTransferDTO>(updatedLead);
-            return new ApiOkResponse(leadTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,leadTransferDTOs);
         }
 
 
@@ -285,7 +285,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 }
                 else
                 {
-                    return new ApiResponse(500, message);
+                    return CommonResponse.Send(ResponseCodes.FAILURE,null, message);
                 }
 
         }
@@ -355,7 +355,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
             {
                 _logger.LogError(e.Message);
                 _logger.LogError(e.StackTrace);
-                return new ApiResponse(500, e.Message);
+                return CommonResponse.Send(ResponseCodes.FAILURE,null, e.Message);
             }
         }
 
@@ -380,7 +380,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
             {
                 _logger.LogError(e.Message);
                 _logger.LogError(e.StackTrace);
-                return new ApiResponse(500, e.Message);
+                return CommonResponse.Send(ResponseCodes.FAILURE,null, e.Message);
             }
         }
     }

@@ -58,7 +58,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
             var suspectTransferDTO = _mapper.Map<SuspectTransferDTO>(suspect);
-            return new ApiOkResponse(suspectTransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,suspectTransferDTO);
         }
 
         public async Task<ApiCommonResponse> DeleteSuspect(long id)
@@ -85,7 +85,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var suspectTransferDTO = _mapper.Map<IEnumerable<SuspectTransferDTO>>(suspects);
-            return new ApiOkResponse(suspectTransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,suspectTransferDTO);
         }
 
         public async Task<ApiCommonResponse> GetUserSuspects(HttpContext context)
@@ -96,7 +96,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var suspectTransferDTO = _mapper.Map<IEnumerable<SuspectTransferDTO>>(suspects);
-            return new ApiOkResponse(suspectTransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,suspectTransferDTO);
         }
 
         public async Task<ApiCommonResponse> GetSuspectById(long id)
@@ -131,7 +131,7 @@ namespace HaloBiz.MyServices.Impl
                 }
             }
 
-            return new ApiOkResponse(suspectTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,suspectTransferDTOs);
         }
 
         /*public async Task<ApiCommonResponse> GetSuspectByName(string name)
@@ -142,7 +142,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var suspectTransferDTOs = _mapper.Map<SuspectTransferDTO>(suspect);
-            return new ApiOkResponse(suspectTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,suspectTransferDTOs);
         }*/
 
         public async Task<ApiCommonResponse> UpdateSuspect(HttpContext context, long id, SuspectReceivingDTO suspectReceivingDTO)
@@ -176,7 +176,7 @@ namespace HaloBiz.MyServices.Impl
             await _historyRepo.SaveHistory(history);
 
             var suspectTransferDTOs = _mapper.Map<SuspectTransferDTO>(updatedsuspect);
-            return new ApiOkResponse(suspectTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,suspectTransferDTOs);
         }
 
         public async Task<ApiCommonResponse> ConvertSuspect(HttpContext context, long suspectId)
@@ -184,7 +184,7 @@ namespace HaloBiz.MyServices.Impl
             var suspect = await _suspectRepo.FindSuspectById(suspectId);
             if (suspect == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);
             }
 
             var loggedInUserId = context.GetLoggedInUserId();
@@ -205,9 +205,9 @@ namespace HaloBiz.MyServices.Impl
                     RCNumber = suspect?.RCNumber,
                 });
 
-                if (leadSaveResponse is ApiOkResponse response)
+                if (!leadSaveResponse.responseCode.Contains("00"))
                 {
-                    var lead = (LeadTransferDTO)response.Result;
+                    var lead = (LeadTransferDTO) leadSaveResponse.responseData;
 
                     var savedLeadDivision = await _leadDivisionRepo.SaveLeadDivision(new LeadDivision 
                     {
@@ -241,11 +241,11 @@ namespace HaloBiz.MyServices.Impl
                     await _context.SaveChangesAsync();
 
                     await transaction.CommitAsync();
-                    return new ApiOkResponse(lead.ReferenceNo);
+                    return CommonResponse.Send(ResponseCodes.SUCCESS,lead.ReferenceNo);
                 }
                 else
                 {
-                    return new ApiResponse(leadSaveResponse.StatusCode, leadSaveResponse.Message);
+                    return  CommonResponse.Send(ResponseCodes.FAILURE);
                 }
             }
             catch (Exception ex)

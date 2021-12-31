@@ -77,7 +77,7 @@ namespace HaloBiz.Adapters.Impl
                        deliverableName = deliverableFulfillment.Caption
                    }).ReceiveJson();
 
-                return CommonResponse.Send(ResponseCodes.SUCCESS);
+               return CommonResponse.Send(ResponseCodes.SUCCESS);
             }
             catch (Exception ex)
             {
@@ -124,7 +124,7 @@ namespace HaloBiz.Adapters.Impl
             try
             {
                 var userName = $"{userProfile.FirstName} {userProfile.LastName}";
-                var response = await baseUrl.AllowAnyHttpStatus()
+                var response =  await baseUrl.AllowAnyHttpStatus()
                    .PostJsonAsync(new
                    {
                        emailAddress = userProfile.Email,
@@ -258,13 +258,12 @@ namespace HaloBiz.Adapters.Impl
 
             try
             {
-                var response = await baseUrl.AllowAnyHttpStatus()
-                   .PostJsonAsync(new
-                   {
-                       nameOfContact = quotesDetails.LeadDivision?.PrimaryContact?.FirstName,
-                       quoteservices = JsonConvert.SerializeObject(quotesDetails.QuoteServices.Select(x => x.Service.Name)),
-                       emailAddress = quotesDetails.LeadDivision?.PrimaryContact?.Email
-                   }).ReceiveJson();
+                var response = await baseUrl.AllowAnyHttpStatus().PostJsonAsync(new
+                {
+                    nameOfContact = quotesDetails.LeadDivision?.PrimaryContact?.FirstName,
+                    quoteservices = JsonConvert.SerializeObject(quotesDetails.QuoteServices.Select(x => x.Service.Name)),
+                    emailAddress = quotesDetails.LeadDivision?.PrimaryContact?.Email
+                }).ReceiveJson();
 
                 return CommonResponse.Send(ResponseCodes.SUCCESS);
             }
@@ -318,7 +317,7 @@ namespace HaloBiz.Adapters.Impl
 
         //    try
         //    {
-        //        var response = await baseUrl.AllowAnyHttpStatus()
+        //        return await baseUrl.AllowAnyHttpStatus()
         //           .PostJsonAsync(new
         //           {
         //               nameOfContact = quotesDetails.LeadDivision?.PrimaryContact?.FirstName,
@@ -345,7 +344,7 @@ namespace HaloBiz.Adapters.Impl
 
         //    try
         //    {
-        //        var response = await baseUrl.AllowAnyHttpStatus()
+        //        return await baseUrl.AllowAnyHttpStatus()
         //           .PostJsonAsync(new
         //           {
         //               leadName = leadDetails.DivisionName,

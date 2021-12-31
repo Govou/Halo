@@ -25,67 +25,42 @@ namespace Controllers.Controllers
         [HttpGet("")]
         public async Task<ApiCommonResponse> GetLeadEngagement()
         {
-            var response = await _leadEngagementService.GetAllLeadEngagement();
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var leadEngagement = ((ApiOkResponse)response).Result;
-            return Ok(leadEngagement);
+            return await _leadEngagementService.GetAllLeadEngagement();
         }
         [HttpGet("caption/{name}")]
         public async Task<ApiCommonResponse> GetByCaption(string name)
         {
-            var response = await _leadEngagementService.GetLeadEngagementByName(name);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var leadEngagement = ((ApiOkResponse)response).Result;
-            return Ok(leadEngagement);
+            return await _leadEngagementService.GetLeadEngagementByName(name);
         }
 
         [HttpGet("{id}")]
         public async Task<ApiCommonResponse> GetById(long id)
         {
-            var response = await _leadEngagementService.GetLeadEngagementById(id);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var leadEngagement = ((ApiOkResponse)response).Result;
-            return Ok(leadEngagement);
+            return await _leadEngagementService.GetLeadEngagementById(id);
         }
 
         [HttpGet("GetLeadEngagementsByLeadId/{leadId}")]
         public async Task<ApiCommonResponse> FindLeadEngagementsByLeadId(long leadId)
         {
-            var response = await _leadEngagementService.FindLeadEngagementsByLeadId(leadId);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var leadEngagement = ((ApiOkResponse)response).Result;
-            return Ok(leadEngagement);
+            return await _leadEngagementService.FindLeadEngagementsByLeadId(leadId);
         }
 
         [HttpPost("")]
         public async Task<ApiCommonResponse> AddNewLeadEngagement(LeadEngagementReceivingDTO leadEngagementReceiving)
         {
-            var response = await _leadEngagementService.AddLeadEngagement(HttpContext, leadEngagementReceiving);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var leadEngagement = ((ApiOkResponse)response).Result;
-            return Ok(leadEngagement);
+            return await _leadEngagementService.AddLeadEngagement(HttpContext, leadEngagementReceiving);
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateById(long id, LeadEngagementReceivingDTO leadEngagementReceivingDTO)
+        public async Task<ApiCommonResponse> UpdateById(long id, LeadEngagementReceivingDTO leadEngagementReceivingDTO)
         {
-            var response = await _leadEngagementService.UpdateLeadEngagement(HttpContext, id, leadEngagementReceivingDTO);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var leadEngagement = ((ApiOkResponse)response).Result;
-            return Ok(leadEngagement);
+            return await _leadEngagementService.UpdateLeadEngagement(HttpContext, id, leadEngagementReceivingDTO);
         }
 
         [HttpDelete("{id}")]
         public async Task<ApiCommonResponse> DeleteById(int id)
         {
-            var response = await _leadEngagementService.DeleteLeadEngagement(id);
-            return StatusCode(response.StatusCode);
+            return await _leadEngagementService.DeleteLeadEngagement(id);
         }
     }
 }

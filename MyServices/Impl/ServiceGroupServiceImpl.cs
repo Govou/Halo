@@ -32,7 +32,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
             var serviceGroupTransferDTO = _mapper.Map<ServiceGroupTransferDTO>(savedServiceGroup);
-            return new ApiOkResponse(serviceGroupTransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,serviceGroupTransferDTO);
         }
 
         public async Task<ApiCommonResponse> GetAllServiceGroups()
@@ -43,7 +43,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var serviceGroupTransferDTO = _mapper.Map<IEnumerable<ServiceGroupTransferDTO>>(serviceGroups);
-            return new ApiOkResponse(serviceGroupTransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,serviceGroupTransferDTO);
         }
 
         public async Task<ApiCommonResponse> GetServiceGroupById(long id)
@@ -54,7 +54,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var serviceGroupTransferDTO = _mapper.Map<ServiceGroupTransferDTO>(serviceGroup);
-            return new ApiOkResponse(serviceGroupTransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,serviceGroupTransferDTO);
         }
 
         public async Task<ApiCommonResponse> GetServiceGroupByName(string name)
@@ -65,7 +65,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var serviceGroupTransferDTO = _mapper.Map<ServiceGroupTransferDTO>(serviceGroup);
-            return new ApiOkResponse(serviceGroupTransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,serviceGroupTransferDTO);
         }
 
         public async Task<ApiCommonResponse> UpdateServiceGroup(long id, ServiceGroupReceivingDTO serviceGroupReceivingDTO)
@@ -86,7 +86,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
             var serviceGroupTransferDTO = _mapper.Map<ServiceGroupTransferDTO>(updatedServiceGroup);
-            return new ApiOkResponse(serviceGroupTransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,serviceGroupTransferDTO);
 
 
         }

@@ -25,139 +25,87 @@ namespace Controllers.Controllers
         [HttpGet("")]
         public async Task<ApiCommonResponse> GetTaskFulfillment()
         {
-            var response = await _taskFulfillmentService.GetAllTaskFulfillment();
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var taskFulfillment = ((ApiOkResponse)response).Result;
-            return Ok(taskFulfillment);
+            return await _taskFulfillmentService.GetAllTaskFulfillment();
         }
 
         [HttpGet("TaskOwnerPmWidget/{taskMasterId}")]
         public async Task<ApiCommonResponse> TaskOwnerPmWidget(long taskMasterId)
         {
-            var response = await _taskFulfillmentService.GetPMWidgetStatistics(taskMasterId);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var taskFulfillment = ((ApiOkResponse)response).Result;
-            return Ok(taskFulfillment);
+            return await _taskFulfillmentService.GetPMWidgetStatistics(taskMasterId);
         }
 
         [HttpGet("TaskDeliverableSummary/{userId}")]
         public async Task<ApiCommonResponse> GetTAskDeliverableSummaryForUser(long userId)
         {
-            var response = await _taskFulfillmentService.GetTaskDeliverableSummary(userId);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var taskSummary = ((ApiOkResponse)response).Result;
-            return Ok(taskSummary);
+            return await _taskFulfillmentService.GetTaskDeliverableSummary(userId);
         }
         
 
         [HttpGet("UnCompletedTaskFulfillmentForTaskOwner/{taskOwnerId}")]
         public async Task<ApiCommonResponse> GetUnCompletedTaskFulfillmentForTaskMaster(long taskOwnerId)
         {
-            var response = await _taskFulfillmentService. GetAllUnCompletedTaskFulfillmentForTaskOwner(taskOwnerId);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var taskFulfillment = ((ApiOkResponse)response).Result;
-            return Ok(taskFulfillment);
+            return await _taskFulfillmentService. GetAllUnCompletedTaskFulfillmentForTaskOwner(taskOwnerId);
         }
 
         [HttpGet("AllTaskFulfillmentForTaskOwner/{taskOwnerId}")]
         public async Task<ApiCommonResponse> GetAllTaskFulfillmentForTaskMaster(long taskOwnerId)
         {
-            var response = await _taskFulfillmentService.GetAllTaskFulfillmentForTaskOwner(taskOwnerId);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var taskFulfillment = ((ApiOkResponse)response).Result;
-            return Ok(taskFulfillment);
+            return await _taskFulfillmentService.GetAllTaskFulfillmentForTaskOwner(taskOwnerId);
         }
 
         [HttpGet("caption/{name}")]
         public async Task<ApiCommonResponse> GetByCaption(string name)
         {
-            var response = await _taskFulfillmentService.GetTaskFulfillmentByName(name);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var taskFulfillment = ((ApiOkResponse)response).Result;
-            return Ok(taskFulfillment);
+            return await _taskFulfillmentService.GetTaskFulfillmentByName(name);
         }
 
         [HttpGet("{id}")]
         public async Task<ApiCommonResponse> GetById(long id)
         {
-            var response = await _taskFulfillmentService.GetTaskFulfillmentById(id);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var taskFulfillment = ((ApiOkResponse)response).Result;
-            return Ok(taskFulfillment);
+            return await _taskFulfillmentService.GetTaskFulfillmentById(id);
         }
 
         [HttpPost("")]
         public async Task<ApiCommonResponse> AddNewTaskFulfillment(TaskFulfillmentReceivingDTO taskFulfillmentReceiving)
         {
-            var response = await _taskFulfillmentService.AddTaskFulfillment(HttpContext, taskFulfillmentReceiving);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var taskFulfillment = ((ApiOkResponse)response).Result;
-            return Ok(taskFulfillment);
+            return await _taskFulfillmentService.AddTaskFulfillment(HttpContext, taskFulfillmentReceiving);
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateById(long id, TaskFulfillmentReceivingDTO taskFulfillmentReceivingDTO)
+        public async Task<ApiCommonResponse> UpdateById(long id, TaskFulfillmentReceivingDTO taskFulfillmentReceivingDTO)
         {
-            var response = await _taskFulfillmentService.UpdateTaskFulfillment(HttpContext, id, taskFulfillmentReceivingDTO);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var taskFulfillment = ((ApiOkResponse)response).Result;
-            return Ok(taskFulfillment);
+            return await _taskFulfillmentService.UpdateTaskFulfillment(HttpContext, id, taskFulfillmentReceivingDTO);
         }
 
         /*[HttpDelete("{id}")]
         public async Task<ApiCommonResponse> DeleteById(int id)
         {
-            var response = await _taskFulfillmentService.DeleteTaskFulfillment(id);
+            return await _taskFulfillmentService.DeleteTaskFulfillment(id);
             return StatusCode(response.StatusCode);
         }*/
 
         [HttpPut("SetIsPicked/{id}")]
-        public async Task<IActionResult> SetIsPicked(long id)
+        public async Task<ApiCommonResponse> SetIsPicked(long id)
         {
-            var response = await _taskFulfillmentService.SetIsPicked(HttpContext, id, true);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var taskFulfillment = ((ApiOkResponse)response).Result;
-            return Ok(taskFulfillment);
+            return await _taskFulfillmentService.SetIsPicked(HttpContext, id, true);
         }
 
         [HttpPut("DropPicked/{id}")]
-        public async Task<IActionResult> DropPickedTask(long id)
+        public async Task<ApiCommonResponse> DropPickedTask(long id)
         {
-            var response = await _taskFulfillmentService.SetIsPicked(HttpContext, id, false);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var taskFulfillment = ((ApiOkResponse)response).Result;
-            return Ok(taskFulfillment);
+            return await _taskFulfillmentService.SetIsPicked(HttpContext, id, false);
         }
 
         [HttpGet("GetTaskFulfillmentsByOperatingEntityHeadId/{id}")]
         public async Task<ApiCommonResponse> GetTaskFulfillmentsByOperatingEntityHeadId(long id)
         {
-            var response = await _taskFulfillmentService.GetTaskFulfillmentsByOperatingEntityHeadId(id);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var taskFulfillment = ((ApiOkResponse)response).Result;
-            return Ok(taskFulfillment);
+            return await _taskFulfillmentService.GetTaskFulfillmentsByOperatingEntityHeadId(id);
         }
 
         [HttpGet("GetTaskFulfillmentDetails/{id}")]
         public async Task<ApiCommonResponse> GetTaskFulfillmentDetails(long id)
         {
-            var response = await _taskFulfillmentService.GetTaskFulfillmentDetails(id);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var taskFulfillment = ((ApiOkResponse)response).Result;
-            return Ok(taskFulfillment);
+            return await _taskFulfillmentService.GetTaskFulfillmentDetails(id);
         }
     }
 }

@@ -38,11 +38,11 @@ namespace HaloBiz.MyServices.Impl
 
             if (timeClose.TimeOfDay.CompareTo(timeOpen.TimeOfDay) == 0)
             {
-                return new ApiResponse(441);
+                return CommonResponse.Send(ResponseCodes.FAILURE);
             }
             if (timeClose.TimeOfDay.CompareTo(timeOpen.TimeOfDay) < 0)
             {
-                return new ApiResponse(441);
+                return CommonResponse.Send(ResponseCodes.FAILURE);
             }
            
             if (masterIdExist != null)
@@ -52,14 +52,14 @@ namespace HaloBiz.MyServices.Impl
                 IdExistClose = IdExistClose.AddMilliseconds(-1 * IdExistClose.Millisecond);
                 if (timeOpen.TimeOfDay < IdExistClose.TimeOfDay)
                 {
-                    return new ApiResponse(441);
+                    return CommonResponse.Send(ResponseCodes.FAILURE);
                 }
 
             }
             if(armedEscortReceivingDTO.Monday == false && armedEscortReceivingDTO.Tuesday == false && armedEscortReceivingDTO.Wednesday == false && armedEscortReceivingDTO.Thursday == false && armedEscortReceivingDTO.Friday == false
                 && armedEscortReceivingDTO.Saturday == false && armedEscortReceivingDTO.Sunday == false )
             {
-                return new ApiResponse(442);
+                return CommonResponse.Send(ResponseCodes.FAILURE);
             }
             armedescort.OpeningTime = timeOpen;
             armedescort.ClosingTime = timeClose;
@@ -71,7 +71,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
             var TransferDTO = _mapper.Map<ArmedEscortDTSDetailGenericDaysTransferDTO>(armedescort);
-            return new ApiOkResponse(TransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,TransferDTO);
         }
 
         public async Task<ApiCommonResponse> AddCommanderGeneric(HttpContext context, CommanderDTSDetailGenericDaysReceivingDTO commanderReceivingDTO)
@@ -87,11 +87,11 @@ namespace HaloBiz.MyServices.Impl
 
             if (timeClose.TimeOfDay.CompareTo(timeOpen.TimeOfDay) == 0)
             {
-                return new ApiResponse(441);
+                return CommonResponse.Send(ResponseCodes.FAILURE);
             }
             if (timeClose.TimeOfDay.CompareTo(timeOpen.TimeOfDay) < 0)
             {
-                return new ApiResponse(441);
+                return CommonResponse.Send(ResponseCodes.FAILURE);
             }
 
             if (masterIdExist != null)
@@ -101,14 +101,14 @@ namespace HaloBiz.MyServices.Impl
                 IdExistClose = IdExistClose.AddMilliseconds(-1 * IdExistClose.Millisecond);
                 if (timeOpen.TimeOfDay < IdExistClose.TimeOfDay)
                 {
-                    return new ApiResponse(441);
+                    return CommonResponse.Send(ResponseCodes.FAILURE);
                 }
 
             }
             if (commanderReceivingDTO.Monday == false && commanderReceivingDTO.Tuesday == false && commanderReceivingDTO.Wednesday == false && commanderReceivingDTO.Thursday == false && commanderReceivingDTO.Friday == false
               && commanderReceivingDTO.Saturday == false && commanderReceivingDTO.Sunday == false)
             {
-                return new ApiResponse(442);
+                return CommonResponse.Send(ResponseCodes.FAILURE);
             }
             commander.OpeningTime = timeOpen;
             commander.ClosingTime = timeClose;
@@ -120,7 +120,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
             var TransferDTO = _mapper.Map<CommanderDTSDetailGenericDaysTransferDTO>(commander);
-            return new ApiOkResponse(TransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,TransferDTO);
         }
 
         public async Task<ApiCommonResponse> AddPilotGeneric(HttpContext context, PilotDTSDetailGenericDaysReceivingDTO pilotReceivingDTO)
@@ -136,11 +136,11 @@ namespace HaloBiz.MyServices.Impl
 
             if (timeClose.TimeOfDay.CompareTo(timeOpen.TimeOfDay) == 0)
             {
-                return new ApiResponse(441);
+                return CommonResponse.Send(ResponseCodes.FAILURE);
             }
             if (timeClose.TimeOfDay.CompareTo(timeOpen.TimeOfDay) < 0)
             {
-                return new ApiResponse(441);
+                return CommonResponse.Send(ResponseCodes.FAILURE);
             }
 
             if (masterIdExist != null)
@@ -150,14 +150,14 @@ namespace HaloBiz.MyServices.Impl
                 IdExistClose = IdExistClose.AddMilliseconds(-1 * IdExistClose.Millisecond);
                 if (timeOpen.TimeOfDay < IdExistClose.TimeOfDay)
                 {
-                    return new ApiResponse(441);
+                    return CommonResponse.Send(ResponseCodes.FAILURE);
                 }
 
             }
             if (pilotReceivingDTO.Monday == false && pilotReceivingDTO.Tuesday == false && pilotReceivingDTO.Wednesday == false && pilotReceivingDTO.Thursday == false && pilotReceivingDTO.Friday == false
               && pilotReceivingDTO.Saturday == false && pilotReceivingDTO.Sunday == false)
             {
-                return new ApiResponse(442);
+                return CommonResponse.Send(ResponseCodes.FAILURE);
             }
             pilot.OpeningTime = timeOpen;
             pilot.ClosingTime = timeClose;
@@ -169,7 +169,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
             var TransferDTO = _mapper.Map<PilotDTSDetailGenericDaysTransferDTO>(pilot);
-            return new ApiOkResponse(TransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,TransferDTO);
         }
 
         public async Task<ApiCommonResponse> AddVehicleGeneric(HttpContext context, VehicleDTSDetailGenericDaysReceivingDTO vehicleReceivingDTO)
@@ -185,11 +185,11 @@ namespace HaloBiz.MyServices.Impl
 
             if (timeClose.TimeOfDay.CompareTo(timeOpen.TimeOfDay) == 0)
             {
-                return new ApiResponse(441);
+                return CommonResponse.Send(ResponseCodes.FAILURE);
             }
             if (timeClose.TimeOfDay.CompareTo(timeOpen.TimeOfDay) < 0)
             {
-                return new ApiResponse(441);
+                return CommonResponse.Send(ResponseCodes.FAILURE);
             }
 
             if (masterIdExist != null)
@@ -199,14 +199,14 @@ namespace HaloBiz.MyServices.Impl
                 IdExistClose = IdExistClose.AddMilliseconds(-1 * IdExistClose.Millisecond);
                 if (timeOpen.TimeOfDay < IdExistClose.TimeOfDay)
                 {
-                    return new ApiResponse(441);
+                    return CommonResponse.Send(ResponseCodes.FAILURE);
                 }
 
             }
             if (vehicleReceivingDTO.Monday == false && vehicleReceivingDTO.Tuesday == false && vehicleReceivingDTO.Wednesday == false && vehicleReceivingDTO.Thursday == false && vehicleReceivingDTO.Friday == false
               && vehicleReceivingDTO.Saturday == false && vehicleReceivingDTO.Sunday == false)
             {
-                return new ApiResponse(442);
+                return CommonResponse.Send(ResponseCodes.FAILURE);
             }
             vehicle.OpeningTime = timeOpen;
             vehicle.ClosingTime = timeClose;
@@ -218,7 +218,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
             var TransferDTO = _mapper.Map<VehicleDTSDetailGenericDaysTransferDTO>(vehicle);
-            return new ApiOkResponse(TransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,TransferDTO);
         }
 
         public async Task<ApiCommonResponse> DeleteArmedEscortGeneric(long id)
@@ -297,7 +297,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var TransferDTO = _mapper.Map<IEnumerable<ArmedEscortDTSDetailGenericDaysTransferDTO>>(masters);
-            return new ApiOkResponse(TransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,TransferDTO);
         }
 
         public async Task<ApiCommonResponse> GetAllCommanderGenerics()
@@ -308,7 +308,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var TransferDTO = _mapper.Map<IEnumerable<CommanderDTSDetailGenericDaysTransferDTO>>(masters);
-            return new ApiOkResponse(TransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,TransferDTO);
         }
 
         public async Task<ApiCommonResponse> GetAllPilotGenerics()
@@ -319,7 +319,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var TransferDTO = _mapper.Map<IEnumerable<PilotDTSDetailGenericDaysTransferDTO>>(masters);
-            return new ApiOkResponse(TransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,TransferDTO);
         }
 
         public async Task<ApiCommonResponse> GetAllVehicleGenerics()
@@ -330,7 +330,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var TransferDTO = _mapper.Map<IEnumerable<VehicleDTSDetailGenericDaysTransferDTO>>(masters);
-            return new ApiOkResponse(TransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,TransferDTO);
         }
 
         public async Task<ApiCommonResponse> GetArmedEscortGenericById(long id)
@@ -341,7 +341,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var TransferDTO = _mapper.Map<ArmedEscortDTSDetailGenericDaysTransferDTO>(master);
-            return new ApiOkResponse(TransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,TransferDTO);
         }
 
         public async Task<ApiCommonResponse> GetArmedEscortGenericByMasterId(long id)
@@ -352,7 +352,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var TransferDTO = _mapper.Map<IEnumerable<ArmedEscortDTSDetailGenericDaysTransferDTO>>(master);
-            return new ApiOkResponse(TransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,TransferDTO);
         }
 
         public async Task<ApiCommonResponse> GetCommanderGenericById(long id)
@@ -363,7 +363,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var TransferDTO = _mapper.Map<CommanderDTSDetailGenericDaysTransferDTO>(master);
-            return new ApiOkResponse(TransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,TransferDTO);
         }
 
         public async Task<ApiCommonResponse> GetCommanderGenericByMasterId(long id)
@@ -375,7 +375,7 @@ namespace HaloBiz.MyServices.Impl
             }
            
             var TransferDTO = _mapper.Map<IEnumerable<CommanderDTSDetailGenericDaysTransferDTO>>(master);
-            return new ApiOkResponse(TransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,TransferDTO);
         }
 
         public async Task<ApiCommonResponse> GetPilotGenericById(long id)
@@ -386,7 +386,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var TransferDTO = _mapper.Map<PilotDTSDetailGenericDaysTransferDTO>(master);
-            return new ApiOkResponse(TransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,TransferDTO);
         }
 
         public async Task<ApiCommonResponse> GetPilotGenericByMasterId(long id)
@@ -397,7 +397,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var TransferDTO = _mapper.Map<IEnumerable<PilotDTSDetailGenericDaysTransferDTO>>(master);
-            return new ApiOkResponse(TransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,TransferDTO);
         }
 
         public async Task<ApiCommonResponse> GetVehicleGenericById(long id)
@@ -408,7 +408,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var TransferDTO = _mapper.Map<VehicleDTSDetailGenericDaysTransferDTO>(master);
-            return new ApiOkResponse(TransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,TransferDTO);
         }
 
         public async Task<ApiCommonResponse> GetVehicleGenericByMasterId(long id)
@@ -419,7 +419,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var TransferDTO = _mapper.Map<IEnumerable<VehicleDTSDetailGenericDaysTransferDTO>>(master);
-            return new ApiOkResponse(TransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,TransferDTO);
         }
 
         public async Task<ApiCommonResponse> UpdateArmedEscortGeneric(HttpContext context, long id, ArmedEscortDTSDetailGenericDaysReceivingDTO armedEscortReceivingDTO)
@@ -453,7 +453,7 @@ namespace HaloBiz.MyServices.Impl
             }
 
             var TransferDTOs = _mapper.Map<ArmedEscortDTSDetailGenericDaysTransferDTO>(updateMaster);
-            return new ApiOkResponse(TransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,TransferDTOs);
         }
 
         public async Task<ApiCommonResponse> UpdateCommanderGeneric(HttpContext context, long id, CommanderDTSDetailGenericDaysReceivingDTO commanderReceivingDTO)
@@ -487,7 +487,7 @@ namespace HaloBiz.MyServices.Impl
             }
 
             var TransferDTOs = _mapper.Map<ArmedEscortDTSDetailGenericDaysTransferDTO>(updateMaster);
-            return new ApiOkResponse(TransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,TransferDTOs);
         }
 
         public async Task<ApiCommonResponse> UpdatePilotGeneric(HttpContext context, long id, PilotDTSDetailGenericDaysReceivingDTO pilotReceivingDTO)
@@ -521,7 +521,7 @@ namespace HaloBiz.MyServices.Impl
             }
 
             var TransferDTOs = _mapper.Map<ArmedEscortDTSDetailGenericDaysTransferDTO>(updateMaster);
-            return new ApiOkResponse(TransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,TransferDTOs);
         }
 
         public async Task<ApiCommonResponse> UpdateVehicleGeneric(HttpContext context, long id, VehicleDTSDetailGenericDaysReceivingDTO vehicleReceivingDTO)
@@ -555,7 +555,7 @@ namespace HaloBiz.MyServices.Impl
             }
 
             var TransferDTOs = _mapper.Map<ArmedEscortDTSDetailGenericDaysTransferDTO>(updateMaster);
-            return new ApiOkResponse(TransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,TransferDTOs);
         }
     }
 }

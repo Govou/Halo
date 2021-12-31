@@ -34,7 +34,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
             var serviceCategoryTransferDTO = _mapper.Map<ServiceCategoryTransferDTO>(savedserviceCategory);
-            return new ApiOkResponse(serviceCategoryTransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,serviceCategoryTransferDTO);
         }
 
         public async Task<ApiCommonResponse> GetAllServiceCategory()
@@ -45,7 +45,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var serviceCategoryTransferDTO = _mapper.Map<IEnumerable<ServiceCategoryTransferDTO>>(serviceCategory);
-            return new ApiOkResponse(serviceCategoryTransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,serviceCategoryTransferDTO);
         }
 
         public async Task<ApiCommonResponse> GetServiceCategoryById(long id)
@@ -56,7 +56,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var serviceCategoryTransferDTO = _mapper.Map<ServiceCategoryTransferDTO>(serviceCategory);
-            return new ApiOkResponse(serviceCategoryTransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,serviceCategoryTransferDTO);
         }
 
         public async Task<ApiCommonResponse> GetServiceCategoryByName(string name)
@@ -67,7 +67,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var serviceCategoryTransferDTO = _mapper.Map<ServiceCategoryTransferDTO>(serviceCategory);
-            return new ApiOkResponse(serviceCategoryTransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,serviceCategoryTransferDTO);
         }
 
         public async Task<ApiCommonResponse> UpdateServiceCategory(long id, ServiceCategoryReceivingDTO serviceCategoryReceivingDTO)
@@ -90,7 +90,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
             var serviceCategoryTransferDTO = _mapper.Map<ServiceCategoryTransferDTO>(updatedServiceCategory);
-            return new ApiOkResponse(serviceCategoryTransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,serviceCategoryTransferDTO);
 
         }
 

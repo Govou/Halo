@@ -26,57 +26,36 @@ namespace HaloBiz.Controllers
         [HttpGet("")]
         public async Task<ApiCommonResponse> GetGroupType()
         {
-            var response = await _groupTypeService.GetAllGroupType();
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var groupType = ((ApiOkResponse)response).Result;
-            return Ok(groupType);
+            return await _groupTypeService.GetAllGroupType();
         }
         [HttpGet("caption/{name}")]
         public async Task<ApiCommonResponse> GetByCaption(string name)
         {
-            var response = await _groupTypeService.GetGroupTypeByName(name);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var groupType = ((ApiOkResponse)response).Result;
-            return Ok(groupType);
+            return await _groupTypeService.GetGroupTypeByName(name);
         }
 
         [HttpGet("{id}")]
         public async Task<ApiCommonResponse> GetById(long id)
         {
-            var response = await _groupTypeService.GetGroupTypeById(id);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var groupType = ((ApiOkResponse)response).Result;
-            return Ok(groupType);
+            return await _groupTypeService.GetGroupTypeById(id);
         }
 
         [HttpPost("")]
         public async Task<ApiCommonResponse> AddNewGroupType(GroupTypeReceivingDTO groupTypeReceiving)
         {
-            var response = await _groupTypeService.AddGroupType(HttpContext, groupTypeReceiving);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var groupType = ((ApiOkResponse)response).Result;
-            return Ok(groupType);
+            return await _groupTypeService.AddGroupType(HttpContext, groupTypeReceiving);
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateById(long id, GroupTypeReceivingDTO groupTypeReceiving)
+        public async Task<ApiCommonResponse> UpdateById(long id, GroupTypeReceivingDTO groupTypeReceiving)
         {
-            var response = await _groupTypeService.UpdateGroupType(HttpContext, id, groupTypeReceiving);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var groupType = ((ApiOkResponse)response).Result;
-            return Ok(groupType);
+            return await _groupTypeService.UpdateGroupType(HttpContext, id, groupTypeReceiving);
         }
 
         [HttpDelete("{id}")]
         public async Task<ApiCommonResponse> DeleteById(int id)
         {
-            var response = await _groupTypeService.DeleteGroupType(id);
-            return StatusCode(response.StatusCode);
+            return await _groupTypeService.DeleteGroupType(id);
         }
     }
 }

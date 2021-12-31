@@ -43,7 +43,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
             var CustomerTransferDTOs = _mapper.Map<CustomerTransferDTO>(customer);
-            return new ApiOkResponse(CustomerTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,CustomerTransferDTOs);
         }
 
         public async Task<ApiCommonResponse> DeleteCustomer(long id)
@@ -70,14 +70,14 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var CustomerTransferDTOs = _mapper.Map<IEnumerable<CustomerTransferDTO>>(Customers);
-            return new ApiOkResponse(CustomerTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,CustomerTransferDTOs);
         }
 
         public async Task<ApiCommonResponse> GetCustomersByGroupType(long groupTypeId)
         {
             try{
                 var customers = await _CustomerRepo.FindCustomersByGroupType(groupTypeId);
-                return new ApiOkResponse(customers); 
+                return CommonResponse.Send(ResponseCodes.SUCCESS,customers); 
             }catch(Exception e)
             {
                 _logger.LogError(e.Message);
@@ -94,7 +94,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var CustomerTransferDTOs = _mapper.Map<CustomerTransferDTO>(Customer);
-            return new ApiOkResponse(CustomerTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,CustomerTransferDTOs);
         }
 
         public async Task<ApiCommonResponse> GetCustomerById(long id)
@@ -105,7 +105,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var CustomerTransferDTOs = _mapper.Map<CustomerTransferDTO>(Customer);
-            return new ApiOkResponse(CustomerTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,CustomerTransferDTOs);
         }
         public async Task<ApiCommonResponse> UpdateCustomer(HttpContext context, long id, CustomerReceivingDTO CustomerReceivingDTO)
         {
@@ -137,7 +137,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
             await _historyRepo.SaveHistory(history);
             var CustomerTransferDTOs = _mapper.Map<CustomerTransferDTO>(updatedCustomer);
-            return new ApiOkResponse(CustomerTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,CustomerTransferDTOs);
 
 
         }

@@ -30,7 +30,7 @@ namespace HaloBiz.MyServices.Impl
             var IdExist = _commanderRepository.FindCommanderUserProfileById(commanderReceivingDTO.ProfileId);
             if (IdExist != null)
             {
-                return new ApiResponse(409);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE, null, "No record exists");
             }
 
             commander.CreatedById = context.GetLoggedInUserId();
@@ -41,7 +41,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
             var typeTransferDTO = _mapper.Map<CommanderProfileTransferDTO>(commander);
-            return new ApiOkResponse(typeTransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,typeTransferDTO);
         }
 
         public async Task<ApiCommonResponse> AddCommanderTie(HttpContext context, CommanderSMORoutesResourceTieReceivingDTO commanderReceivingDTO)
@@ -65,11 +65,11 @@ namespace HaloBiz.MyServices.Impl
                     {
                         return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
                     }
-                    //return new ApiResponse(409);
+                    //return                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE,null, "No record exists");;
                 }
 
             }
-            return new ApiOkResponse("Record(s) Added");
+            return CommonResponse.Send(ResponseCodes.SUCCESS,"Record(s) Added");
         }
 
         public async Task<ApiCommonResponse> DeleteCommander(long id)
@@ -114,7 +114,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var TransferDTO = _mapper.Map<IEnumerable<CommanderProfileTransferDTO>>(commanders);
-            return new ApiOkResponse(TransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,TransferDTO);
         }
 
         public async Task<ApiCommonResponse> GetAllCommanderTies()
@@ -125,7 +125,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var TransferDTO = _mapper.Map<IEnumerable<CommanderSMORoutesResourceTieTransferDTO>>(commanders);
-            return new ApiOkResponse(TransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,TransferDTO);
         }
 
         public async Task<ApiCommonResponse> GetCommanderById(long id)
@@ -136,7 +136,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var TransferDTO = _mapper.Map<CommanderProfileTransferDTO>(commander);
-            return new ApiOkResponse(TransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,TransferDTO);
         }
 
         public async Task<ApiCommonResponse> GetCommanderTieById(long id)
@@ -147,7 +147,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var TransferDTO = _mapper.Map<CommanderSMORoutesResourceTieTransferDTO>(commander);
-            return new ApiOkResponse(TransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,TransferDTO);
         }
 
         public async Task<ApiCommonResponse> UpdateCommander(HttpContext context, long id, CommanderProfileReceivingDTO commanderReceivingDTO)
@@ -177,7 +177,7 @@ namespace HaloBiz.MyServices.Impl
             }
 
             var rankTransferDTOs = _mapper.Map<CommanderProfileTransferDTO>(updatedRank);
-            return new ApiOkResponse(rankTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,rankTransferDTOs);
         }
     }
 }

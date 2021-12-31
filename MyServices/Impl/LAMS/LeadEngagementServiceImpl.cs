@@ -56,7 +56,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
             var leadEngagementTransferDTO = _mapper.Map<LeadEngagementTransferDTO>(savedLeadEngagement);
-            return new ApiOkResponse(leadEngagementTransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,leadEngagementTransferDTO);
         }
 
         public async Task<ApiCommonResponse> GetAllLeadEngagement()
@@ -67,7 +67,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var leadEngagementTransferDTO = _mapper.Map<IEnumerable<LeadEngagementTransferDTO>>(leadEngagements);
-            return new ApiOkResponse(leadEngagementTransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,leadEngagementTransferDTO);
         }
 
         public async Task<ApiCommonResponse> GetLeadEngagementById(long id)
@@ -78,7 +78,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var leadEngagementTransferDTOs = _mapper.Map<LeadEngagementTransferDTO>(leadEngagement);
-            return new ApiOkResponse(leadEngagementTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,leadEngagementTransferDTOs);
         }
 
         public async Task<ApiCommonResponse> FindLeadEngagementsByLeadId(long leadId)
@@ -89,7 +89,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var leadEngagementTransferDTOs = _mapper.Map<List<LeadEngagementTransferDTO>>(leadEngagement);
-            return new ApiOkResponse(leadEngagementTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,leadEngagementTransferDTOs);
         }
 
         public async Task<ApiCommonResponse> GetLeadEngagementByName(string name)
@@ -100,7 +100,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var leadEngagementTransferDTOs = _mapper.Map<LeadEngagementTransferDTO>(leadEngagement);
-            return new ApiOkResponse(leadEngagementTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,leadEngagementTransferDTOs);
         }
 
         public async Task<ApiCommonResponse> UpdateLeadEngagement(HttpContext context, long id, LeadEngagementReceivingDTO leadEngagementReceivingDTO)
@@ -139,7 +139,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
             await _historyRepo.SaveHistory(history);
 
             var leadEngagementTransferDTOs = _mapper.Map<LeadEngagementTransferDTO>(updatedLeadEngagement);
-            return new ApiOkResponse(leadEngagementTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,leadEngagementTransferDTOs);
 
         }
 

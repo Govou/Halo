@@ -55,12 +55,12 @@ namespace HaloBiz.MyServices.Impl
                     TotalComplaintsBeingHandled = allCoplaintsAssigned.Where(x => (x.IsAssesed != null || x.IsInvestigated != null || x.IsResolved != null) && x.IsClosed == null).ToList().Count(),
                     TotalComplaintsInWorkbench = allCoplaintsAssigned.Where(x => x.PickedById == userProfileID && !x.IsClosed.HasValue).Count()
                 };
-                return new ApiOkResponse(resultObject);
+                return CommonResponse.Send(ResponseCodes.SUCCESS,resultObject);
             }
             catch(Exception error)
             {
                 _logger.LogError("Exception occurred in  GetComplaintHandlingStats " + error);
-                return new ApiResponse(500, error.Message);
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "System error");
             }
         }
 
@@ -109,12 +109,12 @@ namespace HaloBiz.MyServices.Impl
                     assignedComplaints = complaintTransferDTOs.Where(x => x.PickedById == null).ToList(),
                     workbenchComplaints = complaintTransferDTOs.Where(x => x.PickedById == userProfileID && !x.IsClosed.HasValue).ToList()
                 };
-                return new ApiOkResponse(resultObject);
+                return CommonResponse.Send(ResponseCodes.SUCCESS,resultObject);
             }
             catch(Exception error)
             {
                 _logger.LogError("Exception occurred in  GetComplaintsHandling " + error);
-                return new ApiResponse(500, error.Message);
+                return  CommonResponse.Send(ResponseCodes.FAILURE,null, "System errors");
             }
         }
 
@@ -123,10 +123,10 @@ namespace HaloBiz.MyServices.Impl
             try
             {
                 long userProfileID = context.GetLoggedInUserId();
-                if (userProfileID <= 0) return new ApiResponse(500, "Unable to retrieve user's details");
+                if (userProfileID <= 0) return CommonResponse.Send(ResponseCodes.FAILURE, null, "Unable to retrieve user's details");
                 ProfileEscalationLevel profileEscalationLevel = await _context.ProfileEscalationLevels.Include(x => x.EscalationLevel).FirstOrDefaultAsync(x => x.UserProfileId == userProfileID && x.IsDeleted == false);
-                if (profileEscalationLevel == null) return new ApiResponse(500, "User has no profile level escalation configured for user profile");
-                if (profileEscalationLevel.EscalationLevel.Caption.ToLower().Contains("handler")) return new ApiResponse(500, "Currently logged in user is an hanler. You need to either be a supervisor or manager.");
+                if (profileEscalationLevel == null) return CommonResponse.Send(ResponseCodes.FAILURE, null, "User has no profile level escalation configured for user profile");
+                if (profileEscalationLevel.EscalationLevel.Caption.ToLower().Contains("handler")) return CommonResponse.Send(ResponseCodes.FAILURE, null, "Currently logged in user is an hanler. You need to either be a supervisor or manager.");
                 List<EscalationMatrix> escalationMatrices = await _context.EscalationMatrices
                     .Include(x => x.ComplaintAttendants)
                     .Include(x => x.ComplaintType)
@@ -162,7 +162,7 @@ namespace HaloBiz.MyServices.Impl
                 }
 
                 List<Complaint> complaints = allComplaints.Where(y => escalationMatrices.Select(x => x.ComplaintTypeId).ToList().Contains(y.ComplaintTypeId) && y.IsResolved == null).ToList();
-                if(!profileEscalationLevel.EscalationLevel.Caption.ToLower().Contains("supervisor") && !profileEscalationLevel.EscalationLevel.Caption.ToLower().Contains("supervisor")) return new ApiResponse(500, "No configuration created for users escalation level " + profileEscalationLevel.EscalationLevel.Caption);
+                if(!profileEscalationLevel.EscalationLevel.Caption.ToLower().Contains("supervisor") && !profileEscalationLevel.EscalationLevel.Caption.ToLower().Contains("supervisor")) return CommonResponse.Send(ResponseCodes.FAILURE,null, "No configuration created for users escalation level " + profileEscalationLevel.EscalationLevel.Caption);
                 foreach (var escalation in escalationMatrices)
                 {
                     long compareTime = profileEscalationLevel.EscalationLevel.Caption.ToLower().Contains("supervisor") ? escalation.Level2MaxResolutionTimeInHrs : escalation.Level1MaxResolutionTimeInHrs;
@@ -224,12 +224,12 @@ namespace HaloBiz.MyServices.Impl
                             break;
                     }
                 }
-                return new ApiOkResponse(returnObject);
+                return CommonResponse.Send(ResponseCodes.SUCCESS,returnObject);
             }
             catch(Exception error)
             {
                 _logger.LogError("Exception occurred in  GetUserEscalationLevelDetails " + error);
-                return new ApiResponse(500, error.Message);
+                return  CommonResponse.Send(ResponseCodes.FAILURE,null, "System errors");
             }
         }
 
@@ -322,7 +322,8 @@ namespace HaloBiz.MyServices.Impl
                         _context.ComplaintResolutions.Update(complaintClosed);
                         break;
                     default:
-                        return new ApiResponse(500, "Current Stage Passed is invalid");
+                        return  CommonResponse.Send(ResponseCodes.FAILURE,null, "Current Stage Passed is invalid");
+
                 }
 
                 if(model.evidences.Length > 0)
@@ -352,11 +353,11 @@ namespace HaloBiz.MyServices.Impl
             catch(Exception error)
             {
                 _logger.LogError("Exception occurred in  MoveComplaintToNextStage " + error);
-                return new ApiResponse(500, error.Message);
+                return  CommonResponse.Send(ResponseCodes.FAILURE,null, "System errors");
             }
         }
 
-        public async Task<bool> SendComplaintConfirmationMail(Complaint complaint, string applicationUrl)
+        public async Task<ApiCommonResponse> SendComplaintConfirmationMail(Complaint complaint, string applicationUrl)
         {
             bool result = false;
 
@@ -365,7 +366,7 @@ namespace HaloBiz.MyServices.Impl
                 if (complaint == null)
                 {
                     _logger.LogError("Complaint data is null");
-                    return result;
+                    return CommonResponse.Send(ResponseCodes.FAILURE, null, "Complaint data is null");
                 }
 
                 if (String.IsNullOrWhiteSpace(applicationUrl))
@@ -402,16 +403,15 @@ namespace HaloBiz.MyServices.Impl
                     ReceipentEmailAddress = new string[1],
                 };
                 model.ReceipentEmailAddress[0] = receipentEmail;
-                var response = await _mailAdapter.SendComplaintResolutionConfirmationMail(model);
-                if (response.StatusCode == 200) result = true;
+                return await _mailAdapter.SendComplaintResolutionConfirmationMail(model);
             }
             catch (Exception err) 
             {
                 _logger.LogError("Exception occurred in  SendComplaintConfirmationMail " + err);
-                result = false; 
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "System errors");
             }
 
-            return result;
+            
         }
 
         public async Task<ApiCommonResponse> PickComplaint(HttpContext context, PickComplaintDTO model)
@@ -420,8 +420,8 @@ namespace HaloBiz.MyServices.Impl
             {
                 long userProfileID = context.GetLoggedInUserId();
                 Complaint complaint = await _context.Complaints.FirstOrDefaultAsync(x => x.Id == model.complaintId && x.IsDeleted == false);
-                if(complaint == null) return new ApiResponse(500, "Error, No Complaint with the passed ID exists");
-                if (complaint.IsPicked.HasValue) return new ApiResponse(500, "Error, Complaint is already picked");
+                if(complaint == null) return CommonResponse.Send(ResponseCodes.FAILURE,null, "Error, No Complaint with the passed ID exists");
+                if (complaint.IsPicked.HasValue) return CommonResponse.Send(ResponseCodes.FAILURE,null, "Error, Complaint is already picked");
                 complaint.IsPicked = true;
                 complaint.PickedById = userProfileID;
                 complaint.DatePicked = DateTime.Now;
@@ -432,7 +432,7 @@ namespace HaloBiz.MyServices.Impl
             catch(Exception error)
             {
                 _logger.LogError("Exception occurred in  PickComplaint " + error);
-                return new ApiResponse(500, error.Message);
+                return  CommonResponse.Send(ResponseCodes.FAILURE,null, "System errors");
             }
         }
 
@@ -447,7 +447,7 @@ namespace HaloBiz.MyServices.Impl
                     .Include(x => x.PickedBy)
                     .FirstOrDefaultAsync(x => x.TrackingId == model.TrackingNo || x.Id == model.ComplaintId);
 
-                if(complaint == null) return new ApiResponse(500, "No Complaint with the passed tracking number exists.");
+                if(complaint == null) return CommonResponse.Send(ResponseCodes.FAILURE,null, "No Complaint with the passed tracking number exists.");
 
                 var complaintTransferDTOs = _mapper.Map<ComplaintTransferDTO>(complaint);
                 switch (complaintTransferDTOs.ComplaintOrigin.Caption.ToLower())
@@ -494,12 +494,12 @@ namespace HaloBiz.MyServices.Impl
                     EstimatedDateResolved = escalationMatrix == null ? complaint.DateRegistered : complaint.DateRegistered.AddHours(escalationMatrix.Level1MaxResolutionTimeInHrs),
                     HandlerName = complaint.PickedBy == null ? String.Empty : complaint.PickedBy.LastName + " " + complaint.PickedBy.FirstName,
                 };
-                return new ApiOkResponse(resultObject);
+                return CommonResponse.Send(ResponseCodes.SUCCESS,resultObject);
             }
             catch(Exception error)
             {
                 _logger.LogError("Exception occurred in  TrackComplaint " + error);
-                return new ApiResponse(500, error.Message);
+                return  CommonResponse.Send(ResponseCodes.FAILURE,null, "System errors");
             }
         }
 
@@ -516,7 +516,7 @@ namespace HaloBiz.MyServices.Impl
             catch(Exception error)
             {
                 _logger.LogError("Exception occurred in  ConfirmComplaintResolved " + error);
-                return new ApiResponse(500, error.Message);
+                return  CommonResponse.Send(ResponseCodes.FAILURE,null, "System errors");
             }
         }
 
@@ -548,7 +548,7 @@ namespace HaloBiz.MyServices.Impl
             catch(Exception error)
             {
                 _logger.LogError("Exception occurred in  ConfirmComplaintResolved " + error);
-                return new ApiResponse(500, error.Message);
+                return  CommonResponse.Send(ResponseCodes.FAILURE,null, "System errors");
             }
         }
 
@@ -558,9 +558,9 @@ namespace HaloBiz.MyServices.Impl
             {
                 long userProfileID = context.GetLoggedInUserId();
                 UserProfile userProfile = await _context.UserProfiles.FirstOrDefaultAsync(x => x.Id == model.UserId && x.IsDeleted == false);
-                if (userProfile == null) return new ApiResponse(500, "No user with the passed ID exists");
+                if (userProfile == null) return CommonResponse.Send(ResponseCodes.FAILURE,null, "No user with the passed ID exists");
                 Complaint complaint = await _context.Complaints.FirstOrDefaultAsync(x => x.Id == model.ComplaintId && x.IsDeleted == false);
-                if (complaint == null) return new ApiResponse(500, "No complaint with the passed ID exists");
+                if (complaint == null) return CommonResponse.Send(ResponseCodes.FAILURE,null, "No complaint with the passed ID exists");
 
                 //Log re-assignment info
                 if(complaint.PickedById != null)
@@ -608,7 +608,7 @@ namespace HaloBiz.MyServices.Impl
             catch(Exception error)
             {
                 _logger.LogError("Exception occurred in  AssignComplaintToUser " + error);
-                return new ApiResponse(500, error.Message);
+                return  CommonResponse.Send(ResponseCodes.FAILURE,null, "System errors");
             }
         }
 
@@ -636,12 +636,12 @@ namespace HaloBiz.MyServices.Impl
                     ResolutionEvidenceUrls = resolutionEvidences,
                     ComplaintsReassignments = _mapper.Map<IEnumerable<ComplaintReassignmentTransferDTO>>(complaintReassignments).ToList(),
                 };
-                return new ApiOkResponse(resultObject);
+                return CommonResponse.Send(ResponseCodes.SUCCESS,resultObject);
             }
             catch(Exception error)
             {
                 _logger.LogError("Exception occurred in  MiniTrackComplaint " + error);
-                return new ApiResponse(500, error.Message);
+                return  CommonResponse.Send(ResponseCodes.FAILURE,null, "System errors");
             }
         }
 
@@ -662,12 +662,12 @@ namespace HaloBiz.MyServices.Impl
                     returnObject.Add(handlerRating);
                 }
 
-                return new ApiOkResponse(returnObject);
+                return CommonResponse.Send(ResponseCodes.SUCCESS,returnObject);
             }
             catch(Exception error)
             {
                 _logger.LogError("Exception occurred in  GetHandlersRatings " + error);
-                return new ApiResponse(500, error.Message);
+                return  CommonResponse.Send(ResponseCodes.FAILURE,null, "System errors");
             }
         }
     }

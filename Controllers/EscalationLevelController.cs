@@ -25,57 +25,36 @@ namespace HaloBiz.Controllers
         [HttpGet("")]
         public async Task<ApiCommonResponse> GetEscalationLevel()
         {
-            var response = await _EscalationLevelService.GetAllEscalationLevel();
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var EscalationLevel = ((ApiOkResponse)response).Result;
-            return Ok(EscalationLevel);
+            return await _EscalationLevelService.GetAllEscalationLevel();
         }
         [HttpGet("caption/{name}")]
         public async Task<ApiCommonResponse> GetByCaption(string name)
         {
-            var response = await _EscalationLevelService.GetEscalationLevelByName(name);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var EscalationLevel = ((ApiOkResponse)response).Result;
-            return Ok(EscalationLevel);
+            return await _EscalationLevelService.GetEscalationLevelByName(name);
         }
 
         [HttpGet("{id}")]
         public async Task<ApiCommonResponse> GetById(long id)
         {
-            var response = await _EscalationLevelService.GetEscalationLevelById(id);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var EscalationLevel = ((ApiOkResponse)response).Result;
-            return Ok(EscalationLevel);
+            return await _EscalationLevelService.GetEscalationLevelById(id);
         }
 
         [HttpPost("")]
         public async Task<ApiCommonResponse> AddNewEscalationLevel(EscalationLevelReceivingDTO EscalationLevelReceiving)
         {
-            var response = await _EscalationLevelService.AddEscalationLevel(HttpContext, EscalationLevelReceiving);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var EscalationLevel = ((ApiOkResponse)response).Result;
-            return Ok(EscalationLevel);
+            return await _EscalationLevelService.AddEscalationLevel(HttpContext, EscalationLevelReceiving);
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateById(long id, EscalationLevelReceivingDTO EscalationLevelReceiving)
+        public async Task<ApiCommonResponse> UpdateById(long id, EscalationLevelReceivingDTO EscalationLevelReceiving)
         {
-            var response = await _EscalationLevelService.UpdateEscalationLevel(HttpContext, id, EscalationLevelReceiving);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var EscalationLevel = ((ApiOkResponse)response).Result;
-            return Ok(EscalationLevel);
+            return await _EscalationLevelService.UpdateEscalationLevel(HttpContext, id, EscalationLevelReceiving);
         }
 
         [HttpDelete("{id}")]
         public async Task<ApiCommonResponse> DeleteById(int id)
         {
-            var response = await _EscalationLevelService.DeleteEscalationLevel(id);
-            return StatusCode(response.StatusCode);
+            return await _EscalationLevelService.DeleteEscalationLevel(id);
         }
     }
 }

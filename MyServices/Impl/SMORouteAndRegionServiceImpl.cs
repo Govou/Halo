@@ -39,7 +39,7 @@ namespace HaloBiz.MyServices.Impl
             var NameExist = _sMORouteAndRegionRepository.GetRegionName(sMOReceivingDTO.RegionName);
             if (NameExist != null)
             {
-                return new ApiResponse(409);
+                                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE,null, "No record exists");;
             }
             addItem.CreatedById = context.GetLoggedInUserId();
             addItem.IsDeleted = false;
@@ -50,7 +50,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
             var TransferDTO = _mapper.Map<SMORegionTransferDTO>(addItem);
-            return new ApiOkResponse(TransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,TransferDTO);
         }
 
         public async Task<ApiCommonResponse> AddSMOReturnRoute(HttpContext context, SMOReturnRouteReceivingDTO sMOReturnRouteReceivingDTO)
@@ -59,12 +59,12 @@ namespace HaloBiz.MyServices.Impl
             var IdExist = _sMORouteAndRegionRepository.GetSMORouteId(sMOReturnRouteReceivingDTO.SMORouteId);
             if (IdExist != null)
             {
-                return new ApiResponse(409);
+                                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE,null, "No record exists");;
             }
             //var hasReturnRoute = _sMORouteAndRegionRepository.hasReturnRoute(sMOReturnRouteReceivingDTO.SMORouteId);
             //if (!hasReturnRoute)
             //{
-            //    return new ApiResponse(411);
+            //    return new ApiCommonResponse(411);
             //}
 
             addItem.CreatedById = context.GetLoggedInUserId();
@@ -76,7 +76,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
             var TransferDTO = _mapper.Map<SMOReturnRouteTransferDTO>(addItem);
-            return new ApiOkResponse(TransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,TransferDTO);
         }
 
         public async Task<ApiCommonResponse> AddSMORoute(HttpContext context, SMORouteReceivingDTO sMORouteReceivingDTO)
@@ -85,7 +85,7 @@ namespace HaloBiz.MyServices.Impl
             var NameExist = _sMORouteAndRegionRepository.GetRouteName(sMORouteReceivingDTO.RouteName);
             if (NameExist != null)
             {
-                return new ApiResponse(409);
+                                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE,null, "No record exists");;
             }
             addItem.CreatedById = context.GetLoggedInUserId();
             addItem.IsDeleted = false;
@@ -103,7 +103,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
             var TransferDTO = _mapper.Map<SMORouteTransferDTO>(addItem);
-            return new ApiOkResponse(TransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,TransferDTO);
         }
 
         public async Task<ApiCommonResponse> DeleteSMORegion(long id)
@@ -165,7 +165,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var itemTransferDTO = _mapper.Map<IEnumerable<SMORegionTransferDTO>>(allItems);
-            return new ApiOkResponse(itemTransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,itemTransferDTO);
         }
 
         public async Task<ApiCommonResponse> GetAllSMOReturnRoutes()
@@ -176,7 +176,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var itemTransferDTO = _mapper.Map<IEnumerable<SMOReturnRouteTransferDTO>>(allItems);
-            return new ApiOkResponse(itemTransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,itemTransferDTO);
         }
 
         //public async Task<ApiCommonResponse> GetAllSMORouteAndRegions()
@@ -188,7 +188,7 @@ namespace HaloBiz.MyServices.Impl
         //        return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
         //    }
         //    var itemTransferDTO = _mapper.Map<IEnumerable<SMORouteRegionTransferDTO>>(allItems, allItemsRoute);
-        //    return new ApiOkResponse(itemTransferDTO);
+        //    return CommonResponse.Send(ResponseCodes.SUCCESS,itemTransferDTO);
         //}
 
         public async Task<ApiCommonResponse> GetAllSMORoutes()
@@ -199,7 +199,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var itemTransferDTO = _mapper.Map<IEnumerable<SMORouteTransferDTO>>(allItems);
-            return new ApiOkResponse(itemTransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,itemTransferDTO);
         }
 
         public async Task<ApiCommonResponse> GetAllSMORoutesByName(string routeName)
@@ -210,7 +210,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var itemTransferDTO = _mapper.Map<IEnumerable<SMORouteTransferDTO>>(allItems);
-            return new ApiOkResponse(itemTransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,itemTransferDTO);
         }
 
         public async Task<ApiCommonResponse> GetAllSMORoutesWithReturnRoute()
@@ -221,7 +221,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var itemTransferDTO = _mapper.Map<IEnumerable<SMORouteTransferDTO>>(allItems);
-            return new ApiOkResponse(itemTransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,itemTransferDTO);
         }
 
         public async Task<ApiCommonResponse> GetSMORegionById(long id)
@@ -232,7 +232,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var itemTransferDTO = _mapper.Map<SMORegionTransferDTO>(getItem);
-            return new ApiOkResponse(itemTransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,itemTransferDTO);
         }
 
         public async Task<ApiCommonResponse> GetSMOReturnRouteById(long id)
@@ -243,7 +243,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var itemTransferDTO = _mapper.Map<SMOReturnRouteTransferDTO>(getItem);
-            return new ApiOkResponse(itemTransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,itemTransferDTO);
         }
 
         public async Task<ApiCommonResponse> GetSMORouteById(long id)
@@ -254,7 +254,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var itemTransferDTO = _mapper.Map<SMORouteTransferDTO>(getItem);
-            return new ApiOkResponse(itemTransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,itemTransferDTO);
         }
 
         public async Task<ApiCommonResponse> UpdateSMORegion(HttpContext context, long id, SMORegionReceivingDTO sMOReceivingDTO)
@@ -281,7 +281,7 @@ namespace HaloBiz.MyServices.Impl
             }
 
             var itemTransferDTOs = _mapper.Map<SMORegionTransferDTO>(updatedRank);
-            return new ApiOkResponse(itemTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,itemTransferDTOs);
         }
 
         public async Task<ApiCommonResponse> UpdateSMOReturnRoute(HttpContext context, long id, SMOReturnRouteReceivingDTO sMOReturnRouteReceivingDTO)
@@ -308,7 +308,7 @@ namespace HaloBiz.MyServices.Impl
             }
 
             var itemTransferDTOs = _mapper.Map<SMOReturnRouteTransferDTO>(updatedRank);
-            return new ApiOkResponse(itemTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,itemTransferDTOs);
         }
 
         public async Task<ApiCommonResponse> UpdateSMORoute(HttpContext context, long id, SMORouteReceivingDTO sMORouteReceivingDTO)
@@ -338,7 +338,7 @@ namespace HaloBiz.MyServices.Impl
             }
 
             var itemTransferDTOs = _mapper.Map<SMORouteTransferDTO>(updatedRank);
-            return new ApiOkResponse(itemTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,itemTransferDTOs);
         }
     }
 

@@ -42,7 +42,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
             var closureDocumentTransferDTO = _mapper.Map<ClosureDocumentTransferDTO>(savedClosureDocument);
-            return new ApiOkResponse(closureDocumentTransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,closureDocumentTransferDTO);
         }
 
         public async Task<ApiCommonResponse> GetAllClosureDocument()
@@ -53,7 +53,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var closureDocumentTransferDTO = _mapper.Map<IEnumerable<ClosureDocumentTransferDTO>>(closureDocuments);
-            return new ApiOkResponse(closureDocumentTransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,closureDocumentTransferDTO);
         }
 
         public async Task<ApiCommonResponse> GetClosureDocumentById(long id)
@@ -64,7 +64,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var closureDocumentTransferDTOs = _mapper.Map<ClosureDocumentTransferDTO>(closureDocument);
-            return new ApiOkResponse(closureDocumentTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,closureDocumentTransferDTOs);
         }
 
         public async Task<ApiCommonResponse> GetClosureDocumentByCaption(string caption)
@@ -75,7 +75,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var closureDocumentTransferDTOs = _mapper.Map<ClosureDocumentTransferDTO>(closureDocument);
-            return new ApiOkResponse(closureDocumentTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,closureDocumentTransferDTOs);
         }
 
         public async Task<ApiCommonResponse> UpdateClosureDocument(HttpContext context, long id, ClosureDocumentReceivingDTO closureDocumentReceivingDTO)
@@ -110,7 +110,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
             await _historyRepo.SaveHistory(history);
 
             var closureDocumentTransferDTOs = _mapper.Map<ClosureDocumentTransferDTO>(updatedClosureDocument);
-            return new ApiOkResponse(closureDocumentTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,closureDocumentTransferDTOs);
 
         }
 

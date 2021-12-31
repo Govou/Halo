@@ -49,7 +49,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var contractTransferDTOs = _mapper.Map<IEnumerable<ContractTransferDTO>>(contracts);
-            return new ApiOkResponse(contractTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,contractTransferDTOs);
         }
 
         public async Task<ApiCommonResponse> GetContractByReferenceNumber(string refNo)
@@ -60,7 +60,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var contractTransferDTOs = _mapper.Map<ContractTransferDTO>(contract);
-            return new ApiOkResponse(contractTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,contractTransferDTOs);
         }
 
         public async Task<ApiCommonResponse> GetContractById(long id)
@@ -71,7 +71,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var contractTransferDTOs = _mapper.Map<ContractTransferDTO>(contract);
-            return new ApiOkResponse(contractTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,contractTransferDTOs);
         }
 
         public async Task<ApiCommonResponse> GetContractsByLeadId(long leadId)
@@ -82,7 +82,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var contractTransferDTOs = _mapper.Map<IEnumerable<ContractTransferDTO>>(contracts);
-            return new ApiOkResponse(contractTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,contractTransferDTOs);
         }
 
         public async Task<ApiCommonResponse> GetContractsByCustomerId(long customerId)
@@ -93,7 +93,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var contractTransferDTOs = _mapper.Map<IEnumerable<ContractTransferDTO>>(contracts);
-            return new ApiOkResponse(contractTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,contractTransferDTOs);
         }
     }
 }

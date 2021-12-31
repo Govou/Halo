@@ -75,7 +75,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                     //Map savedContact to a dto and return it
                     await transaction.CommitAsync();
                     var leadContactTransferDTO = _mapper.Map<LeadContactTransferDTO>(savedLeadContact);
-                    return new ApiOkResponse(leadContactTransferDTO);                    
+                    return CommonResponse.Send(ResponseCodes.SUCCESS,leadContactTransferDTO);                    
                 }
                 catch (Exception e)
                 {
@@ -95,7 +95,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var leadContactTransferDTO = _mapper.Map<IEnumerable<LeadContactTransferDTO>>(leadContacts);
-            return new ApiOkResponse(leadContactTransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,leadContactTransferDTO);
         }
 
         public async Task<ApiCommonResponse> GetLeadContactById(long id)
@@ -106,7 +106,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var leadContactTransferDTO = _mapper.Map<LeadContactTransferDTO>(leadContact);
-            return new ApiOkResponse(leadContactTransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,leadContactTransferDTO);
         }
 
         
@@ -150,7 +150,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                     await _context.SaveChangesAsync();
                     await transaction.CommitAsync();
                     var leadContactTransferDTOs = _mapper.Map<LeadContactTransferDTO>(updatedLeadContact);
-                    return new ApiOkResponse(leadContactTransferDTOs);
+                    return CommonResponse.Send(ResponseCodes.SUCCESS,leadContactTransferDTOs);
                     
                 }
                 catch (System.Exception)

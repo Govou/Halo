@@ -42,7 +42,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
             var DropReasonTransferDTO = _mapper.Map<DropReasonTransferDTO>(DropReason);
-            return new ApiOkResponse(DropReasonTransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,DropReasonTransferDTO);
         }
 
         public async Task<ApiCommonResponse> GetAllDropReason()
@@ -53,7 +53,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var DropReasonTransferDTO = _mapper.Map<IEnumerable<DropReasonTransferDTO>>(DropReasons);
-            return new ApiOkResponse(DropReasonTransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,DropReasonTransferDTO);
         }
 
         public async Task<ApiCommonResponse> GetDropReasonById(long id)
@@ -64,7 +64,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var DropReasonTransferDTOs = _mapper.Map<DropReasonTransferDTO>(DropReason);
-            return new ApiOkResponse(DropReasonTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,DropReasonTransferDTOs);
         }
 
         public async Task<ApiCommonResponse> GetDropReasonByTitle(string title)
@@ -75,7 +75,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var DropReasonTransferDTOs = _mapper.Map<DropReasonTransferDTO>(DropReason);
-            return new ApiOkResponse(DropReasonTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,DropReasonTransferDTOs);
         }
 
         public async Task<ApiCommonResponse> UpdateDropReason(HttpContext context, long id, DropReasonReceivingDTO DropReasonReceivingDTO)
@@ -107,7 +107,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
             await _historyRepo.SaveHistory(history);
 
             var DropReasonTransferDTOs = _mapper.Map<DropReasonTransferDTO>(updatedDropReason);
-            return new ApiOkResponse(DropReasonTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,DropReasonTransferDTOs);
 
         }
 

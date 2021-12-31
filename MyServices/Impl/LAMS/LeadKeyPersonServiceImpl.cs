@@ -42,7 +42,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
     
-            return new ApiOkResponse(_mapper.Map<LeadKeyPersonTransferDTO>(savedKeyPerson));
+            return CommonResponse.Send(ResponseCodes.SUCCESS,_mapper.Map<LeadKeyPersonTransferDTO>(savedKeyPerson));
         }
 
         public async Task<ApiCommonResponse> GetAllLeadKeyPerson()
@@ -53,7 +53,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var leadKeyPersonTransferDTO = _mapper.Map<IEnumerable<LeadKeyPersonTransferDTO>>(leadKeyPersons);
-            return new ApiOkResponse(leadKeyPersonTransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,leadKeyPersonTransferDTO);
         }
 
         public async Task<ApiCommonResponse> GetLeadKeyPersonById(long id)
@@ -64,7 +64,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var leadKeyPersonTransferDTO = _mapper.Map<LeadKeyPersonTransferDTO>(leadKeyPerson);
-            return new ApiOkResponse(leadKeyPersonTransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,leadKeyPersonTransferDTO);
         }
 
         
@@ -103,7 +103,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
             await _historyRepo.SaveHistory(history);
 
-            return new ApiOkResponse(_mapper.Map<LeadKeyPersonTransferDTO>(updatedLeadKeyPerson));
+            return CommonResponse.Send(ResponseCodes.SUCCESS,_mapper.Map<LeadKeyPersonTransferDTO>(updatedLeadKeyPerson));
 
         }
 
@@ -115,7 +115,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var leadKeyPersonTransferDTO = _mapper.Map<IEnumerable<LeadKeyPersonTransferDTO>>(leadKeyPersons);
-            return new ApiOkResponse(leadKeyPersonTransferDTO); 
+            return CommonResponse.Send(ResponseCodes.SUCCESS,leadKeyPersonTransferDTO); 
         }
 
         public async Task<ApiCommonResponse> DeleteKeyPerson(long Id)

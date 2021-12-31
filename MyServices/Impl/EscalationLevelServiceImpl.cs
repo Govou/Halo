@@ -41,7 +41,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
             var escalationLevelTransferDTO = _mapper.Map<EscalationLevelTransferDTO>(escalationLevel);
-            return new ApiOkResponse(escalationLevelTransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,escalationLevelTransferDTO);
         }
 
         public async Task<ApiCommonResponse> DeleteEscalationLevel(long id)
@@ -68,7 +68,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var escalationLevelTransferDTO = _mapper.Map<IEnumerable<EscalationLevelTransferDTO>>(escalationLevels);
-            return new ApiOkResponse(escalationLevelTransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,escalationLevelTransferDTO);
         }
 
         public async Task<ApiCommonResponse> GetEscalationLevelById(long id)
@@ -79,7 +79,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var escalationLevelTransferDTOs = _mapper.Map<EscalationLevelTransferDTO>(escalationLevel);
-            return new ApiOkResponse(escalationLevelTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,escalationLevelTransferDTOs);
         }
 
         public async Task<ApiCommonResponse> GetEscalationLevelByName(string name)
@@ -90,7 +90,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var escalationLevelTransferDTOs = _mapper.Map<EscalationLevelTransferDTO>(escalationLevel);
-            return new ApiOkResponse(escalationLevelTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,escalationLevelTransferDTOs);
         }
 
         public async Task<ApiCommonResponse> UpdateEscalationLevel(HttpContext context, long id, EscalationLevelReceivingDTO escalationLevelReceivingDTO)
@@ -123,7 +123,7 @@ namespace HaloBiz.MyServices.Impl
             await _historyRepo.SaveHistory(history);
 
             var escalationLevelTransferDTOs = _mapper.Map<EscalationLevelTransferDTO>(updatedescalationLevel);
-            return new ApiOkResponse(escalationLevelTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,escalationLevelTransferDTOs);
         }
     }
 }

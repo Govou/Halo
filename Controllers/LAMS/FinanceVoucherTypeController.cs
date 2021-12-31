@@ -20,48 +20,31 @@ namespace HaloBiz.Controllers.LAMS
         [HttpGet("")]
         public async Task<ApiCommonResponse> GetFinancialVoucherTypes()
         {
-            var response = await _finacialVoucherTypeService.GetAllFinancialVoucherTypes();
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var voucherType = ((ApiOkResponse)response).Result;
-            return Ok(voucherType);
+            return await _finacialVoucherTypeService.GetAllFinancialVoucherTypes();
         }
 
         [HttpGet("{id}")]
         public async Task<ApiCommonResponse> GetById(long id)
         {
-            var response = await _finacialVoucherTypeService.GetFinancialVoucherTypeById(id);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var voucherType = ((ApiOkResponse)response).Result;
-            return Ok(voucherType);
+            return await _finacialVoucherTypeService.GetFinancialVoucherTypeById(id);
         }
 
         [HttpPost("")]
         public async Task<ApiCommonResponse> AddNewFinancialVoucherType(FinancialVoucherTypeReceivingDTO voucherTypeReceiving)
         {
-            var response = await _finacialVoucherTypeService.AddFinancialVoucherType(HttpContext, voucherTypeReceiving);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var voucherType = ((ApiOkResponse)response).Result;
-            return Ok(voucherType);
+            return await _finacialVoucherTypeService.AddFinancialVoucherType(HttpContext, voucherTypeReceiving);
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateById(long id, FinancialVoucherTypeReceivingDTO voucherTypeReceiving)
+        public async Task<ApiCommonResponse> UpdateById(long id, FinancialVoucherTypeReceivingDTO voucherTypeReceiving)
         {
-            var response = await _finacialVoucherTypeService.UpdateFinancialVoucherType(HttpContext, id, voucherTypeReceiving);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var voucherType = ((ApiOkResponse)response).Result;
-            return Ok(voucherType);
+            return await _finacialVoucherTypeService.UpdateFinancialVoucherType(HttpContext, id, voucherTypeReceiving);
         }
 
         [HttpDelete("{id}")]
         public async Task<ApiCommonResponse> DeleteById(int id)
         {
-            var response = await _finacialVoucherTypeService.DeleteFinancialVoucherType(id);
-            return StatusCode(response.StatusCode);
+            return await _finacialVoucherTypeService.DeleteFinancialVoucherType(id);
         }
     }
 }

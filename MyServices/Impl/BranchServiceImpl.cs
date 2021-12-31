@@ -36,7 +36,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
             var branchTransferDTOs = _mapper.Map<BranchTransferDTO>(branch);
-            return new ApiOkResponse(branchTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,branchTransferDTOs);
         }
 
         public async Task<ApiCommonResponse> GetAllBranches()
@@ -47,7 +47,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var branchTransferDTOs = _mapper.Map<IEnumerable<BranchTransferDTO>>(branches);
-            return new ApiOkResponse(branchTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,branchTransferDTOs);
         }
 
         public async Task<ApiCommonResponse> GetBranchById(long id)
@@ -58,7 +58,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var branchTransferDTOs = _mapper.Map<BranchTransferDTO>(branch);
-            return new ApiOkResponse(branchTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,branchTransferDTOs);
         }
 
         public async Task<ApiCommonResponse> GetBranchByName(string name)
@@ -69,7 +69,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var branchTransferDTOs = _mapper.Map<BranchTransferDTO>(branch);
-            return new ApiOkResponse(branchTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,branchTransferDTOs);
         }
 
         public async Task<ApiCommonResponse> UpdateBranch(long id, BranchReceivingDTO branchReceivingDTO)
@@ -90,7 +90,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
             var branchTransferDTOs = _mapper.Map<BranchTransferDTO>(updatedBranch);
-            return new ApiOkResponse(branchTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,branchTransferDTOs);
 
 
         }

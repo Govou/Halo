@@ -44,7 +44,7 @@ namespace HaloBiz.MyServices.Impl
 
             if(servicePricingInDb.Count > 0)
             {
-                return new ApiResponse(400, "Service Pricing already configured.");
+                return CommonResponse.Send(ResponseCodes.FAILURE,null, "Service Pricing already configured.");
             }
 
             var servicePricing = _mapper.Map<ServicePricing>(servicePricingReceivingDTO);
@@ -55,7 +55,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
             var servicePricingTransferDTO = _mapper.Map<ServicePricingTransferDTO>(servicePricing);
-            return new ApiOkResponse(servicePricingTransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,servicePricingTransferDTO);
         }
 
         public async Task<ApiCommonResponse> DeleteServicePricing(long id)
@@ -82,7 +82,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var servicePricingTransferDTO = _mapper.Map<IEnumerable<ServicePricingTransferDTO>>(servicePricings);
-            return new ApiOkResponse(servicePricingTransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,servicePricingTransferDTO);
         }
 
         public async Task<ApiCommonResponse> GetServicePricingById(long id)
@@ -93,7 +93,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var servicePricingTransferDTOs = _mapper.Map<ServicePricingTransferDTO>(servicePricing);
-            return new ApiOkResponse(servicePricingTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,servicePricingTransferDTOs);
         }
 
         public async Task<ApiCommonResponse> GetServicePricingByServiceId(long serviceId)
@@ -104,7 +104,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var servicePricingTransferDTOs = _mapper.Map<IEnumerable<ServicePricingTransferDTO>>(servicePricings);
-            return new ApiOkResponse(servicePricingTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,servicePricingTransferDTOs);
         }
 
         public async Task<ApiCommonResponse> GetServicePricingByBranchId(long branchId)
@@ -115,7 +115,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var servicePricingTransferDTOs = _mapper.Map<IEnumerable<ServicePricingTransferDTO>>(servicePricings);
-            return new ApiOkResponse(servicePricingTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,servicePricingTransferDTOs);
         }
 
         public async Task<ApiCommonResponse> UpdateServicePricing(HttpContext context, long id, ServicePricingReceivingDTO servicePricingReceivingDTO)
@@ -131,7 +131,7 @@ namespace HaloBiz.MyServices.Impl
 
             if (servicePricingInDb.Count > 0)
             {
-                return new ApiResponse(400, "Service Pricing already configured.");
+                return CommonResponse.Send(ResponseCodes.FAILURE,null, "Service Pricing already configured.");
             }
             
             var summary = $"Initial details before change, \n {servicePricingToUpdate.ToString()} \n";
@@ -159,7 +159,7 @@ namespace HaloBiz.MyServices.Impl
             await _historyRepo.SaveHistory(history);
 
             var servicePricingTransferDTOs = _mapper.Map<ServicePricingTransferDTO>(updatedservicePricing);
-            return new ApiOkResponse(servicePricingTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,servicePricingTransferDTOs);
         }
     }
 }

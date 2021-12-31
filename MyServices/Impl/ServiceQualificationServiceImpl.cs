@@ -41,7 +41,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
             var serviceQualificationTransferDTO = _mapper.Map<ServiceQualificationTransferDTO>(serviceQualification);
-            return new ApiOkResponse(serviceQualificationTransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,serviceQualificationTransferDTO);
         }
 
         public async Task<ApiCommonResponse> DeleteServiceQualification(long id)
@@ -68,7 +68,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var serviceQualificationTransferDTO = _mapper.Map<IEnumerable<ServiceQualificationTransferDTO>>(serviceQualifications);
-            return new ApiOkResponse(serviceQualificationTransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,serviceQualificationTransferDTO);
         }
 
         public async Task<ApiCommonResponse> GetServiceQualificationById(long id)
@@ -79,7 +79,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var serviceQualificationTransferDTOs = _mapper.Map<ServiceQualificationTransferDTO>(serviceQualification);
-            return new ApiOkResponse(serviceQualificationTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,serviceQualificationTransferDTOs);
         }
 
         /*public async Task<ApiCommonResponse> GetServiceQualificationByName(string name)
@@ -90,7 +90,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var serviceQualificationTransferDTOs = _mapper.Map<ServiceQualificationTransferDTO>(serviceQualification);
-            return new ApiOkResponse(serviceQualificationTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,serviceQualificationTransferDTOs);
         }*/
 
         public async Task<ApiCommonResponse> UpdateServiceQualification(HttpContext context, long id, ServiceQualificationReceivingDTO serviceQualificationReceivingDTO)
@@ -123,7 +123,7 @@ namespace HaloBiz.MyServices.Impl
             await _historyRepo.SaveHistory(history);
 
             var serviceQualificationTransferDTOs = _mapper.Map<ServiceQualificationTransferDTO>(updatedserviceQualification);
-            return new ApiOkResponse(serviceQualificationTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,serviceQualificationTransferDTOs);
         }
     }
 }

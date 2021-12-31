@@ -30,7 +30,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var stateTransferDto = _mapper.Map<StateTransferDTO>(state);
-            return new ApiOkResponse(stateTransferDto);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,stateTransferDto);
 
         }
 
@@ -42,7 +42,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var stateTransferDto = _mapper.Map<StateTransferDTO>(state);
-            return new ApiOkResponse(stateTransferDto);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,stateTransferDto);
         }
 
         public async Task<ApiCommonResponse> GetAllStates()
@@ -53,7 +53,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var statesTransferDto = _mapper.Map<IEnumerable<StateTransferDTO>>(states);
-            return new ApiOkResponse(statesTransferDto);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,statesTransferDto);
         }
 
         public async Task<ApiCommonResponse> GetAllLgas()
@@ -64,7 +64,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var lgasTransferDto = _mapper.Map<IEnumerable<LgasTransferDTO>>(lgas);
-            return new ApiOkResponse(lgasTransferDto);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,lgasTransferDto);
         }
     }
 }

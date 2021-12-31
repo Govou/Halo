@@ -36,7 +36,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
             var designationTransferDTO = _mapper.Map<DesignationTransferDTO>(designation);
-            return new ApiOkResponse(designationTransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,designationTransferDTO);
         }
 
         public async Task<ApiCommonResponse> DeleteDesignation(long id)
@@ -62,7 +62,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var designationTransferDTO = _mapper.Map<IEnumerable<DesignationTransferDTO>>(designation);
-            return new ApiOkResponse(designationTransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,designationTransferDTO);
         }
 
         public  async Task<ApiCommonResponse> UpdateDesignation(HttpContext context, long id, DesignationReceivingDTO designationReceivingDTO)
@@ -95,7 +95,7 @@ namespace HaloBiz.MyServices.Impl
             await _historyRepo.SaveHistory(history);
 
             var designationTransferDTOs = _mapper.Map<DesignationTransferDTO>(updatedDesignation);
-            return new ApiOkResponse(designationTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,designationTransferDTOs);
         }
     }
 }

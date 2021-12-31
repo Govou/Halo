@@ -210,13 +210,13 @@ namespace HaloBiz.MyServices.Impl
                     if (customerDivisions == null || customerDivisions.Count < 1)
                     {
                         _logger.LogInformation($"No customer division tied to account => [{account.Id}]");
-                        return new ApiResponse(500, $"No customer division tied to account => [{ account.Id }]");
+                        return CommonResponse.Send(ResponseCodes.FAILURE,null, $"No customer division tied to account => [{ account.Id }]");
                     }
 
                     if(customerDivisions.Count > 1 && account.Name != RETAIL_RECEIVABLE_ACCOUNT)
                     {
                         _logger.LogInformation($"You cannot have more than one customer division tied to account => [{account.Id}]");
-                        return new ApiResponse(500, $"You cannot have more than one customer division tied to account => [{ account.Id }]");
+                        return CommonResponse.Send(ResponseCodes.FAILURE,null, $"You cannot have more than one customer division tied to account => [{ account.Id }]");
                     }
 
                     var isRetail = account.Name == RETAIL_RECEIVABLE_ACCOUNT;
@@ -251,7 +251,7 @@ namespace HaloBiz.MyServices.Impl
                             if (voucherType == null)
                             {
                                 _logger.LogInformation($"Invalid voucher type for account master => [{accountMaster.Id}]");
-                                return new ApiResponse(500, $"Invalid voucher type for account master => [{accountMaster.Id}]");
+                                return CommonResponse.Send(ResponseCodes.FAILURE,null, $"Invalid voucher type for account master => [{accountMaster.Id}]");
                             }
 
                             var accountDetails = await _context.AccountDetails
@@ -261,7 +261,7 @@ namespace HaloBiz.MyServices.Impl
                             if (accountDetails.Count < 1)
                             {
                                 _logger.LogInformation($"No account details tied to account master => [{accountMaster.Id}]");
-                                return new ApiResponse(500, $"No account details tied to account master => [{accountMaster.Id}]");
+                                return CommonResponse.Send(ResponseCodes.FAILURE,null, $"No account details tied to account master => [{accountMaster.Id}]");
                             }
                             #endregion
 

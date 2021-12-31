@@ -42,7 +42,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
             var quoteServiceTransferDTO = _mapper.Map<QuoteServiceTransferDTO>(savedQuoteService);
-            return new ApiOkResponse(quoteServiceTransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,quoteServiceTransferDTO);
         }
 
         public async Task<ApiCommonResponse> GetAllQuoteService()
@@ -53,7 +53,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var quoteServiceTransferDTO = _mapper.Map<IEnumerable<QuoteServiceTransferDTO>>(quoteService);
-            return new ApiOkResponse(quoteServiceTransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,quoteServiceTransferDTO);
         }
 
         public async Task<ApiCommonResponse> GetQuoteServiceById(long id)
@@ -64,7 +64,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var quoteServiceTransferDTOs = _mapper.Map<QuoteServiceTransferDTO>(quoteService);
-            return new ApiOkResponse(quoteServiceTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,quoteServiceTransferDTOs);
         }
 
         public async Task<ApiCommonResponse> GetQuoteServiceByTag(string tag)
@@ -75,7 +75,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var quoteServiceTransferDTOs = _mapper.Map<QuoteServiceTransferDTO>(quoteService);
-            return new ApiOkResponse(quoteServiceTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,quoteServiceTransferDTOs);
         }
 
         public async Task<ApiCommonResponse> UpdateQuoteServicesByQuoteId(HttpContext context, long quoteId, IEnumerable<QuoteServiceReceivingDTO> quoteServices)
@@ -83,7 +83,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
             var userId = context.GetLoggedInUserId();
             var _quoteServices = _mapper.Map<IEnumerable<QuoteService>>(quoteServices);
             var response = await _quoteServiceRepo.UpdateQuoteServicesByQuoteId(quoteId, _quoteServices);
-            return new ApiOkResponse(response);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,response);
 
         }
         public async Task<ApiCommonResponse> UpdateQuoteService(HttpContext context, long id, QuoteServiceReceivingDTO quoteServiceReceivingDTO)
@@ -149,7 +149,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
             await _historyRepo.SaveHistory(history);
 
             var quoteServiceTransferDTOs = _mapper.Map<QuoteServiceTransferDTO>(updatedQuoteService);
-            return new ApiOkResponse(quoteServiceTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,quoteServiceTransferDTOs);
 
         }
 

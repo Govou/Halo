@@ -65,7 +65,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
             }
 
             var deliverableFulfillmentTransferDTO = _mapper.Map<DeliverableFulfillmentTransferDTO>(savedDeliverableFulfillment);
-            return new ApiOkResponse(deliverableFulfillmentTransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,deliverableFulfillmentTransferDTO);
         }
 
         public async Task<ApiCommonResponse> DeliverableToAssignedUserRatio(long taskMasterId)
@@ -75,7 +75,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
             var deliverables = await _deliverableFulfillmentRepo.FindAllAssignedDeliverableFulfillmentForTaskMaster(taskMasterId);
             if(deliverables.Count() == 0){
-                return new ApiOkResponse(listOfDeliverableToAssignedPeronRation);
+                return CommonResponse.Send(ResponseCodes.SUCCESS,listOfDeliverableToAssignedPeronRation);
             }
 
             var userTaskDictionary = new Dictionary<UserProfile, int>();
@@ -97,7 +97,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 });
             });
 
-            return new ApiOkResponse(listOfDeliverableToAssignedPeronRation);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,listOfDeliverableToAssignedPeronRation);
 
             }catch(Exception e )
             {
@@ -115,7 +115,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var deliverableFulfillmentTransferDTO = _mapper.Map<IEnumerable<DeliverableFulfillmentTransferDTO>>(deliverableFulfillments);
-            return new ApiOkResponse(deliverableFulfillmentTransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,deliverableFulfillmentTransferDTO);
         }
 
         public async Task<ApiCommonResponse> GetDeliverableFulfillmentById(long id)
@@ -126,7 +126,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var deliverableFulfillmentTransferDTOs = _mapper.Map<DeliverableFulfillmentTransferDTO>(deliverableFulfillment);
-            return new ApiOkResponse(deliverableFulfillmentTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,deliverableFulfillmentTransferDTOs);
         }
 
         public async Task<ApiCommonResponse> GetDeliverableFulfillmentByName(string name)
@@ -137,13 +137,13 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var deliverableFulfillmentTransferDTOs = _mapper.Map<DeliverableFulfillmentTransferDTO>(deliverableFulfillment);
-            return new ApiOkResponse(deliverableFulfillmentTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,deliverableFulfillmentTransferDTOs);
         }
         public async Task<ApiCommonResponse> GetUserDeliverableFulfillmentStat(long userId)
         {
             try{
                 var stat = await _deliverableFulfillmentRepo.GetUserDeliverableStat(userId);
-                return new ApiOkResponse(stat);
+                return CommonResponse.Send(ResponseCodes.SUCCESS,stat);
             }catch(Exception e)
             {
                 _logger.LogError(e.Message);
@@ -157,7 +157,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
             try
             {
                 var stat = await _deliverableFulfillmentRepo.GetUserDeliverableDashboard(userId);
-                return new ApiOkResponse(stat);
+                return CommonResponse.Send(ResponseCodes.SUCCESS,stat);
             }
             catch (Exception e)
             {
@@ -226,7 +226,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
                     await transaction.CommitAsync();
                     var deliverableFulfillmentTransferDTOs = _mapper.Map<DeliverableFulfillmentTransferDTO>(updatedDeliverableFulfillment);
-                    return new ApiOkResponse(deliverableFulfillmentTransferDTOs);
+                    return CommonResponse.Send(ResponseCodes.SUCCESS,deliverableFulfillmentTransferDTOs);
                 }catch(Exception e){
                     await transaction.RollbackAsync();
                     _logger.LogError(e.Message);
@@ -333,7 +333,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                     await transaction.CommitAsync();
 
                     var deliverableFulfillmentTransferDTOs = _mapper.Map<DeliverableFulfillmentTransferDTO>(savedDeliverableFulfillment);
-                    return new ApiOkResponse(deliverableFulfillmentTransferDTOs);
+                    return CommonResponse.Send(ResponseCodes.SUCCESS,deliverableFulfillmentTransferDTOs);
                 }
                 catch (Exception e)
                 {
@@ -377,7 +377,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
             await _historyRepo.SaveHistory(history);
 
             var deliverableFulfillmentTransferDTOs = _mapper.Map<DeliverableFulfillmentTransferDTO>(updatedDeliverableFulfillment);
-            return new ApiOkResponse(deliverableFulfillmentTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,deliverableFulfillmentTransferDTOs);
 
         }
 
@@ -415,7 +415,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
             await _historyRepo.SaveHistory(history);
 
             var deliverableFulfillmentTransferDTOs = _mapper.Map<DeliverableFulfillmentTransferDTO>(updatedDeliverableFulfillment);
-            return new ApiOkResponse(deliverableFulfillmentTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,deliverableFulfillmentTransferDTOs);
 
         }
 
@@ -474,7 +474,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                     await transaction.CommitAsync();
 
                     var deliverableFulfillmentTransferDTOs = _mapper.Map<DeliverableFulfillmentTransferDTO>(updatedDeliverableFulfillment);
-                    return new ApiOkResponse(deliverableFulfillmentTransferDTOs);
+                    return CommonResponse.Send(ResponseCodes.SUCCESS,deliverableFulfillmentTransferDTOs);
                 }
                 catch (Exception e)
                 {

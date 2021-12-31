@@ -38,8 +38,17 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
         public async Task<ApiCommonResponse> AddQuoteServiceDocument(HttpContext context, QuoteServiceDocumentReceivingDTO qdd)
         {
-           // var quoteServiceDocument = _mapper.Map<QuoteServiceDocument>(qdd);
-           
+            if (qdd.IsGroupUpload && qdd.QuoteId == 0)
+            {
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "You need to specify quoteId since IsGroupUpload is true");
+            }
+            else if (!qdd.IsGroupUpload && qdd.QuoteServiceId == 0)
+            {
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "You need to specify QuoteServiceId");
+
+            }
+            // var quoteServiceDocument = _mapper.Map<QuoteServiceDocument>(qdd);
+
             var CreatedById = context.GetLoggedInUserId();
 
             //check if this is a group upload 
@@ -86,8 +95,8 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
 
-            var quoteServiceDocumentTransferDTO = _mapper.Map<QuoteServiceDocumentTransferDTO>(savedQuoteServiceDocument);
-            return new ApiOkResponse(quoteServiceDocumentTransferDTO);
+            var quoteServiceDocumentTransferDTO = _mapper.Map<QuoteServiceDocumentTransferDTO>(savedQuoteServiceDocument);            
+            return CommonResponse.Send(ResponseCodes.SUCCESS,quoteServiceDocumentTransferDTO);
         }
 
         public async Task<ApiCommonResponse> GetAllQuoteServiceDocument()
@@ -98,7 +107,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var quoteServiceDocumentTransferDTO = _mapper.Map<IEnumerable<QuoteServiceDocumentTransferDTO>>(quoteServiceDocuments);
-            return new ApiOkResponse(quoteServiceDocumentTransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,quoteServiceDocumentTransferDTO);
         }
         public async Task<ApiCommonResponse> GetAllQuoteServiceDocumentForAQuoteService(long quoteServiceId)
         {
@@ -108,7 +117,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var quoteServiceDocumentTransferDTO = _mapper.Map<IEnumerable<QuoteServiceDocumentTransferDTO>>(quoteServiceDocuments);
-            return new ApiOkResponse(quoteServiceDocumentTransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,quoteServiceDocumentTransferDTO);
         }
 
         public async Task<ApiCommonResponse> GetQuoteServiceDocumentById(long id)
@@ -119,7 +128,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var quoteServiceDocumentTransferDTOs = _mapper.Map<QuoteServiceDocumentTransferDTO>(quoteServiceDocument);
-            return new ApiOkResponse(quoteServiceDocumentTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,quoteServiceDocumentTransferDTOs);
         }
 
         public async Task<ApiCommonResponse> GetQuoteServiceDocumentByCaption(string caption)
@@ -130,7 +139,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var quoteServiceDocumentTransferDTOs = _mapper.Map<QuoteServiceDocumentTransferDTO>(quoteServiceDocument);
-            return new ApiOkResponse(quoteServiceDocumentTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,quoteServiceDocumentTransferDTOs);
         }
 
         public async Task<ApiCommonResponse> UpdateQuoteServiceDocument(HttpContext context, long id, QuoteServiceDocumentReceivingDTO quoteServiceDocumentReceivingDTO)
@@ -165,7 +174,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
             await _historyRepo.SaveHistory(history);
 
             var quoteServiceDocumentTransferDTOs = _mapper.Map<QuoteServiceDocumentTransferDTO>(updatedQuoteServiceDocument);
-            return new ApiOkResponse(quoteServiceDocumentTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,quoteServiceDocumentTransferDTOs);
 
         }
 

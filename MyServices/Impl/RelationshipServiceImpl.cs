@@ -34,7 +34,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
             var relationshipTransferDTO = _mapper.Map<RelationshipTransferDTO>(relationship);
-            return new ApiOkResponse(relationshipTransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,relationshipTransferDTO);
         }
 
         public async Task<ApiCommonResponse> GetAllRelationship()
@@ -45,7 +45,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var relationshipTransferDTO = _mapper.Map<IEnumerable<RelationshipTransferDTO>>(relationships);
-            return new ApiOkResponse(relationshipTransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,relationshipTransferDTO);
         }
 
         public async Task<ApiCommonResponse> GetRelationshipById(long id)
@@ -56,7 +56,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var relationshipTransferDTOs = _mapper.Map<RelationshipTransferDTO>(relationship);
-            return new ApiOkResponse(relationshipTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,relationshipTransferDTOs);
         }
 
         public async Task<ApiCommonResponse> GetRelationshipByName(string name)
@@ -67,7 +67,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var relationshipTransferDTOs = _mapper.Map<RelationshipTransferDTO>(relationship);
-            return new ApiOkResponse(relationshipTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,relationshipTransferDTOs);
         }
 
         public async Task<ApiCommonResponse> UpdateRelationship(HttpContext context, long id, RelationshipReceivingDTO relationshipReceivingDTO)
@@ -100,7 +100,7 @@ namespace HaloBiz.MyServices.Impl
             await _historyRepo.SaveHistory(history);
 
             var relationshipTransferDTO = _mapper.Map<RelationshipTransferDTO>(updatedRelationship);
-            return new ApiOkResponse(relationshipTransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,relationshipTransferDTO);
 
         }
 

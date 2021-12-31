@@ -37,7 +37,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
             var divisionTransferDTOs = _mapper.Map<DivisionTransferDTO>(division);
-            return new ApiOkResponse(divisionTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,divisionTransferDTOs);
         }
 
         public async Task<ApiCommonResponse> DeleteDivision(long id)
@@ -69,7 +69,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var divisionTransferDTOs = _mapper.Map<IEnumerable<DivisionTransferDTO>>(divisions);
-            return new ApiOkResponse(divisionTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,divisionTransferDTOs);
         }
         public async Task<ApiCommonResponse> GetAllDivisionsAndSbu()
         {
@@ -79,7 +79,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var divisionTransferDTOs = _mapper.Map<IEnumerable<DivisionTransferDTO>>(divisions);
-            return new ApiOkResponse(divisionTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,divisionTransferDTOs);
         }
 
         public async Task<ApiCommonResponse> GetDivisionByName(string name)
@@ -90,7 +90,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var divisionTransferDTOs = _mapper.Map<DivisionTransferDTO>(division);
-            return new ApiOkResponse(divisionTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,divisionTransferDTOs);
         }
 
         public async Task<ApiCommonResponse> GetDivisionnById(long id)
@@ -101,7 +101,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var divisionTransferDTOs = _mapper.Map<DivisionTransferDTO>(division);
-            return new ApiOkResponse(divisionTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,divisionTransferDTOs);
         }
         public async Task<ApiCommonResponse> UpdateDivision(long id, DivisionReceivingDTO divisionReceivingDTO)
         {
@@ -121,7 +121,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
             var divisionTransferDTOs = _mapper.Map<DivisionTransferDTO>(updatedDivision);
-            return new ApiOkResponse(divisionTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,divisionTransferDTOs);
 
 
         }

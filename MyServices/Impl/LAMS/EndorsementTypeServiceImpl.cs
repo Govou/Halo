@@ -42,7 +42,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
             var endorsementTypeTransferDTO = _mapper.Map<EndorsementTypeTransferDTO>(savedEndorsementType);
-            return new ApiOkResponse(endorsementTypeTransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,endorsementTypeTransferDTO);
         }
 
         public async Task<ApiCommonResponse> GetAllEndorsementType()
@@ -53,7 +53,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var endorsementTypeTransferDTO = _mapper.Map<IEnumerable<EndorsementTypeTransferDTO>>(endorsementTypes);
-            return new ApiOkResponse(endorsementTypeTransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,endorsementTypeTransferDTO);
         }
 
         public async Task<ApiCommonResponse> GetEndorsementTypeById(long id)
@@ -64,7 +64,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var endorsementTypeTransferDTOs = _mapper.Map<EndorsementTypeTransferDTO>(endorsementType);
-            return new ApiOkResponse(endorsementTypeTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,endorsementTypeTransferDTOs);
         }
 
         public async Task<ApiCommonResponse> GetEndorsementTypeByName(string name)
@@ -75,7 +75,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var endorsementTypeTransferDTOs = _mapper.Map<EndorsementTypeTransferDTO>(endorsementType);
-            return new ApiOkResponse(endorsementTypeTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,endorsementTypeTransferDTOs);
         }
 
         public async Task<ApiCommonResponse> UpdateEndorsementType(HttpContext context, long id, EndorsementTypeReceivingDTO endorsementTypeReceivingDTO)
@@ -108,7 +108,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
             await _historyRepo.SaveHistory(history);
 
             var endorsementTypeTransferDTOs = _mapper.Map<EndorsementTypeTransferDTO>(updatedEndorsementType);
-            return new ApiOkResponse(endorsementTypeTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,endorsementTypeTransferDTOs);
 
         }
 

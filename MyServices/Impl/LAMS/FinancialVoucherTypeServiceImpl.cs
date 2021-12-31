@@ -42,7 +42,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
             var voucherTypeTransferDTO = _mapper.Map<FinancialVoucherTypeTransferDTO>(voucherType);
-            return new ApiOkResponse(voucherTypeTransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,voucherTypeTransferDTO);
         }
 
         public async Task<ApiCommonResponse> GetAllFinancialVoucherTypes()
@@ -53,7 +53,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var voucherTypeTransferDTO = _mapper.Map<IEnumerable<FinancialVoucherTypeTransferDTO>>(voucherTypes);
-            return new ApiOkResponse(voucherTypeTransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,voucherTypeTransferDTO);
         }
 
         public async Task<ApiCommonResponse> GetFinancialVoucherTypeById(long id)
@@ -64,7 +64,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var voucherTypeTransferDTO = _mapper.Map<FinancialVoucherTypeTransferDTO>(voucherType);
-            return new ApiOkResponse(voucherTypeTransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,voucherTypeTransferDTO);
         }
 
         public async Task<ApiCommonResponse> UpdateFinancialVoucherType(HttpContext context, long id, FinancialVoucherTypeReceivingDTO VoucherTypeReceivingDTO)
@@ -98,7 +98,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
             await _historyRepo.SaveHistory(history);
 
             var voucherTypeTransferDTOs = _mapper.Map<FinancialVoucherTypeTransferDTO>(updatedVoucherType);
-            return new ApiOkResponse(voucherTypeTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,voucherTypeTransferDTOs);
 
         }
 

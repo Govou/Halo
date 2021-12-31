@@ -30,7 +30,7 @@ namespace HaloBiz.MyServices.Impl
             var IdExist = _businessRulesRepository.GetRegServiceId(businessRuleReceivingDTO.ServiceRegistrationId);
             if (IdExist != null)
             {
-                return new ApiResponse(409);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE, null, "No record exists");
             }
 
             rule.CreatedById = context.GetLoggedInUserId();
@@ -41,7 +41,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
             var TransferDTO = _mapper.Map<BusinessRuleTransferDTO>(rule);
-            return new ApiOkResponse(TransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,TransferDTO);
         }
 
         public async Task<ApiCommonResponse> AddPairable(HttpContext context, BRPairableReceivingDTO bRPairableReceivingDTO)
@@ -50,7 +50,7 @@ namespace HaloBiz.MyServices.Impl
             //var IdExist = _businessRulesRepository.GetBusinessRileRegServiceId(bRPairableReceivingDTO.BusinessRuleId);
             //if (IdExist != null)
             //{
-            //    return new ApiResponse(409);
+            //    return                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE,null, "No record exists");;
             //}
             var pair = new BRPairable();
 
@@ -70,12 +70,12 @@ namespace HaloBiz.MyServices.Impl
                     {
                         return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
                     }
-                    //return new ApiResponse(409);
+                    //return                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE,null, "No record exists");;
                 }
                
             }
 
-            return new ApiOkResponse("Records Added");
+            return CommonResponse.Send(ResponseCodes.SUCCESS,"Records Added");
         }
 
 
@@ -122,7 +122,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var TransferDTO = _mapper.Map<IEnumerable<BRPairableTransferDTO>>(pairables);
-            return new ApiOkResponse(TransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,TransferDTO);
         }
 
         public async Task<ApiCommonResponse> GetAllBusinessRules()
@@ -133,7 +133,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var TransferDTO = _mapper.Map<IEnumerable<BusinessRuleTransferDTO>>(rule);
-            return new ApiOkResponse(TransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,TransferDTO);
         }
 
         public async Task<ApiCommonResponse> GetAllPairableBusinessRules()
@@ -144,7 +144,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var TransferDTO = _mapper.Map<IEnumerable<BusinessRuleTransferDTO>>(rule);
-            return new ApiOkResponse(TransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,TransferDTO);
         }
 
         public async Task<ApiCommonResponse> GetAllPairables()
@@ -155,7 +155,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var TransferDTO = _mapper.Map<IEnumerable<BRPairableTransferDTO>>(pairables);
-            return new ApiOkResponse(TransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,TransferDTO);
         }
 
         public async Task<ApiCommonResponse> GetBusinessRuleById(long id)
@@ -166,7 +166,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var TransferDTO = _mapper.Map<BusinessRuleTransferDTO>(rule);
-            return new ApiOkResponse(TransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,TransferDTO);
         }
 
         public async Task<ApiCommonResponse> GetPairableById(long id)
@@ -177,7 +177,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var TransferDTO = _mapper.Map<BRPairableTransferDTO>(pair);
-            return new ApiOkResponse(TransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,TransferDTO);
         }
 
         public async Task<ApiCommonResponse> UpdateBusinessRule(HttpContext context, long id, BusinessRuleReceivingDTO businessRuleReceivingDTO)
@@ -207,7 +207,7 @@ namespace HaloBiz.MyServices.Impl
             }
 
             var TransferDTOs = _mapper.Map<BusinessRuleTransferDTO>(updated);
-            return new ApiOkResponse(TransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,TransferDTOs);
         }
 
         public async Task<ApiCommonResponse> UpdatePairable(HttpContext context, long id, BRPairableReceivingDTO bRPairableReceivingDTO)
@@ -241,7 +241,7 @@ namespace HaloBiz.MyServices.Impl
 
 
 
-            return new ApiOkResponse(200);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,200);
         }
     }
 }

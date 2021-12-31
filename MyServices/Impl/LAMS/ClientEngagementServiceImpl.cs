@@ -42,7 +42,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
             var clientEngagementTransferDTO = _mapper.Map<ClientEngagementTransferDTO>(savedClientEngagement);
-            return new ApiOkResponse(clientEngagementTransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,clientEngagementTransferDTO);
         }
 
         public async Task<ApiCommonResponse> GetAllClientEngagement()
@@ -53,7 +53,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var clientEngagementTransferDTO = _mapper.Map<IEnumerable<ClientEngagementTransferDTO>>(clientEngagements);
-            return new ApiOkResponse(clientEngagementTransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,clientEngagementTransferDTO);
         }
 
         public async Task<ApiCommonResponse> GetClientEngagementById(long id)
@@ -64,7 +64,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var clientEngagementTransferDTOs = _mapper.Map<ClientEngagementTransferDTO>(clientEngagement);
-            return new ApiOkResponse(clientEngagementTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,clientEngagementTransferDTOs);
         }
 
         public async Task<ApiCommonResponse> GetClientEngagementByName(string name)
@@ -75,7 +75,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var clientEngagementTransferDTOs = _mapper.Map<ClientEngagementTransferDTO>(clientEngagement);
-            return new ApiOkResponse(clientEngagementTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,clientEngagementTransferDTOs);
         }
 
         public async Task<ApiCommonResponse> UpdateClientEngagement(HttpContext context, long id, ClientEngagementReceivingDTO clientEngagementReceivingDTO)
@@ -115,7 +115,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
             await _historyRepo.SaveHistory(history);
 
             var clientEngagementTransferDTOs = _mapper.Map<ClientEngagementTransferDTO>(updatedClientEngagement);
-            return new ApiOkResponse(clientEngagementTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,clientEngagementTransferDTOs);
 
         }
 

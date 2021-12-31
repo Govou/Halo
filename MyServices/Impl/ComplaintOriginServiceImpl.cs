@@ -59,7 +59,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
             var complaintOriginTransferDTO = _mapper.Map<ComplaintOriginTransferDTO>(complaintOrigin);
-            return new ApiOkResponse(complaintOriginTransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,complaintOriginTransferDTO);
         }
 
         public async Task<ApiCommonResponse> DeleteComplaintOrigin(long id)
@@ -86,7 +86,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var complaintOriginTransferDTO = _mapper.Map<IEnumerable<ComplaintOriginTransferDTO>>(complaintOrigins);
-            return new ApiOkResponse(complaintOriginTransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,complaintOriginTransferDTO);
         }
 
         public async Task<ApiCommonResponse> GetComplaintOriginById(long id)
@@ -97,7 +97,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var complaintOriginTransferDTOs = _mapper.Map<ComplaintOriginTransferDTO>(complaintOrigin);
-            return new ApiOkResponse(complaintOriginTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,complaintOriginTransferDTOs);
         }
 
         public async Task<ApiCommonResponse> GetComplaintOriginByName(string name)
@@ -108,7 +108,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var complaintOriginTransferDTOs = _mapper.Map<ComplaintOriginTransferDTO>(complaintOrigin);
-            return new ApiOkResponse(complaintOriginTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,complaintOriginTransferDTOs);
         }
 
         public async Task<ApiCommonResponse> UpdateComplaintOrigin(HttpContext context, long id, ComplaintOriginReceivingDTO complaintOriginReceivingDTO)
@@ -141,7 +141,7 @@ namespace HaloBiz.MyServices.Impl
             await _historyRepo.SaveHistory(history);
 
             var complaintOriginTransferDTOs = _mapper.Map<ComplaintOriginTransferDTO>(updatedcomplaintOrigin);
-            return new ApiOkResponse(complaintOriginTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,complaintOriginTransferDTOs);
         }
     }
 }

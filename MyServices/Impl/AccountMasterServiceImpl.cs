@@ -67,7 +67,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
             var AccountMasterTransferDTOs = _mapper.Map<AccountMasterTransferDTO>(acctClass);
-            return new ApiOkResponse(AccountMasterTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,AccountMasterTransferDTOs);
         }
 
         public async Task<ApiCommonResponse> DeleteAccountMaster(long id)
@@ -94,7 +94,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var AccountMasterTransferDTOs = _mapper.Map<AccountMasterTransferDTO>(AccountMaster);
-            return new ApiOkResponse(AccountMasterTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,AccountMasterTransferDTOs);
         }
 
         public async Task<ApiCommonResponse> QueryAccountMasters(AccountMasterTransactionDateQueryParams query)
@@ -126,7 +126,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var AccountMasterTransferDTOs = _mapper.Map<IEnumerable<AccountMasterTransferDTO>>(AccountMaster);
-            return new ApiOkResponse(AccountMasterTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,AccountMasterTransferDTOs);
         }
         public async Task<ApiCommonResponse> GetAllAccountMastersByTransactionDate(AccountMasterTransactionDateQueryParams query)
         {
@@ -135,7 +135,7 @@ namespace HaloBiz.MyServices.Impl
                 var accountMasters = await queryable.Where(x => x.CreatedAt >= query.StartDate
                             && x.CreatedAt <= query.EndDate && x.IsDeleted == false).ToListAsync();
                 var AccountMasterTransferDTOs = _mapper.Map<IEnumerable<AccountMasterTransferDTO>>(accountMasters);
-                return new ApiOkResponse(AccountMasterTransferDTOs);
+                return CommonResponse.Send(ResponseCodes.SUCCESS,AccountMasterTransferDTOs);
             }catch(Exception e)
             {
                 _logger.LogError(e.Message);
@@ -150,7 +150,7 @@ namespace HaloBiz.MyServices.Impl
                 var accountMasters = await queryable.Where(x => x.CreatedAt >= query.StartDate
                             && x.CreatedAt <= query.EndDate && !x.IsDeleted && query.VoucherTypeIds.Contains(x.VoucherId)).ToListAsync();
                 var AccountMasterTransferDTOs = _mapper.Map<IEnumerable<AccountMasterTransferDTO>>(accountMasters);
-                return new ApiOkResponse(AccountMasterTransferDTOs);
+                return CommonResponse.Send(ResponseCodes.SUCCESS,AccountMasterTransferDTOs);
             }catch(Exception e)
             {
                 _logger.LogError(e.Message);
@@ -166,7 +166,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var accountMasterTransferDTOs = _mapper.Map<IEnumerable<AccountMasterTransferDTO>>(accountMasters);
-            return new ApiOkResponse(accountMasterTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,accountMasterTransferDTOs);
         }
 
         public async Task<ApiCommonResponse> GetAllAccountMastersByCustomerIdAndContractYear(AccountMasterTransactionDateQueryParams query)
@@ -174,7 +174,7 @@ namespace HaloBiz.MyServices.Impl
             try{
                 var accountMasters = await _accountMasterRepo.FindAllAccountMastersByCustomerId(query);
                 var accountMasterTransferDTOs = _mapper.Map<IEnumerable<AccountMasterTransferDTO>>(accountMasters);
-                return new ApiOkResponse(accountMasterTransferDTOs);
+                return CommonResponse.Send(ResponseCodes.SUCCESS,accountMasterTransferDTOs);
             }catch(Exception e)
             {
                 _logger.LogError(e.Message);
@@ -203,7 +203,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
             var AccountMasterTransferDTOs = _mapper.Map<AccountMasterTransferDTO>(updatedAccountMaster);
-            return new ApiOkResponse(AccountMasterTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,AccountMasterTransferDTOs);
         }
 
         public async Task<ApiCommonResponse> PostPeriodicAccountMaster()

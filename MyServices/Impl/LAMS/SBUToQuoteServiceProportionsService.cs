@@ -46,7 +46,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var sbuQuotePropTransferDTOs = _mapper.Map<IEnumerable<SbutoQuoteServiceProportionTransferDTO>>(sbuQuoteProp);
-            return new ApiOkResponse(sbuQuotePropTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,sbuQuotePropTransferDTOs);
         }
 
         public async Task<ApiCommonResponse> SaveSBUToQuoteProp(HttpContext context, IEnumerable<SbutoQuoteServiceProportionReceivingDTO> entities)
@@ -87,7 +87,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
             var sbuToQuoteProportionTransferDTOs = _mapper
                                         .Map<IEnumerable<SbutoQuoteServiceProportionTransferDTO>>(savedEntities);
            
-            return new ApiOkResponse(sbuToQuoteProportionTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,sbuToQuoteProportionTransferDTOs);
         }
 
         private async Task<IEnumerable<SbutoQuoteServiceProportion>> SetProportionValue(IEnumerable<SbutoQuoteServiceProportion> entities, HttpContext context) 

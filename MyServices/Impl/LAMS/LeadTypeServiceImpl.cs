@@ -42,7 +42,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
             var leadTypeTransferDTO = _mapper.Map<LeadTypeTransferDTO>(savedLeadType);
-            return new ApiOkResponse(leadTypeTransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,leadTypeTransferDTO);
         }
 
         public async Task<ApiCommonResponse> GetAllLeadType()
@@ -53,7 +53,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var leadTypeTransferDTO = _mapper.Map<IEnumerable<LeadTypeTransferDTO>>(leadTypes);
-            return new ApiOkResponse(leadTypeTransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,leadTypeTransferDTO);
         }
 
         public async Task<ApiCommonResponse> GetLeadTypeById(long id)
@@ -64,7 +64,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var leadTypeTransferDTOs = _mapper.Map<LeadTypeTransferDTO>(leadType);
-            return new ApiOkResponse(leadTypeTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,leadTypeTransferDTOs);
         }
 
         public async Task<ApiCommonResponse> GetLeadTypeByName(string name)
@@ -75,7 +75,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var leadTypeTransferDTOs = _mapper.Map<LeadTypeTransferDTO>(leadType);
-            return new ApiOkResponse(leadTypeTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,leadTypeTransferDTOs);
         }
 
         public async Task<ApiCommonResponse> UpdateLeadType(HttpContext context, long id, LeadTypeReceivingDTO leadTypeReceivingDTO)
@@ -108,7 +108,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
             await _historyRepo.SaveHistory(history);
 
             var leadTypeTransferDTOs = _mapper.Map<LeadTypeTransferDTO>(updatedLeadType);
-            return new ApiOkResponse(leadTypeTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,leadTypeTransferDTOs);
 
         }
 

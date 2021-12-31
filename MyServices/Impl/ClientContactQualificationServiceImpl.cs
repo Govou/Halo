@@ -36,7 +36,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
             var clientContactQualificationTransferDTO = _mapper.Map<ClientContactQualificationTransferDTO>(clientContactQualification);
-            return new ApiOkResponse(clientContactQualificationTransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,clientContactQualificationTransferDTO);
         }
 
         public async Task<ApiCommonResponse> DeleteClientContactQualification(long id)
@@ -62,7 +62,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var clientContactQualificationTransferDTO = _mapper.Map<IEnumerable<ClientContactQualificationTransferDTO>>(clientContactQualification);
-            return new ApiOkResponse(clientContactQualificationTransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,clientContactQualificationTransferDTO);
         }
 
         public  async Task<ApiCommonResponse> UpdateClientContactQualification(HttpContext context, long id, ClientContactQualificationReceivingDTO clientContactQualificationReceivingDTO)
@@ -95,7 +95,7 @@ namespace HaloBiz.MyServices.Impl
             await _historyRepo.SaveHistory(history);
 
             var clientContactQualificationTransferDTOs = _mapper.Map<ClientContactQualificationTransferDTO>(updatedClientContactQualification);
-            return new ApiOkResponse(clientContactQualificationTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,clientContactQualificationTransferDTOs);
         }
     }
 }

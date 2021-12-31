@@ -20,68 +20,43 @@ namespace HaloBiz.Controllers.AccountsModel
         [HttpGet("")]
         public async Task<ApiCommonResponse> GetControlAccounts()
         {
-            var response = await _controlAccountService.GetAllControlAccounts();
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var controlAccount = ((ApiOkResponse)response).Result;
-            return Ok(controlAccount);
+            return await _controlAccountService.GetAllControlAccounts();
         }
 
         [HttpGet("GetIncomeControlAccounts")]
         public async Task<ApiCommonResponse> GetIncomeControlAccounts()
         {
-            var response = await _controlAccountService.GetAllIncomeControlAccounts();
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var controlAccount = ((ApiOkResponse)response).Result;
-            return Ok(controlAccount);
+            return await _controlAccountService.GetAllIncomeControlAccounts();
         }
 
         [HttpGet("alias/{alias}")]
         public async Task<ApiCommonResponse> GetByAlias(string alias)
         {
-            var response = await _controlAccountService.GetControlAccountByAlias(alias);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var controlAccount = ((ApiOkResponse)response).Result;
-            return Ok(controlAccount);
+            return await _controlAccountService.GetControlAccountByAlias(alias);
         }
 
         [HttpGet("{id}")]
         public async Task<ApiCommonResponse> GetById(long id)
         {
-            var response = await _controlAccountService.GetControlAccountById(id);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var controlAccount = ((ApiOkResponse)response).Result;
-            return Ok(controlAccount);
+            return await _controlAccountService.GetControlAccountById(id);
         }
 
         [HttpPost("")]
         public async Task<ApiCommonResponse> AddNewAccount(ControlAccountReceivingDTO controlAccountReceiving)
         {
-            var response = await _controlAccountService.AddControlAccount(HttpContext, controlAccountReceiving);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var controlAccount = ((ApiOkResponse)response).Result;
-            return Ok(controlAccount);
+            return await _controlAccountService.AddControlAccount(HttpContext, controlAccountReceiving);
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateById(long id, ControlAccountReceivingDTO controlAccountReceiving)
+        public async Task<ApiCommonResponse> UpdateById(long id, ControlAccountReceivingDTO controlAccountReceiving)
         {
-            var response = await _controlAccountService.UpdateControlAccount(id, controlAccountReceiving);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var controlAccount = ((ApiOkResponse)response).Result;
-            return Ok(controlAccount);
+            return await _controlAccountService.UpdateControlAccount(id, controlAccountReceiving);
         }
 
         [HttpDelete("{id}")]
         public async Task<ApiCommonResponse> DeleteById(int id)
         {
-            var response = await _controlAccountService.DeleteControlAccount(id);
-            return StatusCode(response.StatusCode);
+            return await _controlAccountService.DeleteControlAccount(id);
         }
     }
 }

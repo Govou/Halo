@@ -23,68 +23,43 @@ namespace HaloBiz.Controllers
         [HttpGet("")]
         public async Task<ApiCommonResponse> GetDivisions()
         {
-            var response = await _divisonService.GetAllDivisions();
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var division = ((ApiOkResponse)response).Result;
-            return Ok((IEnumerable<DivisionTransferDTO>)division);
+            return await _divisonService.GetAllDivisions();
         }
 
         [HttpGet("GetDivisionsOpEntityAndSbu")]
         public async Task<ApiCommonResponse> GetDivGetDivisionsOpEntityAndSbuisions()
         {
-            var response = await _divisonService.GetAllDivisionsAndSbu();
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var division = ((ApiOkResponse)response).Result;
-            return Ok((IEnumerable<DivisionTransferDTO>)division);
+            return await _divisonService.GetAllDivisionsAndSbu();
         }
 
         [HttpGet("name/{name}")]
         public async Task<ApiCommonResponse> GetByName(string name)
         {
-            var response = await _divisonService.GetDivisionByName(name);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var division = ((ApiOkResponse)response).Result;
-            return Ok((DivisionTransferDTO)division);
+            return await _divisonService.GetDivisionByName(name);
         }
 
         [HttpGet("{id}")]
         public async Task<ApiCommonResponse> GetById(long id)
         {
-            var response = await _divisonService.GetDivisionnById(id);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var division = ((ApiOkResponse)response).Result;
-            return Ok((DivisionTransferDTO)division);
+            return await _divisonService.GetDivisionnById(id);
         }
 
         [HttpPost("")]
         public async Task<ApiCommonResponse> AddNewBranch(DivisionReceivingDTO divisionReceiving)
         {
-            var response = await _divisonService.AddDivision(divisionReceiving);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var division = ((ApiOkResponse)response).Result;
-            return Ok((DivisionTransferDTO)division);
+            return await _divisonService.AddDivision(divisionReceiving);
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateById(long id, DivisionReceivingDTO divisionReceiving)
+        public async Task<ApiCommonResponse> UpdateById(long id, DivisionReceivingDTO divisionReceiving)
         {
-            var response = await _divisonService.UpdateDivision(id, divisionReceiving);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var division = ((ApiOkResponse)response).Result;
-            return Ok((DivisionTransferDTO)division);
+            return await _divisonService.UpdateDivision(id, divisionReceiving);
         }
 
         [HttpDelete("{id}")]
         public async Task<ApiCommonResponse> DeleteById(int id)
         {
-            var response = await _divisonService.DeleteDivision(id);
-            return StatusCode(response.StatusCode);
+            return await _divisonService.DeleteDivision(id);
         }
     }
 }

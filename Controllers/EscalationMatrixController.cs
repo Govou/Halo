@@ -25,29 +25,21 @@ namespace HaloBiz.Controllers
         [HttpGet("")]
         public async Task<ApiCommonResponse> GetEscalationMatrix()
         {
-            var response = await _EscalationMatrixService.GetAllEscalationMatrix();
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var EscalationMatrix = ((ApiOkResponse)response).Result;
-            return Ok(EscalationMatrix);
+            return await _EscalationMatrixService.GetAllEscalationMatrix();
         }
 
         [HttpGet("GetHandlers/{complaintTypeId}")]
         public async Task<ApiCommonResponse> GetHandlers(long complaintTypeId)
         {
-            var response = await _EscalationMatrixService.GetHandlers(complaintTypeId);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var EscalationMatrix = ((ApiOkResponse)response).Result;
-            return Ok(EscalationMatrix);
+            return await _EscalationMatrixService.GetHandlers(complaintTypeId);
         }
 
         /*[HttpGet("caption/{name}")]
         public async Task<ApiCommonResponse> GetByCaption(string name)
         {
-            var response = await _EscalationMatrixService.GetEscalationMatrixByName(name);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
+            return await _EscalationMatrixService.GetEscalationMatrixByName(name);
+            
+                
             var EscalationMatrix = ((ApiOkResponse)response).Result;
             return Ok(EscalationMatrix);
         }*/
@@ -55,38 +47,25 @@ namespace HaloBiz.Controllers
         [HttpGet("{id}")]
         public async Task<ApiCommonResponse> GetById(long id)
         {
-            var response = await _EscalationMatrixService.GetEscalationMatrixById(id);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var EscalationMatrix = ((ApiOkResponse)response).Result;
-            return Ok(EscalationMatrix);
+            return await _EscalationMatrixService.GetEscalationMatrixById(id);
         }
 
         [HttpPost("")]
         public async Task<ApiCommonResponse> AddNewEscalationMatrix(EscalationMatrixReceivingDTO EscalationMatrixReceiving)
         {
-            var response = await _EscalationMatrixService.AddEscalationMatrix(HttpContext, EscalationMatrixReceiving);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var EscalationMatrix = ((ApiOkResponse)response).Result;
-            return Ok(EscalationMatrix);
+            return await _EscalationMatrixService.AddEscalationMatrix(HttpContext, EscalationMatrixReceiving);
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateById(long id, EscalationMatrixReceivingDTO EscalationMatrixReceiving)
+        public async Task<ApiCommonResponse> UpdateById(long id, EscalationMatrixReceivingDTO EscalationMatrixReceiving)
         {
-            var response = await _EscalationMatrixService.UpdateEscalationMatrix(HttpContext, id, EscalationMatrixReceiving);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var EscalationMatrix = ((ApiOkResponse)response).Result;
-            return Ok(EscalationMatrix);
+            return await _EscalationMatrixService.UpdateEscalationMatrix(HttpContext, id, EscalationMatrixReceiving);
         }
 
         [HttpDelete("{id}")]
         public async Task<ApiCommonResponse> DeleteById(int id)
         {
-            var response = await _EscalationMatrixService.DeleteEscalationMatrix(id);
-            return StatusCode(response.StatusCode);
+            return await _EscalationMatrixService.DeleteEscalationMatrix(id);
         }
     }
 }

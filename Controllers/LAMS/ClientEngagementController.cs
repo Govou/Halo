@@ -25,57 +25,36 @@ namespace Controllers.Controllers
         [HttpGet("")]
         public async Task<ApiCommonResponse> GetClientEngagement()
         {
-            var response = await _clientEngagementService.GetAllClientEngagement();
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var clientEngagement = ((ApiOkResponse)response).Result;
-            return Ok(clientEngagement);
+            return await _clientEngagementService.GetAllClientEngagement();
         }
         [HttpGet("caption/{name}")]
         public async Task<ApiCommonResponse> GetByCaption(string name)
         {
-            var response = await _clientEngagementService.GetClientEngagementByName(name);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var clientEngagement = ((ApiOkResponse)response).Result;
-            return Ok(clientEngagement);
+            return await _clientEngagementService.GetClientEngagementByName(name);
         }
 
         [HttpGet("{id}")]
         public async Task<ApiCommonResponse> GetById(long id)
         {
-            var response = await _clientEngagementService.GetClientEngagementById(id);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var clientEngagement = ((ApiOkResponse)response).Result;
-            return Ok(clientEngagement);
+            return await _clientEngagementService.GetClientEngagementById(id);
         }
 
         [HttpPost("")]
         public async Task<ApiCommonResponse> AddNewClientEngagement(ClientEngagementReceivingDTO clientEngagementReceiving)
         {
-            var response = await _clientEngagementService.AddClientEngagement(HttpContext, clientEngagementReceiving);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var clientEngagement = ((ApiOkResponse)response).Result;
-            return Ok(clientEngagement);
+            return await _clientEngagementService.AddClientEngagement(HttpContext, clientEngagementReceiving);
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateById(long id, ClientEngagementReceivingDTO clientEngagementReceivingDTO)
+        public async Task<ApiCommonResponse> UpdateById(long id, ClientEngagementReceivingDTO clientEngagementReceivingDTO)
         {
-            var response = await _clientEngagementService.UpdateClientEngagement(HttpContext, id, clientEngagementReceivingDTO);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var clientEngagement = ((ApiOkResponse)response).Result;
-            return Ok(clientEngagement);
+            return await _clientEngagementService.UpdateClientEngagement(HttpContext, id, clientEngagementReceivingDTO);
         }
 
         [HttpDelete("{id}")]
         public async Task<ApiCommonResponse> DeleteById(int id)
         {
-            var response = await _clientEngagementService.DeleteClientEngagement(id);
-            return StatusCode(response.StatusCode);
+            return await _clientEngagementService.DeleteClientEngagement(id);
         }
     }
 }

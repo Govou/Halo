@@ -41,7 +41,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
             var complaintSourceTransferDTO = _mapper.Map<ComplaintSourceTransferDTO>(complaintSource);
-            return new ApiOkResponse(complaintSourceTransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,complaintSourceTransferDTO);
         }
 
         public async Task<ApiCommonResponse> DeleteComplaintSource(long id)
@@ -68,7 +68,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var complaintSourceTransferDTO = _mapper.Map<IEnumerable<ComplaintSourceTransferDTO>>(complaintSources);
-            return new ApiOkResponse(complaintSourceTransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,complaintSourceTransferDTO);
         }
 
         public async Task<ApiCommonResponse> GetComplaintSourceById(long id)
@@ -79,7 +79,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var complaintSourceTransferDTOs = _mapper.Map<ComplaintSourceTransferDTO>(complaintSource);
-            return new ApiOkResponse(complaintSourceTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,complaintSourceTransferDTOs);
         }
 
         public async Task<ApiCommonResponse> GetComplaintSourceByName(string name)
@@ -90,7 +90,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var complaintSourceTransferDTOs = _mapper.Map<ComplaintSourceTransferDTO>(complaintSource);
-            return new ApiOkResponse(complaintSourceTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,complaintSourceTransferDTOs);
         }
 
         public async Task<ApiCommonResponse> UpdateComplaintSource(HttpContext context, long id, ComplaintSourceReceivingDTO complaintSourceReceivingDTO)
@@ -123,7 +123,7 @@ namespace HaloBiz.MyServices.Impl
             await _historyRepo.SaveHistory(history);
 
             var complaintSourceTransferDTOs = _mapper.Map<ComplaintSourceTransferDTO>(updatedcomplaintSource);
-            return new ApiOkResponse(complaintSourceTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,complaintSourceTransferDTOs);
         }
     }
 }

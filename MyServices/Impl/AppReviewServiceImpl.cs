@@ -41,7 +41,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
             var appReviewTransferDTO = _mapper.Map<AppReviewTransferDTO>(appReview);
-            return new ApiOkResponse(appReviewTransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,appReviewTransferDTO);
         }
 
         public async Task<ApiCommonResponse> DeleteAppReview(long id)
@@ -68,7 +68,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var appReviewTransferDTO = _mapper.Map<IEnumerable<AppReviewTransferDTO>>(appReviews);
-            return new ApiOkResponse(appReviewTransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,appReviewTransferDTO);
         }
 
         public async Task<ApiCommonResponse> GetAppReviewById(long id)
@@ -79,7 +79,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var appReviewTransferDTOs = _mapper.Map<AppReviewTransferDTO>(appReview);
-            return new ApiOkResponse(appReviewTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,appReviewTransferDTOs);
         }
 
         public async Task<ApiCommonResponse> UpdateAppReview(HttpContext context, long id, AppReviewReceivingDTO appReviewReceivingDTO)
@@ -114,7 +114,7 @@ namespace HaloBiz.MyServices.Impl
             await _historyRepo.SaveHistory(history);
 
             var appReviewTransferDTOs = _mapper.Map<AppReviewTransferDTO>(updatedappReview);
-            return new ApiOkResponse(appReviewTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,appReviewTransferDTOs);
         }
     }
 }

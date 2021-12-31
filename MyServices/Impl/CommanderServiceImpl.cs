@@ -31,7 +31,7 @@ namespace HaloBiz.MyServices.Impl
             var NameExist = _commanderRepository.GetRankname(commanderRankReceivingDTO.RankName);
             if (NameExist != null)
             {
-                return new ApiResponse(409);
+                                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE,null, "No record exists");;
             }
 
             var getCommanderType = await _commanderRepository.FindCommanderTypeById(cRank.CommanderTypeId);
@@ -52,7 +52,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
             var rankTransferDTO = _mapper.Map<CommanderRankTransferDTO>(cRank);
-            return new ApiOkResponse(rankTransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,rankTransferDTO);
         }
 
         public async Task<ApiCommonResponse> AddCommanderType(HttpContext context, CommanderTypeAndRankReceivingDTO commanderTypeReceivingDTO)
@@ -61,7 +61,7 @@ namespace HaloBiz.MyServices.Impl
             var NameExist = _commanderRepository.GetTypename(commanderTypeReceivingDTO.TypeName);
             if (NameExist != null)
             {
-                return new ApiResponse(409);
+                                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE,null, "No record exists");;
             }
             cType.CreatedById = context.GetLoggedInUserId();
             //cType.IsDeleted = false;
@@ -69,10 +69,10 @@ namespace HaloBiz.MyServices.Impl
             var savedType = await _commanderRepository.SaveCommanderType(cType);
             if (savedType == null)
             {
-                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+                 CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
             var typeTransferDTO = _mapper.Map<CommanderTypeAndRankTransferDTO>(cType);
-            return new ApiOkResponse(typeTransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,typeTransferDTO);
         }
 
         public async Task<ApiCommonResponse> DeleteCommanderRank(long id)
@@ -117,7 +117,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var rankTransferDTO = _mapper.Map<IEnumerable<CommanderRankTransferDTO>>(cRank);
-            return new ApiOkResponse(rankTransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,rankTransferDTO);
         }
 
         public async Task<ApiCommonResponse> GetAllCommanderTypes()
@@ -128,7 +128,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var typeTransferDTO = _mapper.Map<IEnumerable<CommanderTypeAndRankTransferDTO>>(cTypes);
-            return new ApiOkResponse(typeTransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,typeTransferDTO);
         }
 
         public async Task<ApiCommonResponse> GetCommanderRankById(long id)
@@ -139,7 +139,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var rankTransferDTO = _mapper.Map<CommanderRankTransferDTO>(cRank);
-            return new ApiOkResponse(rankTransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,rankTransferDTO);
         }
 
         public async Task<ApiCommonResponse> GetCommanderTypeById(long id)
@@ -150,7 +150,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var typeTransferDTO = _mapper.Map<CommanderTypeAndRankTransferDTO>(cType);
-            return new ApiOkResponse(typeTransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,typeTransferDTO);
             //throw new NotImplementedException();
         }
 
@@ -184,7 +184,7 @@ namespace HaloBiz.MyServices.Impl
             }
 
             var rankTransferDTOs = _mapper.Map<CommanderRankTransferDTO>(updatedRank);
-            return new ApiOkResponse(rankTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,rankTransferDTOs);
         }
 
         public async Task<ApiCommonResponse> UpdateCommanderType(HttpContext context, long id, CommanderTypeAndRankReceivingDTO commanderTypeReceivingDTO)
@@ -211,7 +211,7 @@ namespace HaloBiz.MyServices.Impl
             }
 
             var typeTransferDTOs = _mapper.Map<CommanderTypeAndRankTransferDTO>(updatedtype);
-            return new ApiOkResponse(typeTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,typeTransferDTOs);
         }
     }
 }

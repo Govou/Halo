@@ -34,7 +34,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
             var modeOfTransportTransferDTO = _mapper.Map<ModeOfTransportTransferDTO>(modeOfTransport);
-            return new ApiOkResponse(modeOfTransportTransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,modeOfTransportTransferDTO);
         }
 
         public async Task<ApiCommonResponse> GetAllModeOfTransport()
@@ -45,7 +45,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var modeOfTransportTransferDTO = _mapper.Map<IEnumerable<ModeOfTransportTransferDTO>>(modeOfTransports);
-            return new ApiOkResponse(modeOfTransportTransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,modeOfTransportTransferDTO);
         }
 
         public async Task<ApiCommonResponse> GetModeOfTransportById(long id)
@@ -56,7 +56,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var modeOfTransportTransferDTOs = _mapper.Map<ModeOfTransportTransferDTO>(modeOfTransport);
-            return new ApiOkResponse(modeOfTransportTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,modeOfTransportTransferDTOs);
         }
 
         public async Task<ApiCommonResponse> GetModeOfTransportByName(string name)
@@ -67,7 +67,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var modeOfTransportTransferDTOs = _mapper.Map<ModeOfTransportTransferDTO>(modeOfTransport);
-            return new ApiOkResponse(modeOfTransportTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,modeOfTransportTransferDTOs);
         }
 
         public async Task<ApiCommonResponse> UpdateModeOfTransport(HttpContext context, long id, ModeOfTransportReceivingDTO modeOfTransportReceivingDTO)
@@ -100,7 +100,7 @@ namespace HaloBiz.MyServices.Impl
             await _historyRepo.SaveHistory(history);
 
             var modeOfTransportTransferDTOs = _mapper.Map<ModeOfTransportTransferDTO>(updatedModeOfTransport);
-            return new ApiOkResponse(modeOfTransportTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,modeOfTransportTransferDTOs);
 
         }
 

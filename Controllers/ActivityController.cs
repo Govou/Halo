@@ -25,57 +25,36 @@ namespace HaloBiz.Controllers
         [HttpGet("")]
         public async Task<ApiCommonResponse> GetActivity()
         {
-            var response = await _ActivityService.GetAllActivity();
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var Activity = ((ApiOkResponse)response).Result;
-            return Ok(Activity);
+            return await _ActivityService.GetAllActivity();
         }
         [HttpGet("caption/{name}")]
         public async Task<ApiCommonResponse> GetByCaption(string name)
         {
-            var response = await _ActivityService.GetActivityByName(name);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var Activity = ((ApiOkResponse)response).Result;
-            return Ok(Activity);
+            return await _ActivityService.GetActivityByName(name);
         }
 
         [HttpGet("{id}")]
         public async Task<ApiCommonResponse> GetById(long id)
         {
-            var response = await _ActivityService.GetActivityById(id);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var Activity = ((ApiOkResponse)response).Result;
-            return Ok(Activity);
+            return await _ActivityService.GetActivityById(id);
         }
 
         [HttpPost("")]
         public async Task<ApiCommonResponse> AddNewActivity(ActivityReceivingDTO ActivityReceiving)
         {
-            var response = await _ActivityService.AddActivity(HttpContext, ActivityReceiving);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var Activity = ((ApiOkResponse)response).Result;
-            return Ok(Activity);
+            return await _ActivityService.AddActivity(HttpContext, ActivityReceiving);
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateById(long id, ActivityReceivingDTO ActivityReceiving)
+        public async Task<ApiCommonResponse> UpdateById(long id, ActivityReceivingDTO ActivityReceiving)
         {
-            var response = await _ActivityService.UpdateActivity(HttpContext, id, ActivityReceiving);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var Activity = ((ApiOkResponse)response).Result;
-            return Ok(Activity);
+            return await _ActivityService.UpdateActivity(HttpContext, id, ActivityReceiving);
         }
 
         [HttpDelete("{id}")]
         public async Task<ApiCommonResponse> DeleteById(int id)
         {
-            var response = await _ActivityService.DeleteActivity(id);
-            return StatusCode(response.StatusCode);
+            return await _ActivityService.DeleteActivity(id);
         }
     }
 }

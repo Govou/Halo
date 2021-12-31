@@ -30,7 +30,7 @@ namespace HaloBiz.MyServices.Impl
             var NameExist = _vehiclesRepository.GetTypename(vehicleTypeReceivingDTO.TypeName);
             if (NameExist != null)
             {
-                return new ApiResponse(409);
+                                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE,null, "No record exists");;
             }
             Type.CreatedById = context.GetLoggedInUserId();
             Type.IsDeleted = false;
@@ -41,7 +41,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
             var typeTransferDTO = _mapper.Map<VehicleTypeTransferDTO>(Type);
-            return new ApiOkResponse(typeTransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,typeTransferDTO);
         }
 
         public async Task<ApiCommonResponse> DeleteVehicleType(long id)
@@ -69,7 +69,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var TransferDTO = _mapper.Map<IEnumerable<VehicleTypeTransferDTO>>(Type);
-            return new ApiOkResponse(TransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,TransferDTO);
         }
 
         public async Task<ApiCommonResponse> GetVehicleTypeById(long id)
@@ -80,7 +80,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var TransferDTO = _mapper.Map<VehicleTypeTransferDTO>(Type);
-            return new ApiOkResponse(TransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,TransferDTO);
         }
 
         public async Task<ApiCommonResponse> UpdateVehicleType(HttpContext context, long id, VehicleTypeReceivingDTO vehicleTypeReceivingDTO)
@@ -106,7 +106,7 @@ namespace HaloBiz.MyServices.Impl
             }
 
             var typeTransferDTOs = _mapper.Map<VehicleTypeTransferDTO>(updatedType);
-            return new ApiOkResponse(typeTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,typeTransferDTOs);
         }
     }
 }

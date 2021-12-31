@@ -59,7 +59,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
             var complaintTypeTransferDTO = _mapper.Map<ComplaintTypeTransferDTO>(complaintType);
-            return new ApiOkResponse(complaintTypeTransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,complaintTypeTransferDTO);
         }
 
         public async Task<ApiCommonResponse> DeleteComplaintType(long id)
@@ -86,7 +86,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var complaintTypeTransferDTO = _mapper.Map<IEnumerable<ComplaintTypeTransferDTO>>(complaintTypes);
-            return new ApiOkResponse(complaintTypeTransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,complaintTypeTransferDTO);
         }
 
         public async Task<ApiCommonResponse> GetComplaintTypeById(long id)
@@ -97,7 +97,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var complaintTypeTransferDTOs = _mapper.Map<ComplaintTypeTransferDTO>(complaintType);
-            return new ApiOkResponse(complaintTypeTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,complaintTypeTransferDTOs);
         }
 
         public async Task<ApiCommonResponse> GetComplaintTypeByName(string name)
@@ -108,7 +108,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var complaintTypeTransferDTOs = _mapper.Map<ComplaintTypeTransferDTO>(complaintType);
-            return new ApiOkResponse(complaintTypeTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,complaintTypeTransferDTOs);
         }
 
         public async Task<ApiCommonResponse> UpdateComplaintType(HttpContext context, long id, ComplaintTypeReceivingDTO complaintTypeReceivingDTO)
@@ -141,7 +141,7 @@ namespace HaloBiz.MyServices.Impl
             await _historyRepo.SaveHistory(history);
 
             var complaintTypeTransferDTOs = _mapper.Map<ComplaintTypeTransferDTO>(updatedcomplaintType);
-            return new ApiOkResponse(complaintTypeTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,complaintTypeTransferDTOs);
         }
     }
 }

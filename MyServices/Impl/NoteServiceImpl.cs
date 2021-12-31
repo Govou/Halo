@@ -41,7 +41,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
             var serviceTypeTransferDTO = _mapper.Map<NoteTransferDTO>(serviceType);
-            return new ApiOkResponse(serviceTypeTransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,serviceTypeTransferDTO);
         }
 
         public async Task<ApiCommonResponse> DeleteNote(long id)
@@ -68,7 +68,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var serviceTypeTransferDTO = _mapper.Map<IEnumerable<NoteTransferDTO>>(serviceTypes);
-            return new ApiOkResponse(serviceTypeTransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,serviceTypeTransferDTO);
         }
 
         public async Task<ApiCommonResponse> GetNoteById(long id)
@@ -79,7 +79,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var serviceTypeTransferDTOs = _mapper.Map<NoteTransferDTO>(serviceType);
-            return new ApiOkResponse(serviceTypeTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,serviceTypeTransferDTOs);
         }
 
         public async Task<ApiCommonResponse> GetNoteByName(string name)
@@ -90,7 +90,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var serviceTypeTransferDTOs = _mapper.Map<NoteTransferDTO>(serviceType);
-            return new ApiOkResponse(serviceTypeTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,serviceTypeTransferDTOs);
         }
 
         public async Task<ApiCommonResponse> UpdateNote(HttpContext context, long id, NoteReceivingDTO serviceTypeReceivingDTO)
@@ -123,7 +123,7 @@ namespace HaloBiz.MyServices.Impl
             await _historyRepo.SaveHistory(history);
 
             var serviceTypeTransferDTOs = _mapper.Map<NoteTransferDTO>(updatedserviceType);
-            return new ApiOkResponse(serviceTypeTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,serviceTypeTransferDTOs);
         }
     }
 }

@@ -36,7 +36,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
             var approvalLimitTransferDTO = _mapper.Map<ApprovalLimitTransferDTO>(approvalLimit);
-            return new ApiOkResponse(approvalLimitTransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,approvalLimitTransferDTO);
         }
 
         public async Task<ApiCommonResponse> DeleteApprovalLimit(long id)
@@ -62,7 +62,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var approvalLimitTransferDTO = _mapper.Map<IEnumerable<ApprovalLimitTransferDTO>>(approvalLimit);
-            return new ApiOkResponse(approvalLimitTransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,approvalLimitTransferDTO);
         }
 
         public  async Task<ApiCommonResponse> UpdateApprovalLimit(HttpContext context, long id, ApprovalLimitReceivingDTO approvalLimitReceivingDTO)
@@ -101,7 +101,7 @@ namespace HaloBiz.MyServices.Impl
             await _historyRepo.SaveHistory(history);
 
             var approvalLimitTransferDTOs = _mapper.Map<ApprovalLimitTransferDTO>(updatedApprovalLimit);
-            return new ApiOkResponse(approvalLimitTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,approvalLimitTransferDTOs);
         }
     }
 }

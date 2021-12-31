@@ -36,7 +36,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
             var engagementReasonTransferDTO = _mapper.Map<EngagementReasonTransferDTO>(engagementReason);
-            return new ApiOkResponse(engagementReasonTransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,engagementReasonTransferDTO);
         }
 
         public async Task<ApiCommonResponse> DeleteEngagementReason(long id)
@@ -62,7 +62,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var engagementReasonTransferDTO = _mapper.Map<IEnumerable<EngagementReasonTransferDTO>>(engagementReason);
-            return new ApiOkResponse(engagementReasonTransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,engagementReasonTransferDTO);
         }
 
         public  async Task<ApiCommonResponse> UpdateEngagementReason(HttpContext context, long id, EngagementReasonReceivingDTO engagementReasonReceivingDTO)
@@ -95,7 +95,7 @@ namespace HaloBiz.MyServices.Impl
             await _historyRepo.SaveHistory(history);
 
             var engagementReasonTransferDTOs = _mapper.Map<EngagementReasonTransferDTO>(updatedEngagementReason);
-            return new ApiOkResponse(engagementReasonTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,engagementReasonTransferDTOs);
         }
     }
 }

@@ -42,7 +42,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
             var leadOriginTransferDTO = _mapper.Map<LeadOriginTransferDTO>(savedLeadOrigin);
-            return new ApiOkResponse(leadOriginTransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,leadOriginTransferDTO);
         }
 
         public async Task<ApiCommonResponse> GetAllLeadOrigin()
@@ -53,7 +53,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var leadOriginTransferDTO = _mapper.Map<IEnumerable<LeadOriginTransferDTO>>(leadOrigins);
-            return new ApiOkResponse(leadOriginTransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,leadOriginTransferDTO);
         }
 
         public async Task<ApiCommonResponse> GetLeadOriginById(long id)
@@ -64,7 +64,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var leadOriginTransferDTO = _mapper.Map<LeadOriginTransferDTO>(leadOrigin);
-            return new ApiOkResponse(leadOriginTransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,leadOriginTransferDTO);
         }
 
         public async Task<ApiCommonResponse> GetLeadOriginByName(string name)
@@ -75,7 +75,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var leadOriginTransferDTOs = _mapper.Map<LeadOriginTransferDTO>(leadOrigin);
-            return new ApiOkResponse(leadOriginTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,leadOriginTransferDTOs);
         }
 
         public async Task<ApiCommonResponse> UpdateLeadOrigin(HttpContext context, long id, LeadOriginReceivingDTO LeadOriginReceivingDTO)
@@ -109,7 +109,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
             await _historyRepo.SaveHistory(history);
 
             var leadOriginTransferDTOs = _mapper.Map<LeadOriginTransferDTO>(updatedLeadOrigin);
-            return new ApiOkResponse(leadOriginTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,leadOriginTransferDTOs);
 
         }
 

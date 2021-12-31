@@ -18,7 +18,7 @@ namespace HaloBiz.MyServices
         Task<ApiCommonResponse> getProjectManagers(int serviceCategory);
         Task<ApiCommonResponse> getManagersProjects(string email, int emailId);
         Task<ApiCommonResponse> removeFromCategory(long id,int categoryId, long projectId);
-        Task<ApiGenericResponse<Workspace>> CreateNewWorkspace(HttpContext context, WorkspaceDTO workspaceDTO);
+        Task<ApiCommonResponse> CreateNewWorkspace(HttpContext context, WorkspaceDTO workspaceDTO);
 
         Task<ApiCommonResponse> getAllWorkspaces(HttpContext httpContext);
         Task<ApiCommonResponse> getWorkspaceById(long id);

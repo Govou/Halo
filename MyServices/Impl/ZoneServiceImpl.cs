@@ -34,7 +34,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
             var zoneTransferDTO = _mapper.Map<ZoneTransferDTO>(zone);
-            return new ApiOkResponse(zoneTransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,zoneTransferDTO);
         }
 
         public async Task<ApiCommonResponse> GetAllZones()
@@ -45,7 +45,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var zoneTransferDTO = _mapper.Map<IEnumerable<ZoneTransferDTO>>(zones);
-            return new ApiOkResponse(zoneTransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,zoneTransferDTO);
         }
 
         public async Task<ApiCommonResponse> GetZoneById(long id)
@@ -56,7 +56,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var zoneTransferDTO = _mapper.Map<ZoneTransferDTO>(zone);
-            return new ApiOkResponse(zoneTransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,zoneTransferDTO);
         }
 
         public async Task<ApiCommonResponse> GetZoneByName(string name)
@@ -67,7 +67,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var zoneTransferDTOs = _mapper.Map<ZoneTransferDTO>(zone);
-            return new ApiOkResponse(zoneTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,zoneTransferDTOs);
         }
 
         public async Task<ApiCommonResponse> UpdateZone(HttpContext context, long id, ZoneReceivingDTO zoneReceivingDTO)
@@ -104,7 +104,7 @@ namespace HaloBiz.MyServices.Impl
             await _historyRepo.SaveHistory(history);
 
             var zoneTransferDTOs = _mapper.Map<ZoneTransferDTO>(updatedZone);
-            return new ApiOkResponse(zoneTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,zoneTransferDTOs);
 
         }
 

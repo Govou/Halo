@@ -27,57 +27,36 @@ namespace HaloBiz.Controllers
         [HttpGet("")]
         public async Task<ApiCommonResponse> GetStandardSlaforOperatingEntity()
         {
-            var response = await _standardSLAForOperatingEntitiesService.GetAllStandardSlaforOperatingEntity();
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var standardSLAForOperatingEntities = ((ApiOkResponse)response).Result;
-            return Ok(standardSLAForOperatingEntities);
+            return await _standardSLAForOperatingEntitiesService.GetAllStandardSlaforOperatingEntity(); 
         }
         [HttpGet("caption/{name}")]
         public async Task<ApiCommonResponse> GetByCaption(string name)
         {
-            var response = await _standardSLAForOperatingEntitiesService.GetStandardSlaforOperatingEntityByName(name);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var standardSLAForOperatingEntities = ((ApiOkResponse)response).Result;
-            return Ok(standardSLAForOperatingEntities);
+            return await _standardSLAForOperatingEntitiesService.GetStandardSlaforOperatingEntityByName(name); 
         }
 
         [HttpGet("{id}")]
         public async Task<ApiCommonResponse> GetById(long id)
         {
-            var response = await _standardSLAForOperatingEntitiesService.GetStandardSlaforOperatingEntityById(id);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var standardSLAForOperatingEntities = ((ApiOkResponse)response).Result;
-            return Ok(standardSLAForOperatingEntities);
+            return await _standardSLAForOperatingEntitiesService.GetStandardSlaforOperatingEntityById(id); 
         }
 
         [HttpPost("")]
         public async Task<ApiCommonResponse> AddNewStandardSlaforOperatingEntity(StandardSlaforOperatingEntityReceivingDTO standardSLAForOperatingEntitiesReceiving)
         {
-            var response = await _standardSLAForOperatingEntitiesService.AddStandardSlaforOperatingEntity(HttpContext, standardSLAForOperatingEntitiesReceiving);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var standardSLAForOperatingEntities = ((ApiOkResponse)response).Result;
-            return Ok(standardSLAForOperatingEntities);
+            return await _standardSLAForOperatingEntitiesService.AddStandardSlaforOperatingEntity(HttpContext, standardSLAForOperatingEntitiesReceiving);
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateById(long id, StandardSlaforOperatingEntityReceivingDTO standardSLAForOperatingEntitiesReceiving)
+        public async Task<ApiCommonResponse> UpdateById(long id, StandardSlaforOperatingEntityReceivingDTO standardSLAForOperatingEntitiesReceiving)
         {
-            var response = await _standardSLAForOperatingEntitiesService.UpdateStandardSlaforOperatingEntity(HttpContext, id, standardSLAForOperatingEntitiesReceiving);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var standardSLAForOperatingEntities = ((ApiOkResponse)response).Result;
-            return Ok(standardSLAForOperatingEntities);
+            return await _standardSLAForOperatingEntitiesService.UpdateStandardSlaforOperatingEntity(HttpContext, id, standardSLAForOperatingEntitiesReceiving); 
         }
 
         [HttpDelete("{id}")]
         public async Task<ApiCommonResponse> DeleteById(int id)
         {
-            var response = await _standardSLAForOperatingEntitiesService.DeleteStandardSlaforOperatingEntity(id);
-            return StatusCode(response.StatusCode);
+            return await _standardSLAForOperatingEntitiesService.DeleteStandardSlaforOperatingEntity(id);
         }
     }
 }

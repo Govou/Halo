@@ -35,7 +35,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
             var standardSLAForOperatingEntitiesTransferDTO = _mapper.Map<StandardSlaforOperatingEntityTransferDTO>(standardSLAForOperatingEntities);
-            return new ApiOkResponse(standardSLAForOperatingEntitiesTransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,standardSLAForOperatingEntitiesTransferDTO);
         }
 
         public async Task<ApiCommonResponse> GetAllStandardSlaforOperatingEntity()
@@ -46,7 +46,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var standardSLAForOperatingEntitiesTransferDTO = _mapper.Map<IEnumerable<StandardSlaforOperatingEntityTransferDTO>>(standardSLAForOperatingEntitiess);
-            return new ApiOkResponse(standardSLAForOperatingEntitiesTransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,standardSLAForOperatingEntitiesTransferDTO);
         }
 
         public async Task<ApiCommonResponse> GetStandardSlaforOperatingEntityById(long id)
@@ -57,7 +57,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var standardSLAForOperatingEntitiesTransferDTOs = _mapper.Map<StandardSlaforOperatingEntityTransferDTO>(standardSLAForOperatingEntities);
-            return new ApiOkResponse(standardSLAForOperatingEntitiesTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,standardSLAForOperatingEntitiesTransferDTOs);
         }
 
         public async Task<ApiCommonResponse> GetStandardSlaforOperatingEntityByName(string name)
@@ -68,7 +68,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var standardSLAForOperatingEntitiesTransferDTOs = _mapper.Map<StandardSlaforOperatingEntityTransferDTO>(standardSLAForOperatingEntities);
-            return new ApiOkResponse(standardSLAForOperatingEntitiesTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,standardSLAForOperatingEntitiesTransferDTOs);
         }
 
         public async Task<ApiCommonResponse> UpdateStandardSlaforOperatingEntity(HttpContext context, long id, StandardSlaforOperatingEntityReceivingDTO standardSLAForOperatingEntitiesReceivingDTO)
@@ -103,7 +103,7 @@ namespace HaloBiz.MyServices.Impl
             await _historyRepo.SaveHistory(history);
 
             var standardSLAForOperatingEntitiesTransferDTOs = _mapper.Map<StandardSlaforOperatingEntityTransferDTO>(updatedStandardSlaforOperatingEntity);
-            return new ApiOkResponse(standardSLAForOperatingEntitiesTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,standardSLAForOperatingEntitiesTransferDTOs);
 
         }
 

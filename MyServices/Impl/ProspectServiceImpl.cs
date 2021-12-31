@@ -40,7 +40,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
             var prospectTransferDTO = _mapper.Map<ProspectTransferDTO>(prospect);
-            return new ApiOkResponse(prospectTransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,prospectTransferDTO);
         }
 
         public async Task<ApiCommonResponse> DeleteProspect(long id)
@@ -67,7 +67,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var prospectTransferDTO = _mapper.Map<IEnumerable<ProspectTransferDTO>>(prospects);
-            return new ApiOkResponse(prospectTransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,prospectTransferDTO);
         }
 
         public async Task<ApiCommonResponse> GetProspectById(long id)
@@ -78,7 +78,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var prospectTransferDTOs = _mapper.Map<ProspectTransferDTO>(prospect);
-            return new ApiOkResponse(prospectTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,prospectTransferDTOs);
         }
 
         public async Task<ApiCommonResponse> GetProspectByEmail(string email)
@@ -89,7 +89,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var prospectTransferDTOs = _mapper.Map<ProspectTransferDTO>(prospect);
-            return new ApiOkResponse(prospectTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,prospectTransferDTOs);
         }
 
         public async Task<ApiCommonResponse> UpdateProspect(HttpContext context, long id, ProspectReceivingDTO prospectReceivingDTO)
@@ -143,7 +143,7 @@ namespace HaloBiz.MyServices.Impl
             await _historyRepo.SaveHistory(history);
 
             var prospectTransferDTOs = _mapper.Map<ProspectTransferDTO>(updatedprospect);
-            return new ApiOkResponse(prospectTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,prospectTransferDTOs);
         }
     }
 }

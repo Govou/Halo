@@ -40,7 +40,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
             var serviceTypeTransferDTO = _mapper.Map<ServiceTypeTransferDTO>(serviceType);
-            return new ApiOkResponse(serviceTypeTransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,serviceTypeTransferDTO);
         }
 
         public async Task<ApiCommonResponse> DeleteServiceType(long id)
@@ -67,7 +67,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var serviceTypeTransferDTO = _mapper.Map<IEnumerable<ServiceTypeTransferDTO>>(serviceTypes);
-            return new ApiOkResponse(serviceTypeTransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,serviceTypeTransferDTO);
         }
 
         public async Task<ApiCommonResponse> GetServiceTypeById(long id)
@@ -78,7 +78,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var serviceTypeTransferDTOs = _mapper.Map<ServiceTypeTransferDTO>(serviceType);
-            return new ApiOkResponse(serviceTypeTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,serviceTypeTransferDTOs);
         }
 
         public async Task<ApiCommonResponse> GetServiceTypeByName(string name)
@@ -89,7 +89,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var serviceTypeTransferDTOs = _mapper.Map<ServiceTypeTransferDTO>(serviceType);
-            return new ApiOkResponse(serviceTypeTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,serviceTypeTransferDTOs);
         }
 
         public async Task<ApiCommonResponse> UpdateServiceType(HttpContext context, long id, ServiceTypeReceivingDTO serviceTypeReceivingDTO)
@@ -122,7 +122,7 @@ namespace HaloBiz.MyServices.Impl
             await _historyRepo.SaveHistory(history);
 
             var serviceTypeTransferDTOs = _mapper.Map<ServiceTypeTransferDTO>(updatedserviceType);
-            return new ApiOkResponse(serviceTypeTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,serviceTypeTransferDTOs);
         }
     }
 }

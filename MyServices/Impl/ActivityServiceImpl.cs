@@ -41,7 +41,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
             var activityTransferDTO = _mapper.Map<ActivityTransferDTO>(activity);
-            return new ApiOkResponse(activityTransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,activityTransferDTO);
         }
 
         public async Task<ApiCommonResponse> DeleteActivity(long id)
@@ -68,7 +68,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var activityTransferDTO = _mapper.Map<IEnumerable<ActivityTransferDTO>>(activitys);
-            return new ApiOkResponse(activityTransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,activityTransferDTO);
         }
 
         public async Task<ApiCommonResponse> GetActivityById(long id)
@@ -79,7 +79,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var activityTransferDTOs = _mapper.Map<ActivityTransferDTO>(activity);
-            return new ApiOkResponse(activityTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,activityTransferDTOs);
         }
 
         public async Task<ApiCommonResponse> GetActivityByName(string name)
@@ -90,7 +90,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var activityTransferDTOs = _mapper.Map<ActivityTransferDTO>(activity);
-            return new ApiOkResponse(activityTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,activityTransferDTOs);
         }
 
         public async Task<ApiCommonResponse> UpdateActivity(HttpContext context, long id, ActivityReceivingDTO activityReceivingDTO)
@@ -126,7 +126,7 @@ namespace HaloBiz.MyServices.Impl
             await _historyRepo.SaveHistory(history);
 
             var activityTransferDTOs = _mapper.Map<ActivityTransferDTO>(updatedactivity);
-            return new ApiOkResponse(activityTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,activityTransferDTOs);
         }
     }
 }

@@ -58,7 +58,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
                 if (alreadyExists)
                 {
-                    return new ApiResponse(400, $"There is already an endorsement request for the contract service with id {item.ContractId}");
+                    return CommonResponse.Send(ResponseCodes.FAILURE,null, $"There is already an endorsement request for the contract service with id {item.ContractId}");
                 }
 
                 //check if this is nenewal and the previous contract has not
@@ -69,7 +69,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
                 if (previouslyRenewal != null)
                 {
-                    return new ApiResponse(400, "There has been a retention on this contract service");
+                    return CommonResponse.Send(ResponseCodes.FAILURE,null, "There has been a retention on this contract service");
                 }
 
                 item.CreatedById = id;
@@ -94,7 +94,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                     if (!successful)
                     {
                         await transaction.RollbackAsync();
-                        return new ApiResponse(500, "Could not set up approvals for service endorsement.");
+                        return CommonResponse.Send(ResponseCodes.FAILURE,null, "Could not set up approvals for service endorsement.");
                     }
                 }
 
@@ -141,7 +141,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
             var contractServiceForEndorsement = await _cntServiceForEndorsemntRepo.FindAllUnApprovedContractServicesForEndorsement();
             var contractServiceToEndorseTransferDto =
                 _mapper.Map<IEnumerable<ContractServiceForEndorsementTransferDto>>(contractServiceForEndorsement);
-            return new ApiOkResponse(contractServiceToEndorseTransferDto);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,contractServiceToEndorseTransferDto);
         }
 
         public async Task<ApiCommonResponse> GetEndorsementDetailsById(long endorsementId)
@@ -149,19 +149,19 @@ namespace HaloBiz.MyServices.Impl.LAMS
             var contractServiceForEndorsement = await _cntServiceForEndorsemntRepo.GetEndorsementDetailsById(endorsementId);
             var contractServiceToEndorseTransferDto =
                 _mapper.Map<ContractServiceForEndorsementTransferDto>(contractServiceForEndorsement);
-            return new ApiOkResponse(contractServiceToEndorseTransferDto);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,contractServiceToEndorseTransferDto);
         }
 
         public async Task<ApiCommonResponse> GetEndorsementHistory(long contractServiceId)
         {
             var possibleDates = await _cntServiceForEndorsemntRepo.GetEndorsementHistory(contractServiceId);
-            return new ApiOkResponse(possibleDates);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,possibleDates);
         }
 
         public async Task<ApiCommonResponse> GetAllPossibleEndorsementStartDate(long contractServiceId)
         {
             var possibleDates = await _cntServiceForEndorsemntRepo.FindAllPossibleEndorsementStartDate(contractServiceId);
-            return new ApiOkResponse(possibleDates);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,possibleDates);
         }
 
         public async Task<ApiCommonResponse> ApproveContractServiceForEndorsement(long Id, long sequence, bool isApproved)
@@ -200,7 +200,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                     return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
                 }
                 var contractServiceToEndorseTransferDto = _mapper.Map<ContractServiceForEndorsementTransferDto>(approvedEntity);
-                return new ApiOkResponse(contractServiceToEndorseTransferDto);
+                return CommonResponse.Send(ResponseCodes.SUCCESS,contractServiceToEndorseTransferDto);
             }
             else
             {
@@ -220,7 +220,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 }
 
                 var contractServiceToEndorseTransferDto = _mapper.Map<ContractServiceForEndorsementTransferDto>(updatedEndorsement);
-                return new ApiOkResponse(contractServiceToEndorseTransferDto);
+                return CommonResponse.Send(ResponseCodes.SUCCESS,contractServiceToEndorseTransferDto);
             }
         }
 

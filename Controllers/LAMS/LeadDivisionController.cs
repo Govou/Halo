@@ -25,67 +25,42 @@ namespace Controllers.Controllers
         [HttpGet("")]
         public async Task<ApiCommonResponse> GetLeadDivision()
         {
-            var response = await _leadDivisionService.GetAllLeadDivision();
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var leadDivision = ((ApiOkResponse)response).Result;
-            return Ok(leadDivision);
+            return await _leadDivisionService.GetAllLeadDivision();
         }
         [HttpGet("getbyname/{name}")]
         public async Task<ApiCommonResponse> GetByName(string name)
         {
-            var response = await _leadDivisionService.GetLeadDivisionByName(name);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var leadDivision = ((ApiOkResponse)response).Result;
-            return Ok(leadDivision);
+            return await _leadDivisionService.GetLeadDivisionByName(name);
         }
 
         [HttpGet("getbyrcnumber/{rcNumber}")]
         public async Task<ApiCommonResponse> GetByReferenceNumber(string rcNumber)
         {
-            var response = await _leadDivisionService.GetLeadDivisionByRCNumber(rcNumber);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var leadDivision = ((ApiOkResponse)response).Result;
-            return Ok(leadDivision);
+            return await _leadDivisionService.GetLeadDivisionByRCNumber(rcNumber);
         }
 
         [HttpGet("{id}")]
         public async Task<ApiCommonResponse> GetById(long id)
         {
-            var response = await _leadDivisionService.GetLeadDivisionById(id);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var leadDivision = ((ApiOkResponse)response).Result;
-            return Ok(leadDivision);
+            return await _leadDivisionService.GetLeadDivisionById(id);
         }
 
         [HttpPost("")]
         public async Task<ApiCommonResponse> AddNewLeadDivision(LeadDivisionReceivingDTO leadDivisionReceiving)
         {
-            var response = await _leadDivisionService.AddLeadDivision(HttpContext, leadDivisionReceiving);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var leadDivision = ((ApiOkResponse)response).Result;
-            return Ok(leadDivision);
+            return await _leadDivisionService.AddLeadDivision(HttpContext, leadDivisionReceiving);
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateById(long id, LeadDivisionReceivingDTO leadDivisionReceivingDTO)
+        public async Task<ApiCommonResponse> UpdateById(long id, LeadDivisionReceivingDTO leadDivisionReceivingDTO)
         {
-            var response = await _leadDivisionService.UpdateLeadDivision(HttpContext, id, leadDivisionReceivingDTO);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var leadDivision = ((ApiOkResponse)response).Result;
-            return Ok(leadDivision);
+            return await _leadDivisionService.UpdateLeadDivision(HttpContext, id, leadDivisionReceivingDTO);
         }
 
         [HttpDelete("{id}")]
         public async Task<ApiCommonResponse> DeleteById(int id)
         {
-            var response = await _leadDivisionService.DeleteLeadDivision(id);
-            return StatusCode(response.StatusCode);
+            return await _leadDivisionService.DeleteLeadDivision(id);
         }
     }
 }

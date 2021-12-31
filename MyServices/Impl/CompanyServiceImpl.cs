@@ -34,7 +34,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
             var companyTransferDTOs = _mapper.Map<CompanyTransferDTO>(company);
-            return new ApiOkResponse(companyTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,companyTransferDTOs);
         }
 
         public async Task<ApiCommonResponse> GetAllCompanies()
@@ -45,7 +45,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var companyTransferDTOs = _mapper.Map<IEnumerable<CompanyTransferDTO>>(companyes);
-            return new ApiOkResponse(companyTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,companyTransferDTOs);
         }
 
         public async Task<ApiCommonResponse> GetCompanyById(long id)
@@ -56,7 +56,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var companyTransferDTOs = _mapper.Map<CompanyTransferDTO>(company);
-            return new ApiOkResponse(companyTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,companyTransferDTOs);
         }
 
         public async Task<ApiCommonResponse> GetCompanyByName(string name)
@@ -67,7 +67,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var companyTransferDTOs = _mapper.Map<CompanyTransferDTO>(company);
-            return new ApiOkResponse(companyTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,companyTransferDTOs);
         }
 
         public async Task<ApiCommonResponse> UpdateCompany(long id, CompanyReceivingDTO companyReceivingDTO)
@@ -88,7 +88,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
             var companyTransferDTOs = _mapper.Map<CompanyTransferDTO>(updatedCompany);
-            return new ApiOkResponse(companyTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,companyTransferDTOs);
 
 
         }

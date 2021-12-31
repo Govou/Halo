@@ -37,7 +37,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
             var LeadDivisionKeyPersonTransferDTO = _mapper.Map<LeadDivisionKeyPersonTransferDTO>(LeadDivisionKeyPerson);
-            return new ApiOkResponse(LeadDivisionKeyPersonTransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,LeadDivisionKeyPersonTransferDTO);
         }
 
         public async Task<ApiCommonResponse> GetAllLeadDivisionKeyPerson()
@@ -48,7 +48,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var LeadDivisionKeyPersonTransferDTO = _mapper.Map<IEnumerable<LeadDivisionKeyPersonTransferDTO>>(LeadDivisionKeyPersons);
-            return new ApiOkResponse(LeadDivisionKeyPersonTransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,LeadDivisionKeyPersonTransferDTO);
         }
 
         public async Task<ApiCommonResponse> GetLeadDivisionKeyPersonById(long id)
@@ -59,7 +59,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var LeadDivisionKeyPersonTransferDTO = _mapper.Map<LeadDivisionKeyPersonTransferDTO>(LeadDivisionKeyPerson);
-            return new ApiOkResponse(LeadDivisionKeyPersonTransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,LeadDivisionKeyPersonTransferDTO);
         }
 
         
@@ -99,7 +99,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
             await _historyRepo.SaveHistory(history);
 
             var LeadDivisionKeyPersonTransferDTOs = _mapper.Map<LeadDivisionKeyPersonTransferDTO>(updatedLeadDivisionKeyPerson);
-            return new ApiOkResponse(LeadDivisionKeyPersonTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,LeadDivisionKeyPersonTransferDTOs);
 
         }
 
@@ -111,7 +111,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var LeadDivisionKeyPersonTransferDTO = _mapper.Map<IEnumerable<LeadDivisionKeyPersonTransferDTO>>(LeadDivisionKeyPersons);
-            return new ApiOkResponse(LeadDivisionKeyPersonTransferDTO); 
+            return CommonResponse.Send(ResponseCodes.SUCCESS,LeadDivisionKeyPersonTransferDTO); 
         }
 
         public async Task<ApiCommonResponse> DeleteKeyPerson(long Id)

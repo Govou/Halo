@@ -53,7 +53,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
             var CustomerDivisionTransferDTOs = _mapper.Map<CustomerDivisionTransferDTO>(CustomerDivision);
-            return new ApiOkResponse(CustomerDivisionTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,CustomerDivisionTransferDTOs);
         }
 
         public async Task<ApiCommonResponse> DeleteCustomerDivision(long id)
@@ -80,13 +80,13 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             // var CustomerDivisionTransferDTOs = _mapper.Map<IEnumerable<CustomerDivisionTransferDTO>>(CustomerDivisions);
-            return new ApiOkResponse(CustomerDivisions);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,CustomerDivisions);
         }
         public async Task<ApiCommonResponse> GetCustomerDivisionsByGroupType(long groupTypeId)
         {
             try{
                 var clients = await _CustomerDivisionRepo.FindCustomerDivisionsByGroupType(groupTypeId);
-                return new ApiOkResponse(clients);
+                return CommonResponse.Send(ResponseCodes.SUCCESS,clients);
             }catch(Exception e)
             {
                 _logger.LogError(e.Message);
@@ -104,7 +104,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var CustomerDivisionTransferDTOs = _mapper.Map<CustomerDivisionTransferDTO>(CustomerDivision);
-            return new ApiOkResponse(CustomerDivisionTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,CustomerDivisionTransferDTOs);
         }
 
         public async Task<ApiCommonResponse> GetCustomerDivisionBreakDownById(long id)
@@ -125,7 +125,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
                 clientTransferDto.TaskFulfillments = _mapper.Map<IEnumerable<TaskFulfillmentTransferDTO>>(taskFulfillments);
 
-                return new ApiOkResponse(clientTransferDto);
+                return CommonResponse.Send(ResponseCodes.SUCCESS,clientTransferDto);
             }catch(Exception e)
             {
                 _logger.LogError(e.Message);
@@ -143,7 +143,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var CustomerDivisionTransferDTOs = _mapper.Map<CustomerDivisionTransferDTO>(CustomerDivision);
-            return new ApiOkResponse(CustomerDivisionTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,CustomerDivisionTransferDTOs);
         }
 
         public async Task<ApiCommonResponse> GetCustomerDivisionByDTrackCustomerNumber(string dTrackCustomerNumber)
@@ -154,7 +154,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var CustomerDivisionTransferDTOs = _mapper.Map<CustomerDivisionTransferDTO>(CustomerDivision);
-            return new ApiOkResponse(CustomerDivisionTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,CustomerDivisionTransferDTOs);
         }
 
         public async Task<ApiCommonResponse> GetTaskAndFulfillmentsByCustomerDivisionId(long customerDivisionId)
@@ -165,7 +165,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var taskAndDeliverablesDTOs = _mapper.Map<List<TaskFulfillmentTransferDTO>>(taskAndDeliverables);
-            return new ApiOkResponse(taskAndDeliverablesDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,taskAndDeliverablesDTOs);
         }
 
         public async Task<ApiCommonResponse> UpdateCustomerDivision(HttpContext context, long id, CustomerDivisionReceivingDTO CustomerDivisionReceivingDTO)
@@ -200,7 +200,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
             await _historyRepo.SaveHistory(history);
             var CustomerDivisionTransferDTOs = _mapper.Map<CustomerDivisionTransferDTO>(updatedCustomerDivision);
-            return new ApiOkResponse(CustomerDivisionTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,CustomerDivisionTransferDTOs);
 
 
         }
@@ -213,7 +213,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var CustomerDivisionTransferDTOs = _mapper.Map<IEnumerable<CustomerDivisionTransferDTO>>(CustomerDivisions);
-            return new ApiOkResponse(CustomerDivisionTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,CustomerDivisionTransferDTOs);
         }
 
         public async Task<ApiCommonResponse> GetClientsUnAssignedToRMSbu()
@@ -225,7 +225,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 {
                     return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
                 }
-                return new ApiOkResponse(clients);
+                return CommonResponse.Send(ResponseCodes.SUCCESS,clients);
             }
             catch (Exception e)
             {
@@ -244,7 +244,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 {
                     return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
                 }
-                return new ApiOkResponse(clients);
+                return CommonResponse.Send(ResponseCodes.SUCCESS,clients);
             }
             catch (Exception e)
             {
@@ -284,7 +284,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
             await _historyRepo.SaveHistory(history);
             var CustomerDivisionTransferDTOs = _mapper.Map<CustomerDivisionTransferDTO>(updatedCustomerDivision);
-            return new ApiOkResponse(CustomerDivisionTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,CustomerDivisionTransferDTOs);
         }
 
         public async Task<ApiCommonResponse> GetRMSbuClientsByGroupType(long sbuId, long groupTypeId)
@@ -296,7 +296,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 {
                     return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
                 }
-                return new ApiOkResponse(clients);
+                return CommonResponse.Send(ResponseCodes.SUCCESS,clients);
             }
             catch (Exception e)
             {

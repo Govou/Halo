@@ -60,7 +60,7 @@ namespace HaloBiz.MyServices.Impl
             {
                 //check if the direct service is specified
                 if(servicesReceivingDTO.DirectServiceId == null)
-                    return new ApiResponse(400, "The direct service is not specified for this admin service.");
+                    return CommonResponse.Send(ResponseCodes.FAILURE,null, "The direct service is not specified for this admin service.");
             }
 
             using (var transaction = await _context.Database.BeginTransactionAsync())
@@ -102,12 +102,12 @@ namespace HaloBiz.MyServices.Impl
                     if (!successful) 
                     {
                         await transaction.RollbackAsync();
-                        return new ApiResponse(500, "Could not set up approvals for the service."); 
+                        return CommonResponse.Send(ResponseCodes.FAILURE,null, "Could not set up approvals for the service."); 
                     }
 
                     var servicesTransferDTO = _mapper.Map<ServiceTransferDTO>(savedService);
                     await transaction.CommitAsync();
-                    return new ApiOkResponse(servicesTransferDTO);
+                    return CommonResponse.Send(ResponseCodes.SUCCESS,servicesTransferDTO);
 
                 }catch(Exception e)
                 {
@@ -127,7 +127,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var serviceTransferDTO = _mapper.Map<IEnumerable<ServiceTransferDTO>>(services);
-            return new ApiOkResponse(serviceTransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,serviceTransferDTO);
         }
 
         public async Task<ApiCommonResponse> GetUnpublishedServices()
@@ -138,7 +138,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var serviceTransferDTO = _mapper.Map<IEnumerable<ServiceTransferDTO>>(services);
-            return new ApiOkResponse(serviceTransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,serviceTransferDTO);
         }
 
         public async Task<ApiCommonResponse> GetOnlinePortalServices()
@@ -149,7 +149,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var serviceTransferDTO = _mapper.Map<IEnumerable<ServiceTransferDTO>>(services);
-            return new ApiOkResponse(serviceTransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,serviceTransferDTO);
         }
 
         public async Task<ApiCommonResponse> GetServiceById(long id)
@@ -160,7 +160,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var serviceTransferDTO = _mapper.Map<ServiceTransferDTO>(service);
-            return new ApiOkResponse(serviceTransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,serviceTransferDTO);
         }
 
         public async Task<ApiCommonResponse> GetServiceByName(string name)
@@ -171,7 +171,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var serviceTransferDTO = _mapper.Map<ServiceTransferDTO>(service);
-            return new ApiOkResponse(serviceTransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,serviceTransferDTO);
         }
 
         public async Task<ApiCommonResponse> UpdateService(HttpContext context, long id, ServiceReceivingDTO serviceReceivingDTO)
@@ -214,7 +214,7 @@ namespace HaloBiz.MyServices.Impl
 
             await _modificationRepo.SaveHistory(history);
             var serviceTransferDTO = _mapper.Map<ServiceTransferDTO>(updatedService);
-            return new ApiOkResponse(serviceTransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,serviceTransferDTO);
 
         }
         public async Task<ApiCommonResponse> UpdateServices(HttpContext context, long id, ServiceReceivingDTO serviceReceivingDTO)
@@ -328,7 +328,7 @@ namespace HaloBiz.MyServices.Impl
                     var service = await _servicesRepository.FindServicesById(id);
 
                     var serviceTransferDTO = _mapper.Map<ServiceTransferDTO>(service);
-                    return new ApiOkResponse(serviceTransferDTO);
+                    return CommonResponse.Send(ResponseCodes.SUCCESS,serviceTransferDTO);
 
                 }
                 catch (System.Exception)
@@ -388,7 +388,7 @@ namespace HaloBiz.MyServices.Impl
             await _modificationRepo.SaveHistory(history);
 
             var serviceTransferDTO = _mapper.Map<ServiceTransferDTO>(updatedService);
-            return new ApiOkResponse(serviceTransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,serviceTransferDTO);
         }
 
         public async Task<ApiCommonResponse> RequestPublishService(HttpContext context, long id)
@@ -419,7 +419,7 @@ namespace HaloBiz.MyServices.Impl
             await _modificationRepo.SaveHistory(history);
 
             var serviceTransferDTO = _mapper.Map<ServiceTransferDTO>(updatedService);
-            return new ApiOkResponse(serviceTransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,serviceTransferDTO);
 
         }
         public async Task<ApiCommonResponse> DisapproveService(HttpContext context, long serviceId, long sequence)
@@ -452,7 +452,7 @@ namespace HaloBiz.MyServices.Impl
             await _modificationRepo.SaveHistory(history);
 
             var serviceTransferDTO = _mapper.Map<ServiceTransferDTO>(updatedService);
-            return new ApiOkResponse(serviceTransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,serviceTransferDTO);
 
         }
 

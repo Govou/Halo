@@ -38,7 +38,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
             var operatingEntityTransferDTOs = _mapper.Map<OperatingEntityTransferDTO>(operatingEntity);
-            return new ApiOkResponse(operatingEntityTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,operatingEntityTransferDTOs);
         }
 
         public async Task<ApiCommonResponse> GetAllOperatingEntities()
@@ -49,7 +49,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var operatingEntityTransferDTOs = _mapper.Map<IEnumerable<OperatingEntityTransferDTO>>(operatingEntity);
-            return new ApiOkResponse(operatingEntityTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,operatingEntityTransferDTOs);
         }
         public async Task<ApiCommonResponse> GetAllOperatingEntitiesAndSbuproportion()
         {
@@ -59,7 +59,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var operatingEntityTransferDTOs = _mapper.Map<IEnumerable<OperatingEntityTransferDTO>>(operatingEntity);
-            return new ApiOkResponse(operatingEntityTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,operatingEntityTransferDTOs);
         }
 
         public async Task<ApiCommonResponse> GetOperatingEntityById(long id)
@@ -70,7 +70,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var operatingEntityTransferDTOs = _mapper.Map<OperatingEntityTransferDTO>(operatingEntity);
-            return new ApiOkResponse(operatingEntityTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,operatingEntityTransferDTOs);
         }
 
         public async Task<ApiCommonResponse> GetOperatingEntityByName(string name)
@@ -81,7 +81,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var operatingEntityTransferDTOs = _mapper.Map<OperatingEntityTransferDTO>(operatingEntity);
-            return new ApiOkResponse(operatingEntityTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,operatingEntityTransferDTOs);
         }
 
         public async Task<ApiCommonResponse> UpdateOperatingEntity(long id, OperatingEntityReceivingDTO operatingEntityReceivingDTO)
@@ -104,7 +104,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
             var operatingEntityTransferDTOs = _mapper.Map<OperatingEntityTransferDTO>(updatedOperatingEntity);
-            return new ApiOkResponse(operatingEntityTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,operatingEntityTransferDTOs);
 
 
         }

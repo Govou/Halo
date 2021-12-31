@@ -31,7 +31,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
             var officeTransferDTOs = _mapper.Map<OfficeTransferDTO>(savedOffice);
-            return new ApiOkResponse(officeTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,officeTransferDTOs);
         }
 
         public async Task<ApiCommonResponse> GetAllOffices()
@@ -42,7 +42,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var officeTransferDTOs = _mapper.Map<IEnumerable<OfficeTransferDTO>>(offices);
-            return new ApiOkResponse(officeTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,officeTransferDTOs);
         }
 
         public async Task<ApiCommonResponse> GetOfficeById(long id)
@@ -53,7 +53,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var officeTransferDTOs = _mapper.Map<OfficeTransferDTO>(office);
-            return new ApiOkResponse(officeTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,officeTransferDTOs);
         }
 
         public async Task<ApiCommonResponse> GetOfficeByName(string name)
@@ -64,7 +64,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var officeTransferDTOs = _mapper.Map<OfficeTransferDTO>(office);
-            return new ApiOkResponse(officeTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,officeTransferDTOs);
         }
 
         public async Task<ApiCommonResponse> UpdateOffice(long id, OfficeReceivingDTO branchReceivingDTO)
@@ -98,7 +98,7 @@ namespace HaloBiz.MyServices.Impl
             //TODO save modification history
 
             var officeTransferDTO = _mapper.Map<OfficeTransferDTO>(updatedOffice);
-            return new ApiOkResponse(officeTransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,officeTransferDTO);
 
         }
 

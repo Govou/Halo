@@ -158,7 +158,7 @@ namespace HaloBiz.MyServices.Impl
 
                         await PostAccounts(receipt, invoice, receiptReceivingDTO.AccountId);
                         await transaction.CommitAsync();
-                        return new ApiOkResponse(receiptTransferDTO);
+                        return CommonResponse.Send(ResponseCodes.SUCCESS,receiptTransferDTO);
                     }
                     catch (Exception e)
                     {
@@ -193,7 +193,7 @@ namespace HaloBiz.MyServices.Impl
 
             if(totalReceiptAmount > amountLeft)
             {
-                return new ApiResponse(400, "Amount is greater than what is left");
+                return CommonResponse.Send(ResponseCodes.FAILURE,null, "Amount is greater than what is left");
             }
           
 
@@ -240,7 +240,7 @@ namespace HaloBiz.MyServices.Impl
                 }
             }
             
-            return new ApiOkResponse(invoiceTransferDTOS);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,invoiceTransferDTOS);
         }
 
         private async Task<bool> PostAccounts( Receipt receipt, Invoice invoice,  long bankAccountId )

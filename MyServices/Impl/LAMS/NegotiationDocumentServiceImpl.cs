@@ -42,7 +42,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
             var negotiationDocumentTransferDTO = _mapper.Map<NegotiationDocumentTransferDTO>(savedNegotiationDocument);
-            return new ApiOkResponse(negotiationDocumentTransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,negotiationDocumentTransferDTO);
         }
 
         public async Task<ApiCommonResponse> GetAllNegotiationDocument()
@@ -53,7 +53,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var negotiationDocumentTransferDTO = _mapper.Map<IEnumerable<NegotiationDocumentTransferDTO>>(negotiationDocuments);
-            return new ApiOkResponse(negotiationDocumentTransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,negotiationDocumentTransferDTO);
         }
 
         public async Task<ApiCommonResponse> GetNegotiationDocumentById(long id)
@@ -64,7 +64,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var negotiationDocumentTransferDTOs = _mapper.Map<NegotiationDocumentTransferDTO>(negotiationDocument);
-            return new ApiOkResponse(negotiationDocumentTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,negotiationDocumentTransferDTOs);
         }
 
         public async Task<ApiCommonResponse> GetNegotiationDocumentByCaption(string caption)
@@ -75,7 +75,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var negotiationDocumentTransferDTOs = _mapper.Map<NegotiationDocumentTransferDTO>(negotiationDocument);
-            return new ApiOkResponse(negotiationDocumentTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,negotiationDocumentTransferDTOs);
         }
 
         public async Task<ApiCommonResponse> UpdateNegotiationDocument(HttpContext context, long id, NegotiationDocumentReceivingDTO negotiationDocumentReceivingDTO)
@@ -110,7 +110,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
             await _historyRepo.SaveHistory(history);
 
             var negotiationDocumentTransferDTOs = _mapper.Map<NegotiationDocumentTransferDTO>(updatedNegotiationDocument);
-            return new ApiOkResponse(negotiationDocumentTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,negotiationDocumentTransferDTOs);
 
         }
 

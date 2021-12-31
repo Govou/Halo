@@ -18,8 +18,8 @@ namespace HaloBiz.MyServices.RoleManagement
         Task<ApiCommonResponse> DeleteRole(long id);
         Task<ApiCommonResponse> GetAllClaims();
         Task<ApiCommonResponse> GetUserRoleClaims(HttpContext context);
-        ApiResponse GetPermissions();
-        ApiResponse GetGroupedPermissions();
+        ApiCommonResponse GetPermissions();
+        ApiCommonResponse GetGroupedPermissions();
         Task<ApiCommonResponse> GetPermissionsOnRole(string name);
         Task<ApiCommonResponse> FindRolesByUser(long userId);        
         Task<ApiCommonResponse> GetPermissionsOnUser(long userId);

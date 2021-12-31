@@ -25,41 +25,25 @@ namespace HaloBiz.Controllers
         [HttpGet("")]
         public async Task<ApiCommonResponse> GetUsers()
         {
-            var response = await _userProfileService.FindAllUsers();
-            if(response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var user = ((ApiOkResponse) response).Result;
-            return Ok((IEnumerable<UserProfileTransferDTO>) user);
+            return await _userProfileService.FindAllUsers(); 
         }
 
         [HttpGet("NotInSbu/{sbuId}")]
         public async Task<ApiCommonResponse> GetUsersNotInSbu(long sbuId)
         {
-            var response = await _userProfileService.FindAllUsersNotInAnSBU(sbuId);
-            if(response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var user = ((ApiOkResponse) response).Result;
-            return Ok(user);
+            return await _userProfileService.FindAllUsersNotInAnSBU(sbuId); 
         }
 
         [HttpGet("email/{email}")]
         public async Task<ApiCommonResponse> GetUserByEmail(string email)
         {
-            var response = await _userProfileService.FindUserByEmail(email);
-            if(response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var user = ((ApiOkResponse) response).Result;
-            return Ok((UserProfileTransferDTO) user);
+            return await _userProfileService.FindUserByEmail(email); 
         }
 
         [HttpGet("{id}")]
         public async Task<ApiCommonResponse> GetUserById(long id)
         {
-            var response = await _userProfileService.FindUserById(id);
-            if(response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var user = ((ApiOkResponse) response).Result;
-            return Ok((UserProfileTransferDTO) user);
+            return await _userProfileService.FindUserById(id); 
         }
 
         
@@ -67,59 +51,37 @@ namespace HaloBiz.Controllers
         [HttpPost("")]
         public async Task<ApiCommonResponse> PostUserProfile(UserProfileReceivingDTO userProfileReceiving)
         {
-           var response = await _userProfileService.AddUserProfile(userProfileReceiving);
-            if(response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var user = ((ApiOkResponse) response).Result;
-            return Ok((UserProfileTransferDTO) user);
+           return await _userProfileService.AddUserProfile(userProfileReceiving); 
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutTModel(long id, UserProfileReceivingDTO userProfileReceiving)
+        public async Task<ApiCommonResponse> PutTModel(long id, UserProfileReceivingDTO userProfileReceiving)
         {
-            var response = await _userProfileService.UpdateUserProfile(id, userProfileReceiving);
-            if(response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var user = ((ApiOkResponse) response).Result;
-            return Ok((UserProfileTransferDTO) user);
+            return await _userProfileService.UpdateUserProfile(id, userProfileReceiving); 
         }
 
         [HttpPut("UpdateUserRole/{id}")]
-        public async Task<IActionResult> UpdateUserRole(long id, List<RoleReceivingDTO> roles)
+        public async Task<ApiCommonResponse> UpdateUserRole(long id, List<RoleReceivingDTO> roles)
         {
-            var response = await _userProfileService.UpdateUserRole(HttpContext, id, roles);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var user = ((ApiOkResponse)response).Result;
-            return Ok(user);
-        
+            return await _userProfileService.UpdateUserRole(HttpContext, id, roles); 
         }
         
         [HttpPut("{id}/StrategicBusinessUnit/{SBUId}")]
-        public async Task<IActionResult> AssignUserToSBU(long id, long SBUId)
+        public async Task<ApiCommonResponse> AssignUserToSBU(long id, long SBUId)
         {
-            var response = await _userProfileService.AssignUserToSBU(id, SBUId);
-            if(response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var user = ((ApiOkResponse) response).Result;
-            return Ok((UserProfileTransferDTO) user);
+            return await _userProfileService.AssignUserToSBU(id, SBUId); 
         }
 
         [HttpPut("{id}/DetachStrategicBusinessUnit")]
-        public async Task<IActionResult> DetachUserFromSBU(long id)
+        public async Task<ApiCommonResponse> DetachUserFromSBU(long id)
         {
-            var response = await _userProfileService.DetachUserFromSBU(id);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var user = ((ApiOkResponse)response).Result;
-            return Ok((UserProfileTransferDTO)user);
+            return await _userProfileService.DetachUserFromSBU(id); 
         }
 
         [HttpDelete("{id}")]
         public async Task<ApiCommonResponse> DeleteUserProfileById(int id)
         {
-            var response = await _userProfileService.DeleteUserProfile(id);
-            return StatusCode(response.StatusCode);
+            return await _userProfileService.DeleteUserProfile(id);
         }
     }
 }

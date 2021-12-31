@@ -34,7 +34,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
             var strategicBusinessUnitTransferDTOs = _mapper.Map<StrategicBusinessUnitTransferDTO>(strategicBusinessUnit);
-            return new ApiOkResponse(strategicBusinessUnitTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,strategicBusinessUnitTransferDTOs);
         }
 
         public async Task<ApiCommonResponse> GetAllStrategicBusinessUnit()
@@ -45,7 +45,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var strategicBusinessUnitTransferDTOs = _mapper.Map<IEnumerable<StrategicBusinessUnitTransferDTO>>(strategicBusinessUnit);
-            return new ApiOkResponse(strategicBusinessUnitTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,strategicBusinessUnitTransferDTOs);
         }
 
         public async Task<ApiCommonResponse> GetRMSbus()
@@ -56,7 +56,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
 
-            return new ApiOkResponse(strategicBusinessUnits);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,strategicBusinessUnits);
         }
 
         public async Task<ApiCommonResponse> GetRMSbusWithClientsInfo()
@@ -67,7 +67,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
 
-            return new ApiOkResponse(strategicBusinessUnits);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,strategicBusinessUnits);
         }
 
         public async Task<ApiCommonResponse> GetStrategicBusinessUnitById(long id)
@@ -78,7 +78,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var strategicBusinessUnitTransferDTOs = _mapper.Map<StrategicBusinessUnitTransferDTO>(strategicBusinessUnit);
-            return new ApiOkResponse(strategicBusinessUnitTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,strategicBusinessUnitTransferDTOs);
         }
 
         public async Task<ApiCommonResponse> GetStrategicBusinessUnitByName(string name)
@@ -89,7 +89,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var strategicBusinessUnitTransferDTOs = _mapper.Map<StrategicBusinessUnitTransferDTO>(strategicBusinessUnit);
-            return new ApiOkResponse(strategicBusinessUnitTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,strategicBusinessUnitTransferDTOs);
         }
 
         public async Task<ApiCommonResponse> UpdateStrategicBusinessUnit(long id, StrategicBusinessUnitReceivingDTO strategicBusinessUnitReceivingDTO)
@@ -111,7 +111,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
             var strategicBusinessUnitTransferDTOs = _mapper.Map<StrategicBusinessUnitTransferDTO>(updatedStrategicBusinessUnit);
-            return new ApiOkResponse(strategicBusinessUnitTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,strategicBusinessUnitTransferDTOs);
 
 
         }

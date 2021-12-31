@@ -40,7 +40,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
             var targetTransferDTO = _mapper.Map<TargetTransferDTO>(target);
-            return new ApiOkResponse(targetTransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,targetTransferDTO);
         }
 
         public async Task<ApiCommonResponse> DeleteTarget(long id)
@@ -67,7 +67,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var targetTransferDTO = _mapper.Map<IEnumerable<TargetTransferDTO>>(targets);
-            return new ApiOkResponse(targetTransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,targetTransferDTO);
         }
 
         public async Task<ApiCommonResponse> GetTargetById(long id)
@@ -78,7 +78,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var targetTransferDTOs = _mapper.Map<TargetTransferDTO>(target);
-            return new ApiOkResponse(targetTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,targetTransferDTOs);
         }
 
         public async Task<ApiCommonResponse> GetTargetByName(string name)
@@ -89,7 +89,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var targetTransferDTOs = _mapper.Map<TargetTransferDTO>(target);
-            return new ApiOkResponse(targetTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,targetTransferDTOs);
         }
 
         public async Task<ApiCommonResponse> UpdateTarget(HttpContext context, long id, TargetReceivingDTO targetReceivingDTO)
@@ -122,7 +122,7 @@ namespace HaloBiz.MyServices.Impl
             await _historyRepo.SaveHistory(history);
 
             var targetTransferDTOs = _mapper.Map<TargetTransferDTO>(updatedtarget);
-            return new ApiOkResponse(targetTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,targetTransferDTOs);
         }
     }
 }

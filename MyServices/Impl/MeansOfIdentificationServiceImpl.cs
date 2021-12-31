@@ -34,7 +34,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
             var meansOfIdentificationTransferDTO = _mapper.Map<MeansOfIdentificationTransferDTO>(meansOfIdentification);
-            return new ApiOkResponse(meansOfIdentificationTransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,meansOfIdentificationTransferDTO);
         }
 
         public async Task<ApiCommonResponse> GetAllMeansOfIdentification()
@@ -45,7 +45,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var meansOfIdentificationTransferDTO = _mapper.Map<IEnumerable<MeansOfIdentificationTransferDTO>>(meansOfIdentifications);
-            return new ApiOkResponse(meansOfIdentificationTransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,meansOfIdentificationTransferDTO);
         }
 
         public async Task<ApiCommonResponse> GetMeansOfIdentificationById(long id)
@@ -56,7 +56,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var meansOfIdentificationTransferDTOs = _mapper.Map<MeansOfIdentificationTransferDTO>(meansOfIdentification);
-            return new ApiOkResponse(meansOfIdentificationTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,meansOfIdentificationTransferDTOs);
         }
 
         public async Task<ApiCommonResponse> GetMeansOfIdentificationByName(string name)
@@ -67,7 +67,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var meansOfIdentificationTransferDTOs = _mapper.Map<MeansOfIdentificationTransferDTO>(meansOfIdentification);
-            return new ApiOkResponse(meansOfIdentificationTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,meansOfIdentificationTransferDTOs);
         }
 
         public async Task<ApiCommonResponse> UpdateMeansOfIdentification(HttpContext context, long id, MeansOfIdentificationReceivingDTO meansOfIdentificationReceivingDTO)
@@ -100,7 +100,7 @@ namespace HaloBiz.MyServices.Impl
             await _historyRepo.SaveHistory(history);
 
             var meansOfIdentificationTransferDTOs = _mapper.Map<MeansOfIdentificationTransferDTO>(updatedMeansOfIdentification);
-            return new ApiOkResponse(meansOfIdentificationTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,meansOfIdentificationTransferDTOs);
 
         }
 

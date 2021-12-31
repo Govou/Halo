@@ -29,7 +29,7 @@ namespace HaloBiz.MyServices.Impl
             var sBUProportion = _mapper.Map<Sbuproportion>(sBUProportionReceivingDTO);
             if((sBUProportion.LeadClosureProportion + sBUProportion.LeadGenerationProportion) > 100)
             {
-                return new ApiResponse(409, "Total proportion cannot exceed 100%");
+                return CommonResponse.Send(ResponseCodes.FAILURE,null, "Total proportion cannot exceed 100%");
             }
             sBUProportion.CreatedById = context.GetLoggedInUserId();
             var savedSbuproportion = await _sbuProportionRepo.SaveSbuproportion(sBUProportion);
@@ -38,7 +38,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
             var sBUProportionTransferDTO = _mapper.Map<SbuproportionTransferDTO>(sBUProportion);
-            return new ApiOkResponse(sBUProportionTransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,sBUProportionTransferDTO);
         }
 
         public async Task<ApiCommonResponse> GetAllSbuproportions()
@@ -49,7 +49,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var sBUProportionTransferDTO = _mapper.Map<IEnumerable<SbuproportionTransferDTO>>(sBUProportions);
-            return new ApiOkResponse(sBUProportionTransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,sBUProportionTransferDTO);
         }
 
         public async Task<ApiCommonResponse> GetSbuproportionById(long id)
@@ -60,7 +60,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var sBUProportionTransferDTO = _mapper.Map<SbuproportionTransferDTO>(sBUProportion);
-            return new ApiOkResponse(sBUProportionTransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,sBUProportionTransferDTO);
         }
 
 
@@ -96,7 +96,7 @@ namespace HaloBiz.MyServices.Impl
             await _historyRepo.SaveHistory(history);
 
             var SbuproportionTransferDTOs = _mapper.Map<SbuproportionTransferDTO>(updatedSbuproportion);
-            return new ApiOkResponse(SbuproportionTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,SbuproportionTransferDTOs);
 
         }
 

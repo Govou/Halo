@@ -30,13 +30,13 @@ namespace HaloBiz.MyServices.Impl
             var profileIdExist = _dTSMastersRepository.GetArmedEscortProfileId(armedEscortReceivingDTO.ArmedEscortResourceId);
             if (armedEscortReceivingDTO.AvailablilityEnd < armedEscortReceivingDTO.AvailabilityStart || armedEscortReceivingDTO.AvailablilityEnd == armedEscortReceivingDTO.AvailabilityStart)
             {
-                return new ApiResponse(440);
+                return CommonResponse.Send(ResponseCodes.FAILURE);
             }
             if (profileIdExist != null)
             {
                 if (armedEscortReceivingDTO.AvailabilityStart < profileIdExist.AvailablilityEnd)
                 {
-                    return new ApiResponse(440);
+                    return CommonResponse.Send(ResponseCodes.FAILURE);
                 }
                     
             }
@@ -49,7 +49,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
             var TransferDTO = _mapper.Map<ArmedEscortDTSMastersTransferDTO>(armedescort);
-            return new ApiOkResponse(TransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,TransferDTO);
         }
 
         public async Task<ApiCommonResponse> AddCommanderMaster(HttpContext context, CommanderDTSMastersReceivingDTO commanderReceivingDTO)
@@ -58,13 +58,13 @@ namespace HaloBiz.MyServices.Impl
             var profileIdExist = _dTSMastersRepository.GetCommanderProfileId(commanderReceivingDTO.CommanderResourceId);
             if (commanderReceivingDTO.AvailablilityEnd < commanderReceivingDTO.AvailabilityStart || commanderReceivingDTO.AvailablilityEnd == commanderReceivingDTO.AvailabilityStart)
             {
-                return new ApiResponse(440);
+                return CommonResponse.Send(ResponseCodes.FAILURE);
             }
             if (profileIdExist != null)
             {
                 if (commanderReceivingDTO.AvailabilityStart < profileIdExist.AvailablilityEnd)
                 {
-                    return new ApiResponse(440);
+                    return CommonResponse.Send(ResponseCodes.FAILURE);
                 }
 
             }
@@ -76,7 +76,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
             var TransferDTO = _mapper.Map<CommanderDTSMastersTransferDTO>(commander);
-            return new ApiOkResponse(TransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,TransferDTO);
         }
 
         public async Task<ApiCommonResponse> AddPilotMaster(HttpContext context, PilotDTSMastersReceivingDTO pilotReceivingDTO)
@@ -85,13 +85,13 @@ namespace HaloBiz.MyServices.Impl
             var profileIdExist = _dTSMastersRepository.GetPilotProfileId(pilotReceivingDTO.PilotResourceId);
             if (pilotReceivingDTO.AvailablilityEnd < pilotReceivingDTO.AvailabilityStart || pilotReceivingDTO.AvailablilityEnd == pilotReceivingDTO.AvailabilityStart)
             {
-                return new ApiResponse(440);
+                return CommonResponse.Send(ResponseCodes.FAILURE);
             }
             if (profileIdExist != null)
             {
                 if (pilotReceivingDTO.AvailabilityStart < profileIdExist.AvailablilityEnd)
                 {
-                    return new ApiResponse(440);
+                    return CommonResponse.Send(ResponseCodes.FAILURE);
                 }
 
             }
@@ -103,7 +103,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
             var TransferDTO = _mapper.Map<PilotDTSMastersTransferDTO>(pilot);
-            return new ApiOkResponse(TransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,TransferDTO);
         }
 
         public async Task<ApiCommonResponse> AddVehicleMaster(HttpContext context, VehicleDTSMastersReceivingDTO vehicleReceivingDTO)
@@ -112,13 +112,13 @@ namespace HaloBiz.MyServices.Impl
             var profileIdExist = _dTSMastersRepository.GetVehicleProfileId(vehicleReceivingDTO.VehicleResourceId);
             if (vehicleReceivingDTO.AvailablilityEnd < vehicleReceivingDTO.AvailabilityStart || vehicleReceivingDTO.AvailablilityEnd == vehicleReceivingDTO.AvailabilityStart)
             {
-                return new ApiResponse(440);
+                return CommonResponse.Send(ResponseCodes.FAILURE);
             }
             if (profileIdExist != null)
             {
                 if (vehicleReceivingDTO.AvailabilityStart < profileIdExist.AvailablilityEnd)
                 {
-                    return new ApiResponse(440);
+                    return CommonResponse.Send(ResponseCodes.FAILURE);
                 }
 
             }
@@ -130,7 +130,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
             var TransferDTO = _mapper.Map<VehicleDTSMastersTransferDTO>(vehicle);
-            return new ApiOkResponse(TransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,TransferDTO);
         }
 
         public async Task<ApiCommonResponse> DeleteArmedEscortMaster(long id)
@@ -209,7 +209,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var TransferDTO = _mapper.Map<IEnumerable<ArmedEscortDTSMastersTransferDTO>>(masters);
-            return new ApiOkResponse(TransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,TransferDTO);
         }
 
         public async Task<ApiCommonResponse> GetAllCommanderMasters()
@@ -220,7 +220,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var TransferDTO = _mapper.Map<IEnumerable<CommanderDTSMastersTransferDTO>>(masters);
-            return new ApiOkResponse(TransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,TransferDTO);
         }
 
         public async Task<ApiCommonResponse> GetAllPilotMasters()
@@ -231,7 +231,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var TransferDTO = _mapper.Map<IEnumerable<PilotDTSMastersTransferDTO>>(masters);
-            return new ApiOkResponse(TransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,TransferDTO);
         }
 
         public async Task<ApiCommonResponse> GetAllVehicleMasters()
@@ -242,7 +242,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var TransferDTO = _mapper.Map<IEnumerable<VehicleDTSMastersTransferDTO>>(masters);
-            return new ApiOkResponse(TransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,TransferDTO);
         }
 
         public async Task<ApiCommonResponse> GetArmedEscortMasterById(long id)
@@ -253,7 +253,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var TransferDTO = _mapper.Map<ArmedEscortDTSMastersTransferDTO>(master);
-            return new ApiOkResponse(TransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,TransferDTO);
         }
 
         public async Task<ApiCommonResponse> GetCommanderMasterById(long id)
@@ -264,7 +264,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var TransferDTO = _mapper.Map<CommanderDTSMastersTransferDTO>(master);
-            return new ApiOkResponse(TransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,TransferDTO);
         }
 
         public async Task<ApiCommonResponse> GetPilotMasterById(long id)
@@ -275,7 +275,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var TransferDTO = _mapper.Map<PilotDTSMastersTransferDTO>(master);
-            return new ApiOkResponse(TransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,TransferDTO);
         }
 
         public async Task<ApiCommonResponse> GetVehicleMasterById(long id)
@@ -286,7 +286,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var TransferDTO = _mapper.Map<VehicleDTSMastersTransferDTO>(master);
-            return new ApiOkResponse(TransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,TransferDTO);
         }
 
         public async Task<ApiCommonResponse> UpdateArmedEscortMaster(HttpContext context, long id, ArmedEscortDTSMastersReceivingDTO armedEscortReceivingDTO)
@@ -314,7 +314,7 @@ namespace HaloBiz.MyServices.Impl
             }
 
             var TransferDTOs = _mapper.Map<ArmedEscortDTSMastersTransferDTO>(updateMaster);
-            return new ApiOkResponse(TransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,TransferDTOs);
         }
 
         public async Task<ApiCommonResponse> UpdateCommanderMaster(HttpContext context, long id, CommanderDTSMastersReceivingDTO commanderReceivingDTO)
@@ -342,7 +342,7 @@ namespace HaloBiz.MyServices.Impl
             }
 
             var TransferDTOs = _mapper.Map<CommanderDTSMastersTransferDTO>(updateMaster);
-            return new ApiOkResponse(TransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,TransferDTOs);
         }
 
         public async Task<ApiCommonResponse> UpdatePilotMaster(HttpContext context, long id, PilotDTSMastersReceivingDTO pilotReceivingDTO)
@@ -370,7 +370,7 @@ namespace HaloBiz.MyServices.Impl
             }
 
             var TransferDTOs = _mapper.Map<PilotDTSMastersTransferDTO>(updateMaster);
-            return new ApiOkResponse(TransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,TransferDTOs);
         }
 
         public async Task<ApiCommonResponse> UpdateVehicleMaster(HttpContext context, long id, VehicleDTSMastersReceivingDTO vehicleReceivingDTO)
@@ -398,7 +398,7 @@ namespace HaloBiz.MyServices.Impl
             }
 
             var TransferDTOs = _mapper.Map<VehicleDTSMastersTransferDTO>(updateMaster);
-            return new ApiOkResponse(TransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,TransferDTOs);
         }
     }
 }

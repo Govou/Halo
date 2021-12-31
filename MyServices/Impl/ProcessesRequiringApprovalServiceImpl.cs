@@ -36,7 +36,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
             var processesRequiringApprovalTransferDTO = _mapper.Map<ProcessesRequiringApprovalTransferDTO>(processesRequiringApproval);
-            return new ApiOkResponse(processesRequiringApprovalTransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,processesRequiringApprovalTransferDTO);
         }
 
         public async Task<ApiCommonResponse> DeleteProcessesRequiringApproval(long id)
@@ -62,7 +62,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var processesRequiringApprovalTransferDTO = _mapper.Map<IEnumerable<ProcessesRequiringApprovalTransferDTO>>(processesRequiringApproval);
-            return new ApiOkResponse(processesRequiringApprovalTransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,processesRequiringApprovalTransferDTO);
         }
 
         public  async Task<ApiCommonResponse> UpdateProcessesRequiringApproval(HttpContext context, long id, ProcessesRequiringApprovalReceivingDTO processesRequiringApprovalReceivingDTO)
@@ -95,7 +95,7 @@ namespace HaloBiz.MyServices.Impl
             await _historyRepo.SaveHistory(history);
 
             var processesRequiringApprovalTransferDTOs = _mapper.Map<ProcessesRequiringApprovalTransferDTO>(updatedProcessesRequiringApproval);
-            return new ApiOkResponse(processesRequiringApprovalTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,processesRequiringApprovalTransferDTOs);
         }
     }
 }

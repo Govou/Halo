@@ -36,7 +36,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
             var supplierCategoryTransferDTO = _mapper.Map<SupplierTransferDTO>(supplierCategory);
-            return new ApiOkResponse(supplierCategoryTransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,supplierCategoryTransferDTO);
         }
 
         public async Task<ApiCommonResponse> GetSupplierById(long id)
@@ -47,7 +47,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var SupplierTransferDTOs = _mapper.Map<SupplierTransferDTO>(Supplier);
-            return new ApiOkResponse(SupplierTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,SupplierTransferDTOs);
         }
 
         public async Task<ApiCommonResponse> DeleteSupplier(long id)
@@ -73,7 +73,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var supplierCategoryTransferDTO = _mapper.Map<IEnumerable<SupplierTransferDTO>>(supplierCategory);
-            return new ApiOkResponse(supplierCategoryTransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,supplierCategoryTransferDTO);
         }
 
         public  async Task<ApiCommonResponse> UpdateSupplier(HttpContext context, long id, SupplierReceivingDTO supplierCategoryReceivingDTO)
@@ -120,11 +120,11 @@ namespace HaloBiz.MyServices.Impl
                 await _historyRepo.SaveHistory(history);
 
                 var supplierCategoryTransferDTOs = _mapper.Map<SupplierTransferDTO>(updatedSupplier);
-                return new ApiOkResponse(supplierCategoryTransferDTOs);
+                return CommonResponse.Send(ResponseCodes.SUCCESS,supplierCategoryTransferDTOs);
             }
             catch(System.Exception error)
             {
-                return new ApiResponse(500, error.Message);
+                return  CommonResponse.Send(ResponseCodes.FAILURE,null, "System errors");
             }
         }
     }
