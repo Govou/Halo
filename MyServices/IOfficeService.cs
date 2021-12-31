@@ -6,12 +6,12 @@ namespace HaloBiz.MyServices
 {
     public interface IOfficeService
     {
-        Task<ApiResponse> AddOffice(OfficeReceivingDTO officeReceivingDTO);
-        Task<ApiResponse> GetAllOffices();
-        Task<ApiResponse> GetOfficeById(long id);
-        Task<ApiResponse> GetOfficeByName(string name);
-        Task<ApiResponse> UpdateOffice(long id, OfficeReceivingDTO branchReceivingDTO);
-        Task<ApiResponse> DeleteOffice(long id);
+        Task<ApiCommonResponse> AddOffice(OfficeReceivingDTO officeReceivingDTO);
+        Task<ApiCommonResponse> GetAllOffices();
+        Task<ApiCommonResponse> GetOfficeById(long id);
+        Task<ApiCommonResponse> GetOfficeByName(string name);
+        Task<ApiCommonResponse> UpdateOffice(long id, OfficeReceivingDTO branchReceivingDTO);
+        Task<ApiCommonResponse> DeleteOffice(long id);
 
     }
 }

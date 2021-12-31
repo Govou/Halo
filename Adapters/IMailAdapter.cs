@@ -9,15 +9,15 @@ namespace HaloBiz.Adapters
 {
     public interface IMailAdapter
     {
-        Task<ApiResponse> SendUserAssignedToRoleMail(string userProfile);
-        Task<ApiResponse> SendNewDeliverableAssigned(string serializedDeliverable);
-        Task<ApiResponse> SendNewTaskAssigned(string serializedTask, string operatingEntityName);
-        Task<ApiResponse> SendNewUserSignup(string userProfile);
-        Task<ApiResponse> AssignRoleToNewUser(string serializedUser, string adminEmails);
-        Task<ApiResponse> ApproveNewService(string serializedApproval);
-        Task<ApiResponse> ApproveNewQuoteService(string serializedApprovals);
-        Task<ApiResponse> SendQuoteNotification(string serializedQuote);
-        Task<ApiResponse> SendPeriodicInvoice(InvoiceMailDTO invoiceMailDTO);
-        Task<ApiResponse> SendComplaintResolutionConfirmationMail(ConfirmComplaintResolutionMailDTO model);
+        Task<ApiCommonResponse> SendUserAssignedToRoleMail(string userProfile);
+        Task<ApiCommonResponse> SendNewDeliverableAssigned(string serializedDeliverable);
+        Task<ApiCommonResponse> SendNewTaskAssigned(string serializedTask, string operatingEntityName);
+        Task<ApiCommonResponse> SendNewUserSignup(string userProfile);
+        Task<ApiCommonResponse> AssignRoleToNewUser(string serializedUser, string adminEmails);
+        Task<ApiCommonResponse> ApproveNewService(string serializedApproval);
+        Task<ApiCommonResponse> ApproveNewQuoteService(string serializedApprovals);
+        Task<ApiCommonResponse> SendQuoteNotification(string serializedQuote);
+        Task<ApiCommonResponse> SendPeriodicInvoice(InvoiceMailDTO invoiceMailDTO);
+        Task<ApiCommonResponse> SendComplaintResolutionConfirmationMail(ConfirmComplaintResolutionMailDTO model);
     }
 }

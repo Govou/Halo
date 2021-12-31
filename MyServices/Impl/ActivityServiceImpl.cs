@@ -30,7 +30,7 @@ namespace HaloBiz.MyServices.Impl
             this._logger = logger;
         }
 
-        public async Task<ApiResponse> AddActivity(HttpContext context, ActivityReceivingDTO activityReceivingDTO)
+        public async Task<ApiCommonResponse> AddActivity(HttpContext context, ActivityReceivingDTO activityReceivingDTO)
         {
 
             var activity = _mapper.Map<Activity>(activityReceivingDTO);
@@ -38,67 +38,67 @@ namespace HaloBiz.MyServices.Impl
             var savedactivity = await _activityRepo.SaveActivity(activity);
             if (savedactivity == null)
             {
-                return new ApiResponse(500);
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
             var activityTransferDTO = _mapper.Map<ActivityTransferDTO>(activity);
-            return new ApiOkResponse(activityTransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,activityTransferDTO);
         }
 
-        public async Task<ApiResponse> DeleteActivity(long id)
+        public async Task<ApiCommonResponse> DeleteActivity(long id)
         {
             var activityToDelete = await _activityRepo.FindActivityById(id);
             if (activityToDelete == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
 
             if (!await _activityRepo.DeleteActivity(activityToDelete))
             {
-                return new ApiResponse(500);
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
 
-            return new ApiOkResponse(true);
+            return CommonResponse.Send(ResponseCodes.SUCCESS);
         }
 
-        public async Task<ApiResponse> GetAllActivity()
+        public async Task<ApiCommonResponse> GetAllActivity()
         {
             var activitys = await _activityRepo.FindAllActivitys();
             if (activitys == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var activityTransferDTO = _mapper.Map<IEnumerable<ActivityTransferDTO>>(activitys);
-            return new ApiOkResponse(activityTransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,activityTransferDTO);
         }
 
-        public async Task<ApiResponse> GetActivityById(long id)
+        public async Task<ApiCommonResponse> GetActivityById(long id)
         {
             var activity = await _activityRepo.FindActivityById(id);
             if (activity == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var activityTransferDTOs = _mapper.Map<ActivityTransferDTO>(activity);
-            return new ApiOkResponse(activityTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,activityTransferDTOs);
         }
 
-        public async Task<ApiResponse> GetActivityByName(string name)
+        public async Task<ApiCommonResponse> GetActivityByName(string name)
         {
             var activity = await _activityRepo.FindActivityByName(name);
             if (activity == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var activityTransferDTOs = _mapper.Map<ActivityTransferDTO>(activity);
-            return new ApiOkResponse(activityTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,activityTransferDTOs);
         }
 
-        public async Task<ApiResponse> UpdateActivity(HttpContext context, long id, ActivityReceivingDTO activityReceivingDTO)
+        public async Task<ApiCommonResponse> UpdateActivity(HttpContext context, long id, ActivityReceivingDTO activityReceivingDTO)
         {
             var activityToUpdate = await _activityRepo.FindActivityById(id);
             if (activityToUpdate == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
 
             var summary = $"Initial details before change, \n {activityToUpdate.ToString()} \n";
@@ -114,7 +114,7 @@ namespace HaloBiz.MyServices.Impl
 
             if (updatedactivity == null)
             {
-                return new ApiResponse(500);
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
             ModificationHistory history = new ModificationHistory()
             {
@@ -126,7 +126,7 @@ namespace HaloBiz.MyServices.Impl
             await _historyRepo.SaveHistory(history);
 
             var activityTransferDTOs = _mapper.Map<ActivityTransferDTO>(updatedactivity);
-            return new ApiOkResponse(activityTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,activityTransferDTOs);
         }
     }
 }

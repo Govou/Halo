@@ -25,57 +25,57 @@ namespace HaloBiz.MyServices.Impl
  
         }
 
-        public async Task<ApiResponse> AddServiceCategory(ServiceCategoryReceivingDTO serviceCategoryReceivingDTO)
+        public async Task<ApiCommonResponse> AddServiceCategory(ServiceCategoryReceivingDTO serviceCategoryReceivingDTO)
         {
             var serviceCategory = _mapper.Map<ServiceCategory>(serviceCategoryReceivingDTO);
             var savedserviceCategory = await _serviceCategoryRepo.SaveServiceCategory(serviceCategory);
             if (savedserviceCategory == null)
             {
-                return new ApiResponse(500);
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
             var serviceCategoryTransferDTO = _mapper.Map<ServiceCategoryTransferDTO>(savedserviceCategory);
-            return new ApiOkResponse(serviceCategoryTransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,serviceCategoryTransferDTO);
         }
 
-        public async Task<ApiResponse> GetAllServiceCategory()
+        public async Task<ApiCommonResponse> GetAllServiceCategory()
         {
             var serviceCategory= await _serviceCategoryRepo.FindAllServiceCategories();
             if (serviceCategory == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var serviceCategoryTransferDTO = _mapper.Map<IEnumerable<ServiceCategoryTransferDTO>>(serviceCategory);
-            return new ApiOkResponse(serviceCategoryTransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,serviceCategoryTransferDTO);
         }
 
-        public async Task<ApiResponse> GetServiceCategoryById(long id)
+        public async Task<ApiCommonResponse> GetServiceCategoryById(long id)
         {
             var serviceCategory = await _serviceCategoryRepo.FindServiceCategoryById(id);
             if (serviceCategory == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var serviceCategoryTransferDTO = _mapper.Map<ServiceCategoryTransferDTO>(serviceCategory);
-            return new ApiOkResponse(serviceCategoryTransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,serviceCategoryTransferDTO);
         }
 
-        public async Task<ApiResponse> GetServiceCategoryByName(string name)
+        public async Task<ApiCommonResponse> GetServiceCategoryByName(string name)
         {
             var serviceCategory = await _serviceCategoryRepo.FindServiceCategoryByName(name);
             if (serviceCategory == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var serviceCategoryTransferDTO = _mapper.Map<ServiceCategoryTransferDTO>(serviceCategory);
-            return new ApiOkResponse(serviceCategoryTransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,serviceCategoryTransferDTO);
         }
 
-        public async Task<ApiResponse> UpdateServiceCategory(long id, ServiceCategoryReceivingDTO serviceCategoryReceivingDTO)
+        public async Task<ApiCommonResponse> UpdateServiceCategory(long id, ServiceCategoryReceivingDTO serviceCategoryReceivingDTO)
         {
             var serviceCategoryToUpdate = await _serviceCategoryRepo.FindServiceCategoryById(id);
             if (serviceCategoryToUpdate == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             serviceCategoryToUpdate.Name = serviceCategoryReceivingDTO.Name;
             serviceCategoryToUpdate.Description = serviceCategoryReceivingDTO.Description;
@@ -87,20 +87,20 @@ namespace HaloBiz.MyServices.Impl
 
             if (updatedServiceCategory == null)
             {
-                return new ApiResponse(500);
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
             var serviceCategoryTransferDTO = _mapper.Map<ServiceCategoryTransferDTO>(updatedServiceCategory);
-            return new ApiOkResponse(serviceCategoryTransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,serviceCategoryTransferDTO);
 
         }
 
-        public async Task<ApiResponse> DeleteServiceCategory(long id)
+        public async Task<ApiCommonResponse> DeleteServiceCategory(long id)
         {
             var serviceCategoryToDelete = await _serviceCategoryRepo.FindServiceCategoryById(id);
 
             if (serviceCategoryToDelete == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
 
             foreach(Service service in serviceCategoryToDelete.Services)
@@ -114,10 +114,10 @@ namespace HaloBiz.MyServices.Impl
 
             if (!await _serviceCategoryRepo.DeleteServiceCategory(serviceCategoryToDelete))
             {
-                return new ApiResponse(500);
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
 
-            return new ApiOkResponse(true);
+            return CommonResponse.Send(ResponseCodes.SUCCESS);
         }
     }
 }

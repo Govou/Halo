@@ -7,12 +7,12 @@ namespace HaloBiz.MyServices.LAMS
 {
     public interface ILeadTypeService
     {
-        Task<ApiResponse> AddLeadType(HttpContext context, LeadTypeReceivingDTO leadTypeReceivingDTO);
-        Task<ApiResponse> GetAllLeadType();
-        Task<ApiResponse> GetLeadTypeById(long id);
-        Task<ApiResponse> GetLeadTypeByName(string name);
-        Task<ApiResponse> UpdateLeadType(HttpContext context, long id, LeadTypeReceivingDTO leadTypeReceivingDTO);
-        Task<ApiResponse> DeleteLeadType(long id);
+        Task<ApiCommonResponse> AddLeadType(HttpContext context, LeadTypeReceivingDTO leadTypeReceivingDTO);
+        Task<ApiCommonResponse> GetAllLeadType();
+        Task<ApiCommonResponse> GetLeadTypeById(long id);
+        Task<ApiCommonResponse> GetLeadTypeByName(string name);
+        Task<ApiCommonResponse> UpdateLeadType(HttpContext context, long id, LeadTypeReceivingDTO leadTypeReceivingDTO);
+        Task<ApiCommonResponse> DeleteLeadType(long id);
 
     }
 }

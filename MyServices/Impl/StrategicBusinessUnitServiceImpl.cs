@@ -25,79 +25,79 @@ namespace HaloBiz.MyServices.Impl
             this._logger = logger;
         }
 
-        public async Task<ApiResponse> AddStrategicBusinessUnit(StrategicBusinessUnitReceivingDTO strategicBusinessUnitReceivingDTO)
+        public async Task<ApiCommonResponse> AddStrategicBusinessUnit(StrategicBusinessUnitReceivingDTO strategicBusinessUnitReceivingDTO)
         {
             var strategicBusinessUnit = _mapper.Map<StrategicBusinessUnit>(strategicBusinessUnitReceivingDTO);
             var savedStrategicBusinessUnit = await _strategicBusinessUnitRepo.SaveStrategyBusinessUnit(strategicBusinessUnit);
             if (savedStrategicBusinessUnit == null)
             {
-                return new ApiResponse(500);
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
             var strategicBusinessUnitTransferDTOs = _mapper.Map<StrategicBusinessUnitTransferDTO>(strategicBusinessUnit);
-            return new ApiOkResponse(strategicBusinessUnitTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,strategicBusinessUnitTransferDTOs);
         }
 
-        public async Task<ApiResponse> GetAllStrategicBusinessUnit()
+        public async Task<ApiCommonResponse> GetAllStrategicBusinessUnit()
         {
             var strategicBusinessUnit = await _strategicBusinessUnitRepo.FindAllStrategyBusinessUnits();
             if (strategicBusinessUnit == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var strategicBusinessUnitTransferDTOs = _mapper.Map<IEnumerable<StrategicBusinessUnitTransferDTO>>(strategicBusinessUnit);
-            return new ApiOkResponse(strategicBusinessUnitTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,strategicBusinessUnitTransferDTOs);
         }
 
-        public async Task<ApiResponse> GetRMSbus()
+        public async Task<ApiCommonResponse> GetRMSbus()
         {
             var strategicBusinessUnits = await _strategicBusinessUnitRepo.GetRMSbus();
             if (strategicBusinessUnits == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
 
-            return new ApiOkResponse(strategicBusinessUnits);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,strategicBusinessUnits);
         }
 
-        public async Task<ApiResponse> GetRMSbusWithClientsInfo()
+        public async Task<ApiCommonResponse> GetRMSbusWithClientsInfo()
         {
             var strategicBusinessUnits = await _strategicBusinessUnitRepo.GetRMSbusWithClientsInfo();
             if (strategicBusinessUnits == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
 
-            return new ApiOkResponse(strategicBusinessUnits);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,strategicBusinessUnits);
         }
 
-        public async Task<ApiResponse> GetStrategicBusinessUnitById(long id)
+        public async Task<ApiCommonResponse> GetStrategicBusinessUnitById(long id)
         {
             var strategicBusinessUnit = await _strategicBusinessUnitRepo.FindStrategyBusinessUnitById(id);
             if (strategicBusinessUnit == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var strategicBusinessUnitTransferDTOs = _mapper.Map<StrategicBusinessUnitTransferDTO>(strategicBusinessUnit);
-            return new ApiOkResponse(strategicBusinessUnitTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,strategicBusinessUnitTransferDTOs);
         }
 
-        public async Task<ApiResponse> GetStrategicBusinessUnitByName(string name)
+        public async Task<ApiCommonResponse> GetStrategicBusinessUnitByName(string name)
         {
             var strategicBusinessUnit = await _strategicBusinessUnitRepo.FindStrategyBusinessUnitByName(name);
             if (strategicBusinessUnit == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var strategicBusinessUnitTransferDTOs = _mapper.Map<StrategicBusinessUnitTransferDTO>(strategicBusinessUnit);
-            return new ApiOkResponse(strategicBusinessUnitTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,strategicBusinessUnitTransferDTOs);
         }
 
-        public async Task<ApiResponse> UpdateStrategicBusinessUnit(long id, StrategicBusinessUnitReceivingDTO strategicBusinessUnitReceivingDTO)
+        public async Task<ApiCommonResponse> UpdateStrategicBusinessUnit(long id, StrategicBusinessUnitReceivingDTO strategicBusinessUnitReceivingDTO)
         {
             var strategicBusinessUnitToUpdate = await _strategicBusinessUnitRepo.FindStrategyBusinessUnitById(id);
             if (strategicBusinessUnitToUpdate == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             strategicBusinessUnitToUpdate.Name = strategicBusinessUnitReceivingDTO.Name;
             strategicBusinessUnitToUpdate.Description = strategicBusinessUnitReceivingDTO.Description;
@@ -108,28 +108,28 @@ namespace HaloBiz.MyServices.Impl
 
             if (updatedStrategicBusinessUnit == null)
             {
-                return new ApiResponse(500);
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
             var strategicBusinessUnitTransferDTOs = _mapper.Map<StrategicBusinessUnitTransferDTO>(updatedStrategicBusinessUnit);
-            return new ApiOkResponse(strategicBusinessUnitTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,strategicBusinessUnitTransferDTOs);
 
 
         }
 
-        public async Task<ApiResponse> DeleteStrategicBusinessUnit(long id)
+        public async Task<ApiCommonResponse> DeleteStrategicBusinessUnit(long id)
         {
             var strategicBusinessUnitToDelete = await _strategicBusinessUnitRepo.FindStrategyBusinessUnitById(id);
             if (strategicBusinessUnitToDelete == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
 
             if (!await _strategicBusinessUnitRepo.DeleteStrategyBusinessUnit(strategicBusinessUnitToDelete))
             {
-                return new ApiResponse(500);
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
 
-            return new ApiOkResponse(true);
+            return CommonResponse.Send(ResponseCodes.SUCCESS);
         }
 
     }

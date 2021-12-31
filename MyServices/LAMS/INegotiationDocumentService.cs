@@ -7,12 +7,12 @@ namespace HaloBiz.MyServices.LAMS
 {
     public interface INegotiationDocumentService
     {
-        Task<ApiResponse> AddNegotiationDocument(HttpContext context, NegotiationDocumentReceivingDTO negotiationDocumentReceivingDTO);
-        Task<ApiResponse> GetAllNegotiationDocument();
-        Task<ApiResponse> GetNegotiationDocumentById(long id);
-        Task<ApiResponse> GetNegotiationDocumentByCaption(string caption);
-        Task<ApiResponse> UpdateNegotiationDocument(HttpContext context, long id, NegotiationDocumentReceivingDTO negotiationDocumentReceivingDTO);
-        Task<ApiResponse> DeleteNegotiationDocument(long id);
+        Task<ApiCommonResponse> AddNegotiationDocument(HttpContext context, NegotiationDocumentReceivingDTO negotiationDocumentReceivingDTO);
+        Task<ApiCommonResponse> GetAllNegotiationDocument();
+        Task<ApiCommonResponse> GetNegotiationDocumentById(long id);
+        Task<ApiCommonResponse> GetNegotiationDocumentByCaption(string caption);
+        Task<ApiCommonResponse> UpdateNegotiationDocument(HttpContext context, long id, NegotiationDocumentReceivingDTO negotiationDocumentReceivingDTO);
+        Task<ApiCommonResponse> DeleteNegotiationDocument(long id);
 
     }
 }

@@ -30,7 +30,7 @@ namespace HaloBiz.MyServices.Impl
             this._logger = logger;
         }
 
-        public async Task<ApiResponse> AddAppReview(HttpContext context, AppReviewReceivingDTO appReviewReceivingDTO)
+        public async Task<ApiCommonResponse> AddAppReview(HttpContext context, AppReviewReceivingDTO appReviewReceivingDTO)
         {
 
             var appReview = _mapper.Map<AppReview>(appReviewReceivingDTO);
@@ -38,56 +38,56 @@ namespace HaloBiz.MyServices.Impl
             var savedappReview = await _appReviewRepo.SaveAppReview(appReview);
             if (savedappReview == null)
             {
-                return new ApiResponse(500);
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
             var appReviewTransferDTO = _mapper.Map<AppReviewTransferDTO>(appReview);
-            return new ApiOkResponse(appReviewTransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,appReviewTransferDTO);
         }
 
-        public async Task<ApiResponse> DeleteAppReview(long id)
+        public async Task<ApiCommonResponse> DeleteAppReview(long id)
         {
             var appReviewToDelete = await _appReviewRepo.FindAppReviewById(id);
             if (appReviewToDelete == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
 
             if (!await _appReviewRepo.DeleteAppReview(appReviewToDelete))
             {
-                return new ApiResponse(500);
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
 
-            return new ApiOkResponse(true);
+            return CommonResponse.Send(ResponseCodes.SUCCESS);
         }
 
-        public async Task<ApiResponse> GetAllAppReview()
+        public async Task<ApiCommonResponse> GetAllAppReview()
         {
             var appReviews = await _appReviewRepo.FindAllAppReviews();
             if (appReviews == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var appReviewTransferDTO = _mapper.Map<IEnumerable<AppReviewTransferDTO>>(appReviews);
-            return new ApiOkResponse(appReviewTransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,appReviewTransferDTO);
         }
 
-        public async Task<ApiResponse> GetAppReviewById(long id)
+        public async Task<ApiCommonResponse> GetAppReviewById(long id)
         {
             var appReview = await _appReviewRepo.FindAppReviewById(id);
             if (appReview == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var appReviewTransferDTOs = _mapper.Map<AppReviewTransferDTO>(appReview);
-            return new ApiOkResponse(appReviewTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,appReviewTransferDTOs);
         }
 
-        public async Task<ApiResponse> UpdateAppReview(HttpContext context, long id, AppReviewReceivingDTO appReviewReceivingDTO)
+        public async Task<ApiCommonResponse> UpdateAppReview(HttpContext context, long id, AppReviewReceivingDTO appReviewReceivingDTO)
         {
             var appReviewToUpdate = await _appReviewRepo.FindAppReviewById(id);
             if (appReviewToUpdate == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
 
             var summary = $"Initial details before change, \n {appReviewToUpdate.ToString()} \n";
@@ -102,7 +102,7 @@ namespace HaloBiz.MyServices.Impl
 
             if (updatedappReview == null)
             {
-                return new ApiResponse(500);
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
             ModificationHistory history = new ModificationHistory()
             {
@@ -114,7 +114,7 @@ namespace HaloBiz.MyServices.Impl
             await _historyRepo.SaveHistory(history);
 
             var appReviewTransferDTOs = _mapper.Map<AppReviewTransferDTO>(updatedappReview);
-            return new ApiOkResponse(appReviewTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,appReviewTransferDTOs);
         }
     }
 }

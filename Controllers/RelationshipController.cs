@@ -25,60 +25,39 @@ namespace HaloBiz.Controllers
         }
 
         [HttpGet("")]
-        public async Task<ActionResult> GetRelationship()
+        public async Task<ApiCommonResponse> GetRelationship()
         {
-            var response = await _relationshipService.GetAllRelationship();
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var relationship = ((ApiOkResponse)response).Result;
-            return Ok(relationship);
+            return await _relationshipService.GetAllRelationship();
         }
 
         [HttpGet("caption/{name}")]
-        public async Task<ActionResult> GetByCaption(string name)
+        public async Task<ApiCommonResponse> GetByCaption(string name)
         {
-            var response = await _relationshipService.GetRelationshipByName(name);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var relationship = ((ApiOkResponse)response).Result;
-            return Ok(relationship);
+            return await _relationshipService.GetRelationshipByName(name);
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult> GetById(long id)
+        public async Task<ApiCommonResponse> GetById(long id)
         {
-            var response = await _relationshipService.GetRelationshipById(id);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var relationship = ((ApiOkResponse)response).Result;
-            return Ok(relationship);
+            return await _relationshipService.GetRelationshipById(id);
         }
 
         [HttpPost("")]
-        public async Task<ActionResult> AddNewRelationship(RelationshipReceivingDTO relationshipReceiving)
+        public async Task<ApiCommonResponse> AddNewRelationship(RelationshipReceivingDTO relationshipReceiving)
         {
-            var response = await _relationshipService.AddRelationship(HttpContext, relationshipReceiving);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var relationship = ((ApiOkResponse)response).Result;
-            return Ok(relationship);
+            return await _relationshipService.AddRelationship(HttpContext, relationshipReceiving);
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateById(long id, RelationshipReceivingDTO relationshipReceiving)
+        public async Task<ApiCommonResponse> UpdateById(long id, RelationshipReceivingDTO relationshipReceiving)
         {
-            var response = await _relationshipService.UpdateRelationship(HttpContext, id, relationshipReceiving);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var relationship = ((ApiOkResponse)response).Result;
-            return Ok(relationship);
+            return await _relationshipService.UpdateRelationship(HttpContext, id, relationshipReceiving);
         }
 
         [HttpDelete("{id}")]
-        public async Task<ActionResult> DeleteById(int id)
+        public async Task<ApiCommonResponse> DeleteById(int id)
         {
-            var response = await _relationshipService.DeleteRelationship(id);
-            return StatusCode(response.StatusCode);
+            return await _relationshipService.DeleteRelationship(id);
         }
     }
 }

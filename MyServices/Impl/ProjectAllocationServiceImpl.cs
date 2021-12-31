@@ -37,7 +37,7 @@ namespace HaloBiz.MyServices.Impl
         }
 
 
-        public async Task<ApiResponse> AddNewManager(HttpContext context, ProjectAllocationRecievingDTO projectAllocationDTO)
+        public async Task<ApiCommonResponse> AddNewManager(HttpContext context, ProjectAllocationRecievingDTO projectAllocationDTO)
         {
 
             var existingManagerInAnotherMarketArea = _context.ProjectAllocations.Where(x => x.ManagerId == projectAllocationDTO.ManagerId
@@ -75,72 +75,70 @@ namespace HaloBiz.MyServices.Impl
                     var savedProjectManager = await _projectAllocationRepository.saveNewManager(projectClass);
                     if (savedProjectManager == null)
                     {
-                        return new ApiResponse(500);
+                        return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
                     }
-                    return new ApiOkResponse(savedProjectManager);
+                    return CommonResponse.Send(ResponseCodes.SUCCESS,savedProjectManager);
 
                 }
 
-                return new ApiOkResponse(409);
+                return CommonResponse.Send(ResponseCodes.SUCCESS,409);
 
 
             }
 
-            return new ApiOkResponse(409);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,409);
 
 
         }
 
 
-        public async Task<ApiGenericResponse<Workspace>> CreateNewWorkspace(HttpContext context, WorkspaceDTO workspaceDTO) {
+        public async Task<ApiCommonResponse> CreateNewWorkspace(HttpContext context, WorkspaceDTO workspaceDTO) {
 
 
 
-            var savedWorkSpaces = await _projectAllocationRepository.createWorkspace(context, workspaceDTO);
-
-            if (savedWorkSpaces == null)
-            {
-                return new ApiGenericResponse<Workspace>
+                var savedWorkSpaces = await _projectAllocationRepository.createWorkspace(context,workspaceDTO);
+                
+                if (savedWorkSpaces == null)
                 {
-                    responseCode = 500,
-                    responseMessage = ResponseMessage.ENTITYNOTSAVED,
-                    data = null
-                };
-            }
-            else
-            {
 
-
-                return new ApiGenericResponse<Workspace>
+                    return CommonResponse.Send
+                    (
+                        ResponseCodes.FAILURE,
+                        null,
+                        ResponseMessage.ENTITYNOTSAVED
+                    );
+                }
+                else
                 {
-                    responseCode = 202,
-                    responseMessage = ResponseMessage.EntitySuccessfullySaved,
-                    data = savedWorkSpaces
-                };
-
-            }
-
+                    return CommonResponse.Send
+                    (
+                        ResponseCodes.SUCCESS,
+                        savedWorkSpaces,
+                        ResponseMessage.ENTITYNOTSAVED
+                    );
+                }
+                      
         }
 
 
 
 
-        public async Task<ApiResponse> getProjectManagers(int serviceCategoryId)
+        public async Task<ApiCommonResponse> getProjectManagers(int serviceCategoryId)
         {
 
             var getManagers = await _projectAllocationRepository.getAllProjectManager(serviceCategoryId);
 
             if (getManagers == null)
             {
-                return new ApiOkResponse(getManagers);
+                return CommonResponse.Send(ResponseCodes.SUCCESS,getManagers);
             }
 
-            return new ApiOkResponse(getManagers);
+            return  CommonResponse.Send(ResponseCodes.SUCCESS, getManagers);
 
 
         }
 
-        public async Task<ApiResponse> getAllWorkspaces(HttpContext httpContext)
+        public async Task<ApiCommonResponse> getAllWorkspaces(HttpContext httpContext)
         {
 
             var workspaceArr = new List<RevampedWorkspaceDTO>();
@@ -169,30 +167,30 @@ namespace HaloBiz.MyServices.Impl
 
             if (workspaceArr == null)
             {
-                return new ApiOkResponse(workspaceArr);
+                return CommonResponse.Send(ResponseCodes.SUCCESS,workspaceArr);
             }
 
-            return new ApiOkResponse(workspaceArr);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,workspaceArr);
 
         }
 
 
-        public async Task<ApiResponse> getWorkspaceById(long id)
+        public async Task<ApiCommonResponse> getWorkspaceById(long id)
         {
 
             var getWorkspace = await _projectAllocationRepository.getWorkSpaceById(id);
 
             if (getWorkspace == null)
             {
-                return new ApiOkResponse(getWorkspace);
+                return CommonResponse.Send(ResponseCodes.SUCCESS,getWorkspace);
             }
 
-            return new ApiOkResponse(getWorkspace);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,getWorkspace);
 
         }
 
 
-        public async Task<ApiResponse> getWorkspaceByCaption(string caption)
+        public async Task<ApiCommonResponse> getWorkspaceByCaption(string caption)
         {
 
             var result = await _context.Workspaces.FirstOrDefaultAsync(x => x.Caption == caption && x.IsActive != false);
@@ -200,77 +198,74 @@ namespace HaloBiz.MyServices.Impl
 
             if (result == null)
             {
-                return new ApiOkResponse(result);
+                return CommonResponse.Send(ResponseCodes.SUCCESS,result);
             }
 
-            return new ApiOkResponse(result);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,result);
 
         }
 
 
-        public async Task<ApiResponse> getAllProjectManagers()
+        public async Task<ApiCommonResponse> getAllProjectManagers()
         {
 
             var getAllManagers = await _context.ProjectAllocations.ToListAsync();
 
             if (getAllManagers == null)
             {
-                return new ApiOkResponse(getAllManagers);
+                return CommonResponse.Send(ResponseCodes.SUCCESS,getAllManagers);
             }
 
-            return new ApiOkResponse(getAllManagers);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,getAllManagers);
 
         }
 
 
 
-        public async Task<ApiResponse> getDefaultStatus()
+        public async Task<ApiCommonResponse> getDefaultStatus()
         {
 
             var getDefaultStatus = await _context.StatusFlows.Where(x => x.WorkspaceId == 84).ToListAsync();
 
             if (getDefaultStatus == null)
             {
-                return new ApiOkResponse(getDefaultStatus);
+                return CommonResponse.Send(ResponseCodes.SUCCESS,getDefaultStatus);
             }
 
-            return new ApiOkResponse(getDefaultStatus);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,getDefaultStatus);
 
         }
 
-
-
-
-        public async Task<ApiResponse> removeFromCategory(long id, int category, long projectId)
+        public async Task<ApiCommonResponse> removeFromCategory(long id,int category,long projectId)
         {
             var activityToDelete = await _context.ProjectAllocations.FirstOrDefaultAsync(x => x.ManagerId == id
                                                                     && x.ServiceCategoryId == category
                                                                     && x.Id == projectId);
             if (activityToDelete == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             activityToDelete.IsDeleted = true;
             _context.ProjectAllocations.Update(activityToDelete);
             await _context.SaveChangesAsync();
-            return new ApiOkResponse(true);
+            return CommonResponse.Send(ResponseCodes.SUCCESS);
         }
 
-        public async Task<ApiResponse> removeFromProjectCreator(long workspaceId, long creatorId)
+        public async Task<ApiCommonResponse> removeFromProjectCreator(long workspaceId,long creatorId)
         {
             var creatorToDelete = await _context.ProjectCreators.FirstOrDefaultAsync(x => x.ProjectCreatorProfileId == creatorId && x.IsActive != false && x.WorkspaceId == workspaceId);
             if (creatorToDelete == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             creatorToDelete.IsActive = false;
             _context.ProjectCreators.Update(creatorToDelete);
             await _context.SaveChangesAsync();
             var remainderUser = await _context.ProjectCreators.Where(x => x.WorkspaceId == workspaceId && x.IsActive != false).ToListAsync();
-            return new ApiOkResponse(remainderUser);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,remainderUser);
         }
 
-        public async Task<ApiResponse> updateToPublic(long workspaceId)
+        public async Task<ApiCommonResponse> updateToPublic(long workspaceId)
         {
 
             var workspace = await _context.Workspaces.FirstOrDefaultAsync(x => x.Id == workspaceId);
@@ -294,12 +289,11 @@ namespace HaloBiz.MyServices.Impl
             await _context.SaveChangesAsync();
             var newprivateUserArr = await _context.ProjectCreators.Where(x => x.WorkspaceId == workspaceId && x.IsActive != false).ToListAsync();
 
-            return new ApiOkResponse(newprivateUserArr);
-
+            return CommonResponse.Send(ResponseCodes.SUCCESS,newprivateUserArr);
         }
 
 
-        public async Task<ApiResponse> disablePrivateUser(long workspaceId, long privateUserId)
+        public async Task<ApiCommonResponse> disablePrivateUser(long workspaceId, long privateUserId)
         {
 
 
@@ -308,16 +302,16 @@ namespace HaloBiz.MyServices.Impl
 
             if (privateUser == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             privateUser.IsActive = false;
             _context.PrivacyAccesses.Update(privateUser);
             await _context.SaveChangesAsync();
             var remainderUser = await _context.PrivacyAccesses.Where(x => x.WorkspaceId == workspaceId && x.IsActive != false).ToListAsync();
-            return new ApiOkResponse(remainderUser);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,remainderUser);
         }
 
-        public async Task<ApiResponse> disableStatus(long workspaceId, long statusId)
+        public async Task<ApiCommonResponse> disableStatus(long workspaceId, long statusId)
         {
 
             var status = await _context.StatusFlows.FirstOrDefaultAsync(x => x.WorkspaceId == workspaceId && x.Id == statusId);
@@ -325,110 +319,52 @@ namespace HaloBiz.MyServices.Impl
 
             if (status == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             status.IsDeleted = true;
             _context.StatusFlows.Update(status);
             await _context.SaveChangesAsync();
             var allActveStatus = await _context.StatusFlows.Where(x => x.WorkspaceId == workspaceId && x.IsDeleted == false).ToListAsync();
-            return new ApiOkResponse(allActveStatus);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,allActveStatus);
         }
 
 
-        public async Task<ApiResponse> disableWorkspace(long id)
+        public async Task<ApiCommonResponse> disableWorkspace(long id)
         {
             var activityToDelete = await _context.Workspaces.FirstOrDefaultAsync(x => x.Id == id);
             if (activityToDelete == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             activityToDelete.IsActive = false;
             _context.Workspaces.Update(activityToDelete);
             await _context.SaveChangesAsync();
-            return new ApiOkResponse(true);
+            return CommonResponse.Send(ResponseCodes.SUCCESS);
         }
 
-        public async Task<ApiGenericResponse<Workspace>> updateWorkspace(HttpContext httpContext, long id, UpdateWorkspaceDTO workspaceDTO)
+        public async Task<ApiCommonResponse> updateWorkspace(HttpContext httpContext, long id,UpdateWorkspaceDTO workspaceDTO)
         {
             var workspace = await _context.Workspaces.FirstOrDefaultAsync(x => x.Id == id && x.IsActive == true);
-            if (workspace != null)
+            if (workspace == null)
             {
-                var duplicateCaption = await _context.Workspaces.FirstOrDefaultAsync(x => x.Caption == workspaceDTO.Caption && x.IsActive == true);
-               
-                if(workspace.Caption == workspaceDTO.Caption || duplicateCaption != null)
-                {
-                    if (workspaceDTO.Description == null)
-                        workspaceDTO.Description = workspace.Description;
-                    if (workspaceDTO.Alias == null)
-                        workspaceDTO.Alias = workspace.Alias;
-                    workspace.Alias = workspaceDTO.Alias;
-                    workspace.Description = workspaceDTO.Description;
-                    _context.Workspaces.Update(workspace);
-                    await _context.SaveChangesAsync();
-                    var updatedWorkspace = await _context.Workspaces.FirstOrDefaultAsync(x => x.Id == id && x.IsActive == true);
-
-                    return new ApiGenericResponse<Workspace>
-                    {
-                        responseCode = 200,
-                        responseMessage = "The caption could not be updated because it already exist,but every other value provided where successfully updated.",
-                        data = updatedWorkspace
-                    };
-
-
-                }
-                else
-                {
-
-                    if (workspaceDTO.Caption == null)
-                        workspaceDTO.Caption = workspace.Caption;
-                    if (workspaceDTO.Description == null)
-                        workspaceDTO.Description = workspace.Description;
-                    if (workspaceDTO.Alias == null)
-                        workspaceDTO.Alias = workspace.Alias;
-                    
-                    
-                    workspace.Alias = workspaceDTO.Alias;
-                    workspace.Caption = workspaceDTO.Caption;
-                    workspace.Description = workspaceDTO.Description;
-                    _context.Workspaces.Update(workspace);
-                    await _context.SaveChangesAsync();
-                    var updatedWorkspace = await _context.Workspaces.FirstOrDefaultAsync(x => x.Id == id && x.IsActive == true);
-                    return new ApiGenericResponse<Workspace>
-                    {
-                        responseCode = 200,
-                        responseMessage = "Workspace successfuly updated",
-                        data = updatedWorkspace
-                    };
-
-                }
-
-
-
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);
             }
-            else
-            {
-                return new ApiGenericResponse<Workspace>
-                {
-                    responseCode = 404,
-                    responseMessage = "Workspace with Id " + id + " does not exist",
-                    data = null
-                };
 
-            }
+            workspace.Alias = workspaceDTO.Alias;
+            workspace.Caption = workspaceDTO.Caption;
+            workspace.Description = workspaceDTO.Description;
+            _context.Workspaces.Update(workspace);
+            await _context.SaveChangesAsync();
+            return CommonResponse.Send(ResponseCodes.SUCCESS, workspace);
         }
 
 
-
-     
-    
-
-
-        public async Task<ApiResponse> addMoreProjectCreators(HttpContext httpContext, long id, List<AddMoreUserDto> projectCreatorDtos)
+        public async Task<ApiCommonResponse> addMoreProjectCreators(HttpContext httpContext, long id, List<AddMoreUserDto> projectCreatorDtos)
         {
             var workspace = await _context.Workspaces.FirstOrDefaultAsync(x => x.Id == id);
             if (workspace == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
 
             var projectCreatorsList = new List<ProjectCreator>();
@@ -458,218 +394,16 @@ namespace HaloBiz.MyServices.Impl
             await _context.ProjectCreators.AddRangeAsync(projectCreatorsList);
             await _context.SaveChangesAsync();
             var remainderUser = await _context.ProjectCreators.Where(x => x.WorkspaceId == id && x.IsActive != false).ToListAsync();
-            return new ApiOkResponse(remainderUser);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,remainderUser);
         }
 
 
-        public async Task<ApiGenericResponse<Project>> updateProject(HttpContext httpContext, long projectId , ProjectDTO projectDTO)
-        {
-            var projectFound = await _context.Projects.FirstOrDefaultAsync(x => x.Id == projectId && x.CreatedById == httpContext.GetLoggedInUserId() && x.IsActive == true);
-            
-            if(projectFound != null)
-            {
-                var getProjectByCaption = await _context.Projects.FirstOrDefaultAsync(x => x.IsActive == true && x.Caption == projectDTO.Caption);
-
-                if(projectDTO.Caption == projectFound.Caption || getProjectByCaption != null)
-                {
-                    if (projectDTO.Alias == null)
-                        projectDTO.Alias = projectFound.Alias;
-                    if (projectDTO.ProjectImage == null)
-                        projectDTO.ProjectImage = projectFound.ProjectImage;
-                    if (projectDTO.Description == null)
-                        projectDTO.Description = projectFound.Description;
-
-                    projectFound.Alias = projectDTO.Alias;
-                    projectFound.Description = projectDTO.Description;
-                    projectFound.ProjectImage = projectDTO.ProjectImage;
-                    _context.Projects.Update(projectFound);
-                    await _context.SaveChangesAsync();
-                    var updatedProject = await _context.Projects.FirstOrDefaultAsync(x => x.Id == projectId && x.IsActive == true);
-                    return new ApiGenericResponse<Project>
-                    {
-                        responseCode = 200,
-                        responseMessage = "The caption could not be updated because it already exist,but every other values provided where successfully updated.",
-                        data = updatedProject
-                    };
-
-                }
-                else
-                {
-                    if (projectDTO.Alias == null)
-                        projectDTO.Alias = projectFound.Alias;
-                    if (projectDTO.Caption == null)
-                        projectDTO.Caption = projectFound.Caption;
-                    if (projectDTO.ProjectImage == null)
-                        projectDTO.ProjectImage = projectFound.ProjectImage;
-                    if (projectDTO.Description == null)
-                        projectDTO.Description = projectFound.Description;
-
-                    projectFound.Alias = projectDTO.Alias;
-                    projectFound.Caption = projectDTO.Caption;
-                    projectFound.Description = projectDTO.Description;
-                    projectFound.ProjectImage = projectDTO.ProjectImage;
-                    _context.Projects.Update(projectFound);
-                    await _context.SaveChangesAsync();
-                    var updatedProject = await _context.Projects.FirstOrDefaultAsync(x => x.Id == projectId && x.IsActive == true);
-                    return new ApiGenericResponse<Project>
-                    {
-                        responseCode = 200,
-                        responseMessage = "Project was updated successfully",
-                        data = updatedProject
-                    };
-                }
-
-            }
-            else
-            {
-                return new ApiGenericResponse<Project>
-                {
-                    responseCode = 404,
-                    responseMessage = "Project with Id " + projectId + " does not exist",
-                    data = null
-                };
-            }
-        }
-
-
-        public async Task<ApiGenericResponse<TaskSummaryDTO>> updateTask(HttpContext httpContext, long TaskId, TaskDTO taskDTO)
-        {
-            var tasksfound = await _context.Tasks.FirstOrDefaultAsync(x => x.Id == TaskId && x.CreatedById == httpContext.GetLoggedInUserId() && x.IsActive == true);
-
-            if (tasksfound != null)
-            {
-                var taskFoundByCaption = await _context.Tasks.FirstOrDefaultAsync(x => x.Caption == taskDTO.Caption && x.IsActive == true);
-
-                if (taskDTO.Caption == tasksfound.Caption || taskFoundByCaption != null)
-                {
-                    if (taskDTO.Alias == null)
-                        taskDTO.Alias = tasksfound.Alias;
-
-
-                    if (taskDTO.TaskEndDate == DateTime.MinValue)
-                        taskDTO.TaskEndDate = tasksfound.TaskEndDate;
-                    if (taskDTO.TaskStartDate == DateTime.MinValue)
-                        taskDTO.TaskStartDate = tasksfound.TaskStartDate;
-                    if (taskDTO.WorkingManHours == 0)
-                        taskDTO.WorkingManHours = tasksfound.WorkingManHours;
-                    if (taskDTO.DueTime == DateTime.MinValue)
-                        taskDTO.DueTime = tasksfound.DueTime;
-
-                    if (taskDTO.Description == null)
-                        taskDTO.Description = tasksfound.Description;
-
-                    tasksfound.Alias = taskDTO.Alias;
-                    tasksfound.Description = taskDTO.Description;
-                    tasksfound.DueTime = taskDTO.DueTime;
-                    tasksfound.TaskEndDate = taskDTO.TaskEndDate;
-                    tasksfound.WorkingManHours = taskDTO.WorkingManHours;
-                    tasksfound.TaskStartDate = taskDTO.TaskStartDate; ;
-                    _context.Tasks.Update(tasksfound);
-                    await _context.SaveChangesAsync();
-                    var updatedTask = await _context.Tasks.FirstOrDefaultAsync(x => x.Id == TaskId && x.IsActive == true && x.CreatedById == httpContext.GetLoggedInUserId());
-                    var taskSummary = new TaskSummaryDTO();
-                    taskSummary.Alias = updatedTask.Alias;
-                    taskSummary.DueTime = updatedTask.DueTime;
-                    taskSummary.WorkingManHours = updatedTask.WorkingManHours;
-                    taskSummary.Caption = updatedTask.Caption;
-                    taskSummary.CreatedAt = updatedTask.CreatedAt;
-                    taskSummary.CreatedById = updatedTask.CreatedById;
-                    taskSummary.Description = updatedTask.Description;
-                    taskSummary.IsAssigned = updatedTask.IsAssigned;
-                    taskSummary.IsMilestone = updatedTask.IsMilestone;
-                    taskSummary.IsReassigned = updatedTask.IsReassigned;
-                    taskSummary.IsWorkbenched = updatedTask.IsWorkbenched;
-                    taskSummary.ProjectId = updatedTask.ProjectId;
-                    taskSummary.TaskEndDate = updatedTask.TaskEndDate;
-                    taskSummary.TaskStartDate = updatedTask.TaskStartDate;
-                    taskSummary.Project = await _context.Projects.FirstOrDefaultAsync(x => x.Id == updatedTask.ProjectId && x.IsActive == true && x.CreatedById == httpContext.GetLoggedInUserId());
-                    taskSummary.TaskAssignees = await _context.TaskAssignees.Where(X => X.TaskId == updatedTask.Id && X.IsActive == true && X.CreatedById == httpContext.GetLoggedInUserId()).ToListAsync();
-                    taskSummary.workspace = await _context.Workspaces.FirstOrDefaultAsync(x => x.Id == taskSummary.Project.WorkspaceId && x.IsActive == true && x.CreatedById == httpContext.GetLoggedInUserId());
-
-                    return new ApiGenericResponse<TaskSummaryDTO>
-                    {
-                        responseCode = 200,
-                        responseMessage = "The caption could not be updated because it already exist,but every other values provided where successfully updated.",
-                        data = taskSummary,
-                    };
-
-                }
-                else
-                {
-                    if (taskDTO.Caption == null)
-                        taskDTO.Caption = tasksfound.Caption;
-                    if (taskDTO.Alias == null)
-                        taskDTO.Alias = tasksfound.Alias;
-
-                    if (taskDTO.TaskEndDate == DateTime.MinValue)
-                        taskDTO.TaskEndDate = tasksfound.TaskEndDate;
-                    if (taskDTO.TaskStartDate == DateTime.MinValue)
-                        taskDTO.TaskStartDate = tasksfound.TaskStartDate;
-                    if (taskDTO.WorkingManHours == 0)
-                        taskDTO.WorkingManHours = tasksfound.WorkingManHours;
-                    if (taskDTO.DueTime == DateTime.MinValue)
-                        taskDTO.DueTime = tasksfound.DueTime;
-
-                    if (taskDTO.Description == null)
-                        taskDTO.Description = tasksfound.Description;
-                    tasksfound.Caption = taskDTO.Caption;
-                    tasksfound.Alias = taskDTO.Alias;
-                    tasksfound.Description = taskDTO.Description;
-                    tasksfound.DueTime = taskDTO.DueTime;
-                    tasksfound.TaskEndDate = taskDTO.TaskEndDate;
-                    tasksfound.WorkingManHours = taskDTO.WorkingManHours;
-                    tasksfound.TaskStartDate = taskDTO.TaskStartDate; 
-                    _context.Tasks.Update(tasksfound);
-                    await _context.SaveChangesAsync();
-                    var updatedTask = await _context.Tasks.FirstOrDefaultAsync(x => x.Id == TaskId && x.IsActive == true);
-                    var taskSummary = new TaskSummaryDTO();
-                    taskSummary.Alias = updatedTask.Alias;
-                    taskSummary.Caption = updatedTask.Caption;
-                    taskSummary.CreatedAt = updatedTask.CreatedAt;
-                    taskSummary.CreatedById = updatedTask.CreatedById;
-                    taskSummary.Description = updatedTask.Description;
-                    taskSummary.DueTime = updatedTask.DueTime;
-                    taskSummary.WorkingManHours = updatedTask.WorkingManHours;
-                    taskSummary.IsAssigned = updatedTask.IsAssigned;
-                    taskSummary.IsMilestone = updatedTask.IsMilestone;
-                    taskSummary.IsReassigned = updatedTask.IsReassigned;
-                    taskSummary.IsWorkbenched = updatedTask.IsWorkbenched;
-                    taskSummary.ProjectId = updatedTask.ProjectId;
-                    taskSummary.TaskEndDate = updatedTask.TaskEndDate;
-                    taskSummary.TaskStartDate = updatedTask.TaskStartDate;
-                    taskSummary.Project = await _context.Projects.FirstOrDefaultAsync(x => x.Id == updatedTask.ProjectId && x.IsActive == true && x.CreatedById == httpContext.GetLoggedInUserId());
-                    taskSummary.TaskAssignees = await _context.TaskAssignees.Where(X => X.TaskId == updatedTask.Id && X.IsActive == true && X.CreatedById == httpContext.GetLoggedInUserId()).ToListAsync();
-                    taskSummary.workspace = await _context.Workspaces.FirstOrDefaultAsync(x => x.Id == taskSummary.Project.WorkspaceId && x.IsActive == true && x.CreatedById == httpContext.GetLoggedInUserId());
-
-                    return new ApiGenericResponse<TaskSummaryDTO>
-                    {
-                        responseCode = 200,
-                        responseMessage = "Task was updated successfully",
-                        data = taskSummary,
-                    };
-                }
-
-            }
-            else
-            {
-                return new ApiGenericResponse<TaskSummaryDTO>
-                {
-                    responseCode = 404,
-                    responseMessage = "Task with Id " + TaskId + " does not exist",
-                    data = null
-                };
-            }
-        }
-
-
-
-
-        public async Task<ApiResponse> addMorePrivateUser(HttpContext httpContext, long workspaceId, List<AddMoreUserDto> privateUserid)
+        public async Task<ApiCommonResponse> addMorePrivateUser(HttpContext httpContext, long workspaceId, List<AddMoreUserDto> privateUserid)
         {
             var workspace = await _context.Workspaces.FirstOrDefaultAsync(x => x.Id == workspaceId);
             if (workspace == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
 
             workspace.IsPublic = false;
@@ -702,16 +436,16 @@ namespace HaloBiz.MyServices.Impl
             await _context.PrivacyAccesses.AddRangeAsync(privacyList);
             await _context.SaveChangesAsync();
             var remainderUser = await _context.PrivacyAccesses.Where(x => x.WorkspaceId == workspaceId && x.IsActive != false).ToListAsync();
-            return new ApiOkResponse(remainderUser);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,remainderUser);
 
         }
 
-        public async Task<ApiResponse> updateStatus(HttpContext httpContext, long workspaceId, long statusFlowId,StatusFlowDTO statusFlowDTO)
+        public async Task<ApiCommonResponse> updateStatus(HttpContext httpContext, long workspaceId, long statusFlowId,StatusFlowDTO statusFlowDTO)
         {
             var gottenStatusFlow = await _context.StatusFlows.FirstOrDefaultAsync(x => x.WorkspaceId == workspaceId && x.Id == statusFlowId);
             if (gottenStatusFlow == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
 
             gottenStatusFlow.LevelCount = statusFlowDTO.LevelCount;
@@ -726,119 +460,12 @@ namespace HaloBiz.MyServices.Impl
 
             _context.StatusFlows.Update(gottenStatusFlow);
             await _context.SaveChangesAsync();
-            return new ApiOkResponse(gottenStatusFlow);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,gottenStatusFlow);
 
         }
 
-        public async Task<ApiGenericResponse<List<Watcher>>> addmoreWatchers(HttpContext httpContext, long projectId, List<WatchersDTO> watchersDTOs)
-        {
-            var gottenProject = await _context.Projects.FirstOrDefaultAsync(x => x.Id == projectId && x.IsActive == true && x.CreatedById == httpContext.GetLoggedInUserId());
-           
-            if (gottenProject == null)
-            {
-                return new ApiGenericResponse<List<Watcher>>
-                {
-                    responseCode = 404,
-                    responseMessage = "Watcher(s) with id "+ projectId + "was not found.",
-                    data = null
-                };
-            }
-            else
-            {
-                var watchersArray = new List<Watcher>();
-                var getCurrentWatchers = await _context.Watchers.Where(x => x.ProjectId == projectId && x.IsActive == true && x.CreatedById == httpContext.GetLoggedInUserId()).ToListAsync();
-                if (getCurrentWatchers.Count() == 0)
-                {
 
-                    foreach (var item in watchersDTOs)
-                    {
-                        var watchersInstance = new Watcher();
-                        watchersInstance.CreatedById = httpContext.GetLoggedInUserId();
-                        watchersInstance.ProjectWatcherId = item.ProjectWatcherId;
-                        watchersInstance.ProjectId = item.ProjectId;
-                        watchersInstance.IsActive = true;
-                        watchersInstance.CreatedAt = DateTime.Now;
-
-                        watchersArray.Add(watchersInstance);
-
-                    }
-
-                }
-                else
-                {
-                    
-                        foreach (var item in watchersDTOs)
-                        {
-
-                        var getExistingWatcher = await _context.Watchers.FirstOrDefaultAsync(x => x.ProjectId == projectId && x.IsActive == true && x.CreatedById == httpContext.GetLoggedInUserId() && x.ProjectWatcherId == item.ProjectWatcherId);
-
-                            if (getExistingWatcher  == null)
-                            {
-
-                                var watchersInstance = new Watcher();
-                                watchersInstance.CreatedById = httpContext.GetLoggedInUserId();
-                                watchersInstance.ProjectWatcherId = item.ProjectWatcherId;
-                                watchersInstance.ProjectId = item.ProjectId;
-                                watchersInstance.IsActive = true;
-                                watchersInstance.CreatedAt = DateTime.Now;
-
-                                watchersArray.Add(watchersInstance);
-                            }
-
-                        }
-                    
-                }
-
-                await _context.Watchers.AddRangeAsync(watchersArray);
-                await _context.SaveChangesAsync();
-                var getUpdatedWatchers = await _context.Watchers.Where(x => x.ProjectId == projectId && x.IsActive == true && x.CreatedById == httpContext.GetLoggedInUserId()).ToListAsync();
-
-                return new ApiGenericResponse<List<Watcher>>
-                {
-                    responseCode = 200,
-                    responseMessage = "Watcher(s) were successfully added.",
-                    data = getUpdatedWatchers
-                };
-            }
-
-
-        }
-
-        
-
-
-        public async Task<ApiGenericResponse<List<Watcher>>> removeWatcher(HttpContext httpContext, long projectId, long projectWatcherId)
-        {
-            var ifWatcherExist = await _context.Watchers.FirstOrDefaultAsync(x => x.ProjectId == projectId && x.ProjectWatcherId == projectWatcherId && x.IsActive == true && x.CreatedById == httpContext.GetLoggedInUserId());
-            if(ifWatcherExist == null)
-            {
-                return new ApiGenericResponse<List<Watcher>>
-                {
-                    responseCode = 404,
-                    responseMessage = "Watcher(s) with id " + projectId + "was not found.",
-                    data = null
-                };
-            }
-            else
-            {
-                ifWatcherExist.IsActive = false;
-                _context.Watchers.Update(ifWatcherExist);
-                await _context.SaveChangesAsync();
-                var getUpdatedWatchers =await _context.Watchers.Where(x => x.CreatedById == httpContext.GetLoggedInUserId() && x.ProjectId == projectId && x.IsActive == true).ToListAsync();
-                return new ApiGenericResponse<List<Watcher>>
-                {
-                    responseCode = 200,
-                    responseMessage = "Watcher wwas successfully removed",
-                    data = getUpdatedWatchers
-                };
-            }
-        }
-
-
-
-
-
-        public async Task<ApiResponse> addmoreStatus(HttpContext httpContext, long workspaceId, List<StatusFlowDTO> statusFlowDTO)
+        public async Task<ApiCommonResponse> addmoreStatus(HttpContext httpContext, long workspaceId, List<StatusFlowDTO> statusFlowDTO)
         {
             
 
@@ -862,12 +489,12 @@ namespace HaloBiz.MyServices.Impl
             await _context.StatusFlows.AddRangeAsync(statusArray);
             await _context.SaveChangesAsync();
             var currentStatus = await _context.StatusFlows.Where(x => x.WorkspaceId == workspaceId  &&x.CreatedById == httpContext.GetLoggedInUserId() && x.IsDeleted == false).ToListAsync();
-            return new ApiOkResponse(currentStatus);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,currentStatus);
 
         }
 
 
-        public async Task<ApiResponse> moveStatusSequenec(HttpContext httpContext, long workspaceId, List<StatusFlowDTO> statusFlowDTO)
+        public async Task<ApiCommonResponse> moveStatusSequenec(HttpContext httpContext, long workspaceId, List<StatusFlowDTO> statusFlowDTO)
         {
 
 
@@ -902,13 +529,13 @@ namespace HaloBiz.MyServices.Impl
             _context.StatusFlows.AddRange(statusArray);
             await _context.SaveChangesAsync();
             var currentStatus = await _context.StatusFlows.Where(x => x.WorkspaceId == workspaceId && x.IsDeleted == false).ToListAsync();
-            return new ApiOkResponse(statusArray);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,statusArray);
 
         }
 
         
 
-        public async Task<ApiResponse> createDefaultStatus(HttpContext httpContext, List<DefaultStatusDTO> defaultStatusFlows)
+        public async Task<ApiCommonResponse> createDefaultStatus(HttpContext httpContext, List<DefaultStatusDTO> defaultStatusFlows)
         {
 
             var defaultStatusArray = new List<DefaultStatusFlow>();
@@ -932,52 +559,12 @@ namespace HaloBiz.MyServices.Impl
             await _context.DefaultStatusFlows.AddRangeAsync(defaultStatusArray);
             await _context.SaveChangesAsync();
             var currentStatus = await _context.StatusFlows.Where(x=>x.IsDeleted == false).ToListAsync();
-            return new ApiOkResponse(defaultStatusArray);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,defaultStatusArray);
 
         }
 
 
-        public async Task<ApiResponse> createProject(HttpContext httpContext, ProjectDTO projectDTO)
-        {
-
-            var projectTobeSaved = new Project()
-            {
-                Caption = projectDTO.Caption,
-                Description = projectDTO.Description,
-                Alias = projectDTO.Alias,
-                ProjectImage = projectDTO.ProjectImage,
-                IsActive = true,
-                WorkspaceId = projectDTO.WorkspaceId,
-                CreatedById = httpContext.GetLoggedInUserId(),
-                CreatedAt = DateTime.Now,
-            };
-
-              _context.Projects.Add(projectTobeSaved);
-               await _context.SaveChangesAsync();
-
-
-            foreach (var item in projectDTO.Watchers)
-            {
-                var watchersToBeSaved = new Watcher()
-                {
-                    IsActive = true,
-                    ProjectWatcherId = item.ProjectWatcherId,
-                    ProjectId = projectTobeSaved.Id,
-                    CreatedById = httpContext.GetLoggedInUserId(),
-                    CreatedAt = DateTime.Now
-                };
-
-                await _context.Watchers.AddAsync(watchersToBeSaved);
-            }
-
-                await _context.SaveChangesAsync();
-                var getAllProjects = await _context.Projects.Where(x => x.WorkspaceId == projectDTO.WorkspaceId && x.CreatedById == httpContext.GetLoggedInUserId() && x.IsActive == true).ToListAsync();
-                return new ApiOkResponse(getAllProjects);
-
-        }
-
-
-        public async Task<ApiResponse> updateStatusFlowOpton(HttpContext httpContext,long workspaceId,string statusOption, List<StatusFlowDTO> statusFlowDTOs)
+        public async Task<ApiCommonResponse> updateStatusFlowOpton(HttpContext httpContext,long workspaceId,string statusOption, List<StatusFlowDTO> statusFlowDTOs)
         {
 
 
@@ -1022,11 +609,11 @@ namespace HaloBiz.MyServices.Impl
            }
             await _context.StatusFlows.AddRangeAsync(statusArray);
             await _context.SaveChangesAsync();
-            return new ApiOkResponse(statusArray);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,statusArray);
         }
 
 
-        public async Task<ApiResponse> getAllDefaultStatus()
+        public async Task<ApiCommonResponse> getAllDefaultStatus()
 
         {
 
@@ -1034,16 +621,16 @@ namespace HaloBiz.MyServices.Impl
 
             if (allDefaultStatus == null)
             {
-                return new ApiResponse(400);
+                return CommonResponse.Send(ResponseCodes.FAILURE);
             }
 
-            return new ApiOkResponse(allDefaultStatus);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,allDefaultStatus);
 
 
         }
 
 
-        public async Task<ApiResponse> getAllProjects(HttpContext httpContext)
+        public async Task<ApiCommonResponse> getAllProjects(HttpContext httpContext)
 
         {
 
@@ -1051,28 +638,24 @@ namespace HaloBiz.MyServices.Impl
 
             if (getAllProjects == null)
             {
-                return new ApiResponse(400);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);
             }
 
-            return new ApiOkResponse(getAllProjects);
+            return CommonResponse.Send(ResponseCodes.SUCCESS, getAllProjects);
 
 
         }
 
 
-        public async Task<ApiGenericResponse<List<WorkspaceDTO>>> getAllProjectCreatorsWorkspace(HttpContext httpContext)
+        public async Task<ApiCommonResponse> getAllProjectCreatorsWorkspace(HttpContext httpContext)
 
         {
 
             var getAllWorkspaces = await _context.Workspaces.Where(x => x.IsActive == true).ToListAsync();
             if(getAllWorkspaces.Count() == 0)
             {
-                return new ApiGenericResponse<List<WorkspaceDTO>>
-                {
-                    responseCode = 404,
-                    responseMessage = "No workspace was found",
-                    data = null,
-                };
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);
+
             }
 
             else
@@ -1100,20 +683,13 @@ namespace HaloBiz.MyServices.Impl
                     }
                 }
 
-                return new ApiGenericResponse<List<WorkspaceDTO>>
-                {
-                    responseCode = 200,
-                    responseMessage = "workspace successfully retrieved",
-                    data = workspaceArray,
-                };
-
-
+                return CommonResponse.Send(ResponseCodes.SUCCESS, workspaceArray);
             }
-          
+
         }
 
 
-        public async Task<ApiGenericResponse<List<Deliverable>>> getAllDeliverables(HttpContext httpContext)
+        public async Task<ApiCommonResponse> getAllDeliverables(HttpContext httpContext)
 
         {
 
@@ -1121,12 +697,8 @@ namespace HaloBiz.MyServices.Impl
 
             if (getAllDeliverables.Count() == 0)
             {
-                return new ApiGenericResponse<List<Deliverable>>
-                {
-                    responseCode = 404,
-                    responseMessage = "No Deliverables was found",
-                    data = null,
-                };
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);
+
             }
             else
             {
@@ -1161,21 +733,17 @@ namespace HaloBiz.MyServices.Impl
                     deliverableToDisplayArray.Add(deliverableToDisplayInstance);
                 }
 
-                return new ApiGenericResponse<List<Deliverable>>
-                {
-                    responseCode = 200,
-                    responseMessage = "Successfull retrieved all deliverables",
-                    data = deliverableToDisplayArray,
-                };
+                return CommonResponse.Send(ResponseCodes.SUCCESS, deliverableToDisplayArray);
+
             }
 
-            
+
 
 
         }
 
 
-        public async Task<ApiGenericResponse<List<DeliverableDTO>>> getAllDeliverablesByTaskId(HttpContext httpContext,long taskId)
+        public async Task<ApiCommonResponse> getAllDeliverablesByTaskId(HttpContext httpContext,long taskId)
 
         {
 
@@ -1183,12 +751,8 @@ namespace HaloBiz.MyServices.Impl
 
             if (getAllDeliverables == null || getAllDeliverables.Count() == 0)
             {
-                return new ApiGenericResponse<List<DeliverableDTO>>
-                {
-                    responseCode = 404,
-                    responseMessage = "No Deliverables was found",
-                    data = null,
-                };
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);
+
             }
             else
             {
@@ -1237,12 +801,8 @@ namespace HaloBiz.MyServices.Impl
 
                 }
 
-                return new ApiGenericResponse<List<DeliverableDTO>>
-                {
-                    responseCode = 200,
-                    responseMessage = "Successfull retrieved all deliverables",
-                    data = deliverableToDisplayArray,
-                };
+                return CommonResponse.Send(ResponseCodes.SUCCESS, deliverableToDisplayArray);
+
             }
 
 
@@ -1250,7 +810,7 @@ namespace HaloBiz.MyServices.Impl
 
 
 
-        public async Task<ApiGenericResponse<Deliverable>> getDeliverablesById(HttpContext httpContext, long id)
+        public async Task<ApiCommonResponse> getDeliverablesById(HttpContext httpContext, long id)
 
         {
 
@@ -1258,12 +818,8 @@ namespace HaloBiz.MyServices.Impl
 
             if (getAllDeliverables == null)
             {
-                return new ApiGenericResponse<Deliverable>
-                {
-                    responseCode = 404,
-                    responseMessage = "No Deliverables was found",
-                    data = null,
-                };
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);
+
             }
             else
             {
@@ -1291,19 +847,15 @@ namespace HaloBiz.MyServices.Impl
                     deliverableToDisplayInstance.Documents = await _context.Documents.Where(x => x.DeliverableId == getAllDeliverables.Id && x.CreatedById == httpContext.GetLoggedInUserId()).ToListAsync();
 
 
-                return new ApiGenericResponse<Deliverable>
-                {
-                    responseCode = 200,
-                    responseMessage = "Successfull retrieved all deliverables",
-                    data = deliverableToDisplayInstance,
-                };
+                return CommonResponse.Send(ResponseCodes.SUCCESS, deliverableToDisplayInstance);
+
             }
 
 
         }
 
 
-        public async Task<ApiResponse> getWorkByProjectCreatorId(HttpContext httpContext)
+        public async Task<ApiCommonResponse> getWorkByProjectCreatorId(HttpContext httpContext)
 
         {
 
@@ -1348,39 +900,26 @@ namespace HaloBiz.MyServices.Impl
 
                 if (projectCreatorList != null)
                 {
-                    return new ApiOkResponse(projectCreatorList);
+                    return CommonResponse.Send(ResponseCodes.SUCCESS, projectCreatorList);
                 }
 
-                return new ApiOkResponse(projectCreatorList);
-
-
-
+                return CommonResponse.Send(ResponseCodes.SUCCESS, projectCreatorList);
             }
 
-            return new ApiOkResponse(projectCreatorList);
-
-
+            return CommonResponse.Send(ResponseCodes.SUCCESS, projectCreatorList);
         }
 
 
-        public async Task<ApiResponse> getWatchersByProjectId(HttpContext httpContext, long projectId)
+        public async Task<ApiCommonResponse> getWatchersByProjectId(HttpContext httpContext, long projectId)
 
         {
 
             var getWatchersByProjectId = await _context.Watchers.Where(x => x.IsActive == true && x.CreatedById == httpContext.GetLoggedInUserId() && x.ProjectId == projectId).ToListAsync();
-
-            if (getWatchersByProjectId == null)
-            {
-                return new ApiOkResponse(getWatchersByProjectId);
-            }
-
-            return new ApiOkResponse(getWatchersByProjectId);
-
-
+            return CommonResponse.Send(ResponseCodes.SUCCESS, getWatchersByProjectId);
         }
 
 
-        public async Task<ApiResponse> getProjectByProjectName(HttpContext httpContext,string projectName)
+        public async Task<ApiCommonResponse> getProjectByProjectName(HttpContext httpContext,string projectName)
 
         {
 
@@ -1388,16 +927,16 @@ namespace HaloBiz.MyServices.Impl
 
             if (getProjectByCaption == null)
             {
-                return new ApiOkResponse(getProjectByCaption);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);
             }
 
-            return new ApiOkResponse(getProjectByCaption);
+            return CommonResponse.Send(ResponseCodes.SUCCESS, getProjectByCaption);
 
 
         }
 
 
-        public async Task<ApiGenericResponse<List<Deliverable>>> createNewDeliverableFromTask(HttpContext httpContext, long TaskId, DeliverableDTO deliverableDTO)
+        public async Task<ApiCommonResponse> createNewDeliverableFromTask(HttpContext httpContext, long TaskId, DeliverableDTO deliverableDTO)
 
         {
 
@@ -1405,12 +944,8 @@ namespace HaloBiz.MyServices.Impl
 
             if (getAvailableTask == null)
             {
-                return new ApiGenericResponse<List<Deliverable>>
-                {
-                    responseCode = 404,
-                    responseMessage = "Task with Id" + TaskId + "could not be found",
-                    data = null,
-                };
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);
+
             }
 
             else
@@ -1517,28 +1052,20 @@ namespace HaloBiz.MyServices.Impl
 
                 //}
 
-                return new ApiGenericResponse<List<Deliverable>>
-                {
-                    responseCode = 200,
-                    responseMessage = "Deliverable successfully saved",
-                    data = getAllDeliverables,
-                };
+                return CommonResponse.Send(ResponseCodes.SUCCESS, getAllDeliverables);
+
             }
 
 
         }
 
-        public async Task<ApiGenericResponse<List<Deliverable>>> updateDeliverable(HttpContext httpContext, long taskId,long deliverableId,DeliverableDTO deliverableDTO)
+        public async Task<ApiCommonResponse> updateDeliverable(HttpContext httpContext, long taskId,long deliverableId,DeliverableDTO deliverableDTO)
         {
             var getDeliverable = await _context.Deliverables.FirstOrDefaultAsync(x => x.IsActive == true && x.TaskId == taskId && x.Id == deliverableId);
             if (getDeliverable == null)
             {
-                return new ApiGenericResponse<List<Deliverable>>
-                {
-                    responseCode = 404,
-                    responseMessage = "Deliverable with Id" + deliverableId + "could not be found",
-                    data = null,
-                };
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);
+
             }
 
             else
@@ -1569,29 +1096,21 @@ namespace HaloBiz.MyServices.Impl
                 var updatedResult = await _context.Deliverables.Where(x => x.TaskId == taskId && x.IsActive == true  && x.CreatedById == httpContext.GetLoggedInUserId()).ToListAsync();
 
 
-                return new ApiGenericResponse<List<Deliverable>>
-                {
-                    responseCode = 200,
-                    responseMessage = "Deliverable successfully Updated",
-                    data = updatedResult,
-                };
+                return CommonResponse.Send(ResponseCodes.SUCCESS, updatedResult);
+
 
             }
 
         }
 
 
-        public async Task<ApiGenericResponse<List<Deliverable>>> disableDeliverable(HttpContext httpContext, long taskId, long deliverableId)
+        public async Task<ApiCommonResponse> disableDeliverable(HttpContext httpContext, long taskId, long deliverableId)
         {
             var getDeliverable = await _context.Deliverables.FirstOrDefaultAsync(x => x.IsActive == true && x.TaskId == taskId && x.Id == deliverableId);
             if (getDeliverable == null)
             {
-                return new ApiGenericResponse<List<Deliverable>>
-                {
-                    responseCode = 404,
-                    responseMessage = "Deliverable with Id" + deliverableId + "could not be found",
-                    data = null,
-                };
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);
+
             }
 
             else
@@ -1604,12 +1123,8 @@ namespace HaloBiz.MyServices.Impl
                 var updatedResult = await _context.Deliverables.Where(x => x.TaskId == taskId  && x.IsActive == true && x.CreatedById == httpContext.GetLoggedInUserId()).ToListAsync();
 
 
-                return new ApiGenericResponse<List<Deliverable>>
-                {
-                    responseCode = 200,
-                    responseMessage = "Deliverable successfully Updated",
-                    data = updatedResult,
-                };
+                return CommonResponse.Send(ResponseCodes.SUCCESS, updatedResult);
+
 
             }
 
@@ -1619,7 +1134,7 @@ namespace HaloBiz.MyServices.Impl
 
 
 
-        public async Task<ApiGenericResponse<List<Deliverable>>> createNewDeliverable(HttpContext httpContext, long TaskId,DeliverableDTO deliverableDTO)
+        public async Task<ApiCommonResponse> createNewDeliverable(HttpContext httpContext, long TaskId,DeliverableDTO deliverableDTO)
 
         {
 
@@ -1627,12 +1142,8 @@ namespace HaloBiz.MyServices.Impl
            
             if (getAvailableTask == null)
             {
-                return new ApiGenericResponse<List<Deliverable>>
-                {
-                    responseCode = 404,
-                    responseMessage = "Task with Id" + TaskId + "could not be found",
-                    data = null,
-                };
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);
+
             }
 
             else
@@ -1697,12 +1208,8 @@ namespace HaloBiz.MyServices.Impl
                 var updatedResult = await _context.Deliverables.Where(x => x.TaskId == TaskId && x.IsActive == true && x.CreatedById == httpContext.GetLoggedInUserId()).ToListAsync();
 
 
-                return new ApiGenericResponse<List<Deliverable>>
-                {
-                    responseCode = 200,
-                    responseMessage = "Deliverable successfully saved",
-                    data = updatedResult,
-                };
+                return CommonResponse.Send(ResponseCodes.SUCCESS, updatedResult);
+
             }
 
 
@@ -1710,21 +1217,17 @@ namespace HaloBiz.MyServices.Impl
 
 
 
-        public async Task<ApiGenericResponse<IEnumerable<TaskAssignee>>> addMoreTaskAssignees(HttpContext context, long taskId,  List<TaskAssigneeDTO> taskAssigneeDTO)
+        public async Task<ApiCommonResponse> addMoreTaskAssignees(HttpContext context, long taskId,  List<TaskAssigneeDTO> taskAssigneeDTO)
         {
             var getTask = await _context.Tasks.FirstOrDefaultAsync(x => x.IsActive == true && x.Id == taskId);
             if (getTask == null)
             {
-                return new ApiGenericResponse<IEnumerable<TaskAssignee>>
-                {
-                    responseCode = 404,
-                    responseMessage = "Task with Id" + taskId + "could not be found",
-                    data = null,
-                };
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);
+
             }
 
-            
-            
+
+
             else if(getTask != null)
             {
                 foreach (var existing in taskAssigneeDTO)
@@ -1732,12 +1235,8 @@ namespace HaloBiz.MyServices.Impl
                     var findAssignee = await _context.TaskAssignees.FirstOrDefaultAsync(x => x.TaskAssigneeId == existing.TaskAssigneeId && x.TaskId == existing.TaskId && x.IsActive == true);
                     if (findAssignee != null)
                     {
-                        return new ApiGenericResponse<IEnumerable<TaskAssignee>>
-                        {
-                            responseCode = 404,
-                            responseMessage = "Task assignee already exists",
-                            data = null,
-                        };
+                        return CommonResponse.Send(ResponseCodes.FAILURE, null, "Task assignee already exist");
+
                     }
                 }
                 var asigneeArray = new List<TaskAssignee>();
@@ -1762,27 +1261,19 @@ namespace HaloBiz.MyServices.Impl
             var distinctAssigneeId = getUpdatedAssigneeById.GroupBy(x => x.TaskAssigneeId)
                         .Select(g => g.First())
                         .ToList();
-            return new ApiGenericResponse<IEnumerable<TaskAssignee>>
-            {
-                responseCode = 200,
-                responseMessage = "Successfully saved task assignees",
-                data = distinctAssigneeId
-            };
+            return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);
+
 
 
         }
 
-        public async Task<ApiGenericResponse<List<TaskAssignee>>> disableTaskAssignee(HttpContext context, long taskId, long assigneeId)
+        public async Task<ApiCommonResponse> disableTaskAssignee(HttpContext context, long taskId, long assigneeId)
         {
             var getAssignee = await _context.TaskAssignees.FirstOrDefaultAsync(x=>x.TaskAssigneeId == assigneeId && x.TaskId == taskId && x.IsActive == true);
             if(getAssignee == null)
             {
-                return new ApiGenericResponse<List<TaskAssignee>>
-                {
-                    responseCode = 404,
-                    responseMessage = "Assignee with Id" + assigneeId + "could not be found",
-                    data = null,
-                };
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);
+
             }
             else
             {
@@ -1795,13 +1286,7 @@ namespace HaloBiz.MyServices.Impl
                         .Select(g => g.First())
                         .ToList();
 
-                return new ApiGenericResponse<List<TaskAssignee>>
-                {
-                    responseCode = 200,
-                    responseMessage = "Successfully saved task assignees",
-                    data = getUpdatedAssigneeById,
-                };
-
+                return CommonResponse.Send(ResponseCodes.SUCCESS, getUpdatedAssigneeById);
             }
         }
 
@@ -1809,18 +1294,13 @@ namespace HaloBiz.MyServices.Impl
 
 
 
-        public async Task<ApiGenericResponse<List<TaskSummaryDTO>>> createNewTask(HttpContext context,long projectId ,TaskDTO taskDTO)
+        public async Task<ApiCommonResponse> createNewTask(HttpContext context,long projectId ,TaskDTO taskDTO)
         {
             var taskSummaryList = new List<TaskSummaryDTO>();
             var ProjectExist = await _context.Projects.FirstOrDefaultAsync(x => x.IsActive == true && x.CreatedById == context.GetLoggedInUserId() && x.Id == projectId);
             if(ProjectExist == null)
             {
-                return new ApiGenericResponse<List<TaskSummaryDTO>>
-                {
-                    responseCode = 404,
-                    responseMessage = "Project with Id" + projectId + "could not be found",
-                    data = null,
-                };
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);
             }
 
             else
@@ -1895,23 +1375,11 @@ namespace HaloBiz.MyServices.Impl
                     }
 
                 }
-                return new ApiGenericResponse<List<TaskSummaryDTO>>
-                {
-                    responseCode = 200,
-                    responseMessage = "Task was successfully saved",
-                    data = taskSummaryList,
-                };
-
+                return CommonResponse.Send(ResponseCodes.SUCCESS, taskSummaryList);
             }
-           
-
         }
 
-
-
-
-
-        public async Task<ApiGenericResponse<List<Deliverable>>> AssignDeliverable(HttpContext context, long taskId,long deliverableId, long assigneDeliverableId,  AssignDeliverableDTO assignDeliverableDTO)
+        public async Task<ApiCommonResponse> AssignDeliverable(HttpContext context, long taskId,long deliverableId, long assigneDeliverableId,  AssignDeliverableDTO assignDeliverableDTO)
         {
            
                var getAssigndDeliverable = await _context.AssignTasks.FirstOrDefaultAsync(x => x.IsActive == true && x.Id == assigneDeliverableId && x.DeliverableId == deliverableId);
@@ -1957,79 +1425,67 @@ namespace HaloBiz.MyServices.Impl
                 
 
                     var getAllDeliverables = await _context.Deliverables.Where(x => x.IsActive == true && x.TaskId == taskId  && x.CreatedById == context.GetLoggedInUserId()).ToListAsync();
-                    //var deliverableToDisplayArray = new List<DeliverableDTO>();
+            //var deliverableToDisplayArray = new List<DeliverableDTO>();
 
-                    //foreach (var item in getAllDeliverables)
-                    //{
-                    //    var deliverableToDisplayInstance = new DeliverableDTO();
-                    //    deliverableToDisplayInstance.Alias = item.Alias;
-                    //    deliverableToDisplayInstance.Caption = item.Caption;
-                    //    deliverableToDisplayInstance.Budget = item.Budget;
-                    //    deliverableToDisplayInstance.Description = item.Description;
-                    //    deliverableToDisplayInstance.CreatedById = context.GetLoggedInUserId();
-                    //    deliverableToDisplayInstance.DatePicked = item.DatePicked;
-                    //    deliverableToDisplayInstance.DependentType = item.DependentType;
-                    //    deliverableToDisplayInstance.EndDate = item.EndDate;
-                    //    deliverableToDisplayInstance.Requirements = await _context.PMRequirements.Where(x => x.IsActive == true && x.DeliverableId == item.Id).ToListAsync();
-                    //    deliverableToDisplayInstance.Dependencies = await _context.Dependencies.Where(x => x.DependencyDeliverableId == item.Id).ToListAsync();
-                    //    deliverableToDisplayInstance.Id = item.Id;
-                    //    deliverableToDisplayInstance.TimeEstimate = item.TimeEstimate;
-                    //    deliverableToDisplayInstance.StartDate = item.StartDate;
-                    //    deliverableToDisplayInstance.PMIllustrations = await _context.PMIllustrations.Where(x => x.IsActive == true && x.TaskOrDeliverableId == deliverableId).ToListAsync();
-                    //    var getAssignTaskById = await _context.AssignTasks.FirstOrDefaultAsync(x => x.IsActive == true && x.DeliverableId == item.Id);
-                    //    var assigneeToBeSaved = new AssignDeliverableDTO();
-                    //    if (getAssignTaskById != null)
-                    //    {
-                    //        assigneeToBeSaved.Caption = getAssignTaskById.Caption;
-                    //        assigneeToBeSaved.Alias = getAssignTaskById.Alias;
-                    //        assigneeToBeSaved.CreatedAt = getAssignTaskById.CreatedAt;
-                    //        assigneeToBeSaved.CreatedById = getAssignTaskById.CreatedById;
-                    //        assigneeToBeSaved.DeliverableAssigneeId = getAssignTaskById.DeliverableAssigneeId;
-                    //        assigneeToBeSaved.DeliverableUser = await getUser(assigneeToBeSaved.DeliverableAssigneeId, context);
-                    //        assigneeToBeSaved.DeliverableId = getAssignTaskById.DeliverableId;
-                    //        assigneeToBeSaved.Description = getAssignTaskById.Description;
-                    //        assigneeToBeSaved.DueDate = getAssignTaskById.DueDate;
-                    //        assigneeToBeSaved.Id = getAssignTaskById.Id;
-                    //        assigneeToBeSaved.IsActive = getAssignTaskById.IsActive;
-                    //        assigneeToBeSaved.Priority = getAssignTaskById.Priority;
-                    //        assigneeToBeSaved.UpdatedAt = getAssignTaskById.UpdatedAt;
-                    //    }
+            //foreach (var item in getAllDeliverables)
+            //{
+            //    var deliverableToDisplayInstance = new DeliverableDTO();
+            //    deliverableToDisplayInstance.Alias = item.Alias;
+            //    deliverableToDisplayInstance.Caption = item.Caption;
+            //    deliverableToDisplayInstance.Budget = item.Budget;
+            //    deliverableToDisplayInstance.Description = item.Description;
+            //    deliverableToDisplayInstance.CreatedById = context.GetLoggedInUserId();
+            //    deliverableToDisplayInstance.DatePicked = item.DatePicked;
+            //    deliverableToDisplayInstance.DependentType = item.DependentType;
+            //    deliverableToDisplayInstance.EndDate = item.EndDate;
+            //    deliverableToDisplayInstance.Requirements = await _context.PMRequirements.Where(x => x.IsActive == true && x.DeliverableId == item.Id).ToListAsync();
+            //    deliverableToDisplayInstance.Dependencies = await _context.Dependencies.Where(x => x.DependencyDeliverableId == item.Id).ToListAsync();
+            //    deliverableToDisplayInstance.Id = item.Id;
+            //    deliverableToDisplayInstance.TimeEstimate = item.TimeEstimate;
+            //    deliverableToDisplayInstance.StartDate = item.StartDate;
+            //    deliverableToDisplayInstance.PMIllustrations = await _context.PMIllustrations.Where(x => x.IsActive == true && x.TaskOrDeliverableId == deliverableId).ToListAsync();
+            //    var getAssignTaskById = await _context.AssignTasks.FirstOrDefaultAsync(x => x.IsActive == true && x.DeliverableId == item.Id);
+            //    var assigneeToBeSaved = new AssignDeliverableDTO();
+            //    if (getAssignTaskById != null)
+            //    {
+            //        assigneeToBeSaved.Caption = getAssignTaskById.Caption;
+            //        assigneeToBeSaved.Alias = getAssignTaskById.Alias;
+            //        assigneeToBeSaved.CreatedAt = getAssignTaskById.CreatedAt;
+            //        assigneeToBeSaved.CreatedById = getAssignTaskById.CreatedById;
+            //        assigneeToBeSaved.DeliverableAssigneeId = getAssignTaskById.DeliverableAssigneeId;
+            //        assigneeToBeSaved.DeliverableUser = await getUser(assigneeToBeSaved.DeliverableAssigneeId, context);
+            //        assigneeToBeSaved.DeliverableId = getAssignTaskById.DeliverableId;
+            //        assigneeToBeSaved.Description = getAssignTaskById.Description;
+            //        assigneeToBeSaved.DueDate = getAssignTaskById.DueDate;
+            //        assigneeToBeSaved.Id = getAssignTaskById.Id;
+            //        assigneeToBeSaved.IsActive = getAssignTaskById.IsActive;
+            //        assigneeToBeSaved.Priority = getAssignTaskById.Priority;
+            //        assigneeToBeSaved.UpdatedAt = getAssignTaskById.UpdatedAt;
+            //    }
 
-                    //    deliverableToDisplayInstance.AssignDeliverableDTO = assigneeToBeSaved;
-                    //    deliverableToDisplayInstance.IsActive = item.IsActive;
+            //    deliverableToDisplayInstance.AssignDeliverableDTO = assigneeToBeSaved;
+            //    deliverableToDisplayInstance.IsActive = item.IsActive;
 
-                    //    deliverableToDisplayArray.Add(deliverableToDisplayInstance);
+            //    deliverableToDisplayArray.Add(deliverableToDisplayInstance);
 
-                    //    }
+            //    }
 
-                        return new ApiGenericResponse<List<Deliverable>>
-                        {
-                            responseCode = 200,
-                            responseMessage = "Deliverable successfully saved.",
-                            data = getAllDeliverables,
-                        };
-
-             }
+            return CommonResponse.Send(ResponseCodes.SUCCESS, getAllDeliverables);
+        }
 
 
 
 
 
 
-        public async Task<ApiGenericResponse<List<Deliverable>>> createDeliverableIllustrattions(HttpContext context, long deliverableId,long taskId, List<IllustrationsDTO> illustrationsDTO)
+        public async Task<ApiCommonResponse> createDeliverableIllustrattions(HttpContext context, long deliverableId,long taskId, List<IllustrationsDTO> illustrationsDTO)
         {
             
             var getCurrentDeliverable = await _context.Deliverables.FirstOrDefaultAsync(x => x.IsActive == true  && x.Id == deliverableId);
 
 
             if (getCurrentDeliverable == null)
-                return new ApiGenericResponse<List<Deliverable>>
-                {
-                    responseCode = 404,
-                    responseMessage = "Deliverable was not found.",
-                    data = null,
-                };
-
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);
 
             else
             {
@@ -2098,12 +1554,8 @@ namespace HaloBiz.MyServices.Impl
 
             //}
 
-            return new ApiGenericResponse<List<Deliverable>>
-            {
-                responseCode = 200,
-                responseMessage = "Deliverable successfully saved.",
-                data = getAllDeliverables,
-            };
+            return CommonResponse.Send(ResponseCodes.SUCCESS, getAllDeliverables);
+
 
         }
 
@@ -2111,19 +1563,15 @@ namespace HaloBiz.MyServices.Impl
 
 
 
-        public async Task<ApiGenericResponse<List<Deliverable>>> DeleteIllustration(HttpContext context, long taskId,long deliverableId ,long illustrationId)
+        public async Task<ApiCommonResponse> DeleteIllustration(HttpContext context, long taskId,long deliverableId ,long illustrationId)
         {
 
             var getCurrentDeliverable = await _context.Deliverables.FirstOrDefaultAsync(x => x.IsActive == true && x.Id == deliverableId);
 
 
             if (getCurrentDeliverable == null)
-                return new ApiGenericResponse<List<Deliverable>>
-                {
-                    responseCode = 404,
-                    responseMessage = "Deliverable was not found.",
-                    data = null,
-                };
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);
+
 
 
             else
@@ -2181,12 +1629,8 @@ namespace HaloBiz.MyServices.Impl
 
             //}
 
-            return new ApiGenericResponse<List<Deliverable>>
-            {
-                responseCode = 200,
-                responseMessage = "Deliverable successfully saved.",
-                data = getAllDeliverables,
-            };
+            return CommonResponse.Send(ResponseCodes.SUCCESS, getAllDeliverables);
+
 
         }
 
@@ -2194,18 +1638,14 @@ namespace HaloBiz.MyServices.Impl
 
 
 
-        public async Task<ApiGenericResponse<List<TaskSummaryDTO>>> getAllTask(HttpContext httpContext)
+        public async Task<ApiCommonResponse> getAllTask(HttpContext httpContext)
         {
             var taskSummaryList = new List<TaskSummaryDTO>();
             var getAllTask = await _context.Tasks.Where(x => x.CreatedById == httpContext.GetLoggedInUserId()).ToListAsync();
            if(getAllTask == null)
             {
-                return new ApiGenericResponse<List<TaskSummaryDTO>>
-                {
-                    responseCode = 404,
-                    responseMessage = "No task was found.",
-                    data = null,
-                };
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);
+
             }
 
             else
@@ -2231,41 +1671,25 @@ namespace HaloBiz.MyServices.Impl
                     taskSummary.workspace = await _context.Workspaces.FirstOrDefaultAsync(x => x.Id == taskSummary.Project.WorkspaceId && x.IsActive == true && x.CreatedById == httpContext.GetLoggedInUserId());
 
                     taskSummaryList.Add(taskSummary);
-
                 }
 
-
-                return new ApiGenericResponse<List<TaskSummaryDTO>>
-                {
-                    responseCode = 200,
-                    responseMessage = "All Task were successfully retrieved",
-                    data = taskSummaryList,
-                };
-
-
-
+                return CommonResponse.Send(ResponseCodes.SUCCESS, taskSummaryList);
             }
-          
+
         }
 
 
 
 
 
-        public async Task<ApiGenericResponse<List<ProjectSummaryDTO>>> getProjectByWorkspaceId(HttpContext httpContext, long workspaceId)
+        public async Task<ApiCommonResponse> getProjectByWorkspaceId(HttpContext httpContext, long workspaceId)
         {
             var getProjectsByWorkspaceId = await _context.Projects.Where(x => x.WorkspaceId == workspaceId && x.CreatedById == httpContext.GetLoggedInUserId() && x.IsActive == true).ToListAsync();
             var ProjectArr = new List<ProjectSummaryDTO>();
             if (getProjectsByWorkspaceId.Count() == 0)
             {
 
-                return new ApiGenericResponse<List<ProjectSummaryDTO>>
-                {
-                    responseCode = 404,
-                    responseMessage = "No Project was with workspaceId " + workspaceId + " was found",
-                    data = null,
-                };
-
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);
             }
 
             else
@@ -2289,279 +1713,392 @@ namespace HaloBiz.MyServices.Impl
 
                 };
 
-                return new ApiGenericResponse<List<ProjectSummaryDTO>>
-                {
-                    responseCode = 200,
-                    responseMessage = "Projects were successfully retrieved",
-                    data = ProjectArr,
-                };
+                return CommonResponse.Send(ResponseCodes.SUCCESS, ProjectArr);
             }
         }
 
 
 
 
-        public async Task<ApiGenericResponse<List<Task>>> pickUptask(long taskId,HttpContext httpContext)
+        public async Task<ApiCommonResponse> pickUptask(long taskId,HttpContext httpContext)
         {
             var taskToBePicked = await _context.Tasks.FirstOrDefaultAsync(x => x.IsActive == true && x.Id == taskId);
-            if (taskToBePicked == null)
+            var taskOwner = new TaskOwnership()
             {
-                return new ApiGenericResponse<List<Task>>
-                {
-                    responseCode = 404,
-                    responseMessage = "No Assignee details  was found",
-                    data = null,
-                };
+                TimePicked = DateTime.Now,
+                TaskOwnerId = httpContext.GetLoggedInUserId(),
+                CreatedAt = DateTime.Now,
+                DatePicked = DateTime.Now,
+                CreatedById = httpContext.GetLoggedInUserId(),
+                IsDeleted = false,
+            };
 
-            }
-            else
-            {
-
-                var taskOwner = new TaskOwnership()
-                {
-                    TimePicked = DateTime.Now,
-                    TaskOwnerId = httpContext.GetLoggedInUserId(),
-                    CreatedAt = DateTime.Now,
-                    DatePicked = DateTime.Now,
-                    CreatedById = httpContext.GetLoggedInUserId(),
-                    IsDeleted = false,
-                };
-
-                await _context.TaskOwnerships.AddAsync(taskOwner);
-                await _context.SaveChangesAsync();
-
-                taskToBePicked.IsPickedUp = true;
-                taskToBePicked.TaskOwnershipId = taskOwner.Id;
-                _context.Tasks.Update(taskToBePicked);
-                await _context.SaveChangesAsync();
-
-                var getUpdatedTaskownerShip = await _context.TaskOwnerships.Where(x => x.IsDeleted == false && x.TaskOwnerId == httpContext.GetLoggedInUserId()).ToListAsync();
-
-                var taskArray = new List<Task>();
-                if (getUpdatedTaskownerShip != null || getUpdatedTaskownerShip.Count() > 0)
-                {
-                    
-                    foreach (var item in getUpdatedTaskownerShip)
-                    {
-
-                        var taskGotten = await _context.Tasks.Where(x => x.IsActive == true && x.TaskOwnershipId == item.Id).ToListAsync();
-
-                        taskArray.AddRange(taskGotten);
-
-                    }
-
-                }
-
-                return new ApiGenericResponse<List<Task>>
-                {
-                    responseCode = 200,
-                    responseMessage = " TaskOwner details  was found",
-                    data = taskArray,
-                };
-
-            }
-
-        }
-
-
-        public async Task<ApiGenericResponse<List<PMIllustration>>> createTaskIllustration(List<IllustrationsDTO> illustrationsDTO,long taskId ,HttpContext httpContext)
-        {
-            var illustrationList = new List<PMIllustration>();
-            foreach(var illustration in illustrationsDTO)
-            {
-                var illustrationInstance = new PMIllustration();
-                illustrationInstance.Caption = illustration.Caption;
-                illustrationInstance.Alias = illustration.Alias;
-                illustrationInstance.Description = illustration.Description;
-                illustrationInstance.CreatedAt = DateTime.Now;
-                illustrationInstance.CreatedById = httpContext.GetLoggedInUserId();
-                illustrationInstance.IllustrationImage = illustration.IllustrationImage;
-                illustrationInstance.IsActive = true;
-                illustrationInstance.TaskId = taskId;
-
-                illustrationList.Add(illustrationInstance);
-            }
-
-            await _context.PMIllustrations.AddRangeAsync(illustrationList);
+            await _context.TaskOwnerships.AddAsync(taskOwner);
             await _context.SaveChangesAsync();
-            var getTaskIllustration = await _context.PMIllustrations.Where(x => x.IsActive == true && x.TaskId == taskId).ToListAsync();
 
-            return new ApiGenericResponse<List<PMIllustration>>
-            {
-                responseCode = 200,
-                responseMessage = "task illustration successfully saved",
-                data = getTaskIllustration,
-            };
+            taskToBePicked.IsPickedUp = true;
+            taskToBePicked.TaskOwnershipId = taskOwner.Id;
+            _context.Tasks.Update(taskToBePicked);
+            await _context.SaveChangesAsync();
 
-        }
-
-        public async Task<ApiGenericResponse<List<PMIllustration>>> getTaskIllustrationById( long taskId)
-        {
-            var getTaskIllustration = await _context.PMIllustrations.Where(x => x.IsActive == true && x.TaskId == taskId).ToListAsync();
-            if(getTaskIllustration.Count() == 0)
-            {
-                return new ApiGenericResponse<List<PMIllustration>>
-                {
-                    responseCode = 404,
-                    responseMessage = "task illustration with id " + taskId + "was not found",
-                    data = null,
-                };
-            }
-
-            return new ApiGenericResponse<List<PMIllustration>>
-            {
-                responseCode = 200,
-                responseMessage = "task illustration successfully saved",
-                data = getTaskIllustration,
-            };
-
-        }
-
-
-        public async Task<ApiGenericResponse<List<PMIllustration>>> removeIllustrationById(long taskId,long illustrationId)
-        {
-            var getTaskIllustration = await _context.PMIllustrations.FirstOrDefaultAsync(x => x.IsActive == true && x.Id == illustrationId);
-            if (getTaskIllustration == null)
-            {
-                return new ApiGenericResponse<List<PMIllustration>>
-                {
-                    responseCode = 404,
-                    responseMessage = "task illustration with id " + illustrationId + "was not found",
-                    data = null,
-                };
-            }
-            else
-            {
-                getTaskIllustration.IsActive = false;
-                _context.PMIllustrations.Update(getTaskIllustration);
-                _context.SaveChanges();
-            }
-
-            var getAllTaskIllustration = await _context.PMIllustrations.Where(x => x.IsActive == true && x.TaskId == taskId && x.Id == illustrationId).ToListAsync();
-            return new ApiGenericResponse<List<PMIllustration>>
-            {
-                responseCode = 200,
-                responseMessage = "task illustration successfully saved",
-                data = getAllTaskIllustration,
-            };
-        }
-
-
-
-
-
-        public async Task<ApiGenericResponse<List<Task>>> getAllPickedTask(HttpContext httpContext)
-        {
             var getUpdatedTaskownerShip = await _context.TaskOwnerships.Where(x => x.IsDeleted == false && x.TaskOwnerId == httpContext.GetLoggedInUserId()).ToListAsync();
 
-            if (getUpdatedTaskownerShip == null || getUpdatedTaskownerShip.Count() == 0)
-            {
-                return new ApiGenericResponse<List<Task>>
-                {
-                    responseCode = 404,
-                    responseMessage = "No Assignee details  was found",
-                    data = null,
-                };
-
-            }
-            else
+            var taskArray = new List<Task>();
+            if (getUpdatedTaskownerShip != null || getUpdatedTaskownerShip.Count() > 0)
             {
 
-                   var taskArray = new List<Task>();
-                   foreach (var item in getUpdatedTaskownerShip)
-                    {
-                        
-                        var taskGotten = await _context.Tasks.Where(x => x.IsActive == true && x.TaskOwnershipId == item.Id).ToListAsync();
-
-                        taskArray.AddRange(taskGotten);
-
-                    }
-
-                
-
-                return new ApiGenericResponse<List<Task>>
+                foreach (var item in getUpdatedTaskownerShip)
                 {
-                    responseCode = 200,
-                    responseMessage = " TaskOwner details  was found",
-                    data = taskArray,
-                };
 
-            }
+                    var taskGotten = await _context.Tasks.Where(x => x.IsActive == true && x.TaskOwnershipId == item.Id).ToListAsync();
 
-        }
-
-        
-
-        public async Task<ApiGenericResponse<List<Task>>> dropTask(long taskId,long taskOwnershipId, HttpContext httpContext)
-        {
-            var taskToBePicked = await _context.Tasks.FirstOrDefaultAsync(x => x.IsActive == true && x.Id == taskId);
-            var taskOwnerShip = await _context.TaskOwnerships.FirstOrDefaultAsync(x => x.IsDeleted == false && x.Id == taskOwnershipId && x.TaskOwnerId == httpContext.GetLoggedInUserId());
-            if (taskToBePicked == null || taskOwnerShip == null)
-            {
-                return new ApiGenericResponse<List<Task>>
-                {
-                    responseCode = 404,
-                    responseMessage = "No Assignee details  was found",
-                    data = null,
-                };
-
-            }
-            else
-            {
-
-                taskToBePicked.IsPickedUp = false;
-                _context.Tasks.Update(taskToBePicked);
-                taskOwnerShip.IsDeleted = true;
-                //taskOwnerShip.TaskOwnerId = 0;
-                
-                 _context.TaskOwnerships.Update(taskOwnerShip);
-                await _context.SaveChangesAsync();
-
-                var getUpdatedTaskownerShip = await _context.TaskOwnerships.Where(x => x.IsDeleted == false && x.TaskOwnerId == httpContext.GetLoggedInUserId()).ToListAsync();
-
-                var taskArray = new List<Task>();
-                if (getUpdatedTaskownerShip != null || getUpdatedTaskownerShip.Count() > 0)
-                {
-                    
-                    foreach (var item in getUpdatedTaskownerShip)
-                    {
-
-                        var taskGotten = await _context.Tasks.Where(x => x.IsActive == true && x.TaskOwnershipId == item.Id).ToListAsync();
-
-                        taskArray.AddRange(taskGotten);
-
-                    }
-
+                    taskArray.AddRange(taskGotten);
 
                 }
 
-                return new ApiGenericResponse<List<Task>>
-                {
-                    responseCode = 200,
-                    responseMessage = " TaskOwner details  was found",
-                    data = taskArray,
-                };
-
             }
+
+            return CommonResponse.Send(ResponseCodes.SUCCESS, taskArray);
+
+        }
+
+        public async Task<ApiCommonResponse> getManagersProjects(string email,int emailId)
+       
+        {
+
+            var getProjects = await _projectAllocationRepository.getAllManagerProjects(email,emailId);
+
+            if (getProjects == null)
+            {
+                return CommonResponse.Send(ResponseCodes.FAILURE);
+            }
+
+            return CommonResponse.Send(ResponseCodes.SUCCESS,getProjects);
 
 
         }
 
+        public async Task<ApiCommonResponse> getRequirementsByDeliverableId(HttpContext httpContext, long deliverableId)
+        {
+            var gottenRequirements = await _context.PMRequirements.Where(x => x.DeliverableId == deliverableId && x.CreatedById == httpContext.GetLoggedInUserId() & x.IsActive == true).ToListAsync();
+            return CommonResponse.Send(ResponseCodes.SUCCESS, gottenRequirements);
+        }
+
+        public async Task<ApiCommonResponse> createProject(HttpContext httpContext, ProjectDTO projectDTO)
+        {
+
+            var projectTobeSaved = new Project()
+            {
+                Caption = projectDTO.Caption,
+                Description = projectDTO.Description,
+                Alias = projectDTO.Alias,
+                ProjectImage = projectDTO.ProjectImage,
+                IsActive = true,
+                WorkspaceId = projectDTO.WorkspaceId,
+                CreatedById = httpContext.GetLoggedInUserId(),
+                CreatedAt = DateTime.Now,
+            };
+
+            _context.Projects.Add(projectTobeSaved);
+            await _context.SaveChangesAsync();
 
 
-        public async Task<ApiGenericResponse<List<TaskRevampDTO>>> getAssignedTask(HttpContext httpContext)
+            foreach (var item in projectDTO.Watchers)
+            {
+                var watchersToBeSaved = new Watcher()
+                {
+                    IsActive = true,
+                    ProjectWatcherId = item.ProjectWatcherId,
+                    ProjectId = projectTobeSaved.Id,
+                    CreatedById = httpContext.GetLoggedInUserId(),
+                    CreatedAt = DateTime.Now
+                };
+
+                await _context.Watchers.AddAsync(watchersToBeSaved);
+            }
+
+            await _context.SaveChangesAsync();
+            var getAllProjects = await _context.Projects.Where(x => x.WorkspaceId == projectDTO.WorkspaceId && x.CreatedById == httpContext.GetLoggedInUserId() && x.IsActive == true).ToListAsync();
+            return CommonResponse.Send(ResponseCodes.SUCCESS, getAllProjects);
+
+        }
+
+        public async Task<ApiCommonResponse> addmoreWatchers(HttpContext httpContext, long projectId, List<WatchersDTO> watchersDTOs)
+        {
+            var gottenProject = await _context.Projects.FirstOrDefaultAsync(x => x.Id == projectId && x.IsActive == true && x.CreatedById == httpContext.GetLoggedInUserId());
+
+            var watchersArray = new List<Watcher>();
+            var getCurrentWatchers = await _context.Watchers.Where(x => x.ProjectId == projectId && x.IsActive == true && x.CreatedById == httpContext.GetLoggedInUserId()).ToListAsync();
+            if (getCurrentWatchers.Count() == 0)
+            {
+
+                foreach (var item in watchersDTOs)
+                {
+                    var watchersInstance = new Watcher();
+                    watchersInstance.CreatedById = httpContext.GetLoggedInUserId();
+                    watchersInstance.ProjectWatcherId = item.ProjectWatcherId;
+                    watchersInstance.ProjectId = item.ProjectId;
+                    watchersInstance.IsActive = true;
+                    watchersInstance.CreatedAt = DateTime.Now;
+
+                    watchersArray.Add(watchersInstance);
+
+                }
+
+            }
+            else
+            {
+
+                foreach (var item in watchersDTOs)
+                {
+
+                    var getExistingWatcher = await _context.Watchers.FirstOrDefaultAsync(x => x.ProjectId == projectId && x.IsActive == true && x.CreatedById == httpContext.GetLoggedInUserId() && x.ProjectWatcherId == item.ProjectWatcherId);
+
+                    if (getExistingWatcher == null)
+                    {
+
+                        var watchersInstance = new Watcher();
+                        watchersInstance.CreatedById = httpContext.GetLoggedInUserId();
+                        watchersInstance.ProjectWatcherId = item.ProjectWatcherId;
+                        watchersInstance.ProjectId = item.ProjectId;
+                        watchersInstance.IsActive = true;
+                        watchersInstance.CreatedAt = DateTime.Now;
+
+                        watchersArray.Add(watchersInstance);
+                    }
+
+                }
+
+            }
+
+            await _context.Watchers.AddRangeAsync(watchersArray);
+            await _context.SaveChangesAsync();
+            var getUpdatedWatchers = await _context.Watchers.Where(x => x.ProjectId == projectId && x.IsActive == true && x.CreatedById == httpContext.GetLoggedInUserId()).ToListAsync();
+
+            return  CommonResponse.Send(ResponseCodes.SUCCESS, getUpdatedWatchers,"Watcher(s) were successfully added.");
+        }
+
+
+
+
+        public async Task<ApiCommonResponse> removeWatcher(HttpContext httpContext, long projectId, long projectWatcherId)
+        {
+            var ifWatcherExist = await _context.Watchers.FirstOrDefaultAsync(x => x.ProjectId == projectId && x.ProjectWatcherId == projectWatcherId && x.IsActive == true && x.CreatedById == httpContext.GetLoggedInUserId());
+            if (ifWatcherExist == null)
+            {
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);
+            }
+            else
+            {
+                ifWatcherExist.IsActive = false;
+                _context.Watchers.Update(ifWatcherExist);
+                await _context.SaveChangesAsync();
+                var getUpdatedWatchers = await _context.Watchers.Where(x => x.CreatedById == httpContext.GetLoggedInUserId() && x.ProjectId == projectId && x.IsActive == true).ToListAsync();
+                return CommonResponse.Send(ResponseCodes.SUCCESS, getUpdatedWatchers);
+
+            }
+        }
+
+        public async Task<ApiCommonResponse> getTaskById(HttpContext httpContext, long taskId)
+        {
+            var checkIfTaskExistByCaption = await _context.Tasks.FirstOrDefaultAsync(x => x.Id == taskId && x.CreatedById == httpContext.GetLoggedInUserId());
+            if (checkIfTaskExistByCaption == null)
+            {
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);
+
+            }
+            else
+            {
+                var taskSummary = new TaskSummaryDTO();
+                taskSummary.id = checkIfTaskExistByCaption.Id;
+                taskSummary.Alias = checkIfTaskExistByCaption.Alias;
+                taskSummary.Caption = checkIfTaskExistByCaption.Caption;
+                taskSummary.CreatedAt = checkIfTaskExistByCaption.CreatedAt;
+                taskSummary.CreatedById = checkIfTaskExistByCaption.CreatedById;
+                taskSummary.Description = checkIfTaskExistByCaption.Description;
+                taskSummary.IsAssigned = checkIfTaskExistByCaption.IsAssigned;
+                taskSummary.DueTime = checkIfTaskExistByCaption.DueTime;
+                taskSummary.WorkingManHours = checkIfTaskExistByCaption.WorkingManHours;
+                taskSummary.IsMilestone = checkIfTaskExistByCaption.IsMilestone;
+                taskSummary.IsReassigned = checkIfTaskExistByCaption.IsReassigned;
+                taskSummary.IsWorkbenched = checkIfTaskExistByCaption.IsWorkbenched;
+                taskSummary.ProjectId = checkIfTaskExistByCaption.ProjectId;
+                taskSummary.TaskEndDate = checkIfTaskExistByCaption.TaskEndDate;
+                taskSummary.TaskStartDate = checkIfTaskExistByCaption.TaskStartDate;
+                taskSummary.Deliverables = await _context.Deliverables.Where(X => X.TaskId == checkIfTaskExistByCaption.Id && X.IsActive == true && X.CreatedById == httpContext.GetLoggedInUserId()).ToListAsync();
+                taskSummary.Project = await _context.Projects.FirstOrDefaultAsync(x => x.Id == checkIfTaskExistByCaption.ProjectId && x.IsActive == true && x.CreatedById == httpContext.GetLoggedInUserId());
+                taskSummary.TaskAssignees = await _context.TaskAssignees.Where(X => X.TaskId == checkIfTaskExistByCaption.Id && X.IsActive == true && X.CreatedById == httpContext.GetLoggedInUserId()).ToListAsync();
+                taskSummary.workspace = await _context.Workspaces.FirstOrDefaultAsync(x => x.Id == taskSummary.Project.WorkspaceId && x.IsActive == true && x.CreatedById == httpContext.GetLoggedInUserId());
+                return CommonResponse.Send(ResponseCodes.SUCCESS, taskSummary);
+
+            }
+
+        }
+
+        public async Task<ApiCommonResponse> getTaskByProjectId(HttpContext httpContext, long projectId)
+        {
+            var checkIfTaskExistById = await _context.Tasks.Where(x => x.ProjectId == projectId && x.CreatedById == httpContext.GetLoggedInUserId()).ToListAsync();
+            var taskSummaryList = new List<TaskSummaryDTO>();
+
+            foreach (var item in checkIfTaskExistById)
+            {
+                var taskSummary = new TaskSummaryDTO();
+                taskSummary.id = item.Id;
+                taskSummary.Alias = item.Alias;
+                taskSummary.Caption = item.Caption;
+                taskSummary.CreatedAt = item.CreatedAt;
+                taskSummary.CreatedById = item.CreatedById;
+                taskSummary.Description = item.Description;
+                taskSummary.IsAssigned = item.IsAssigned;
+                taskSummary.DueTime = item.DueTime;
+                taskSummary.WorkingManHours = item.WorkingManHours;
+                taskSummary.IsMilestone = item.IsMilestone;
+                taskSummary.IsReassigned = item.IsReassigned;
+                taskSummary.IsWorkbenched = item.IsWorkbenched;
+                taskSummary.ProjectId = item.ProjectId;
+                taskSummary.TaskEndDate = item.TaskEndDate;
+                taskSummary.TaskStartDate = item.TaskStartDate;
+                taskSummary.Deliverables = await _context.Deliverables.Where(X => X.TaskId == item.Id && X.IsActive == true).ToListAsync();
+                taskSummary.Project = await _context.Projects.FirstOrDefaultAsync(x => x.Id == item.ProjectId && x.IsActive == true);
+                var getTaskAssignees = await _context.TaskAssignees.Where(X => X.TaskId == item.Id && X.IsActive == true && X.IsActive == true).ToListAsync();
+                taskSummary.TaskAssignees = getTaskAssignees.GroupBy(x => x.TaskAssigneeId)
+                    .Select(g => g.First())
+                    .ToList();
+                taskSummary.AssigneeLength = taskSummary.TaskAssignees.Count();
+                taskSummary.workspace = await _context.Workspaces.FirstOrDefaultAsync(x => x.Id == taskSummary.Project.WorkspaceId && x.IsActive == true);
+
+                taskSummaryList.Add(taskSummary);
+
+            }
+
+            return CommonResponse.Send(ResponseCodes.SUCCESS, taskSummaryList);
+
+        }
+
+        public async Task<ApiCommonResponse> updateTask(HttpContext httpContext, long TaskId, TaskDTO taskDTO)
+        {
+            var tasksfound = await _context.Tasks.FirstOrDefaultAsync(x => x.Id == TaskId && x.CreatedById == httpContext.GetLoggedInUserId() && x.IsActive == true);
+
+            if (tasksfound != null)
+            {
+                var taskFoundByCaption = await _context.Tasks.FirstOrDefaultAsync(x => x.Caption == taskDTO.Caption && x.IsActive == true);
+
+                if (taskDTO.Caption == tasksfound.Caption || taskFoundByCaption != null)
+                {
+                    if (taskDTO.Alias == null)
+                        taskDTO.Alias = tasksfound.Alias;
+
+
+                    if (taskDTO.TaskEndDate == DateTime.MinValue)
+                        taskDTO.TaskEndDate = tasksfound.TaskEndDate;
+                    if (taskDTO.TaskStartDate == DateTime.MinValue)
+                        taskDTO.TaskStartDate = tasksfound.TaskStartDate;
+                    if (taskDTO.WorkingManHours == 0)
+                        taskDTO.WorkingManHours = tasksfound.WorkingManHours;
+                    if (taskDTO.DueTime == DateTime.MinValue)
+                        taskDTO.DueTime = tasksfound.DueTime;
+
+                    if (taskDTO.Description == null)
+                        taskDTO.Description = tasksfound.Description;
+
+                    tasksfound.Alias = taskDTO.Alias;
+                    tasksfound.Description = taskDTO.Description;
+                    tasksfound.DueTime = taskDTO.DueTime;
+                    tasksfound.TaskEndDate = taskDTO.TaskEndDate;
+                    tasksfound.WorkingManHours = taskDTO.WorkingManHours;
+                    tasksfound.TaskStartDate = taskDTO.TaskStartDate; ;
+                    _context.Tasks.Update(tasksfound);
+                    await _context.SaveChangesAsync();
+                    var updatedTask = await _context.Tasks.FirstOrDefaultAsync(x => x.Id == TaskId && x.IsActive == true && x.CreatedById == httpContext.GetLoggedInUserId());
+                    var taskSummary = new TaskSummaryDTO();
+                    taskSummary.Alias = updatedTask.Alias;
+                    taskSummary.DueTime = updatedTask.DueTime;
+                    taskSummary.WorkingManHours = updatedTask.WorkingManHours;
+                    taskSummary.Caption = updatedTask.Caption;
+                    taskSummary.CreatedAt = updatedTask.CreatedAt;
+                    taskSummary.CreatedById = updatedTask.CreatedById;
+                    taskSummary.Description = updatedTask.Description;
+                    taskSummary.IsAssigned = updatedTask.IsAssigned;
+                    taskSummary.IsMilestone = updatedTask.IsMilestone;
+                    taskSummary.IsReassigned = updatedTask.IsReassigned;
+                    taskSummary.IsWorkbenched = updatedTask.IsWorkbenched;
+                    taskSummary.ProjectId = updatedTask.ProjectId;
+                    taskSummary.TaskEndDate = updatedTask.TaskEndDate;
+                    taskSummary.TaskStartDate = updatedTask.TaskStartDate;
+                    taskSummary.Project = await _context.Projects.FirstOrDefaultAsync(x => x.Id == updatedTask.ProjectId && x.IsActive == true && x.CreatedById == httpContext.GetLoggedInUserId());
+                    taskSummary.TaskAssignees = await _context.TaskAssignees.Where(X => X.TaskId == updatedTask.Id && X.IsActive == true && X.CreatedById == httpContext.GetLoggedInUserId()).ToListAsync();
+                    taskSummary.workspace = await _context.Workspaces.FirstOrDefaultAsync(x => x.Id == taskSummary.Project.WorkspaceId && x.IsActive == true && x.CreatedById == httpContext.GetLoggedInUserId());
+
+                    return CommonResponse.Send(ResponseCodes.SUCCESS, taskSummary);
+
+
+                }
+                else
+                {
+                    if (taskDTO.Caption == null)
+                        taskDTO.Caption = tasksfound.Caption;
+                    if (taskDTO.Alias == null)
+                        taskDTO.Alias = tasksfound.Alias;
+
+                    if (taskDTO.TaskEndDate == DateTime.MinValue)
+                        taskDTO.TaskEndDate = tasksfound.TaskEndDate;
+                    if (taskDTO.TaskStartDate == DateTime.MinValue)
+                        taskDTO.TaskStartDate = tasksfound.TaskStartDate;
+                    if (taskDTO.WorkingManHours == 0)
+                        taskDTO.WorkingManHours = tasksfound.WorkingManHours;
+                    if (taskDTO.DueTime == DateTime.MinValue)
+                        taskDTO.DueTime = tasksfound.DueTime;
+
+                    if (taskDTO.Description == null)
+                        taskDTO.Description = tasksfound.Description;
+                    tasksfound.Caption = taskDTO.Caption;
+                    tasksfound.Alias = taskDTO.Alias;
+                    tasksfound.Description = taskDTO.Description;
+                    tasksfound.DueTime = taskDTO.DueTime;
+                    tasksfound.TaskEndDate = taskDTO.TaskEndDate;
+                    tasksfound.WorkingManHours = taskDTO.WorkingManHours;
+                    tasksfound.TaskStartDate = taskDTO.TaskStartDate;
+                    _context.Tasks.Update(tasksfound);
+                    await _context.SaveChangesAsync();
+                    var updatedTask = await _context.Tasks.FirstOrDefaultAsync(x => x.Id == TaskId && x.IsActive == true);
+                    var taskSummary = new TaskSummaryDTO();
+                    taskSummary.Alias = updatedTask.Alias;
+                    taskSummary.Caption = updatedTask.Caption;
+                    taskSummary.CreatedAt = updatedTask.CreatedAt;
+                    taskSummary.CreatedById = updatedTask.CreatedById;
+                    taskSummary.Description = updatedTask.Description;
+                    taskSummary.DueTime = updatedTask.DueTime;
+                    taskSummary.WorkingManHours = updatedTask.WorkingManHours;
+                    taskSummary.IsAssigned = updatedTask.IsAssigned;
+                    taskSummary.IsMilestone = updatedTask.IsMilestone;
+                    taskSummary.IsReassigned = updatedTask.IsReassigned;
+                    taskSummary.IsWorkbenched = updatedTask.IsWorkbenched;
+                    taskSummary.ProjectId = updatedTask.ProjectId;
+                    taskSummary.TaskEndDate = updatedTask.TaskEndDate;
+                    taskSummary.TaskStartDate = updatedTask.TaskStartDate;
+                    taskSummary.Project = await _context.Projects.FirstOrDefaultAsync(x => x.Id == updatedTask.ProjectId && x.IsActive == true && x.CreatedById == httpContext.GetLoggedInUserId());
+                    taskSummary.TaskAssignees = await _context.TaskAssignees.Where(X => X.TaskId == updatedTask.Id && X.IsActive == true && X.CreatedById == httpContext.GetLoggedInUserId()).ToListAsync();
+                    taskSummary.workspace = await _context.Workspaces.FirstOrDefaultAsync(x => x.Id == taskSummary.Project.WorkspaceId && x.IsActive == true && x.CreatedById == httpContext.GetLoggedInUserId());
+
+                    return CommonResponse.Send(ResponseCodes.SUCCESS, taskSummary);
+
+                }
+
+            }
+            else
+            {
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);
+
+            }
+        }
+
+        public async Task<ApiCommonResponse> getAssignedTask(HttpContext httpContext)
         {
             var userId = httpContext.GetLoggedInUserId();
             var getAllAssigneeId = await _context.TaskAssignees.Where(x => x.IsActive == true && x.TaskAssigneeId == httpContext.GetLoggedInUserId()).ToListAsync();
-            if(getAllAssigneeId == null || getAllAssigneeId.Count() == 0)
+            if (getAllAssigneeId == null || getAllAssigneeId.Count() == 0)
             {
-                return new ApiGenericResponse<List<TaskRevampDTO>>
-                {
-                    responseCode = 404,
-                    responseMessage = "No Assignee details  was found",
-                    data = null,
-                };
-
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE, "No Assignee details  was found");
             }
 
             else
@@ -2600,59 +2137,44 @@ namespace HaloBiz.MyServices.Impl
                     }
 
                 }
-
-                return new ApiGenericResponse<List<TaskRevampDTO>>
-                {
-                    responseCode = 200,
-                    responseMessage = "Assignee details  was suucessfully  found",
-                    data = taskArray,
-                };
+                return CommonResponse.Send(ResponseCodes.SUCCESS, taskArray);
             }
 
 
         }
 
-
-
-            public async Task<List<TaskRevampDTO>> getTasks(long projectId, HttpContext httpContext)
+        public async Task<List<TaskAssigneeDTO>> getAssignees(long taskId, HttpContext httpContext)
         {
-            var taskList = new List<TaskRevampDTO>();
+            var taskAssigneeList = new List<TaskAssigneeDTO>();
 
-            if (projectId != 0)
+            if (taskId != 0)
             {
 
 
-                var getAllTask = await _context.Tasks.Where(x => x.IsActive == true && x.ProjectId == projectId && x.CreatedById == httpContext.GetLoggedInUserId()).ToListAsync();
+                var getTaskAssignees = await _context.TaskAssignees.Where(x => x.IsActive == true && x.TaskId == taskId && x.CreatedById == httpContext.GetLoggedInUserId()).ToListAsync();
 
-                foreach (var task in getAllTask)
+                foreach (var taskAssignees in getTaskAssignees)
                 {
-                    var taskInstance = new TaskRevampDTO();
-                    taskInstance.Alias = task.Alias;
-                    taskInstance.Caption = task.Caption;
-                    taskInstance.CreatedAt = task.CreatedAt;
-                    taskInstance.Description = task.Description;
-                    taskInstance.DueTime = task.DueTime;
-                    taskInstance.IsAssigned = task.IsAssigned;
-                    taskInstance.IsMilestone = task.IsMilestone;
-                    taskInstance.IsReassigned = task.IsReassigned;
-                    taskInstance.IsWorkbenched = task.IsWorkbenched;
-                    taskInstance.ProjectId = task.ProjectId;
-                    taskInstance.TaskAssignees = await getAssignees(task.Id, httpContext);
-                    taskInstance.TaskEndDate = task.TaskEndDate;
-                    taskInstance.TaskStartDate = task.TaskStartDate;
-                    taskInstance.UpdatedAt = task.UpdatedAt;
-                    taskInstance.WorkingManHours = task.WorkingManHours;
-                    taskList.Add(taskInstance);
+                    var taskAssignee = new TaskAssigneeDTO();
+                    taskAssignee.CreatedAt = taskAssignees.CreatedAt;
+                    taskAssignee.CreatedById = taskAssignees.CreatedById;
+                    taskAssignee.IsActive = taskAssignees.IsActive;
+                    taskAssignee.Name = taskAssignees.Name;
+                    taskAssignee.TaskAssigneeId = taskAssignees.TaskAssigneeId;
+                    taskAssignee.ProfileImage = _context.UserProfiles.FirstOrDefault(x => x.Id == taskAssignee.TaskAssigneeId).ImageUrl;
+                    taskAssignee.TaskId = taskAssignees.TaskId;
+                    taskAssignee.UpdatedAt = taskAssignees.UpdatedAt;
+
+                    taskAssigneeList.Add(taskAssignee);
                 }
 
 
 
             }
 
-            return taskList;
+            return taskAssigneeList;
 
         }
-
 
         public async Task<DeliverableUser> getUser(long? userId, HttpContext httpContext)
         {
@@ -2665,7 +2187,7 @@ namespace HaloBiz.MyServices.Impl
             }
             else
             {
-                
+
                 user.userId = getUser.Id;
                 user.email = getUser.Email;
                 user.fullname = getUser.FirstName + " " + getUser.LastName;
@@ -2678,255 +2200,238 @@ namespace HaloBiz.MyServices.Impl
 
 
 
-        public async Task<List<TaskAssigneeDTO>> getAssignees(long taskId,HttpContext httpContext)
+        public async Task<ApiCommonResponse> dropTask(long taskId, long taskOwnershipId, HttpContext httpContext)
         {
-            var taskAssigneeList = new List<TaskAssigneeDTO>();
+            var taskToBePicked = await _context.Tasks.FirstOrDefaultAsync(x => x.IsActive == true && x.Id == taskId);
+            var taskOwnerShip = await _context.TaskOwnerships.FirstOrDefaultAsync(x => x.IsDeleted == false && x.Id == taskOwnershipId && x.TaskOwnerId == httpContext.GetLoggedInUserId());
+            if (taskToBePicked == null || taskOwnerShip == null)
+            {
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE, null, "No Assignee details  was found");
 
-            if (taskId != 0)
+            }
+            else
             {
 
-                
-                    var getTaskAssignees = await _context.TaskAssignees.Where(x => x.IsActive == true && x.TaskId == taskId && x.CreatedById == httpContext.GetLoggedInUserId()).ToListAsync();
-                   
-                    foreach(var taskAssignees in getTaskAssignees)
+                taskToBePicked.IsPickedUp = false;
+                _context.Tasks.Update(taskToBePicked);
+                taskOwnerShip.IsDeleted = true;
+                //taskOwnerShip.TaskOwnerId = 0;
+
+                _context.TaskOwnerships.Update(taskOwnerShip);
+                await _context.SaveChangesAsync();
+
+                var getUpdatedTaskownerShip = await _context.TaskOwnerships.Where(x => x.IsDeleted == false && x.TaskOwnerId == httpContext.GetLoggedInUserId()).ToListAsync();
+
+                var taskArray = new List<Task>();
+                if (getUpdatedTaskownerShip != null || getUpdatedTaskownerShip.Count() > 0)
+                {
+
+                    foreach (var item in getUpdatedTaskownerShip)
                     {
-                        var taskAssignee = new TaskAssigneeDTO();
-                        taskAssignee.CreatedAt = taskAssignees.CreatedAt;
-                        taskAssignee.CreatedById = taskAssignees.CreatedById;
-                        taskAssignee.IsActive = taskAssignees.IsActive;
-                        taskAssignee.Name = taskAssignees.Name;
-                        taskAssignee.TaskAssigneeId = taskAssignees.TaskAssigneeId;
-                        taskAssignee.ProfileImage = _context.UserProfiles.FirstOrDefault(x => x.Id == taskAssignee.TaskAssigneeId).ImageUrl;
-                        taskAssignee.TaskId = taskAssignees.TaskId;
-                        taskAssignee.UpdatedAt = taskAssignees.UpdatedAt;
 
-                        taskAssigneeList.Add(taskAssignee);
+                        var taskGotten = await _context.Tasks.Where(x => x.IsActive == true && x.TaskOwnershipId == item.Id).ToListAsync();
+
+                        taskArray.AddRange(taskGotten);
+
                     }
-                
-
-                
-            }
-
-            return taskAssigneeList;
-
-        }
-
-        public async Task<ApiGenericResponse<TaskSummaryDTO>> getTaskByCaption(HttpContext httpContext,string caption)
-        {
-            var checkIfTaskExistByCaption = await _context.Tasks.FirstOrDefaultAsync(x => x.Caption == caption.Trim() && x.CreatedById == httpContext.GetLoggedInUserId());
-            if(checkIfTaskExistByCaption == null)
-            {
-                return new ApiGenericResponse<TaskSummaryDTO>
-                {
-                    responseCode = 404,
-                    responseMessage = "Task with caption " + caption + "was not found.",
-                    data = null,
-                };
-            }
-            else
-            {
-                var taskSummary = new TaskSummaryDTO();
-                taskSummary.id = checkIfTaskExistByCaption.Id;
-                taskSummary.Alias = checkIfTaskExistByCaption.Alias;
-                taskSummary.Caption = checkIfTaskExistByCaption.Caption;
-                taskSummary.CreatedAt = checkIfTaskExistByCaption.CreatedAt;
-                taskSummary.CreatedById = checkIfTaskExistByCaption.CreatedById;
-                taskSummary.Description = checkIfTaskExistByCaption.Description;
-                taskSummary.IsAssigned = checkIfTaskExistByCaption.IsAssigned;
-                taskSummary.IsMilestone = checkIfTaskExistByCaption.IsMilestone;
-                taskSummary.IsReassigned = checkIfTaskExistByCaption.IsReassigned;
-                taskSummary.DueTime = checkIfTaskExistByCaption.DueTime;
-                taskSummary.WorkingManHours = checkIfTaskExistByCaption.WorkingManHours;
-                taskSummary.IsWorkbenched = checkIfTaskExistByCaption.IsWorkbenched;
-                taskSummary.ProjectId = checkIfTaskExistByCaption.ProjectId;
-                taskSummary.TaskEndDate = checkIfTaskExistByCaption.TaskEndDate;
-                taskSummary.TaskStartDate = checkIfTaskExistByCaption.TaskStartDate;
-                taskSummary.Project = await _context.Projects.FirstOrDefaultAsync(x => x.Id == checkIfTaskExistByCaption.ProjectId && x.IsActive == true && x.CreatedById == httpContext.GetLoggedInUserId());
-                taskSummary.TaskAssignees = await _context.TaskAssignees.Where(X => X.TaskId == checkIfTaskExistByCaption.Id && X.IsActive == true && X.CreatedById == httpContext.GetLoggedInUserId()).ToListAsync();
-                taskSummary.workspace = await _context.Workspaces.FirstOrDefaultAsync(x => x.Id == taskSummary.Project.WorkspaceId && x.IsActive == true && x.CreatedById == httpContext.GetLoggedInUserId());
-                return new ApiGenericResponse<TaskSummaryDTO>
-                {
-                    responseCode = 200,
-                    responseMessage = "Task with caption " + caption + "exists.",
-                    data = taskSummary,
-                };
-            }
-
-        }
 
 
-        public async Task<ApiGenericResponse<List<PrivacyAccess>>> getAllPrivacyAccessByWorkspaceId(HttpContext httpContext, long workspaceId)
-        {
-            var privacyAccesses = await _context.PrivacyAccesses.Where(x => x.WorkspaceId == workspaceId && x.IsActive == true && x.CreatedById == httpContext.GetLoggedInUserId()).ToListAsync();
-            if(privacyAccesses == null || privacyAccesses.Count < 0)
-            {
-                return new ApiGenericResponse<List<PrivacyAccess>>
-                {
-                    responseCode = 404,
-                    responseMessage = "PrivacyAccess with workspaceId  " + workspaceId + "was not found.",
-                    data = null,
-                };
-
-            }
-            else
-            {
-                return new ApiGenericResponse<List<PrivacyAccess>>
-                {
-                    responseCode = 200,
-                    responseMessage = "PrivacyAccesses successfully retrieved",
-                    data = privacyAccesses,
-                };
-            }
-            
-
-        }
-
-
-        public async Task<ApiGenericResponse<TaskSummaryDTO>> getTaskById(HttpContext httpContext, long taskId)
-        {
-            var checkIfTaskExistByCaption = await _context.Tasks.FirstOrDefaultAsync(x => x.Id == taskId && x.CreatedById == httpContext.GetLoggedInUserId());
-            if (checkIfTaskExistByCaption == null)
-            {
-                return new ApiGenericResponse<TaskSummaryDTO>
-                {
-                    responseCode = 404,
-                    responseMessage = "Task with taskId " + taskId + "was not found.",
-                    data = null,
-                };
-            }
-            else
-            {
-                var taskSummary = new TaskSummaryDTO();
-                taskSummary.id = checkIfTaskExistByCaption.Id;
-                taskSummary.Alias = checkIfTaskExistByCaption.Alias;
-                taskSummary.Caption = checkIfTaskExistByCaption.Caption;
-                taskSummary.CreatedAt = checkIfTaskExistByCaption.CreatedAt;
-                taskSummary.CreatedById = checkIfTaskExistByCaption.CreatedById;
-                taskSummary.Description = checkIfTaskExistByCaption.Description;
-                taskSummary.IsAssigned = checkIfTaskExistByCaption.IsAssigned;
-                taskSummary.DueTime = checkIfTaskExistByCaption.DueTime;
-                taskSummary.WorkingManHours = checkIfTaskExistByCaption.WorkingManHours;
-                taskSummary.IsMilestone = checkIfTaskExistByCaption.IsMilestone;
-                taskSummary.IsReassigned = checkIfTaskExistByCaption.IsReassigned;
-                taskSummary.IsWorkbenched = checkIfTaskExistByCaption.IsWorkbenched;
-                taskSummary.ProjectId = checkIfTaskExistByCaption.ProjectId;
-                taskSummary.TaskEndDate = checkIfTaskExistByCaption.TaskEndDate;
-                taskSummary.TaskStartDate = checkIfTaskExistByCaption.TaskStartDate;
-                taskSummary.Deliverables = await _context.Deliverables.Where(X => X.TaskId == checkIfTaskExistByCaption.Id && X.IsActive == true && X.CreatedById == httpContext.GetLoggedInUserId()).ToListAsync();
-                taskSummary.Project = await _context.Projects.FirstOrDefaultAsync(x => x.Id == checkIfTaskExistByCaption.ProjectId && x.IsActive == true && x.CreatedById == httpContext.GetLoggedInUserId());
-                taskSummary.TaskAssignees = await _context.TaskAssignees.Where(X => X.TaskId == checkIfTaskExistByCaption.Id && X.IsActive == true && X.CreatedById == httpContext.GetLoggedInUserId()).ToListAsync();
-                taskSummary.workspace = await _context.Workspaces.FirstOrDefaultAsync(x => x.Id == taskSummary.Project.WorkspaceId && x.IsActive == true && x.CreatedById == httpContext.GetLoggedInUserId());
-                return new ApiGenericResponse<TaskSummaryDTO>
-                {
-                    responseCode = 200,
-                    responseMessage = "Task with taskId " + taskId + " was successfully found.",
-                    data = taskSummary,
-                };
-            }
-
-        }
-
-        public async Task<ApiGenericResponse<List<TaskSummaryDTO>>> getTaskByProjectId(HttpContext httpContext, long  projectId)
-        {
-            var checkIfTaskExistById = await _context.Tasks.Where(x => x.ProjectId == projectId && x.CreatedById == httpContext.GetLoggedInUserId()).ToListAsync();
-            if (checkIfTaskExistById == null)
-            {
-                return new ApiGenericResponse<List<TaskSummaryDTO>>
-                {
-                    responseCode = 404,
-                    responseMessage = "Tasks with ProjectId " + projectId + " was not found.",
-                    data = null,
-                };
-            }
-            else
-            {
-                var taskSummaryList = new List<TaskSummaryDTO>();
-
-                foreach(var item in checkIfTaskExistById)
-                {
-                    var taskSummary = new TaskSummaryDTO();
-                    taskSummary.id = item.Id;
-                    taskSummary.Alias = item.Alias;
-                    taskSummary.Caption = item.Caption;
-                    taskSummary.CreatedAt = item.CreatedAt;
-                    taskSummary.CreatedById = item.CreatedById;
-                    taskSummary.Description = item.Description;
-                    taskSummary.IsAssigned = item.IsAssigned;
-                    taskSummary.DueTime = item.DueTime;
-                    taskSummary.WorkingManHours = item.WorkingManHours;
-                    taskSummary.IsMilestone = item.IsMilestone;
-                    taskSummary.IsReassigned = item.IsReassigned;
-                    taskSummary.IsWorkbenched = item.IsWorkbenched;
-                    taskSummary.ProjectId = item.ProjectId;
-                    taskSummary.TaskEndDate = item.TaskEndDate;
-                    taskSummary.TaskStartDate = item.TaskStartDate;
-                    taskSummary.Deliverables = await _context.Deliverables.Where(X => X.TaskId == item.Id && X.IsActive == true).ToListAsync();
-                    taskSummary.Project = await _context.Projects.FirstOrDefaultAsync(x => x.Id == item.ProjectId && x.IsActive == true);
-                    var getTaskAssignees = await _context.TaskAssignees.Where(X => X.TaskId == item.Id && X.IsActive == true && X.IsActive == true).ToListAsync();
-                    taskSummary.TaskAssignees = getTaskAssignees.GroupBy(x => x.TaskAssigneeId)
-                        .Select(g => g.First())
-                        .ToList();
-                    taskSummary.AssigneeLength = taskSummary.TaskAssignees.Count();
-                    taskSummary.workspace = await _context.Workspaces.FirstOrDefaultAsync(x => x.Id == taskSummary.Project.WorkspaceId && x.IsActive == true);
-
-                    taskSummaryList.Add(taskSummary);
-                        
                 }
 
-                return new ApiGenericResponse<List<TaskSummaryDTO>>
-                {
-                    responseCode = 200,
-                    responseMessage = "Task(s) with ProjectId " + projectId + " were  found.",
-                    data = taskSummaryList,
-                };
+                return CommonResponse.Send(ResponseCodes.SUCCESS, taskArray);
+
             }
-
-        }
-
-
-
-
-        public async Task<ApiResponse> getManagersProjects(string email,int emailId)
-       
-        {
-
-            var getProjects = await _projectAllocationRepository.getAllManagerProjects(email,emailId);
-
-            if (getProjects == null)
-            {
-                return new ApiResponse(400);
-            }
-
-            return new ApiOkResponse(getProjects);
 
 
         }
 
-        public async Task<ApiGenericResponse<List<PMRequirement>>> getRequirementsByDeliverableId(HttpContext httpContext, long deliverableId)
+        public async Task<ApiCommonResponse> updateProject(HttpContext httpContext, long projectId, ProjectDTO projectDTO)
         {
-            var gottenRequirements = await _context.PMRequirements.Where(x => x.DeliverableId == deliverableId && x.CreatedById == httpContext.GetLoggedInUserId() & x.IsActive == true).ToListAsync();
-            if (gottenRequirements == null)
-            {
-                return new ApiGenericResponse<List<PMRequirement>>
-                {
-                    responseCode = 404,
-                    responseMessage = "Requirements with deliverableId " + deliverableId + " were not found.",
-                    data = null,
-                };
-            }
+            var projectFound = await _context.Projects.FirstOrDefaultAsync(x => x.Id == projectId && x.CreatedById == httpContext.GetLoggedInUserId() && x.IsActive == true);
 
+            if (projectFound != null)
+            {
+                var getProjectByCaption = await _context.Projects.FirstOrDefaultAsync(x => x.IsActive == true && x.Caption == projectDTO.Caption);
+
+                if (projectDTO.Caption == projectFound.Caption || getProjectByCaption != null)
+                {
+                    if (projectDTO.Alias == null)
+                        projectDTO.Alias = projectFound.Alias;
+                    if (projectDTO.ProjectImage == null)
+                        projectDTO.ProjectImage = projectFound.ProjectImage;
+                    if (projectDTO.Description == null)
+                        projectDTO.Description = projectFound.Description;
+
+                    projectFound.Alias = projectDTO.Alias;
+                    projectFound.Description = projectDTO.Description;
+                    projectFound.ProjectImage = projectDTO.ProjectImage;
+                    _context.Projects.Update(projectFound);
+                    await _context.SaveChangesAsync();
+                    var updatedProject = await _context.Projects.FirstOrDefaultAsync(x => x.Id == projectId && x.IsActive == true);
+                                   return CommonResponse.Send(ResponseCodes.SUCCESS, updatedProject);
+
+
+                }
+                else
+                {
+                    if (projectDTO.Alias == null)
+                        projectDTO.Alias = projectFound.Alias;
+                    if (projectDTO.Caption == null)
+                        projectDTO.Caption = projectFound.Caption;
+                    if (projectDTO.ProjectImage == null)
+                        projectDTO.ProjectImage = projectFound.ProjectImage;
+                    if (projectDTO.Description == null)
+                        projectDTO.Description = projectFound.Description;
+
+                    projectFound.Alias = projectDTO.Alias;
+                    projectFound.Caption = projectDTO.Caption;
+                    projectFound.Description = projectDTO.Description;
+                    projectFound.ProjectImage = projectDTO.ProjectImage;
+                    _context.Projects.Update(projectFound);
+                    await _context.SaveChangesAsync();
+                    var updatedProject = await _context.Projects.FirstOrDefaultAsync(x => x.Id == projectId && x.IsActive == true);
+                    return CommonResponse.Send(ResponseCodes.SUCCESS, updatedProject);
+
+                }
+
+            }
             else
             {
-                return new ApiGenericResponse<List<PMRequirement>>
-                {
-                    responseCode = 200,
-                    responseMessage = "Requirements with deliverableId " + deliverableId + " were  found.",
-                    data = gottenRequirements,
-                };
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);
+
+            }
+        }
+        public async Task<ApiCommonResponse> getTaskByCaption(HttpContext httpContext, string caption)
+        {
+            var checkIfTaskExistByCaption = await _context.Tasks.Where(x => x.Caption == caption.Trim() && x.CreatedById == httpContext.GetLoggedInUserId()).FirstOrDefaultAsync();
+
+            if (checkIfTaskExistByCaption == null)
+            {
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);
+
+            }
+            else
+            {
+                var taskSummary = new TaskSummaryDTO();
+                taskSummary.id = checkIfTaskExistByCaption.Id;
+                taskSummary.Alias = checkIfTaskExistByCaption.Alias;
+                taskSummary.Caption = checkIfTaskExistByCaption.Caption;
+                taskSummary.CreatedAt = checkIfTaskExistByCaption.CreatedAt;
+                taskSummary.CreatedById = checkIfTaskExistByCaption.CreatedById;
+                taskSummary.Description = checkIfTaskExistByCaption.Description;
+                taskSummary.IsAssigned = checkIfTaskExistByCaption.IsAssigned;
+                taskSummary.IsMilestone = checkIfTaskExistByCaption.IsMilestone;
+                taskSummary.IsReassigned = checkIfTaskExistByCaption.IsReassigned;
+                taskSummary.DueTime = checkIfTaskExistByCaption.DueTime;
+                taskSummary.WorkingManHours = checkIfTaskExistByCaption.WorkingManHours;
+                taskSummary.IsWorkbenched = checkIfTaskExistByCaption.IsWorkbenched;
+                taskSummary.ProjectId = checkIfTaskExistByCaption.ProjectId;
+                taskSummary.TaskEndDate = checkIfTaskExistByCaption.TaskEndDate;
+                taskSummary.TaskStartDate = checkIfTaskExistByCaption.TaskStartDate;
+                taskSummary.Project = await _context.Projects.FirstOrDefaultAsync(x => x.Id == checkIfTaskExistByCaption.ProjectId && x.IsActive == true && x.CreatedById == httpContext.GetLoggedInUserId());
+                taskSummary.TaskAssignees = await _context.TaskAssignees.Where(X => X.TaskId == checkIfTaskExistByCaption.Id && X.IsActive == true && X.CreatedById == httpContext.GetLoggedInUserId()).ToListAsync();
+                taskSummary.workspace = await _context.Workspaces.FirstOrDefaultAsync(x => x.Id == taskSummary.Project.WorkspaceId && x.IsActive == true && x.CreatedById == httpContext.GetLoggedInUserId());
+                return CommonResponse.Send(ResponseCodes.SUCCESS, taskSummary);
+
             }
 
-            
+        }
+
+        public async Task<ApiCommonResponse> getAllPickedTask(HttpContext httpContext)
+        {
+            var getUpdatedTaskownerShip = await _context.TaskOwnerships.Where(x => x.IsDeleted == false && x.TaskOwnerId == httpContext.GetLoggedInUserId()).ToListAsync();
+
+            if (getUpdatedTaskownerShip == null || getUpdatedTaskownerShip.Count() == 0)
+            {
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE,"No assigned found");
+
+
+            }
+            else
+            {
+
+                var taskArray = new List<Task>();
+                foreach (var item in getUpdatedTaskownerShip)
+                {
+
+                    var taskGotten = await _context.Tasks.Where(x => x.IsActive == true && x.TaskOwnershipId == item.Id).ToListAsync();
+
+                    taskArray.AddRange(taskGotten);
+
+                }
+
+
+
+                return CommonResponse.Send(ResponseCodes.SUCCESS, taskArray);
+
+
+            }
 
         }
+
+        public async Task<ApiCommonResponse> createTaskIllustration(List<IllustrationsDTO> illustrationsDTO, long taskId, HttpContext httpContext)
+        {
+            var illustrationList = new List<PMIllustration>();
+            foreach (var illustration in illustrationsDTO)
+            {
+                var illustrationInstance = new PMIllustration();
+                illustrationInstance.Caption = illustration.Caption;
+                illustrationInstance.Alias = illustration.Alias;
+                illustrationInstance.Description = illustration.Description;
+                illustrationInstance.CreatedAt = DateTime.Now;
+                illustrationInstance.CreatedById = httpContext.GetLoggedInUserId();
+                illustrationInstance.IllustrationImage = illustration.IllustrationImage;
+                illustrationInstance.IsActive = true;
+                illustrationInstance.TaskId = taskId;
+
+                illustrationList.Add(illustrationInstance);
+            }
+
+            await _context.PMIllustrations.AddRangeAsync(illustrationList);
+            await _context.SaveChangesAsync();
+            var getTaskIllustration = await _context.PMIllustrations.Where(x => x.IsActive == true && x.TaskId == taskId).ToListAsync();
+
+            return CommonResponse.Send(ResponseCodes.SUCCESS, getTaskIllustration);
+
+
+        }
+
+        public async Task<ApiCommonResponse> removeIllustrationById(long taskId, long illustrationId)
+        {
+            var getTaskIllustration = await _context.PMIllustrations.FirstOrDefaultAsync(x => x.IsActive == true && x.Id == illustrationId);
+            if (getTaskIllustration == null)
+            {
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);
+            }
+            else
+            {
+                getTaskIllustration.IsActive = false;
+                await _context.SaveChangesAsync();
+
+                return CommonResponse.Send(ResponseCodes.SUCCESS, getTaskIllustration);
+
+            }
+
+
+        }
+
+        public async Task<ApiCommonResponse> getAllPrivacyAccessByWorkspaceId(HttpContext httpContext, long workspaceId)
+        {
+            var privacyAccesses = await _context.PrivacyAccesses.Where(x => x.WorkspaceId == workspaceId && x.IsActive == true && x.CreatedById == httpContext.GetLoggedInUserId()).ToListAsync();
+            return CommonResponse.Send(ResponseCodes.SUCCESS, privacyAccesses);
+
+
+
+        }
+        public async Task<ApiCommonResponse> getTaskIllustrationById(long taskId)
+        {
+            var getTaskIllustration = await _context.PMIllustrations.Where(x => x.IsActive == true && x.TaskId == taskId).ToListAsync();
+            return CommonResponse.Send(ResponseCodes.SUCCESS, getTaskIllustration);
+
+        }
+
+
+
+
     }
 }

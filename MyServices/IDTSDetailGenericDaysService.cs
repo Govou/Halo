@@ -11,35 +11,35 @@ namespace HaloBiz.MyServices
     public interface IDTSDetailGenericDaysService
     {
         //ArmedEscort
-        Task<ApiResponse> AddArmedEscortGeneric(HttpContext context, ArmedEscortDTSDetailGenericDaysReceivingDTO armedEscortReceivingDTO);
-        Task<ApiResponse> GetAllArmedEscortGenerics();
-        Task<ApiResponse> GetArmedEscortGenericById(long id);
-        Task<ApiResponse> GetArmedEscortGenericByMasterId(long id);
-        Task<ApiResponse> UpdateArmedEscortGeneric(HttpContext context, long id, ArmedEscortDTSDetailGenericDaysReceivingDTO armedEscortReceivingDTO);
-        Task<ApiResponse> DeleteArmedEscortGeneric(long id);
+        Task<ApiCommonResponse> AddArmedEscortGeneric(HttpContext context, ArmedEscortDTSDetailGenericDaysReceivingDTO armedEscortReceivingDTO);
+        Task<ApiCommonResponse> GetAllArmedEscortGenerics();
+        Task<ApiCommonResponse> GetArmedEscortGenericById(long id);
+        Task<ApiCommonResponse> GetArmedEscortGenericByMasterId(long id);
+        Task<ApiCommonResponse> UpdateArmedEscortGeneric(HttpContext context, long id, ArmedEscortDTSDetailGenericDaysReceivingDTO armedEscortReceivingDTO);
+        Task<ApiCommonResponse> DeleteArmedEscortGeneric(long id);
 
         //Commander
-        Task<ApiResponse> AddCommanderGeneric(HttpContext context, CommanderDTSDetailGenericDaysReceivingDTO commanderReceivingDTO);
-        Task<ApiResponse> GetAllCommanderGenerics();
-        Task<ApiResponse> GetCommanderGenericById(long id);
-        Task<ApiResponse> GetCommanderGenericByMasterId(long id);
-        Task<ApiResponse> UpdateCommanderGeneric(HttpContext context, long id, CommanderDTSDetailGenericDaysReceivingDTO commanderReceivingDTO);
-        Task<ApiResponse> DeleteCommanderGeneric(long id);
+        Task<ApiCommonResponse> AddCommanderGeneric(HttpContext context, CommanderDTSDetailGenericDaysReceivingDTO commanderReceivingDTO);
+        Task<ApiCommonResponse> GetAllCommanderGenerics();
+        Task<ApiCommonResponse> GetCommanderGenericById(long id);
+        Task<ApiCommonResponse> GetCommanderGenericByMasterId(long id);
+        Task<ApiCommonResponse> UpdateCommanderGeneric(HttpContext context, long id, CommanderDTSDetailGenericDaysReceivingDTO commanderReceivingDTO);
+        Task<ApiCommonResponse> DeleteCommanderGeneric(long id);
 
         //Pilot
-        Task<ApiResponse> AddPilotGeneric(HttpContext context, PilotDTSDetailGenericDaysReceivingDTO pilotReceivingDTO);
-        Task<ApiResponse> GetAllPilotGenerics();
-        Task<ApiResponse> GetPilotGenericById(long id);
-        Task<ApiResponse> GetPilotGenericByMasterId(long id);
-        Task<ApiResponse> UpdatePilotGeneric(HttpContext context, long id, PilotDTSDetailGenericDaysReceivingDTO pilotReceivingDTO);
-        Task<ApiResponse> DeletePilotGeneric(long id);
+        Task<ApiCommonResponse> AddPilotGeneric(HttpContext context, PilotDTSDetailGenericDaysReceivingDTO pilotReceivingDTO);
+        Task<ApiCommonResponse> GetAllPilotGenerics();
+        Task<ApiCommonResponse> GetPilotGenericById(long id);
+        Task<ApiCommonResponse> GetPilotGenericByMasterId(long id);
+        Task<ApiCommonResponse> UpdatePilotGeneric(HttpContext context, long id, PilotDTSDetailGenericDaysReceivingDTO pilotReceivingDTO);
+        Task<ApiCommonResponse> DeletePilotGeneric(long id);
 
         //Vehicle
-        Task<ApiResponse> AddVehicleGeneric(HttpContext context, VehicleDTSDetailGenericDaysReceivingDTO vehicleReceivingDTO);
-        Task<ApiResponse> GetAllVehicleGenerics();
-        Task<ApiResponse> GetVehicleGenericById(long id);
-        Task<ApiResponse> GetVehicleGenericByMasterId(long id);
-        Task<ApiResponse> UpdateVehicleGeneric(HttpContext context, long id, VehicleDTSDetailGenericDaysReceivingDTO vehicleReceivingDTO);
-        Task<ApiResponse> DeleteVehicleGeneric(long id);
+        Task<ApiCommonResponse> AddVehicleGeneric(HttpContext context, VehicleDTSDetailGenericDaysReceivingDTO vehicleReceivingDTO);
+        Task<ApiCommonResponse> GetAllVehicleGenerics();
+        Task<ApiCommonResponse> GetVehicleGenericById(long id);
+        Task<ApiCommonResponse> GetVehicleGenericByMasterId(long id);
+        Task<ApiCommonResponse> UpdateVehicleGeneric(HttpContext context, long id, VehicleDTSDetailGenericDaysReceivingDTO vehicleReceivingDTO);
+        Task<ApiCommonResponse> DeleteVehicleGeneric(long id);
     }
 }

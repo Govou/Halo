@@ -7,9 +7,9 @@ namespace HaloBiz.MyServices
 {
     public interface IEngagementTypeService
     {
-        Task<ApiResponse> AddEngagementType(HttpContext context, EngagementTypeReceivingDTO engagementTypeReceivingDTO);
-        Task<ApiResponse> GetAllEngagementType();
-        Task<ApiResponse> UpdateEngagementType(HttpContext context, long id, EngagementTypeReceivingDTO engagementTypeReceivingDTO);
-        Task<ApiResponse> DeleteEngagementType(long id);
+        Task<ApiCommonResponse> AddEngagementType(HttpContext context, EngagementTypeReceivingDTO engagementTypeReceivingDTO);
+        Task<ApiCommonResponse> GetAllEngagementType();
+        Task<ApiCommonResponse> UpdateEngagementType(HttpContext context, long id, EngagementTypeReceivingDTO engagementTypeReceivingDTO);
+        Task<ApiCommonResponse> DeleteEngagementType(long id);
     }
 }
