@@ -485,12 +485,35 @@ namespace HaloBiz.Controllers
             return Ok(response);
         }
 
+        [HttpGet("GetBarChart/{taskId}")]
+        public async Task<ActionResult> GetBarChart(long taskId)
+        {
+            var response = await _projectAllocationService.getBarChartDetails(HttpContext, taskId);
+            return Ok(response);
+        }
+
+        [HttpGet("GetDeliverableStatus")]
+        public async Task<ActionResult> GetDeliverableStatus()
+        {
+            var response = await _projectAllocationService.getDeliverableStatus(HttpContext);
+            return Ok(response);
+        }
+
+        [HttpGet("GetAssignedDeliverableStatus")]
+        public async Task<ActionResult> GetAssignedDeliverableStatus(List<DeliverableStatusDTO> deliverableStatusDTOs)
+        {
+            var response = await _projectAllocationService.getAssignedDeliverableStatus(HttpContext,deliverableStatusDTOs);
+            return Ok(response);
+        }
+
+
         [HttpPost("CreateNewDeliverable/{taskId}")]
         public async Task<ActionResult> createNewDeliverable(long taskId,DeliverableDTO deliverableDTO)
         {
             var response = await _projectAllocationService.createNewDeliverable(HttpContext, taskId,deliverableDTO);
             return Ok(response);
         }
+        
 
         [HttpPost("CreateNewDeliverableOnTask/{taskId}")]
         public async Task<ActionResult> CreateNewDeliverableOnTask(long taskId, DeliverableDTO deliverableDTO)

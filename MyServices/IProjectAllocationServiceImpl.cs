@@ -100,6 +100,9 @@ namespace HaloBiz.MyServices
         Task<ApiGenericResponse<List<TaskAssignee>>> disableTaskAssignee(HttpContext context, long taskId, long assigneeId);
         Task<ApiGenericResponse<List<Deliverable>>> updateDeliverable(HttpContext httpContext, long taskId, long deliverableId, DeliverableDTO deliverableDTO);
         Task<ApiGenericResponse<List<Deliverable>>> disableDeliverable(HttpContext httpContext, long taskId, long deliverableId);
+        Task<ApiGenericResponse<WorkLoadDTO>> getBarChartDetails(HttpContext httpContext, long taskId);
+        Task<ApiCommonResponse> getDeliverableStatus(HttpContext httpContext);
+        Task<ApiCommonResponse> getAssignedDeliverableStatus(HttpContext httpContext, List<DeliverableStatusDTO> deliverableStatusDTOs);
 
     }
 }

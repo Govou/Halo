@@ -835,8 +835,199 @@ namespace HaloBiz.MyServices.Impl
         }
 
 
+        public async Task<ApiGenericResponse<WorkLoadDTO>> getBarChartDetails(HttpContext httpContext,long taskId)
+        {
+            var getDeliverableWorkloads = await _context.Deliverables.Where(x => x.TaskId == taskId && x.IsActive == true).ToListAsync();
+
+            var userArray = new List<DeliverableUser>();
+            var finalUserArray = new List<DeliverableUser>();
+            var workLoad = new WorkLoadDTO();
+            foreach (var deliverable in getDeliverableWorkloads)
+            {
+                var userInstance = new DeliverableUser();
+                var assignTask = await _context.AssignTasks.FirstOrDefaultAsync(x => x.DeliverableId == deliverable.Id && x.IsActive == true);
+                if (assignTask != null)
+                {
+                    var user = await _context.UserProfiles.FirstOrDefaultAsync(x => x.IsDeleted == false && x.Id == assignTask.DeliverableAssigneeId);
+                    userInstance.userId = user.Id;
+                    userInstance.email = user.Email;
+                    userInstance.imageUrl = user.ImageUrl;
+                    userInstance.fullname = user.FirstName + " " + user.LastName;
+                    userArray.Add(userInstance);
+                }
+            }
+
+            var dic = new Dictionary<long, int>();
+            var dataSetInstance = new DataSetDTO();
+            foreach (var element in userArray)
+            {
+                if (dic.ContainsKey(element.userId))
+                    dic[element.userId]++;
+                else
+                    dic[element.userId] = 1;
+            }
+            var assignDuration = new List<long>();
+            var pickedList = new List<long>();
+            foreach (var element in dic)
+            {
+                var userInstance = new DeliverableUser();
+                var assignValue = new long();
+                var pickedValue = new long();
+
+                Console.WriteLine(element.Key + " appears " + element.Value + " time(s)");
+                var user = await _context.UserProfiles.FirstOrDefaultAsync(x => x.IsDeleted == false && x.Id == element.Key);
+                userInstance.userId = user.Id;
+                userInstance.email = user.Email;
+                userInstance.imageUrl = user.ImageUrl;
+                userInstance.fullname = user.FirstName + " " + user.LastName;
+                assignValue = element.Value;
+                pickedValue = 0;
+                pickedList.Add(pickedValue);
+                assignDuration.Add(assignValue);
+                finalUserArray.Add(userInstance);
+            }
+            workLoad.DeliverableUser = finalUserArray;
+            workLoad.assignedRate = assignDuration;
+            workLoad.pickedRate = pickedList;
+            return new ApiGenericResponse<WorkLoadDTO>
+            {
+                responseCode = 200,
+                responseMessage = "successfully",
+                data = workLoad,
+            };
+
+        }
 
 
+        public async Task<ApiCommonResponse> getDeliverableStatus(HttpContext httpContext)
+        {
+            var getAllAssignedDeliverable = await _context.AssignTasks.Where(x => x.IsActive == true && x.DeliverableAssigneeId == httpContext.GetLoggedInUserId()).ToListAsync();
+
+            if(getAllAssignedDeliverable.Count == 0)
+            {
+                return CommonResponse.Send
+                (
+
+                ResponseCodes.FAILURE,
+                null,
+                "User with id " + httpContext.GetLoggedInUserId() + " was not assigned to any deliverable."
+                );
+            }
+
+            else
+            {
+                var deliverableArray = new List<DeliverableStatusDTO>();
+                foreach(var assignee in getAllAssignedDeliverable)
+                {
+                    var deliverable = await _context.Deliverables.FirstOrDefaultAsync(x => x.IsActive == true && x.Id == assignee.DeliverableId);
+                    if(deliverable != null)
+                    {
+                        var deliverableInstance = new DeliverableStatusDTO();
+                        deliverableInstance.Alias = deliverable.Alias;
+                        deliverableInstance.Caption = deliverable.Caption;
+                        deliverableInstance.Description = deliverable.Description;
+                        deliverableInstance.Budget = deliverable.Budget;
+                        deliverableInstance.CreatedAt = deliverable.CreatedAt;
+                        deliverableInstance.CreatedById = deliverable.CreatedById;
+                        deliverableInstance.DatePicked = deliverable.DatePicked;
+                        deliverableInstance.DependentType = deliverable.DependentType;
+                        deliverableInstance.Dependencies = await _context.Dependencies.Where(x => x.DependencyDeliverableId == deliverable.Id).ToListAsync();
+                        deliverableInstance.EndDate = deliverable.EndDate;
+                        deliverableInstance.Id = deliverable.Id;
+                        deliverableInstance.IsActive = deliverable.IsActive;
+                        deliverableInstance.PMIllustrations = await _context.PMIllustrations.Where(x => x.IsActive == true && x.TaskOrDeliverableId == deliverable.Id).ToListAsync();
+                        deliverableInstance.Requirements = await _context.PMRequirements.Where(x => x.IsActive == true && x.DeliverableId == deliverable.Id).ToListAsync();
+                        deliverableInstance.StartDate = deliverable.StartDate;
+                        deliverableInstance.TaskId = deliverable.TaskId;
+                        deliverableInstance.TimeEstimate = deliverable.TimeEstimate;
+                        deliverableInstance.UpdatedAt = deliverable.UpdatedAt;
+                        deliverableInstance.statusFlows = await getDeliverableStatusFlow(httpContext,deliverable.TaskId);
+                        deliverableInstance.Workspace = await getDeliverableWorkspace(httpContext, deliverable.TaskId);
+                        deliverableArray.Add(deliverableInstance);
+                        
+                    }
+                }
+
+                return CommonResponse.Send
+                (
+
+                ResponseCodes.SUCCESS,
+                deliverableArray,
+                ResponseMessage.EntitySuccessfullyFound
+                );
+            }
+
+        }
+
+
+
+        //public async Task<ApiCommonResponse> getAssignedDeliverableStatus(HttpContext httpContext,List<DeliverableStatusDTO> deliverableStatusDTOs)
+        //{ 
+       
+        //    if (deliverableStatusDTOs.Count == 0)
+        //    {
+        //        return CommonResponse.Send
+        //        (
+
+        //        ResponseCodes.FAILURE,
+        //        null,
+        //        "No Assigned deliverables was provided.."
+        //        );
+        //    }
+
+        //    else
+        //    {
+                
+        //        foreach(var deliverable in deliverableStatusDTOs)
+        //        {
+
+                    
+
+        //        }
+
+        //    }
+
+        //}
+
+        public async Task<List<StatusFlow>> getDeliverableStatusFlow(HttpContext httpContext, long? taskId)
+        {
+            var getProjectIdFromTask = await _context.Tasks.FirstOrDefaultAsync(x => x.IsActive == true && x.Id == taskId);
+            if(getProjectIdFromTask == null)
+            {
+                return null;
+            }
+            else
+            {
+                var getStatusFlows = new List<StatusFlow>();
+                var getProject = await _context.Projects.FirstOrDefaultAsync(x => x.IsActive == true && x.Id == getProjectIdFromTask.ProjectId);
+                if(getProject != null)
+                {
+                    getStatusFlows = await _context.StatusFlows.Where(x => x.IsDeleted == false && x.WorkspaceId == getProject.WorkspaceId).ToListAsync();
+                }
+
+                return getStatusFlows;
+            }
+        }
+
+        public async Task<Workspace> getDeliverableWorkspace(HttpContext httpContext, long? taskId)
+        {
+            var getProjectIdFromTask = await _context.Tasks.FirstOrDefaultAsync(x => x.IsActive == true && x.Id == taskId);
+            if (getProjectIdFromTask == null)
+            {
+                return null;
+            }
+            else
+            {
+                var getWorkspace = new Workspace();
+                var getProject = await _context.Projects.FirstOrDefaultAsync(x => x.IsActive == true && x.Id == getProjectIdFromTask.ProjectId);
+                if (getProject != null)
+                {
+                    getWorkspace = await _context.Workspaces.Where(x => x.IsActive == true && x.Id == getProject.WorkspaceId).FirstOrDefaultAsync();
+                }
+
+                return getWorkspace;
+            }
+        }
 
         public async Task<ApiResponse> addmoreStatus(HttpContext httpContext, long workspaceId, List<StatusFlowDTO> statusFlowDTO)
         {
@@ -1952,55 +2143,7 @@ namespace HaloBiz.MyServices.Impl
                     await _context.SaveChangesAsync();
             }
 
-                    
-                    
-                
-
                     var getAllDeliverables = await _context.Deliverables.Where(x => x.IsActive == true && x.TaskId == taskId  && x.CreatedById == context.GetLoggedInUserId()).ToListAsync();
-                    //var deliverableToDisplayArray = new List<DeliverableDTO>();
-
-                    //foreach (var item in getAllDeliverables)
-                    //{
-                    //    var deliverableToDisplayInstance = new DeliverableDTO();
-                    //    deliverableToDisplayInstance.Alias = item.Alias;
-                    //    deliverableToDisplayInstance.Caption = item.Caption;
-                    //    deliverableToDisplayInstance.Budget = item.Budget;
-                    //    deliverableToDisplayInstance.Description = item.Description;
-                    //    deliverableToDisplayInstance.CreatedById = context.GetLoggedInUserId();
-                    //    deliverableToDisplayInstance.DatePicked = item.DatePicked;
-                    //    deliverableToDisplayInstance.DependentType = item.DependentType;
-                    //    deliverableToDisplayInstance.EndDate = item.EndDate;
-                    //    deliverableToDisplayInstance.Requirements = await _context.PMRequirements.Where(x => x.IsActive == true && x.DeliverableId == item.Id).ToListAsync();
-                    //    deliverableToDisplayInstance.Dependencies = await _context.Dependencies.Where(x => x.DependencyDeliverableId == item.Id).ToListAsync();
-                    //    deliverableToDisplayInstance.Id = item.Id;
-                    //    deliverableToDisplayInstance.TimeEstimate = item.TimeEstimate;
-                    //    deliverableToDisplayInstance.StartDate = item.StartDate;
-                    //    deliverableToDisplayInstance.PMIllustrations = await _context.PMIllustrations.Where(x => x.IsActive == true && x.TaskOrDeliverableId == deliverableId).ToListAsync();
-                    //    var getAssignTaskById = await _context.AssignTasks.FirstOrDefaultAsync(x => x.IsActive == true && x.DeliverableId == item.Id);
-                    //    var assigneeToBeSaved = new AssignDeliverableDTO();
-                    //    if (getAssignTaskById != null)
-                    //    {
-                    //        assigneeToBeSaved.Caption = getAssignTaskById.Caption;
-                    //        assigneeToBeSaved.Alias = getAssignTaskById.Alias;
-                    //        assigneeToBeSaved.CreatedAt = getAssignTaskById.CreatedAt;
-                    //        assigneeToBeSaved.CreatedById = getAssignTaskById.CreatedById;
-                    //        assigneeToBeSaved.DeliverableAssigneeId = getAssignTaskById.DeliverableAssigneeId;
-                    //        assigneeToBeSaved.DeliverableUser = await getUser(assigneeToBeSaved.DeliverableAssigneeId, context);
-                    //        assigneeToBeSaved.DeliverableId = getAssignTaskById.DeliverableId;
-                    //        assigneeToBeSaved.Description = getAssignTaskById.Description;
-                    //        assigneeToBeSaved.DueDate = getAssignTaskById.DueDate;
-                    //        assigneeToBeSaved.Id = getAssignTaskById.Id;
-                    //        assigneeToBeSaved.IsActive = getAssignTaskById.IsActive;
-                    //        assigneeToBeSaved.Priority = getAssignTaskById.Priority;
-                    //        assigneeToBeSaved.UpdatedAt = getAssignTaskById.UpdatedAt;
-                    //    }
-
-                    //    deliverableToDisplayInstance.AssignDeliverableDTO = assigneeToBeSaved;
-                    //    deliverableToDisplayInstance.IsActive = item.IsActive;
-
-                    //    deliverableToDisplayArray.Add(deliverableToDisplayInstance);
-
-                    //    }
 
                         return new ApiGenericResponse<List<Deliverable>>
                         {
