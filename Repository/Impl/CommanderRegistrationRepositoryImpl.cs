@@ -52,6 +52,16 @@ namespace HaloBiz.Repository.Impl
                           .ToListAsync();
         }
 
+        public async Task<IEnumerable<CommanderSMORoutesResourceTie>> FindAllCommanderTiesByResourceId(long resourceId)
+        {
+            return await _context.CommanderSMORoutesResourceTies.Where(ct => ct.IsDeleted == false && ct.ResourceId == resourceId)
+              .Include(ct => ct.Resource)
+              .Include(ct => ct.Resource.AttachedBranch).Include(ct => ct.Resource.AttachedOffice)
+              .Include(ct => ct.SMORegion).Include(ct => ct.Resource.CommanderType).Include(s => s.SMORoute)
+              .Include(s => s.Resource.Profile)
+                         .ToListAsync();
+        }
+
         public async Task<CommanderProfile> FindCommanderById(long Id)  
         {
             return await _context.CommanderProfiles.Include(ct => ct.AttachedBranch)
@@ -68,6 +78,14 @@ namespace HaloBiz.Repository.Impl
                           .FirstOrDefaultAsync(ct => ct.Id == Id && ct.IsDeleted == false);
         }
 
+        public async Task<CommanderSMORoutesResourceTie> FindCommanderTieByResourceId(long resourceId)
+        {
+            return await _context.CommanderSMORoutesResourceTies.Include(ct => ct.Resource)
+              .Include(ct => ct.Resource.AttachedBranch).Include(ct => ct.Resource.AttachedOffice).Include(s => s.Resource.Profile)
+              .Include(ct => ct.SMORegion).Include(ct => ct.Resource.CommanderType).Include(s => s.SMORoute)
+                         .FirstOrDefaultAsync(ct => ct.ResourceId == resourceId && ct.IsDeleted == false);
+        }
+
         public CommanderProfile FindCommanderUserProfileById(long profileId)  //FindCommanderUserProfileById
         {
             return  _context.CommanderProfiles
@@ -79,7 +97,7 @@ namespace HaloBiz.Repository.Impl
         //    throw new NotImplementedException();
         //}
 
-        public CommanderSMORoutesResourceTie GetResourceRegIdRegionAndRouteId(long regRessourceId, long RouteId, long RegionId)
+        public CommanderSMORoutesResourceTie GetResourceRegIdRegionAndRouteId(long regRessourceId, long? RouteId, long? RegionId)
         {
             return _context.CommanderSMORoutesResourceTies.Where
                (ct => ct.ResourceId == regRessourceId && ct.SMORouteId == RouteId && ct.SMORegionId == RegionId && ct.IsDeleted == false).FirstOrDefault();
@@ -115,6 +133,7 @@ namespace HaloBiz.Repository.Impl
             return null;
         }
 
+      
         private async Task<bool> SaveChanges()
         {
             try

@@ -81,30 +81,58 @@ namespace HaloBiz.Repository.Impl
 
         public async Task<ArmedEscortDTSMaster> FindArmedEscortMasterById(long Id)
         {
-            return await _context.ArmedEscortDTSMasters.Include(dts => dts.GenericDays)
+            return await _context.ArmedEscortDTSMasters.Include(dts => dts.GenericDays.Select(x=>x.OpeningTime))
                 .Include(dts=>dts.CreatedBy).Include(dts => dts.ArmedEscortResource).Include(dts => dts.ArmedEscortResource.SupplierService)
                 .FirstOrDefaultAsync(aer => aer.Id == Id && aer.IsDeleted == false);
         }
 
+        public async Task<ArmedEscortDTSMaster> FindArmedEscortMasterByResourceId(long resourceId)
+        {
+            return await _context.ArmedEscortDTSMasters.Include(dts => dts.GenericDays.Where(x => x.IsDeleted == false))
+                .Include(dts => dts.CreatedBy).Include(dts => dts.ArmedEscortResource).Include(dts => dts.ArmedEscortResource.SupplierService)
+                .FirstOrDefaultAsync(aer => aer.ArmedEscortResourceId == resourceId && aer.IsDeleted == false);
+        }
+
         public async Task<CommanderDTSMaster> FindCommanderMasterById(long Id)
         {
-            return await _context.CommanderDTSMasters.Include(dts => dts.GenericDays)
+            return await _context.CommanderDTSMasters.Include(dts => dts.GenericDays.Where(x => x.IsDeleted == false))
                 .Include(dts => dts.CreatedBy).Include(dts => dts.CommanderResource).Include(dts => dts.CommanderResource.Profile)
                 .FirstOrDefaultAsync(aer => aer.Id == Id && aer.IsDeleted == false);
         }
 
+        public async Task<CommanderDTSMaster> FindCommanderMasterByResourceId(long resourceId)
+        {
+            return await _context.CommanderDTSMasters.Include(dts => dts.GenericDays.Where(x => x.IsDeleted == false))
+               .Include(dts => dts.CreatedBy).Include(dts => dts.CommanderResource).Include(dts => dts.CommanderResource.Profile)
+               .FirstOrDefaultAsync(aer => aer.CommanderResourceId == resourceId && aer.IsDeleted == false);
+        }
+
         public async Task<PilotDTSMaster> FindPilotMasterById(long Id)
         {
-            return await _context.PilotDTSMasters.Include(dts => dts.GenericDays)
+            return await _context.PilotDTSMasters.Include(dts => dts.GenericDays.Where(x => x.IsDeleted == false))
                .Include(dts => dts.CreatedBy).Include(dts => dts.PilotResource)
                .FirstOrDefaultAsync(aer => aer.Id == Id && aer.IsDeleted == false);
         }
 
+        public async Task<PilotDTSMaster> FindPilotMasterByResourceId(long resourceId)
+        {
+            return await _context.PilotDTSMasters.Include(dts => dts.GenericDays.Where(x => x.IsDeleted == false))
+             .Include(dts => dts.CreatedBy).Include(dts => dts.PilotResource)
+             .FirstOrDefaultAsync(aer => aer.PilotResourceId == resourceId && aer.IsDeleted == false);
+        }
+
         public async Task<VehicleDTSMaster> FindVehicleMasterById(long Id)
         {
-            return await _context.VehicleDTSMasters.Include(dts => dts.GenericDays)
+            return await _context.VehicleDTSMasters.Include(dts => dts.GenericDays.Where(x => x.IsDeleted == false))
               .Include(dts => dts.CreatedBy).Include(dts => dts.VehicleResource).Include(dts => dts.VehicleResource.SupplierService)
               .FirstOrDefaultAsync(aer => aer.Id == Id && aer.IsDeleted == false);
+        }
+
+        public async Task<VehicleDTSMaster> FindVehicleMasterByResourceId(long resourceId)
+        {
+            return await _context.VehicleDTSMasters.Include(dts => dts.GenericDays.Where(x => x.IsDeleted == false))
+               .Include(dts => dts.CreatedBy).Include(dts => dts.VehicleResource).Include(dts => dts.VehicleResource.SupplierService)
+               .FirstOrDefaultAsync(aer => aer.VehicleResourceId == resourceId && aer.IsDeleted == false);
         }
 
         public ArmedEscortDTSMaster GetArmedEscortProfileId(long? profileId)

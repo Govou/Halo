@@ -1,6 +1,7 @@
 ﻿using HaloBiz.DTOs.ApiDTOs;
 using HaloBiz.DTOs.ReceivingDTOs;
 using HaloBiz.MyServices;
+using HaloBiz.MyServices.LAMS;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -16,10 +17,12 @@ namespace HaloBiz.Controllers
     {
        
         private readonly IServiceAssignmentDetailsService _serviceAssignmentDetailsService;
+        private readonly IContractServiceService _contractServiceService;
 
-        public ServiceAssignmentDetailsController(IServiceAssignmentDetailsService serviceAssignmentDetailsService)
+        public ServiceAssignmentDetailsController(IServiceAssignmentDetailsService serviceAssignmentDetailsService, IContractServiceService contractServiceService)
         {
             _serviceAssignmentDetailsService = serviceAssignmentDetailsService;
+            _contractServiceService = contractServiceService;
         }
 
       
@@ -312,6 +315,16 @@ namespace HaloBiz.Controllers
         {
             var response = await _serviceAssignmentDetailsService.DeletePassenger(id);
             return StatusCode(response.StatusCode);
+        }
+        //ArmedEscort
+        [HttpGet("GetAllContractServices")]
+        public async Task<ActionResult> GetAllContractServices()
+        {
+            var response = await _contractServiceService.GetAllContractsServcie();
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var cType = ((ApiOkResponse)response).Result;
+            return Ok(cType);
         }
     }
 }

@@ -64,7 +64,22 @@ namespace HaloBiz.Repository.Impl
                .FirstOrDefaultAsync(ae => ae.Id == Id && ae.IsDeleted == false);
         }
 
-        public ArmedEscortSMORoutesResourceTie GetServiceRegIdRegionAndRoute(long regRessourceId, long RouteId, long RegionId)
+        public async Task<IEnumerable<ArmedEscortSMORoutesResourceTie>> FindArmedEscortTieByResourceId(long resourceId)
+        {
+            return await _context.ArmedEscortSMORoutesResourceTies.Where(ae => ae.IsDeleted == false && ae.ResourceId == resourceId)
+              .Include(ae => ae.SMORegion).Include(ae => ae.CreatedBy)
+              .Include(ae => ae.SMORoute).Include(ae => ae.Resource).Include(s => s.Resource.ArmedEscortType)
+                        .ToListAsync();
+        }
+
+        //public async Task<ArmedEscortSMORoutesResourceTie> FindArmedEscortTieByResourceId(long resourceId)
+        //{
+        //    return await _context.ArmedEscortSMORoutesResourceTies.Include(ae => ae.SMORegion).Include(ae => ae.CreatedBy)
+        //       .Include(ae => ae.SMORoute).Include(ae => ae.Resource).Include(s => s.Resource.ArmedEscortType)
+        //       .FirstOrDefaultAsync(ae => ae.ResourceId == resourceId && ae.IsDeleted == false);
+        //}
+
+        public ArmedEscortSMORoutesResourceTie GetServiceRegIdRegionAndRoute(long regRessourceId, long? RouteId, long? RegionId)
         {
             return _context.ArmedEscortSMORoutesResourceTies.Where
                 (ct => ct.ResourceId == regRessourceId && ct.SMORouteId == RouteId && ct.SMORegionId == RegionId && ct.IsDeleted == false).FirstOrDefault();

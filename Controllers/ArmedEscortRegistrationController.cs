@@ -40,6 +40,15 @@ namespace HaloBiz.Controllers
             var cRank = ((ApiOkResponse)response).Result;
             return Ok(cRank);
         }
+        [HttpGet("GetAllArmedEscortTiesByResourceId")]
+        public async Task<ActionResult> GetAllArmedEscortTiesByResourceId(long id)
+        {
+            var response = await _armedEscortService.GetAllArmedEscortTiesByResourceId(id);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var cRank = ((ApiOkResponse)response).Result;
+            return Ok(cRank);
+        }
         [HttpGet("GetProfileById/{id}")]
         public async Task<ActionResult> GetProfileById(long id)
         {

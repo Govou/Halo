@@ -128,6 +128,17 @@ namespace HaloBiz.MyServices.Impl
             return new ApiOkResponse(TransferDTO);
         }
 
+        public async Task<ApiResponse> GetAllPilotTiesByResourceId(long resourceId)
+        {
+            var pilot = await _pilotProfileRepository.FindPilotTieByResourceId(resourceId);
+            if (pilot == null)
+            {
+                return new ApiResponse(404);
+            }
+            var TransferDTO = _mapper.Map<IEnumerable<PilotSMORoutesResourceTieTransferDTO>>(pilot);
+            return new ApiOkResponse(TransferDTO);
+        }
+
         public async Task<ApiResponse> GetPilotById(long id)
         {
             var pilot = await _pilotProfileRepository.FindPilotById(id);

@@ -26,10 +26,11 @@ namespace HaloBiz.Repository
         Task<CommanderSMORoutesResourceTie> SaveCommanderTie(CommanderSMORoutesResourceTie commanderProfileTie);
 
         Task<CommanderSMORoutesResourceTie> FindCommanderTieById(long Id);
+        // Task<CommanderSMORoutesResourceTie> FindCommanderTieByResourceId(long resourceId);
+        Task<IEnumerable<CommanderSMORoutesResourceTie>> FindAllCommanderTiesByResourceId(long resourceId);
 
-        //CommanderSMORoutesResourceTie FindCommanderUserProfileTieById(long Id);
 
-        CommanderSMORoutesResourceTie GetResourceRegIdRegionAndRouteId(long regRessourceId, long RouteId, long RegionId);
+        CommanderSMORoutesResourceTie GetResourceRegIdRegionAndRouteId(long regRessourceId, long? RouteId, long? RegionId);
 
         Task<IEnumerable<CommanderSMORoutesResourceTie>> FindAllCommanderTies();
         Task<bool> DeleteCommanderTie(CommanderSMORoutesResourceTie commanderProfileTie);

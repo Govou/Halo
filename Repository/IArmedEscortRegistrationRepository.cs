@@ -25,10 +25,11 @@ namespace HaloBiz.Repository
         Task<ArmedEscortSMORoutesResourceTie> SaveArmedEscortTie(ArmedEscortSMORoutesResourceTie armedEscortTie);
 
         Task<ArmedEscortSMORoutesResourceTie> FindArmedEscortTieById(long Id);
+        Task<IEnumerable<ArmedEscortSMORoutesResourceTie>> FindArmedEscortTieByResourceId(long resourceId);  
 
         Task<IEnumerable<ArmedEscortSMORoutesResourceTie>> FindAllArmedEscortTies();
 
-         ArmedEscortSMORoutesResourceTie GetServiceRegIdRegionAndRoute(long regRessourceId, long RouteId, long RegionId);
+         ArmedEscortSMORoutesResourceTie GetServiceRegIdRegionAndRoute(long regRessourceId, long? RouteId, long? RegionId);
 
         //Task<ArmedEscortProfile> UpdateArmedEscort(ArmedEscortProfile armedEscortProfile);
 

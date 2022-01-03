@@ -22,11 +22,16 @@ namespace HaloBiz.MyServices.Impl
         private readonly IPilotRegistrationRepository _pilotRegistrationRepository;
         private readonly IVehicleRegistrationRepository _vehicleRegistrationRepository;
         private readonly IServiceRegistrationRepository _serviceRegistrationRepository;
+        private readonly IServiceAssignmentMasterRepository _serviceAssignmentMasterRepository;
+        private readonly IDTSMastersRepository _dTSMastersRepository;
+        private readonly IDTSDetailGenericDaysRepository _dTSDetailGenericDaysRepository;
         private readonly IMapper _mapper;
 
         public ServiceAssignmentDetailsServiceImpl(IMapper mapper, IServiceAssignmentDetailsRepository serviceAssignmentDetailsRepository,
             ICommanderRegistrationRepository commanderRegistrationRepository, IArmedEscortRegistrationRepository armedEscortRegistrationRepository,
-            IPilotRegistrationRepository pilotRegistrationRepository, IVehicleRegistrationRepository vehicleRegistrationRepository,  IServiceRegistrationRepository serviceRegistrationRepository)
+            IPilotRegistrationRepository pilotRegistrationRepository, IVehicleRegistrationRepository vehicleRegistrationRepository,  
+            IServiceRegistrationRepository serviceRegistrationRepository, IServiceAssignmentMasterRepository serviceAssignmentMasterRepository, IDTSMastersRepository dTSMastersRepository,
+            IDTSDetailGenericDaysRepository dTSDetailGenericDaysRepository)
         {
             _mapper = mapper;
             _serviceAssignmentDetailsRepository = serviceAssignmentDetailsRepository;
@@ -35,31 +40,110 @@ namespace HaloBiz.MyServices.Impl
             _pilotRegistrationRepository = pilotRegistrationRepository;
             _vehicleRegistrationRepository = vehicleRegistrationRepository;
             _serviceRegistrationRepository = serviceRegistrationRepository;
+            _serviceAssignmentMasterRepository = serviceAssignmentMasterRepository;
+            _dTSMastersRepository = dTSMastersRepository;
+            _dTSDetailGenericDaysRepository = dTSDetailGenericDaysRepository;
         }
 
         public async Task<ApiResponse> AddArmedEscortDetail(HttpContext context, ArmedEscortServiceAssignmentDetailsReceivingDTO armedEscortReceivingDTO)
         {
             var master = _mapper.Map<ArmedEscortServiceAssignmentDetail>(armedEscortReceivingDTO);
             var getEscort = await _serviceRegistrationRepository.FindServiceById(armedEscortReceivingDTO.ArmedEscortResourceId);
-            //if(getEscort.RequiresArmedEscort == true)
-            //{
-            //    if(getEscort.ArmedEscortQuantityRequired != 0)
-            //    {
-
-            //    }
-            //}
             
-            //var NameExist = _armedEscortsRepository.GetTypename(armedEscortTypeReceivingDTO.Name);
-            //if (NameExist != null)
-            //{
-            //    return new ApiResponse(409);
-            //}
-            master.CreatedById = context.GetLoggedInUserId();
-            master.CreatedAt = DateTime.UtcNow;
-            var savedItem = await _serviceAssignmentDetailsRepository.SaveEscortServiceAssignmentdetail(master);
-            if (savedItem == null)
+            var getServiceAssignment = await _serviceAssignmentMasterRepository.FindServiceAssignmentById(armedEscortReceivingDTO.ServiceAssignmentId);
+            var getServiceRegistration = await _serviceRegistrationRepository.FindServiceById(getServiceAssignment.ServiceRegistration.Id);
+            var getEscortDetail = await _serviceAssignmentDetailsRepository.FindEscortServiceAssignmentDetailByResourceId(armedEscortReceivingDTO.ArmedEscortResourceId);
+            var getEscortDetailListById = await _serviceAssignmentDetailsRepository.FindAllEscortServiceAssignmentDetailsByAssignmentId(armedEscortReceivingDTO.ServiceAssignmentId);
+            var RouteExists = _armedEscortRegistrationRepository.GetServiceRegIdRegionAndRoute(armedEscortReceivingDTO.ArmedEscortResourceId, getServiceAssignment.SMORouteId, getServiceAssignment.SMORegionId);
+            var getResourceTypePerService = await _serviceRegistrationRepository.FindArmedEscortResourceByServiceRegId(getServiceAssignment.ServiceRegistration.Id);
+            var typeExists = _serviceRegistrationRepository.GetArmedEscortResourceApplicableTypeReqById(getServiceRegistration.Id, getResourceTypePerService.ArmedEscortTypeId);
+            var getResourceSchedule = await _dTSMastersRepository.FindArmedEscortMasterByResourceId(armedEscortReceivingDTO.ArmedEscortResourceId);
+           // var getGenericDaysByDTSMasterId = await _dTSDetailGenericDaysRepository.FindArmedEscortGenericByMasterId(getResourceSchedule.Id);
+
+            if (getResourceSchedule != null)
             {
-                return new ApiResponse(500);
+                if(getResourceSchedule.AvailabilityStart >= getServiceAssignment.PickupDate )
+                {
+                    foreach(var item in getResourceSchedule.GenericDays)
+                    {
+                        if(item.OpeningTime.TimeOfDay >= getServiceAssignment.PickoffTime.TimeOfDay)
+                        {
+                            break;
+                        }
+                        else
+                        {
+                            return new ApiResponse(448);//for  schedule time
+                        }
+                    }
+                   
+                        if (RouteExists != null)
+                        {
+                            if (getEscortDetail != null)
+                            {
+                                if (getEscortDetail.IsTemporarilyHeld == true || getEscortDetail.IsHeldForAction == true)
+                                {
+                                    return new ApiResponse(444);
+                                }
+                            }
+                            if (typeExists == null)
+                            {
+                                return new ApiResponse(446);
+                            }
+                            if (getEscortDetailListById.Count() == 0)
+                            {
+
+                                master.CreatedById = context.GetLoggedInUserId();
+                                master.CreatedAt = DateTime.UtcNow;
+                                master.IsTemporarilyHeld = true;
+                                master.IsHeldForAction = true;
+                                master.DateHeldForAction = DateTime.UtcNow;
+                                master.RequiredCount = getEscortDetailListById.Count();
+                                master.DateTemporarilyHeld = DateTime.UtcNow;
+                                var savedItem = await _serviceAssignmentDetailsRepository.SaveEscortServiceAssignmentdetail(master);
+                                if (savedItem == null)
+                                {
+                                    return new ApiResponse(500);
+                                }
+                            }
+                            else
+                            {
+                                if (getEscortDetailListById.Count() < getServiceRegistration.ArmedEscortQuantityRequired)
+                                {
+
+                                    master.CreatedById = context.GetLoggedInUserId();
+                                    master.CreatedAt = DateTime.UtcNow;
+                                    master.IsHeldForAction = true;
+                                    master.DateHeldForAction = DateTime.UtcNow;
+                                    master.IsTemporarilyHeld = true;
+                                    master.RequiredCount = getEscortDetailListById.Count();
+                                    //master.RequiredCount = (int)getEscortDetail.ServiceAssignment.ServiceRegistration.ArmedEscortQuantityRequired;
+                                    master.DateTemporarilyHeld = DateTime.UtcNow;
+                                    var savedItem = await _serviceAssignmentDetailsRepository.SaveEscortServiceAssignmentdetail(master);
+                                    if (savedItem == null)
+                                    {
+                                        return new ApiResponse(500);
+                                    }
+                                }
+                                else
+                                {
+                                    return new ApiResponse(445);
+                                }
+                            }
+                        }
+                        else
+                        {
+                            return new ApiResponse(443); //for route
+                        }
+                }
+                else
+                {
+                    return new ApiResponse(448); //for schedule date
+                }
+              
+            }
+            else
+            {
+                return new ApiResponse(447); //schedule check
             }
             var TransferDTO = _mapper.Map<ArmedEscortServiceAssignmentDetailsTransferDTO>(master);
             return new ApiOkResponse(TransferDTO);
@@ -68,17 +152,96 @@ namespace HaloBiz.MyServices.Impl
         public async Task<ApiResponse> AddCommanderDetail(HttpContext context, CommanderServiceAssignmentDetailsReceivingDTO commanderReceivingDTO)
         {
             var master = _mapper.Map<CommanderServiceAssignmentDetail>(commanderReceivingDTO);
-            //var NameExist = _armedEscortsRepository.GetTypename(armedEscortTypeReceivingDTO.Name);
-            //if (NameExist != null)
-            //{
-            //    return new ApiResponse(409);
-            //}
-            master.CreatedById = context.GetLoggedInUserId();
-            master.CreatedAt = DateTime.UtcNow;
-            var savedItem = await _serviceAssignmentDetailsRepository.SaveCommanderServiceAssignmentdetail(master);
-            if (savedItem == null)
+            var getServiceAssignment = await _serviceAssignmentMasterRepository.FindServiceAssignmentById(commanderReceivingDTO.ServiceAssignmentId);
+            var getServiceRegistration = await _serviceRegistrationRepository.FindServiceById(getServiceAssignment.ServiceRegistration.Id);
+            var getCommanderDetail = await _serviceAssignmentDetailsRepository.FindCommanderServiceAssignmentDetailByResourceId(commanderReceivingDTO.CommanderResourceId);
+            var getCommanderDetailListById = await _serviceAssignmentDetailsRepository.FindAllCommanderServiceAssignmentDetailsByAssignmentId(commanderReceivingDTO.ServiceAssignmentId);
+            var RouteExists = _commanderRegistrationRepository.GetResourceRegIdRegionAndRouteId(commanderReceivingDTO.CommanderResourceId, getServiceAssignment.SMORouteId, getServiceAssignment.SMORegionId);
+            var getResourceTypePerService = await _serviceRegistrationRepository.FindCommanderResourceByServiceRegId(getServiceAssignment.ServiceRegistration.Id);
+            var typeExists = _serviceRegistrationRepository.GetCommanderResourceApplicableTypeReqById(getServiceRegistration.Id, getResourceTypePerService.CommanderTypeId);
+            var getResourceSchedule = await _dTSMastersRepository.FindCommanderMasterByResourceId(commanderReceivingDTO.CommanderResourceId);
+
+            if(getResourceSchedule != null)
             {
-                return new ApiResponse(500);
+                if (getResourceSchedule.AvailabilityStart >= getServiceAssignment.PickupDate)
+                {
+                    foreach (var item in getResourceSchedule.GenericDays)
+                    {
+                        if (item.OpeningTime.TimeOfDay >= getServiceAssignment.PickoffTime.TimeOfDay)
+                        {
+                            break;
+                        }
+                        else
+                        {
+                            return new ApiResponse(448);//for  schedule time
+                        }
+                    }
+
+                    if (RouteExists != null)
+                    {
+                        if (getCommanderDetail != null)
+                        {
+                            if (getCommanderDetail.IsTemporarilyHeld == true || getCommanderDetail.IsHeldForAction == true)
+                            {
+                                return new ApiResponse(444);
+                            }
+                        }
+                        if (typeExists == null)
+                        {
+                            return new ApiResponse(446);
+                        }
+                        if (getCommanderDetailListById.Count() == 0)
+                        {
+                            master.IsTemporarilyHeld = true;
+                            master.DateTemporarilyHeld = DateTime.UtcNow;
+                            master.IsHeldForAction = true;
+                            master.DateHeldForAction = DateTime.UtcNow;
+                            master.RequiredCount = getCommanderDetailListById.Count();
+                            master.CreatedById = context.GetLoggedInUserId();
+                            master.CreatedAt = DateTime.UtcNow;
+                            var savedItem = await _serviceAssignmentDetailsRepository.SaveCommanderServiceAssignmentdetail(master);
+                            if (savedItem == null)
+                            {
+                                return new ApiResponse(500);
+                            }
+                        }
+                        else
+                        {
+                            if (getCommanderDetailListById.Count() < getServiceRegistration.ArmedEscortQuantityRequired)
+                            {
+                                master.IsTemporarilyHeld = true;
+                                master.DateTemporarilyHeld = DateTime.UtcNow;
+                                master.IsHeldForAction = true;
+                                master.DateHeldForAction = DateTime.UtcNow;
+                                //master.RequiredCount = (int)getCommanderDetail.ServiceAssignment.ServiceRegistration.CommanderQuantityRequired;
+                                master.RequiredCount = getCommanderDetailListById.Count();
+                                master.CreatedById = context.GetLoggedInUserId();
+                                master.CreatedAt = DateTime.UtcNow;
+                                var savedItem = await _serviceAssignmentDetailsRepository.SaveCommanderServiceAssignmentdetail(master);
+                                if (savedItem == null)
+                                {
+                                    return new ApiResponse(500);
+                                }
+                            }
+                            else
+                            {
+                                return new ApiResponse(445);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        return new ApiResponse(443);
+                    }
+                }
+                else
+                {
+                    return new ApiResponse(448); //for schedule date
+                }
+            }
+            else
+            {
+                return new ApiResponse(447);
             }
             var TransferDTO = _mapper.Map<CommanderServiceAssignmentDetailsTransferDTO>(master);
             return new ApiOkResponse(TransferDTO);
@@ -102,17 +265,96 @@ namespace HaloBiz.MyServices.Impl
         public async Task<ApiResponse> AddPilotDetail(HttpContext context, PilotServiceAssignmentDetailsReceivingDTO pilotReceivingDTO)
         {
             var master = _mapper.Map<PilotServiceAssignmentDetail>(pilotReceivingDTO);
-            //var NameExist = _armedEscortsRepository.GetTypename(armedEscortTypeReceivingDTO.Name);
-            //if (NameExist != null)
-            //{
-            //    return new ApiResponse(409);
-            //}
-            master.CreatedById = context.GetLoggedInUserId();
-            master.CreatedAt = DateTime.UtcNow;
-            var savedItem = await _serviceAssignmentDetailsRepository.SavePilotServiceAssignmentdetail(master);
-            if (savedItem == null)
+            var getServiceAssignment = await _serviceAssignmentMasterRepository.FindServiceAssignmentById(pilotReceivingDTO.ServiceAssignmentId);
+            var getServiceRegistration = await _serviceRegistrationRepository.FindServiceById(getServiceAssignment.ServiceRegistration.Id);
+            var getPilotDetail = await _serviceAssignmentDetailsRepository.FindPilotServiceAssignmentDetailByResourceId(pilotReceivingDTO.PilotResourceId);
+            var getPilotDetailListById = await _serviceAssignmentDetailsRepository.FindAllPilotServiceAssignmentDetailsByAssignmentId(pilotReceivingDTO.ServiceAssignmentId);
+            var RouteExists = _pilotRegistrationRepository.GetResourceRegIdRegionAndRouteId(pilotReceivingDTO.PilotResourceId, getServiceAssignment.SMORouteId, getServiceAssignment.SMORegionId);
+            var getResourceTypePerService = await _serviceRegistrationRepository.FindPilotResourceByServiceRegId(getServiceAssignment.ServiceRegistration.Id);
+            var typeExists = _serviceRegistrationRepository.GetPilotResourceApplicableTypeReqById(getServiceRegistration.Id, getResourceTypePerService.PilotTypeId);
+            var getResourceSchedule = await _dTSMastersRepository.FindPilotMasterByResourceId(pilotReceivingDTO.PilotResourceId);
+
+            if (getResourceSchedule != null)
             {
-                return new ApiResponse(500);
+                if (getResourceSchedule.AvailabilityStart >= getServiceAssignment.PickupDate)
+                {
+                    foreach (var item in getResourceSchedule.GenericDays)
+                    {
+                        if (item.OpeningTime.TimeOfDay >= getServiceAssignment.PickoffTime.TimeOfDay)
+                        {
+                            break;
+                        }
+                        else
+                        {
+                            return new ApiResponse(448);//for  schedule time
+                        }
+                    }
+
+                    if (RouteExists != null)
+                    {
+                        if (getPilotDetail != null)
+                        {
+                            if (getPilotDetail.IsTemporarilyHeld == true || getPilotDetail.IsHeldForAction == true)
+                            {
+                                return new ApiResponse(444);
+                            }
+                        }
+                        if (typeExists == null)
+                        {
+                            return new ApiResponse(446);
+                        }
+                        if (getPilotDetailListById.Count() == 0)
+                        {
+                            master.IsTemporarilyHeld = true;
+                            master.DateTemporarilyHeld = DateTime.UtcNow;
+                            master.IsHeldForAction = true;
+                            master.DateHeldForAction = DateTime.UtcNow;
+                            master.RequiredCount = getPilotDetailListById.Count();
+                            //master.RequiredCount = (int)getPilotDetail.ServiceAssignment.ServiceRegistration.PilotQuantityRequired;
+                            master.CreatedById = context.GetLoggedInUserId();
+                            master.CreatedAt = DateTime.UtcNow;
+                            var savedItem = await _serviceAssignmentDetailsRepository.SavePilotServiceAssignmentdetail(master);
+                            if (savedItem == null)
+                            {
+                                return new ApiResponse(500);
+                            }
+                        }
+                        else
+                        {
+                            if (getPilotDetailListById.Count() < getServiceRegistration.ArmedEscortQuantityRequired)
+                            {
+                                master.IsTemporarilyHeld = true;
+                                master.DateTemporarilyHeld = DateTime.UtcNow;
+                                master.IsHeldForAction = true;
+                                master.DateHeldForAction = DateTime.UtcNow;
+                                master.RequiredCount = getPilotDetailListById.Count();
+                                master.CreatedById = context.GetLoggedInUserId();
+                                master.CreatedAt = DateTime.UtcNow;
+                                var savedItem = await _serviceAssignmentDetailsRepository.SavePilotServiceAssignmentdetail(master);
+                                if (savedItem == null)
+                                {
+                                    return new ApiResponse(500);
+                                }
+                            }
+                            else
+                            {
+                                return new ApiResponse(445);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        return new ApiResponse(443);
+                    }
+                }
+                else
+                {
+                    return new ApiResponse(448); //for schedule date
+                }
+            }
+            else
+            {
+                return new ApiResponse(447);
             }
             var TransferDTO = _mapper.Map<PilotServiceAssignmentDetailsTransferDTO>(master);
             return new ApiOkResponse(TransferDTO);
@@ -121,18 +363,97 @@ namespace HaloBiz.MyServices.Impl
         public async Task<ApiResponse> AddVehicleDetail(HttpContext context, VehicleServiceAssignmentDetailsReceivingDTO vehicleReceivingDTO)
         {
             var master = _mapper.Map<VehicleServiceAssignmentDetail>(vehicleReceivingDTO);
-            //var NameExist = _armedEscortsRepository.GetTypename(armedEscortTypeReceivingDTO.Name);
-            //if (NameExist != null)
-            //{
-            //    return new ApiResponse(409);
-            //}
-            master.CreatedById = context.GetLoggedInUserId();
-            master.CreatedAt = DateTime.UtcNow;
-            var savedItem = await _serviceAssignmentDetailsRepository.SaveVehicleServiceAssignmentdetail(master);
-            if (savedItem == null)
+            var getServiceAssignment = await _serviceAssignmentMasterRepository.FindServiceAssignmentById(vehicleReceivingDTO.ServiceAssignmentId);
+            var getServiceRegistration = await _serviceRegistrationRepository.FindServiceById(getServiceAssignment.ServiceRegistration.Id);
+            var getVehicleDetail = await _serviceAssignmentDetailsRepository.FindVehicleServiceAssignmentDetailByResourceId(vehicleReceivingDTO.VehicleResourceId);
+            var getVehicleDetailListById = await _serviceAssignmentDetailsRepository.FindAllVehicleServiceAssignmentDetailsByAssignmentId(vehicleReceivingDTO.ServiceAssignmentId);
+            var RouteExists = _vehicleRegistrationRepository.GetResourceRegIdRegionAndRouteId(vehicleReceivingDTO.VehicleResourceId, getServiceAssignment.SMORouteId, getServiceAssignment.SMORegionId);
+            var getResourceTypePerService = await _serviceRegistrationRepository.FindVehicleResourceByServiceRegId(getServiceAssignment.ServiceRegistration.Id);
+            var typeExists = _serviceRegistrationRepository.GetVehicleResourceApplicableTypeReqById(getServiceRegistration.Id, getResourceTypePerService.VehicleTypeId);
+            var getResourceSchedule = await _dTSMastersRepository.FindVehicleMasterByResourceId(vehicleReceivingDTO.VehicleResourceId);
+
+            if (getResourceSchedule != null)
             {
-                return new ApiResponse(500);
+                if (getResourceSchedule.AvailabilityStart >= getServiceAssignment.PickupDate)
+                {
+                    foreach (var item in getResourceSchedule.GenericDays)
+                    {
+                        if (item.OpeningTime.TimeOfDay >= getServiceAssignment.PickoffTime.TimeOfDay)
+                        {
+                            break;
+                        }
+                        else
+                        {
+                            return new ApiResponse(448);//for  schedule time
+                        }
+                    }
+
+                    if (RouteExists != null)
+                    {
+                        if (getVehicleDetail != null)
+                        {
+                            if (getVehicleDetail.IsTemporarilyHeld == true || getVehicleDetail.IsHeldForAction == true)
+                            {
+                                return new ApiResponse(444);
+                            }
+                        }
+                        if (typeExists == null)
+                        {
+                            return new ApiResponse(446);
+                        }
+                        if (getVehicleDetailListById.Count() == 0)
+                        {
+                            master.IsTemporarilyHeld = true;
+                            master.DateTemporarilyHeld = DateTime.UtcNow;
+                            master.IsHeldForAction = true;
+                            master.DateHeldForAction = DateTime.UtcNow;
+                            master.RequiredCount = getVehicleDetailListById.Count();
+                            master.CreatedById = context.GetLoggedInUserId();
+                            master.CreatedAt = DateTime.UtcNow;
+                            var savedItem = await _serviceAssignmentDetailsRepository.SaveVehicleServiceAssignmentdetail(master);
+                            if (savedItem == null)
+                            {
+                                return new ApiResponse(500);
+                            }
+                        }
+                        else
+                        {
+                            if (getVehicleDetailListById.Count() < getServiceRegistration.ArmedEscortQuantityRequired)
+                            {
+                                master.IsTemporarilyHeld = true;
+                                master.DateTemporarilyHeld = DateTime.UtcNow;
+                                master.IsHeldForAction = true;
+                                master.DateHeldForAction = DateTime.UtcNow;
+                                master.RequiredCount = getVehicleDetailListById.Count();
+                                master.CreatedById = context.GetLoggedInUserId();
+                                master.CreatedAt = DateTime.UtcNow;
+                                var savedItem = await _serviceAssignmentDetailsRepository.SaveVehicleServiceAssignmentdetail(master);
+                                if (savedItem == null)
+                                {
+                                    return new ApiResponse(500);
+                                }
+                            }
+                            else
+                            {
+                                return new ApiResponse(445);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        return new ApiResponse(443);
+                    }
+                }
+                else
+                {
+                    return new ApiResponse(448); //for schedule date
+                }
             }
+            else
+            {
+                return new ApiResponse(447);
+            }
+          
             var TransferDTO = _mapper.Map<VehicleServiceAssignmentDetailsTransferDTO>(master);
             return new ApiOkResponse(TransferDTO);
         }

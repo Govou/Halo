@@ -19,6 +19,7 @@ namespace HaloBiz.MyServices
         //Tie
         Task<ApiResponse> AddVehicleTie(HttpContext context, VehicleSMORoutesResourceTieReceivingDTO vehicleTieReceivingDTO);
         Task<ApiResponse> GetAllVehicleTies();
+        Task<ApiResponse> GetAllVehicleTiesByResourceId(long resourceId);
         Task<ApiResponse> GetVehicleTieById(long id);
         Task<ApiResponse> DeleteVehicleTie(long id);
     }

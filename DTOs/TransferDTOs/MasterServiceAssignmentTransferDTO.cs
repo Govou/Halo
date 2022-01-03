@@ -28,6 +28,9 @@ namespace HaloBiz.DTOs.TransferDTOs
         public ContractService ContractService { get; set; }
       
         public long? ContractServiceId { get; set; }
+       
+        public ServiceRegistration ServiceRegistration { get; set; }
+        public long? ServiceRegistrationId { get; set; }
         public CustomerDivision CustomerDivision { get; set; }
         public long? CustomerDivisionId { get; set; }
         public SourceType SourceType { get; set; }

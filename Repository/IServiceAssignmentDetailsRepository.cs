@@ -12,6 +12,7 @@ namespace HaloBiz.Repository
         Task<ArmedEscortServiceAssignmentDetail> SaveEscortServiceAssignmentdetail(ArmedEscortServiceAssignmentDetail serviceAssignmentDetail);
 
         Task<ArmedEscortServiceAssignmentDetail> FindEscortServiceAssignmentDetailById(long Id);
+        Task<ArmedEscortServiceAssignmentDetail> FindEscortServiceAssignmentDetailByResourceId(long resourceId);
 
         Task<IEnumerable<ArmedEscortServiceAssignmentDetail>> FindAllEscortServiceAssignmentDetails();
 
@@ -26,6 +27,7 @@ namespace HaloBiz.Repository
         Task<CommanderServiceAssignmentDetail> SaveCommanderServiceAssignmentdetail(CommanderServiceAssignmentDetail serviceAssignmentDetail);
 
         Task<CommanderServiceAssignmentDetail> FindCommanderServiceAssignmentDetailById(long Id);
+        Task<CommanderServiceAssignmentDetail> FindCommanderServiceAssignmentDetailByResourceId(long resourceId);
 
         Task<IEnumerable<CommanderServiceAssignmentDetail>> FindAllCommanderServiceAssignmentDetails();
         Task<IEnumerable<CommanderServiceAssignmentDetail>> FindAllCommanderServiceAssignmentDetailsByAssignmentId(long assignmentId);
@@ -40,6 +42,7 @@ namespace HaloBiz.Repository
         Task<PilotServiceAssignmentDetail> SavePilotServiceAssignmentdetail(PilotServiceAssignmentDetail serviceAssignmentDetail);
 
         Task<PilotServiceAssignmentDetail> FindPilotServiceAssignmentDetailById(long Id);
+        Task<PilotServiceAssignmentDetail> FindPilotServiceAssignmentDetailByResourceId(long resourceId);
 
         Task<IEnumerable<PilotServiceAssignmentDetail>> FindAllPilotServiceAssignmentDetails();
 
@@ -54,6 +57,7 @@ namespace HaloBiz.Repository
         Task<VehicleServiceAssignmentDetail> SaveVehicleServiceAssignmentdetail(VehicleServiceAssignmentDetail serviceAssignmentDetail);
 
         Task<VehicleServiceAssignmentDetail> FindVehicleServiceAssignmentDetailById(long Id);
+        Task<VehicleServiceAssignmentDetail> FindVehicleServiceAssignmentDetailByResourceId(long resourceId);
 
         Task<IEnumerable<VehicleServiceAssignmentDetail>> FindAllVehicleServiceAssignmentDetails();
         Task<IEnumerable<VehicleServiceAssignmentDetail>> FindAllVehicleServiceAssignmentDetailsByAssignmentId(long assignmentId);

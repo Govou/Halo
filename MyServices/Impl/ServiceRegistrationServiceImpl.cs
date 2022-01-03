@@ -148,7 +148,7 @@ namespace HaloBiz.MyServices.Impl
 
         public async Task<ApiResponse> DeleteArmedEscortResource(long id)
         {
-            var itemToDelete = await _serviceregRepository.FindArmedEsxortResourceById(id);
+            var itemToDelete = await _serviceregRepository.FindArmedEscortResourceById(id);
 
             if (itemToDelete == null)
             {
@@ -293,7 +293,7 @@ namespace HaloBiz.MyServices.Impl
 
         public async Task<ApiResponse> GetArmedEscortResourceById(long id)
         {
-            var service = await _serviceregRepository.FindArmedEsxortResourceById(id);
+            var service = await _serviceregRepository.FindArmedEscortResourceById(id);
             if (service == null)
             {
                 return new ApiResponse(404);

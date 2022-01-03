@@ -96,5 +96,16 @@ namespace HaloBiz.MyServices.Impl.LAMS
             var contractTransferDTOs = _mapper.Map<ContractServiceTransferDTO>(contractService);
             return new ApiOkResponse(contractTransferDTOs);
         }
+
+        public async Task<ApiResponse> GetAllContractsServcie()
+        {
+            var contractService = await _contractServiceRepo.FindAllContractServices();
+            if (contractService == null)
+            {
+                return new ApiResponse(404);
+            }
+            var contractServiceTransferDTOs = _mapper.Map<IEnumerable<ContractServiceTransferDTO>>(contractService);
+            return new ApiOkResponse(contractServiceTransferDTOs);
+        }
     }
 }

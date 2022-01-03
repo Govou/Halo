@@ -19,6 +19,7 @@ namespace HaloBiz.MyServices
         //Tie
         Task<ApiResponse> AddCommanderTie(HttpContext context, CommanderSMORoutesResourceTieReceivingDTO commanderReceivingDTO);
         Task<ApiResponse> GetAllCommanderTies();
+        Task<ApiResponse> GetAllCommanderTiesByResourceId(long resourceId);
         Task<ApiResponse> GetCommanderTieById(long id);
         Task<ApiResponse> DeleteCommanderTie(long id);
     }

@@ -17,19 +17,25 @@ namespace HaloBiz.MyServices.Impl
     {
         private readonly IServiceAssignmentMasterRepository _serviceAssignmentMasterRepository;
         private readonly IServiceRegistrationRepository _serviceRegistrationRepository;
+        private readonly IDTSMastersRepository _dTSMastersRepository;
         private readonly IMapper _mapper;
 
-        public MasterServiceAssignmentServiceImpl(IMapper mapper, IServiceAssignmentMasterRepository serviceAssignmentMasterRepository, IServiceRegistrationRepository serviceRegistrationRepository)
+        public MasterServiceAssignmentServiceImpl(IMapper mapper, IServiceAssignmentMasterRepository serviceAssignmentMasterRepository, 
+            IServiceRegistrationRepository serviceRegistrationRepository, IDTSMastersRepository dTSMastersRepository)
         {
             _mapper = mapper;
             _serviceAssignmentMasterRepository = serviceAssignmentMasterRepository;
             _serviceRegistrationRepository = serviceRegistrationRepository;
+            _dTSMastersRepository = dTSMastersRepository;
         }
 
         public async Task<ApiResponse> AddMasterServiceAssignment(HttpContext context, MasterServiceAssignmentReceivingDTO masterReceivingDTO)
         {
             var master = _mapper.Map<MasterServiceAssignment>(masterReceivingDTO);
-            //var getRegService = await _serviceRegistrationRepository.FindServiceById(masterReceivingDTO.ContractServiceId);
+            DateTime pickofftime = Convert.ToDateTime(masterReceivingDTO.PickoffTime.AddHours(1));
+            pickofftime = pickofftime.AddSeconds(-1 * pickofftime.Second);
+            pickofftime = pickofftime.AddMilliseconds(-1 * pickofftime.Millisecond);
+            var getRegService = await _serviceRegistrationRepository.FindServiceById(masterReceivingDTO.ServiceRegistrationId);
             long getId = 0;
            
             //var NameExist = _armedEscortsRepository.GetTypename(armedEscortTypeReceivingDTO.Name);
@@ -37,7 +43,9 @@ namespace HaloBiz.MyServices.Impl
             //{
             //    return new ApiResponse(409);
             //}
+         
             master.CreatedById = context.GetLoggedInUserId();
+            master.PickoffTime = pickofftime;
             master.CreatedAt = DateTime.UtcNow;
             master.TripTypeId = 1;
             var savedRank = await _serviceAssignmentMasterRepository.SaveServiceAssignment(master);
@@ -53,6 +61,7 @@ namespace HaloBiz.MyServices.Impl
                 master.PickoffLocation = masterReceivingDTO.DropoffLocation;
                 master.DropoffLocation = masterReceivingDTO.PickoffLocation;
                 master.TripTypeId = 2;
+                master.PickoffTime = pickofftime;
                 master.PrimaryTripAssignmentId = getId ;
                 master.CreatedById = context.GetLoggedInUserId();
                 master.CreatedAt = DateTime.UtcNow;
@@ -118,7 +127,7 @@ namespace HaloBiz.MyServices.Impl
 
             itemToUpdate.DropoffLocation = masterReceivingDTO.DropoffLocation;
             itemToUpdate.PickoffLocation = masterReceivingDTO.PickoffLocation;
-            itemToUpdate.SourceTypeId = masterReceivingDTO.SourceTypeId;
+            itemToUpdate.ServiceRegistrationId = masterReceivingDTO.ServiceRegistrationId;
 
             itemToUpdate.PickoffTime = masterReceivingDTO.PickoffTime;
             itemToUpdate.CustomerDivisionId = masterReceivingDTO.CustomerDivisionId;

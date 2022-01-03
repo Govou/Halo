@@ -128,6 +128,17 @@ namespace HaloBiz.MyServices.Impl
             return new ApiOkResponse(TransferDTO);
         }
 
+        public async Task<ApiResponse> GetAllCommanderTiesByResourceId(long resourceId)
+        {
+            var commanders = await _commanderRepository.FindAllCommanderTiesByResourceId(resourceId);
+            if (commanders == null)
+            {
+                return new ApiResponse(404);
+            }
+            var TransferDTO = _mapper.Map<IEnumerable<CommanderSMORoutesResourceTieTransferDTO>>(commanders);
+            return new ApiOkResponse(TransferDTO);
+        }
+
         public async Task<ApiResponse> GetCommanderById(long id)
         {
             var commander = await _commanderRepository.FindCommanderById(id);

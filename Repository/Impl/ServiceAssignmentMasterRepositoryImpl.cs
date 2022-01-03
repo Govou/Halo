@@ -31,7 +31,12 @@ namespace HaloBiz.Repository.Impl
         {
             return await _context.MasterServiceAssignments.Where(type => type.IsDeleted == false)
                .Include(ct => ct.ContractService).Include(t=>t.CustomerDivision).Include(t=>t.SMORegion).Include(t=>t.SMORegion)
-               .Include(t=>t.SMORoute).Include(t=>t.SourceType).Include(t=>t.TripType).Include(t=>t.CreatedBy)
+
+               .Include(t=>t.SMORoute).Include(t=>t.SourceType).Include(t=>t.TripType).Include(t=>t.CreatedBy).Include(t=>t.ServiceRegistration)
+               .Include(t=>t.ServiceRegistration.Service).Include(t => t.ServiceRegistration.ApplicableArmedEscortTypes.Where(t=>t.IsDeleted == false))
+               .Include(t => t.ServiceRegistration.ApplicableCommanderTypes.Where(t => t.IsDeleted == false))
+               .Include(t => t.ServiceRegistration.ApplicablePilotTypes.Where(t => t.IsDeleted == false))
+               .Include(t => t.ServiceRegistration.ApplicableVehicleTypes.Where(t => t.IsDeleted == false))
                .OrderByDescending(x => x.Id)
                .ToListAsync();
         }
@@ -40,7 +45,11 @@ namespace HaloBiz.Repository.Impl
         {
             return await _context.MasterServiceAssignments
                .Include(ct => ct.ContractService).Include(t => t.CustomerDivision).Include(t => t.SMORegion).Include(t => t.SMORegion)
-               .Include(t => t.SMORoute).Include(t => t.SourceType).Include(t => t.TripType).Include(t => t.CreatedBy)
+               .Include(t => t.SMORoute).Include(t => t.SourceType).Include(t => t.TripType).Include(t => t.CreatedBy).Include(t => t.ServiceRegistration)
+               .Include(t => t.ServiceRegistration.Service).Include(t => t.ServiceRegistration.ApplicableArmedEscortTypes.Where(t => t.IsDeleted == false))
+               .Include(t => t.ServiceRegistration.ApplicableCommanderTypes.Where(t => t.IsDeleted == false))
+               .Include(t => t.ServiceRegistration.ApplicablePilotTypes.Where(t => t.IsDeleted == false))
+               .Include(t => t.ServiceRegistration.ApplicableVehicleTypes.Where(t => t.IsDeleted == false))
                .FirstOrDefaultAsync(aer => aer.Id == Id && aer.IsDeleted == false);
         }
 

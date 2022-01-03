@@ -125,6 +125,17 @@ namespace HaloBiz.MyServices.Impl
             return new ApiOkResponse(rankTransferDTO);
         }
 
+        public async Task<ApiResponse> GetAllArmedEscortTiesByResourceId(long resourceId)
+        {
+            var armedescorts = await _armedEscortsRepository.FindArmedEscortTieByResourceId(resourceId);
+            if (armedescorts == null)
+            {
+                return new ApiResponse(404);
+            }
+            var rankTransferDTO = _mapper.Map<IEnumerable<ArmedEscortSMORoutesResourceTieTransferDTO>>(armedescorts);
+            return new ApiOkResponse(rankTransferDTO);
+        }
+
         public async Task<ApiResponse> GetArmedEscortById(long id)
         {
             var escort = await _armedEscortsRepository.FindArmedEscortById(id);
