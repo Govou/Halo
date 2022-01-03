@@ -499,7 +499,7 @@ namespace HaloBiz.Controllers
             return Ok(response);
         }
 
-        [HttpGet("GetAssignedDeliverableStatus")]
+        [HttpPost("GetAssignedDeliverableStatus")]
         public async Task<ActionResult> GetAssignedDeliverableStatus(List<DeliverableStatusDTO> deliverableStatusDTOs)
         {
             var response = await _projectAllocationService.getAssignedDeliverableStatus(HttpContext,deliverableStatusDTOs);

@@ -13,10 +13,12 @@ namespace HaloBiz.DTOs.ProjectManagementDTO
         public ICollection<Dependency> Dependencies { get; set; }
         public ICollection<PMRequirement> Requirements { get; set; }
         public AssignDeliverableDTO AssignDeliverableDTO { get; set; }
+        public AssignTask AssignDeliverable { get; set; }
         public List<PMIllustration> PMIllustrations { get; set; }
         public DateTime CreatedAt { get; set; }
         public long TimeEstimate { get; set; }
         public long? TaskId { get; set; }
+        public Task Task { get; set; }
         public long? Id { get; set; }
         public bool IsActive { get; set; }
         public DateTime? DatePicked { get; set; }

@@ -941,6 +941,7 @@ namespace HaloBiz.MyServices.Impl
                         deliverableInstance.TaskId = deliverable.TaskId;
                         deliverableInstance.TimeEstimate = deliverable.TimeEstimate;
                         deliverableInstance.UpdatedAt = deliverable.UpdatedAt;
+                        deliverableInstance.AssignDeliverable = await _context.AssignTasks.Where(x => x.IsActive == true && x.DeliverableId == deliverable.Id).FirstOrDefaultAsync();
                         deliverableInstance.statusFlows = await getDeliverableStatusFlow(httpContext,deliverable.TaskId);
                         deliverableInstance.Workspace = await getDeliverableWorkspace(httpContext, deliverable.TaskId);
                         deliverableArray.Add(deliverableInstance);
@@ -961,9 +962,132 @@ namespace HaloBiz.MyServices.Impl
 
 
 
-        //public async Task<ApiCommonResponse> getAssignedDeliverableStatus(HttpContext httpContext,List<DeliverableStatusDTO> deliverableStatusDTOs)
-        //{ 
-       
+        public async Task<ApiCommonResponse> getAssignedDeliverableStatus(HttpContext httpContext, List<DeliverableStatusDTO> deliverableStatusDTOs)
+        {
+
+            if (deliverableStatusDTOs.Count == 0)
+            {
+                return CommonResponse.Send
+                (
+
+                ResponseCodes.FAILURE,
+                null,
+                "No Assigned deliverables was provided.."
+                );
+            }
+
+            else
+            {
+                var statusDToList = new List<StatusCategoryDTO>();
+                var workspaceStatusList = new List<WorkspaceRoot>();
+                foreach (var deliverable in deliverableStatusDTOs)
+                {
+
+                    var deliverableStatusInstance = new DeliverableStatus();
+                    var statusDTO = new StatusCategoryDTO();
+                    var workspaceStatus = new WorkspaceRoot();
+                    var checkIfDeliverableBelongsToStatus = await _context.DeliverableStatuses.Where(x => x.IsDeleted == false && x.DeliverableId == deliverable.Id).FirstOrDefaultAsync();
+                    if (checkIfDeliverableBelongsToStatus == null)
+                    {
+                        workspaceStatus.Caption = deliverable.Workspace.Caption;
+                        workspaceStatus.Alias = deliverable.Workspace.Alias;
+                        workspaceStatus.Description = deliverable.Workspace.Description;
+                        workspaceStatus.Id = deliverable.Workspace.Id;
+                        workspaceStatus.IsActive = deliverable.Workspace.IsActive;
+                        workspaceStatus.IsPublic = deliverable.Workspace.IsPublic;
+                        workspaceStatus.StatusFlowOption = deliverable.Workspace.StatusFlowOption;
+                        var firstStatus = deliverable.statusFlows.First();
+                        statusDTO.Caption = firstStatus.Caption;
+                        statusDTO.CreatedAt = firstStatus.CreatedAt;
+                        statusDTO.CreatedById = firstStatus.CreatedById;
+                        statusDTO.Description = firstStatus.Description;
+                        statusDTO.id = firstStatus.Id;
+                        statusDTO.IsDeleted = firstStatus.IsDeleted;
+                        statusDTO.LevelCount = firstStatus.LevelCount;
+                        statusDTO.Panthone = firstStatus.Panthone;
+                        //statusDTO.deliverableDTO = await getDeliverableDTO(httpContext,deliverable.Id);
+                        statusDTO.deliverableDTO.Add(deliverable);
+                        workspaceStatus.StatusCategoryDTO.Add(statusDTO);
+                        //statusDToList.Add(statusDTO);
+
+                        deliverableStatusInstance.Version = 0;
+                        deliverableStatusInstance.StatusId = statusDTO.id;
+                        deliverableStatusInstance.IsDeleted = false;
+                        deliverableStatusInstance.DeliverableId = deliverable.Id;
+                        deliverableStatusInstance.CreatedAt = DateTime.Now;
+                        deliverableStatusInstance.CreatedById = httpContext.GetLoggedInUserId();
+
+                        await _context.DeliverableStatuses.AddAsync(deliverableStatusInstance);
+                        await _context.SaveChangesAsync();
+
+                    }
+
+                    else
+                    {
+
+                        workspaceStatus.Caption = deliverable.Workspace.Caption;
+                        workspaceStatus.Alias = deliverable.Workspace.Alias;
+                        workspaceStatus.Description = deliverable.Workspace.Description;
+                        workspaceStatus.Id = deliverable.Workspace.Id;
+                        workspaceStatus.IsActive = deliverable.Workspace.IsActive;
+                        workspaceStatus.IsPublic = deliverable.Workspace.IsPublic;
+                        workspaceStatus.StatusFlowOption = deliverable.Workspace.StatusFlowOption;
+                        var getStatus = await _context.StatusFlows.Where(x => x.IsDeleted == false && x.Id == checkIfDeliverableBelongsToStatus.StatusId).FirstOrDefaultAsync();
+                        statusDTO.Caption = getStatus.Caption;
+                        statusDTO.CreatedAt = getStatus.CreatedAt;
+                        statusDTO.CreatedById = getStatus.CreatedById;
+                        statusDTO.Description = getStatus.Description;
+                        statusDTO.id = getStatus.Id;
+                        statusDTO.IsDeleted = getStatus.IsDeleted;
+                        statusDTO.LevelCount = getStatus.LevelCount;
+                        statusDTO.Panthone = getStatus.Panthone;
+                        statusDTO.deliverableDTO.Add(deliverable);
+                        workspaceStatus.StatusCategoryDTO.Add(statusDTO);
+                        //statusDToList.Add(statusDTO);
+
+                    }
+                    workspaceStatusList.Add(workspaceStatus);
+                }
+
+
+                return CommonResponse.Send
+                (
+
+                ResponseCodes.SUCCESS,
+                workspaceStatusList,
+                ResponseMessage.EntitySuccessfullyFound
+                );
+
+            }
+
+        }
+
+
+
+        //public async Task<WorkspaceRoot> getWorkspaceRootData(HttpContext httpContext,DeliverableStatusDTO deliverableStatusDTO)
+        //{
+            
+        //        var workspaceStatus = new WorkspaceRoot();
+        //        var workspaceStatusArray = new List<WorkspaceRoot>();
+        //        workspaceStatus.Caption = deliverableStatusDTO.Workspace.Caption;
+        //        workspaceStatus.Alias = deliverableStatusDTO.Workspace.Alias;
+        //        workspaceStatus.Description = deliverableStatusDTO.Workspace.Description;
+        //        workspaceStatus.Id = deliverableStatusDTO.Workspace.Id;
+        //        workspaceStatus.IsActive = deliverableStatusDTO.Workspace.IsActive;
+        //        workspaceStatus.IsPublic = deliverableStatusDTO.Workspace.IsPublic;
+        //        workspaceStatus.StatusFlowOption = deliverableStatusDTO.Workspace.StatusFlowOption;
+                
+                
+
+            
+        //}
+
+
+
+
+        //public async Task<ApiCommonResponse> getAssignedDeliverableStatus(HttpContext httpContext, List<DeliverableStatusDTO> deliverableStatusDTOs)
+        //{
+
         //    if (deliverableStatusDTOs.Count == 0)
         //    {
         //        return CommonResponse.Send
@@ -977,13 +1101,166 @@ namespace HaloBiz.MyServices.Impl
 
         //    else
         //    {
-                
-        //        foreach(var deliverable in deliverableStatusDTOs)
+        //        var statusDToList = new List<StatusCategoryDTO>();
+        //        foreach (var deliverable in deliverableStatusDTOs)
         //        {
 
-                    
+        //            var deliverableStatusInstance = new DeliverableStatus();
+        //            var statusDTO = new StatusCategoryDTO();
+        //            var checkIfDeliverableBelongsToStatus = await _context.DeliverableStatuses.Where(x => x.IsDeleted == false && x.DeliverableId == deliverable.Id).FirstOrDefaultAsync();
+        //            if (checkIfDeliverableBelongsToStatus == null)
+        //            {
+
+        //                var firstStatus = deliverable.statusFlows.First();
+        //                statusDTO.Caption = firstStatus.Caption;
+        //                statusDTO.CreatedAt = firstStatus.CreatedAt;
+        //                statusDTO.CreatedById = firstStatus.CreatedById;
+        //                statusDTO.Description = firstStatus.Description;
+        //                statusDTO.id = firstStatus.Id;
+        //                statusDTO.IsDeleted = firstStatus.IsDeleted;
+        //                statusDTO.LevelCount = firstStatus.LevelCount;
+        //                statusDTO.Panthone = firstStatus.Panthone;
+        //                //statusDTO.deliverableDTO = await getDeliverableDTO(httpContext,deliverable.Id);
+        //                statusDTO.deliverableDTO = deliverable;
+        //                statusDToList.Add(statusDTO);
+
+        //                deliverableStatusInstance.Version = 0;
+        //                deliverableStatusInstance.StatusId = statusDTO.id;
+        //                deliverableStatusInstance.IsDeleted = false;
+        //                deliverableStatusInstance.DeliverableId = statusDTO.deliverableDTO.Id;
+        //                deliverableStatusInstance.CreatedAt = DateTime.Now;
+        //                deliverableStatusInstance.CreatedById = httpContext.GetLoggedInUserId();
+
+        //                await _context.DeliverableStatuses.AddAsync(deliverableStatusInstance);
+        //                await _context.SaveChangesAsync();
+
+
+
+        //            }
+        //            else
+        //            {
+
+        //                var getStatus = await _context.StatusFlows.Where(x => x.IsDeleted == false && x.Id == checkIfDeliverableBelongsToStatus.StatusId).FirstOrDefaultAsync();
+        //                statusDTO.Caption = getStatus.Caption;
+        //                statusDTO.CreatedAt = getStatus.CreatedAt;
+        //                statusDTO.CreatedById = getStatus.CreatedById;
+        //                statusDTO.Description = getStatus.Description;
+        //                statusDTO.id = getStatus.Id;
+        //                statusDTO.IsDeleted = getStatus.IsDeleted;
+        //                statusDTO.LevelCount = getStatus.LevelCount;
+        //                statusDTO.Panthone = getStatus.Panthone;
+        //                statusDTO.deliverableDTO = await getDeliverableDTO(httpContext, deliverable.Id);
+        //                statusDToList.Add(statusDTO);
+
+        //            }
+
+
 
         //        }
+
+
+
+        //        //var distinctResult = statusDToList.GroupBy(x => x.id)
+        //        //        .ToList();
+        //        //Console.WriteLine(distinctResult);
+        //        return CommonResponse.Send
+        //        (
+
+        //        ResponseCodes.SUCCESS,
+        //        statusDToList,
+        //        ResponseMessage.EntitySuccessfullyFound
+        //        );
+
+        //    }
+
+        //}
+
+
+        //public async Task<ApiCommonResponse> getAssignedDeliverableStatus(HttpContext httpContext, List<DeliverableStatusDTO> deliverableStatusDTOs)
+        //{
+
+        //    if (deliverableStatusDTOs.Count == 0)
+        //    {
+        //        return CommonResponse.Send
+        //        (
+
+        //        ResponseCodes.FAILURE,
+        //        null,
+        //        "No Assigned deliverables was provided.."
+        //        );
+        //    }
+
+        //    else
+        //    {
+        //        var statusDToList = new List<StatusCategoryDTO>();
+        //        foreach (var deliverable in deliverableStatusDTOs)
+        //        {
+
+        //            var deliverableStatusInstance = new DeliverableStatus();
+        //            var statusDTO = new StatusCategoryDTO();
+        //            var checkIfDeliverableBelongsToStatus = await _context.DeliverableStatuses.Where(x => x.IsDeleted == false && x.DeliverableId == deliverable.Id).FirstOrDefaultAsync();
+        //            if(checkIfDeliverableBelongsToStatus == null)
+        //            {
+
+        //                var firstStatus = deliverable.statusFlows.First();
+        //                statusDTO.Caption = firstStatus.Caption;
+        //                statusDTO.CreatedAt = firstStatus.CreatedAt;
+        //                statusDTO.CreatedById = firstStatus.CreatedById;
+        //                statusDTO.Description = firstStatus.Description;
+        //                statusDTO.id = firstStatus.Id;
+        //                statusDTO.IsDeleted = firstStatus.IsDeleted;
+        //                statusDTO.LevelCount = firstStatus.LevelCount;
+        //                statusDTO.Panthone = firstStatus.Panthone;
+        //                //statusDTO.deliverableDTO = await getDeliverableDTO(httpContext,deliverable.Id);
+        //                statusDTO.deliverableDTO = deliverable;
+        //                statusDToList.Add(statusDTO);
+
+        //                deliverableStatusInstance.Version = 0;
+        //                deliverableStatusInstance.StatusId = statusDTO.id;
+        //                deliverableStatusInstance.IsDeleted = false;
+        //                deliverableStatusInstance.DeliverableId = statusDTO.deliverableDTO.Id;
+        //                deliverableStatusInstance.CreatedAt = DateTime.Now;
+        //                deliverableStatusInstance.CreatedById = httpContext.GetLoggedInUserId();
+
+        //                await _context.DeliverableStatuses.AddAsync(deliverableStatusInstance);
+        //                await _context.SaveChangesAsync();
+
+
+
+        //            }
+        //            else
+        //            {
+
+        //                var getStatus = await _context.StatusFlows.Where(x => x.IsDeleted == false && x.Id == checkIfDeliverableBelongsToStatus.StatusId).FirstOrDefaultAsync();
+        //                statusDTO.Caption = getStatus.Caption;
+        //                statusDTO.CreatedAt = getStatus.CreatedAt;
+        //                statusDTO.CreatedById = getStatus.CreatedById;
+        //                statusDTO.Description = getStatus.Description;
+        //                statusDTO.id = getStatus.Id;
+        //                statusDTO.IsDeleted = getStatus.IsDeleted;
+        //                statusDTO.LevelCount = getStatus.LevelCount;
+        //                statusDTO.Panthone = getStatus.Panthone;
+        //                statusDTO.deliverableDTO = await getDeliverableDTO(httpContext, deliverable.Id);
+        //                statusDToList.Add(statusDTO);
+
+        //            }
+
+
+
+        //        }
+
+
+
+        //        //var distinctResult = statusDToList.GroupBy(x => x.id)
+        //        //        .ToList();
+        //        //Console.WriteLine(distinctResult);
+        //        return CommonResponse.Send
+        //        (
+
+        //        ResponseCodes.SUCCESS,
+        //        statusDToList,
+        //        ResponseMessage.EntitySuccessfullyFound
+        //        );
 
         //    }
 
@@ -1461,7 +1738,7 @@ namespace HaloBiz.MyServices.Impl
 
                     var deliverableToDisplayInstance = new Deliverable();
                     deliverableToDisplayInstance.Alias = getAllDeliverables.Alias;
-                deliverableToDisplayInstance.Budget = getAllDeliverables.Budget;
+                    deliverableToDisplayInstance.Budget = getAllDeliverables.Budget;
                     deliverableToDisplayInstance.Caption = getAllDeliverables.Caption;
                     deliverableToDisplayInstance.Description = getAllDeliverables.Description;
                     deliverableToDisplayInstance.Balances = await _context.Balances.Where(x => x.DeliverableId == getAllDeliverables.Id && x.CreatedById == httpContext.GetLoggedInUserId()).ToListAsync();
@@ -1480,6 +1757,7 @@ namespace HaloBiz.MyServices.Impl
                     deliverableToDisplayInstance.Pictures = await _context.Pictures.Where(x => x.DeliverableId == getAllDeliverables.Id && x.CreatedById == httpContext.GetLoggedInUserId()).ToListAsync();
                     deliverableToDisplayInstance.IsActive = getAllDeliverables.IsActive;
                     deliverableToDisplayInstance.Documents = await _context.Documents.Where(x => x.DeliverableId == getAllDeliverables.Id && x.CreatedById == httpContext.GetLoggedInUserId()).ToListAsync();
+                    
 
 
                 return new ApiGenericResponse<Deliverable>
@@ -1488,6 +1766,46 @@ namespace HaloBiz.MyServices.Impl
                     responseMessage = "Successfull retrieved all deliverables",
                     data = deliverableToDisplayInstance,
                 };
+            }
+
+
+        }
+
+
+        public async Task<DeliverableStatusDTO> getDeliverableDTO(HttpContext httpContext, long? id)
+
+        {
+
+            var getAllDeliverables = await _context.Deliverables.FirstOrDefaultAsync(x => x.IsActive == true && x.Id == id);
+
+            if (getAllDeliverables == null)
+            {
+                return null;
+            }
+            else
+            {
+
+                var deliverableToDisplayInstance = new DeliverableStatusDTO();
+                deliverableToDisplayInstance.Alias = getAllDeliverables.Alias;
+                deliverableToDisplayInstance.Budget = getAllDeliverables.Budget;
+                deliverableToDisplayInstance.Caption = getAllDeliverables.Caption;
+                deliverableToDisplayInstance.Description = getAllDeliverables.Description;
+                deliverableToDisplayInstance.CreatedById = httpContext.GetLoggedInUserId();
+                deliverableToDisplayInstance.DatePicked = getAllDeliverables.DatePicked;
+                deliverableToDisplayInstance.Dependencies = await _context.Dependencies.Where(x => x.DependencyDeliverableId == getAllDeliverables.Id && x.CreatedById == httpContext.GetLoggedInUserId()).ToListAsync();
+                deliverableToDisplayInstance.DependentType = getAllDeliverables.DependentType;
+                deliverableToDisplayInstance.EndDate = getAllDeliverables.EndDate;
+                deliverableToDisplayInstance.Id = getAllDeliverables.Id;
+                deliverableToDisplayInstance.TimeEstimate = getAllDeliverables.TimeEstimate;
+                deliverableToDisplayInstance.Task = await _context.Tasks.FirstOrDefaultAsync(x => x.Id == getAllDeliverables.TaskId && x.CreatedById == httpContext.GetLoggedInUserId() && x.IsActive == true);
+                deliverableToDisplayInstance.StartDate = getAllDeliverables.StartDate;
+                deliverableToDisplayInstance.Requirements = await _context.PMRequirements.Where(x => x.DeliverableId == getAllDeliverables.Id && x.CreatedById == httpContext.GetLoggedInUserId() && x.IsActive == false).ToListAsync();
+                deliverableToDisplayInstance.AssignDeliverable = await _context.AssignTasks.Where(x => x.IsActive == true && x.DeliverableId == getAllDeliverables.Id).FirstOrDefaultAsync();
+            
+                deliverableToDisplayInstance.IsActive = getAllDeliverables.IsActive;
+
+
+                return deliverableToDisplayInstance;
             }
 
 
@@ -2845,8 +3163,6 @@ namespace HaloBiz.MyServices.Impl
 
                         taskAssigneeList.Add(taskAssignee);
                     }
-                
-
                 
             }
 

@@ -32,6 +32,6 @@ namespace HaloBiz.DTOs.ProjectManagementDTO
         public string Caption { get; set; }
         public string Alias { get; set; }
         public DateTime UpdatedAt { get; set; }
-
+        public List<DeliverableAssignee> DeliverableAssignees { get; internal set; }
     }
 }

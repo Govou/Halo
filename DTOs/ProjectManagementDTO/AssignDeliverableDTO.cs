@@ -1,4 +1,6 @@
 ﻿using System;
+using HalobizMigrations.Models.ProjectManagement;
+
 namespace HaloBiz.DTOs.ProjectManagementDTO
 {
     public class AssignDeliverableDTO
@@ -90,5 +92,6 @@ namespace HaloBiz.DTOs.ProjectManagementDTO
 			get;
 			set;
 		}
-	}
+
+    }
 }
