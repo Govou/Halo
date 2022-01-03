@@ -2092,7 +2092,7 @@ namespace HaloBiz.MyServices.Impl
 
         public async Task<ApiGenericResponse<List<Deliverable>>> disableDeliverable(HttpContext httpContext, long taskId, long deliverableId)
         {
-            var getDeliverable = await _context.Deliverables.FirstOrDefaultAsync(x => x.IsActive == true && x.TaskId == taskId && x.Id == deliverableId);
+            var getDeliverable = await _context.Deliverables.Where(x => x.IsActive == true && x.TaskId == taskId && x.Id == deliverableId).FirstOrDefaultAsync();
             if (getDeliverable == null)
             {
                 return new ApiGenericResponse<List<Deliverable>>
