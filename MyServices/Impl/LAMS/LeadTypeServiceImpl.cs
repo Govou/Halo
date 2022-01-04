@@ -32,58 +32,58 @@ namespace HaloBiz.MyServices.Impl.LAMS
             this._logger = logger;
         }
 
-        public async Task<ApiResponse> AddLeadType(HttpContext context, LeadTypeReceivingDTO leadTypeReceivingDTO)
+        public async Task<ApiCommonResponse> AddLeadType(HttpContext context, LeadTypeReceivingDTO leadTypeReceivingDTO)
         {
             var leadType = _mapper.Map<LeadType>(leadTypeReceivingDTO);
             leadType.CreatedById = context.GetLoggedInUserId();
             var savedLeadType = await _leadTypeRepo.SaveLeadType(leadType);
             if (savedLeadType == null)
             {
-                return new ApiResponse(500);
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
             var leadTypeTransferDTO = _mapper.Map<LeadTypeTransferDTO>(savedLeadType);
-            return new ApiOkResponse(leadTypeTransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,leadTypeTransferDTO);
         }
 
-        public async Task<ApiResponse> GetAllLeadType()
+        public async Task<ApiCommonResponse> GetAllLeadType()
         {
             var leadTypes = await _leadTypeRepo.FindAllLeadType();
             if (leadTypes == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var leadTypeTransferDTO = _mapper.Map<IEnumerable<LeadTypeTransferDTO>>(leadTypes);
-            return new ApiOkResponse(leadTypeTransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,leadTypeTransferDTO);
         }
 
-        public async Task<ApiResponse> GetLeadTypeById(long id)
+        public async Task<ApiCommonResponse> GetLeadTypeById(long id)
         {
             var leadType = await _leadTypeRepo.FindLeadTypeById(id);
             if (leadType == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var leadTypeTransferDTOs = _mapper.Map<LeadTypeTransferDTO>(leadType);
-            return new ApiOkResponse(leadTypeTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,leadTypeTransferDTOs);
         }
 
-        public async Task<ApiResponse> GetLeadTypeByName(string name)
+        public async Task<ApiCommonResponse> GetLeadTypeByName(string name)
         {
             var leadType = await _leadTypeRepo.FindLeadTypeByName(name);
             if (leadType == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var leadTypeTransferDTOs = _mapper.Map<LeadTypeTransferDTO>(leadType);
-            return new ApiOkResponse(leadTypeTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,leadTypeTransferDTOs);
         }
 
-        public async Task<ApiResponse> UpdateLeadType(HttpContext context, long id, LeadTypeReceivingDTO leadTypeReceivingDTO)
+        public async Task<ApiCommonResponse> UpdateLeadType(HttpContext context, long id, LeadTypeReceivingDTO leadTypeReceivingDTO)
         {
             var leadTypeToUpdate = await _leadTypeRepo.FindLeadTypeById(id);
             if (leadTypeToUpdate == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             
             var summary = $"Initial details before change, \n {leadTypeToUpdate.ToString()} \n" ;
@@ -96,7 +96,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
             if (updatedLeadType == null)
             {
-                return new ApiResponse(500);
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
             ModificationHistory history = new ModificationHistory(){
                 ModelChanged = "LeadType",
@@ -108,24 +108,24 @@ namespace HaloBiz.MyServices.Impl.LAMS
             await _historyRepo.SaveHistory(history);
 
             var leadTypeTransferDTOs = _mapper.Map<LeadTypeTransferDTO>(updatedLeadType);
-            return new ApiOkResponse(leadTypeTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,leadTypeTransferDTOs);
 
         }
 
-        public async Task<ApiResponse> DeleteLeadType(long id)
+        public async Task<ApiCommonResponse> DeleteLeadType(long id)
         {
             var leadTypeToDelete = await _leadTypeRepo.FindLeadTypeById(id);
             if (leadTypeToDelete == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
 
             if (!await _leadTypeRepo.DeleteLeadType(leadTypeToDelete))
             {
-                return new ApiResponse(500);
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
 
-            return new ApiOkResponse(true);
+            return CommonResponse.Send(ResponseCodes.SUCCESS);
         }
     }
 }

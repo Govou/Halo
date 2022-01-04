@@ -7,9 +7,9 @@ namespace HaloBiz.MyServices
 {
     public interface IApproverLevelService
     {
-        Task<ApiResponse> AddApproverLevel(HttpContext context, ApproverLevelReceivingDTO approverLevelReceivingDTO);
-        Task<ApiResponse> GetAllApproverLevel();
-        Task<ApiResponse> UpdateApproverLevel(HttpContext context, long id, ApproverLevelReceivingDTO approverLevelReceivingDTO);
-        Task<ApiResponse> DeleteApproverLevel(long id);
+        Task<ApiCommonResponse> AddApproverLevel(HttpContext context, ApproverLevelReceivingDTO approverLevelReceivingDTO);
+        Task<ApiCommonResponse> GetAllApproverLevel();
+        Task<ApiCommonResponse> UpdateApproverLevel(HttpContext context, long id, ApproverLevelReceivingDTO approverLevelReceivingDTO);
+        Task<ApiCommonResponse> DeleteApproverLevel(long id);
     }
 }

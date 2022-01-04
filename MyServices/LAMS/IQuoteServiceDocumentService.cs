@@ -7,13 +7,13 @@ namespace HaloBiz.MyServices.LAMS
 {
     public interface IQuoteServiceDocumentService
     {
-        Task<ApiResponse> AddQuoteServiceDocument(HttpContext context, QuoteServiceDocumentReceivingDTO quoteServiceDocumentReceivingDTO);
-        Task<ApiResponse> GetAllQuoteServiceDocument();
-        Task<ApiResponse> GetQuoteServiceDocumentById(long id);
-        Task<ApiResponse> GetQuoteServiceDocumentByCaption(string caption);
-        Task<ApiResponse> UpdateQuoteServiceDocument(HttpContext context, long id, QuoteServiceDocumentReceivingDTO quoteServiceDocumentReceivingDTO);
-        Task<ApiResponse> DeleteQuoteServiceDocument(long id);
-        Task<ApiResponse> GetAllQuoteServiceDocumentForAQuoteService(long quoteServiceId);
+        Task<ApiCommonResponse> AddQuoteServiceDocument(HttpContext context, QuoteServiceDocumentReceivingDTO quoteServiceDocumentReceivingDTO);
+        Task<ApiCommonResponse> GetAllQuoteServiceDocument();
+        Task<ApiCommonResponse> GetQuoteServiceDocumentById(long id);
+        Task<ApiCommonResponse> GetQuoteServiceDocumentByCaption(string caption);
+        Task<ApiCommonResponse> UpdateQuoteServiceDocument(HttpContext context, long id, QuoteServiceDocumentReceivingDTO quoteServiceDocumentReceivingDTO);
+        Task<ApiCommonResponse> DeleteQuoteServiceDocument(long id);
+        Task<ApiCommonResponse> GetAllQuoteServiceDocumentForAQuoteService(long quoteServiceId);
 
     }
 }

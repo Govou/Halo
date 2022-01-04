@@ -19,23 +19,15 @@ namespace HaloBiz.Controllers.AccountsModel
         }
 
         [HttpPost("")]
-        public async Task<ActionResult> AddNewReceipt(ReceiptReceivingDTO receiptReceiving)
+        public async Task<ApiCommonResponse> AddNewReceipt(ReceiptReceivingDTO receiptReceiving)
         {
-            var response = await _receiptService.AddReceipt(HttpContext, receiptReceiving);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var receipt = ((ApiOkResponse)response).Result;
-            return Ok(receipt);
+            return await _receiptService.AddReceipt(HttpContext, receiptReceiving);
         }
 
         [HttpGet("ReceiptBreakDown/{invoiceId}/{totalReceiptAmount}")]
-        public async Task<ActionResult> GetReceiptBreakDown(long invoiceId, double totalReceiptAmount)
+        public async Task<ApiCommonResponse> GetReceiptBreakDown(long invoiceId, double totalReceiptAmount)
         {
-            var response = await _receiptService.GetReceiptBreakDown(invoiceId, totalReceiptAmount);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var invoices = ((ApiOkResponse)response).Result;
-            return Ok(invoices);
+            return await _receiptService.GetReceiptBreakDown(invoiceId, totalReceiptAmount);
         }
     }
 }

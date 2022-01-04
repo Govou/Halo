@@ -7,10 +7,10 @@ namespace HaloBiz.MyServices.LAMS
 {
     public interface IFinancialVoucherTypeService
     {
-        Task<ApiResponse> AddFinancialVoucherType(HttpContext context, FinancialVoucherTypeReceivingDTO voucherTypeReceivingDTO);
-        Task<ApiResponse> GetAllFinancialVoucherTypes();
-        Task<ApiResponse> GetFinancialVoucherTypeById(long id);
-        Task<ApiResponse> UpdateFinancialVoucherType(HttpContext context, long id, FinancialVoucherTypeReceivingDTO voucherTypeReceivingDTO);
-        Task<ApiResponse> DeleteFinancialVoucherType(long id);
+        Task<ApiCommonResponse> AddFinancialVoucherType(HttpContext context, FinancialVoucherTypeReceivingDTO voucherTypeReceivingDTO);
+        Task<ApiCommonResponse> GetAllFinancialVoucherTypes();
+        Task<ApiCommonResponse> GetFinancialVoucherTypeById(long id);
+        Task<ApiCommonResponse> UpdateFinancialVoucherType(HttpContext context, long id, FinancialVoucherTypeReceivingDTO voucherTypeReceivingDTO);
+        Task<ApiCommonResponse> DeleteFinancialVoucherType(long id);
     }
 }

@@ -7,9 +7,9 @@ namespace HaloBiz.MyServices
 {
     public interface IApprovalLimitService
     {
-        Task<ApiResponse> AddApprovalLimit(HttpContext context, ApprovalLimitReceivingDTO approvalLimitReceivingDTO);
-        Task<ApiResponse> GetAllApprovalLimit();
-        Task<ApiResponse> UpdateApprovalLimit(HttpContext context, long id, ApprovalLimitReceivingDTO approvalLimitReceivingDTO);
-        Task<ApiResponse> DeleteApprovalLimit(long id);
+        Task<ApiCommonResponse> AddApprovalLimit(HttpContext context, ApprovalLimitReceivingDTO approvalLimitReceivingDTO);
+        Task<ApiCommonResponse> GetAllApprovalLimit();
+        Task<ApiCommonResponse> UpdateApprovalLimit(HttpContext context, long id, ApprovalLimitReceivingDTO approvalLimitReceivingDTO);
+        Task<ApiCommonResponse> DeleteApprovalLimit(long id);
     }
 }

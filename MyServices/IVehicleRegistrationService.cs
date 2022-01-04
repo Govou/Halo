@@ -10,16 +10,16 @@ namespace HaloBiz.MyServices
 {
     public interface IVehicleRegistrationService
     {
-        Task<ApiResponse> AddVehicle(HttpContext context, VehicleReceivingDTO vehicleReceivingDTO);
-        Task<ApiResponse> GetAllVehicles();
-        Task<ApiResponse> GetVehicleById(long id);
-        Task<ApiResponse> UpdateVehicle(HttpContext context, long id, VehicleReceivingDTO vehicleReceivingDTO);
-        Task<ApiResponse> DeleteVehicle(long id);
+        Task<ApiCommonResponse> AddVehicle(HttpContext context, VehicleReceivingDTO vehicleReceivingDTO);
+        Task<ApiCommonResponse> GetAllVehicles();
+        Task<ApiCommonResponse> GetVehicleById(long id);
+        Task<ApiCommonResponse> UpdateVehicle(HttpContext context, long id, VehicleReceivingDTO vehicleReceivingDTO);
+        Task<ApiCommonResponse> DeleteVehicle(long id);
 
         //Tie
-        Task<ApiResponse> AddVehicleTie(HttpContext context, VehicleSMORoutesResourceTieReceivingDTO vehicleTieReceivingDTO);
-        Task<ApiResponse> GetAllVehicleTies();
-        Task<ApiResponse> GetVehicleTieById(long id);
-        Task<ApiResponse> DeleteVehicleTie(long id);
+        Task<ApiCommonResponse> AddVehicleTie(HttpContext context, VehicleSMORoutesResourceTieReceivingDTO vehicleTieReceivingDTO);
+        Task<ApiCommonResponse> GetAllVehicleTies();
+        Task<ApiCommonResponse> GetVehicleTieById(long id);
+        Task<ApiCommonResponse> DeleteVehicleTie(long id);
     }
 }

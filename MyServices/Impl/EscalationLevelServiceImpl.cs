@@ -30,7 +30,7 @@ namespace HaloBiz.MyServices.Impl
             this._logger = logger;
         }
 
-        public async Task<ApiResponse> AddEscalationLevel(HttpContext context, EscalationLevelReceivingDTO escalationLevelReceivingDTO)
+        public async Task<ApiCommonResponse> AddEscalationLevel(HttpContext context, EscalationLevelReceivingDTO escalationLevelReceivingDTO)
         {
 
             var escalationLevel = _mapper.Map<EscalationLevel>(escalationLevelReceivingDTO);
@@ -38,67 +38,67 @@ namespace HaloBiz.MyServices.Impl
             var savedescalationLevel = await _escalationLevelRepo.SaveEscalationLevel(escalationLevel);
             if (savedescalationLevel == null)
             {
-                return new ApiResponse(500);
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
             var escalationLevelTransferDTO = _mapper.Map<EscalationLevelTransferDTO>(escalationLevel);
-            return new ApiOkResponse(escalationLevelTransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,escalationLevelTransferDTO);
         }
 
-        public async Task<ApiResponse> DeleteEscalationLevel(long id)
+        public async Task<ApiCommonResponse> DeleteEscalationLevel(long id)
         {
             var escalationLevelToDelete = await _escalationLevelRepo.FindEscalationLevelById(id);
             if (escalationLevelToDelete == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
 
             if (!await _escalationLevelRepo.DeleteEscalationLevel(escalationLevelToDelete))
             {
-                return new ApiResponse(500);
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
 
-            return new ApiOkResponse(true);
+            return CommonResponse.Send(ResponseCodes.SUCCESS);
         }
 
-        public async Task<ApiResponse> GetAllEscalationLevel()
+        public async Task<ApiCommonResponse> GetAllEscalationLevel()
         {
             var escalationLevels = await _escalationLevelRepo.FindAllEscalationLevels();
             if (escalationLevels == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var escalationLevelTransferDTO = _mapper.Map<IEnumerable<EscalationLevelTransferDTO>>(escalationLevels);
-            return new ApiOkResponse(escalationLevelTransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,escalationLevelTransferDTO);
         }
 
-        public async Task<ApiResponse> GetEscalationLevelById(long id)
+        public async Task<ApiCommonResponse> GetEscalationLevelById(long id)
         {
             var escalationLevel = await _escalationLevelRepo.FindEscalationLevelById(id);
             if (escalationLevel == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var escalationLevelTransferDTOs = _mapper.Map<EscalationLevelTransferDTO>(escalationLevel);
-            return new ApiOkResponse(escalationLevelTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,escalationLevelTransferDTOs);
         }
 
-        public async Task<ApiResponse> GetEscalationLevelByName(string name)
+        public async Task<ApiCommonResponse> GetEscalationLevelByName(string name)
         {
             var escalationLevel = await _escalationLevelRepo.FindEscalationLevelByName(name);
             if (escalationLevel == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var escalationLevelTransferDTOs = _mapper.Map<EscalationLevelTransferDTO>(escalationLevel);
-            return new ApiOkResponse(escalationLevelTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,escalationLevelTransferDTOs);
         }
 
-        public async Task<ApiResponse> UpdateEscalationLevel(HttpContext context, long id, EscalationLevelReceivingDTO escalationLevelReceivingDTO)
+        public async Task<ApiCommonResponse> UpdateEscalationLevel(HttpContext context, long id, EscalationLevelReceivingDTO escalationLevelReceivingDTO)
         {
             var escalationLevelToUpdate = await _escalationLevelRepo.FindEscalationLevelById(id);
             if (escalationLevelToUpdate == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
 
             var summary = $"Initial details before change, \n {escalationLevelToUpdate.ToString()} \n";
@@ -111,7 +111,7 @@ namespace HaloBiz.MyServices.Impl
 
             if (updatedescalationLevel == null)
             {
-                return new ApiResponse(500);
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
             ModificationHistory history = new ModificationHistory()
             {
@@ -123,7 +123,7 @@ namespace HaloBiz.MyServices.Impl
             await _historyRepo.SaveHistory(history);
 
             var escalationLevelTransferDTOs = _mapper.Map<EscalationLevelTransferDTO>(updatedescalationLevel);
-            return new ApiOkResponse(escalationLevelTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,escalationLevelTransferDTOs);
         }
     }
 }

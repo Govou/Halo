@@ -7,13 +7,13 @@ namespace HaloBiz.MyServices
 {
     public interface IControlAccountService
     {
-        Task<ApiResponse> AddControlAccount(HttpContext context, ControlAccountReceivingDTO ControlAccountReceivingDTO);
-        Task<ApiResponse> DeleteControlAccount(long id);
-        Task<ApiResponse> GetControlAccountByAlias(string alias);
-        Task<ApiResponse> GetControlAccountByCaption(string caption);
-        Task<ApiResponse> GetControlAccountById(long id);
-        Task<ApiResponse> GetAllControlAccounts();
-        Task<ApiResponse> GetAllIncomeControlAccounts();
-        Task<ApiResponse> UpdateControlAccount(long id, ControlAccountReceivingDTO controlAccountReceivingDTO);
+        Task<ApiCommonResponse> AddControlAccount(HttpContext context, ControlAccountReceivingDTO ControlAccountReceivingDTO);
+        Task<ApiCommonResponse> DeleteControlAccount(long id);
+        Task<ApiCommonResponse> GetControlAccountByAlias(string alias);
+        Task<ApiCommonResponse> GetControlAccountByCaption(string caption);
+        Task<ApiCommonResponse> GetControlAccountById(long id);
+        Task<ApiCommonResponse> GetAllControlAccounts();
+        Task<ApiCommonResponse> GetAllIncomeControlAccounts();
+        Task<ApiCommonResponse> UpdateControlAccount(long id, ControlAccountReceivingDTO controlAccountReceivingDTO);
     }
 }

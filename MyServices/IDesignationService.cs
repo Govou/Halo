@@ -7,9 +7,9 @@ namespace HaloBiz.MyServices
 {
     public interface IDesignationService
     {
-        Task<ApiResponse> AddDesignation(HttpContext context, DesignationReceivingDTO designationReceivingDTO);
-        Task<ApiResponse> GetAllDesignation();
-        Task<ApiResponse> UpdateDesignation(HttpContext context, long id, DesignationReceivingDTO designationReceivingDTO);
-        Task<ApiResponse> DeleteDesignation(long id);
+        Task<ApiCommonResponse> AddDesignation(HttpContext context, DesignationReceivingDTO designationReceivingDTO);
+        Task<ApiCommonResponse> GetAllDesignation();
+        Task<ApiCommonResponse> UpdateDesignation(HttpContext context, long id, DesignationReceivingDTO designationReceivingDTO);
+        Task<ApiCommonResponse> DeleteDesignation(long id);
     }
 }

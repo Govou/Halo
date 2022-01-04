@@ -18,60 +18,39 @@ namespace HaloBiz.Controllers
         }
 
         [HttpGet("")]
-        public async Task<ActionResult> GetZone()
+        public async Task<ApiCommonResponse> GetZone()
         {
-            var response = await _zoneService.GetAllZones();
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var zone = ((ApiOkResponse)response).Result;
-            return Ok(zone);
+            return await _zoneService.GetAllZones(); 
         }
 
         [HttpGet("name/{name}")]
-        public async Task<ActionResult> GetByName(string name)
+        public async Task<ApiCommonResponse> GetByName(string name)
         {
-            var response = await _zoneService.GetZoneByName(name);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var Zone = ((ApiOkResponse)response).Result;
-            return Ok(Zone);
+            return await _zoneService.GetZoneByName(name); 
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult> GetById(long id)
+        public async Task<ApiCommonResponse> GetById(long id)
         {
-            var response = await _zoneService.GetZoneById(id);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var Zone = ((ApiOkResponse)response).Result;
-            return Ok(Zone);
+            return await _zoneService.GetZoneById(id); 
         }
 
         [HttpPost("")]
-        public async Task<ActionResult> AddNewZone(ZoneReceivingDTO ZoneReceiving)
+        public async Task<ApiCommonResponse> AddNewZone(ZoneReceivingDTO ZoneReceiving)
         {
-            var response = await _zoneService.AddZone(HttpContext, ZoneReceiving);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var zone = ((ApiOkResponse)response).Result;
-            return Ok(zone);
+            return await _zoneService.AddZone(HttpContext, ZoneReceiving); 
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateById(long id, ZoneReceivingDTO ZoneReceiving)
+        public async Task<ApiCommonResponse> UpdateById(long id, ZoneReceivingDTO ZoneReceiving)
         {
-            var response = await _zoneService.UpdateZone(HttpContext, id, ZoneReceiving);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var zone = ((ApiOkResponse)response).Result;
-            return Ok(zone);
+            return await _zoneService.UpdateZone(HttpContext, id, ZoneReceiving); 
         }
 
         [HttpDelete("{id}")]
-        public async Task<ActionResult> DeleteById(int id)
+        public async Task<ApiCommonResponse> DeleteById(int id)
         {
-            var response = await _zoneService.DeleteZone(id);
-            return StatusCode(response.StatusCode);
-        }
+            return await _zoneService.DeleteZone(id);
+         }
     }
 }

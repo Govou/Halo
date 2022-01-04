@@ -9,12 +9,12 @@ namespace HaloBiz.MyServices
 {
     public interface IOperatingEntityService
     {
-        Task<ApiResponse> AddOperatingEntity(OperatingEntityReceivingDTO operatingEntityReceivingDTO);
-        Task<ApiResponse> GetOperatingEntityById(long id);
-        Task<ApiResponse> GetOperatingEntityByName(string name);
-        Task<ApiResponse> GetAllOperatingEntities();
-        Task<ApiResponse> UpdateOperatingEntity(long id, OperatingEntityReceivingDTO operatingEntityReceivingDTO);
-        Task<ApiResponse> DeleteOperatingEntity(long id);
-        Task<ApiResponse> GetAllOperatingEntitiesAndSbuproportion();
+        Task<ApiCommonResponse> AddOperatingEntity(OperatingEntityReceivingDTO operatingEntityReceivingDTO);
+        Task<ApiCommonResponse> GetOperatingEntityById(long id);
+        Task<ApiCommonResponse> GetOperatingEntityByName(string name);
+        Task<ApiCommonResponse> GetAllOperatingEntities();
+        Task<ApiCommonResponse> UpdateOperatingEntity(long id, OperatingEntityReceivingDTO operatingEntityReceivingDTO);
+        Task<ApiCommonResponse> DeleteOperatingEntity(long id);
+        Task<ApiCommonResponse> GetAllOperatingEntitiesAndSbuproportion();
     }
 }

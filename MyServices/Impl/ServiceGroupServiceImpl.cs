@@ -23,57 +23,57 @@ namespace HaloBiz.MyServices.Impl
  
         }
 
-        public async Task<ApiResponse> AddServiceGroup(ServiceGroupReceivingDTO serviceGroupReceivingDTO)
+        public async Task<ApiCommonResponse> AddServiceGroup(ServiceGroupReceivingDTO serviceGroupReceivingDTO)
         {
             var serviceGroup = _mapper.Map<ServiceGroup>(serviceGroupReceivingDTO);
             var savedServiceGroup = await _serviceGroupRepo.SaveServiceGroup(serviceGroup);
             if (savedServiceGroup == null)
             {
-                return new ApiResponse(500);
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
             var serviceGroupTransferDTO = _mapper.Map<ServiceGroupTransferDTO>(savedServiceGroup);
-            return new ApiOkResponse(serviceGroupTransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,serviceGroupTransferDTO);
         }
 
-        public async Task<ApiResponse> GetAllServiceGroups()
+        public async Task<ApiCommonResponse> GetAllServiceGroups()
         {
             var serviceGroups = await _serviceGroupRepo.FindAllServiceGroups();
             if (serviceGroups == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var serviceGroupTransferDTO = _mapper.Map<IEnumerable<ServiceGroupTransferDTO>>(serviceGroups);
-            return new ApiOkResponse(serviceGroupTransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,serviceGroupTransferDTO);
         }
 
-        public async Task<ApiResponse> GetServiceGroupById(long id)
+        public async Task<ApiCommonResponse> GetServiceGroupById(long id)
         {
             var serviceGroup = await _serviceGroupRepo.FindServiceGroupById(id);
             if (serviceGroup == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var serviceGroupTransferDTO = _mapper.Map<ServiceGroupTransferDTO>(serviceGroup);
-            return new ApiOkResponse(serviceGroupTransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,serviceGroupTransferDTO);
         }
 
-        public async Task<ApiResponse> GetServiceGroupByName(string name)
+        public async Task<ApiCommonResponse> GetServiceGroupByName(string name)
         {
             var serviceGroup = await _serviceGroupRepo.FindServiceGroupByName(name);
             if (serviceGroup == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var serviceGroupTransferDTO = _mapper.Map<ServiceGroupTransferDTO>(serviceGroup);
-            return new ApiOkResponse(serviceGroupTransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,serviceGroupTransferDTO);
         }
 
-        public async Task<ApiResponse> UpdateServiceGroup(long id, ServiceGroupReceivingDTO serviceGroupReceivingDTO)
+        public async Task<ApiCommonResponse> UpdateServiceGroup(long id, ServiceGroupReceivingDTO serviceGroupReceivingDTO)
         {
             var serviceGroupToUpdate = await _serviceGroupRepo.FindServiceGroupById(id);
             if (serviceGroupToUpdate == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             serviceGroupToUpdate.Name = serviceGroupReceivingDTO.Name;
             serviceGroupToUpdate.Description = serviceGroupReceivingDTO.Description;
@@ -83,20 +83,20 @@ namespace HaloBiz.MyServices.Impl
 
             if (updatedServiceGroup == null)
             {
-                return new ApiResponse(500);
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
             var serviceGroupTransferDTO = _mapper.Map<ServiceGroupTransferDTO>(updatedServiceGroup);
-            return new ApiOkResponse(serviceGroupTransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,serviceGroupTransferDTO);
 
 
         }
 
-        public async Task<ApiResponse> DeleteServiceGroup(long id)
+        public async Task<ApiCommonResponse> DeleteServiceGroup(long id)
         {
             var serviceGroupToDelete = await _serviceGroupRepo.FindServiceGroupById(id);
             if (serviceGroupToDelete == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
 
             foreach (ServiceCategory serviceCategory in serviceGroupToDelete.ServiceCategories)
@@ -106,10 +106,10 @@ namespace HaloBiz.MyServices.Impl
 
             if (!await _serviceGroupRepo.DeleteServiceGroup(serviceGroupToDelete))
             {
-                return new ApiResponse(500);
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
 
-            return new ApiOkResponse(true);
+            return CommonResponse.Send(ResponseCodes.SUCCESS);
         }
     }
 }

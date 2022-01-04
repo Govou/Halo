@@ -22,98 +22,63 @@ namespace HaloBiz.Controllers
         }
 
         [HttpGet("GetAllArmedEscortRanks")]
-        public async Task<ActionResult> GetAllArmedEscortRanks()
+        public async Task<ApiCommonResponse> GetAllArmedEscortRanks()
         {
-            var response = await _armedEscortService.GetAllArmedEscortRanks();
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var cRank = ((ApiOkResponse)response).Result;
-            return Ok(cRank);
+            return await _armedEscortService.GetAllArmedEscortRanks();
         }
 
         [HttpGet("GetAllArmedEscortTypes")]
-        public async Task<ActionResult> GetAllArmedEscortTypes()
+        public async Task<ApiCommonResponse> GetAllArmedEscortTypes()
         {
-            var response = await _armedEscortService.GetAllArmedEscortTypes();
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var cType = ((ApiOkResponse)response).Result;
-            return Ok(cType);
+            return await _armedEscortService.GetAllArmedEscortTypes();
         }
 
         [HttpGet("GetRankById/{id}")]
-        public async Task<ActionResult> GetRankById(long id)
+        public async Task<ApiCommonResponse> GetRankById(long id)
         {
-            var response = await _armedEscortService.GetArmedEscortRankById(id);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var Rank = ((ApiOkResponse)response).Result;
-            return Ok(Rank);
+            return await _armedEscortService.GetArmedEscortRankById(id);
         }
 
         [HttpGet("GetTypeById/{id}")]
-        public async Task<ActionResult> GetTypeById(long id)
+        public async Task<ApiCommonResponse> GetTypeById(long id)
         {
-            var response = await _armedEscortService.GetArmedEscortTypeById(id);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var type = ((ApiOkResponse)response).Result;
-            return Ok(type);
+            return await _armedEscortService.GetArmedEscortTypeById(id);
         }
 
         [HttpPost("AddNewType")]
-        public async Task<ActionResult> AddNewType(ArmedEscortTypeReceivingDTO TypeReceivingDTO)
+        public async Task<ApiCommonResponse> AddNewType(ArmedEscortTypeReceivingDTO TypeReceivingDTO)
         {
-            var response = await _armedEscortService.AddArmedEscortType(HttpContext, TypeReceivingDTO);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var type = ((ApiOkResponse)response).Result;
-            return Ok(type);
+            return await _armedEscortService.AddArmedEscortType(HttpContext, TypeReceivingDTO);
         }
 
         [HttpPost("AddNewRank")]
-        public async Task<ActionResult> AddNewRank(ArmedEscortRankReceivingDTO RankReceivingDTO)
+        public async Task<ApiCommonResponse> AddNewRank(ArmedEscortRankReceivingDTO RankReceivingDTO)
         {
-            var response = await _armedEscortService.AddArmedEscortRank(HttpContext, RankReceivingDTO);
-
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var rank = ((ApiOkResponse)response).Result;
-            return Ok(rank);
+            return await _armedEscortService.AddArmedEscortRank(HttpContext, RankReceivingDTO);
         }
 
         [HttpPut("UpdateTypeById/{id}")] 
-        public async Task<IActionResult> UpdateTypeById(long id, ArmedEscortTypeReceivingDTO TypeReceiving)
+        public async Task<ApiCommonResponse> UpdateTypeById(long id, ArmedEscortTypeReceivingDTO TypeReceiving)
         {
-            var response = await _armedEscortService.UpdateArmedEscortType(HttpContext, id, TypeReceiving);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var type = ((ApiOkResponse)response).Result;
-            return Ok(type);
+            return await _armedEscortService.UpdateArmedEscortType(HttpContext, id, TypeReceiving);
         }
 
         [HttpPut("UpdateRankById/{id}")]
-        public async Task<IActionResult> UpdateRankById(long id, ArmedEscortRankReceivingDTO RankReceiving)
+        public async Task<ApiCommonResponse> UpdateRankById(long id, ArmedEscortRankReceivingDTO RankReceiving)
         {
-            var response = await _armedEscortService.UpdateArmedEscortRank(HttpContext, id, RankReceiving);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var rank = ((ApiOkResponse)response).Result;
-            return Ok(rank);
+            return await _armedEscortService.UpdateArmedEscortRank(HttpContext, id, RankReceiving);
         }
 
         [HttpDelete("DeleterankById/{id}")]
-        public async Task<ActionResult> DeleteRankById(int id)
+        public async Task<ApiCommonResponse> DeleteRankById(int id)
         {
-            var response = await _armedEscortService.DeleteArmedEscortRank(id);
-            return StatusCode(response.StatusCode);
+            return await _armedEscortService.DeleteArmedEscortRank(id);
         }
 
         [HttpDelete("DeleteTypeById/{id}")] //{id}
-        public async Task<ActionResult> DeleteTypeById(int id)
+        public async Task<ApiCommonResponse> DeleteTypeById(int id)
         {
-            var response = await _armedEscortService.DeleteArmedEscortType(id);
-            return StatusCode(response.StatusCode);
+            return await _armedEscortService.DeleteArmedEscortType(id);
         }
 
     }

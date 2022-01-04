@@ -7,13 +7,13 @@ namespace HaloBiz.MyServices.LAMS
 {
     public interface ILeadDivisionService
     {
-        Task<ApiResponse> AddLeadDivision(HttpContext context, LeadDivisionReceivingDTO leadDivisionReceivingDTO);
-        Task<ApiResponse> GetAllLeadDivision();
-        Task<ApiResponse> GetLeadDivisionById(long id);
-        Task<ApiResponse> GetLeadDivisionByName(string name);
-        Task<ApiResponse> GetLeadDivisionByRCNumber(string rcNumber);
-        Task<ApiResponse> UpdateLeadDivision(HttpContext context, long id, LeadDivisionReceivingDTO leadDivisionReceivingDTO);
-        Task<ApiResponse> DeleteLeadDivision(long id);
+        Task<ApiCommonResponse> AddLeadDivision(HttpContext context, LeadDivisionReceivingDTO leadDivisionReceivingDTO);
+        Task<ApiCommonResponse> GetAllLeadDivision();
+        Task<ApiCommonResponse> GetLeadDivisionById(long id);
+        Task<ApiCommonResponse> GetLeadDivisionByName(string name);
+        Task<ApiCommonResponse> GetLeadDivisionByRCNumber(string rcNumber);
+        Task<ApiCommonResponse> UpdateLeadDivision(HttpContext context, long id, LeadDivisionReceivingDTO leadDivisionReceivingDTO);
+        Task<ApiCommonResponse> DeleteLeadDivision(long id);
 
     }
 }

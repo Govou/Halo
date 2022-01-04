@@ -25,156 +25,99 @@ namespace HaloBiz.Controllers
 
 
         [HttpGet("GetAllRegisteredServices")]
-        public async Task<ActionResult> GetAllRegisteredServices()
+        public async Task<ApiCommonResponse> GetAllRegisteredServices()
         {
-            var response = await _serviceRegistration.GetAllServiceRegs();
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var cRank = ((ApiOkResponse)response).Result;
-            return Ok(cRank);
+            return await _serviceRegistration.GetAllServiceRegs();
         }
         [HttpGet("GetAllArmedEscortResourceRequired")]
-        public async Task<ActionResult> GetAllArmedEscortResourceRequired()
+        public async Task<ApiCommonResponse> GetAllArmedEscortResourceRequired()
         {
-            var response = await _serviceRegistration.GetAllArmedEscortResourceRequired();
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var resource = ((ApiOkResponse)response).Result;
-            return Ok(resource);
+            return await _serviceRegistration.GetAllArmedEscortResourceRequired();
         }
         [HttpGet("GetAllPilotResourceRequired")] 
-        public async Task<ActionResult> GetAllPilotResourceRequired()
+        public async Task<ApiCommonResponse> GetAllPilotResourceRequired()
         {
-            var response = await _serviceRegistration.GetAllPilotResourceRequired();
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var resource = ((ApiOkResponse)response).Result;
-            return Ok(resource);
+            return await _serviceRegistration.GetAllPilotResourceRequired();
         }
         [HttpGet("GetAllCommanderResourceRequired")]
-        public async Task<ActionResult> GetAllCommanderResourceRequired()
+        public async Task<ApiCommonResponse> GetAllCommanderResourceRequired()
         {
-            var response = await _serviceRegistration.GetAllCommanderResourceRequired();
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var resource = ((ApiOkResponse)response).Result;
-            return Ok(resource);
+            return await _serviceRegistration.GetAllCommanderResourceRequired();
         }
         [HttpGet("GetAllVehicleResourceRequired")]
-        public async Task<ActionResult> GetAllVehicleResourceRequired()
+        public async Task<ApiCommonResponse> GetAllVehicleResourceRequired()
         {
-            var response = await _serviceRegistration.GetAllVehicleResourceRequired();
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var resource = ((ApiOkResponse)response).Result;
-            return Ok(resource);
+            return await _serviceRegistration.GetAllVehicleResourceRequired();
         }
 
         [HttpGet("GetRegServiceById/{id}")]
-        public async Task<ActionResult> GetRegServiceById(long id)
+        public async Task<ApiCommonResponse> GetRegServiceById(long id)
         {
-            var response = await _serviceRegistration.GetServiceRegById(id);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var Rank = ((ApiOkResponse)response).Result;
-            return Ok(Rank);
+            return await _serviceRegistration.GetServiceRegById(id);
         }
         [HttpGet("GetArmedEscortResourceRequiredById/{id}")]
-        public async Task<ActionResult> GetArmedEscortResourceRequiredById(long id)
+        public async Task<ApiCommonResponse> GetArmedEscortResourceRequiredById(long id)
         {
-            var response = await _serviceRegistration.GetArmedEscortResourceById(id);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var Rank = ((ApiOkResponse)response).Result;
-            return Ok(Rank);
+            return await _serviceRegistration.GetArmedEscortResourceById(id);
         }
         [HttpGet("GetPilotResourceRequiredById/{id}")] 
-        public async Task<ActionResult> GetPilotResourceRequiredById(long id)
+        public async Task<ApiCommonResponse> GetPilotResourceRequiredById(long id)
         {
-            var response = await _serviceRegistration.GetPilotResourceById(id);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var Rank = ((ApiOkResponse)response).Result;
-            return Ok(Rank);
+            return await _serviceRegistration.GetPilotResourceById(id);
         }
         [HttpGet("GetCommanderResourceRequiredById/{id}")]
-        public async Task<ActionResult> GetCommanderResourceRequiredById(long id)
+        public async Task<ApiCommonResponse> GetCommanderResourceRequiredById(long id)
         {
-            var response = await _serviceRegistration.GetCommanderResourceById(id);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var Rank = ((ApiOkResponse)response).Result;
-            return Ok(Rank);
+            return await _serviceRegistration.GetCommanderResourceById(id);
         }
         [HttpGet("GetVehicleResourceRequiredById/{id}")]
-        public async Task<ActionResult> GetVehicleResourceRequiredById(long id)
+        public async Task<ApiCommonResponse> GetVehicleResourceRequiredById(long id)
         {
-            var response = await _serviceRegistration.GetVehicleResourceById(id);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var Rank = ((ApiOkResponse)response).Result;
-            return Ok(Rank);
+            return await _serviceRegistration.GetVehicleResourceById(id);
         }
 
         [HttpPost("AddNewServiceReg")]
-        public async Task<ActionResult> AddNewServiceReg(ServiceRegistrationReceivingDTO ReceivingDTO)
+        public async Task<ApiCommonResponse> AddNewServiceReg(ServiceRegistrationReceivingDTO ReceivingDTO)
         {
-            var response = await _serviceRegistration.AddServiceReg(HttpContext, ReceivingDTO);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var type = ((ApiOkResponse)response).Result;
-            return Ok(type);
+            return await _serviceRegistration.AddServiceReg(HttpContext, ReceivingDTO);
         }
 
         [HttpPost("AddNewResourceRequired")]
-        public async Task<ActionResult> AddNewResourceRequiredTypes(AllResourceTypesPerServiceRegReceivingDTO ReceivingDTO)
+        public async Task<ApiCommonResponse> AddNewResourceRequiredTypes(AllResourceTypesPerServiceRegReceivingDTO ReceivingDTO)
         {
-            var response = await _serviceRegistration.AddResourceRequired(HttpContext, ReceivingDTO);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var type = ((ApiOkResponse)response).Result;
-            return Ok(type);
+            return await _serviceRegistration.AddResourceRequired(HttpContext, ReceivingDTO);
         }
 
         [HttpPut("UpdateRegServiceById/{id}")]
-        public async Task<IActionResult> UpdateRegServiceById(long id, ServiceRegistrationReceivingDTO ReceivingDTO)
+        public async Task<ApiCommonResponse> UpdateRegServiceById(long id, ServiceRegistrationReceivingDTO ReceivingDTO)
         {
-            var response = await _serviceRegistration.UpdateServiceReg(HttpContext, id, ReceivingDTO);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var type = ((ApiOkResponse)response).Result;
-            return Ok(type);
+            return await _serviceRegistration.UpdateServiceReg(HttpContext, id, ReceivingDTO);
         }
 
         [HttpDelete("DeleteRegServiceById/{id}")]
-        public async Task<ActionResult> DeleteRegServiceById(int id)
+        public async Task<ApiCommonResponse> DeleteRegServiceById(int id)
         {
-            var response = await _serviceRegistration.DeleteServiceReg(id);
-            return StatusCode(response.StatusCode);
+            return await _serviceRegistration.DeleteServiceReg(id);
         }
         [HttpDelete("DeleteArmedEscortResourceRequiredById/{id}")]
-        public async Task<ActionResult> DeleteArmedEscortResourceRequiredById(int id)
+        public async Task<ApiCommonResponse> DeleteArmedEscortResourceRequiredById(int id)
         {
-            var response = await _serviceRegistration.DeleteArmedEscortResource(id);
-            return StatusCode(response.StatusCode);
+            return await _serviceRegistration.DeleteArmedEscortResource(id);
         }
         [HttpDelete("DeletePilotResourceRequiredById/{id}")] 
-        public async Task<ActionResult> DeletePilotResourceRequiredById(int id)
+        public async Task<ApiCommonResponse> DeletePilotResourceRequiredById(int id)
         {
-            var response = await _serviceRegistration.DeletePilotResource(id);
-            return StatusCode(response.StatusCode);
+            return await _serviceRegistration.DeletePilotResource(id);
         }
         [HttpDelete("DeleteCommanderResourceRequiredById/{id}")]
-        public async Task<ActionResult> DeleteCommanderResourceRequiredById(int id)
+        public async Task<ApiCommonResponse> DeleteCommanderResourceRequiredById(int id)
         {
-            var response = await _serviceRegistration.DeleteCommanderResource(id);
-            return StatusCode(response.StatusCode);
+            return await _serviceRegistration.DeleteCommanderResource(id);
         }
         [HttpDelete("DeleteVehicleResourceRequiredById/{id}")]
-        public async Task<ActionResult> DeleteVehicleResourceRequiredById(int id)
+        public async Task<ApiCommonResponse> DeleteVehicleResourceRequiredById(int id)
         {
-            var response = await _serviceRegistration.DeleteVehicleResource(id);
-            return StatusCode(response.StatusCode);
+            return await _serviceRegistration.DeleteVehicleResource(id);
         }
 
 

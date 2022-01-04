@@ -11,17 +11,17 @@ namespace HaloBiz.MyServices
     public interface IPilotService
     {
         //Type
-        Task<ApiResponse> AddPilotType(HttpContext context, PilotTypeReceivingDTO pilotTypeReceivingDTO);
-        Task<ApiResponse> GetAllPilotTypes();
-        Task<ApiResponse> GetPilotTypeById(long id);
-        Task<ApiResponse> UpdatePilotType(HttpContext context, long id, PilotTypeReceivingDTO pilotTypeReceivingDTO);
-        Task<ApiResponse> DeletePilotType(long id);
+        Task<ApiCommonResponse> AddPilotType(HttpContext context, PilotTypeReceivingDTO pilotTypeReceivingDTO);
+        Task<ApiCommonResponse> GetAllPilotTypes();
+        Task<ApiCommonResponse> GetPilotTypeById(long id);
+        Task<ApiCommonResponse> UpdatePilotType(HttpContext context, long id, PilotTypeReceivingDTO pilotTypeReceivingDTO);
+        Task<ApiCommonResponse> DeletePilotType(long id);
 
         //Rank
-        Task<ApiResponse> AddPilotRank(HttpContext context, PilotRankReceivingDTO pilotRankReceivingDTO);
-        Task<ApiResponse> GetAllPilotRanks();
-        Task<ApiResponse> GetPilotRankById(long id);
-        Task<ApiResponse> UpdatePilotRank(HttpContext context, long id, PilotRankReceivingDTO pilotRankReceivingDTO);
-        Task<ApiResponse> DeletePilotRank(long id);
+        Task<ApiCommonResponse> AddPilotRank(HttpContext context, PilotRankReceivingDTO pilotRankReceivingDTO);
+        Task<ApiCommonResponse> GetAllPilotRanks();
+        Task<ApiCommonResponse> GetPilotRankById(long id);
+        Task<ApiCommonResponse> UpdatePilotRank(HttpContext context, long id, PilotRankReceivingDTO pilotRankReceivingDTO);
+        Task<ApiCommonResponse> DeletePilotRank(long id);
     }
 }

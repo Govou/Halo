@@ -27,74 +27,74 @@ namespace HaloBiz.MyServices.Impl.LAMS
             this._logger = logger;
         }
 
-        public async Task<ApiResponse> DeleteContractService(long id)
+        public async Task<ApiCommonResponse> DeleteContractService(long id)
         {
             var contractServiceToDelete = await _contractServiceRepo.FindContractServiceById(id);
             if (contractServiceToDelete == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
 
             if (!await _contractServiceRepo.DeleteContractService(contractServiceToDelete))
             {
-                return new ApiResponse(500);
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
 
-            return new ApiOkResponse(true);
+            return CommonResponse.Send(ResponseCodes.SUCCESS);
         }
 
-        public async Task<ApiResponse> GetAllContractsServcieForAContract(long contractId)
+        public async Task<ApiCommonResponse> GetAllContractsServcieForAContract(long contractId)
         {
             var contractService = await _contractServiceRepo.FindAllContractServicesForAContract(contractId);
             if (contractService == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var contractServiceTransferDTOs = _mapper.Map<IEnumerable<ContractServiceTransferDTO>>(contractService);
-            return new ApiOkResponse(contractServiceTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,contractServiceTransferDTOs);
         }
 
-        public async Task<ApiResponse> GetContractServiceByTag(string tag)
+        public async Task<ApiCommonResponse> GetContractServiceByTag(string tag)
         {
             var contractService = await _contractServiceRepo.FindContractServiceByTag(tag);
             if (contractService == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var contractTransferDTOs = _mapper.Map<ContractServiceForContractTransferDTO>(contractService);
-            return new ApiOkResponse(contractTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,contractTransferDTOs);
         }
-        public async Task<ApiResponse> GetContractServiceByReferenceNumber(string refNo)
+        public async Task<ApiCommonResponse> GetContractServiceByReferenceNumber(string refNo)
         {
             var contractService = await _contractServiceRepo.FindContractServicesByReferenceNumber(refNo);
             if (contractService == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var contractTransferDTOs = _mapper.Map<IEnumerable<ContractServiceTransferDTO>>(contractService);
-            return new ApiOkResponse(contractTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,contractTransferDTOs);
         }
 
-        public async Task<ApiResponse> GetContractServiceByGroupInvoiceNumber(string refNo)
+        public async Task<ApiCommonResponse> GetContractServiceByGroupInvoiceNumber(string refNo)
         {
             var contractService = await _contractServiceRepo.FindContractServicesByGroupInvoiceNumber(refNo);
             if (contractService == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var contractTransferDTOs = _mapper.Map<IEnumerable<ContractServiceTransferDTO>>(contractService);
-            return new ApiOkResponse(contractTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,contractTransferDTOs);
         }
 
-        public async Task<ApiResponse> GetContractServiceById(long id)
+        public async Task<ApiCommonResponse> GetContractServiceById(long id)
         {
             var contractService = await _contractServiceRepo.FindContractServiceById(id);
             if (contractService == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var contractTransferDTOs = _mapper.Map<ContractServiceTransferDTO>(contractService);
-            return new ApiOkResponse(contractTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,contractTransferDTOs);
         }
     }
 }

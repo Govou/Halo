@@ -24,12 +24,9 @@ namespace HaloBiz.Controllers
         }
 
         [HttpGet("")]
-        public async Task<ActionResult> GetDivisions()
+        public async Task<ApiCommonResponse> GetDivisions()
         {
-            var response = await _trackerRepo.GenerateGroupInvoiceNumber();
-            if (response == null)
-                return StatusCode(500, "Internal Server e\rror");
-            return Ok(response);
+            return await _trackerRepo.GenerateGroupInvoiceNumber();
         }
         
     }

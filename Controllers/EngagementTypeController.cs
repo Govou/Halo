@@ -24,40 +24,27 @@ namespace HaloBiz.Controllers
         }
 
         [HttpGet("")]
-        public async Task<ActionResult> GetEngagementType()
+        public async Task<ApiCommonResponse> GetEngagementType()
         {
-            var response = await _engagementTypeService.GetAllEngagementType();
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var engagementType = ((ApiOkResponse)response).Result;
-            return Ok(engagementType);
+            return await _engagementTypeService.GetAllEngagementType();
         }
 
         [HttpPost("")]
-        public async Task<ActionResult> AddNewEngagementType(EngagementTypeReceivingDTO engagementTypeReceiving)
+        public async Task<ApiCommonResponse> AddNewEngagementType(EngagementTypeReceivingDTO engagementTypeReceiving)
         {
-            var response = await _engagementTypeService.AddEngagementType(HttpContext, engagementTypeReceiving);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var engagementType = ((ApiOkResponse)response).Result;
-            return Ok(engagementType);
+            return await _engagementTypeService.AddEngagementType(HttpContext, engagementTypeReceiving);
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateById(long id, EngagementTypeReceivingDTO engagementTypeReceiving)
+        public async Task<ApiCommonResponse> UpdateById(long id, EngagementTypeReceivingDTO engagementTypeReceiving)
         {
-            var response = await _engagementTypeService.UpdateEngagementType(HttpContext, id, engagementTypeReceiving);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var engagementType = ((ApiOkResponse)response).Result;
-            return Ok(engagementType);
+            return await _engagementTypeService.UpdateEngagementType(HttpContext, id, engagementTypeReceiving);
         }
 
         [HttpDelete("{id}")]
-        public async Task<ActionResult> DeleteById(int id)
+        public async Task<ApiCommonResponse> DeleteById(int id)
         {
-            var response = await _engagementTypeService.DeleteEngagementType(id);
-            return StatusCode(response.StatusCode);
+            return await _engagementTypeService.DeleteEngagementType(id);
         }
 
     }

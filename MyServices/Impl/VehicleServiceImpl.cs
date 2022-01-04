@@ -24,13 +24,13 @@ namespace HaloBiz.MyServices.Impl
             _vehiclesRepository = vehiclesRepository;
         }
 
-        public async Task<ApiResponse> AddVehicleType(HttpContext context, VehicleTypeReceivingDTO vehicleTypeReceivingDTO)
+        public async Task<ApiCommonResponse> AddVehicleType(HttpContext context, VehicleTypeReceivingDTO vehicleTypeReceivingDTO)
         {
             var Type = _mapper.Map<VehicleType>(vehicleTypeReceivingDTO);
             var NameExist = _vehiclesRepository.GetTypename(vehicleTypeReceivingDTO.TypeName);
             if (NameExist != null)
             {
-                return new ApiResponse(409);
+                                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE,null, "No record exists");;
             }
             Type.CreatedById = context.GetLoggedInUserId();
             Type.IsDeleted = false;
@@ -38,57 +38,57 @@ namespace HaloBiz.MyServices.Impl
             var savedRank = await _vehiclesRepository.SaveVehicleType(Type);
             if (savedRank == null)
             {
-                return new ApiResponse(500);
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
             var typeTransferDTO = _mapper.Map<VehicleTypeTransferDTO>(Type);
-            return new ApiOkResponse(typeTransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,typeTransferDTO);
         }
 
-        public async Task<ApiResponse> DeleteVehicleType(long id)
+        public async Task<ApiCommonResponse> DeleteVehicleType(long id)
         {
             var typeToDelete = await _vehiclesRepository.FindVehicleTypeById(id);
 
             if (typeToDelete == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
 
             if (!await _vehiclesRepository.DeleteVehicleType(typeToDelete))
             {
-                return new ApiResponse(500);
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
 
-            return new ApiOkResponse(true);
+            return CommonResponse.Send(ResponseCodes.SUCCESS);
         }
 
-        public async Task<ApiResponse> GetAllVehicleTypes()
+        public async Task<ApiCommonResponse> GetAllVehicleTypes()
         {
             var Type = await _vehiclesRepository.FindAllVehicleTypes();
             if (Type == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var TransferDTO = _mapper.Map<IEnumerable<VehicleTypeTransferDTO>>(Type);
-            return new ApiOkResponse(TransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,TransferDTO);
         }
 
-        public async Task<ApiResponse> GetVehicleTypeById(long id)
+        public async Task<ApiCommonResponse> GetVehicleTypeById(long id)
         {
             var Type = await _vehiclesRepository.FindVehicleTypeById(id);
             if (Type == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var TransferDTO = _mapper.Map<VehicleTypeTransferDTO>(Type);
-            return new ApiOkResponse(TransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,TransferDTO);
         }
 
-        public async Task<ApiResponse> UpdateVehicleType(HttpContext context, long id, VehicleTypeReceivingDTO vehicleTypeReceivingDTO)
+        public async Task<ApiCommonResponse> UpdateVehicleType(HttpContext context, long id, VehicleTypeReceivingDTO vehicleTypeReceivingDTO)
         {
             var typeToUpdate = await _vehiclesRepository.FindVehicleTypeById(id);
             if (typeToUpdate == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
 
             var summary = $"Initial details before change, \n {typeToUpdate.ToString()} \n";
@@ -102,11 +102,11 @@ namespace HaloBiz.MyServices.Impl
 
             if (updatedType == null)
             {
-                return new ApiResponse(500);
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
 
             var typeTransferDTOs = _mapper.Map<VehicleTypeTransferDTO>(updatedType);
-            return new ApiOkResponse(typeTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,typeTransferDTOs);
         }
     }
 }

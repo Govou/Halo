@@ -38,7 +38,7 @@ namespace HaloBiz.MyServices.Impl
             this._logger = logger;
         }
 
-        public async Task<ApiResponse> AddSuspectQualification(HttpContext context, SuspectQualificationReceivingDTO suspectQualificationReceivingDTO)
+        public async Task<ApiCommonResponse> AddSuspectQualification(HttpContext context, SuspectQualificationReceivingDTO suspectQualificationReceivingDTO)
         {
 
             var existingQualifications = await _context.SuspectQualifications
@@ -70,34 +70,34 @@ namespace HaloBiz.MyServices.Impl
             var savedsuspectQualification = await _suspectQualificationRepo.SaveSuspectQualification(suspectQualification);
             if (savedsuspectQualification == null)
             {
-                return new ApiResponse(500);
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
             var suspectQualificationTransferDTO = _mapper.Map<SuspectQualificationTransferDTO>(suspectQualification);
-            return new ApiOkResponse(suspectQualificationTransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,suspectQualificationTransferDTO);
         }
 
-        public async Task<ApiResponse> DeleteSuspectQualification(long id)
+        public async Task<ApiCommonResponse> DeleteSuspectQualification(long id)
         {
             var suspectQualificationToDelete = await _suspectQualificationRepo.FindSuspectQualificationById(id);
             if (suspectQualificationToDelete == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
 
             if (!await _suspectQualificationRepo.DeleteSuspectQualification(suspectQualificationToDelete))
             {
-                return new ApiResponse(500);
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
 
-            return new ApiOkResponse(true);
+            return CommonResponse.Send(ResponseCodes.SUCCESS);
         }
 
-        public async Task<ApiResponse> GetAllSuspectQualification()
+        public async Task<ApiCommonResponse> GetAllSuspectQualification()
         {
             var suspectQualifications = await _suspectQualificationRepo.FindAllSuspectQualifications();
             if (suspectQualifications == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var suspectQualificationTransferDTO = _mapper.Map<IEnumerable<SuspectQualificationTransferDTO>>(suspectQualifications);
 
@@ -123,15 +123,15 @@ namespace HaloBiz.MyServices.Impl
                 }
             }
 
-            return new ApiOkResponse(suspectQualificationTransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,suspectQualificationTransferDTO);
         }
 
-        public async Task<ApiResponse> GetUserSuspectQualification(HttpContext context)
+        public async Task<ApiCommonResponse> GetUserSuspectQualification(HttpContext context)
         {
             var suspectQualifications = await _suspectQualificationRepo.FindUserSuspectQualifications(context.GetLoggedInUserId());
             if (suspectQualifications == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var suspectQualificationTransferDTO = _mapper.Map<IEnumerable<SuspectQualificationTransferDTO>>(suspectQualifications);
 
@@ -157,32 +157,32 @@ namespace HaloBiz.MyServices.Impl
                 }
             }
 
-            return new ApiOkResponse(suspectQualificationTransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,suspectQualificationTransferDTO);
         }
 
-        public async Task<ApiResponse> GetSuspectQualificationById(long id)
+        public async Task<ApiCommonResponse> GetSuspectQualificationById(long id)
         {
             var suspectQualification = await _suspectQualificationRepo.FindSuspectQualificationById(id);
             if (suspectQualification == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var suspectQualificationTransferDTOs = _mapper.Map<SuspectQualificationTransferDTO>(suspectQualification);
-            return new ApiOkResponse(suspectQualificationTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,suspectQualificationTransferDTOs);
         }
 
-        /*public async Task<ApiResponse> GetSuspectQualificationByName(string name)
+        /*public async Task<ApiCommonResponse> GetSuspectQualificationByName(string name)
         {
             var suspectQualification = await _suspectQualificationRepo.FindSuspectQualificationByName(name);
             if (suspectQualification == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var suspectQualificationTransferDTOs = _mapper.Map<SuspectQualificationTransferDTO>(suspectQualification);
-            return new ApiOkResponse(suspectQualificationTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,suspectQualificationTransferDTOs);
         }*/
 
-        public async Task<ApiResponse> UpdateSuspectQualification(HttpContext context, long id, SuspectQualificationReceivingDTO suspectQualificationReceivingDTO)
+        public async Task<ApiCommonResponse> UpdateSuspectQualification(HttpContext context, long id, SuspectQualificationReceivingDTO suspectQualificationReceivingDTO)
         {
             var suspectQualificationToUpdate = await _context.SuspectQualifications
                                                         .Include(x => x.ServiceQualifications)
@@ -191,7 +191,7 @@ namespace HaloBiz.MyServices.Impl
             
             if (suspectQualificationToUpdate == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
 
             var summary = $"Initial details before change, \n {suspectQualificationToUpdate.ToString()} \n";
@@ -234,7 +234,7 @@ namespace HaloBiz.MyServices.Impl
 
             if (updatedsuspectQualification == null)
             {
-                return new ApiResponse(500);
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
             ModificationHistory history = new ModificationHistory()
             {
@@ -246,7 +246,7 @@ namespace HaloBiz.MyServices.Impl
             await _historyRepo.SaveHistory(history);
 
             var suspectQualificationTransferDTOs = _mapper.Map<SuspectQualificationTransferDTO>(updatedsuspectQualification);
-            return new ApiOkResponse(suspectQualificationTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,suspectQualificationTransferDTOs);
         }
     }
 }

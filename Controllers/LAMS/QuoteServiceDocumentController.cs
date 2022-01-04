@@ -23,79 +23,46 @@ namespace Controllers.Controllers
         }
 
         [HttpGet("")]
-        public async Task<ActionResult> GetQuoteServiceDocument()
+        public async Task<ApiCommonResponse> GetQuoteServiceDocument()
         {
-            var response = await _quoteServiceDocumentService.GetAllQuoteServiceDocument();
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var quoteServiceDocument = ((ApiOkResponse)response).Result;
-            return Ok(quoteServiceDocument);
+            return await _quoteServiceDocumentService.GetAllQuoteServiceDocument();
         }
 
         [HttpGet("QuoteService/{quoteServiceId}")]
-        public async Task<ActionResult> GetQuoteServiceDocumentsForAQuoteService(long quoteServiceId)
+        public async Task<ApiCommonResponse> GetQuoteServiceDocumentsForAQuoteService(long quoteServiceId)
         {
-            var response = await _quoteServiceDocumentService.GetAllQuoteServiceDocumentForAQuoteService(quoteServiceId);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var quoteServiceDocument = ((ApiOkResponse)response).Result;
-            return Ok(quoteServiceDocument);
+            return await _quoteServiceDocumentService.GetAllQuoteServiceDocumentForAQuoteService(quoteServiceId);
         }
 
         [HttpGet("caption/{caption}")]
-        public async Task<ActionResult> GetByCaption(string caption)
+        public async Task<ApiCommonResponse> GetByCaption(string caption)
         {
-            var response = await _quoteServiceDocumentService.GetQuoteServiceDocumentByCaption(caption);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var quoteServiceDocument = ((ApiOkResponse)response).Result;
-            return Ok(quoteServiceDocument);
+            return await _quoteServiceDocumentService.GetQuoteServiceDocumentByCaption(caption);
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult> GetById(long id)
+        public async Task<ApiCommonResponse> GetById(long id)
         {
-            var response = await _quoteServiceDocumentService.GetQuoteServiceDocumentById(id);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var quoteServiceDocument = ((ApiOkResponse)response).Result;
-            return Ok(quoteServiceDocument);
+            return await _quoteServiceDocumentService.GetQuoteServiceDocumentById(id);
         }
 
         [HttpPost("")]
-        public async Task<ActionResult> AddNewQuoteServiceDocument(QuoteServiceDocumentReceivingDTO quoteServiceDocumentReceiving)
+        public async Task<ApiCommonResponse> AddNewQuoteServiceDocument(QuoteServiceDocumentReceivingDTO quoteServiceDocumentReceiving)
         {
-            if (quoteServiceDocumentReceiving.IsGroupUpload && quoteServiceDocumentReceiving.QuoteId == 0)
-            {
-                return StatusCode(400, "You need to specify quoteId since IsGroupUpload is true");
-            }
-            else if(!quoteServiceDocumentReceiving.IsGroupUpload && quoteServiceDocumentReceiving.QuoteServiceId==0)
-            {
-                return StatusCode(400, "You need to specify QuoteServiceId");
-            }
-
-            var response = await _quoteServiceDocumentService.AddQuoteServiceDocument(HttpContext, quoteServiceDocumentReceiving);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var quoteServiceDocument = ((ApiOkResponse)response).Result;
-            return Ok(quoteServiceDocument);
+            return await _quoteServiceDocumentService.AddQuoteServiceDocument(HttpContext, quoteServiceDocumentReceiving);
+            
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateById(long id, QuoteServiceDocumentReceivingDTO quoteServiceDocumentReceivingDTO)
+        public async Task<ApiCommonResponse> UpdateById(long id, QuoteServiceDocumentReceivingDTO quoteServiceDocumentReceivingDTO)
         {
-            var response = await _quoteServiceDocumentService.UpdateQuoteServiceDocument(HttpContext, id, quoteServiceDocumentReceivingDTO);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var quoteServiceDocument = ((ApiOkResponse)response).Result;
-            return Ok(quoteServiceDocument);
+            return await _quoteServiceDocumentService.UpdateQuoteServiceDocument(HttpContext, id, quoteServiceDocumentReceivingDTO);            
         }
 
         [HttpDelete("{id}")]
-        public async Task<ActionResult> DeleteById(int id)
+        public async Task<ApiCommonResponse> DeleteById(int id)
         {
-            var response = await _quoteServiceDocumentService.DeleteQuoteServiceDocument(id);
-            return StatusCode(response.StatusCode);
+            return await _quoteServiceDocumentService.DeleteQuoteServiceDocument(id);
         }
     }
 }
