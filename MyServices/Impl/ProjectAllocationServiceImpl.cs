@@ -1063,10 +1063,25 @@ namespace HaloBiz.MyServices.Impl
         }
 
 
+        public async Task<ApiCommonResponse> getAssignedWorkspaceStatusDeliverable(HttpContext httpContext)
+        {
+            var getWorkspaceQuery = await _context.DeliverableStatuses.Where(x => x.IsDeleted == false).Include(x => x.Status).Include(x => x.Deliverable).ToListAsync();
+            // var finalQuery = await getWorkspaceQuery.Where(x=>x.)
+            return CommonResponse.Send
+                (
+
+                ResponseCodes.SUCCESS,
+                getWorkspaceQuery,
+                ResponseMessage.EntitySuccessfullyFound
+                );
+        }
+
+        
+
 
         //public async Task<WorkspaceRoot> getWorkspaceRootData(HttpContext httpContext,DeliverableStatusDTO deliverableStatusDTO)
         //{
-            
+
         //        var workspaceStatus = new WorkspaceRoot();
         //        var workspaceStatusArray = new List<WorkspaceRoot>();
         //        workspaceStatus.Caption = deliverableStatusDTO.Workspace.Caption;
@@ -1076,10 +1091,10 @@ namespace HaloBiz.MyServices.Impl
         //        workspaceStatus.IsActive = deliverableStatusDTO.Workspace.IsActive;
         //        workspaceStatus.IsPublic = deliverableStatusDTO.Workspace.IsPublic;
         //        workspaceStatus.StatusFlowOption = deliverableStatusDTO.Workspace.StatusFlowOption;
-                
-                
 
-            
+
+
+
         //}
 
 
