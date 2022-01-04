@@ -11,17 +11,17 @@ namespace HaloBiz.MyServices
     public interface IArmedEscortService
     {
         //Type
-        Task<ApiResponse> AddArmedEscortType(HttpContext context, ArmedEscortTypeReceivingDTO armedEscortTypeReceivingDTO);
-        Task<ApiResponse> GetAllArmedEscortTypes();
-        Task<ApiResponse> GetArmedEscortTypeById(long id);
-        Task<ApiResponse> UpdateArmedEscortType(HttpContext context, long id, ArmedEscortTypeReceivingDTO armedEscortTypeReceivingDTO);
-        Task<ApiResponse> DeleteArmedEscortType(long id);
+        Task<ApiCommonResponse> AddArmedEscortType(HttpContext context, ArmedEscortTypeReceivingDTO armedEscortTypeReceivingDTO);
+        Task<ApiCommonResponse> GetAllArmedEscortTypes();
+        Task<ApiCommonResponse> GetArmedEscortTypeById(long id);
+        Task<ApiCommonResponse> UpdateArmedEscortType(HttpContext context, long id, ArmedEscortTypeReceivingDTO armedEscortTypeReceivingDTO);
+        Task<ApiCommonResponse> DeleteArmedEscortType(long id);
 
         //Rank
-        Task<ApiResponse> AddArmedEscortRank(HttpContext context, ArmedEscortRankReceivingDTO armedEscortRankReceivingDTO);
-        Task<ApiResponse> GetAllArmedEscortRanks();
-        Task<ApiResponse> GetArmedEscortRankById(long id);
-        Task<ApiResponse> UpdateArmedEscortRank(HttpContext context, long id, ArmedEscortRankReceivingDTO armedEscortRankReceivingDTO);
-        Task<ApiResponse> DeleteArmedEscortRank(long id);
+        Task<ApiCommonResponse> AddArmedEscortRank(HttpContext context, ArmedEscortRankReceivingDTO armedEscortRankReceivingDTO);
+        Task<ApiCommonResponse> GetAllArmedEscortRanks();
+        Task<ApiCommonResponse> GetArmedEscortRankById(long id);
+        Task<ApiCommonResponse> UpdateArmedEscortRank(HttpContext context, long id, ArmedEscortRankReceivingDTO armedEscortRankReceivingDTO);
+        Task<ApiCommonResponse> DeleteArmedEscortRank(long id);
     }
 }

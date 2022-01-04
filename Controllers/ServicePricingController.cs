@@ -23,70 +23,45 @@ namespace HaloBiz.Controllers
         }
 
         [HttpGet("")]
-        public async Task<ActionResult> GetServicePricing()
+        public async Task<ApiCommonResponse> GetServicePricing()
         {
-            var response = await _ServicePricingService.GetAllServicePricing();
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var ServicePricing = ((ApiOkResponse)response).Result;
-            return Ok(ServicePricing);
+            return await _ServicePricingService.GetAllServicePricing();
         }
 
         [HttpGet("ServiceId/{serviceId}")]
-        public async Task<ActionResult> GetByServiceId(long serviceId)
+        public async Task<ApiCommonResponse> GetByServiceId(long serviceId)
         {
-            var response = await _ServicePricingService.GetServicePricingByServiceId(serviceId);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var ServicePricing = ((ApiOkResponse)response).Result;
-            return Ok(ServicePricing);
+            return await _ServicePricingService.GetServicePricingByServiceId(serviceId);
         }
 
         [HttpGet("BranchId/{branchId}")]
-        public async Task<ActionResult> GetByBranchId(long branchId)
+        public async Task<ApiCommonResponse> GetByBranchId(long branchId)
         {
-            var response = await _ServicePricingService.GetServicePricingByBranchId(branchId);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var ServicePricing = ((ApiOkResponse)response).Result;
-            return Ok(ServicePricing);
+            return await _ServicePricingService.GetServicePricingByBranchId(branchId);
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult> GetById(long id)
+        public async Task<ApiCommonResponse> GetById(long id)
         {
-            var response = await _ServicePricingService.GetServicePricingById(id);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var ServicePricing = ((ApiOkResponse)response).Result;
-            return Ok(ServicePricing);
+            return await _ServicePricingService.GetServicePricingById(id);
         }
 
         [HttpPost("")]
-        public async Task<ActionResult> AddNewServicePricing(ServicePricingReceivingDTO ServicePricingReceiving)
+        public async Task<ApiCommonResponse> AddNewServicePricing(ServicePricingReceivingDTO ServicePricingReceiving)
         {
-            var response = await _ServicePricingService.AddServicePricing(HttpContext, ServicePricingReceiving);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var ServicePricing = ((ApiOkResponse)response).Result;
-            return Ok(ServicePricing);
+            return await _ServicePricingService.AddServicePricing(HttpContext, ServicePricingReceiving);
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateById(long id, ServicePricingReceivingDTO ServicePricingReceiving)
+        public async Task<ApiCommonResponse> UpdateById(long id, ServicePricingReceivingDTO ServicePricingReceiving)
         {
-            var response = await _ServicePricingService.UpdateServicePricing(HttpContext, id, ServicePricingReceiving);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var ServicePricing = ((ApiOkResponse)response).Result;
-            return Ok(ServicePricing);
+            return await _ServicePricingService.UpdateServicePricing(HttpContext, id, ServicePricingReceiving);
         }
 
         [HttpDelete("{id}")]
-        public async Task<ActionResult> DeleteById(int id)
+        public async Task<ApiCommonResponse> DeleteById(int id)
         {
-            var response = await _ServicePricingService.DeleteServicePricing(id);
-            return StatusCode(response.StatusCode);
+            return await _ServicePricingService.DeleteServicePricing(id);
         }
     }
 }

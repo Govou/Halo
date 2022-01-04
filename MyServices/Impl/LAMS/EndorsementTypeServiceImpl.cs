@@ -32,58 +32,58 @@ namespace HaloBiz.MyServices.Impl.LAMS
             _logger = logger;
         }
 
-        public async Task<ApiResponse> AddEndorsementType(HttpContext context, EndorsementTypeReceivingDTO endorsementTypeReceivingDTO)
+        public async Task<ApiCommonResponse> AddEndorsementType(HttpContext context, EndorsementTypeReceivingDTO endorsementTypeReceivingDTO)
         {
             var endorsementType = _mapper.Map<EndorsementType>(endorsementTypeReceivingDTO);
             endorsementType.CreatedById = context.GetLoggedInUserId();
             var savedEndorsementType = await _endorsementTypeRepo.SaveEndorsementType(endorsementType);
             if (savedEndorsementType == null)
             {
-                return new ApiResponse(500);
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
             var endorsementTypeTransferDTO = _mapper.Map<EndorsementTypeTransferDTO>(savedEndorsementType);
-            return new ApiOkResponse(endorsementTypeTransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,endorsementTypeTransferDTO);
         }
 
-        public async Task<ApiResponse> GetAllEndorsementType()
+        public async Task<ApiCommonResponse> GetAllEndorsementType()
         {
             var endorsementTypes = await _endorsementTypeRepo.FindAllEndorsementType();
             if (endorsementTypes == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var endorsementTypeTransferDTO = _mapper.Map<IEnumerable<EndorsementTypeTransferDTO>>(endorsementTypes);
-            return new ApiOkResponse(endorsementTypeTransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,endorsementTypeTransferDTO);
         }
 
-        public async Task<ApiResponse> GetEndorsementTypeById(long id)
+        public async Task<ApiCommonResponse> GetEndorsementTypeById(long id)
         {
             var endorsementType = await _endorsementTypeRepo.FindEndorsementTypeById(id);
             if (endorsementType == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var endorsementTypeTransferDTOs = _mapper.Map<EndorsementTypeTransferDTO>(endorsementType);
-            return new ApiOkResponse(endorsementTypeTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,endorsementTypeTransferDTOs);
         }
 
-        public async Task<ApiResponse> GetEndorsementTypeByName(string name)
+        public async Task<ApiCommonResponse> GetEndorsementTypeByName(string name)
         {
             var endorsementType = await _endorsementTypeRepo.FindEndorsementTypeByName(name);
             if (endorsementType == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var endorsementTypeTransferDTOs = _mapper.Map<EndorsementTypeTransferDTO>(endorsementType);
-            return new ApiOkResponse(endorsementTypeTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,endorsementTypeTransferDTOs);
         }
 
-        public async Task<ApiResponse> UpdateEndorsementType(HttpContext context, long id, EndorsementTypeReceivingDTO endorsementTypeReceivingDTO)
+        public async Task<ApiCommonResponse> UpdateEndorsementType(HttpContext context, long id, EndorsementTypeReceivingDTO endorsementTypeReceivingDTO)
         {
             var endorsementTypeToUpdate = await _endorsementTypeRepo.FindEndorsementTypeById(id);
             if (endorsementTypeToUpdate == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             
             var summary = $"Initial details before change, \n {endorsementTypeToUpdate} \n" ;
@@ -96,7 +96,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
             if (updatedEndorsementType == null)
             {
-                return new ApiResponse(500);
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
             ModificationHistory history = new ModificationHistory(){
                 ModelChanged = "EndorsementType",
@@ -108,24 +108,24 @@ namespace HaloBiz.MyServices.Impl.LAMS
             await _historyRepo.SaveHistory(history);
 
             var endorsementTypeTransferDTOs = _mapper.Map<EndorsementTypeTransferDTO>(updatedEndorsementType);
-            return new ApiOkResponse(endorsementTypeTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,endorsementTypeTransferDTOs);
 
         }
 
-        public async Task<ApiResponse> DeleteEndorsementType(long id)
+        public async Task<ApiCommonResponse> DeleteEndorsementType(long id)
         {
             var endorsementTypeToDelete = await _endorsementTypeRepo.FindEndorsementTypeById(id);
             if (endorsementTypeToDelete == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
 
             if (!await _endorsementTypeRepo.DeleteEndorsementType(endorsementTypeToDelete))
             {
-                return new ApiResponse(500);
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
 
-            return new ApiOkResponse(true);
+            return CommonResponse.Send(ResponseCodes.SUCCESS);
         }
     }
 }

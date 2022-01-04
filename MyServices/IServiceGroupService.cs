@@ -6,11 +6,11 @@ namespace HaloBiz.MyServices
 {
     public interface IServiceGroupService
     {
-        Task<ApiResponse> AddServiceGroup(ServiceGroupReceivingDTO serviceGroupReceivingDTO);
-        Task<ApiResponse> GetAllServiceGroups();
-        Task<ApiResponse> GetServiceGroupById(long id);
-        Task<ApiResponse> GetServiceGroupByName(string name);
-        Task<ApiResponse> UpdateServiceGroup(long id, ServiceGroupReceivingDTO serviceGroupReceivingDTO);
-        Task<ApiResponse> DeleteServiceGroup(long id);
+        Task<ApiCommonResponse> AddServiceGroup(ServiceGroupReceivingDTO serviceGroupReceivingDTO);
+        Task<ApiCommonResponse> GetAllServiceGroups();
+        Task<ApiCommonResponse> GetServiceGroupById(long id);
+        Task<ApiCommonResponse> GetServiceGroupByName(string name);
+        Task<ApiCommonResponse> UpdateServiceGroup(long id, ServiceGroupReceivingDTO serviceGroupReceivingDTO);
+        Task<ApiCommonResponse> DeleteServiceGroup(long id);
     }
 }

@@ -7,12 +7,12 @@ namespace HaloBiz.MyServices.LAMS
 {
     public interface IOtherLeadCaptureInfoService
     {
-        Task<ApiResponse> AddOtherLeadCaptureInfo(HttpContext context, OtherLeadCaptureInfoReceivingDTO otherLeadCaptureInfoReceivingDTO);
-        Task<ApiResponse> GetAllOtherLeadCaptureInfo();
-        Task<ApiResponse> GetOtherLeadCaptureInfoById(long id);
-        Task<ApiResponse> UpdateOtherLeadCaptureInfo(HttpContext context, long id, OtherLeadCaptureInfoReceivingDTO otherLeadCaptureInfoReceivingDTO);
-        Task<ApiResponse> DeleteOtherLeadCaptureInfo(long id);
-        Task<ApiResponse> GetOtherLeadCaptureInfoByLeadDivisionId(long leadDivisionId);
+        Task<ApiCommonResponse> AddOtherLeadCaptureInfo(HttpContext context, OtherLeadCaptureInfoReceivingDTO otherLeadCaptureInfoReceivingDTO);
+        Task<ApiCommonResponse> GetAllOtherLeadCaptureInfo();
+        Task<ApiCommonResponse> GetOtherLeadCaptureInfoById(long id);
+        Task<ApiCommonResponse> UpdateOtherLeadCaptureInfo(HttpContext context, long id, OtherLeadCaptureInfoReceivingDTO otherLeadCaptureInfoReceivingDTO);
+        Task<ApiCommonResponse> DeleteOtherLeadCaptureInfo(long id);
+        Task<ApiCommonResponse> GetOtherLeadCaptureInfoByLeadDivisionId(long leadDivisionId);
 
     }
 }

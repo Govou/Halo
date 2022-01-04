@@ -47,7 +47,7 @@ namespace HaloBiz.MyServices.Impl
             this._voucherRepo = voucherRepo;
         }
 
-        public async Task<ApiResponse> AddReceipt(HttpContext context, ReceiptReceivingDTO receiptReceivingDTO)
+        public async Task<ApiCommonResponse> AddReceipt(HttpContext context, ReceiptReceivingDTO receiptReceivingDTO)
         {
             LoggedInUserId = context.GetLoggedInUserId();
             if (receiptReceivingDTO.InvoiceNumber.ToUpper().Contains("GINV"))
@@ -117,12 +117,12 @@ namespace HaloBiz.MyServices.Impl
                         await trx.RollbackAsync();
                         _logger.LogError(ex.Message);
                         _logger.LogError(ex.StackTrace);                      
-                        return new ApiResponse(500, ex.Message);
+                        return  CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
                     }                                
                 }
 
                 await trx.CommitAsync();
-                return new ApiOkResponse(true);
+                return CommonResponse.Send(ResponseCodes.SUCCESS);
             }
             else
             {
@@ -158,20 +158,20 @@ namespace HaloBiz.MyServices.Impl
 
                         await PostAccounts(receipt, invoice, receiptReceivingDTO.AccountId);
                         await transaction.CommitAsync();
-                        return new ApiOkResponse(receiptTransferDTO);
+                        return CommonResponse.Send(ResponseCodes.SUCCESS,receiptTransferDTO);
                     }
                     catch (Exception e)
                     {
                         _logger.LogError(e.Message);
                         _logger.LogError(e.StackTrace);
                         await transaction.RollbackAsync();
-                        return new ApiResponse(500);
+                        return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
                     }
                 }
             }
         }
 
-        public async Task<ApiResponse> GetReceiptBreakDown(long invoiceId, double totalReceiptAmount)
+        public async Task<ApiCommonResponse> GetReceiptBreakDown(long invoiceId, double totalReceiptAmount)
         {
             var singleInvoice = await _invoiceRepo.FindInvoiceById(invoiceId);
 
@@ -181,7 +181,20 @@ namespace HaloBiz.MyServices.Impl
                             && x.StartDate == singleInvoice.StartDate && !x.IsDeleted)
                     .ToListAsync();
 
-            var invoiceTransferDTOS = _mapper.Map<List<InvoiceTransferDTO>>(invoicesGrouped);          
+            var invoiceTransferDTOS = _mapper.Map<List<InvoiceTransferDTO>>(invoicesGrouped);
+
+            //check that the amount being entered is not more than
+            double amountPaid = invoiceTransferDTOS
+                                .SelectMany(x => x.Receipts)
+                                .Sum(x => x.ReceiptValue);
+            double invoiceValue = invoiceTransferDTOS
+                                .Sum(x => x.Value);
+            double amountLeft = invoiceValue - amountPaid;
+
+            if(totalReceiptAmount > amountLeft)
+            {
+                return CommonResponse.Send(ResponseCodes.FAILURE,null, "Amount is greater than what is left");
+            }
           
 
             foreach (InvoiceTransferDTO invoice in invoiceTransferDTOS)
@@ -223,11 +236,11 @@ namespace HaloBiz.MyServices.Impl
                 {
                     _logger.LogError(ex.Message);
                     _logger.LogError(ex.StackTrace);
-                    return new ApiResponse(500);
+                    return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
                 }
             }
             
-            return new ApiOkResponse(invoiceTransferDTOS);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,invoiceTransferDTOS);
         }
 
         private async Task<bool> PostAccounts( Receipt receipt, Invoice invoice,  long bankAccountId )

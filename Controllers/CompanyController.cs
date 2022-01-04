@@ -22,52 +22,36 @@ namespace HaloBiz.Controllers
         }
 
         [HttpGet("")]
-        public async Task<ActionResult> GetAllCompanies()
+        public async Task<ApiCommonResponse> GetAllCompanies()
         {
-            var response = await _companyService.GetAllCompanies();
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var company = ((ApiOkResponse)response).Result;
-            return Ok((IEnumerable<CompanyTransferDTO>)company);
+            return await _companyService.GetAllCompanies();
         }
         [HttpGet("name/{name}")]
-        public async Task<ActionResult> GetByName(string name)
+        public async Task<ApiCommonResponse> GetByName(string name)
         {
-            var response = await _companyService.GetCompanyByName(name);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var company = ((ApiOkResponse)response).Result;
-            return Ok((CompanyTransferDTO)company);
+            return await _companyService.GetCompanyByName(name);
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult> GetById(long id)
+        public async Task<ApiCommonResponse> GetById(long id)
         {
-            var response = await _companyService.GetCompanyById(id);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var company = ((ApiOkResponse)response).Result;
-            return Ok((CompanyTransferDTO)company);
+            return await _companyService.GetCompanyById(id);
         }
 
         //[HttpPost("")]
-        //public async Task<ActionResult> AddNewCompany(CompanyReceivingDTO companyReceiving)
+        //public async Task<ApiCommonResponse> AddNewCompany(CompanyReceivingDTO companyReceiving)
         //{
-        //    var response = await _companyService.AddCompany(companyReceiving);
-        //    if (response.StatusCode >= 400)
-        //        return StatusCode(response.StatusCode, response);
+        //    return await _companyService.AddCompany(companyReceiving);
+        //    
+        //        
         //    var company = ((ApiOkResponse)response).Result;
         //    return Ok((CompanyTransferDTO)company);
         //}
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateById(long id, CompanyReceivingDTO companyReceiving)
+        public async Task<ApiCommonResponse> UpdateById(long id, CompanyReceivingDTO companyReceiving)
         {
-            var response = await _companyService.UpdateCompany(id, companyReceiving);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var company = ((ApiOkResponse)response).Result;
-            return Ok((CompanyTransferDTO)company);
+            return await _companyService.UpdateCompany(id, companyReceiving);
         }
     }
 }

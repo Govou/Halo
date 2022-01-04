@@ -22,87 +22,57 @@ namespace HaloBiz.Controllers
         }
 
         [HttpGet("GetAllVehicles")]
-        public async Task<ActionResult> GetAllVehicles()
+        public async Task<ApiCommonResponse> GetAllVehicles()
         {
-            var response = await _vehicleService.GetAllVehicles();
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var cType = ((ApiOkResponse)response).Result;
-            return Ok(cType);
+            return await _vehicleService.GetAllVehicles(); 
         }
 
         [HttpGet("GetAllVehicleTies")]
-        public async Task<ActionResult> GetAllVehicleTies()
+        public async Task<ApiCommonResponse> GetAllVehicleTies()
         {
-            var response = await _vehicleService.GetAllVehicleTies();
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var cType = ((ApiOkResponse)response).Result;
-            return Ok(cType);
+            return await _vehicleService.GetAllVehicleTies(); 
         }
 
         [HttpGet("GetVehicleById/{id}")]
-        public async Task<ActionResult> GetVehicleById(long id)
+        public async Task<ApiCommonResponse> GetVehicleById(long id)
         {
-            var response = await _vehicleService.GetVehicleById(id);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var type = ((ApiOkResponse)response).Result;
-            return Ok(type);
+            return await _vehicleService.GetVehicleById(id); 
         }
 
         [HttpGet("GetVehicleTieById/{id}")]
-        public async Task<ActionResult> GetVehicleTieById(long id)
+        public async Task<ApiCommonResponse> GetVehicleTieById(long id)
         {
-            var response = await _vehicleService.GetVehicleTieById(id);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var type = ((ApiOkResponse)response).Result;
-            return Ok(type);
+            return await _vehicleService.GetVehicleTieById(id); 
         }
 
         [HttpPost("AddNewVehicle")]
-        public async Task<ActionResult> AddNewVehicle(VehicleReceivingDTO ReceivingDTO)
+        public async Task<ApiCommonResponse> AddNewVehicle(VehicleReceivingDTO ReceivingDTO)
         {
-            var response = await _vehicleService.AddVehicle(HttpContext, ReceivingDTO);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var type = ((ApiOkResponse)response).Result;
-            return Ok(type);
+            return await _vehicleService.AddVehicle(HttpContext, ReceivingDTO); 
         }
 
         [HttpPost("AddNewVehicleTie")]
-        public async Task<ActionResult> AddNewVehicleTie(VehicleSMORoutesResourceTieReceivingDTO ReceivingDTO)
+        public async Task<ApiCommonResponse> AddNewVehicleTie(VehicleSMORoutesResourceTieReceivingDTO ReceivingDTO)
         {
-            var response = await _vehicleService.AddVehicleTie(HttpContext, ReceivingDTO);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var type = ((ApiOkResponse)response).Result;
-            return Ok(type);
+            return await _vehicleService.AddVehicleTie(HttpContext, ReceivingDTO); 
         }
 
         [HttpPut("UpdateVehicleById/{id}")]
-        public async Task<IActionResult> UpdateTypeById(long id, VehicleReceivingDTO Receiving)
+        public async Task<ApiCommonResponse> UpdateTypeById(long id, VehicleReceivingDTO Receiving)
         {
-            var response = await _vehicleService.UpdateVehicle(HttpContext, id, Receiving);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var type = ((ApiOkResponse)response).Result;
-            return Ok(type);
+            return await _vehicleService.UpdateVehicle(HttpContext, id, Receiving); 
         }
 
         [HttpDelete("DeleteVehicleById/{id}")] //{id}
-        public async Task<ActionResult> DeleteVehicleById(int id)
+        public async Task<ApiCommonResponse> DeleteVehicleById(int id)
         {
-            var response = await _vehicleService.DeleteVehicle(id);
-            return StatusCode(response.StatusCode);
+            return await _vehicleService.DeleteVehicle(id);
         }
         [HttpDelete("DeleteVehicleTieById/{id}")] //{id}
-        public async Task<ActionResult> DeleteVehicleTieById(int id)
+        public async Task<ApiCommonResponse> DeleteVehicleTieById(int id)
         {
-            var response = await _vehicleService.DeleteVehicleTie(id);
-            return StatusCode(response.StatusCode);
-        }
+            return await _vehicleService.DeleteVehicleTie(id);
+         }
 
     }
 }

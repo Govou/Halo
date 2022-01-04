@@ -10,12 +10,12 @@ namespace HaloBiz.MyServices
 {
     public interface ISuspectQualificationService
     {
-        Task<ApiResponse> AddSuspectQualification(HttpContext context, SuspectQualificationReceivingDTO suspectQualificationReceivingDTO);
-        Task<ApiResponse> GetAllSuspectQualification();
-        Task<ApiResponse> GetUserSuspectQualification(HttpContext context);
-        Task<ApiResponse> GetSuspectQualificationById(long id);
-        //Task<ApiResponse> GetSuspectQualificationByName(string name);
-        Task<ApiResponse> UpdateSuspectQualification(HttpContext context, long id, SuspectQualificationReceivingDTO suspectQualificationReceivingDTO);
-        Task<ApiResponse> DeleteSuspectQualification(long id);
+        Task<ApiCommonResponse> AddSuspectQualification(HttpContext context, SuspectQualificationReceivingDTO suspectQualificationReceivingDTO);
+        Task<ApiCommonResponse> GetAllSuspectQualification();
+        Task<ApiCommonResponse> GetUserSuspectQualification(HttpContext context);
+        Task<ApiCommonResponse> GetSuspectQualificationById(long id);
+        //Task<ApiCommonResponse> GetSuspectQualificationByName(string name);
+        Task<ApiCommonResponse> UpdateSuspectQualification(HttpContext context, long id, SuspectQualificationReceivingDTO suspectQualificationReceivingDTO);
+        Task<ApiCommonResponse> DeleteSuspectQualification(long id);
     }
 }

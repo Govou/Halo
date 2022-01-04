@@ -18,50 +18,33 @@ namespace HaloBiz.Controllers
         }
 
         [HttpGet("")]
-        public async Task<ActionResult> GetSbuproportion()
+        public async Task<ApiCommonResponse> GetSbuproportion()
         {
-            var response = await _sBUProportionService.GetAllSbuproportions();
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var sBUProportion = ((ApiOkResponse)response).Result;
-            return Ok(sBUProportion);
+            return await _sBUProportionService.GetAllSbuproportions();
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult> GetById(long id)
+        public async Task<ApiCommonResponse> GetById(long id)
         {
-            var response = await _sBUProportionService.GetSbuproportionById(id);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var sBUProportion = ((ApiOkResponse)response).Result;
-            return Ok(sBUProportion);
+            return await _sBUProportionService.GetSbuproportionById(id);
         }
 
         [HttpPost("")]
-        public async Task<ActionResult> AddNewSbuproportion(SbuproportionReceivingDTO sBUProportionReceiving)
+        public async Task<ApiCommonResponse> AddNewSbuproportion(SbuproportionReceivingDTO sBUProportionReceiving)
         {
-            var response = await _sBUProportionService.AddSbuproportion(HttpContext, sBUProportionReceiving);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var sBUProportion = ((ApiOkResponse)response).Result;
-            return Ok(sBUProportion);
+            return await _sBUProportionService.AddSbuproportion(HttpContext, sBUProportionReceiving);
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateById(long id, SbuproportionReceivingDTO sBUProportionReceiving)
+        public async Task<ApiCommonResponse> UpdateById(long id, SbuproportionReceivingDTO sBUProportionReceiving)
         {
-            var response = await _sBUProportionService.UpdateSbuproportion(HttpContext, id, sBUProportionReceiving);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var sBUProportion = ((ApiOkResponse)response).Result;
-            return Ok(sBUProportion);
+            return await _sBUProportionService.UpdateSbuproportion(HttpContext, id, sBUProportionReceiving);
         }
 
         [HttpDelete("{id}")]
-        public async Task<ActionResult> DeleteById(int id)
+        public async Task<ApiCommonResponse> DeleteById(int id)
         {
-            var response = await _sBUProportionService.DeleteSbuproportion(id);
-            return StatusCode(response.StatusCode);
+            return await _sBUProportionService.DeleteSbuproportion(id);
         }
     }
 }

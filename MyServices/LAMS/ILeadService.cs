@@ -9,18 +9,18 @@ namespace HaloBiz.MyServices.LAMS
 {
     public interface ILeadService
     {
-        Task<ApiResponse> AddLead(HttpContext context, LeadReceivingDTO leadReceivingDTO);
-        Task<ApiResponse> GetAllLead();
-        Task<ApiResponse> GetUserLeads(HttpContext context);
-        Task<ApiResponse> GetLeadById(long id);
-        Task<ApiResponse> DropLead(HttpContext context, long id, DropLeadReceivingDTO dropLeadReceivingDTO);
-        Task<ApiResponse> GetLeadByReferenceNumber(string refNumber);
-        Task<ApiResponse> UpdateLead(HttpContext context, long id, LeadReceivingDTO leadReceivingDTO);
-        Task<ApiResponse> UpdateLeadStagesStatus(long leadId, LeadStages stage, LeadCaptureReceivingDTO leadCaptureReceivingDTO = null);
-        Task<ApiResponse> ConvertLeadToClient(HttpContext context,long leadId);
-        Task<ApiResponse> GetAllUnApprovedLeads();
-        Task<ApiResponse> SetUpLeadForApproval(HttpContext httpContext, long id);
-        Task<ApiResponse> ApproveQuoteService(HttpContext httpContext, long leadId, long quoteServiceId, long sequence);
-        Task<ApiResponse> DisapproveQuoteService(HttpContext httpContext, long leadId, long quoteServiceId, long sequence);
+        Task<ApiCommonResponse> AddLead(HttpContext context, LeadReceivingDTO leadReceivingDTO);
+        Task<ApiCommonResponse> GetAllLead();
+        Task<ApiCommonResponse> GetUserLeads(HttpContext context);
+        Task<ApiCommonResponse> GetLeadById(long id);
+        Task<ApiCommonResponse> DropLead(HttpContext context, long id, DropLeadReceivingDTO dropLeadReceivingDTO);
+        Task<ApiCommonResponse> GetLeadByReferenceNumber(string refNumber);
+        Task<ApiCommonResponse> UpdateLead(HttpContext context, long id, LeadReceivingDTO leadReceivingDTO);
+        Task<ApiCommonResponse> UpdateLeadStagesStatus(long leadId, LeadStages stage, LeadCaptureReceivingDTO leadCaptureReceivingDTO = null);
+        Task<ApiCommonResponse> ConvertLeadToClient(HttpContext context,long leadId);
+        Task<ApiCommonResponse> GetAllUnApprovedLeads();
+        Task<ApiCommonResponse> SetUpLeadForApproval(HttpContext httpContext, long id);
+        Task<ApiCommonResponse> ApproveQuoteService(HttpContext httpContext, long leadId, long quoteServiceId, long sequence);
+        Task<ApiCommonResponse> DisapproveQuoteService(HttpContext httpContext, long leadId, long quoteServiceId, long sequence);
     }
 }

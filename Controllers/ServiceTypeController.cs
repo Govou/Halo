@@ -23,59 +23,38 @@ namespace HaloBiz.Controllers
         }
 
         [HttpGet("")]
-        public async Task<ActionResult> GetServiceType()
+        public async Task<ApiCommonResponse> GetServiceType()
         {
-            var response = await _ServiceTypeService.GetAllServiceType();
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var ServiceType = ((ApiOkResponse)response).Result;
-            return Ok(ServiceType);
+            return await _ServiceTypeService.GetAllServiceType();
         }
         [HttpGet("caption/{name}")]
-        public async Task<ActionResult> GetByCaption(string name)
+        public async Task<ApiCommonResponse> GetByCaption(string name)
         {
-            var response = await _ServiceTypeService.GetServiceTypeByName(name);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var ServiceType = ((ApiOkResponse)response).Result;
-            return Ok(ServiceType);
+            return await _ServiceTypeService.GetServiceTypeByName(name);
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult> GetById(long id)
+        public async Task<ApiCommonResponse> GetById(long id)
         {
-            var response = await _ServiceTypeService.GetServiceTypeById(id);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var ServiceType = ((ApiOkResponse)response).Result;
-            return Ok(ServiceType);
+            return await _ServiceTypeService.GetServiceTypeById(id);
         }
 
         [HttpPost("")]
-        public async Task<ActionResult> AddNewServiceType(ServiceTypeReceivingDTO ServiceTypeReceiving)
+        public async Task<ApiCommonResponse> AddNewServiceType(ServiceTypeReceivingDTO ServiceTypeReceiving)
         {
-            var response = await _ServiceTypeService.AddServiceType(HttpContext, ServiceTypeReceiving);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var ServiceType = ((ApiOkResponse)response).Result;
-            return Ok(ServiceType);
+            return await _ServiceTypeService.AddServiceType(HttpContext, ServiceTypeReceiving);
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateById(long id, ServiceTypeReceivingDTO ServiceTypeReceiving)
+        public async Task<ApiCommonResponse> UpdateById(long id, ServiceTypeReceivingDTO ServiceTypeReceiving)
         {
-            var response = await _ServiceTypeService.UpdateServiceType(HttpContext, id, ServiceTypeReceiving);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var ServiceType = ((ApiOkResponse)response).Result;
-            return Ok(ServiceType);
+            return await _ServiceTypeService.UpdateServiceType(HttpContext, id, ServiceTypeReceiving); 
         }
 
         [HttpDelete("{id}")]
-        public async Task<ActionResult> DeleteById(int id)
+        public async Task<ApiCommonResponse> DeleteById(int id)
         {
-            var response = await _ServiceTypeService.DeleteServiceType(id);
-            return StatusCode(response.StatusCode);
+            return await _ServiceTypeService.DeleteServiceType(id);
         }
     }
 }

@@ -9,13 +9,13 @@ namespace HaloBiz.MyServices
 {
     public interface IStrategicBusinessUnitService
     {
-        Task<ApiResponse> AddStrategicBusinessUnit(StrategicBusinessUnitReceivingDTO strategicBusinessUnitReceivingDTO);
-        Task<ApiResponse> GetStrategicBusinessUnitById(long id);
-        Task<ApiResponse> GetStrategicBusinessUnitByName(string name);
-        Task<ApiResponse> GetAllStrategicBusinessUnit();
-        Task<ApiResponse> GetRMSbusWithClientsInfo();
-        Task<ApiResponse> GetRMSbus();
-        Task<ApiResponse> UpdateStrategicBusinessUnit(long id, StrategicBusinessUnitReceivingDTO strategicBusinessUnitReceivingDTO);
-        Task<ApiResponse> DeleteStrategicBusinessUnit(long id);
+        Task<ApiCommonResponse> AddStrategicBusinessUnit(StrategicBusinessUnitReceivingDTO strategicBusinessUnitReceivingDTO);
+        Task<ApiCommonResponse> GetStrategicBusinessUnitById(long id);
+        Task<ApiCommonResponse> GetStrategicBusinessUnitByName(string name);
+        Task<ApiCommonResponse> GetAllStrategicBusinessUnit();
+        Task<ApiCommonResponse> GetRMSbusWithClientsInfo();
+        Task<ApiCommonResponse> GetRMSbus();
+        Task<ApiCommonResponse> UpdateStrategicBusinessUnit(long id, StrategicBusinessUnitReceivingDTO strategicBusinessUnitReceivingDTO);
+        Task<ApiCommonResponse> DeleteStrategicBusinessUnit(long id);
     }
 }

@@ -1,5 +1,6 @@
 using System.Linq;
 using System.Threading.Tasks;
+using HaloBiz.DTOs.ApiDTOs;
 using HalobizMigrations.Data;
 using HalobizMigrations.Models;
 using Microsoft.EntityFrameworkCore;
@@ -19,30 +20,31 @@ namespace HaloBiz.Repository.Impl
             this.logger = logger;
         }
 
-        public async  Task<string> GenerateGroupInvoiceNumber()
+        public async  Task<ApiCommonResponse> GenerateGroupInvoiceNumber()
         {
             try
             {
                 var tracker  = await _context.GroupInvoiceTrackers.OrderBy(x => x.Id).FirstOrDefaultAsync();
                 long newNumber = 0;
-                if(tracker == null){
+                if(tracker == null)
+                {
                     newNumber = 1;
                 await _context.GroupInvoiceTrackers.AddAsync(new GroupInvoiceTracker(){Number = newNumber + 1});
                 await  _context.SaveChangesAsync();  
-                return $"GINV{newNumber.ToString().PadLeft(7, '0')}";
+                return CommonResponse.Send(ResponseCodes.SUCCESS, $"GINV{newNumber.ToString().PadLeft(7, '0')}");
                 }else{
                     newNumber = tracker.Number;
                     tracker.Number = tracker.Number + 1;
                     _context.GroupInvoiceTrackers.Update(tracker);
                     await _context.SaveChangesAsync();
-                    return $"GINV{newNumber.ToString().PadLeft(7, '0')}";
+                    return CommonResponse.Send(ResponseCodes.SUCCESS, $"GINV{newNumber.ToString().PadLeft(7, '0')}");
                 }
             }
             catch (System.Exception ex)
             {
                 logger.LogError(ex.Message);
                 logger.LogError(ex.StackTrace);
-                return null;
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "system errors");
             }
        
         }

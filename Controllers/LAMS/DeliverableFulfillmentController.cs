@@ -24,130 +24,83 @@ namespace Controllers.Controllers
         }
 
         [HttpGet("")]
-        public async Task<ActionResult> GetDeliverableFulfillment()
+        public async Task<ApiCommonResponse> GetDeliverableFulfillment()
         {
-            var response = await _deliverableFulfillmentService.GetAllDeliverableFulfillment();
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var deliverableFulfillment = ((ApiOkResponse)response).Result;
-            return Ok(deliverableFulfillment);
+            return await _deliverableFulfillmentService.GetAllDeliverableFulfillment();
         }
 
         [HttpGet("GetAssignedRation/{taskMasterId}")]
-        public async Task<ActionResult> GetDeliverableFulfillmentToAssignedRatioFulfillment(long taskMasterId)
+        public async Task<ApiCommonResponse> GetDeliverableFulfillmentToAssignedRatioFulfillment(long taskMasterId)
         {
-            var response = await _deliverableFulfillmentService.DeliverableToAssignedUserRatio(taskMasterId);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var deliverableFulfillment = ((ApiOkResponse)response).Result;
-            return Ok(deliverableFulfillment);
+            return await _deliverableFulfillmentService.DeliverableToAssignedUserRatio(taskMasterId);
         }
         
         [HttpGet("caption/{name}")]
-        public async Task<ActionResult> GetByCaption(string name)
+        public async Task<ApiCommonResponse> GetByCaption(string name)
         {
-            var response = await _deliverableFulfillmentService.GetDeliverableFulfillmentByName(name);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var deliverableFulfillment = ((ApiOkResponse)response).Result;
-            return Ok(deliverableFulfillment);
+            return await _deliverableFulfillmentService.GetDeliverableFulfillmentByName(name);
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult> GetById(long id)
+        public async Task<ApiCommonResponse> GetById(long id)
         {
-            var response = await _deliverableFulfillmentService.GetDeliverableFulfillmentById(id);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var deliverableFulfillment = ((ApiOkResponse)response).Result;
-            return Ok(deliverableFulfillment);
+            return await _deliverableFulfillmentService.GetDeliverableFulfillmentById(id);
         }
 
         [HttpGet("GetDeliverableStat/{userId}")]
-        public async Task<ActionResult> GetUserDeliverableStat(long userId)
+        public async Task<ApiCommonResponse> GetUserDeliverableStat(long userId)
         {
-            var response = await _deliverableFulfillmentService.GetUserDeliverableFulfillmentStat(userId);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var stat = ((ApiOkResponse)response).Result;
-            return Ok(stat);
+            return await _deliverableFulfillmentService.GetUserDeliverableFulfillmentStat(userId);
         }
 
         [HttpGet("GetDeliverableDashboard/{userId}")]
-        public async Task<ActionResult> GetUserDeliverableDashboard(long userId)
+        public async Task<ApiCommonResponse> GetUserDeliverableDashboard(long userId)
         {
-            var response = await _deliverableFulfillmentService.GetUserDeliverableFulfillmentDashboard(userId);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var stat = ((ApiOkResponse)response).Result;
-            return Ok(stat);
+            return await _deliverableFulfillmentService.GetUserDeliverableFulfillmentDashboard(userId);
         }
 
         [HttpPost("")]
-        public async Task<ActionResult> AddNewDeliverableFulfillment(DeliverableFulfillmentReceivingDTO deliverableFulfillmentReceiving)
+        public async Task<ApiCommonResponse> AddNewDeliverableFulfillment(DeliverableFulfillmentReceivingDTO deliverableFulfillmentReceiving)
         {
-            var response = await _deliverableFulfillmentService.AddDeliverableFulfillment(HttpContext, deliverableFulfillmentReceiving);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var deliverableFulfillment = ((ApiOkResponse)response).Result;
-            return Ok(deliverableFulfillment);
+            return await _deliverableFulfillmentService.AddDeliverableFulfillment(HttpContext, deliverableFulfillmentReceiving);
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateById(long id, DeliverableFulfillmentReceivingDTO deliverableFulfillmentReceivingDTO)
+        public async Task<ApiCommonResponse> UpdateById(long id, DeliverableFulfillmentReceivingDTO deliverableFulfillmentReceivingDTO)
         {
-            var response = await _deliverableFulfillmentService.UpdateDeliverableFulfillment(HttpContext, id, deliverableFulfillmentReceivingDTO);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var deliverableFulfillment = ((ApiOkResponse)response).Result;
-            return Ok(deliverableFulfillment);
+            return await _deliverableFulfillmentService.UpdateDeliverableFulfillment(HttpContext, id, deliverableFulfillmentReceivingDTO);
         }
 
         /*[HttpDelete("{id}")]
-        public async Task<ActionResult> DeleteById(int id)
+        public async Task<ApiCommonResponse> DeleteById(int id)
         {
-            var response = await _deliverableFulfillmentService.DeleteDeliverableFulfillment(id);
+            return await _deliverableFulfillmentService.DeleteDeliverableFulfillment(id);
             return StatusCode(response.StatusCode);
         }*/
 
         [HttpPost("ReAssignDeliverableFulfillment/{id}")]
-        public async Task<IActionResult> ReAssignDeliverableFulfillment(long id, DeliverableFulfillmentReceivingDTO deliverableFulfillmentReceivingDTO)
+        public async Task<ApiCommonResponse> ReAssignDeliverableFulfillment(long id, DeliverableFulfillmentReceivingDTO deliverableFulfillmentReceivingDTO)
         {
-            var response = await _deliverableFulfillmentService.ReAssignDeliverableFulfillment(HttpContext, id, deliverableFulfillmentReceivingDTO);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var deliverableFulfillment = ((ApiOkResponse)response).Result;
-            return Ok(deliverableFulfillment);
+            return await _deliverableFulfillmentService.ReAssignDeliverableFulfillment(HttpContext, id, deliverableFulfillmentReceivingDTO);
+            
         }
 
         [HttpPut("SetIsPicked/{id}")]
-        public async Task<IActionResult> SetIsPicked(long id)
+        public async Task<ApiCommonResponse> SetIsPicked(long id)
         {
-            var response = await _deliverableFulfillmentService.SetIsPicked(HttpContext, id);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var deliverableFulfillment = ((ApiOkResponse)response).Result;
-            return Ok(deliverableFulfillment);
+            return await _deliverableFulfillmentService.SetIsPicked(HttpContext, id);
         }
 
         [HttpPut("SetRequestedForValidation/{id}")]
-        public async Task<IActionResult> SetRequestedForValidation(long id, DeliverableFulfillmentApprovalReceivingDTO dto)
+        public async Task<ApiCommonResponse> SetRequestedForValidation(long id, DeliverableFulfillmentApprovalReceivingDTO dto)
         {
-            var response = await _deliverableFulfillmentService.SetRequestedForValidation(HttpContext, id, dto);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var deliverableFulfillment = ((ApiOkResponse)response).Result;
-            return Ok(deliverableFulfillment);
+            return await _deliverableFulfillmentService.SetRequestedForValidation(HttpContext, id, dto);
         }
 
         [HttpPut("SetDeliveredStatus/{id}")]
-        public async Task<IActionResult> SetDeliveredStatus(long id)
+        public async Task<ApiCommonResponse> SetDeliveredStatus(long id)
         {
-            var response = await _deliverableFulfillmentService.SetDeliveredStatus(HttpContext, id);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var deliverableFulfillment = ((ApiOkResponse)response).Result;
-            return Ok(deliverableFulfillment);
+            return await _deliverableFulfillmentService.SetDeliveredStatus(HttpContext, id);
         }
     }
 }

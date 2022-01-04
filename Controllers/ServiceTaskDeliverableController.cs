@@ -18,60 +18,41 @@ namespace HaloBiz.Controllers
         }
 
         [HttpGet("")]
-        public async Task<ActionResult> GetServiceTaskDeliverable()
+        public async Task<ApiCommonResponse> GetServiceTaskDeliverable()
         {
-            var response = await _serviceTaskDeliverableService.GetAllServiceTaskDeliverables();
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var serviceTaskDeliverable = ((ApiOkResponse)response).Result;
-            return Ok(serviceTaskDeliverable);
+            return await _serviceTaskDeliverableService.GetAllServiceTaskDeliverables(); 
         }
 
         [HttpGet("name/{name}")]
-        public async Task<ActionResult> GetByCaption(string name)
+        public async Task<ApiCommonResponse> GetByCaption(string name)
         {
-            var response = await _serviceTaskDeliverableService.GetServiceTaskDeliverableByName(name);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var ServiceTaskDeliverable = ((ApiOkResponse)response).Result;
-            return Ok(ServiceTaskDeliverable);
+            return await _serviceTaskDeliverableService.GetServiceTaskDeliverableByName(name); 
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult> GetById(long id)
+        public async Task<ApiCommonResponse> GetById(long id)
         {
-            var response = await _serviceTaskDeliverableService.GetServiceTaskDeliverableById(id);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var ServiceTaskDeliverable = ((ApiOkResponse)response).Result;
-            return Ok(ServiceTaskDeliverable);
+            return await _serviceTaskDeliverableService.GetServiceTaskDeliverableById(id); 
         }
 
         [HttpPost("")]
-        public async Task<ActionResult> AddNewServiceTaskDeliverable(ServiceTaskDeliverableReceivingDTO ServiceTaskDeliverableReceiving)
+        public async Task<ApiCommonResponse> AddNewServiceTaskDeliverable(ServiceTaskDeliverableReceivingDTO ServiceTaskDeliverableReceiving)
         {
-            var response = await _serviceTaskDeliverableService.AddServiceTaskDeliverable(HttpContext, ServiceTaskDeliverableReceiving);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var serviceTaskDeliverable = ((ApiOkResponse)response).Result;
-            return Ok(serviceTaskDeliverable);
+            return await _serviceTaskDeliverableService.AddServiceTaskDeliverable(HttpContext, ServiceTaskDeliverableReceiving);
+            
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateById(long id, ServiceTaskDeliverableReceivingDTO ServiceTaskDeliverableReceiving)
+        public async Task<ApiCommonResponse> UpdateById(long id, ServiceTaskDeliverableReceivingDTO ServiceTaskDeliverableReceiving)
         {
-            var response = await _serviceTaskDeliverableService.UpdateServiceTaskDeliverable(HttpContext, id, ServiceTaskDeliverableReceiving);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var serviceTaskDeliverable = ((ApiOkResponse)response).Result;
-            return Ok(serviceTaskDeliverable);
+            return await _serviceTaskDeliverableService.UpdateServiceTaskDeliverable(HttpContext, id, ServiceTaskDeliverableReceiving);
+             
         }
 
         [HttpDelete("{id}")]
-        public async Task<ActionResult> DeleteById(int id)
+        public async Task<ApiCommonResponse> DeleteById(int id)
         {
-            var response = await _serviceTaskDeliverableService.DeleteServiceTaskDeliverable(id);
-            return StatusCode(response.StatusCode);
+            return await _serviceTaskDeliverableService.DeleteServiceTaskDeliverable(id);
         }
     }
 }
