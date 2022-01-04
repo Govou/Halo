@@ -38,7 +38,8 @@ namespace HaloBiz.DTOs.TransferDTOs
         public UserProfile CreatedBy { get; set; }
         public long CreatedById { get; set; }
         public bool IsDeleted { get; set; }
-
+        public string AssignmentStatus { get; set; }
+        public bool ReadyStatus { get; set; }
         public DateTime PickoffTime { get; set; }
         public DateTime UpdatedAt { get; set; }
     }

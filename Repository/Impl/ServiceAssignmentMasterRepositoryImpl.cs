@@ -63,6 +63,13 @@ namespace HaloBiz.Repository.Impl
             return null;
         }
 
+        public async Task<bool> UpdateReadyStatus(MasterServiceAssignment serviceAssignment)
+        {
+            serviceAssignment.ReadyStatus = true;
+            _context.MasterServiceAssignments.Update(serviceAssignment);
+            return await SaveChanges();
+        }
+
         public async Task<MasterServiceAssignment> UpdateServiceAssignment(MasterServiceAssignment serviceAssignment)
         {
             var updatedEntity = _context.MasterServiceAssignments.Update(serviceAssignment);

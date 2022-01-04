@@ -15,5 +15,6 @@ namespace HaloBiz.MyServices
         Task<ApiResponse> GetMasterServiceAssignmentById(long id);
         Task<ApiResponse> UpdateMasterServiceAssignment(HttpContext context, long id, MasterServiceAssignmentReceivingDTO masterReceivingDTO);
         Task<ApiResponse> DeleteMasterServiceAssignment(long id);
+        Task<ApiResponse> UpdateReadyStatus(long id);
     }
 }

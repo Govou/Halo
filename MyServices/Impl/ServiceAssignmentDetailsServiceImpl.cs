@@ -453,6 +453,11 @@ namespace HaloBiz.MyServices.Impl
             {
                 return new ApiResponse(447);
             }
+
+            if(getVehicleDetailListById.Count() == getServiceRegistration.ArmedEscortQuantityRequired)
+            {
+
+            }
           
             var TransferDTO = _mapper.Map<VehicleServiceAssignmentDetailsTransferDTO>(master);
             return new ApiOkResponse(TransferDTO);
@@ -851,6 +856,11 @@ namespace HaloBiz.MyServices.Impl
 
             var TransferDTOs = _mapper.Map<VehicleServiceAssignmentDetailsTransferDTO>(updatedItem);
             return new ApiOkResponse(TransferDTOs);
+        }
+
+        public static void CheckForAllForRequiredResource()
+        {
+
         }
     }
 }

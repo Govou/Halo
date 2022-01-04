@@ -20,5 +20,6 @@ namespace HaloBiz.Repository
         Task<MasterServiceAssignment> UpdateServiceAssignment(MasterServiceAssignment serviceAssignment);
 
         Task<bool> DeleteServiceAssignment(MasterServiceAssignment serviceAssignment);
+        Task<bool> UpdateReadyStatus(MasterServiceAssignment serviceAssignment);
     }
 }

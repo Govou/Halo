@@ -147,5 +147,22 @@ namespace HaloBiz.MyServices.Impl
             var TransferDTOs = _mapper.Map<MasterServiceAssignmentTransferDTO>(updatedItem);
             return new ApiOkResponse(TransferDTOs);
         }
+
+        public async Task<ApiResponse> UpdateReadyStatus(long id)
+        {
+            var itemToDelete = await _serviceAssignmentMasterRepository.FindServiceAssignmentById(id);
+
+            if (itemToDelete == null)
+            {
+                return new ApiResponse(404);
+            }
+
+            if (!await _serviceAssignmentMasterRepository.UpdateReadyStatus(itemToDelete))
+            {
+                return new ApiResponse(500);
+            }
+
+            return new ApiOkResponse(true);
+        }
     }
 }
