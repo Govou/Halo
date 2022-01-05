@@ -5,9 +5,9 @@ namespace HaloBiz.MyServices
 {
     public interface IServiceRelationshipService
     {
-        Task<ApiResponse> FindServiceRelationshipByAdminId(long Id);
-        Task<ApiResponse> FindServiceRelationshipByDirectId(long Id); 
-        Task<ApiResponse> FindAllUnmappedDirects();
-        Task<ApiResponse> FindAllRelationships();
+        Task<ApiCommonResponse> FindServiceRelationshipByAdminId(long Id);
+        Task<ApiCommonResponse> FindServiceRelationshipByDirectId(long Id); 
+        Task<ApiCommonResponse> FindAllUnmappedDirects();
+        Task<ApiCommonResponse> FindAllRelationships();
     }
 }

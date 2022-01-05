@@ -23,59 +23,40 @@ namespace Controllers.Controllers
         }
 
         [HttpGet("")]
-        public async Task<ActionResult> GetOtherLeadCaptureInfo()
+        public async Task<ApiCommonResponse> GetOtherLeadCaptureInfo()
         {
-            var response = await _otherLeadCaptureInfoService.GetAllOtherLeadCaptureInfo();
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var otherLeadCaptureInfo = ((ApiOkResponse)response).Result;
-            return Ok(otherLeadCaptureInfo);
+            return await _otherLeadCaptureInfoService.GetAllOtherLeadCaptureInfo();
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult> GetById(long id)
+        public async Task<ApiCommonResponse> GetById(long id)
         {
-            var response = await _otherLeadCaptureInfoService.GetOtherLeadCaptureInfoById(id);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var otherLeadCaptureInfo = ((ApiOkResponse)response).Result;
-            return Ok(otherLeadCaptureInfo);
+            return await _otherLeadCaptureInfoService.GetOtherLeadCaptureInfoById(id);
         }
+
         [HttpGet("LeadDivision/{leadDivisionId}")]
-        public async Task<ActionResult> GetByLeadDivisionId(long leadDivisionId)
+        public async Task<ApiCommonResponse> GetByLeadDivisionId(long leadDivisionId)
         {
-            var response = await _otherLeadCaptureInfoService.GetOtherLeadCaptureInfoByLeadDivisionId(leadDivisionId);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var otherLeadCaptureInfo = ((ApiOkResponse)response).Result;
-            return Ok(otherLeadCaptureInfo);
+            return await _otherLeadCaptureInfoService.GetOtherLeadCaptureInfoByLeadDivisionId(leadDivisionId);
         }
 
         [HttpPost("")]
-        public async Task<ActionResult> AddNewOtherLeadCaptureInfo(OtherLeadCaptureInfoReceivingDTO otherLeadCaptureInfoReceiving)
+        public async Task<ApiCommonResponse> AddNewOtherLeadCaptureInfo(OtherLeadCaptureInfoReceivingDTO otherLeadCaptureInfoReceiving)
         {
-            var response = await _otherLeadCaptureInfoService.AddOtherLeadCaptureInfo(HttpContext, otherLeadCaptureInfoReceiving);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var otherLeadCaptureInfo = ((ApiOkResponse)response).Result;
-            return Ok(otherLeadCaptureInfo);
+            return await _otherLeadCaptureInfoService.AddOtherLeadCaptureInfo(HttpContext, otherLeadCaptureInfoReceiving);
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateById(long id, OtherLeadCaptureInfoReceivingDTO otherLeadCaptureInfoReceivingDTO)
+        public async Task<ApiCommonResponse> UpdateById(long id, OtherLeadCaptureInfoReceivingDTO otherLeadCaptureInfoReceivingDTO)
         {
-            var response = await _otherLeadCaptureInfoService.UpdateOtherLeadCaptureInfo(HttpContext, id, otherLeadCaptureInfoReceivingDTO);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var otherLeadCaptureInfo = ((ApiOkResponse)response).Result;
-            return Ok(otherLeadCaptureInfo);
+            return await _otherLeadCaptureInfoService.UpdateOtherLeadCaptureInfo(HttpContext, id, otherLeadCaptureInfoReceivingDTO);
+   
         }
 
         [HttpDelete("{id}")]
-        public async Task<ActionResult> DeleteById(int id)
+        public async Task<ApiCommonResponse> DeleteById(int id)
         {
-            var response = await _otherLeadCaptureInfoService.DeleteOtherLeadCaptureInfo(id);
-            return StatusCode(response.StatusCode);
+            return await _otherLeadCaptureInfoService.DeleteOtherLeadCaptureInfo(id);
         }
     }
 }

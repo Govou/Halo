@@ -7,11 +7,11 @@ namespace HaloBiz.MyServices
 {
     public interface IRequiredServiceDocumentService
     {
-        Task<ApiResponse> AddRequiredServiceDocument(HttpContext context, RequiredServiceDocumentReceivingDTO requiredServiceDocumentReceivingDTO);
-        Task<ApiResponse> GetAllRequiredServiceDocument();
-        Task<ApiResponse> GetRequiredServiceDocumentById(long id);
-        Task<ApiResponse> DeleteRequiredServiceDocument(long id);
-        Task<ApiResponse> UpdateRequiredServiceDocument(HttpContext context, long id, RequiredServiceDocumentReceivingDTO requiredServiceDocumentReceivingDTO);
-        Task<ApiResponse> GetRequiredServiceDocumentByName(string name);
+        Task<ApiCommonResponse> AddRequiredServiceDocument(HttpContext context, RequiredServiceDocumentReceivingDTO requiredServiceDocumentReceivingDTO);
+        Task<ApiCommonResponse> GetAllRequiredServiceDocument();
+        Task<ApiCommonResponse> GetRequiredServiceDocumentById(long id);
+        Task<ApiCommonResponse> DeleteRequiredServiceDocument(long id);
+        Task<ApiCommonResponse> UpdateRequiredServiceDocument(HttpContext context, long id, RequiredServiceDocumentReceivingDTO requiredServiceDocumentReceivingDTO);
+        Task<ApiCommonResponse> GetRequiredServiceDocumentByName(string name);
     }
 }

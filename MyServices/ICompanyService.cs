@@ -9,11 +9,11 @@ namespace HaloBiz.MyServices
 {
     public interface ICompanyService
     {
-        Task<ApiResponse> AddCompany(CompanyReceivingDTO companyReceivingDTO);
-        Task<ApiResponse> GetCompanyById(long id);
-        Task<ApiResponse> GetCompanyByName(string name);
-        Task<ApiResponse> GetAllCompanies();
-        Task<ApiResponse> UpdateCompany(long id, CompanyReceivingDTO companyReceivingDTO);
-       // Task<ApiResponse> DeleteCompany(long id);
+        Task<ApiCommonResponse> AddCompany(CompanyReceivingDTO companyReceivingDTO);
+        Task<ApiCommonResponse> GetCompanyById(long id);
+        Task<ApiCommonResponse> GetCompanyByName(string name);
+        Task<ApiCommonResponse> GetAllCompanies();
+        Task<ApiCommonResponse> UpdateCompany(long id, CompanyReceivingDTO companyReceivingDTO);
+       // Task<ApiCommonResponse> DeleteCompany(long id);
     }
 }

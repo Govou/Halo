@@ -7,11 +7,11 @@ namespace HaloBiz.MyServices
 {
     public interface  IZoneService
     {
-        Task<ApiResponse> AddZone(HttpContext context, ZoneReceivingDTO serviceCategoryTaskReceivingDTO);
-        Task<ApiResponse> GetAllZones();
-        Task<ApiResponse> GetZoneById(long id);
-        Task<ApiResponse> GetZoneByName(string name);
-        Task<ApiResponse> UpdateZone(HttpContext context, long id, ZoneReceivingDTO serviceCategoryTaskReceivingDTO);
-        Task<ApiResponse> DeleteZone(long id);
+        Task<ApiCommonResponse> AddZone(HttpContext context, ZoneReceivingDTO serviceCategoryTaskReceivingDTO);
+        Task<ApiCommonResponse> GetAllZones();
+        Task<ApiCommonResponse> GetZoneById(long id);
+        Task<ApiCommonResponse> GetZoneByName(string name);
+        Task<ApiCommonResponse> UpdateZone(HttpContext context, long id, ZoneReceivingDTO serviceCategoryTaskReceivingDTO);
+        Task<ApiCommonResponse> DeleteZone(long id);
     }
 }

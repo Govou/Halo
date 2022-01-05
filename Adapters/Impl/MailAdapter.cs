@@ -30,7 +30,7 @@ namespace HaloBiz.Adapters.Impl
             _context = context;
         }
 
-        public async Task<ApiResponse> SendUserAssignedToRoleMail(string message)
+        public async Task<ApiCommonResponse> SendUserAssignedToRoleMail(string message)
         {            
             var baseUrl = $"{_mailBaseUrl}/Mail/SendNewRoleAssigned";
 
@@ -47,16 +47,16 @@ namespace HaloBiz.Adapters.Impl
                        roleClaims = userProfile.Role.RoleClaims.Select(x => x.Name).ToArray()
                    }).ReceiveJson();
 
-                return new ApiOkResponse(true);
+                return CommonResponse.Send(ResponseCodes.SUCCESS);
             }
             catch (Exception ex)
             {
                 _logger.LogInformation(ex.Message);
                 _logger.LogInformation(ex.StackTrace);
-                return new ApiResponse(500, ex.Message);
+                return  CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
         }
-        public async Task<ApiResponse> SendNewDeliverableAssigned(string serializedDeliverable)
+        public async Task<ApiCommonResponse> SendNewDeliverableAssigned(string serializedDeliverable)
         {
             var baseUrl = $"{_mailBaseUrl}/Mail/SendNewDeliverableAssigned";
 
@@ -77,17 +77,17 @@ namespace HaloBiz.Adapters.Impl
                        deliverableName = deliverableFulfillment.Caption
                    }).ReceiveJson();
 
-                return new ApiOkResponse(true);
+               return CommonResponse.Send(ResponseCodes.SUCCESS);
             }
             catch (Exception ex)
             {
                 _logger.LogInformation(ex.Message);
                 _logger.LogInformation(ex.StackTrace);
-                return new ApiResponse(500, ex.Message);
+                return  CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
         }
 
-        public async Task<ApiResponse> SendNewTaskAssigned(string serializedTask, string operatingEntityName)
+        public async Task<ApiCommonResponse> SendNewTaskAssigned(string serializedTask, string operatingEntityName)
         {
             var baseUrl = $"{_mailBaseUrl}/Mail/NewTaskAssigned";
 
@@ -105,17 +105,17 @@ namespace HaloBiz.Adapters.Impl
                        taskName = task.Caption
                    }).ReceiveJson();
 
-                return new ApiOkResponse(true);
+                return CommonResponse.Send(ResponseCodes.SUCCESS);
             }
             catch (Exception ex)
             {
                 _logger.LogInformation(ex.Message);
                 _logger.LogInformation(ex.StackTrace);
-                return new ApiResponse(500, ex.Message);
+                return  CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
         }
 
-        public async Task<ApiResponse> SendNewUserSignup(string messsage)
+        public async Task<ApiCommonResponse> SendNewUserSignup(string messsage)
         {
             var baseUrl = $"{_mailBaseUrl}/Mail/SendNewUserSignup";
 
@@ -124,7 +124,7 @@ namespace HaloBiz.Adapters.Impl
             try
             {
                 var userName = $"{userProfile.FirstName} {userProfile.LastName}";
-                var response = await baseUrl.AllowAnyHttpStatus()
+                var response =  await baseUrl.AllowAnyHttpStatus()
                    .PostJsonAsync(new
                    {
                        emailAddress = userProfile.Email,
@@ -141,17 +141,17 @@ namespace HaloBiz.Adapters.Impl
                    }).ReceiveJson();
                 }
 
-                return new ApiOkResponse(true);
+                return CommonResponse.Send(ResponseCodes.SUCCESS);
             }
             catch (Exception ex)
             {
                 _logger.LogInformation(ex.Message);
                 _logger.LogInformation(ex.StackTrace);
-                return new ApiResponse(500, ex.Message);
+                return  CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
         }
 
-        public async Task<ApiResponse> AssignRoleToNewUser(string serializedUser, string adminEmails)
+        public async Task<ApiCommonResponse> AssignRoleToNewUser(string serializedUser, string adminEmails)
         {
             var baseUrl = $"{_mailBaseUrl}/Mail/AssignRoleToNewUser";
 
@@ -166,17 +166,17 @@ namespace HaloBiz.Adapters.Impl
                        emailAddress = JsonConvert.DeserializeObject<string[]>(adminEmails)
                    }).ReceiveJson();
 
-                return new ApiOkResponse(true);
+                return CommonResponse.Send(ResponseCodes.SUCCESS);
             }
             catch (Exception ex)
             {
                 _logger.LogInformation(ex.Message);
                 _logger.LogInformation(ex.StackTrace);
-                return new ApiResponse(500, ex.Message);
+                return  CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
         }
 
-        public async Task<ApiResponse> ApproveNewService(string serializedApproval)
+        public async Task<ApiCommonResponse> ApproveNewService(string serializedApproval)
         {
             var baseUrl = $"{_mailBaseUrl}/Mail/ApproveNewService";
 
@@ -203,17 +203,17 @@ namespace HaloBiz.Adapters.Impl
                     _logger.LogInformation($"Failed to send mail for approval {approvalInfo} due to missing parameters");
                 }
                                      
-                return new ApiOkResponse(true);
+                return CommonResponse.Send(ResponseCodes.SUCCESS);
             }
             catch (Exception ex)
             {
                 _logger.LogInformation(ex.Message);
                 _logger.LogInformation(ex.StackTrace);
-                return new ApiResponse(500, ex.Message);
+                return  CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
         }
 
-        public async Task<ApiResponse> ApproveNewQuoteService(string serializedApprovals)
+        public async Task<ApiCommonResponse> ApproveNewQuoteService(string serializedApprovals)
         {
             var baseUrl = $"{_mailBaseUrl}/Mail/ApproveNewQuoteService";
 
@@ -240,17 +240,17 @@ namespace HaloBiz.Adapters.Impl
                     _logger.LogError($"Failed to send mail for approval {approvalInfo} due to missing parameters");
                 }            
 
-                return new ApiOkResponse(true);
+                return CommonResponse.Send(ResponseCodes.SUCCESS);
             }
             catch (Exception ex)
             {
                 _logger.LogInformation(ex.Message);
                 _logger.LogInformation(ex.StackTrace);
-                return new ApiResponse(500, ex.Message);
+                return  CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
         }
 
-        public async Task<ApiResponse> SendQuoteNotification(string serializedQuote)
+        public async Task<ApiCommonResponse> SendQuoteNotification(string serializedQuote)
         {
             var baseUrl = $"{_mailBaseUrl}/Mail/SendQuoteNotification";
 
@@ -258,59 +258,58 @@ namespace HaloBiz.Adapters.Impl
 
             try
             {
-                var response = await baseUrl.AllowAnyHttpStatus()
-                   .PostJsonAsync(new
-                   {
-                       nameOfContact = quotesDetails.LeadDivision?.PrimaryContact?.FirstName,
-                       quoteservices = JsonConvert.SerializeObject(quotesDetails.QuoteServices.Select(x => x.Service.Name)),
-                       emailAddress = quotesDetails.LeadDivision?.PrimaryContact?.Email
-                   }).ReceiveJson();
+                var response = await baseUrl.AllowAnyHttpStatus().PostJsonAsync(new
+                {
+                    nameOfContact = quotesDetails.LeadDivision?.PrimaryContact?.FirstName,
+                    quoteservices = JsonConvert.SerializeObject(quotesDetails.QuoteServices.Select(x => x.Service.Name)),
+                    emailAddress = quotesDetails.LeadDivision?.PrimaryContact?.Email
+                }).ReceiveJson();
 
-                return new ApiOkResponse(true);
+                return CommonResponse.Send(ResponseCodes.SUCCESS);
             }
             catch (Exception ex)
             {
                 _logger.LogInformation(ex.Message);
                 _logger.LogInformation(ex.StackTrace);
-                return new ApiResponse(500, ex.Message);
+                return  CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
         }
 
-        public async Task<ApiResponse> SendPeriodicInvoice(InvoiceMailDTO invoiceMailDTO)
+        public async Task<ApiCommonResponse> SendPeriodicInvoice(InvoiceMailDTO invoiceMailDTO)
         {
             var baseUrl = $"{_mailBaseUrl}/Mail/SendPeriodicInvoice";
             try
             {
                 var response = await baseUrl.AllowAnyHttpStatus()
                    .PostJsonAsync(invoiceMailDTO).ReceiveJson();
-                return new ApiOkResponse(true);
+                return CommonResponse.Send(ResponseCodes.SUCCESS);
             }
             catch (Exception ex)
             {
                 _logger.LogInformation(ex.Message);
                 _logger.LogInformation(ex.StackTrace);
-                return new ApiResponse(500, ex.Message);
+                return  CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
         }
 
-        public async Task<ApiResponse> SendComplaintResolutionConfirmationMail(ConfirmComplaintResolutionMailDTO model)
+        public async Task<ApiCommonResponse> SendComplaintResolutionConfirmationMail(ConfirmComplaintResolutionMailDTO model)
         {
             var baseUrl = $"{_mailBaseUrl}/Mail/ComplaintResolutionConfirmation";
             try
             {
                 var response = await baseUrl.AllowAnyHttpStatus()
                    .PostJsonAsync(model).ReceiveJson();
-                return new ApiOkResponse(true);
+                return CommonResponse.Send(ResponseCodes.SUCCESS);
             }
             catch(Exception ex)
             {
                 _logger.LogInformation(ex.Message);
                 _logger.LogInformation(ex.StackTrace);
-                return new ApiResponse(500, ex.Message);
+                return  CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
         }
 
-        //public async Task<ApiResponse> LeadConversionTriggered(string serializedLeadtoClient)
+        //public async Task<ApiCommonResponse> LeadConversionTriggered(string serializedLeadtoClient)
         //{
         //    var baseUrl = $"{_mailBaseUrl}/Mail/LeadConversionTriggered";
 
@@ -318,7 +317,7 @@ namespace HaloBiz.Adapters.Impl
 
         //    try
         //    {
-        //        var response = await baseUrl.AllowAnyHttpStatus()
+        //        return await baseUrl.AllowAnyHttpStatus()
         //           .PostJsonAsync(new
         //           {
         //               nameOfContact = quotesDetails.LeadDivision?.PrimaryContact?.FirstName,
@@ -326,17 +325,17 @@ namespace HaloBiz.Adapters.Impl
         //               emailAddress = quotesDetails.LeadDivision?.PrimaryContact?.Email
         //           }).ReceiveJson();
 
-        //        return new ApiOkResponse(true);
+        //        return CommonResponse.Send(ResponseCodes.SUCCESS);
         //    }
         //    catch (Exception ex)
         //    {
         //        _logger.LogInformation(ex.Message);
         //        _logger.LogInformation(ex.StackTrace);
-        //        return new ApiResponse(500, ex.Message);
+        //        return  CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
         //    }
         //}
 
-        //public async Task<ApiResponse> LeadDroppedNotification(string serializedLead)
+        //public async Task<ApiCommonResponse> LeadDroppedNotification(string serializedLead)
         //{
         //    var baseUrl = $"{_mailBaseUrl}/Mail/LeadDroppedNotification";
 
@@ -345,20 +344,20 @@ namespace HaloBiz.Adapters.Impl
 
         //    try
         //    {
-        //        var response = await baseUrl.AllowAnyHttpStatus()
+        //        return await baseUrl.AllowAnyHttpStatus()
         //           .PostJsonAsync(new
         //           {
         //               leadName = leadDetails.DivisionName,
         //               emailAddress = userProfile.Email
         //           }).ReceiveJson();
 
-        //        return new ApiOkResponse(true);
+        //        return CommonResponse.Send(ResponseCodes.SUCCESS);
         //    }
         //    catch (Exception ex)
         //    {
         //        _logger.LogInformation(ex.Message);
         //        _logger.LogInformation(ex.StackTrace);
-        //        return new ApiResponse(500, ex.Message);
+        //        return  CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
         //    }
         //}
     }

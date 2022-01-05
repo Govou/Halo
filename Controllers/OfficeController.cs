@@ -22,60 +22,39 @@ namespace HaloBiz.Controllers
         }
 
         [HttpGet("")]
-        public async Task<ActionResult> GetOffices()
+        public async Task<ApiCommonResponse> GetOffices()
         {
-            var response = await _officeService.GetAllOffices();
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var offices = ((ApiOkResponse)response).Result;
-            return Ok(offices);
+            return await _officeService.GetAllOffices();
         }
 
         [HttpGet("name/{name}")]
-        public async Task<ActionResult> GetByName(string name)
+        public async Task<ApiCommonResponse> GetByName(string name)
         {
-            var response = await _officeService.GetOfficeByName(name);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var office = ((ApiOkResponse)response).Result;
-            return Ok(office);
+            return await _officeService.GetOfficeByName(name);
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult> GetById(long id)
+        public async Task<ApiCommonResponse> GetById(long id)
         {
-            var response = await _officeService.GetOfficeById(id);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var office = ((ApiOkResponse)response).Result;
-            return Ok(office);
+            return await _officeService.GetOfficeById(id);
         }
 
         [HttpPost("")]
-        public async Task<ActionResult> AddNewOffice(OfficeReceivingDTO officeReceivingDTO)
+        public async Task<ApiCommonResponse> AddNewOffice(OfficeReceivingDTO officeReceivingDTO)
         {
-            var response = await _officeService.AddOffice(officeReceivingDTO);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var office = ((ApiOkResponse)response).Result;
-            return Ok(office);
+            return await _officeService.AddOffice(officeReceivingDTO);
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateById(long id, OfficeReceivingDTO officeReceivingDTO)
+        public async Task<ApiCommonResponse> UpdateById(long id, OfficeReceivingDTO officeReceivingDTO)
         {
-            var response = await _officeService.UpdateOffice(id, officeReceivingDTO);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var office = ((ApiOkResponse)response).Result;
-            return Ok(office);
+            return await _officeService.UpdateOffice(id, officeReceivingDTO);
         }
 
         [HttpDelete("{id}")]
-        public async Task<ActionResult> DeleteById(int id)
+        public async Task<ApiCommonResponse> DeleteById(int id)
         {
-            var response = await _officeService.DeleteOffice(id);
-            return StatusCode(response.StatusCode);
+            return await _officeService.DeleteOffice(id);
         }
     }
 }

@@ -7,11 +7,11 @@ namespace HaloBiz.MyServices
 {
     public interface IMeansOfIdentificationService
     {
-        Task<ApiResponse> AddMeansOfIdentification(HttpContext context, MeansOfIdentificationReceivingDTO MeansOfIdentificationReceivingDTO);
-        Task<ApiResponse> GetAllMeansOfIdentification();
-        Task<ApiResponse> GetMeansOfIdentificationById(long id);
-        Task<ApiResponse> GetMeansOfIdentificationByName(string name);
-        Task<ApiResponse> UpdateMeansOfIdentification(HttpContext context, long id, MeansOfIdentificationReceivingDTO MeansOfIdentificationReceivingDTO);
-        Task<ApiResponse> DeleteMeansOfIdentification(long id);
+        Task<ApiCommonResponse> AddMeansOfIdentification(HttpContext context, MeansOfIdentificationReceivingDTO MeansOfIdentificationReceivingDTO);
+        Task<ApiCommonResponse> GetAllMeansOfIdentification();
+        Task<ApiCommonResponse> GetMeansOfIdentificationById(long id);
+        Task<ApiCommonResponse> GetMeansOfIdentificationByName(string name);
+        Task<ApiCommonResponse> UpdateMeansOfIdentification(HttpContext context, long id, MeansOfIdentificationReceivingDTO MeansOfIdentificationReceivingDTO);
+        Task<ApiCommonResponse> DeleteMeansOfIdentification(long id);
     }
 }

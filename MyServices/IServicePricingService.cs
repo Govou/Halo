@@ -10,12 +10,12 @@ namespace HaloBiz.MyServices
 {
     public interface IServicePricingService
     {
-        Task<ApiResponse> AddServicePricing(HttpContext context, ServicePricingReceivingDTO servicePricingReceivingDTO);
-        Task<ApiResponse> GetAllServicePricing();
-        Task<ApiResponse> GetServicePricingById(long id);
-        Task<ApiResponse> GetServicePricingByServiceId(long serviceId);
-        Task<ApiResponse> GetServicePricingByBranchId(long branchId);
-        Task<ApiResponse> UpdateServicePricing(HttpContext context, long id, ServicePricingReceivingDTO servicePricingReceivingDTO);
-        Task<ApiResponse> DeleteServicePricing(long id);
+        Task<ApiCommonResponse> AddServicePricing(HttpContext context, ServicePricingReceivingDTO servicePricingReceivingDTO);
+        Task<ApiCommonResponse> GetAllServicePricing();
+        Task<ApiCommonResponse> GetServicePricingById(long id);
+        Task<ApiCommonResponse> GetServicePricingByServiceId(long serviceId);
+        Task<ApiCommonResponse> GetServicePricingByBranchId(long branchId);
+        Task<ApiCommonResponse> UpdateServicePricing(HttpContext context, long id, ServicePricingReceivingDTO servicePricingReceivingDTO);
+        Task<ApiCommonResponse> DeleteServicePricing(long id);
     }
 }

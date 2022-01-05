@@ -8,11 +8,11 @@ namespace HaloBiz.MyServices.LAMS
 {
     public interface ILeadKeyPersonService
     {
-        Task<ApiResponse> AddLeadKeyPerson(HttpContext context, LeadKeyPersonReceivingDTO leadKeyPersonReceivingDTO);
-        Task<ApiResponse> GetAllLeadKeyPerson();
-        Task<ApiResponse> GetLeadKeyPersonById(long id);
-        Task<ApiResponse> UpdateLeadKeyPerson(HttpContext context, long id, LeadKeyPersonReceivingDTO leadKeyPersonReceivingDTO);
-        Task<ApiResponse> DeleteKeyPerson(long Id);
-        Task<ApiResponse> GetAllLeadKeyPersonsByLeadId(long leadId);
+        Task<ApiCommonResponse> AddLeadKeyPerson(HttpContext context, LeadKeyPersonReceivingDTO leadKeyPersonReceivingDTO);
+        Task<ApiCommonResponse> GetAllLeadKeyPerson();
+        Task<ApiCommonResponse> GetLeadKeyPersonById(long id);
+        Task<ApiCommonResponse> UpdateLeadKeyPerson(HttpContext context, long id, LeadKeyPersonReceivingDTO leadKeyPersonReceivingDTO);
+        Task<ApiCommonResponse> DeleteKeyPerson(long Id);
+        Task<ApiCommonResponse> GetAllLeadKeyPersonsByLeadId(long leadId);
     }
 }

@@ -47,7 +47,7 @@ namespace HaloBiz.MyServices.Impl
             this._logger = logger;
         }
 
-        public async Task<ApiResponse> AddSuspect(HttpContext context, SuspectReceivingDTO suspectReceivingDTO)
+        public async Task<ApiCommonResponse> AddSuspect(HttpContext context, SuspectReceivingDTO suspectReceivingDTO)
         {
 
             var suspect = _mapper.Map<Suspect>(suspectReceivingDTO);
@@ -55,56 +55,56 @@ namespace HaloBiz.MyServices.Impl
             var savedsuspect = await _suspectRepo.SaveSuspect(suspect);
             if (savedsuspect == null)
             {
-                return new ApiResponse(500);
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
             var suspectTransferDTO = _mapper.Map<SuspectTransferDTO>(suspect);
-            return new ApiOkResponse(suspectTransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,suspectTransferDTO);
         }
 
-        public async Task<ApiResponse> DeleteSuspect(long id)
+        public async Task<ApiCommonResponse> DeleteSuspect(long id)
         {
             var suspectToDelete = await _suspectRepo.FindSuspectById(id);
             if (suspectToDelete == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
 
             if (!await _suspectRepo.DeleteSuspect(suspectToDelete))
             {
-                return new ApiResponse(500);
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
 
-            return new ApiOkResponse(true);
+            return CommonResponse.Send(ResponseCodes.SUCCESS);
         }
 
-        public async Task<ApiResponse> GetAllSuspect()
+        public async Task<ApiCommonResponse> GetAllSuspect()
         {
             var suspects = await _suspectRepo.FindAllSuspects();
             if (suspects == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var suspectTransferDTO = _mapper.Map<IEnumerable<SuspectTransferDTO>>(suspects);
-            return new ApiOkResponse(suspectTransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,suspectTransferDTO);
         }
 
-        public async Task<ApiResponse> GetUserSuspects(HttpContext context)
+        public async Task<ApiCommonResponse> GetUserSuspects(HttpContext context)
         {
             var suspects = await _suspectRepo.FindAllUserSuspects(context.GetLoggedInUserId());
             if (suspects == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var suspectTransferDTO = _mapper.Map<IEnumerable<SuspectTransferDTO>>(suspects);
-            return new ApiOkResponse(suspectTransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,suspectTransferDTO);
         }
 
-        public async Task<ApiResponse> GetSuspectById(long id)
+        public async Task<ApiCommonResponse> GetSuspectById(long id)
         {
             var suspect = await _suspectRepo.FindSuspectById(id);
             if (suspect == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var suspectTransferDTOs = _mapper.Map<SuspectTransferDTO>(suspect);
 
@@ -131,26 +131,26 @@ namespace HaloBiz.MyServices.Impl
                 }
             }
 
-            return new ApiOkResponse(suspectTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,suspectTransferDTOs);
         }
 
-        /*public async Task<ApiResponse> GetSuspectByName(string name)
+        /*public async Task<ApiCommonResponse> GetSuspectByName(string name)
         {
             var suspect = await _suspectRepo.FindSuspectByName(name);
             if (suspect == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var suspectTransferDTOs = _mapper.Map<SuspectTransferDTO>(suspect);
-            return new ApiOkResponse(suspectTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,suspectTransferDTOs);
         }*/
 
-        public async Task<ApiResponse> UpdateSuspect(HttpContext context, long id, SuspectReceivingDTO suspectReceivingDTO)
+        public async Task<ApiCommonResponse> UpdateSuspect(HttpContext context, long id, SuspectReceivingDTO suspectReceivingDTO)
         {
             var suspectToUpdate = await _suspectRepo.FindSuspectById(id);
             if (suspectToUpdate == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
 
             var summary = $"Initial details before change, \n {suspectToUpdate.ToString()} \n";
@@ -164,7 +164,7 @@ namespace HaloBiz.MyServices.Impl
 
             if (updatedsuspect == null)
             {
-                return new ApiResponse(500);
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
             ModificationHistory history = new ModificationHistory()
             {
@@ -176,15 +176,15 @@ namespace HaloBiz.MyServices.Impl
             await _historyRepo.SaveHistory(history);
 
             var suspectTransferDTOs = _mapper.Map<SuspectTransferDTO>(updatedsuspect);
-            return new ApiOkResponse(suspectTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,suspectTransferDTOs);
         }
 
-        public async Task<ApiResponse> ConvertSuspect(HttpContext context, long suspectId)
+        public async Task<ApiCommonResponse> ConvertSuspect(HttpContext context, long suspectId)
         {
             var suspect = await _suspectRepo.FindSuspectById(suspectId);
             if (suspect == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);
             }
 
             var loggedInUserId = context.GetLoggedInUserId();
@@ -205,9 +205,9 @@ namespace HaloBiz.MyServices.Impl
                     RCNumber = suspect?.RCNumber,
                 });
 
-                if (leadSaveResponse is ApiOkResponse response)
+                if (!leadSaveResponse.responseCode.Contains("00"))
                 {
-                    var lead = (LeadTransferDTO)response.Result;
+                    var lead = (LeadTransferDTO) leadSaveResponse.responseData;
 
                     var savedLeadDivision = await _leadDivisionRepo.SaveLeadDivision(new LeadDivision 
                     {
@@ -231,7 +231,7 @@ namespace HaloBiz.MyServices.Impl
 
                     if (savedLeadDivision == null)
                     {
-                        return new ApiResponse(500);
+                        return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
                     }
 
                     suspect.LeadId = lead.Id;
@@ -241,11 +241,11 @@ namespace HaloBiz.MyServices.Impl
                     await _context.SaveChangesAsync();
 
                     await transaction.CommitAsync();
-                    return new ApiOkResponse(lead.ReferenceNo);
+                    return CommonResponse.Send(ResponseCodes.SUCCESS,lead.ReferenceNo);
                 }
                 else
                 {
-                    return new ApiResponse(leadSaveResponse.StatusCode, leadSaveResponse.Message);
+                    return  CommonResponse.Send(ResponseCodes.FAILURE);
                 }
             }
             catch (Exception ex)
@@ -253,7 +253,7 @@ namespace HaloBiz.MyServices.Impl
                 await transaction.RollbackAsync();
                 _logger.LogError(ex.Message);
                 _logger.LogError(ex.StackTrace);
-                return new ApiResponse(500, ex.Message);
+                return  CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }      
         }
     }

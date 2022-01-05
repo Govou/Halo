@@ -27,114 +27,70 @@ namespace HaloBiz.Controllers
         }
 
         [HttpGet("GetComplaintHandlingStats")]
-        public async Task<ActionResult> GetComplaintHandlingStats()
+        public async Task<ApiCommonResponse> GetComplaintHandlingStats()
         {
-            var response = await _complaintHandlingService.GetComplaintHandlingStats(HttpContext);
-            if (response.StatusCode != 200)
-                return StatusCode(response.StatusCode, response);
-            var returnData = ((ApiOkResponse)response).Result;
-            return Ok(returnData);
+            return await _complaintHandlingService.GetComplaintHandlingStats(HttpContext);
         }
 
         [HttpGet]
-        public async Task<ActionResult> GetComplaintsHandling()
+        public async Task<ApiCommonResponse> GetComplaintsHandling()
         {
-            var response = await _complaintHandlingService.GetComplaintsHandling(HttpContext);
-            if (response.StatusCode != 200)
-                return StatusCode(response.StatusCode, response);
-            var returnData = ((ApiOkResponse)response).Result;
-            return Ok(returnData);
+            return await _complaintHandlingService.GetComplaintsHandling(HttpContext);
         }
 
         [HttpPost]
-        public async Task<ActionResult> PickComplaint(PickComplaintDTO model)
+        public async Task<ApiCommonResponse> PickComplaint(PickComplaintDTO model)
         {
-            var response = await _complaintHandlingService.PickComplaint(HttpContext, model);
-            if (response.StatusCode != 200)
-                return StatusCode(response.StatusCode, response);
-            var returnData = ((ApiOkResponse)response).Result;
-            return Ok(returnData);
+            return await _complaintHandlingService.PickComplaint(HttpContext, model);
         }
 
         [HttpPost("MoveComplaintToNextStage")]
-        public async Task<ActionResult> MoveComplaintToNextStage(MoveComplaintToNextStageDTO model)
+        public async Task<ApiCommonResponse> MoveComplaintToNextStage(MoveComplaintToNextStageDTO model)
         {
             model.applicationUrl = _applicationUrl;
-            var response = await _complaintHandlingService.MoveComplaintToNextStage(HttpContext, model);
-            if (response.StatusCode != 200)
-                return StatusCode(response.StatusCode, response);
-            var returnData = ((ApiOkResponse)response).Result;
-            return Ok(returnData);
+            return await _complaintHandlingService.MoveComplaintToNextStage(HttpContext, model);
         }
 
         [HttpPost("TrackComplaint")]
-        public async Task<ActionResult> TrackComplaint(ComplaintTrackingRecievingDTO model)
+        public async Task<ApiCommonResponse> TrackComplaint(ComplaintTrackingRecievingDTO model)
         {
-            var response = await _complaintHandlingService.TrackComplaint(model);
-            if (response.StatusCode != 200)
-                return StatusCode(response.StatusCode, response);
-            var returnData = ((ApiOkResponse)response).Result;
-            return Ok(returnData);
+            return await _complaintHandlingService.TrackComplaint(model);
         }
 
         [HttpGet("GetUserEscalationLevelDetails")]
-        public async Task<ActionResult> GetUserEscalationLevelDetails()
+        public async Task<ApiCommonResponse> GetUserEscalationLevelDetails()
         {
-            var response = await _complaintHandlingService.GetUserEscalationLevelDetails(HttpContext);
-            if (response.StatusCode != 200)
-                return StatusCode(response.StatusCode, response);
-            var returnData = ((ApiOkResponse)response).Result;
-            return Ok(returnData);
+            return await _complaintHandlingService.GetUserEscalationLevelDetails(HttpContext);
         }
 
         [HttpGet("ConfirmComplaintResolved/{id}")]
-        public async Task<ActionResult> ConfirmComplaintResolved(long id)
+        public async Task<ApiCommonResponse> ConfirmComplaintResolved(long id)
         {
-            var response = await _complaintHandlingService.ConfirmComplaintResolved(id);
-            if (response.StatusCode != 200)
-                return StatusCode(response.StatusCode, response);
-            var returnData = ((ApiOkResponse)response).Result;
-            return Ok(returnData);
+            return await _complaintHandlingService.ConfirmComplaintResolved(id);
         }
 
         [HttpGet("RunComplaintConfirmationCronJob")]
-        public async Task<ActionResult> RunComplaintConfirmationCronJob()
+        public async Task<ApiCommonResponse> RunComplaintConfirmationCronJob()
         {
-            var response = await _complaintHandlingService.RunComplaintConfirmationCronJob();
-            if (response.StatusCode != 200)
-                return StatusCode(response.StatusCode, response);
-            var returnData = ((ApiOkResponse)response).Result;
-            return Ok(returnData);
+            return await _complaintHandlingService.RunComplaintConfirmationCronJob();
         }
 
         [HttpPost("AssignComplaintToUser")]
-        public async Task<ActionResult> AssignComplaintToUser(AssignComplaintReceivingDTO model)
+        public async Task<ApiCommonResponse> AssignComplaintToUser(AssignComplaintReceivingDTO model)
         {
-            var response = await _complaintHandlingService.AssignComplaintToUser(HttpContext, model);
-            if (response.StatusCode != 200)
-                return StatusCode(response.StatusCode, response);
-            var returnData = ((ApiOkResponse)response).Result;
-            return Ok(returnData);
+            return await _complaintHandlingService.AssignComplaintToUser(HttpContext, model);
         }
 
         [HttpGet("TrackComplaint/{complaintId}")]
-        public async Task<ActionResult> TrackComplaint(long complaintId)
+        public async Task<ApiCommonResponse> TrackComplaint(long complaintId)
         {
-            var response = await _complaintHandlingService.MiniTrackComplaint(complaintId);
-            if (response.StatusCode != 200)
-                return StatusCode(response.StatusCode, response);
-            var returnData = ((ApiOkResponse)response).Result;
-            return Ok(returnData);
+            return await _complaintHandlingService.MiniTrackComplaint(complaintId);
         }
 
         [HttpPost("HandlersRating")]
-        public async Task<ActionResult> HandlersRatings(HandlersRatingReceivingDTO model)
+        public async Task<ApiCommonResponse> HandlersRatings(HandlersRatingReceivingDTO model)
         {
-            var response = await _complaintHandlingService.GetHandlersRatings(model);
-            if (response.StatusCode != 200)
-                return StatusCode(response.StatusCode, response);
-            var returnData = ((ApiOkResponse)response).Result;
-            return Ok(returnData);
+            return await _complaintHandlingService.GetHandlersRatings(model);
         }
     }
 }
