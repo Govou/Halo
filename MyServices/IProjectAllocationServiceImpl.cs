@@ -106,7 +106,9 @@ namespace HaloBiz.MyServices
         Task<ApiCommonResponse> getBarChartDetails(HttpContext httpContext, long taskId);
         Task<ApiCommonResponse> getDeliverableStatus(HttpContext httpContext);
         Task<ApiCommonResponse> getAssignedDeliverableStatus(HttpContext httpContext, List<DeliverableStatusDTO> deliverableStatusDTOs);
-        Task<ApiCommonResponse> getWorkspaceWithStatus();
+        Task<ApiCommonResponse> getWorkspaceWithStatus(HttpContext httpContext);
+
+
 
         //Task<ApiCommonResponse> getAllPrivacyAccessByWorkspaceId(HttpContext httpContext, long workspaceId);
         //Task<ApiCommonResponse> getRequirementsByDeliverableId(HttpContext httpContext, long deliverableId);

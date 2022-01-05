@@ -700,21 +700,23 @@ namespace HaloBiz.MyServices.Impl
         }
 
 
-        public async  Task<ApiCommonResponse> getWorkspaceWithStatus()
+        public async  Task<ApiCommonResponse> getWorkspaceWithStatus(HttpContext httpContext)
         {
 
             var workspacesRoot = await _context.Workspaces
-                                 .Where(x=>x.IsActive == true)
+                                 .Where(x => x.IsActive == true)
                                  .Include(x => x.StatusFlows)
-                                 .Include(x => x.Projects)
-                                    .ThenInclude(x => x.Tasks)
-                                        .ThenInclude(x => x.Deliverables)
+                                    .ThenInclude(x => x.DeliverableStatuses.Where(x => x.IsDeleted == false))
+                                    .ThenInclude(x => x.Deliverable)
+                                 //.Include(x => x.Projects)
+                                 //   .ThenInclude(x => x.Tasks)
+                                 //       .ThenInclude(x => x.Deliverables)
                                  .ToListAsync();
             return CommonResponse.Send(ResponseCodes.SUCCESS, workspacesRoot);
 
 
             //var work = new Workspace();
-            //var status = new StatusFlow();
+           var status = new StatusFlow();
             //var deliverableStatus = new DeliverableStatus();
             //var deliverable = new Deliverable();
 

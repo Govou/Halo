@@ -461,7 +461,7 @@ namespace HaloBiz.Controllers
         [HttpGet("GetWorkspaceStatus")]
         public async Task<ActionResult> GetWorkspaceStatus()
         {
-            var response = await _projectAllocationService.getWorkspaceWithStatus();
+            var response = await _projectAllocationService.getWorkspaceWithStatus(HttpContext);
             return Ok(response);
         }
 
