@@ -104,8 +104,7 @@ namespace HaloBiz.Controllers
                 if (!payload.EmailVerified)
                 {
                     _logger.LogWarning($"Email verification failed. Payload => {JsonConvert.SerializeObject(payload)}");
-                    return CommonResponse.Send(ResponseCodes.FAILURE, null, "Email verification failed.");
-
+                    return CommonResponse.Send(ResponseCodes.INVALID_LOGIN_DETAILS, null, "Invalid login details.");
                 }
 
                 var email = payload.Email;
@@ -116,9 +115,8 @@ namespace HaloBiz.Controllers
                 
                 {
                     _logger.LogWarning($"Could not find user [{email}] => {response.responseData}");
-                    return CommonResponse.Send(ResponseCodes.FAILURE, null, "Could not find user.");
 
-
+                    return CommonResponse.Send(ResponseCodes.NO_USER_PROFILE_FOUND, null, "Could not find user.");
                 }
 
                 var user = response.responseData;

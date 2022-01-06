@@ -30,5 +30,6 @@ namespace HaloBiz.DTOs.TransferDTOs
 
         public double ToReceiptValue { get; set; }
         public double TotalReceiptApplied { get; set; }
+        public long? AdhocGroupingId { get; set; }
     }
 }
