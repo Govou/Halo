@@ -1,11 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using HalobizMigrations.Models;
 using HalobizMigrations.Models.ProjectManagement;
 
 namespace HaloBiz.DTOs.ProjectManagementDTO
 {
-    public class WorkspaceRoot
+    public class workspaceWithStatusDTO
     {
         public long Id { get; set; }
         public string Caption { get; set; }
@@ -14,10 +13,8 @@ namespace HaloBiz.DTOs.ProjectManagementDTO
         public string Alias { get; set; }
         public bool IsActive { get; set; }
         public string StatusFlowOption { get; set; }
-        public long CreatedById { get; set; }
+        public ICollection<statusWithDeliverable> statusFlows { get; set; }
         public DateTime CreatedAt { get; set; }
-        public ICollection<StatusFlow> StatusFlows { get; set; }
-        public UserProfile userprofile { get; set; }
-
+        public DateTime UpdatedAt { get; set; }
     }
 }

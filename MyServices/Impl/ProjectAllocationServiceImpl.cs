@@ -638,87 +638,186 @@ namespace HaloBiz.MyServices.Impl
         }
 
 
-        public async Task<ApiCommonResponse> getDeliverableStatus(HttpContext httpContext)
+        //public async Task<ApiCommonResponse> getDeliverableStatus(HttpContext httpContext)
+        //{
+        //    var getAllAssignedDeliverable = await _context.AssignTasks.Where(x => x.IsActive == true && x.DeliverableAssigneeId == httpContext.GetLoggedInUserId()).ToListAsync();
+
+        //    if(getAllAssignedDeliverable.Count == 0)
+        //    {
+        //        return CommonResponse.Send
+        //        (
+
+        //        ResponseCodes.FAILURE,
+        //        null,
+        //        "User with id " + httpContext.GetLoggedInUserId() + " was not assigned to any deliverable."
+        //        );
+        //    }
+
+        //    else
+        //    {
+        //        var deliverableArray = new List<DeliverableStatusDTO>();
+        //        foreach(var assignee in getAllAssignedDeliverable)
+        //        {
+        //            var deliverable = await _context.Deliverables.FirstOrDefaultAsync(x => x.IsActive == true && x.Id == assignee.DeliverableId);
+        //            if(deliverable != null)
+        //            {
+        //                var deliverableInstance = new DeliverableStatusDTO();
+        //                deliverableInstance.Alias = deliverable.Alias;
+        //                deliverableInstance.Caption = deliverable.Caption;
+        //                deliverableInstance.Description = deliverable.Description;
+        //                deliverableInstance.Budget = deliverable.Budget;
+        //                deliverableInstance.CreatedAt = deliverable.CreatedAt;
+        //                deliverableInstance.CreatedById = deliverable.CreatedById;
+        //                deliverableInstance.DatePicked = deliverable.DatePicked;
+        //                deliverableInstance.DependentType = deliverable.DependentType;
+        //                deliverableInstance.Dependencies = await _context.Dependencies.Where(x => x.DependencyDeliverableId == deliverable.Id).ToListAsync();
+        //                deliverableInstance.EndDate = deliverable.EndDate;
+        //                deliverableInstance.Id = deliverable.Id;
+        //                deliverableInstance.IsActive = deliverable.IsActive;
+        //                deliverableInstance.PMIllustrations = await _context.PMIllustrations.Where(x => x.IsActive == true && x.TaskOrDeliverableId == deliverable.Id).ToListAsync();
+        //                deliverableInstance.Requirements = await _context.PMRequirements.Where(x => x.IsActive == true && x.DeliverableId == deliverable.Id).ToListAsync();
+        //                deliverableInstance.StartDate = deliverable.StartDate;
+        //                deliverableInstance.TaskId = deliverable.TaskId;
+        //                deliverableInstance.TimeEstimate = deliverable.TimeEstimate;
+        //                deliverableInstance.UpdatedAt = deliverable.UpdatedAt;
+        //                deliverableInstance.AssignDeliverable = await _context.AssignTasks.Where(x => x.IsActive == true && x.DeliverableId == deliverable.Id).FirstOrDefaultAsync();
+        //                deliverableInstance.statusFlows = await getDeliverableStatusFlow(httpContext,deliverable.TaskId);
+        //                deliverableInstance.Workspace = await getDeliverableWorkspace(httpContext, deliverable.TaskId);
+        //                deliverableArray.Add(deliverableInstance);
+
+        //            }
+        //        }
+
+        //        return CommonResponse.Send
+        //        (
+
+        //        ResponseCodes.SUCCESS,
+        //        deliverableArray,
+        //        ResponseMessage.EntitySuccessfullyFound
+        //        );
+        //    }
+
+        //}
+
+
+        public async Task<ApiCommonResponse> getWorkspaceWithStatus(HttpContext httpContext)
         {
-            var getAllAssignedDeliverable = await _context.AssignTasks.Where(x => x.IsActive == true && x.DeliverableAssigneeId == httpContext.GetLoggedInUserId()).ToListAsync();
 
-            if(getAllAssignedDeliverable.Count == 0)
+
+            var testQuery = await _context.AssignTasks.Where(x => x.DeliverableAssigneeId == httpContext.GetLoggedInUserId() && x.IsActive == true)
+                                                        .Include(x => x.Deliverable)
+                                                        .ThenInclude(x => x.Task)
+                                                        .ThenInclude(x => x.Project)
+                                                        .ThenInclude(x => x.Workspace)
+                                                            .ThenInclude(x => x.StatusFlows)
+                                                        .ToListAsync();
+
+
+
+            var workspaceArray = new List<Workspace>();
+            foreach (var assignTask in testQuery)
             {
-                return CommonResponse.Send
-                (
+                var relatedWorkspace = assignTask.Deliverable.Task.Project.Workspace;
+                workspaceArray.Add(relatedWorkspace);
 
-                ResponseCodes.FAILURE,
-                null,
-                "User with id " + httpContext.GetLoggedInUserId() + " was not assigned to any deliverable."
-                );
             }
 
-            else
+            var workspaceResult = workspaceArray.GroupBy(p => p.Id)
+                           .Select(result => result.First())
+                           .ToArray();
+
+
+            var finalResult = await getWorkspaceWithUser(httpContext, workspaceResult.ToList());
+
+            return CommonResponse.Send(ResponseCodes.SUCCESS, finalResult);
+
+
+            
+        }
+
+
+        public async Task<List<WorkspaceRoot>> getWorkspaceWithUser(HttpContext httpContext,List<Workspace> workspaces)
+        {
+            var workspaceArray = new List<WorkspaceRoot>();
+            foreach(var workspace in workspaces)
             {
-                var deliverableArray = new List<DeliverableStatusDTO>();
-                foreach(var assignee in getAllAssignedDeliverable)
+                var workspaceInstance = new WorkspaceRoot();
+                workspaceInstance.Caption = workspace.Caption;
+                workspaceInstance.Alias = workspace.Alias;
+                workspaceInstance.Description = workspace.Description;
+                workspaceInstance.Id = workspace.Id;
+                workspaceInstance.IsActive = workspace.IsActive;
+                workspaceInstance.IsPublic = workspace.IsPublic;
+                workspaceInstance.CreatedById = workspace.CreatedById;
+                workspaceInstance.StatusFlowOption = workspace.StatusFlowOption;
+                workspaceInstance.StatusFlows = workspace.StatusFlows;
+                workspaceInstance.CreatedAt = workspace.CreatedAt;
+                workspaceInstance.userprofile = await _context.UserProfiles.FirstOrDefaultAsync(x => x.Id == workspaceInstance.CreatedById);
+                workspaceArray.Add(workspaceInstance);
+            }
+
+            return workspaceArray;
+            
+        }
+
+
+
+        public async Task<ApiCommonResponse> getCurrentDeliverableStatus(HttpContext httpContext,List<StatusFlow> statusFlows)
+        {
+           
+            var deliverableArray = new List<DeliverableWithStatusDTO>();
+            foreach (var status in statusFlows)
+            {
+
+                var deliverablesStatuses = await _context.DeliverableStatuses.Where(x => x.IsDeleted == false && x.StatusId == status.Id).ToListAsync();
+                
+                
+                if(deliverablesStatuses.Count > 0)
                 {
-                    var deliverable = await _context.Deliverables.FirstOrDefaultAsync(x => x.IsActive == true && x.Id == assignee.DeliverableId);
-                    if(deliverable != null)
+                    foreach(var deliverableStatus in deliverablesStatuses)
                     {
-                        var deliverableInstance = new DeliverableStatusDTO();
-                        deliverableInstance.Alias = deliverable.Alias;
+
+                        var deliverable = await _context.Deliverables.Where(x => x.IsActive == true && x.Id == deliverableStatus.DeliverableId).FirstOrDefaultAsync();
+
+                        var deliverableInstance = new DeliverableWithStatusDTO();
                         deliverableInstance.Caption = deliverable.Caption;
+                        deliverableInstance.Alias = deliverable.Alias;
                         deliverableInstance.Description = deliverable.Description;
+                        deliverableInstance.AssignTask = await _context.AssignTasks.FirstOrDefaultAsync(x => x.IsActive == true && x.DeliverableId == deliverable.Id);
+                        deliverableInstance.AssignTaskId = deliverable.AssignTaskId;
+                        deliverableInstance.Balances = await _context.Balances.Where(x => x.DeliverableId == deliverable.Id).ToListAsync();
                         deliverableInstance.Budget = deliverable.Budget;
                         deliverableInstance.CreatedAt = deliverable.CreatedAt;
                         deliverableInstance.CreatedById = deliverable.CreatedById;
                         deliverableInstance.DatePicked = deliverable.DatePicked;
-                        deliverableInstance.DependentType = deliverable.DependentType;
+                        deliverableInstance.DeliverableAssignees = await _context.DeliverableAssignees.Where(x => x.IsActive == true && x.DeliverableId == deliverable.Id).ToListAsync();
                         deliverableInstance.Dependencies = await _context.Dependencies.Where(x => x.DependencyDeliverableId == deliverable.Id).ToListAsync();
+                        deliverableInstance.DependentType = deliverable.DependentType;
+                        deliverableInstance.Documents = await _context.Documents.Where(x => x.DeliverableId == deliverable.Id).ToListAsync();
                         deliverableInstance.EndDate = deliverable.EndDate;
                         deliverableInstance.Id = deliverable.Id;
                         deliverableInstance.IsActive = deliverable.IsActive;
-                        deliverableInstance.PMIllustrations = await _context.PMIllustrations.Where(x => x.IsActive == true && x.TaskOrDeliverableId == deliverable.Id).ToListAsync();
-                        deliverableInstance.Requirements = await _context.PMRequirements.Where(x => x.IsActive == true && x.DeliverableId == deliverable.Id).ToListAsync();
+                        deliverableInstance.Notes = deliverable.Notes;
+                        deliverableInstance.Pictures = await _context.Pictures.Where(x => x.DeliverableId == deliverable.Id).ToListAsync();
+                        deliverableInstance.Requirements = await _context.PMRequirements.Where(x => x.DeliverableId == deliverable.Id && x.IsActive == true).ToListAsync();
                         deliverableInstance.StartDate = deliverable.StartDate;
+                        deliverableInstance.StatusFlow = status;
+                        deliverableInstance.Task = await _context.Tasks.Where(x => x.IsActive == true && x.Id == deliverable.TaskId).Include(x => x.Project).FirstOrDefaultAsync();
                         deliverableInstance.TaskId = deliverable.TaskId;
                         deliverableInstance.TimeEstimate = deliverable.TimeEstimate;
                         deliverableInstance.UpdatedAt = deliverable.UpdatedAt;
-                        deliverableInstance.AssignDeliverable = await _context.AssignTasks.Where(x => x.IsActive == true && x.DeliverableId == deliverable.Id).FirstOrDefaultAsync();
-                        deliverableInstance.statusFlows = await getDeliverableStatusFlow(httpContext,deliverable.TaskId);
-                        deliverableInstance.Workspace = await getDeliverableWorkspace(httpContext, deliverable.TaskId);
+                        deliverableInstance.Videos = await _context.Videos.Where(x => x.DeliverableId == deliverable.Id).ToListAsync();
+                        deliverableInstance.userProfile = await _context.UserProfiles.FirstOrDefaultAsync(x => x.Id == deliverable.CreatedById);
+
                         deliverableArray.Add(deliverableInstance);
-                        
                     }
+
                 }
 
-                return CommonResponse.Send
-                (
 
-                ResponseCodes.SUCCESS,
-                deliverableArray,
-                ResponseMessage.EntitySuccessfullyFound
-                );
             }
 
-        }
-
-
-        public async  Task<ApiCommonResponse> getWorkspaceWithStatus(HttpContext httpContext)
-        {
-
-            var workspacesRoot = await _context.Workspaces
-                                 .Where(x => x.IsActive == true)
-                                 .Include(x => x.StatusFlows)
-                                    .ThenInclude(x => x.DeliverableStatuses.Where(x => x.IsDeleted == false))
-                                    .ThenInclude(x => x.Deliverable)
-                                 //.Include(x => x.Projects)
-                                 //   .ThenInclude(x => x.Tasks)
-                                 //       .ThenInclude(x => x.Deliverables)
-                                 .ToListAsync();
-            return CommonResponse.Send(ResponseCodes.SUCCESS, workspacesRoot);
-
-
-            //var work = new Workspace();
-           var status = new StatusFlow();
-            //var deliverableStatus = new DeliverableStatus();
-            //var deliverable = new Deliverable();
+            return CommonResponse.Send(ResponseCodes.SUCCESS, deliverableArray, ResponseMessage.EntitySuccessfullyFound);
 
         }
 
@@ -769,7 +868,7 @@ namespace HaloBiz.MyServices.Impl
                         statusDTO.Panthone = firstStatus.Panthone;
                         //statusDTO.deliverableDTO = await getDeliverableDTO(httpContext,deliverable.Id);
                         statusDTO.deliverableDTO.Add(deliverable);
-                        workspaceStatus.StatusCategoryDTO.Add(statusDTO);
+                        //workspaceStatus.StatusCategoryDTO.Add(statusDTO);
                         //statusDToList.Add(statusDTO);
 
                         deliverableStatusInstance.Version = 0;
@@ -804,7 +903,7 @@ namespace HaloBiz.MyServices.Impl
                         statusDTO.LevelCount = getStatus.LevelCount;
                         statusDTO.Panthone = getStatus.Panthone;
                         statusDTO.deliverableDTO.Add(deliverable);
-                        workspaceStatus.StatusCategoryDTO.Add(statusDTO);
+                        //workspaceStatus.StatusCategoryDTO.Add(statusDTO);
                         //statusDToList.Add(statusDTO);
 
                     }
@@ -1726,7 +1825,7 @@ namespace HaloBiz.MyServices.Impl
             var distinctAssigneeId = getUpdatedAssigneeById.GroupBy(x => x.TaskAssigneeId)
                         .Select(g => g.First())
                         .ToList();
-            return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);
+            return CommonResponse.Send(ResponseCodes.SUCCESS, distinctAssigneeId);
 
 
 
@@ -1850,7 +1949,7 @@ namespace HaloBiz.MyServices.Impl
                var getAssigndDeliverable = await _context.AssignTasks.FirstOrDefaultAsync(x => x.IsActive == true && x.Id == assigneDeliverableId && x.DeliverableId == deliverableId);
            
 
-                if (assigneDeliverableId > 0)
+                if (assigneDeliverableId != 0)
                 {
 
                     if (assignDeliverableDTO.DeliverableAssigneeId == null)
@@ -1867,20 +1966,62 @@ namespace HaloBiz.MyServices.Impl
 
                else
                 {
+                    var deliverableToBeAssigned = new AssignTask();
 
-                    var deliverableToBeAssigned = new AssignTask
+                    if(assignDeliverableDTO.DeliverableAssigneeId != 0)
                     {
-                        IsActive = true,
-                        Caption = assignDeliverableDTO.Caption,
-                        Alias = assignDeliverableDTO.Alias,
-                        Description = assignDeliverableDTO.Description,
-                        Priority = assignDeliverableDTO.Priority,
-                        DeliverableId = assignDeliverableDTO.DeliverableId,
-                        DeliverableAssigneeId = assignDeliverableDTO.DeliverableAssigneeId,
-                        DueDate = assignDeliverableDTO.DueDate,
-                        CreatedById = context.GetLoggedInUserId(),
-                        CreatedAt = DateTime.Now
-                    };
+                    deliverableToBeAssigned.IsActive = true;
+                    deliverableToBeAssigned.Caption = assignDeliverableDTO.Caption;
+                    deliverableToBeAssigned.Alias = assignDeliverableDTO.Alias;
+                    deliverableToBeAssigned.Description = assignDeliverableDTO.Description;
+                    deliverableToBeAssigned.Priority = assignDeliverableDTO.Priority;
+                    deliverableToBeAssigned.DeliverableId = assignDeliverableDTO.DeliverableId;
+                    deliverableToBeAssigned.DeliverableAssigneeId = assignDeliverableDTO.DeliverableAssigneeId;
+                    deliverableToBeAssigned.DueDate = assignDeliverableDTO.DueDate;
+                    deliverableToBeAssigned.CreatedById = context.GetLoggedInUserId();
+                    deliverableToBeAssigned.CreatedAt = DateTime.Now;
+                    
+
+
+
+                    var getStatuses = await _context.Deliverables.Where(x => x.Id == assignDeliverableDTO.DeliverableAssigneeId && x.IsActive == true)
+                                                     .Include(x => x.Task)
+                                                     .ThenInclude(x => x.Project)
+                                                     .ThenInclude(x => x.Workspace)
+                                                     .ThenInclude(x => x.StatusFlows)
+                                                     .FirstOrDefaultAsync();
+
+                    var firstStatus = getStatuses.Task.Project.Workspace.StatusFlows.First();
+
+                    var deliverableStatusInstance = new DeliverableStatus();
+                    deliverableStatusInstance.Version = 0;
+                    deliverableStatusInstance.StatusId = firstStatus.Id;
+                    deliverableStatusInstance.IsDeleted = false;
+                    deliverableStatusInstance.DeliverableId = deliverableToBeAssigned.DeliverableId;
+                    deliverableStatusInstance.CreatedAt = DateTime.Now;
+                    deliverableStatusInstance.CreatedById = context.GetLoggedInUserId();
+
+                    await _context.DeliverableStatuses.AddAsync(deliverableStatusInstance);
+                    await _context.SaveChangesAsync();
+
+                }
+
+                else
+                {
+                    deliverableToBeAssigned.IsActive = true;
+                    deliverableToBeAssigned.Caption = assignDeliverableDTO.Caption;
+                    deliverableToBeAssigned.Alias = assignDeliverableDTO.Alias;
+                    deliverableToBeAssigned.Description = assignDeliverableDTO.Description;
+                    deliverableToBeAssigned.Priority = assignDeliverableDTO.Priority;
+                    deliverableToBeAssigned.DeliverableId = assignDeliverableDTO.DeliverableId;
+                    deliverableToBeAssigned.DeliverableAssigneeId = assignDeliverableDTO.DeliverableAssigneeId;
+                    deliverableToBeAssigned.DueDate = assignDeliverableDTO.DueDate;
+                    deliverableToBeAssigned.CreatedById = context.GetLoggedInUserId();
+                    deliverableToBeAssigned.CreatedAt = DateTime.Now;
+
+                }
+
+                    
                     await _context.AssignTasks.AddAsync(deliverableToBeAssigned);
                     await _context.SaveChangesAsync();
             }

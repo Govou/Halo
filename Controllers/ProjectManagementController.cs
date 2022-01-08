@@ -451,12 +451,12 @@ namespace HaloBiz.Controllers
             return Ok(response);
         }
 
-        [HttpGet("GetDeliverableStatus")]
-        public async Task<ActionResult> GetDeliverableStatus()
-        {
-            var response = await _projectAllocationService.getDeliverableStatus(HttpContext);
-            return Ok(response);
-        }
+        //[HttpGet("GetDeliverableStatus")]
+        //public async Task<ActionResult> GetDeliverableStatus()
+        //{
+        //    var response = await _projectAllocationService.getDeliverableStatus(HttpContext);
+        //    return Ok(response);
+        //}
 
         [HttpGet("GetWorkspaceStatus")]
         public async Task<ActionResult> GetWorkspaceStatus()
@@ -466,9 +466,9 @@ namespace HaloBiz.Controllers
         }
 
         [HttpPost("GetAssignedDeliverableStatus")]
-        public async Task<ActionResult> GetAssignedDeliverableStatus(List<DeliverableStatusDTO> deliverableStatusDTOs)
+        public async Task<ActionResult> GetAssignedDeliverableStatus(List<StatusFlow> statusFlows)
         {
-            var response = await _projectAllocationService.getAssignedDeliverableStatus(HttpContext,deliverableStatusDTOs);
+            var response = await _projectAllocationService.getCurrentDeliverableStatus(HttpContext, statusFlows);
             return Ok(response);
         }
 
