@@ -55,6 +55,8 @@ namespace HaloBiz.DTOs.TransferDTOs.LAMS
         public virtual UserProfile CreatedBy { get; set; }
         public string GroupInvoiceNumber { get; set; }
         public double AdHocInvoicedAmount { get; set; }
+        public string AdminDirectTie { get; set; }
+        public string UniqueTag { get; set; }
     }
     public class ContractServiceForContractTransferDTO
     {
