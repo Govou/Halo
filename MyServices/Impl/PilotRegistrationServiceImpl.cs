@@ -128,19 +128,19 @@ namespace HaloBiz.MyServices.Impl
             return CommonResponse.Send(ResponseCodes.SUCCESS,TransferDTO);
         }
 
-        public async Task<ApiCommonResponse> GetPilotById(long id)
-        public async Task<ApiResponse> GetAllPilotTiesByResourceId(long resourceId)
+        
+        public async Task<ApiCommonResponse> GetAllPilotTiesByResourceId(long resourceId)
         {
             var pilot = await _pilotProfileRepository.FindPilotTieByResourceId(resourceId);
             if (pilot == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);
             }
             var TransferDTO = _mapper.Map<IEnumerable<PilotSMORoutesResourceTieTransferDTO>>(pilot);
-            return new ApiOkResponse(TransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS, TransferDTO);
         }
 
-        public async Task<ApiResponse> GetPilotById(long id)
+        public async Task<ApiCommonResponse> GetPilotById(long id)
         {
             var pilot = await _pilotProfileRepository.FindPilotById(id);
             if (pilot == null)

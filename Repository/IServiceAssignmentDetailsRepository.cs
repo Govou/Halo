@@ -12,6 +12,7 @@ namespace HaloBiz.Repository
         Task<ArmedEscortServiceAssignmentDetail> SaveEscortServiceAssignmentdetail(ArmedEscortServiceAssignmentDetail serviceAssignmentDetail);
 
         Task<ArmedEscortServiceAssignmentDetail> FindEscortServiceAssignmentDetailById(long Id);
+        Task<ArmedEscortServiceAssignmentDetail> FindEscortServiceAssignmentDetailByAssignmentId(long Id);
         Task<ArmedEscortServiceAssignmentDetail> FindEscortServiceAssignmentDetailByResourceId(long resourceId);
 
         Task<IEnumerable<ArmedEscortServiceAssignmentDetail>> FindAllEscortServiceAssignmentDetails();
@@ -22,11 +23,13 @@ namespace HaloBiz.Repository
         Task<ArmedEscortServiceAssignmentDetail> UpdateEscortServiceAssignmentDetail(ArmedEscortServiceAssignmentDetail serviceAssignmentDetail);
 
         Task<bool> DeleteEscortServiceAssignmentDetail(ArmedEscortServiceAssignmentDetail serviceAssignmentDetail);
+        Task<bool> DeleteEscortServiceAssignmentDetailByAssignmentId(ArmedEscortServiceAssignmentDetail serviceAssignmentDetail);
 
         //Commander
         Task<CommanderServiceAssignmentDetail> SaveCommanderServiceAssignmentdetail(CommanderServiceAssignmentDetail serviceAssignmentDetail);
 
         Task<CommanderServiceAssignmentDetail> FindCommanderServiceAssignmentDetailById(long Id);
+        Task<CommanderServiceAssignmentDetail> FindCommanderServiceAssignmentDetailByAssignmentId(long Id);
         Task<CommanderServiceAssignmentDetail> FindCommanderServiceAssignmentDetailByResourceId(long resourceId);
 
         Task<IEnumerable<CommanderServiceAssignmentDetail>> FindAllCommanderServiceAssignmentDetails();
@@ -37,11 +40,13 @@ namespace HaloBiz.Repository
         Task<CommanderServiceAssignmentDetail> UpdateCommanderServiceAssignmentDetail(CommanderServiceAssignmentDetail serviceAssignmentDetail);
 
         Task<bool> DeleteCommanderServiceAssignmentDetail(CommanderServiceAssignmentDetail serviceAssignmentDetail);
+        Task<bool> DeleteCommanderServiceAssignmentDetailByAssignmentId(CommanderServiceAssignmentDetail serviceAssignmentDetail);
 
         //Pilot
         Task<PilotServiceAssignmentDetail> SavePilotServiceAssignmentdetail(PilotServiceAssignmentDetail serviceAssignmentDetail);
 
         Task<PilotServiceAssignmentDetail> FindPilotServiceAssignmentDetailById(long Id);
+        Task<PilotServiceAssignmentDetail> FindPilotServiceAssignmentDetailByAssignmentId(long Id);
         Task<PilotServiceAssignmentDetail> FindPilotServiceAssignmentDetailByResourceId(long resourceId);
 
         Task<IEnumerable<PilotServiceAssignmentDetail>> FindAllPilotServiceAssignmentDetails();
@@ -52,11 +57,13 @@ namespace HaloBiz.Repository
         Task<PilotServiceAssignmentDetail> UpdatePilotServiceAssignmentDetail(PilotServiceAssignmentDetail serviceAssignmentDetail);
 
         Task<bool> DeletePilotServiceAssignmentDetail(PilotServiceAssignmentDetail serviceAssignmentDetail);
+        Task<bool> DeletePilotServiceAssignmentDetailByAssignmentId(PilotServiceAssignmentDetail serviceAssignmentDetail);
 
         //Vehicle
         Task<VehicleServiceAssignmentDetail> SaveVehicleServiceAssignmentdetail(VehicleServiceAssignmentDetail serviceAssignmentDetail);
 
         Task<VehicleServiceAssignmentDetail> FindVehicleServiceAssignmentDetailById(long Id);
+        Task<VehicleServiceAssignmentDetail> FindVehicleServiceAssignmentDetailByAssignmentId(long Id);
         Task<VehicleServiceAssignmentDetail> FindVehicleServiceAssignmentDetailByResourceId(long resourceId);
 
         Task<IEnumerable<VehicleServiceAssignmentDetail>> FindAllVehicleServiceAssignmentDetails();
@@ -67,11 +74,14 @@ namespace HaloBiz.Repository
         Task<VehicleServiceAssignmentDetail> UpdateVehicleServiceAssignmentDetail(VehicleServiceAssignmentDetail serviceAssignmentDetail);
 
         Task<bool> DeleteVehicleServiceAssignmentDetail(VehicleServiceAssignmentDetail serviceAssignmentDetail);
+        Task<bool> DeleteVehicleServiceAssignmentDetailByAssignmentId(VehicleServiceAssignmentDetail serviceAssignmentDetail);
+
 
         //Passenger
         Task<Passenger> SavePassenger(Passenger passenger);
 
         Task<Passenger> FindPassengerById(long Id);
+        Task<Passenger> FindPassengerByAssignmentId(long Id);
 
         Task<IEnumerable<Passenger>> FindAllPassengers();
 
@@ -81,5 +91,6 @@ namespace HaloBiz.Repository
         Task<Passenger> UpdatePassenger(Passenger passenger);
 
         Task<bool> DeletePassenger(Passenger passenger);
+        Task<bool> DeletePassengerByAssignmentId(Passenger passenger);
     }
 }

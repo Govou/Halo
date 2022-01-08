@@ -33,13 +33,13 @@ namespace HaloBiz.Controllers
             return await _armedEscortService.GetAllArmedEscortTies();
         }
         [HttpGet("GetAllArmedEscortTiesByResourceId")]
-        public async Task<ActionResult> GetAllArmedEscortTiesByResourceId(long id)
+        public async Task<ApiCommonResponse> GetAllArmedEscortTiesByResourceId(long id)
         {
-            var response = await _armedEscortService.GetAllArmedEscortTiesByResourceId(id);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var cRank = ((ApiOkResponse)response).Result;
-            return Ok(cRank);
+            return await _armedEscortService.GetAllArmedEscortTiesByResourceId(id);
+            //if (response.StatusCode >= 400)
+            //    return StatusCode(response.StatusCode, response);
+            //var cRank = ((ApiOkResponse)response).Result;
+            //return Ok(cRank);
         }
         [HttpGet("GetProfileById/{id}")]
         public async Task<ApiCommonResponse> GetProfileById(long id)

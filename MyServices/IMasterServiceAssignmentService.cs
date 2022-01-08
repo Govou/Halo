@@ -10,11 +10,11 @@ namespace HaloBiz.MyServices
 {
     public interface IMasterServiceAssignmentService
     {
-        Task<ApiResponse> AddMasterServiceAssignment(HttpContext context, MasterServiceAssignmentReceivingDTO masterReceivingDTO);
-        Task<ApiResponse> GetAllMasterServiceAssignments();
-        Task<ApiResponse> GetMasterServiceAssignmentById(long id);
-        Task<ApiResponse> UpdateMasterServiceAssignment(HttpContext context, long id, MasterServiceAssignmentReceivingDTO masterReceivingDTO);
-        Task<ApiResponse> DeleteMasterServiceAssignment(long id);
-        Task<ApiResponse> UpdateReadyStatus(long id);
+        Task<ApiCommonResponse> AddMasterServiceAssignment(HttpContext context, MasterServiceAssignmentReceivingDTO masterReceivingDTO);
+        Task<ApiCommonResponse> GetAllMasterServiceAssignments();
+        Task<ApiCommonResponse> GetMasterServiceAssignmentById(long id);
+        Task<ApiCommonResponse> UpdateMasterServiceAssignment(HttpContext context, long id, MasterServiceAssignmentReceivingDTO masterReceivingDTO);
+        Task<ApiCommonResponse> DeleteMasterServiceAssignment(long id);
+        Task<ApiCommonResponse> UpdateReadyStatus(long id);
     }
 }

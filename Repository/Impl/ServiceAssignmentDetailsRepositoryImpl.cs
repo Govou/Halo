@@ -26,7 +26,21 @@ namespace HaloBiz.Repository.Impl
             return await SaveChanges();
         }
 
+        public async Task<bool> DeleteCommanderServiceAssignmentDetailByAssignmentId(CommanderServiceAssignmentDetail serviceAssignmentDetail)
+        {
+            serviceAssignmentDetail.IsDeleted = true;
+            _context.CommanderServiceAssignmentDetails.Update(serviceAssignmentDetail);
+            return await SaveChanges();
+        }
+
         public async Task<bool> DeleteEscortServiceAssignmentDetail(ArmedEscortServiceAssignmentDetail serviceAssignmentDetail)
+        {
+            serviceAssignmentDetail.IsDeleted = true;
+            _context.ArmedEscortServiceAssignmentDetails.Update(serviceAssignmentDetail);
+            return await SaveChanges();
+        }
+
+        public async Task<bool> DeleteEscortServiceAssignmentDetailByAssignmentId(ArmedEscortServiceAssignmentDetail serviceAssignmentDetail)
         {
             serviceAssignmentDetail.IsDeleted = true;
             _context.ArmedEscortServiceAssignmentDetails.Update(serviceAssignmentDetail);
@@ -40,6 +54,13 @@ namespace HaloBiz.Repository.Impl
             return await SaveChanges();
         }
 
+        public async Task<bool> DeletePassengerByAssignmentId(Passenger passenger)
+        {
+            passenger.IsDeleted = true;
+            _context.Passengers.Update(passenger);
+            return await SaveChanges();
+        }
+
         public async Task<bool> DeletePilotServiceAssignmentDetail(PilotServiceAssignmentDetail serviceAssignmentDetail)
         {
             serviceAssignmentDetail.IsDeleted = true;
@@ -47,7 +68,21 @@ namespace HaloBiz.Repository.Impl
             return await SaveChanges();
         }
 
+        public async Task<bool> DeletePilotServiceAssignmentDetailByAssignmentId(PilotServiceAssignmentDetail serviceAssignmentDetail)
+        {
+            serviceAssignmentDetail.IsDeleted = true;
+            _context.PilotServiceAssignmentDetails.Update(serviceAssignmentDetail);
+            return await SaveChanges();
+        }
+
         public async Task<bool> DeleteVehicleServiceAssignmentDetail(VehicleServiceAssignmentDetail serviceAssignmentDetail)
+        {
+            serviceAssignmentDetail.IsDeleted = true;
+            _context.VehicleServiceAssignmentDetails.Update(serviceAssignmentDetail);
+            return await SaveChanges();
+        }
+
+        public async Task<bool> DeleteVehicleServiceAssignmentDetailByAssignmentId(VehicleServiceAssignmentDetail serviceAssignmentDetail)
         {
             serviceAssignmentDetail.IsDeleted = true;
             _context.VehicleServiceAssignmentDetails.Update(serviceAssignmentDetail);
@@ -143,6 +178,14 @@ namespace HaloBiz.Repository.Impl
             .ToListAsync();
         }
 
+        public async Task<CommanderServiceAssignmentDetail> FindCommanderServiceAssignmentDetailByAssignmentId(long Id)
+        {
+            return await _context.CommanderServiceAssignmentDetails
+              .Include(ct => ct.CommanderResource).Include(t => t.CommanderResource.Profile).Include(t => t.TiedVehicleResource).Include(t => t.ServiceAssignment)
+              .Include(t => t.TempReleaseType).Include(t => t.CreatedBy).Include(t => t.ActionReleaseType).Include(t => t.CommanderResource.CommanderType)
+              .FirstOrDefaultAsync(aer => aer.ServiceAssignmentId == Id && aer.IsDeleted == false);
+        }
+
         public async Task<CommanderServiceAssignmentDetail> FindCommanderServiceAssignmentDetailById(long Id)
         {
             return await _context.CommanderServiceAssignmentDetails
@@ -157,6 +200,14 @@ namespace HaloBiz.Repository.Impl
              .Include(ct => ct.CommanderResource).Include(t => t.CommanderResource.Profile).Include(t => t.TiedVehicleResource).Include(t => t.ServiceAssignment)
              .Include(t => t.TempReleaseType).Include(t => t.CreatedBy).Include(t => t.ActionReleaseType).Include(t => t.CommanderResource.CommanderType)
              .FirstOrDefaultAsync(aer => aer.CommanderResourceId == resourceId && aer.IsDeleted == false);
+        }
+
+        public async Task<ArmedEscortServiceAssignmentDetail> FindEscortServiceAssignmentDetailByAssignmentId(long Id)
+        {
+            return await _context.ArmedEscortServiceAssignmentDetails
+               .Include(ct => ct.ArmedEscortResource).Include(t => t.ActionReleaseType).Include(t => t.TempReleaseType).Include(t => t.ServiceAssignment)
+             .Include(t => t.TempReleaseType).Include(t => t.CreatedBy).Include(t => t.ArmedEscortResource.ArmedEscortType)
+               .FirstOrDefaultAsync(aer => aer.ServiceAssignmentId == Id && aer.IsDeleted == false);
         }
 
         public async Task<ArmedEscortServiceAssignmentDetail> FindEscortServiceAssignmentDetailById(long Id)
@@ -175,11 +226,26 @@ namespace HaloBiz.Repository.Impl
                .FirstOrDefaultAsync(aer => aer.ArmedEscortResourceId == resourceId && aer.IsDeleted == false);
         }
 
+        public async Task<Passenger> FindPassengerByAssignmentId(long Id)
+        {
+            return await _context.Passengers
+             .Include(ct => ct.ServiceAssignment).Include(t => t.PassengerType)
+             .FirstOrDefaultAsync(aer => aer.ServiceAssignmentId == Id && aer.IsDeleted == false);
+        }
+
         public async Task<Passenger> FindPassengerById(long Id)
         {
             return await _context.Passengers
               .Include(ct => ct.ServiceAssignment).Include(t => t.PassengerType)
               .FirstOrDefaultAsync(aer => aer.Id == Id && aer.IsDeleted == false);
+        }
+
+        public async Task<PilotServiceAssignmentDetail> FindPilotServiceAssignmentDetailByAssignmentId(long Id)
+        {
+            return await _context.PilotServiceAssignmentDetails
+              .Include(ct => ct.PilotResource).Include(t => t.ActionReleaseType).Include(t => t.TempReleaseType).Include(t => t.ServiceAssignment)
+            .Include(t => t.TempReleaseType).Include(t => t.CreatedBy).Include(t => t.PilotResource.PilotType)
+              .FirstOrDefaultAsync(aer => aer.ServiceAssignmentId == Id && aer.IsDeleted == false);
         }
 
         public async Task<PilotServiceAssignmentDetail> FindPilotServiceAssignmentDetailById(long Id)
@@ -196,6 +262,14 @@ namespace HaloBiz.Repository.Impl
              .Include(ct => ct.PilotResource).Include(t => t.ActionReleaseType).Include(t => t.TempReleaseType).Include(t => t.ServiceAssignment)
            .Include(t => t.TempReleaseType).Include(t => t.CreatedBy).Include(t => t.PilotResource.PilotType)
              .FirstOrDefaultAsync(aer => aer.PilotResourceId == resourceId && aer.IsDeleted == false);
+        }
+
+        public async Task<VehicleServiceAssignmentDetail> FindVehicleServiceAssignmentDetailByAssignmentId(long Id)
+        {
+            return await _context.VehicleServiceAssignmentDetails
+               .Include(ct => ct.VehicleResource).Include(t => t.ActionReleaseType).Include(t => t.TempReleaseType).Include(t => t.ServiceAssignment)
+             .Include(t => t.TempReleaseType).Include(t => t.CreatedBy).Include(t => t.VehicleResource.SupplierService).Include(t => t.VehicleResource.VehicleType)
+               .FirstOrDefaultAsync(aer => aer.ServiceAssignmentId == Id && aer.IsDeleted == false);
         }
 
         public async Task<VehicleServiceAssignmentDetail> FindVehicleServiceAssignmentDetailById(long Id)

@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using HaloBiz.DTOs.ApiDTOs;
+using HaloBiz.DTOs.GenericResponseDTO;
 using HaloBiz.DTOs.ReceivingDTOs;
 using HaloBiz.DTOs.TransferDTOs;
 using HaloBiz.Helpers;
@@ -17,19 +18,21 @@ namespace HaloBiz.MyServices.Impl
     {
         private readonly IServiceAssignmentMasterRepository _serviceAssignmentMasterRepository;
         private readonly IServiceRegistrationRepository _serviceRegistrationRepository;
+        private readonly IServiceAssignmentDetailsRepository _serviceAssignmentDetailsRepository;
         private readonly IDTSMastersRepository _dTSMastersRepository;
         private readonly IMapper _mapper;
 
         public MasterServiceAssignmentServiceImpl(IMapper mapper, IServiceAssignmentMasterRepository serviceAssignmentMasterRepository, 
-            IServiceRegistrationRepository serviceRegistrationRepository, IDTSMastersRepository dTSMastersRepository)
+            IServiceRegistrationRepository serviceRegistrationRepository, IDTSMastersRepository dTSMastersRepository, IServiceAssignmentDetailsRepository serviceAssignmentDetailsRepository)
         {
             _mapper = mapper;
             _serviceAssignmentMasterRepository = serviceAssignmentMasterRepository;
             _serviceRegistrationRepository = serviceRegistrationRepository;
             _dTSMastersRepository = dTSMastersRepository;
+            _serviceAssignmentDetailsRepository = serviceAssignmentDetailsRepository;
         }
 
-        public async Task<ApiResponse> AddMasterServiceAssignment(HttpContext context, MasterServiceAssignmentReceivingDTO masterReceivingDTO)
+        public async Task<ApiCommonResponse> AddMasterServiceAssignment(HttpContext context, MasterServiceAssignmentReceivingDTO masterReceivingDTO)
         {
             var master = _mapper.Map<MasterServiceAssignment>(masterReceivingDTO);
             DateTime pickofftime = Convert.ToDateTime(masterReceivingDTO.PickoffTime.AddHours(1));
@@ -41,7 +44,7 @@ namespace HaloBiz.MyServices.Impl
             //var NameExist = _armedEscortsRepository.GetTypename(armedEscortTypeReceivingDTO.Name);
             //if (NameExist != null)
             //{
-            //    return new ApiResponse(409);
+            //    return CommonResponse.Send(ResponseCodes.FAILURE, null, ResponseMessage.RecordExists409);
             //}
          
             master.CreatedById = context.GetLoggedInUserId();
@@ -52,7 +55,7 @@ namespace HaloBiz.MyServices.Impl
              getId = savedRank.Id;
             if (savedRank == null)
             {
-                return new ApiResponse(500);
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, ResponseMessage.InternalServer500);
             }
 
             if(masterReceivingDTO.IsReturnJourney == true)
@@ -68,59 +71,100 @@ namespace HaloBiz.MyServices.Impl
                  var savedItem = await _serviceAssignmentMasterRepository.SaveServiceAssignment(master);
                 if (savedItem == null)
                 {
-                    return new ApiResponse(500);
+                    return CommonResponse.Send(ResponseCodes.FAILURE, null, ResponseMessage.InternalServer500);
                 }
             }
             //var typeTransferDTO = _mapper.Map<ArmedEscortTypeTransferDTO>(master);
-            return new ApiOkResponse("Record(s) Added Successfully");
+            return CommonResponse.Send(ResponseCodes.SUCCESS, null, ResponseMessage.Success200);
         }
 
-        public async Task<ApiResponse> DeleteMasterServiceAssignment(long id)
+        public async Task<ApiCommonResponse> DeleteMasterServiceAssignment(long id)
         {
 
             var itemToDelete = await _serviceAssignmentMasterRepository.FindServiceAssignmentById(id);
+            var escortToDelete = await _serviceAssignmentDetailsRepository.FindAllEscortServiceAssignmentDetailsByAssignmentId(id);
+            var commanderToDelete = await _serviceAssignmentDetailsRepository.FindAllCommanderServiceAssignmentDetailsByAssignmentId(id);
+            var pilotToDelete = await _serviceAssignmentDetailsRepository.FindAllPilotServiceAssignmentDetailsByAssignmentId(id);
+            var vehicleToDelete = await _serviceAssignmentDetailsRepository.FindAllVehicleServiceAssignmentDetailsByAssignmentId(id);
+            var passengerToDelete = await _serviceAssignmentDetailsRepository.FindAllPassengersByAssignmentId(id);
 
             if (itemToDelete == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);
             }
 
             if (!await _serviceAssignmentMasterRepository.DeleteServiceAssignment(itemToDelete))
             {
-                return new ApiResponse(500);
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, ResponseMessage.InternalServer500);
+            }
+            if (escortToDelete.Count() != 0)
+            {
+                foreach (var item in escortToDelete)
+                {
+                    await _serviceAssignmentDetailsRepository.DeleteEscortServiceAssignmentDetail(item);
+                }
+                
+            }
+            if (commanderToDelete.Count() != 0)
+            {
+                foreach (var item in commanderToDelete)
+                {
+                    await _serviceAssignmentDetailsRepository.DeleteCommanderServiceAssignmentDetail(item);
+                }
+            }
+            if (pilotToDelete.Count() != 0)
+            {
+                foreach (var item in pilotToDelete)
+                {
+                    await _serviceAssignmentDetailsRepository.DeletePilotServiceAssignmentDetail(item);
+                }
+            }
+            if (vehicleToDelete.Count() != 0)
+            {
+                foreach (var item in vehicleToDelete)
+                {
+                    await _serviceAssignmentDetailsRepository.DeleteVehicleServiceAssignmentDetail(item);
+                }
+            }
+            if (passengerToDelete != null)
+            {
+                foreach (var item in passengerToDelete)
+                {
+                    await _serviceAssignmentDetailsRepository.DeletePassenger(item);
+                }
             }
 
-            return new ApiOkResponse(true);
+            return CommonResponse.Send(ResponseCodes.SUCCESS, null, ResponseMessage.Success200);
         }
 
-        public async Task<ApiResponse> GetAllMasterServiceAssignments()
+        public async Task<ApiCommonResponse> GetAllMasterServiceAssignments()
         {
             var master = await _serviceAssignmentMasterRepository.FindAllServiceAssignments();
             if (master == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);
             }
             var TransferDTO = _mapper.Map<IEnumerable<MasterServiceAssignmentTransferDTO>>(master);
-            return new ApiOkResponse(TransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS, TransferDTO, ResponseMessage.Success200);
         }
 
-        public async Task<ApiResponse> GetMasterServiceAssignmentById(long id)
+        public async Task<ApiCommonResponse> GetMasterServiceAssignmentById(long id)
         {
             var master = await _serviceAssignmentMasterRepository.FindServiceAssignmentById(id);
             if (master == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);
             }
             var TransferDTO = _mapper.Map<MasterServiceAssignmentTransferDTO>(master);
-            return new ApiOkResponse(TransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS, TransferDTO, ResponseMessage.Success200);
         }
 
-        public async Task<ApiResponse> UpdateMasterServiceAssignment(HttpContext context, long id, MasterServiceAssignmentReceivingDTO masterReceivingDTO)
+        public async Task<ApiCommonResponse> UpdateMasterServiceAssignment(HttpContext context, long id, MasterServiceAssignmentReceivingDTO masterReceivingDTO)
         {
             var itemToUpdate = await _serviceAssignmentMasterRepository.FindServiceAssignmentById(id);
             if (itemToUpdate == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);
             }
 
             var summary = $"Initial details before change, \n {itemToUpdate.ToString()} \n";
@@ -141,28 +185,28 @@ namespace HaloBiz.MyServices.Impl
 
             if (updatedItem == null)
             {
-                return new ApiResponse(500);
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, ResponseMessage.InternalServer500);
             }
 
             var TransferDTOs = _mapper.Map<MasterServiceAssignmentTransferDTO>(updatedItem);
-            return new ApiOkResponse(TransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS, TransferDTOs, ResponseMessage.Success200);
         }
 
-        public async Task<ApiResponse> UpdateReadyStatus(long id)
+        public async Task<ApiCommonResponse> UpdateReadyStatus(long id)
         {
-            var itemToDelete = await _serviceAssignmentMasterRepository.FindServiceAssignmentById(id);
+            var itemToUpdate = await _serviceAssignmentMasterRepository.FindServiceAssignmentById(id);
 
-            if (itemToDelete == null)
+            if (itemToUpdate == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);
             }
 
-            if (!await _serviceAssignmentMasterRepository.UpdateReadyStatus(itemToDelete))
+            if (!await _serviceAssignmentMasterRepository.UpdateReadyStatus(itemToUpdate))
             {
-                return new ApiResponse(500);
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, ResponseMessage.InternalServer500);
             }
 
-            return new ApiOkResponse(true);
+            return CommonResponse.Send(ResponseCodes.SUCCESS, null, ResponseMessage.Success200);
         }
     }
 }

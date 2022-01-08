@@ -29,302 +29,302 @@ namespace HaloBiz.Controllers
 
         //ArmedEscort
         [HttpGet("GetAllArmedEscortDetails")]
-        public async Task<ActionResult> GetAllArmedEscortDetails()
+        public async Task<ApiCommonResponse> GetAllArmedEscortDetails()
         {
-            var response = await _serviceAssignmentDetailsService.GetAllArmedEscortDetails();
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var cType = ((ApiOkResponse)response).Result;
-            return Ok(cType);
+            return await _serviceAssignmentDetailsService.GetAllArmedEscortDetails();
+            //if (response.StatusCode >= 400)
+            //    return StatusCode(response.StatusCode, response);
+            //var cType = ((ApiOkResponse)response).Result;
+            //return Ok(cType);
         }
 
         [HttpGet("GetAllArmedEscortDetailsByAssignmentId/{id}")]
-        public async Task<ActionResult> GetAllArmedEscortDetailsByAssignmentId(long id)
+        public async Task<ApiCommonResponse> GetAllArmedEscortDetailsByAssignmentId(long id)
         {
-            var response = await _serviceAssignmentDetailsService.GetAllArmedEscortDetailsByAssignmentId(id);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var cType = ((ApiOkResponse)response).Result;
-            return Ok(cType);
+            return await _serviceAssignmentDetailsService.GetAllArmedEscortDetailsByAssignmentId(id);
+            //if (response.StatusCode >= 400)
+            //    return StatusCode(response.StatusCode, response);
+            //var cType = ((ApiOkResponse)response).Result;
+            //return Ok(cType);
         }
 
         [HttpGet("GetArmedEscortDetailById/{id}")]
-        public async Task<ActionResult> GetArmedEscortDetailById(long id)
+        public async Task<ApiCommonResponse> GetArmedEscortDetailById(long id)
         {
-            var response = await _serviceAssignmentDetailsService.GetArmedEscortDetailById(id);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var Rank = ((ApiOkResponse)response).Result;
-            return Ok(Rank);
+            return await _serviceAssignmentDetailsService.GetArmedEscortDetailById(id);
+            //if (response.StatusCode >= 400)
+            //    return StatusCode(response.StatusCode, response);
+            //var Rank = ((ApiOkResponse)response).Result;
+            //return Ok(Rank);
         }
 
         [HttpPost("AddNewArmedEscortDetail")]
-        public async Task<ActionResult> AddNewArmedEscortDetail(ArmedEscortServiceAssignmentDetailsReceivingDTO ReceivingDTO)
+        public async Task<ApiCommonResponse> AddNewArmedEscortDetail(ArmedEscortServiceAssignmentDetailsReceivingDTO ReceivingDTO)
         {
-            var response = await _serviceAssignmentDetailsService.AddArmedEscortDetail(HttpContext, ReceivingDTO);
+            return await _serviceAssignmentDetailsService.AddArmedEscortDetail(HttpContext, ReceivingDTO);
 
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var rank = ((ApiOkResponse)response).Result;
-            return Ok(rank);
+            //if (response.StatusCode >= 400)
+            //    return StatusCode(response.StatusCode, response);
+            //var rank = ((ApiOkResponse)response).Result;
+            //return Ok(rank);
         }
 
         [HttpPut("UpdateArmedEscortDetailById/{id}")]
-        public async Task<IActionResult> UpdateArmedEscortDetailById(long id, ArmedEscortServiceAssignmentDetailsReceivingDTO Receiving)
+        public async Task<ApiCommonResponse> UpdateArmedEscortDetailById(long id, ArmedEscortServiceAssignmentDetailsReceivingDTO Receiving)
         {
-            var response = await _serviceAssignmentDetailsService.UpdateArmedEscortDetail(HttpContext, id, Receiving);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var type = ((ApiOkResponse)response).Result;
-            return Ok(type);
+            return await _serviceAssignmentDetailsService.UpdateArmedEscortDetail(HttpContext, id, Receiving);
+            //if (response.StatusCode >= 400)
+            //    return StatusCode(response.StatusCode, response);
+            //var type = ((ApiOkResponse)response).Result;
+            //return Ok(type);
         }
         [HttpDelete("DeleteArmedEscortDetailById/{id}")]
-        public async Task<ActionResult> DeleteArmedEscortDetailById(int id)
+        public async Task<ApiCommonResponse> DeleteArmedEscortDetailById(int id)
         {
-            var response = await _serviceAssignmentDetailsService.DeleteArmedEscortDetail(id);
-            return StatusCode(response.StatusCode);
+            return await _serviceAssignmentDetailsService.DeleteArmedEscortDetail(id);
+            //return StatusCode(response.StatusCode);
         }
 
         //Commander
         [HttpGet("GetAllCommanderDetails")]
-        public async Task<ActionResult> GetAllCommanderDetails()
+        public async Task<ApiCommonResponse> GetAllCommanderDetails()
         {
-            var response = await _serviceAssignmentDetailsService.GetAllCommanderDetails();
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var cType = ((ApiOkResponse)response).Result;
-            return Ok(cType);
+            return await _serviceAssignmentDetailsService.GetAllCommanderDetails();
+            //if (response.StatusCode >= 400)
+            //    return StatusCode(response.StatusCode, response);
+            //var cType = ((ApiOkResponse)response).Result;
+            //return Ok(cType);
         }
 
         [HttpGet("GetAllCommanderDetailsByAssignmentId/{id}")]
-        public async Task<ActionResult> GetAllCommanderDetailsByAssignmentId(long id)
+        public async Task<ApiCommonResponse> GetAllCommanderDetailsByAssignmentId(long id)
         {
-            var response = await _serviceAssignmentDetailsService.GetAllCommanderDetailsByAssignmentId(id);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var cType = ((ApiOkResponse)response).Result;
-            return Ok(cType);
+            return await _serviceAssignmentDetailsService.GetAllCommanderDetailsByAssignmentId(id);
+            //if (response.StatusCode >= 400)
+            //    return StatusCode(response.StatusCode, response);
+            //var cType = ((ApiOkResponse)response).Result;
+            //return Ok(cType);
         }
 
         [HttpGet("GetCommanderDetailById/{id}")]
-        public async Task<ActionResult> GetCommanderDetailById(long id)
+        public async Task<ApiCommonResponse> GetCommanderDetailById(long id)
         {
-            var response = await _serviceAssignmentDetailsService.GetCommanderDetailById(id);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var Rank = ((ApiOkResponse)response).Result;
-            return Ok(Rank);
+            return await _serviceAssignmentDetailsService.GetCommanderDetailById(id);
+            //if (response.StatusCode >= 400)
+            //    return StatusCode(response.StatusCode, response);
+            //var Rank = ((ApiOkResponse)response).Result;
+            //return Ok(Rank);
         }
 
         [HttpPost("AddNewCommanderDetail")]
-        public async Task<ActionResult> AddNewCommanderDetail(CommanderServiceAssignmentDetailsReceivingDTO ReceivingDTO)
+        public async Task<ApiCommonResponse> AddNewCommanderDetail(CommanderServiceAssignmentDetailsReceivingDTO ReceivingDTO)
         {
-            var response = await _serviceAssignmentDetailsService.AddCommanderDetail(HttpContext, ReceivingDTO);
+            return await _serviceAssignmentDetailsService.AddCommanderDetail(HttpContext, ReceivingDTO);
 
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var rank = ((ApiOkResponse)response).Result;
-            return Ok(rank);
+            //if (response.StatusCode >= 400)
+            //    return StatusCode(response.StatusCode, response);
+            //var rank = ((ApiOkResponse)response).Result;
+            //return Ok(rank);
         }
 
         [HttpPut("UpdateCommanderDetailById/{id}")]
-        public async Task<IActionResult> UpdateCommanderDetailById(long id, CommanderServiceAssignmentDetailsReceivingDTO Receiving)
+        public async Task<ApiCommonResponse> UpdateCommanderDetailById(long id, CommanderServiceAssignmentDetailsReceivingDTO Receiving)
         {
-            var response = await _serviceAssignmentDetailsService.UpdateCommanderDetail(HttpContext, id, Receiving);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var type = ((ApiOkResponse)response).Result;
-            return Ok(type);
+            return await _serviceAssignmentDetailsService.UpdateCommanderDetail(HttpContext, id, Receiving);
+            //if (response.StatusCode >= 400)
+            //    return StatusCode(response.StatusCode, response);
+            //var type = ((ApiOkResponse)response).Result;
+            //return Ok(type);
         }
         [HttpDelete("DeleteCommanderDetailById/{id}")]
-        public async Task<ActionResult> DeleteCommanderDetailById(int id)
+        public async Task<ApiCommonResponse> DeleteCommanderDetailById(int id)
         {
-            var response = await _serviceAssignmentDetailsService.DeleteCommanderDetail(id);
-            return StatusCode(response.StatusCode);
+            return await _serviceAssignmentDetailsService.DeleteCommanderDetail(id);
+            //return StatusCode(response.StatusCode);
         }
 
         //Pilot
         [HttpGet("GetAllPilotDetails")]
-        public async Task<ActionResult> GetAllPilotDetails()
+        public async Task<ApiCommonResponse> GetAllPilotDetails()
         {
-            var response = await _serviceAssignmentDetailsService.GetAllPilotDetails();
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var cType = ((ApiOkResponse)response).Result;
-            return Ok(cType);
+            return await _serviceAssignmentDetailsService.GetAllPilotDetails();
+            //if (response.StatusCode >= 400)
+            //    return StatusCode(response.StatusCode, response);
+            //var cType = ((ApiOkResponse)response).Result;
+            //return Ok(cType);
         }
 
         [HttpGet("GetAllPilotDetailsByAssignmentId/{id}")]
-        public async Task<ActionResult> GetAllPilotDetailsByAssignmentId(long id)
+        public async Task<ApiCommonResponse> GetAllPilotDetailsByAssignmentId(long id)
         {
-            var response = await _serviceAssignmentDetailsService.GetAllPilotDetailsByAssignmentId(id);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var cType = ((ApiOkResponse)response).Result;
-            return Ok(cType);
+            return await _serviceAssignmentDetailsService.GetAllPilotDetailsByAssignmentId(id);
+            //if (response.StatusCode >= 400)
+            //    return StatusCode(response.StatusCode, response);
+            //var cType = ((ApiOkResponse)response).Result;
+            //return Ok(cType);
         }
 
         [HttpGet("GetPilotDetailById/{id}")]
-        public async Task<ActionResult> GetPilotDetailById(long id)
+        public async Task<ApiCommonResponse> GetPilotDetailById(long id)
         {
-            var response = await _serviceAssignmentDetailsService.GetPilotDetailById(id);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var Rank = ((ApiOkResponse)response).Result;
-            return Ok(Rank);
+            return await _serviceAssignmentDetailsService.GetPilotDetailById(id);
+            //if (response.StatusCode >= 400)
+            //    return StatusCode(response.StatusCode, response);
+            //var Rank = ((ApiOkResponse)response).Result;
+            //return Ok(Rank);
         }
 
         [HttpPost("AddNewPilotDetail")]
-        public async Task<ActionResult> AddNewPilotDetail(PilotServiceAssignmentDetailsReceivingDTO ReceivingDTO)
+        public async Task<ApiCommonResponse> AddNewPilotDetail(PilotServiceAssignmentDetailsReceivingDTO ReceivingDTO)
         {
-            var response = await _serviceAssignmentDetailsService.AddPilotDetail(HttpContext, ReceivingDTO);
+            return await _serviceAssignmentDetailsService.AddPilotDetail(HttpContext, ReceivingDTO);
 
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var rank = ((ApiOkResponse)response).Result;
-            return Ok(rank);
+            //if (response.StatusCode >= 400)
+            //    return StatusCode(response.StatusCode, response);
+            //var rank = ((ApiOkResponse)response).Result;
+            //return Ok(rank);
         }
 
         [HttpPut("UpdatePilotDetailById/{id}")]
-        public async Task<IActionResult> UpdatePilotDetailById(long id, PilotServiceAssignmentDetailsReceivingDTO Receiving)
+        public async Task<ApiCommonResponse> UpdatePilotDetailById(long id, PilotServiceAssignmentDetailsReceivingDTO Receiving)
         {
-            var response = await _serviceAssignmentDetailsService.UpdatePilotDetail(HttpContext, id, Receiving);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var type = ((ApiOkResponse)response).Result;
-            return Ok(type);
+            return await _serviceAssignmentDetailsService.UpdatePilotDetail(HttpContext, id, Receiving);
+            //if (response.StatusCode >= 400)
+            //    return StatusCode(response.StatusCode, response);
+            //var type = ((ApiOkResponse)response).Result;
+            //return Ok(type);
         }
         [HttpDelete("DeletePilotDetailById/{id}")]
-        public async Task<ActionResult> DeletePilotDetailById(int id)
+        public async Task<ApiCommonResponse> DeletePilotDetailById(int id)
         {
-            var response = await _serviceAssignmentDetailsService.DeletePilotDetail(id);
-            return StatusCode(response.StatusCode);
+            return await _serviceAssignmentDetailsService.DeletePilotDetail(id);
+            //return StatusCode(response.StatusCode);
         }
 
         //Vehicle
         [HttpGet("GetAllVehicleDetails")]
-        public async Task<ActionResult> GetAllVehicleDetails()
+        public async Task<ApiCommonResponse> GetAllVehicleDetails()
         {
-            var response = await _serviceAssignmentDetailsService.GetAllVehicleDetails();
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var cType = ((ApiOkResponse)response).Result;
-            return Ok(cType);
+            return await _serviceAssignmentDetailsService.GetAllVehicleDetails();
+            //if (response.StatusCode >= 400)
+            //    return StatusCode(response.StatusCode, response);
+            //var cType = ((ApiOkResponse)response).Result;
+            //return Ok(cType);
         }
 
         [HttpGet("GetAllVehicleDetailsByAssignmentId/{id}")]
-        public async Task<ActionResult> GetAllVehicleDetailsByAssignmentId(long id)
+        public async Task<ApiCommonResponse> GetAllVehicleDetailsByAssignmentId(long id)
         {
-            var response = await _serviceAssignmentDetailsService.GetAllVehicleDetailsByAssignmentId(id);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var cType = ((ApiOkResponse)response).Result;
-            return Ok(cType);
+            return await _serviceAssignmentDetailsService.GetAllVehicleDetailsByAssignmentId(id);
+            //if (response.StatusCode >= 400)
+            //    return StatusCode(response.StatusCode, response);
+            //var cType = ((ApiOkResponse)response).Result;
+            //return Ok(cType);
         }
 
         [HttpGet("GetVehicleDetailById/{id}")]
-        public async Task<ActionResult> GetVehicleDetailById(long id)
+        public async Task<ApiCommonResponse> GetVehicleDetailById(long id)
         {
-            var response = await _serviceAssignmentDetailsService.GetVehicleDetailById(id);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var Rank = ((ApiOkResponse)response).Result;
-            return Ok(Rank);
+            return await _serviceAssignmentDetailsService.GetVehicleDetailById(id);
+            //if (response.StatusCode >= 400)
+            //    return StatusCode(response.StatusCode, response);
+            //var Rank = ((ApiOkResponse)response).Result;
+            //return Ok(Rank);
         }
 
         [HttpPost("AddNewVehicleDetail")]
-        public async Task<ActionResult> AddNewVehicleDetail(VehicleServiceAssignmentDetailsReceivingDTO ReceivingDTO)
+        public async Task<ApiCommonResponse> AddNewVehicleDetail(VehicleServiceAssignmentDetailsReceivingDTO ReceivingDTO)
         {
-            var response = await _serviceAssignmentDetailsService.AddVehicleDetail(HttpContext, ReceivingDTO);
+            return await _serviceAssignmentDetailsService.AddVehicleDetail(HttpContext, ReceivingDTO);
 
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var rank = ((ApiOkResponse)response).Result;
-            return Ok(rank);
+            //if (response.StatusCode >= 400)
+            //    return StatusCode(response.StatusCode, response);
+            //var rank = ((ApiOkResponse)response).Result;
+            //return Ok(rank);
         }
 
         [HttpPut("UpdateVehicleDetailById/{id}")]
-        public async Task<IActionResult> UpdateVehicleDetailById(long id, VehicleServiceAssignmentDetailsReceivingDTO Receiving)
+        public async Task<ApiCommonResponse> UpdateVehicleDetailById(long id, VehicleServiceAssignmentDetailsReceivingDTO Receiving)
         {
-            var response = await _serviceAssignmentDetailsService.UpdateVehicleDetail(HttpContext, id, Receiving);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var type = ((ApiOkResponse)response).Result;
-            return Ok(type);
+            return await _serviceAssignmentDetailsService.UpdateVehicleDetail(HttpContext, id, Receiving);
+            //if (response.StatusCode >= 400)
+            //    return StatusCode(response.StatusCode, response);
+            //var type = ((ApiOkResponse)response).Result;
+            //return Ok(type);
         }
         [HttpDelete("DeleteVehicleDetailById/{id}")]
-        public async Task<ActionResult> DeleteVehicleDetailById(int id)
+        public async Task<ApiCommonResponse> DeleteVehicleDetailById(int id)
         {
-            var response = await _serviceAssignmentDetailsService.DeleteVehicleDetail(id);
-            return StatusCode(response.StatusCode);
+            return await _serviceAssignmentDetailsService.DeleteVehicleDetail(id);
+            //return StatusCode(response.StatusCode);
         }
 
         //Passenger
         [HttpGet("GetAllPassengers")]
-        public async Task<ActionResult> GetAllPassengers()
+        public async Task<ApiCommonResponse> GetAllPassengers()
         {
-            var response = await _serviceAssignmentDetailsService.GetAllPassengers();
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var cType = ((ApiOkResponse)response).Result;
-            return Ok(cType);
+            return await _serviceAssignmentDetailsService.GetAllPassengers();
+            //if (response.StatusCode >= 400)
+            //    return StatusCode(response.StatusCode, response);
+            //var cType = ((ApiOkResponse)response).Result;
+            //return Ok(cType);
         }
 
         [HttpGet("GetAllPassengersByAssignmentId/{id}")]
-        public async Task<ActionResult> GetAllPassengersByAssignmentId(long id)
+        public async Task<ApiCommonResponse> GetAllPassengersByAssignmentId(long id)
         {
-            var response = await _serviceAssignmentDetailsService.GetAllPassengersByAssignmentId(id);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var cType = ((ApiOkResponse)response).Result;
-            return Ok(cType);
+            return await _serviceAssignmentDetailsService.GetAllPassengersByAssignmentId(id);
+            //if (response.StatusCode >= 400)
+            //    return StatusCode(response.StatusCode, response);
+            //var cType = ((ApiOkResponse)response).Result;
+            //return Ok(cType);
         }
 
         [HttpGet("GetPassengerById/{id}")]
-        public async Task<ActionResult> GetPassengerById(long id)
+        public async Task<ApiCommonResponse> GetPassengerById(long id)
         {
-            var response = await _serviceAssignmentDetailsService.GetPassengerById(id);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var Rank = ((ApiOkResponse)response).Result;
-            return Ok(Rank);
+            return await _serviceAssignmentDetailsService.GetPassengerById(id);
+            //if (response.StatusCode >= 400)
+            //    return StatusCode(response.StatusCode, response);
+            //var Rank = ((ApiOkResponse)response).Result;
+            //return Ok(Rank);
         }
 
         [HttpPost("AddNewPassenger")]
-        public async Task<ActionResult> AddNewPassenger(PassengerReceivingDTO ReceivingDTO)
+        public async Task<ApiCommonResponse> AddNewPassenger(PassengerReceivingDTO ReceivingDTO)
         {
-            var response = await _serviceAssignmentDetailsService.AddPassenger(HttpContext, ReceivingDTO);
+            return await _serviceAssignmentDetailsService.AddPassenger(HttpContext, ReceivingDTO);
 
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var rank = ((ApiOkResponse)response).Result;
-            return Ok(rank);
+            //if (response.StatusCode >= 400)
+            //    return StatusCode(response.StatusCode, response);
+            //var rank = ((ApiOkResponse)response).Result;
+            //return Ok(rank);
         }
 
         [HttpPut("UpdatePassengerById/{id}")]
-        public async Task<IActionResult> UpdatePassengerById(long id, PassengerReceivingDTO Receiving)
+        public async Task<ApiCommonResponse> UpdatePassengerById(long id, PassengerReceivingDTO Receiving)
         {
-            var response = await _serviceAssignmentDetailsService.UpdatePassenger(HttpContext, id, Receiving);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var type = ((ApiOkResponse)response).Result;
-            return Ok(type);
+            return await _serviceAssignmentDetailsService.UpdatePassenger(HttpContext, id, Receiving);
+            //if (response.StatusCode >= 400)
+            //    return StatusCode(response.StatusCode, response);
+            //var type = ((ApiOkResponse)response).Result;
+            //return Ok(type);
         }
         [HttpDelete("DeletePassengerById/{id}")]
-        public async Task<ActionResult> DeletePassengerById(int id)
+        public async Task<ApiCommonResponse> DeletePassengerById(int id)
         {
-            var response = await _serviceAssignmentDetailsService.DeletePassenger(id);
-            return StatusCode(response.StatusCode);
+            return await _serviceAssignmentDetailsService.DeletePassenger(id);
+            //return StatusCode(response.StatusCode);
         }
         //ArmedEscort
         [HttpGet("GetAllContractServices")]
-        public async Task<ActionResult> GetAllContractServices()
+        public async Task<ApiCommonResponse> GetAllContractServices()
         {
-            var response = await _contractServiceService.GetAllContractsServcie();
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var cType = ((ApiOkResponse)response).Result;
-            return Ok(cType);
+            return await _contractServiceService.GetAllContractsServcie();
+            //if (response.StatusCode >= 400)
+            //    return StatusCode(response.StatusCode, response);
+            //var cType = ((ApiOkResponse)response).Result;
+            //return Ok(cType);
         }
     }
 }

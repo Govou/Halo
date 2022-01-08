@@ -11,32 +11,32 @@ namespace HaloBiz.MyServices
     public interface ITypesForServiceAssignmentService
     {
         //Trip
-        Task<ApiResponse> AddTripType(HttpContext context, TripTypesForServiceAssignmentReceivingDTO tripReceivingDTO);
-        Task<ApiResponse> GetAllTripTypes();
-        Task<ApiResponse> GetTripTypeById(long id);
-        Task<ApiResponse> UpdateTripType(HttpContext context, long id, TripTypesForServiceAssignmentReceivingDTO tripReceivingDTO);
-        Task<ApiResponse> DeleteTripType(long id);
+        Task<ApiCommonResponse> AddTripType(HttpContext context, TripTypesForServiceAssignmentReceivingDTO tripReceivingDTO);
+        Task<ApiCommonResponse> GetAllTripTypes();
+        Task<ApiCommonResponse> GetTripTypeById(long id);
+        Task<ApiCommonResponse> UpdateTripType(HttpContext context, long id, TripTypesForServiceAssignmentReceivingDTO tripReceivingDTO);
+        Task<ApiCommonResponse> DeleteTripType(long id);
 
         //Passenger
-        Task<ApiResponse> AddPassengerType(HttpContext context, PassengerTypesForServiceAssignmentReceivingDTO passengerReceivingDTO);
-        Task<ApiResponse> GetAllPassengerTypes();
-        Task<ApiResponse> GetPassengerTypeById(long id);
-        Task<ApiResponse> UpdatePassengerType(HttpContext context, long id, PassengerTypesForServiceAssignmentReceivingDTO passengerReceivingDTO);
-        Task<ApiResponse> DeletePassengerType(long id);
+        Task<ApiCommonResponse> AddPassengerType(HttpContext context, PassengerTypesForServiceAssignmentReceivingDTO passengerReceivingDTO);
+        Task<ApiCommonResponse> GetAllPassengerTypes();
+        Task<ApiCommonResponse> GetPassengerTypeById(long id);
+        Task<ApiCommonResponse> UpdatePassengerType(HttpContext context, long id, PassengerTypesForServiceAssignmentReceivingDTO passengerReceivingDTO);
+        Task<ApiCommonResponse> DeletePassengerType(long id);
 
         //Source
-        Task<ApiResponse> AddSourceType(HttpContext context, SourceTypesForServiceAssignmentReceivingDTO sourceReceivingDTO);
-        Task<ApiResponse> GetAllSourceTypes();
-        Task<ApiResponse> GetSourceTypeById(long id);
-        Task<ApiResponse> UpdateSourceType(HttpContext context, long id, SourceTypesForServiceAssignmentReceivingDTO sourceReceivingDTO);
-        Task<ApiResponse> DeleteSourceType(long id);
+        Task<ApiCommonResponse> AddSourceType(HttpContext context, SourceTypesForServiceAssignmentReceivingDTO sourceReceivingDTO);
+        Task<ApiCommonResponse> GetAllSourceTypes();
+        Task<ApiCommonResponse> GetSourceTypeById(long id);
+        Task<ApiCommonResponse> UpdateSourceType(HttpContext context, long id, SourceTypesForServiceAssignmentReceivingDTO sourceReceivingDTO);
+        Task<ApiCommonResponse> DeleteSourceType(long id);
 
 
         //Release
-        Task<ApiResponse> AddReleaseType(HttpContext context, ReleaseTypesForServiceAssignmentReceivingDTO releaseReceivingDTO);
-        Task<ApiResponse> GetAllReleaseTypes();
-        Task<ApiResponse> GetReleaseTypeById(long id);
-        Task<ApiResponse> UpdateReleaseType(HttpContext context, long id, ReleaseTypesForServiceAssignmentReceivingDTO releaseReceivingDTO);
-        Task<ApiResponse> DeleteReleaseType(long id);
+        Task<ApiCommonResponse> AddReleaseType(HttpContext context, ReleaseTypesForServiceAssignmentReceivingDTO releaseReceivingDTO);
+        Task<ApiCommonResponse> GetAllReleaseTypes();
+        Task<ApiCommonResponse> GetReleaseTypeById(long id);
+        Task<ApiCommonResponse> UpdateReleaseType(HttpContext context, long id, ReleaseTypesForServiceAssignmentReceivingDTO releaseReceivingDTO);
+        Task<ApiCommonResponse> DeleteReleaseType(long id);
     }
 }

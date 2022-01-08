@@ -129,19 +129,19 @@ namespace HaloBiz.MyServices.Impl
             return CommonResponse.Send(ResponseCodes.SUCCESS,TransferDTO);
         }
 
-        public async Task<ApiCommonResponse> GetVehicleById(long id)
-        public async Task<ApiResponse> GetAllVehicleTiesByResourceId(long resourceId)
+        
+        public async Task<ApiCommonResponse> GetAllVehicleTiesByResourceId(long resourceId)
         {
             var vehicles = await _vehiclesRepository.FindVehicleTieByResourceId(resourceId);
             if (vehicles == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);
             }
             var TransferDTO = _mapper.Map<IEnumerable<VehicleSMORoutesResourceTieTransferDTO>>(vehicles);
-            return new ApiOkResponse(TransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS, TransferDTO);
         }
 
-        public async Task<ApiResponse> GetVehicleById(long id)
+        public async Task<ApiCommonResponse> GetVehicleById(long id)
         {
             var vehicle = await _vehiclesRepository.FindVehicleById(id);
             if (vehicle == null)

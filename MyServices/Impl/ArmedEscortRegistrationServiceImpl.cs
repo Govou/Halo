@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using HaloBiz.DTOs.ApiDTOs;
+using HaloBiz.DTOs.GenericResponseDTO;
 using HaloBiz.DTOs.ReceivingDTOs;
 using HaloBiz.DTOs.TransferDTOs;
 using HaloBiz.Helpers;
@@ -125,18 +126,18 @@ namespace HaloBiz.MyServices.Impl
             return CommonResponse.Send(ResponseCodes.SUCCESS,rankTransferDTO);
         }
 
-        public async Task<ApiResponse> GetAllArmedEscortTiesByResourceId(long resourceId)
+        public async Task<ApiCommonResponse> GetAllArmedEscortTiesByResourceId(long resourceId)
         {
             var armedescorts = await _armedEscortsRepository.FindArmedEscortTieByResourceId(resourceId);
             if (armedescorts == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);
             }
             var rankTransferDTO = _mapper.Map<IEnumerable<ArmedEscortSMORoutesResourceTieTransferDTO>>(armedescorts);
-            return new ApiOkResponse(rankTransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS, rankTransferDTO, ResponseMessage.Success200);
         }
 
-        public async Task<ApiResponse> GetArmedEscortById(long id)
+      
         public async Task<ApiCommonResponse> GetArmedEscortById(long id)
         {
             var escort = await _armedEscortsRepository.FindArmedEscortById(id);

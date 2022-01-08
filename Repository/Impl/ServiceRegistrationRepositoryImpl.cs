@@ -118,9 +118,9 @@ namespace HaloBiz.Repository.Impl
 
         public async Task<ArmedEscortResourceRequiredPerService> FindArmedEscortResourceByServiceRegId(long seviceRegId)
         {
-            return await _context.ArmedEscortResourceRequiredPerServices.Where(s => s.IsDeleted == false)
+            return await _context.ArmedEscortResourceRequiredPerServices
                .Include(s => s.CreatedBy).Include(s => s.ServiceRegistration).Include(s => s.ServiceRegistration.Service)
-                       .Include(s => s.ArmedEscortType.ServiceRegistration).Include(s => s.ServiceRegistration.ApplicableArmedEscortTypes)
+                       .Include(s => s.ArmedEscortType.ServiceRegistration).Include(s => s.ServiceRegistration.ApplicableArmedEscortTypes.Where(x=>x.IsDeleted == false))
                        .Include(s => s.ArmedEscortType.ServiceRegistration.Service)
                .FirstOrDefaultAsync(s => s.ServiceRegistrationId == seviceRegId && s.IsDeleted == false);
         }
@@ -136,7 +136,7 @@ namespace HaloBiz.Repository.Impl
 
         public async Task<CommanderResourceRequiredPerService> FindCommanderResourceByServiceRegId(long seviceRegId)
         {
-            return await _context.CommanderResourceRequiredPerServices.Where(s => s.IsDeleted == false)
+            return await _context.CommanderResourceRequiredPerServices
                 .Include(s => s.CreatedBy).Include(s => s.ServiceRegistration).Include(s => s.ServiceRegistration.Service)
                         .Include(s => s.CommanderType.ServiceRegistration).Include(s => s.ServiceRegistration.ApplicableArmedEscortTypes)
                         .Include(s => s.CommanderType.ServiceRegistration.Service)
@@ -154,7 +154,7 @@ namespace HaloBiz.Repository.Impl
 
         public async Task<PilotResourceRequiredPerService> FindPilotResourceByServiceRegId(long seviceRegId)
         {
-            return await _context.PilotResourceRequiredPerService.Where(s => s.IsDeleted == false)
+            return await _context.PilotResourceRequiredPerService
             .Include(s => s.CreatedBy).Include(s => s.ServiceRegistration).Include(s => s.ServiceRegistration.Service)
                     .Include(s => s.PilotType.ServiceRegistration).Include(s => s.ServiceRegistration.ApplicableArmedEscortTypes)
                     .Include(s => s.PilotType.ServiceRegistration.Service)
@@ -186,7 +186,7 @@ namespace HaloBiz.Repository.Impl
 
         public async Task<VehicleResourceRequiredPerService> FindVehicleResourceByServiceRegId(long seviceRegId)
         {
-            return await _context.VehicleResourceRequiredPerServices.Where(s => s.IsDeleted == false)
+            return await _context.VehicleResourceRequiredPerServices
             .Include(s => s.CreatedBy).Include(s => s.ServiceRegistration).Include(s => s.ServiceRegistration.Service)
                     .Include(s => s.VehicleType.ServiceRegistration).Include(s => s.ServiceRegistration.ApplicableArmedEscortTypes)
                     .Include(s => s.VehicleType.ServiceRegistration.Service)

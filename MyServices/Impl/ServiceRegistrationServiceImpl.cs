@@ -133,10 +133,15 @@ namespace HaloBiz.MyServices.Impl
             {
                                  return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE,null, "No record exists");;
             }
+            if (serviceRegReceivingDTO.RequiresArmedEscort == false && serviceRegReceivingDTO.RequiresCommander == false && serviceRegReceivingDTO.RequiresPilot == false
+                && serviceRegReceivingDTO.RequiresVehicle == false)
+            {
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE, null, "Please select at least one requirement"); ;
+            }
 
             service.CreatedById = context.GetLoggedInUserId();
             service.CreatedAt = DateTime.UtcNow;
-            service.Description = "Not required";
+            service.Description = "";
             var savedType = await _serviceregRepository.SaveService(service);
             if (savedType == null)
             {

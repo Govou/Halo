@@ -22,51 +22,52 @@ namespace HaloBiz.Controllers
         }
 
         [HttpGet("GetAllServiceAssignmentMasters")]
-        public async Task<ActionResult> GetAllServiceAssignmentMasters()
+        public async Task<ApiCommonResponse> GetAllServiceAssignmentMasters()
         {
-            var response = await _masterServiceAssignmentService.GetAllMasterServiceAssignments();
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var cType = ((ApiOkResponse)response).Result;
-            return Ok(cType);
+            return await _masterServiceAssignmentService.GetAllMasterServiceAssignments();
+            //var response = await _masterServiceAssignmentService.GetAllMasterServiceAssignments();
+            //if (response.StatusCode >= 400)
+            //    return StatusCode(response.StatusCode, response);
+            //var cType = ((ApiOkResponse)response).Result;
+            //return Ok(cType);
         }
 
         [HttpGet("GetServiceAssignmentMasterById/{id}")]
-        public async Task<ActionResult> GetServiceAssignmentMasterById(long id)
+        public async Task<ApiCommonResponse> GetServiceAssignmentMasterById(long id)
         {
-            var response = await _masterServiceAssignmentService.GetMasterServiceAssignmentById(id);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var Rank = ((ApiOkResponse)response).Result;
-            return Ok(Rank);
+            return await _masterServiceAssignmentService.GetMasterServiceAssignmentById(id);
+            //if (response.StatusCode >= 400)
+            //    return StatusCode(response.StatusCode, response);
+            //var Rank = ((ApiOkResponse)response).Result;
+            //return Ok(Rank);
         }
 
         [HttpPost("AddNewServiceAssignmentMaster")]
-        public async Task<ActionResult> AddNewServiceAssignmentMaster(MasterServiceAssignmentReceivingDTO ReceivingDTO)
+        public async Task<ApiCommonResponse> AddNewServiceAssignmentMaster(MasterServiceAssignmentReceivingDTO ReceivingDTO)
         {
-            var response = await _masterServiceAssignmentService.AddMasterServiceAssignment(HttpContext, ReceivingDTO);
+             return await _masterServiceAssignmentService.AddMasterServiceAssignment(HttpContext, ReceivingDTO);
 
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var rank = ((ApiOkResponse)response).Result;
-            return Ok(rank);
+            //if (response.StatusCode >= 400)
+            //    return StatusCode(response.StatusCode, response);
+            //var rank = ((ApiOkResponse)response).Result;
+            //return Ok(rank);
         }
 
         [HttpPut("UpdateServiceAssignmentMasterById/{id}")]
-        public async Task<IActionResult> UpdateServiceAssignmentMasterById(long id, MasterServiceAssignmentReceivingDTO ReceivingDTO)
+        public async Task<ApiCommonResponse> UpdateServiceAssignmentMasterById(long id, MasterServiceAssignmentReceivingDTO ReceivingDTO)
         {
-            var response = await _masterServiceAssignmentService.UpdateMasterServiceAssignment(HttpContext, id, ReceivingDTO);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var type = ((ApiOkResponse)response).Result;
-            return Ok(type);
+            return await _masterServiceAssignmentService.UpdateMasterServiceAssignment(HttpContext, id, ReceivingDTO);
+            //if (response.StatusCode >= 400)
+            //    return StatusCode(response.StatusCode, response);
+            //var type = ((ApiOkResponse)response).Result;
+            //return Ok(type);
         }
 
         [HttpDelete("DeleteServiceAssignmentMasterById/{id}")]
-        public async Task<ActionResult> DeleteServiceAssignmentMasterById(int id)
+        public async Task<ApiCommonResponse> DeleteServiceAssignmentMasterById(int id)
         {
-            var response = await _masterServiceAssignmentService.DeleteMasterServiceAssignment(id);
-            return StatusCode(response.StatusCode);
+            return await _masterServiceAssignmentService.DeleteMasterServiceAssignment(id);
+            //return StatusCode(response.StatusCode);
         }
     }
 }
