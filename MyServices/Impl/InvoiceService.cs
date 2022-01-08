@@ -961,6 +961,32 @@ namespace HaloBiz.MyServices.Impl
             return CommonResponse.Send(ResponseCodes.SUCCESS,invoiceTransferDTO);
         }
 
+        public async Task<ApiCommonResponse> GetGroupInvoiceSendDateByContractId(long contractId)
+        {
+            var invoice = new Invoice();
+            try
+            {
+                invoice = await _context.Invoices
+                      .Where(x => x.ContractId == contractId && !string.IsNullOrEmpty(x.GroupInvoiceNumber)
+                                  && x.IsDeleted == false)
+                      .FirstOrDefaultAsync();
+
+                if(invoice != null)
+                {
+                    invoice.DateToBeSent = invoice.DateToBeSent.Date;
+                    return CommonResponse.Send(ResponseCodes.SUCCESS, invoice);
+                }
+
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("", ex);
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system eerrors occured");
+            }
+        }
+
+
         public async Task<ApiCommonResponse> GetAllProformaInvoicesByContactserviceId(long contractServiceId)
         {
             var invoice = await _invoiceRepo.GetProformaInvoiceByContractServiceId(contractServiceId);
@@ -1040,7 +1066,11 @@ namespace HaloBiz.MyServices.Impl
                 
                 foreach (var invoice in invoices)
                 {
-                    invoice.IsInvoiceSent = ((Invoice)(await SendInvoice(invoice)).responseData).IsInvoiceSent;
+                    var response = await SendInvoice(invoice);
+                    if (response.responseCode == "00")
+                    {
+                        invoice.IsInvoiceSent = true;
+                    }
                 }
 
                 await _context.SaveChangesAsync();
@@ -1053,8 +1083,8 @@ namespace HaloBiz.MyServices.Impl
                 var groupings = theGroupInvoices.GroupBy(x => x.GroupInvoiceNumber);
                 foreach (var group in groupings)
                 {
-                    var invoiceSent = ((Invoice)(await SendInvoice(group.FirstOrDefault())).responseData).IsInvoiceSent; //await SendInvoice(group.FirstOrDefault());
-                    if (invoiceSent)
+                    var invoiceSent = ((Invoice)(await SendInvoice(group.FirstOrDefault())).responseData)?.IsInvoiceSent; //await SendInvoice(group.FirstOrDefault());
+                    if (invoiceSent==true)
                     {
                         foreach (var invoice in group)
                         {
