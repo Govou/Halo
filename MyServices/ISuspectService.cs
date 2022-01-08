@@ -10,13 +10,13 @@ namespace HaloBiz.MyServices
 {
     public interface ISuspectService
     {
-        Task<ApiResponse> AddSuspect(HttpContext context, SuspectReceivingDTO suspectReceivingDTO);
-        Task<ApiResponse> GetAllSuspect();
-        Task<ApiResponse> GetUserSuspects(HttpContext context);
-        Task<ApiResponse> GetSuspectById(long id);
-        //Task<ApiResponse> GetSuspectByName(string name);
-        Task<ApiResponse> UpdateSuspect(HttpContext context, long id, SuspectReceivingDTO suspectReceivingDTO);
-        Task<ApiResponse> DeleteSuspect(long id);
-        Task<ApiResponse> ConvertSuspect(HttpContext context, long suspectId);
+        Task<ApiCommonResponse> AddSuspect(HttpContext context, SuspectReceivingDTO suspectReceivingDTO);
+        Task<ApiCommonResponse> GetAllSuspect();
+        Task<ApiCommonResponse> GetUserSuspects(HttpContext context);
+        Task<ApiCommonResponse> GetSuspectById(long id);
+        //Task<ApiCommonResponse> GetSuspectByName(string name);
+        Task<ApiCommonResponse> UpdateSuspect(HttpContext context, long id, SuspectReceivingDTO suspectReceivingDTO);
+        Task<ApiCommonResponse> DeleteSuspect(long id);
+        Task<ApiCommonResponse> ConvertSuspect(HttpContext context, long suspectId);
     }
 }

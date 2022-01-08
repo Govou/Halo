@@ -51,54 +51,54 @@ namespace HaloBiz.MyServices.Impl.LAMS
             this._logger = logger;
         }
 
-        public async Task<ApiResponse> AddTaskFulfillment(HttpContext context, TaskFulfillmentReceivingDTO taskFulfillmentReceivingDTO)
+        public async Task<ApiCommonResponse> AddTaskFulfillment(HttpContext context, TaskFulfillmentReceivingDTO taskFulfillmentReceivingDTO)
         {
             var taskFulfillment = _mapper.Map<TaskFulfillment>(taskFulfillmentReceivingDTO);
             taskFulfillment.CreatedById = context.GetLoggedInUserId();
             var savedTaskFulfillment = await _taskFulfillmentRepo.SaveTaskFulfillment(taskFulfillment);
             if (savedTaskFulfillment == null)
             {
-                return new ApiResponse(500);
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
             var taskFulfillmentTransferDTO = _mapper.Map<TaskFulfillmentTransferDTO>(savedTaskFulfillment);
-            return new ApiOkResponse(taskFulfillmentTransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,taskFulfillmentTransferDTO);
         }
 
-        public async Task<ApiResponse> GetAllTaskFulfillment()
+        public async Task<ApiCommonResponse> GetAllTaskFulfillment()
         {
             var taskFulfillments = await _taskFulfillmentRepo.FindAllTaskFulfillment();
             if (taskFulfillments == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var taskFulfillmentTransferDTO = _mapper.Map<IEnumerable<TaskFulfillmentTransferDTO>>(taskFulfillments);
-            return new ApiOkResponse(taskFulfillmentTransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,taskFulfillmentTransferDTO);
         }
 
-        public async Task<ApiResponse> GetAllUnCompletedTaskFulfillmentForTaskOwner(long taskOwnerId)
+        public async Task<ApiCommonResponse> GetAllUnCompletedTaskFulfillmentForTaskOwner(long taskOwnerId)
         {
             var taskFulfillments = await _taskFulfillmentRepo.FindAllTaskFulfillmentForTaskOwner(taskOwnerId);
             if (taskFulfillments == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             taskFulfillments.ToList().RemoveAll(x => x.TaskCompletionStatus);
             var taskFulfillmentTransferDTO = _mapper.Map<IEnumerable<TaskFulfillmentTransferDTO>>(taskFulfillments);
-            return new ApiOkResponse(taskFulfillmentTransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,taskFulfillmentTransferDTO);
         }
 
-        public async Task<ApiResponse> GetAllTaskFulfillmentForTaskOwner(long taskOwnerId)
+        public async Task<ApiCommonResponse> GetAllTaskFulfillmentForTaskOwner(long taskOwnerId)
         {
             var taskFulfillments = await _taskFulfillmentRepo.FindAllTaskFulfillmentForTaskOwner(taskOwnerId);
             if (taskFulfillments == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var taskFulfillmentTransferDTO = _mapper.Map<IEnumerable<TaskFulfillmentTransferDTO>>(taskFulfillments);
-            return new ApiOkResponse(taskFulfillmentTransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,taskFulfillmentTransferDTO);
         }
 
-        public async Task<ApiResponse> GetPMWidgetStatistics(long taskOwnerId)
+        public async Task<ApiCommonResponse> GetPMWidgetStatistics(long taskOwnerId)
         {
             var taskFulfillments = await _taskFulfillmentRepo.FindAllTaskFulfillmentForTaskOwner(taskOwnerId);
             var year = DateTime.Now.Year;
@@ -129,7 +129,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
             var data = new {allTaskAssigned, completedTask, acceptedTask, qualifiedTasks};
 
-            return new ApiOkResponse(data); 
+            return CommonResponse.Send(ResponseCodes.SUCCESS,data); 
         }
 
         private int CheckIfAccepted(IEnumerable<DeliverableFulfillment> delivrables)
@@ -157,30 +157,30 @@ namespace HaloBiz.MyServices.Impl.LAMS
             return 1;
         }
 
-        public async Task<ApiResponse> GetTaskFulfillmentById(long id)
+        public async Task<ApiCommonResponse> GetTaskFulfillmentById(long id)
         {
             var taskFulfillment = await _taskFulfillmentRepo.FindTaskFulfillmentById(id);
             if (taskFulfillment == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var serviceDetails = await _servicesRepo.GetServiceDetails(taskFulfillment.ContractService.ServiceId);
             var taskFulfillmentTransferDTOs = _mapper.Map<TaskFulfillmentTransferDetailsDTO>(taskFulfillment);
             taskFulfillmentTransferDTOs.ServiceDivisionDetails = serviceDetails;
-            return new ApiOkResponse(taskFulfillmentTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,taskFulfillmentTransferDTOs);
         }
 
-        public async Task<ApiResponse> GetTaskFulfillmentByName(string name)
+        public async Task<ApiCommonResponse> GetTaskFulfillmentByName(string name)
         {
             var taskFulfillment = await _taskFulfillmentRepo.FindTaskFulfillmentByName(name);
             if (taskFulfillment == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var taskFulfillmentTransferDTOs = _mapper.Map<TaskFulfillmentTransferDetailsDTO>(taskFulfillment);
-            return new ApiOkResponse(taskFulfillmentTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,taskFulfillmentTransferDTOs);
         }
-        public async Task<ApiResponse> GetTaskDeliverableSummary(long responsibleId)
+        public async Task<ApiCommonResponse> GetTaskDeliverableSummary(long responsibleId)
         {
             try
             {
@@ -234,12 +234,12 @@ namespace HaloBiz.MyServices.Impl.LAMS
                     }
 
                 }
-                return new ApiOkResponse(taskWithListOfDeliverables);
+                return CommonResponse.Send(ResponseCodes.SUCCESS,taskWithListOfDeliverables);
             }catch(Exception e)
             {
                 _logger.LogError(e.Message);
                 _logger.LogError(e.StackTrace);
-                return new ApiResponse(500);
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
            
         }
@@ -262,12 +262,12 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
         }
 
-        public async Task<ApiResponse> UpdateTaskFulfillment(HttpContext context, long id, TaskFulfillmentReceivingDTO taskFulfillmentReceivingDTO)
+        public async Task<ApiCommonResponse> UpdateTaskFulfillment(HttpContext context, long id, TaskFulfillmentReceivingDTO taskFulfillmentReceivingDTO)
         {
             var taskFulfillmentToUpdate = await _taskFulfillmentRepo.FindTaskFulfillmentById(id);
             if (taskFulfillmentToUpdate == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             
             var summary = $"Initial details before change, \n {taskFulfillmentToUpdate.ToString()} \n" ;
@@ -293,7 +293,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
             if (updatedTaskFulfillment == null)
             {
-                return new ApiResponse(500);
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
             ModificationHistory history = new ModificationHistory(){
                 ModelChanged = "TaskFulfillment",
@@ -305,32 +305,32 @@ namespace HaloBiz.MyServices.Impl.LAMS
             await _historyRepo.SaveHistory(history);
 
             var taskFulfillmentTransferDTOs = _mapper.Map<TaskFulfillmentTransferDTO>(updatedTaskFulfillment);
-            return new ApiOkResponse(taskFulfillmentTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,taskFulfillmentTransferDTOs);
 
         }
 
-        public async Task<ApiResponse> DeleteTaskFulfillment(long id)
+        public async Task<ApiCommonResponse> DeleteTaskFulfillment(long id)
         {
             var taskFulfillmentToDelete = await _taskFulfillmentRepo.FindTaskFulfillmentById(id);
             if (taskFulfillmentToDelete == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
 
             if (!await _taskFulfillmentRepo.DeleteTaskFulfillment(taskFulfillmentToDelete))
             {
-                return new ApiResponse(500);
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
 
-            return new ApiOkResponse(true);
+            return CommonResponse.Send(ResponseCodes.SUCCESS);
         }
 
-        public async Task<ApiResponse> SetIsPicked(HttpContext context, long id, bool isPicked)
+        public async Task<ApiCommonResponse> SetIsPicked(HttpContext context, long id, bool isPicked)
         {
             var taskFulfillmentToUpdate = await _taskFulfillmentRepo.FindTaskFulfillmentById(id);
             if (taskFulfillmentToUpdate == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
 
             var summary = $"Initial details before change, \n {taskFulfillmentToUpdate.ToString()} \n";
@@ -341,7 +341,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
             }else {
                 if(taskFulfillmentToUpdate.DeliverableFulfillments.Any(x => x.ResponsibleId > 0))
                 {
-                    return new ApiResponse(409, "Cannot drop Task. Task deliverable has been assigned");
+                    return CommonResponse.Send(ResponseCodes.FAILURE,null, "Cannot drop Task. Task deliverable has been assigned");
                 }
                 taskFulfillmentToUpdate.IsPicked = false;
             }
@@ -354,7 +354,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
             if (updatedTaskFulfillment == null)
             {
-                return new ApiResponse(500);
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
             ModificationHistory history = new ModificationHistory()
             {
@@ -367,7 +367,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
             await _historyRepo.SaveHistory(history);
 
             var taskFulfillmentTransferDTOs = _mapper.Map<TaskFulfillmentTransferDTO>(updatedTaskFulfillment);
-            return new ApiOkResponse(taskFulfillmentTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,taskFulfillmentTransferDTOs);
 
         }
 
@@ -375,30 +375,30 @@ namespace HaloBiz.MyServices.Impl.LAMS
                         deliverables.Any(x => x.ResponsibleId > 0);
         
 
-        public async Task<ApiResponse> GetTaskFulfillmentsByOperatingEntityHeadId(long id)
+        public async Task<ApiCommonResponse> GetTaskFulfillmentsByOperatingEntityHeadId(long id)
         {
             var validOperatingHeadId = await _context.OperatingEntities.AnyAsync(x => x.HeadId == id && x.IsDeleted == false);
             if (!validOperatingHeadId)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
 
             var taskFulfillments = _context.TaskFulfillments.Where(x => x.ResponsibleId == id && x.IsDeleted == false);
             if (taskFulfillments == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
 
             var taskFulfillmentTransferDTOs = _mapper.Map<IEnumerable<TaskFulfillmentTransferDTO>>(taskFulfillments);
-            return new ApiOkResponse(taskFulfillmentTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,taskFulfillmentTransferDTOs);
         }
 
-        public async Task<ApiResponse> GetTaskFulfillmentDetails(long id)
+        public async Task<ApiCommonResponse> GetTaskFulfillmentDetails(long id)
         {
             var taskFulfillment = await _taskFulfillmentRepo.FindTaskFulfillmentById(id);
             if (taskFulfillment == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
 
             var customerDivision = await _context.CustomerDivisions.Where(x => x.Id == taskFulfillment.CustomerDivisionId && x.IsDeleted == false)
@@ -406,7 +406,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
             if (customerDivision == null)
             {
-                return new ApiResponse(500);
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
 
             var leadDivision = await _context.LeadDivisions.Where(x => x.Rcnumber == customerDivision.Rcnumber && x.DivisionName == customerDivision.DivisionName && x.IsDeleted == false)
@@ -414,7 +414,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
             if (leadDivision == null)
             {
-                return new ApiResponse(500);
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
 
             var deliverableFulfillments = await _context.DeliverableFulfillments.Where(x => x.TaskFullfillmentId == taskFulfillment.Id && x.IsDeleted == false).ToListAsync();
@@ -428,7 +428,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
             taskFulfillmentTransferDTOs.LeadDivisionKeyPersons = leadDivision.LeadDivisionKeyPeople;
             taskFulfillmentTransferDTOs.DeliverableFulfillments = _mapper.Map<IEnumerable<DeliverableFulfillmentWithouthTaskFulfillmentTransferDTO>>(deliverableFulfillments);;      
 
-            return new ApiOkResponse(taskFulfillmentTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,taskFulfillmentTransferDTOs);
         }
     }
 }

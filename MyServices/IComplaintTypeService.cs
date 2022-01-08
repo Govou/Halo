@@ -10,11 +10,11 @@ namespace HaloBiz.MyServices
 {
     public interface IComplaintTypeService
     {
-        Task<ApiResponse> AddComplaintType(HttpContext context, ComplaintTypeReceivingDTO complaintTypeReceivingDTO);
-        Task<ApiResponse> GetAllComplaintType();
-        Task<ApiResponse> GetComplaintTypeById(long id);
-        Task<ApiResponse> GetComplaintTypeByName(string name);
-        Task<ApiResponse> UpdateComplaintType(HttpContext context, long id, ComplaintTypeReceivingDTO complaintTypeReceivingDTO);
-        Task<ApiResponse> DeleteComplaintType(long id);
+        Task<ApiCommonResponse> AddComplaintType(HttpContext context, ComplaintTypeReceivingDTO complaintTypeReceivingDTO);
+        Task<ApiCommonResponse> GetAllComplaintType();
+        Task<ApiCommonResponse> GetComplaintTypeById(long id);
+        Task<ApiCommonResponse> GetComplaintTypeByName(string name);
+        Task<ApiCommonResponse> UpdateComplaintType(HttpContext context, long id, ComplaintTypeReceivingDTO complaintTypeReceivingDTO);
+        Task<ApiCommonResponse> DeleteComplaintType(long id);
     }
 }

@@ -22,69 +22,44 @@ namespace Controllers.Controllers
         }
 
         [HttpGet("")]
-        public async Task<ActionResult> GetQuote()
+        public async Task<ApiCommonResponse> GetQuote()
         {
-            var response = await _quoteService.GetAllQuote();
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var quote = ((ApiOkResponse)response).Result;
-            return Ok(quote);
+            return await _quoteService.GetAllQuote();
         }
         [HttpGet("reference/{reference}")]
-        public async Task<ActionResult> GetByReferenceNumber(string reference)
+        public async Task<ApiCommonResponse> GetByReferenceNumber(string reference)
         {
-            var response = await _quoteService.GetQuoteByReferenceNumber(reference);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var quote = ((ApiOkResponse)response).Result;
-            return Ok(quote);
+            return await _quoteService.GetQuoteByReferenceNumber(reference);
         }
 
         [HttpGet("ByLeadDivision/{id}")]
-        public async Task<ActionResult> ByLeadDivision(long id)
+        public async Task<ApiCommonResponse> ByLeadDivision(long id)
         {
-            var response = await _quoteService.FindByLeadDivisionId(id);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var quote = ((ApiOkResponse)response).Result;
-            return Ok(quote);
+            return await _quoteService.FindByLeadDivisionId(id);
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult> GetById(long id)
+        public async Task<ApiCommonResponse> GetById(long id)
         {
-            var response = await _quoteService.GetQuoteById(id);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var quote = ((ApiOkResponse)response).Result;
-            return Ok(quote);
+            return await _quoteService.GetQuoteById(id);
         }
 
         [HttpPost("")]
-        public async Task<ActionResult> AddNewQuote(QuoteReceivingDTO quoteReceiving)
+        public async Task<ApiCommonResponse> AddNewQuote(QuoteReceivingDTO quoteReceiving)
         {
-            var response = await _quoteService.AddQuote(HttpContext, quoteReceiving);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var quote = ((ApiOkResponse)response).Result;
-            return Ok(quote);
+            return await _quoteService.AddQuote(HttpContext, quoteReceiving);
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateById(long id, QuoteReceivingDTO quoteReceivingDTO)
+        public async Task<ApiCommonResponse> UpdateById(long id, QuoteReceivingDTO quoteReceivingDTO)
         {
-            var response = await _quoteService.UpdateQuote(HttpContext, id, quoteReceivingDTO);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var quote = ((ApiOkResponse)response).Result;
-            return Ok(quote);
+            return await _quoteService.UpdateQuote(HttpContext, id, quoteReceivingDTO);
         }
 
         [HttpDelete("{id}")]
-        public async Task<ActionResult> DeleteById(int id)
+        public async Task<ApiCommonResponse> DeleteById(int id)
         {
-            var response = await _quoteService.DeleteQuote(id);
-            return StatusCode(response.StatusCode);
+            return await _quoteService.DeleteQuote(id);
         }
     }
 }

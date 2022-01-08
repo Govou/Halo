@@ -29,7 +29,7 @@ namespace HaloBiz.MyServices.Impl
             this._logger = logger;
         }
 
-        public async Task<ApiResponse> AddProspect(HttpContext context, ProspectReceivingDTO prospectReceivingDTO)
+        public async Task<ApiCommonResponse> AddProspect(HttpContext context, ProspectReceivingDTO prospectReceivingDTO)
         {
 
             var prospect = _mapper.Map<Prospect>(prospectReceivingDTO);
@@ -37,67 +37,67 @@ namespace HaloBiz.MyServices.Impl
             var savedprospect = await _prospectRepo.SaveProspect(prospect);
             if (savedprospect == null)
             {
-                return new ApiResponse(500);
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
             var prospectTransferDTO = _mapper.Map<ProspectTransferDTO>(prospect);
-            return new ApiOkResponse(prospectTransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,prospectTransferDTO);
         }
 
-        public async Task<ApiResponse> DeleteProspect(long id)
+        public async Task<ApiCommonResponse> DeleteProspect(long id)
         {
             var prospectToDelete = await _prospectRepo.FindProspectById(id);
             if (prospectToDelete == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
 
             if (!await _prospectRepo.DeleteProspect(prospectToDelete))
             {
-                return new ApiResponse(500);
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
 
-            return new ApiOkResponse(true);
+            return CommonResponse.Send(ResponseCodes.SUCCESS);
         }
 
-        public async Task<ApiResponse> GetAllProspect()
+        public async Task<ApiCommonResponse> GetAllProspect()
         {
             var prospects = await _prospectRepo.FindAllProspects();
             if (prospects == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var prospectTransferDTO = _mapper.Map<IEnumerable<ProspectTransferDTO>>(prospects);
-            return new ApiOkResponse(prospectTransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,prospectTransferDTO);
         }
 
-        public async Task<ApiResponse> GetProspectById(long id)
+        public async Task<ApiCommonResponse> GetProspectById(long id)
         {
             var prospect = await _prospectRepo.FindProspectById(id);
             if (prospect == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var prospectTransferDTOs = _mapper.Map<ProspectTransferDTO>(prospect);
-            return new ApiOkResponse(prospectTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,prospectTransferDTOs);
         }
 
-        public async Task<ApiResponse> GetProspectByEmail(string email)
+        public async Task<ApiCommonResponse> GetProspectByEmail(string email)
         {
             var prospect = await _prospectRepo.FindProspectByEmail(email);
             if (prospect == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var prospectTransferDTOs = _mapper.Map<ProspectTransferDTO>(prospect);
-            return new ApiOkResponse(prospectTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,prospectTransferDTOs);
         }
 
-        public async Task<ApiResponse> UpdateProspect(HttpContext context, long id, ProspectReceivingDTO prospectReceivingDTO)
+        public async Task<ApiCommonResponse> UpdateProspect(HttpContext context, long id, ProspectReceivingDTO prospectReceivingDTO)
         {
             var prospectToUpdate = await _prospectRepo.FindProspectById(id);
             if (prospectToUpdate == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
 
             var summary = $"Initial details before change, \n {prospectToUpdate.ToString()} \n";
@@ -131,7 +131,7 @@ namespace HaloBiz.MyServices.Impl
 
             if (updatedprospect == null)
             {
-                return new ApiResponse(500);
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
             ModificationHistory history = new ModificationHistory()
             {
@@ -143,7 +143,7 @@ namespace HaloBiz.MyServices.Impl
             await _historyRepo.SaveHistory(history);
 
             var prospectTransferDTOs = _mapper.Map<ProspectTransferDTO>(updatedprospect);
-            return new ApiOkResponse(prospectTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,prospectTransferDTOs);
         }
     }
 }

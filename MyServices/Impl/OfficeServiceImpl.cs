@@ -22,57 +22,57 @@ namespace HaloBiz.MyServices.Impl
             this._mapper = mapper;
         }
 
-        public async Task<ApiResponse> AddOffice(OfficeReceivingDTO officeReceivingDTO)
+        public async Task<ApiCommonResponse> AddOffice(OfficeReceivingDTO officeReceivingDTO)
         {
             var officeToSave = _mapper.Map<Office>(officeReceivingDTO);
             var savedOffice = await _officeRepo.SaveOffice(officeToSave);
             if (savedOffice == null)
             {
-                return new ApiResponse(500);
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
             var officeTransferDTOs = _mapper.Map<OfficeTransferDTO>(savedOffice);
-            return new ApiOkResponse(officeTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,officeTransferDTOs);
         }
 
-        public async Task<ApiResponse> GetAllOffices()
+        public async Task<ApiCommonResponse> GetAllOffices()
         {
             var offices = await _officeRepo.FindAllOffices();
             if (offices == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var officeTransferDTOs = _mapper.Map<IEnumerable<OfficeTransferDTO>>(offices);
-            return new ApiOkResponse(officeTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,officeTransferDTOs);
         }
 
-        public async Task<ApiResponse> GetOfficeById(long id)
+        public async Task<ApiCommonResponse> GetOfficeById(long id)
         {
             var office = await _officeRepo.FindOfficeById(id);
             if (office == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var officeTransferDTOs = _mapper.Map<OfficeTransferDTO>(office);
-            return new ApiOkResponse(officeTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,officeTransferDTOs);
         }
 
-        public async Task<ApiResponse> GetOfficeByName(string name)
+        public async Task<ApiCommonResponse> GetOfficeByName(string name)
         {
             var office = await _officeRepo.FindOfficeByName(name);
             if (office == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var officeTransferDTOs = _mapper.Map<OfficeTransferDTO>(office);
-            return new ApiOkResponse(officeTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,officeTransferDTOs);
         }
 
-        public async Task<ApiResponse> UpdateOffice(long id, OfficeReceivingDTO branchReceivingDTO)
+        public async Task<ApiCommonResponse> UpdateOffice(long id, OfficeReceivingDTO branchReceivingDTO)
         {
             var officeToUpdate = await _officeRepo.FindOfficeById(id);
             if (officeToUpdate == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
 
             var summary = $"Initial details before change, \n {officeToUpdate.ToString()} \n" ;
@@ -90,7 +90,7 @@ namespace HaloBiz.MyServices.Impl
 
             if (updatedOffice == null)
             {
-                return new ApiResponse(500);
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
 
             summary += $"Details after change, \n {updatedOffice.ToString()} \n";
@@ -98,24 +98,24 @@ namespace HaloBiz.MyServices.Impl
             //TODO save modification history
 
             var officeTransferDTO = _mapper.Map<OfficeTransferDTO>(updatedOffice);
-            return new ApiOkResponse(officeTransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,officeTransferDTO);
 
         }
 
-        public async Task<ApiResponse> DeleteOffice(long id)
+        public async Task<ApiCommonResponse> DeleteOffice(long id)
         {
             var officeToDelete = await _officeRepo.FindOfficeById(id);
             if (officeToDelete == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
 
             if (!await _officeRepo.DeleteOffice(officeToDelete))
             {
-                return new ApiResponse(500);
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
 
-            return new ApiOkResponse(true);
+            return CommonResponse.Send(ResponseCodes.SUCCESS);
         } 
     }
 }

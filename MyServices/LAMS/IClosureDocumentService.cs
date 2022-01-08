@@ -7,12 +7,12 @@ namespace HaloBiz.MyServices.LAMS
 {
     public interface IClosureDocumentService
     {
-        Task<ApiResponse> AddClosureDocument(HttpContext context, ClosureDocumentReceivingDTO closureDocumentReceivingDTO);
-        Task<ApiResponse> GetAllClosureDocument();
-        Task<ApiResponse> GetClosureDocumentById(long id);
-        Task<ApiResponse> GetClosureDocumentByCaption(string caption);
-        Task<ApiResponse> UpdateClosureDocument(HttpContext context, long id, ClosureDocumentReceivingDTO closureDocumentReceivingDTO);
-        Task<ApiResponse> DeleteClosureDocument(long id);
+        Task<ApiCommonResponse> AddClosureDocument(HttpContext context, ClosureDocumentReceivingDTO closureDocumentReceivingDTO);
+        Task<ApiCommonResponse> GetAllClosureDocument();
+        Task<ApiCommonResponse> GetClosureDocumentById(long id);
+        Task<ApiCommonResponse> GetClosureDocumentByCaption(string caption);
+        Task<ApiCommonResponse> UpdateClosureDocument(HttpContext context, long id, ClosureDocumentReceivingDTO closureDocumentReceivingDTO);
+        Task<ApiCommonResponse> DeleteClosureDocument(long id);
 
     }
 }

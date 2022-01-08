@@ -7,9 +7,9 @@ namespace HaloBiz.MyServices
 {
     public interface IProcessesRequiringApprovalService
     {
-        Task<ApiResponse> AddProcessesRequiringApproval(HttpContext context, ProcessesRequiringApprovalReceivingDTO processesRequiringApprovalReceivingDTO);
-        Task<ApiResponse> GetAllProcessesRequiringApproval();
-        Task<ApiResponse> UpdateProcessesRequiringApproval(HttpContext context, long id, ProcessesRequiringApprovalReceivingDTO processesRequiringApprovalReceivingDTO);
-        Task<ApiResponse> DeleteProcessesRequiringApproval(long id);
+        Task<ApiCommonResponse> AddProcessesRequiringApproval(HttpContext context, ProcessesRequiringApprovalReceivingDTO processesRequiringApprovalReceivingDTO);
+        Task<ApiCommonResponse> GetAllProcessesRequiringApproval();
+        Task<ApiCommonResponse> UpdateProcessesRequiringApproval(HttpContext context, long id, ProcessesRequiringApprovalReceivingDTO processesRequiringApprovalReceivingDTO);
+        Task<ApiCommonResponse> DeleteProcessesRequiringApproval(long id);
     }
 }

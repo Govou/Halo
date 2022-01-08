@@ -101,56 +101,57 @@ namespace HaloBiz.Repository.Impl
 
                     foreach (var invoice in invoices)
                     {
-                        invoice.GroupInvoiceDetails = await _context.GroupInvoiceDetails
-                                .Where(x => x.InvoiceNumber == invoice.GroupInvoiceNumber && !x.IsDeleted).ToListAsync();
+                        invoice.StartDate = invoice.StartDate.Date;
                     }
 
-                    #region Changes based on new group invoice implementation
-                    var groupInvoices = new List<Invoice>();
-                    IEnumerable<IGrouping<string, Invoice>> groupedInvoices = null;
-                    if (contractService.InvoicingInterval == (int)TimeCycle.Adhoc)
-                    {
-                        groupedInvoices = invoices.GroupBy(x => x.StartDate.ToString("G"));
-                    }
-                    else
-                    {
-                        groupedInvoices = invoices.GroupBy(x => x.StartDate.ToShortDateString());
-                    }
+                    return invoices;
 
-                    foreach (var group in groupedInvoices)
-                    {
-                        var key = group.Key;
+                    //#region Changes based on new group invoice implementation
+                    //var groupInvoices = new List<Invoice>();
+                    //IEnumerable<IGrouping<string, Invoice>> groupedInvoices = null;
+                    //if (contractService.InvoicingInterval == (int)TimeCycle.Adhoc)
+                    //{
+                    //    groupedInvoices = invoices.GroupBy(x => x.StartDate.ToString("G"));
+                    //}
+                    //else
+                    //{
+                    //    groupedInvoices = invoices.GroupBy(x => x.StartDate.ToShortDateString());
+                    //}
 
-                        double totalAmount = 0;
-                        var allReceipts = new List<Receipt>();
-                        foreach (var item in group)
-                        {
-                            totalAmount += item.Value;
-                            allReceipts.AddRange(item.Receipts);
-                        }
+                    //foreach (var group in groupedInvoices)
+                    //{
+                    //    var key = group.Key;
 
-                        var singleInvoice = _mapper.Map<Invoice>(group.FirstOrDefault());
+                    //    double totalAmount = 0;
+                    //    var allReceipts = new List<Receipt>();
+                    //    foreach (var item in group)
+                    //    {
+                    //        totalAmount += item.Value;
+                    //        allReceipts.AddRange(item.Receipts);
+                    //    }
 
-                        singleInvoice.Value = totalAmount;
-                        singleInvoice.Receipts = allReceipts;
-                        if (group.All(x => x.IsReceiptedStatus == (int)InvoiceStatus.CompletelyReceipted))
-                        {
-                            singleInvoice.IsReceiptedStatus = (int)InvoiceStatus.CompletelyReceipted;
-                        }
-                        else if (group.All(x => x.IsReceiptedStatus == (int)InvoiceStatus.NotReceipted))
-                        {
-                            singleInvoice.IsReceiptedStatus = (int)InvoiceStatus.NotReceipted;
-                        }
-                        else
-                        {
-                            singleInvoice.IsReceiptedStatus = (int)InvoiceStatus.PartlyReceipted;
-                        }
+                    //    var singleInvoice = _mapper.Map<Invoice>(group.FirstOrDefault());
 
-                        groupInvoices.Add(singleInvoice);
-                    }
+                    //    singleInvoice.Value = totalAmount;
+                    //    singleInvoice.Receipts = allReceipts;
+                    //    if (group.All(x => x.IsReceiptedStatus == (int)InvoiceStatus.CompletelyReceipted))
+                    //    {
+                    //        singleInvoice.IsReceiptedStatus = (int)InvoiceStatus.CompletelyReceipted;
+                    //    }
+                    //    else if (group.All(x => x.IsReceiptedStatus == (int)InvoiceStatus.NotReceipted))
+                    //    {
+                    //        singleInvoice.IsReceiptedStatus = (int)InvoiceStatus.NotReceipted;
+                    //    }
+                    //    else
+                    //    {
+                    //        singleInvoice.IsReceiptedStatus = (int)InvoiceStatus.PartlyReceipted;
+                    //    }
 
-                    invoices = groupInvoices;
-                    #endregion
+                    //    groupInvoices.Add(singleInvoice);
+                    //}
+
+                    //invoices = groupInvoices;
+                    //#endregion
                 }
             }
             catch (Exception ex)

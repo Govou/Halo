@@ -29,67 +29,67 @@ namespace HaloBiz.MyServices.Impl
             this._logger = logger;
         }
 
-        public async Task<ApiResponse> AddOperatingEntity(OperatingEntityReceivingDTO operatingEntityReceivingDTO)
+        public async Task<ApiCommonResponse> AddOperatingEntity(OperatingEntityReceivingDTO operatingEntityReceivingDTO)
         {
             var operatingEntity = _mapper.Map<OperatingEntity>(operatingEntityReceivingDTO);
             var savedOperatingEntity = await _operatingEntityRepo.SaveOperatingEntity(operatingEntity);
             if (savedOperatingEntity == null)
             {
-                return new ApiResponse(500);
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
             var operatingEntityTransferDTOs = _mapper.Map<OperatingEntityTransferDTO>(operatingEntity);
-            return new ApiOkResponse(operatingEntityTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,operatingEntityTransferDTOs);
         }
 
-        public async Task<ApiResponse> GetAllOperatingEntities()
+        public async Task<ApiCommonResponse> GetAllOperatingEntities()
         {
             var operatingEntity = await _operatingEntityRepo.FindAllOperatingEntity();
             if (operatingEntity == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var operatingEntityTransferDTOs = _mapper.Map<IEnumerable<OperatingEntityTransferDTO>>(operatingEntity);
-            return new ApiOkResponse(operatingEntityTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,operatingEntityTransferDTOs);
         }
-        public async Task<ApiResponse> GetAllOperatingEntitiesAndSbuproportion()
+        public async Task<ApiCommonResponse> GetAllOperatingEntitiesAndSbuproportion()
         {
             var operatingEntity = await _operatingEntityRepo.FindAllOperatingEntityWithSbuproportion();
             if (operatingEntity == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var operatingEntityTransferDTOs = _mapper.Map<IEnumerable<OperatingEntityTransferDTO>>(operatingEntity);
-            return new ApiOkResponse(operatingEntityTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,operatingEntityTransferDTOs);
         }
 
-        public async Task<ApiResponse> GetOperatingEntityById(long id)
+        public async Task<ApiCommonResponse> GetOperatingEntityById(long id)
         {
             var operatingEntity = await _operatingEntityRepo.FindOperatingEntityById(id);
             if (operatingEntity == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var operatingEntityTransferDTOs = _mapper.Map<OperatingEntityTransferDTO>(operatingEntity);
-            return new ApiOkResponse(operatingEntityTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,operatingEntityTransferDTOs);
         }
 
-        public async Task<ApiResponse> GetOperatingEntityByName(string name)
+        public async Task<ApiCommonResponse> GetOperatingEntityByName(string name)
         {
             var operatingEntity = await _operatingEntityRepo.FindOperatingEntityByName(name);
             if (operatingEntity == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var operatingEntityTransferDTOs = _mapper.Map<OperatingEntityTransferDTO>(operatingEntity);
-            return new ApiOkResponse(operatingEntityTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,operatingEntityTransferDTOs);
         }
 
-        public async Task<ApiResponse> UpdateOperatingEntity(long id, OperatingEntityReceivingDTO operatingEntityReceivingDTO)
+        public async Task<ApiCommonResponse> UpdateOperatingEntity(long id, OperatingEntityReceivingDTO operatingEntityReceivingDTO)
         {
             var operatingEntityToUpdate = await _operatingEntityRepo.FindOperatingEntityById(id);
             if (operatingEntityToUpdate == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             operatingEntityToUpdate.Name = operatingEntityReceivingDTO.Name;
             operatingEntityToUpdate.Description = operatingEntityReceivingDTO.Description;
@@ -101,20 +101,20 @@ namespace HaloBiz.MyServices.Impl
 
             if (updatedOperatingEntity == null)
             {
-                return new ApiResponse(500);
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
             var operatingEntityTransferDTOs = _mapper.Map<OperatingEntityTransferDTO>(updatedOperatingEntity);
-            return new ApiOkResponse(operatingEntityTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,operatingEntityTransferDTOs);
 
 
         }
 
-        public async Task<ApiResponse> DeleteOperatingEntity(long id)
+        public async Task<ApiCommonResponse> DeleteOperatingEntity(long id)
         {
             var operatingEntityToDelete = await _operatingEntityRepo.FindOperatingEntityById(id);
             if (operatingEntityToDelete == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
 
             foreach (ServiceGroup serviceGroup in operatingEntityToDelete.ServiceGroups)
@@ -129,10 +129,10 @@ namespace HaloBiz.MyServices.Impl
 
             if (!await _operatingEntityRepo.DeleteOperatingEntity(operatingEntityToDelete))
             {
-                return new ApiResponse(500);
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
 
-            return new ApiOkResponse(true);
+            return CommonResponse.Send(ResponseCodes.SUCCESS);
         }
 
     }

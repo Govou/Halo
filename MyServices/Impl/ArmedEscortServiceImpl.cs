@@ -25,7 +25,7 @@ namespace HaloBiz.MyServices.Impl
             _armedEscortsRepository = armedEscortsRepository;
         }
 
-        public async Task<ApiResponse> AddArmedEscortRank(HttpContext context, ArmedEscortRankReceivingDTO armedEscortRankReceivingDTO)
+        public async Task<ApiCommonResponse> AddArmedEscortRank(HttpContext context, ArmedEscortRankReceivingDTO armedEscortRankReceivingDTO)
         {
             var armedescortRank = _mapper.Map<ArmedEscortRank>(armedEscortRankReceivingDTO);
             
@@ -33,8 +33,9 @@ namespace HaloBiz.MyServices.Impl
             var rankNameExist = _armedEscortsRepository.GetRankname(armedEscortRankReceivingDTO.RankName);
             if (rankNameExist != null)
             {
-                return new ApiResponse(409);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE,null, "No record exists");
             }
+
             if (getEscortType.Id == armedescortRank.ArmedEscortTypeId)
                 armedescortRank.Sequence = _armedEscortsRepository.FindAllArmedEscortRanksCount(armedescortRank.ArmedEscortTypeId) + 1;
             armedescortRank.CreatedById = context.GetLoggedInUserId();
@@ -46,19 +47,19 @@ namespace HaloBiz.MyServices.Impl
             var savedRank = await _armedEscortsRepository.SaveArmedEscortRank(armedescortRank);
             if (savedRank == null)
             {
-                return new ApiResponse(500);
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
             var rankTransferDTO = _mapper.Map<ArmedEscortRankTransferDTO>(armedescortRank);
-            return new ApiOkResponse(rankTransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,rankTransferDTO);
         }
 
-        public async Task<ApiResponse> AddArmedEscortType(HttpContext context, ArmedEscortTypeReceivingDTO armedEscortTypeReceivingDTO)
+        public async Task<ApiCommonResponse> AddArmedEscortType(HttpContext context, ArmedEscortTypeReceivingDTO armedEscortTypeReceivingDTO)
         {
             var armedescortType = _mapper.Map<ArmedEscortType>(armedEscortTypeReceivingDTO);
             var NameExist = _armedEscortsRepository.GetTypename(armedEscortTypeReceivingDTO.Name);
             if (NameExist != null)
             {
-                return new ApiResponse(409);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE, null, "No record exists");
             }
             armedescortType.CreatedById = context.GetLoggedInUserId();
             //armedescortType.IsDeleted = false;
@@ -66,96 +67,96 @@ namespace HaloBiz.MyServices.Impl
             var savedRank = await _armedEscortsRepository.SaveArmedEscortType(armedescortType);
             if (savedRank == null)
             {
-                return new ApiResponse(500);
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
             var typeTransferDTO = _mapper.Map<ArmedEscortTypeTransferDTO>(armedescortType);
-            return new ApiOkResponse(typeTransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,typeTransferDTO);
         }
 
-        public async Task<ApiResponse> DeleteArmedEscortRank(long id)
+        public async Task<ApiCommonResponse> DeleteArmedEscortRank(long id)
         {
             var rankToDelete = await _armedEscortsRepository.FindArmedEscortRankById(id);
 
             if (rankToDelete == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
 
             if (!await _armedEscortsRepository.DeleteArmedEscortRank(rankToDelete))
             {
-                return new ApiResponse(500);
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
 
-            return new ApiOkResponse(true);
+            return CommonResponse.Send(ResponseCodes.SUCCESS);
         }
 
-        public async Task<ApiResponse> DeleteArmedEscortType(long id)
+        public async Task<ApiCommonResponse> DeleteArmedEscortType(long id)
         {
             var typeToDelete = await _armedEscortsRepository.FindArmedEscortTypeById(id);
 
             if (typeToDelete == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
 
             if (!await _armedEscortsRepository.DeleteArmedEscortType(typeToDelete))
             {
-                return new ApiResponse(500);
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
 
-            return new ApiOkResponse(true);
+            return CommonResponse.Send(ResponseCodes.SUCCESS);
         }
 
-        public async Task<ApiResponse> GetAllArmedEscortRanks()
+        public async Task<ApiCommonResponse> GetAllArmedEscortRanks()
         {
             var cRank = await _armedEscortsRepository.FindAllArmedEscortRanks();
             if (cRank == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var rankTransferDTO = _mapper.Map<IEnumerable<ArmedEscortRankTransferDTO>>(cRank);
-            return new ApiOkResponse(rankTransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,rankTransferDTO);
         }
 
-        public async Task<ApiResponse> GetAllArmedEscortTypes()
+        public async Task<ApiCommonResponse> GetAllArmedEscortTypes()
         {
             var Type = await _armedEscortsRepository.FindAllArmedEscortTypes();
             if (Type == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var TransferDTO = _mapper.Map<IEnumerable<ArmedEscortTypeTransferDTO>>(Type);
-            return new ApiOkResponse(TransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,TransferDTO);
         }
 
-        public async Task<ApiResponse> GetArmedEscortRankById(long id)
+        public async Task<ApiCommonResponse> GetArmedEscortRankById(long id)
         {
             var cRank = await _armedEscortsRepository.FindArmedEscortRankById(id);
             if (cRank == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var rankTransferDTO = _mapper.Map<ArmedEscortRankTransferDTO>(cRank);
-            return new ApiOkResponse(rankTransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,rankTransferDTO);
         }
 
-        public async Task<ApiResponse> GetArmedEscortTypeById(long id)
+        public async Task<ApiCommonResponse> GetArmedEscortTypeById(long id)
         {
             var Type = await _armedEscortsRepository.FindArmedEscortTypeById(id);
             if (Type == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var TransferDTO = _mapper.Map<ArmedEscortTypeTransferDTO>(Type);
-            return new ApiOkResponse(TransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,TransferDTO);
         }
 
-        public async Task<ApiResponse> UpdateArmedEscortRank(HttpContext context, long id, ArmedEscortRankReceivingDTO armedEscortRankReceivingDTO)
+        public async Task<ApiCommonResponse> UpdateArmedEscortRank(HttpContext context, long id, ArmedEscortRankReceivingDTO armedEscortRankReceivingDTO)
         {
             var rankToUpdate = await _armedEscortsRepository.FindArmedEscortRankById(id);
             if (rankToUpdate == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
 
             var summary = $"Initial details before change, \n {rankToUpdate.ToString()} \n";
@@ -171,19 +172,19 @@ namespace HaloBiz.MyServices.Impl
 
             if (updatedRank == null)
             {
-                return new ApiResponse(500);
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
 
             var rankTransferDTOs = _mapper.Map<ArmedEscortRankTransferDTO>(updatedRank);
-            return new ApiOkResponse(rankTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,rankTransferDTOs);
         }
 
-        public async Task<ApiResponse> UpdateArmedEscortType(HttpContext context, long id, ArmedEscortTypeReceivingDTO armedEscortTypeReceivingDTO)
+        public async Task<ApiCommonResponse> UpdateArmedEscortType(HttpContext context, long id, ArmedEscortTypeReceivingDTO armedEscortTypeReceivingDTO)
         {
             var typeToUpdate = await _armedEscortsRepository.FindArmedEscortTypeById(id);
             if (typeToUpdate == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
 
             var summary = $"Initial details before change, \n {typeToUpdate.ToString()} \n";
@@ -198,11 +199,11 @@ namespace HaloBiz.MyServices.Impl
 
             if (updatedType == null)
             {
-                return new ApiResponse(500);
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
 
             var typeTransferDTOs = _mapper.Map<ArmedEscortTypeTransferDTO>(updatedType);
-            return new ApiOkResponse(typeTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,typeTransferDTOs);
         }
     }
 }

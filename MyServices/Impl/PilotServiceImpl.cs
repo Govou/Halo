@@ -24,14 +24,14 @@ namespace HaloBiz.MyServices.Impl
             _pilotRepository = pilotRepository;
         }
 
-        public async Task<ApiResponse> AddPilotRank(HttpContext context, PilotRankReceivingDTO pilotRankReceivingDTO)
+        public async Task<ApiCommonResponse> AddPilotRank(HttpContext context, PilotRankReceivingDTO pilotRankReceivingDTO)
         {
             var Rank = _mapper.Map<PilotRank>(pilotRankReceivingDTO);
             var getPilotType = await _pilotRepository.FindPilotTypeById(pilotRankReceivingDTO.PilotTypeId);
             var NameExist = _pilotRepository.GetRankname(pilotRankReceivingDTO.RankName);
             if (NameExist != null)
             {
-                return new ApiResponse(409);
+                                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE,null, "No record exists");;
             }
             if (getPilotType.Id == Rank.PilotTypeId)
                 Rank.Sequence = _pilotRepository.FindAllPilotRanksCount(Rank.PilotTypeId) + 1;
@@ -42,19 +42,19 @@ namespace HaloBiz.MyServices.Impl
             var savedRank = await _pilotRepository.SavePilotRank(Rank);
             if (savedRank == null)
             {
-                return new ApiResponse(500);
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
             var TransferDTO = _mapper.Map<PilotRankTransferDTO>(Rank);
-            return new ApiOkResponse(TransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,TransferDTO);
         }
 
-        public async Task<ApiResponse> AddPilotType(HttpContext context, PilotTypeReceivingDTO pilotTypeReceivingDTO)
+        public async Task<ApiCommonResponse> AddPilotType(HttpContext context, PilotTypeReceivingDTO pilotTypeReceivingDTO)
         {
             var Type = _mapper.Map<PilotType>(pilotTypeReceivingDTO);
             var NameExist = _pilotRepository.GetTypename(pilotTypeReceivingDTO.TypeName);
             if (NameExist != null)
             {
-                return new ApiResponse(409);
+                                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE,null, "No record exists");;
             }
             Type.CreatedById = context.GetLoggedInUserId();
             Type.IsDeleted = false;
@@ -62,96 +62,96 @@ namespace HaloBiz.MyServices.Impl
             var savedRank = await _pilotRepository.SavePilotType(Type);
             if (savedRank == null)
             {
-                return new ApiResponse(500);
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
             var TransferDTO = _mapper.Map<PilotTypeTransferDTO>(Type);
-            return new ApiOkResponse(TransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,TransferDTO);
         }
 
-        public async Task<ApiResponse> DeletePilotRank(long id)
+        public async Task<ApiCommonResponse> DeletePilotRank(long id)
         {
             var ToDelete = await _pilotRepository.FindPilotRankById(id);
 
             if (ToDelete == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
 
             if (!await _pilotRepository.DeletePilotRank(ToDelete))
             {
-                return new ApiResponse(500);
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
 
-            return new ApiOkResponse(true);
+            return CommonResponse.Send(ResponseCodes.SUCCESS);
         }
 
-        public async Task<ApiResponse> DeletePilotType(long id)
+        public async Task<ApiCommonResponse> DeletePilotType(long id)
         {
             var ToDelete = await _pilotRepository.FindPilotTypeById(id);
 
             if (ToDelete == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
 
             if (!await _pilotRepository.DeletePilotType(ToDelete))
             {
-                return new ApiResponse(500);
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
 
-            return new ApiOkResponse(true);
+            return CommonResponse.Send(ResponseCodes.SUCCESS);
         }
 
-        public async Task<ApiResponse> GetAllPilotRanks()
+        public async Task<ApiCommonResponse> GetAllPilotRanks()
         {
             var cRank = await _pilotRepository.FindAllPilotRanks();
             if (cRank == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var TransferDTO = _mapper.Map<IEnumerable<PilotRankTransferDTO>>(cRank);
-            return new ApiOkResponse(TransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,TransferDTO);
         }
 
-        public async Task<ApiResponse> GetAllPilotTypes()
+        public async Task<ApiCommonResponse> GetAllPilotTypes()
         {
             var Type = await _pilotRepository.FindAllPilotTypes();
             if (Type == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var TransferDTO = _mapper.Map<IEnumerable<PilotTypeTransferDTO>>(Type);
-            return new ApiOkResponse(TransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,TransferDTO);
         }
 
-        public async Task<ApiResponse> GetPilotRankById(long id)
+        public async Task<ApiCommonResponse> GetPilotRankById(long id)
         {
             var cRank = await _pilotRepository.FindPilotRankById(id);
             if (cRank == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var TransferDTO = _mapper.Map<PilotRankTransferDTO>(cRank);
-            return new ApiOkResponse(TransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,TransferDTO);
         }
 
-        public async Task<ApiResponse> GetPilotTypeById(long id)
+        public async Task<ApiCommonResponse> GetPilotTypeById(long id)
         {
             var Type = await _pilotRepository.FindPilotTypeById(id);
             if (Type == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var TransferDTO = _mapper.Map<PilotTypeTransferDTO>(Type);
-            return new ApiOkResponse(TransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,TransferDTO);
         }
 
-        public async Task<ApiResponse> UpdatePilotRank(HttpContext context, long id, PilotRankReceivingDTO pilotRankReceivingDTO)
+        public async Task<ApiCommonResponse> UpdatePilotRank(HttpContext context, long id, PilotRankReceivingDTO pilotRankReceivingDTO)
         {
             var ToUpdate = await _pilotRepository.FindPilotRankById(id);
             if (ToUpdate == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
 
             var summary = $"Initial details before change, \n {ToUpdate.ToString()} \n";
@@ -167,19 +167,19 @@ namespace HaloBiz.MyServices.Impl
 
             if (updatedRank == null)
             {
-                return new ApiResponse(500);
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
 
             var TransferDTOs = _mapper.Map<PilotRankTransferDTO>(updatedRank);
-            return new ApiOkResponse(TransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,TransferDTOs);
         }
 
-        public async Task<ApiResponse> UpdatePilotType(HttpContext context, long id, PilotTypeReceivingDTO pilotTypeReceivingDTO)
+        public async Task<ApiCommonResponse> UpdatePilotType(HttpContext context, long id, PilotTypeReceivingDTO pilotTypeReceivingDTO)
         {
             var ToUpdate = await _pilotRepository.FindPilotTypeById(id);
             if (ToUpdate == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
 
             var summary = $"Initial details before change, \n {ToUpdate.ToString()} \n";
@@ -194,11 +194,11 @@ namespace HaloBiz.MyServices.Impl
 
             if (updatedRank == null)
             {
-                return new ApiResponse(500);
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
 
             var TransferDTOs = _mapper.Map<PilotTypeTransferDTO>(updatedRank);
-            return new ApiOkResponse(TransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,TransferDTOs);
         }
     }
 }

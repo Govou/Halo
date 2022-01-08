@@ -32,58 +32,58 @@ namespace HaloBiz.MyServices.Impl.LAMS
             this._logger = logger;
         }
 
-        public async Task<ApiResponse> AddNegotiationDocument(HttpContext context, NegotiationDocumentReceivingDTO negotiationDocumentReceivingDTO)
+        public async Task<ApiCommonResponse> AddNegotiationDocument(HttpContext context, NegotiationDocumentReceivingDTO negotiationDocumentReceivingDTO)
         {
             var negotiationDocument = _mapper.Map<NegotiationDocument>(negotiationDocumentReceivingDTO);
             negotiationDocument.CreatedById = context.GetLoggedInUserId();
             var savedNegotiationDocument = await _negotiationDocumentRepo.SaveNegotiationDocument(negotiationDocument);
             if (savedNegotiationDocument == null)
             {
-                return new ApiResponse(500);
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
             var negotiationDocumentTransferDTO = _mapper.Map<NegotiationDocumentTransferDTO>(savedNegotiationDocument);
-            return new ApiOkResponse(negotiationDocumentTransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,negotiationDocumentTransferDTO);
         }
 
-        public async Task<ApiResponse> GetAllNegotiationDocument()
+        public async Task<ApiCommonResponse> GetAllNegotiationDocument()
         {
             var negotiationDocuments = await _negotiationDocumentRepo.FindAllNegotiationDocument();
             if (negotiationDocuments == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var negotiationDocumentTransferDTO = _mapper.Map<IEnumerable<NegotiationDocumentTransferDTO>>(negotiationDocuments);
-            return new ApiOkResponse(negotiationDocumentTransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,negotiationDocumentTransferDTO);
         }
 
-        public async Task<ApiResponse> GetNegotiationDocumentById(long id)
+        public async Task<ApiCommonResponse> GetNegotiationDocumentById(long id)
         {
             var negotiationDocument = await _negotiationDocumentRepo.FindNegotiationDocumentById(id);
             if (negotiationDocument == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var negotiationDocumentTransferDTOs = _mapper.Map<NegotiationDocumentTransferDTO>(negotiationDocument);
-            return new ApiOkResponse(negotiationDocumentTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,negotiationDocumentTransferDTOs);
         }
 
-        public async Task<ApiResponse> GetNegotiationDocumentByCaption(string caption)
+        public async Task<ApiCommonResponse> GetNegotiationDocumentByCaption(string caption)
         {
             var negotiationDocument = await _negotiationDocumentRepo.FindNegotiationDocumentByCaption(caption);
             if (negotiationDocument == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var negotiationDocumentTransferDTOs = _mapper.Map<NegotiationDocumentTransferDTO>(negotiationDocument);
-            return new ApiOkResponse(negotiationDocumentTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,negotiationDocumentTransferDTOs);
         }
 
-        public async Task<ApiResponse> UpdateNegotiationDocument(HttpContext context, long id, NegotiationDocumentReceivingDTO negotiationDocumentReceivingDTO)
+        public async Task<ApiCommonResponse> UpdateNegotiationDocument(HttpContext context, long id, NegotiationDocumentReceivingDTO negotiationDocumentReceivingDTO)
         {
             var negotiationDocumentToUpdate = await _negotiationDocumentRepo.FindNegotiationDocumentById(id);
             if (negotiationDocumentToUpdate == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             
             var summary = $"Initial details before change, \n {negotiationDocumentToUpdate.ToString()} \n" ;
@@ -98,7 +98,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
             if (updatedNegotiationDocument == null)
             {
-                return new ApiResponse(500);
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
             ModificationHistory history = new ModificationHistory(){
                 ModelChanged = "NegotiationDocument",
@@ -110,24 +110,24 @@ namespace HaloBiz.MyServices.Impl.LAMS
             await _historyRepo.SaveHistory(history);
 
             var negotiationDocumentTransferDTOs = _mapper.Map<NegotiationDocumentTransferDTO>(updatedNegotiationDocument);
-            return new ApiOkResponse(negotiationDocumentTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,negotiationDocumentTransferDTOs);
 
         }
 
-        public async Task<ApiResponse> DeleteNegotiationDocument(long id)
+        public async Task<ApiCommonResponse> DeleteNegotiationDocument(long id)
         {
             var negotiationDocumentToDelete = await _negotiationDocumentRepo.FindNegotiationDocumentById(id);
             if (negotiationDocumentToDelete == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
 
             if (!await _negotiationDocumentRepo.DeleteNegotiationDocument(negotiationDocumentToDelete))
             {
-                return new ApiResponse(500);
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
 
-            return new ApiOkResponse(true);
+            return CommonResponse.Send(ResponseCodes.SUCCESS);
         }
     }
 }

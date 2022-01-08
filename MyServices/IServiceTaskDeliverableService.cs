@@ -7,11 +7,11 @@ namespace HaloBiz.MyServices
 {
     public interface IServiceTaskDeliverableService
     {
-        Task<ApiResponse> AddServiceTaskDeliverable(HttpContext context, ServiceTaskDeliverableReceivingDTO serviceTaskDeliverableReceivingDTO);
-        Task<ApiResponse> GetAllServiceTaskDeliverables();
-        Task<ApiResponse> GetServiceTaskDeliverableById(long id);
-        Task<ApiResponse> GetServiceTaskDeliverableByName(string name);
-        Task<ApiResponse> UpdateServiceTaskDeliverable(HttpContext context, long id, ServiceTaskDeliverableReceivingDTO serviceTaskDeliverableReceivingDTO);
-        Task<ApiResponse> DeleteServiceTaskDeliverable(long id);
+        Task<ApiCommonResponse> AddServiceTaskDeliverable(HttpContext context, ServiceTaskDeliverableReceivingDTO serviceTaskDeliverableReceivingDTO);
+        Task<ApiCommonResponse> GetAllServiceTaskDeliverables();
+        Task<ApiCommonResponse> GetServiceTaskDeliverableById(long id);
+        Task<ApiCommonResponse> GetServiceTaskDeliverableByName(string name);
+        Task<ApiCommonResponse> UpdateServiceTaskDeliverable(HttpContext context, long id, ServiceTaskDeliverableReceivingDTO serviceTaskDeliverableReceivingDTO);
+        Task<ApiCommonResponse> DeleteServiceTaskDeliverable(long id);
     }
 }

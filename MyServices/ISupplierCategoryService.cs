@@ -7,10 +7,10 @@ namespace HaloBiz.MyServices
 {
     public interface ISupplierCategoryService
     {
-        Task<ApiResponse> AddSupplierCategory(HttpContext context, SupplierCategoryReceivingDTO supplierCategoryReceivingDTO);
-        Task<ApiResponse> GetAllSupplierCategories();
-        Task<ApiResponse> UpdateSupplierCategory(HttpContext context, long id, SupplierCategoryReceivingDTO supplierCategoryReceivingDTO);
-        Task<ApiResponse> DeleteSupplierCategory(long id);
-        Task<ApiResponse> GetSupplierCategoryById(long id);
+        Task<ApiCommonResponse> AddSupplierCategory(HttpContext context, SupplierCategoryReceivingDTO supplierCategoryReceivingDTO);
+        Task<ApiCommonResponse> GetAllSupplierCategories();
+        Task<ApiCommonResponse> UpdateSupplierCategory(HttpContext context, long id, SupplierCategoryReceivingDTO supplierCategoryReceivingDTO);
+        Task<ApiCommonResponse> DeleteSupplierCategory(long id);
+        Task<ApiCommonResponse> GetSupplierCategoryById(long id);
     }
 }

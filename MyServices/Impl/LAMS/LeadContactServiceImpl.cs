@@ -41,7 +41,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
             this._logger = logger;
         }
 
-        public async Task<ApiResponse> AddLeadContact(HttpContext context, long leadId,  LeadContactReceivingDTO leadContactReceivingDTO)
+        public async Task<ApiCommonResponse> AddLeadContact(HttpContext context, long leadId,  LeadContactReceivingDTO leadContactReceivingDTO)
         {
             
 
@@ -52,7 +52,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                     var lead = await _context.Leads.FirstOrDefaultAsync(lead => lead.Id == leadId);
                     if(lead == null)
                     {
-                        return new ApiResponse(404);
+                        return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
                     }
 
                     //Map Dto to LeadContact, add the logged in user info and save the LeadContact
@@ -75,43 +75,43 @@ namespace HaloBiz.MyServices.Impl.LAMS
                     //Map savedContact to a dto and return it
                     await transaction.CommitAsync();
                     var leadContactTransferDTO = _mapper.Map<LeadContactTransferDTO>(savedLeadContact);
-                    return new ApiOkResponse(leadContactTransferDTO);                    
+                    return CommonResponse.Send(ResponseCodes.SUCCESS,leadContactTransferDTO);                    
                 }
                 catch (Exception e)
                 {
                     _logger.LogError(e.Message);
                     transaction.Rollback();
-                    return new ApiResponse(500);
+                    return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
                 }
             }
 
         }
 
-        public async Task<ApiResponse> GetAllLeadContact()
+        public async Task<ApiCommonResponse> GetAllLeadContact()
         {
             var leadContacts = await _leadContactRepo.FindAllLeadContact();
             if (leadContacts == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var leadContactTransferDTO = _mapper.Map<IEnumerable<LeadContactTransferDTO>>(leadContacts);
-            return new ApiOkResponse(leadContactTransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,leadContactTransferDTO);
         }
 
-        public async Task<ApiResponse> GetLeadContactById(long id)
+        public async Task<ApiCommonResponse> GetLeadContactById(long id)
         {
             var leadContact = await _leadContactRepo.FindLeadContactById(id);
             if (leadContact == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var leadContactTransferDTO = _mapper.Map<LeadContactTransferDTO>(leadContact);
-            return new ApiOkResponse(leadContactTransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,leadContactTransferDTO);
         }
 
         
 
-        public async Task<ApiResponse> UpdateLeadContact(HttpContext context, long id, LeadContactReceivingDTO leadContactReceivingDTO)
+        public async Task<ApiCommonResponse> UpdateLeadContact(HttpContext context, long id, LeadContactReceivingDTO leadContactReceivingDTO)
         {
             using (var transaction = _context.Database.BeginTransaction())
             {
@@ -119,7 +119,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                     var leadContactToUpdate = await _context.LeadContacts.FirstOrDefaultAsync(contact => contact.Id == id);
                     if (leadContactToUpdate == null)
                     {
-                        return new ApiResponse(404);
+                        return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
                     }
                     
                     var summary = $"Initial details before change, \n {leadContactToUpdate.ToString()} \n" ;
@@ -150,31 +150,31 @@ namespace HaloBiz.MyServices.Impl.LAMS
                     await _context.SaveChangesAsync();
                     await transaction.CommitAsync();
                     var leadContactTransferDTOs = _mapper.Map<LeadContactTransferDTO>(updatedLeadContact);
-                    return new ApiOkResponse(leadContactTransferDTOs);
+                    return CommonResponse.Send(ResponseCodes.SUCCESS,leadContactTransferDTOs);
                     
                 }
                 catch (System.Exception)
                 {
                     transaction.Rollback();
-                    return new ApiResponse(500);
+                    return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
                 }
             }
         }
 
-        public async Task<ApiResponse> DeleteLeadContact(long id)
+        public async Task<ApiCommonResponse> DeleteLeadContact(long id)
         {
             var leadContactToDelete = await _leadContactRepo.FindLeadContactById(id);
             if (leadContactToDelete == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
 
             if (!await _leadContactRepo.DeleteLeadContact(leadContactToDelete))
             {
-                return new ApiResponse(500);
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
 
-            return new ApiOkResponse(true);
+            return CommonResponse.Send(ResponseCodes.SUCCESS);
         }
 
     }

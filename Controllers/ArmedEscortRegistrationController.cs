@@ -22,23 +22,15 @@ namespace HaloBiz.Controllers
         }
 
         [HttpGet("GetAllArmedEscortProfiless")]
-        public async Task<ActionResult> GetAllArmedEscortProfiless()
+        public async Task<ApiCommonResponse> GetAllArmedEscortProfiless()
         {
-            var response = await _armedEscortService.GetAllArmedEscorts();
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var cRank = ((ApiOkResponse)response).Result;
-            return Ok(cRank);
+            return await _armedEscortService.GetAllArmedEscorts();
         }
 
         [HttpGet("GetAllArmedEscortTies")]
-        public async Task<ActionResult> GetAllArmedEscortTies()
+        public async Task<ApiCommonResponse> GetAllArmedEscortTies()
         {
-            var response = await _armedEscortService.GetAllArmedEscortTies();
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var cRank = ((ApiOkResponse)response).Result;
-            return Ok(cRank);
+            return await _armedEscortService.GetAllArmedEscortTies();
         }
         [HttpGet("GetAllArmedEscortTiesByResourceId")]
         public async Task<ActionResult> GetAllArmedEscortTiesByResourceId(long id)
@@ -50,67 +42,45 @@ namespace HaloBiz.Controllers
             return Ok(cRank);
         }
         [HttpGet("GetProfileById/{id}")]
-        public async Task<ActionResult> GetProfileById(long id)
+        public async Task<ApiCommonResponse> GetProfileById(long id)
         {
-            var response = await _armedEscortService.GetArmedEscortById(id);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var Rank = ((ApiOkResponse)response).Result;
-            return Ok(Rank);
+            return await _armedEscortService.GetArmedEscortById(id);
         }
 
         [HttpGet("GetProfileTieById/{id}")]
-        public async Task<ActionResult> GetProfileTieById(long id)
+        public async Task<ApiCommonResponse> GetProfileTieById(long id)
         {
-            var response = await _armedEscortService.GetArmedEscortTieById(id);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var Rank = ((ApiOkResponse)response).Result;
-            return Ok(Rank);
+            return await _armedEscortService.GetArmedEscortTieById(id);
         }
 
         [HttpPost("AddNewProfile")]
-        public async Task<ActionResult> AddNewProfile(ArmedEscortProfileReceivingDTO ReceivingDTO)
+        public async Task<ApiCommonResponse> AddNewProfile(ArmedEscortProfileReceivingDTO ReceivingDTO)
         {
-            var response = await _armedEscortService.AddArmedEscort(HttpContext, ReceivingDTO);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var type = ((ApiOkResponse)response).Result;
-            return Ok(type);
+            return await _armedEscortService.AddArmedEscort(HttpContext, ReceivingDTO);
         }
 
         [HttpPost("AddNewProfileTie")]
-        public async Task<ActionResult> AddNewProfileTie(ArmedEscortSMORoutesResourceTieReceivingDTO ReceivingDTO)
+        public async Task<ApiCommonResponse> AddNewProfileTie(ArmedEscortSMORoutesResourceTieReceivingDTO ReceivingDTO)
         {
-            var response = await _armedEscortService.AddArmedEscortTie(HttpContext, ReceivingDTO);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var type = ((ApiOkResponse)response).Result;
-            return Ok(type);
+            return await _armedEscortService.AddArmedEscortTie(HttpContext, ReceivingDTO);
         }
 
         [HttpPut("UpdateProfileById/{id}")]
-        public async Task<IActionResult> UpdateProfileById(long id, ArmedEscortProfileReceivingDTO Receiving)
+        public async Task<ApiCommonResponse> UpdateProfileById(long id, ArmedEscortProfileReceivingDTO Receiving)
         {
-            var response = await _armedEscortService.UpdateArmedEscort(HttpContext, id, Receiving);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var type = ((ApiOkResponse)response).Result;
-            return Ok(type);
+            return await _armedEscortService.UpdateArmedEscort(HttpContext, id, Receiving);
         }
 
         [HttpDelete("DeleteProfileById/{id}")]
-        public async Task<ActionResult> DeleteProfileById(int id)
+        public async Task<ApiCommonResponse> DeleteProfileById(int id)
         {
-            var response = await _armedEscortService.DeleteArmedEscort(id);
-            return StatusCode(response.StatusCode);
+            return await _armedEscortService.DeleteArmedEscort(id);
         }
 
         [HttpDelete("DeleteProfileTieById/{id}")]
-        public async Task<ActionResult> DeleteProfileTieById(int id)
+        public async Task<ApiCommonResponse> DeleteProfileTieById(int id)
         {
-            var response = await _armedEscortService.DeleteArmedEscortTie(id);
-            return StatusCode(response.StatusCode);
+            return await _armedEscortService.DeleteArmedEscortTie(id);
         }
     }
 }

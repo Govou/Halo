@@ -24,13 +24,13 @@ namespace HaloBiz.MyServices.Impl
             _priceRegisterRepository = priceRegisterRepository;
         }
 
-        public async Task<ApiResponse> AddPriceRegister(HttpContext context, PriceRegisterReceivingDTO priceRegisterReceivingDTO)
+        public async Task<ApiCommonResponse> AddPriceRegister(HttpContext context, PriceRegisterReceivingDTO priceRegisterReceivingDTO)
         {
             var priceReg = _mapper.Map<PriceRegister>(priceRegisterReceivingDTO);
             var NameExist = _priceRegisterRepository.GetServiceRegIdRegionAndRoute(priceRegisterReceivingDTO.ServiceRegistrationId, priceRegisterReceivingDTO.SMORouteId);
             if (NameExist != null)
             {
-                return new ApiResponse(409);
+                                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE,null, "No record exists");;
             }
             priceReg.CreatedById = context.GetLoggedInUserId();
             //priceReg.MarkupPrice = 
@@ -38,68 +38,68 @@ namespace HaloBiz.MyServices.Impl
             var Save = await _priceRegisterRepository.SavePriceRegister(priceReg);
             if (Save == null)
             {
-                return new ApiResponse(500);
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
             var typeTransferDTO = _mapper.Map<PriceRegisterTransferDTO>(priceReg);
-            return new ApiOkResponse(typeTransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,typeTransferDTO);
         }
 
-        public async Task<ApiResponse> DeletePriceRegister(long id)
+        public async Task<ApiCommonResponse> DeletePriceRegister(long id)
         {
             var itemToDelete = await _priceRegisterRepository.FindPriceRegisterById(id);
 
             if (itemToDelete == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
 
             if (!await _priceRegisterRepository.DeletePriceRegister(itemToDelete))
             {
-                return new ApiResponse(500);
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
 
-            return new ApiOkResponse(true);
+            return CommonResponse.Send(ResponseCodes.SUCCESS);
         }
 
-        public async Task<ApiResponse> GetAllPriceRegisters()
+        public async Task<ApiCommonResponse> GetAllPriceRegisters()
         {
             var priceReg = await _priceRegisterRepository.FindAllPriceRegisters();
             if (priceReg == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var TransferDTO = _mapper.Map<IEnumerable<PriceRegisterTransferDTO>>(priceReg);
-            return new ApiOkResponse(TransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,TransferDTO);
         }
 
-        public async Task<ApiResponse> GetAllPriceRegistersByRouteId(long routeId)
+        public async Task<ApiCommonResponse> GetAllPriceRegistersByRouteId(long routeId)
         {
             var priceReg = await _priceRegisterRepository.FindAllPriceRegistersWithByRouteId(routeId);
             if (priceReg == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var TransferDTO = _mapper.Map<IEnumerable<PriceRegisterTransferDTO>>(priceReg);
-            return new ApiOkResponse(TransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,TransferDTO);
         }
 
-        public async Task<ApiResponse> GetPriceRegisterId(long id)
+        public async Task<ApiCommonResponse> GetPriceRegisterId(long id)
         {
             var priceReg = await _priceRegisterRepository.FindPriceRegisterById(id);
             if (priceReg == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
             var TransferDTO = _mapper.Map<PriceRegisterTransferDTO>(priceReg);
-            return new ApiOkResponse(TransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,TransferDTO);
         }
 
-        public async Task<ApiResponse> UpdatePriceRegister(HttpContext context, long id, PriceRegisterReceivingDTO priceRegisterReceivingDTO)
+        public async Task<ApiCommonResponse> UpdatePriceRegister(HttpContext context, long id, PriceRegisterReceivingDTO priceRegisterReceivingDTO)
         {
             var itemToUpdate = await _priceRegisterRepository.FindPriceRegisterById(id);
             if (itemToUpdate == null)
             {
-                return new ApiResponse(404);
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
 
             var summary = $"Initial details before change, \n {itemToUpdate.ToString()} \n";
@@ -116,11 +116,11 @@ namespace HaloBiz.MyServices.Impl
 
             if (updatedRank == null)
             {
-                return new ApiResponse(500);
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
 
             var TransferDTOs = _mapper.Map<PriceRegisterTransferDTO>(updatedRank);
-            return new ApiOkResponse(TransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,TransferDTOs);
         }
     }
 }

@@ -10,11 +10,11 @@ namespace HaloBiz.MyServices
 {
     public interface ITargetService
     {
-        Task<ApiResponse> AddTarget(HttpContext context, TargetReceivingDTO targetReceivingDTO);
-        Task<ApiResponse> GetAllTarget();
-        Task<ApiResponse> GetTargetById(long id);
-        Task<ApiResponse> GetTargetByName(string name);
-        Task<ApiResponse> UpdateTarget(HttpContext context, long id, TargetReceivingDTO targetReceivingDTO);
-        Task<ApiResponse> DeleteTarget(long id);
+        Task<ApiCommonResponse> AddTarget(HttpContext context, TargetReceivingDTO targetReceivingDTO);
+        Task<ApiCommonResponse> GetAllTarget();
+        Task<ApiCommonResponse> GetTargetById(long id);
+        Task<ApiCommonResponse> GetTargetByName(string name);
+        Task<ApiCommonResponse> UpdateTarget(HttpContext context, long id, TargetReceivingDTO targetReceivingDTO);
+        Task<ApiCommonResponse> DeleteTarget(long id);
     }
 }

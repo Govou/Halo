@@ -22,97 +22,63 @@ namespace HaloBiz.Controllers
         }
 
         [HttpGet("GetAllPilotRanks")]
-        public async Task<ActionResult> GetAllPilotRanks()
+        public async Task<ApiCommonResponse> GetAllPilotRanks()
         {
-            var response = await _pilotService.GetAllPilotRanks();
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var res = ((ApiOkResponse)response).Result;
-            return Ok(res);
+            return await _pilotService.GetAllPilotRanks();
         }
 
         [HttpGet("GetAllPilotTypes")]
-        public async Task<ActionResult> GetAllPilotTypes()
+        public async Task<ApiCommonResponse> GetAllPilotTypes()
         {
-            var response = await _pilotService.GetAllPilotTypes();
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var res = ((ApiOkResponse)response).Result;
-            return Ok(res);
+            return await _pilotService.GetAllPilotTypes();
         }
 
         [HttpGet("GetRankById/{id}")]
-        public async Task<ActionResult> GetRankById(long id)
+        public async Task<ApiCommonResponse> GetRankById(long id)
         {
-            var response = await _pilotService.GetPilotRankById(id);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var res = ((ApiOkResponse)response).Result;
-            return Ok(res);
+            return await _pilotService.GetPilotRankById(id);
         }
 
         [HttpGet("GetTypeById/{id}")]
-        public async Task<ActionResult> GetTypeById(long id)
+        public async Task<ApiCommonResponse> GetTypeById(long id)
         {
-            var response = await _pilotService.GetPilotTypeById(id);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var type = ((ApiOkResponse)response).Result;
-            return Ok(type);
+            return await _pilotService.GetPilotTypeById(id);
         }
 
         [HttpPost("AddNewType")]
-        public async Task<ActionResult> AddNewType(PilotTypeReceivingDTO TypeReceivingDTO)
+        public async Task<ApiCommonResponse> AddNewType(PilotTypeReceivingDTO TypeReceivingDTO)
         {
-            var response = await _pilotService.AddPilotType(HttpContext, TypeReceivingDTO);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var res = ((ApiOkResponse)response).Result;
-            return Ok(res);
+            return await _pilotService.AddPilotType(HttpContext, TypeReceivingDTO);
         }
 
         [HttpPost("AddNewRank")]
-        public async Task<ActionResult> AddNewRank(PilotRankReceivingDTO RankReceivingDTO)
+        public async Task<ApiCommonResponse> AddNewRank(PilotRankReceivingDTO RankReceivingDTO)
         {
-            var response = await _pilotService.AddPilotRank(HttpContext, RankReceivingDTO);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var res = ((ApiOkResponse)response).Result;
-            return Ok(res);
+            return await _pilotService.AddPilotRank(HttpContext, RankReceivingDTO);
         }
 
         [HttpPut("UpdateTypeById/{id}")]
-        public async Task<IActionResult> UpdateTypeById(long id, PilotTypeReceivingDTO TypeReceiving)
+        public async Task<ApiCommonResponse> UpdateTypeById(long id, PilotTypeReceivingDTO TypeReceiving)
         {
-            var response = await _pilotService.UpdatePilotType(HttpContext, id, TypeReceiving);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var res = ((ApiOkResponse)response).Result;
-            return Ok(res);
+            return await _pilotService.UpdatePilotType(HttpContext, id, TypeReceiving);
         }
 
         [HttpPut("UpdateRankById/{id}")]
-        public async Task<IActionResult> UpdateRankById(long id, PilotRankReceivingDTO RankReceiving)
+        public async Task<ApiCommonResponse> UpdateRankById(long id, PilotRankReceivingDTO RankReceiving)
         {
-            var response = await _pilotService.UpdatePilotRank(HttpContext, id, RankReceiving);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var res = ((ApiOkResponse)response).Result;
-            return Ok(res);
+            return await _pilotService.UpdatePilotRank(HttpContext, id, RankReceiving);
         }
 
         [HttpDelete("DeleteRankById/{id}")]
-        public async Task<ActionResult> DeleteRankById(int id)
+        public async Task<ApiCommonResponse> DeleteRankById(int id)
         {
-            var response = await _pilotService.DeletePilotRank(id);
-            return StatusCode(response.StatusCode);
+            return await _pilotService.DeletePilotRank(id);
         }
 
         [HttpDelete("DeleteTypeById/{id}")] //{id}
-        public async Task<ActionResult> DeleteTypeById(int id)
+        public async Task<ApiCommonResponse> DeleteTypeById(int id)
         {
-            var response = await _pilotService.DeletePilotType(id);
-            return StatusCode(response.StatusCode);
+            return await _pilotService.DeletePilotType(id);
         }
     }
 }
