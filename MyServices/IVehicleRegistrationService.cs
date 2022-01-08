@@ -17,14 +17,11 @@ namespace HaloBiz.MyServices
         Task<ApiCommonResponse> DeleteVehicle(long id);
 
         //Tie
+
         Task<ApiCommonResponse> AddVehicleTie(HttpContext context, VehicleSMORoutesResourceTieReceivingDTO vehicleTieReceivingDTO);
         Task<ApiCommonResponse> GetAllVehicleTies();
+        Task<ApiCommonResponse> GetAllVehicleTiesByResourceId(long resourceId);
         Task<ApiCommonResponse> GetVehicleTieById(long id);
         Task<ApiCommonResponse> DeleteVehicleTie(long id);
-        Task<ApiResponse> AddVehicleTie(HttpContext context, VehicleSMORoutesResourceTieReceivingDTO vehicleTieReceivingDTO);
-        Task<ApiResponse> GetAllVehicleTies();
-        Task<ApiResponse> GetAllVehicleTiesByResourceId(long resourceId);
-        Task<ApiResponse> GetVehicleTieById(long id);
-        Task<ApiResponse> DeleteVehicleTie(long id);
     }
 }
