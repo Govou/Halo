@@ -765,8 +765,11 @@ namespace HaloBiz.MyServices.Impl
 
 
 
+
         public async Task<ApiCommonResponse> getCurrentDeliverableStatus(HttpContext httpContext, long workspaceId)
         {
+
+
 
                 var deliverableArray = new List<DeliverableWithStatusDTO>();
             
@@ -818,10 +821,6 @@ namespace HaloBiz.MyServices.Impl
             return CommonResponse.Send(ResponseCodes.SUCCESS, deliverableArray, ResponseMessage.EntitySuccessfullyFound);
 
         }
-
-
-
-
 
 
 
