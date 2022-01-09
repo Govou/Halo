@@ -107,7 +107,7 @@ namespace HaloBiz.MyServices
         //Task<ApiCommonResponse> getDeliverableStatus(HttpContext httpContext);
         Task<ApiCommonResponse> getAssignedDeliverableStatus(HttpContext httpContext, List<DeliverableStatusDTO> deliverableStatusDTOs);
         Task<ApiCommonResponse> getWorkspaceWithStatus(HttpContext httpContext);
-        Task<ApiCommonResponse> getCurrentDeliverableStatus(HttpContext httpContext,List<StatusFlow> statusFlows);
+        Task<ApiCommonResponse> getCurrentDeliverableStatus(HttpContext httpContext, long workspaceId);
 
 
 

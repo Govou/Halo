@@ -156,6 +156,8 @@ namespace HaloBiz.DTOs.ProjectManagementDTO
 		public StatusFlow StatusFlow { get; set; }
 		public UserProfile userProfile { get; set; }
 
+		public ICollection<PMIllustration> PMIllustrations { get; set; }
+
 		public UserProfile CreatedBy
 		{
 			get;

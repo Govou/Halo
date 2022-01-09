@@ -465,10 +465,10 @@ namespace HaloBiz.Controllers
             return Ok(response);
         }
 
-        [HttpPost("GetAssignedDeliverableStatus")]
-        public async Task<ActionResult> GetAssignedDeliverableStatus(List<StatusFlow> statusFlows)
+        [HttpGet("GetAssignedDeliverableStatus/{workspaceId}")]
+        public async Task<ActionResult> GetAssignedDeliverableStatus(long workspaceId)
         {
-            var response = await _projectAllocationService.getCurrentDeliverableStatus(HttpContext, statusFlows);
+            var response = await _projectAllocationService.getCurrentDeliverableStatus(HttpContext,workspaceId);
             return Ok(response);
         }
 
