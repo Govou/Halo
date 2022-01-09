@@ -37,6 +37,12 @@ namespace HaloBiz.Controllers.AccountsModel
             return await _invoiceService.GetAllProformaInvoicesByContactserviceId(contractDivisionId);
         }
 
+        [HttpGet("GetGroupInvoiceSendDateByContractId/{contractId}")]
+        public async Task<ApiCommonResponse> GetGroupInvoiceSendDateByContractId(long contractId)
+        {
+            return await _invoiceService.GetGroupInvoiceSendDateByContractId(contractId);
+        }
+
         [HttpGet("{id}")]
         public async Task<ApiCommonResponse> GetById(long id)
         {

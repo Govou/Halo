@@ -166,7 +166,7 @@ namespace HaloBiz.Repository.Impl
             }
 
             return invoices;
-        }
+        }       
 
         public async Task<IEnumerable<Invoice>> GetProformaInvoiceByContractServiceId(long contractServiceId)
         {            
