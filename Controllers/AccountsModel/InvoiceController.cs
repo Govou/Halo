@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using HaloBiz.DTOs.ApiDTOs;
 using HaloBiz.DTOs.ReceivingDTOs;
@@ -36,6 +37,12 @@ namespace HaloBiz.Controllers.AccountsModel
             return await _invoiceService.GetAllProformaInvoicesByContactserviceId(contractDivisionId);
         }
 
+        [HttpGet("GetGroupInvoiceSendDateByContractId/{contractId}")]
+        public async Task<ApiCommonResponse> GetGroupInvoiceSendDateByContractId(long contractId)
+        {
+            return await _invoiceService.GetGroupInvoiceSendDateByContractId(contractId);
+        }
+
         [HttpGet("{id}")]
         public async Task<ApiCommonResponse> GetById(long id)
         {
@@ -49,18 +56,12 @@ namespace HaloBiz.Controllers.AccountsModel
         }
 
         [HttpGet("GetInvoiceDetails/{invoiceId}")]
-        [HttpGet("GetInvoiceDetails/{invoiceId}/{isAdhocAndGrouped}")]
 
-        public async Task<ApiCommonResponse> SendInvoiceDetails(long invoiceId, bool isAdhocAndGrouped = false)
+        public async Task<ApiCommonResponse> SendInvoiceDetails(long invoiceId)
         {
-            return await _invoiceService.GetInvoiceDetails(invoiceId, isAdhocAndGrouped);
+            return await _invoiceService.GetInvoiceDetails(invoiceId);
         }
-
-        //[HttpGet("GetInvoiceDetails/{groupinvoicenumber}/{startdate}")]
-        //public async Task<ApiCommonResponse> GetInvoiceDetails(string groupinvoicenumber, string startdate)
-        //{
-        //    return await _invoiceService.GetInvoiceDetails(groupinvoicenumber, startdate);
-        //}
+       
 
 
         [HttpPost("AdHocInvoice")]
@@ -80,12 +81,13 @@ namespace HaloBiz.Controllers.AccountsModel
         public async Task<ApiCommonResponse> UpdateById(long id, InvoiceReceivingDTO invoiceReceiving)
         {
             return await _invoiceService.UpdateInvoice(HttpContext, id, invoiceReceiving);
-        }
+        }      
+       
 
-        [HttpPut("ConvertToFinalInvoice/{invoiceId}")]
-        public async Task<ApiCommonResponse> ConverToFinal(long invoiceId)
+        [HttpPut("ConvertToFinalInvoice")]
+        public async Task<ApiCommonResponse> ConverToFinal(List<long> invoiceIds)
         {
-            return await _invoiceService.ConvertProformaInvoiceToFinalInvoice(HttpContext ,invoiceId);
+            return await _invoiceService.ConvertInvoiceToFinalInvoice(invoiceIds, HttpContext);
         }
 
         [HttpPut("RemoveProformaInvoice/{invoiceId}")]

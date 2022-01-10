@@ -245,27 +245,27 @@ namespace HaloBiz.MyServices.Impl
                     return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
                 }
             }
-        }
-
-        public async Task<ApiCommonResponse> ConvertProformaInvoiceToFinalInvoice(HttpContext httpContext, long invoiceId)
-        {
-             var invoiceToUpdate = await _invoiceRepo.FindInvoiceById(invoiceId);
-             invoiceToUpdate.IsAccountPosted = true;
-             this.LoggedInUserId = httpContext.GetLoggedInUserId();
-             if(invoiceToUpdate == null)
-             {
-                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
-             }
+        }        
+       
+        //public async Task<ApiCommonResponse> ConvertProformaInvoiceToFinalInvoice(HttpContext httpContext, long invoiceId)
+        //{
+        //     var invoiceToUpdate = await _invoiceRepo.FindInvoiceById(invoiceId);
+        //     invoiceToUpdate.IsAccountPosted = true; //todo, find out
+        //     this.LoggedInUserId = httpContext.GetLoggedInUserId();
+        //     if(invoiceToUpdate == null)
+        //     {
+        //         return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+        //     }
              
-             if(String.IsNullOrWhiteSpace(invoiceToUpdate.GroupInvoiceNumber))
-             {
-                 return await ConvertInvoiceToFinalInvoice( invoiceToUpdate);
-             }
-             else
-             {
-                 return await ConvertGroupInvoiceToFinalInvoice(invoiceToUpdate);
-             }
-        }
+        //     if(String.IsNullOrWhiteSpace(invoiceToUpdate.GroupInvoiceNumber))
+        //     {
+        //         return await ConvertInvoiceToFinalInvoice( invoiceToUpdate);
+        //     }
+        //     else
+        //     {
+        //         return await ConvertGroupInvoiceToFinalInvoice(invoiceToUpdate);
+        //     }
+        //}
         
         private async Task<ApiCommonResponse> ConvertGroupInvoiceToFinalInvoice(Invoice invoice)
         {
@@ -340,48 +340,70 @@ namespace HaloBiz.MyServices.Impl
             }        
         }
 
-        private async Task<ApiCommonResponse> ConvertInvoiceToFinalInvoice(Invoice invoice)
+        public async Task<ApiCommonResponse> ConvertInvoiceToFinalInvoice(List<long> invoicesIds, HttpContext context)
         {
             using(var transaction  = await _context.Database.BeginTransactionAsync())
             {
                 try
                 {
-                    var contractService = await _context.ContractServices
-                                .Include(x => x.QuoteService)
-                                .FirstOrDefaultAsync(x => x.Id == invoice.ContractServiceId);
+                    LoggedInUserId = context.GetLoggedInUserId();
 
-                    contractService.AdHocInvoicedAmount+= invoice.Value;
-                    _context.ContractServices.Update(contractService);
-                    await _context.SaveChangesAsync();
+                    //get the hightest 
+                    var hightestGroupingId = await _context.Invoices.MaxAsync(x => x.AdhocGroupingId);
+                    var adhocGroupingId = 1 + hightestGroupingId ?? 0;
+                    foreach (var invoiceId in invoicesIds)
+                    {
+                        var invoice = await _context.Invoices
+                                       .Where(x => x.Id == invoiceId)
+                                       .Include(x => x.ContractService)
+                                        .ThenInclude(x => x.QuoteService)
+                                        .FirstOrDefaultAsync();
 
-                    var customerDivision = await _context.CustomerDivisions
-                                        .Include(x => x.Customer)
-                                        .FirstOrDefaultAsync(x => x.Id == invoice.CustomerDivisionId);
+                        var contractService = invoice.ContractService;
 
-                    this.isRetail = customerDivision.Customer.GroupName == RETAIL;
+                        contractService.AdHocInvoicedAmount += invoice.Value;
+                        if(contractService.AdHocInvoicedAmount > contractService.BillableAmount)
+                        {
+                            return CommonResponse.Send(ResponseCodes.FAILURE, null, "Total invoices amount exceeds contract service billable amount");
+                        }
 
-                    FinanceVoucherType accountVoucherType = await _context.FinanceVoucherTypes
-                            .FirstOrDefaultAsync(x => x.VoucherType == this.SALESINVOICEVOUCHER);
-                    
-                    var service = await _context.Services
-                                    .FirstOrDefaultAsync(x => x.Id == contractService.ServiceId);
+                        _context.ContractServices.Update(contractService);
+                        await _context.SaveChangesAsync();
+
+                        var customerDivision = await _context.CustomerDivisions
+                                            .Where(x => x.Id == invoice.CustomerDivisionId)
+                                            .Include(x => x.Customer)
+                                            .FirstOrDefaultAsync();
+
+                        this.isRetail = customerDivision.Customer.GroupName == RETAIL;
+
+                        FinanceVoucherType accountVoucherType = await _context.FinanceVoucherTypes
+                                .FirstOrDefaultAsync(x => x.VoucherType == this.SALESINVOICEVOUCHER);
+
+                        var service = await _context.Services
+                                        .FirstOrDefaultAsync(x => x.Id == contractService.ServiceId);
 
 
-                    var VAT = (double) invoice.Value * (7.5 / 107.5);
+                        var VAT = (double)invoice.Value * (7.5 / 107.5);
 
-                    await PostAccounts(contractService, customerDivision, accountVoucherType.Id, 
-                                        VAT, invoice.Value, service);
+                        await PostAccounts(contractService, customerDivision, accountVoucherType.Id,
+                                            VAT, invoice.Value, service);
 
-                    invoice.IsFinalInvoice = true;
-                    _context.Invoices.Update(invoice);
-                    await _context.SaveChangesAsync();
-                    var invoiceTransferDTO = _mapper.Map<InvoiceTransferDTO>(invoice);
+                        invoice.IsFinalInvoice = true;
+                        invoice.AdhocGroupingId = adhocGroupingId;
 
-                    await _leadConversionService.GenerateAmortizations(contractService, customerDivision, 
-                                    invoice.Value);
+                        _context.Invoices.Update(invoice);
+                        await _context.SaveChangesAsync();
+                        var invoiceTransferDTO = _mapper.Map<InvoiceTransferDTO>(invoice);
+
+                        await _leadConversionService.GenerateAmortizations(contractService, customerDivision,
+                                        invoice.Value);
+                    }
+
                     await _context.SaveChangesAsync();
                     await transaction.CommitAsync();
-                    return CommonResponse.Send(ResponseCodes.SUCCESS,invoiceTransferDTO);
+
+                    return CommonResponse.Send(ResponseCodes.SUCCESS);
                 }
                 catch(Exception e)
                 {
@@ -939,6 +961,32 @@ namespace HaloBiz.MyServices.Impl
             return CommonResponse.Send(ResponseCodes.SUCCESS,invoiceTransferDTO);
         }
 
+        public async Task<ApiCommonResponse> GetGroupInvoiceSendDateByContractId(long contractId)
+        {
+            var invoice = new Invoice();
+            try
+            {
+                invoice = await _context.Invoices
+                      .Where(x => x.ContractId == contractId && !string.IsNullOrEmpty(x.GroupInvoiceNumber)
+                                  && x.IsDeleted == false)
+                      .FirstOrDefaultAsync();
+
+                if(invoice != null)
+                {
+                    invoice.DateToBeSent = invoice.DateToBeSent.Date;
+                    return CommonResponse.Send(ResponseCodes.SUCCESS, invoice);
+                }
+
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("", ex);
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system eerrors occured");
+            }
+        }
+
+
         public async Task<ApiCommonResponse> GetAllProformaInvoicesByContactserviceId(long contractServiceId)
         {
             var invoice = await _invoiceRepo.GetProformaInvoiceByContractServiceId(contractServiceId);
@@ -1018,7 +1066,11 @@ namespace HaloBiz.MyServices.Impl
                 
                 foreach (var invoice in invoices)
                 {
-                    invoice.IsInvoiceSent = ((Invoice)(await SendInvoice(invoice)).responseData).IsInvoiceSent;
+                    var response = await SendInvoice(invoice);
+                    if (response.responseCode == "00")
+                    {
+                        invoice.IsInvoiceSent = true;
+                    }
                 }
 
                 await _context.SaveChangesAsync();
@@ -1031,8 +1083,8 @@ namespace HaloBiz.MyServices.Impl
                 var groupings = theGroupInvoices.GroupBy(x => x.GroupInvoiceNumber);
                 foreach (var group in groupings)
                 {
-                    var invoiceSent = ((Invoice)(await SendInvoice(group.FirstOrDefault())).responseData).IsInvoiceSent; //await SendInvoice(group.FirstOrDefault());
-                    if (invoiceSent)
+                    var invoiceSent = ((Invoice)(await SendInvoice(group.FirstOrDefault())).responseData)?.IsInvoiceSent; //await SendInvoice(group.FirstOrDefault());
+                    if (invoiceSent==true)
                     {
                         foreach (var invoice in group)
                         {
@@ -1086,7 +1138,7 @@ namespace HaloBiz.MyServices.Impl
 
         }
 
-        public async Task<ApiCommonResponse> GetInvoiceDetails(long invoiceId, bool isAdhocAndGrouped = false)
+        public async Task<ApiCommonResponse> GetInvoiceDetails(long invoiceId)
         {
             try
             {
@@ -1099,7 +1151,7 @@ namespace HaloBiz.MyServices.Impl
                     return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
                 }
 
-                InvoiceMailDTO invoiceMailDTO = await GenerateInvoiceMailDTO(invoice, isAdhocAndGrouped);
+                InvoiceMailDTO invoiceMailDTO = await GenerateInvoiceMailDTO(invoice);
                 return CommonResponse.Send(ResponseCodes.SUCCESS,invoiceMailDTO);
             }
             catch (System.Exception ex)
@@ -1250,7 +1302,7 @@ namespace HaloBiz.MyServices.Impl
         }
 
 
-        private async Task<InvoiceMailDTO> GenerateInvoiceMailDTO(Invoice invoice, bool isAdhocAndGrouped = false)
+        private async Task<InvoiceMailDTO> GenerateInvoiceMailDTO(Invoice invoice)
         {
             bool isProforma = invoice.IsFinalInvoice == false;
 
@@ -1283,10 +1335,7 @@ namespace HaloBiz.MyServices.Impl
                 var contractService = await _context.ContractServices.FindAsync(invoice.ContractServiceId);
                 if(contractService.InvoicingInterval == (int)TimeCycle.Adhoc)
                 {
-                    if(isAdhocAndGrouped)
-                        invoices = invoices.Where(x => x.Id == invoice.Id);
-                    else
-                        invoices = invoices.Where(x => x.StartDate.ToString("G") == invoice.StartDate.ToString("G"));
+                    invoices = invoices.Where(x => x.AdhocGroupingId == invoice.AdhocGroupingId);
                 }
                 else
                 {

@@ -21,12 +21,15 @@ namespace HaloBiz.DTOs.ApiDTOs
         /// <summary>
         /// Failure
         /// </summary>
-        NO_DATA_AVAILABLE = 10,
+        NO_DATA_AVAILABLE = 01,
 
         /// <summary>
         /// Some failure of some sort
         /// </summary>
-        FAILURE = 11,
+        FAILURE = 02,
+        SYSTEM_ERROR_OCCURRED = 03,
+        NO_USER_PROFILE_FOUND = 04,
+        INVALID_LOGIN_DETAILS = 05,
     }
 
     public static class CommonResponse
