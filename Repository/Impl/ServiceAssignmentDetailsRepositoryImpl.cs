@@ -1,4 +1,5 @@
 ﻿using HalobizMigrations.Data;
+using HalobizMigrations.Models;
 using HalobizMigrations.Models.Armada;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -104,6 +105,16 @@ namespace HaloBiz.Repository.Impl
                .Include(ct => ct.CommanderResource).Include(t => t.CommanderResource.Profile).Include(t => t.TiedVehicleResource).Include(t => t.ServiceAssignment)
                .Include(t => t.TempReleaseType).Include(t => t.CreatedBy).Include(t => t.ActionReleaseType).Include(t => t.CommanderResource.CommanderType)
                .OrderByDescending(x => x.Id)
+               .ToListAsync();
+        }
+
+        public async Task<IEnumerable<Contract>> FindAllContracts()
+        {
+            return await _context.Contracts
+                .Include(x => x.ContractServices)
+               
+               .Where(entity => entity.IsDeleted == false)
+               .OrderByDescending(entity => entity.Id)
                .ToListAsync();
         }
 

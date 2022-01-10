@@ -3,6 +3,7 @@ using HaloBiz.DTOs.ApiDTOs;
 using HaloBiz.DTOs.GenericResponseDTO;
 using HaloBiz.DTOs.ReceivingDTOs;
 using HaloBiz.DTOs.TransferDTOs;
+using HaloBiz.DTOs.TransferDTOs.LAMS;
 using HaloBiz.Helpers;
 using HaloBiz.Repository;
 using HalobizMigrations.Models;
@@ -1549,6 +1550,17 @@ namespace HaloBiz.MyServices.Impl
         public static void CheckForAllForRequiredResource()
         {
 
+        }
+
+        public async Task<ApiCommonResponse> GetAllContracts()
+        {
+            var contracts = await _serviceAssignmentDetailsRepository.FindAllContracts();
+            if (contracts == null)
+            {
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE); ;
+            }
+            var contractTransferDTOs = _mapper.Map<IEnumerable<ContractTransferDTO>>(contracts);
+            return CommonResponse.Send(ResponseCodes.SUCCESS, contractTransferDTOs);
         }
     }
 }

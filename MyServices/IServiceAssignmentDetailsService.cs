@@ -53,5 +53,7 @@ namespace HaloBiz.MyServices
         Task<ApiCommonResponse> GetPassengerById(long id);
         Task<ApiCommonResponse> UpdatePassenger(HttpContext context, long id, PassengerReceivingDTO passengerReceivingDTO);
         Task<ApiCommonResponse> DeletePassenger(long id);
+
+        Task<ApiCommonResponse> GetAllContracts();
     }
 }

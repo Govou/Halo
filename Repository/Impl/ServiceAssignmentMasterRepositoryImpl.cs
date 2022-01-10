@@ -27,6 +27,14 @@ namespace HaloBiz.Repository.Impl
             return await SaveChanges();
         }
 
+        public async Task<IEnumerable<object>> FindAllCustomerDivision()
+        {
+            return await _context.CustomerDivisions.Where(x => !x.IsDeleted)
+               .OrderBy(x => x.DivisionName)
+               .Select(x => new { Id = x.Id, DivisionName = x.DivisionName, Contracts = x.Contracts.Where(x=> x.IsDeleted == false) })
+               .ToListAsync();
+        }
+
         public async Task<IEnumerable<MasterServiceAssignment>> FindAllServiceAssignments()
         {
             return await _context.MasterServiceAssignments.Where(type => type.IsDeleted == false)

@@ -32,6 +32,14 @@ namespace HaloBiz.Controllers
             //return Ok(cType);
         }
 
+        [HttpGet("GetAllCustomerDivisions")]
+        public async Task<ApiCommonResponse> GetCustomerDivisions()
+        {
+            return await _masterServiceAssignmentService.GetAllCustomerDivisions();
+        }
+
+
+
         [HttpGet("GetServiceAssignmentMasterById/{id}")]
         public async Task<ApiCommonResponse> GetServiceAssignmentMasterById(long id)
         {

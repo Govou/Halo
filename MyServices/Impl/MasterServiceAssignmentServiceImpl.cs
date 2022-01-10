@@ -20,16 +20,19 @@ namespace HaloBiz.MyServices.Impl
         private readonly IServiceRegistrationRepository _serviceRegistrationRepository;
         private readonly IServiceAssignmentDetailsRepository _serviceAssignmentDetailsRepository;
         private readonly IDTSMastersRepository _dTSMastersRepository;
+        private readonly ICustomerDivisionRepository _CustomerDivisionRepo;
         private readonly IMapper _mapper;
 
         public MasterServiceAssignmentServiceImpl(IMapper mapper, IServiceAssignmentMasterRepository serviceAssignmentMasterRepository, 
-            IServiceRegistrationRepository serviceRegistrationRepository, IDTSMastersRepository dTSMastersRepository, IServiceAssignmentDetailsRepository serviceAssignmentDetailsRepository)
+            IServiceRegistrationRepository serviceRegistrationRepository, IDTSMastersRepository dTSMastersRepository, IServiceAssignmentDetailsRepository serviceAssignmentDetailsRepository, ICustomerDivisionRepository CustomerDivisionRepo)
         {
             _mapper = mapper;
             _serviceAssignmentMasterRepository = serviceAssignmentMasterRepository;
             _serviceRegistrationRepository = serviceRegistrationRepository;
             _dTSMastersRepository = dTSMastersRepository;
             _serviceAssignmentDetailsRepository = serviceAssignmentDetailsRepository;
+            _CustomerDivisionRepo = CustomerDivisionRepo;
+
         }
 
         public async Task<ApiCommonResponse> AddMasterServiceAssignment(HttpContext context, MasterServiceAssignmentReceivingDTO masterReceivingDTO)
@@ -126,7 +129,7 @@ namespace HaloBiz.MyServices.Impl
                     await _serviceAssignmentDetailsRepository.DeleteVehicleServiceAssignmentDetail(item);
                 }
             }
-            if (passengerToDelete != null)
+            if (passengerToDelete.Count() != 0)
             {
                 foreach (var item in passengerToDelete)
                 {
@@ -135,6 +138,17 @@ namespace HaloBiz.MyServices.Impl
             }
 
             return CommonResponse.Send(ResponseCodes.SUCCESS, null, ResponseMessage.Success200);
+        }
+
+        public async Task<ApiCommonResponse> GetAllCustomerDivisions()
+        {
+            var CustomerDivisions = await _serviceAssignmentMasterRepository.FindAllCustomerDivision();
+            if (CustomerDivisions == null)
+            {
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE); ;
+            }
+            // var CustomerDivisionTransferDTOs = _mapper.Map<IEnumerable<CustomerDivisionTransferDTO>>(CustomerDivisions);
+            return CommonResponse.Send(ResponseCodes.SUCCESS, CustomerDivisions);
         }
 
         public async Task<ApiCommonResponse> GetAllMasterServiceAssignments()
