@@ -762,6 +762,58 @@ namespace HaloBiz.MyServices.Impl
 
 
 
+        public async Task<ApiCommonResponse> createUploadedRequirement(HttpContext httpContext, UploadedRequirement uploadedRequirement )
+        {
+            var checkIfDeliverableExist = await _context.Deliverables.FirstOrDefaultAsync(x => x.Id == uploadedRequirement.DeliverableId && x.IsActive == true);
+            if(checkIfDeliverableExist != null) {
+
+                var checkUploadedFileExistence = await _context.PMUploadedRequirements.FirstOrDefaultAsync(x => x.IsActive == true && x.Caption == uploadedRequirement.Caption.Trim());
+
+                if(checkUploadedFileExistence != null)
+                {
+                    var UploadedFilesInfo = new PMUploadedRequirement();
+
+                    checkUploadedFileExistence.Alias = uploadedRequirement.Alias;
+                    checkUploadedFileExistence.Extension = uploadedRequirement.Extension;
+                    checkUploadedFileExistence.Caption = uploadedRequirement.Caption;
+                    checkUploadedFileExistence.CreatedAt = DateTime.Now;
+                    checkUploadedFileExistence.DeliverableId = uploadedRequirement.DeliverableId;
+                    checkUploadedFileExistence.Description = uploadedRequirement.Description;
+                    checkUploadedFileExistence.DocUrl = uploadedRequirement.DocUrl;
+                    _context.PMUploadedRequirements.Update(checkUploadedFileExistence);
+                    _context.SaveChanges();
+                }
+                else
+                {
+                    var UploadedFilesInfo = new PMUploadedRequirement();
+
+                    UploadedFilesInfo.Alias = uploadedRequirement.Alias;
+                    UploadedFilesInfo.Extension = uploadedRequirement.Extension;
+                    UploadedFilesInfo.Caption = uploadedRequirement.Caption;
+                    UploadedFilesInfo.CreatedAt = DateTime.Now;
+                    UploadedFilesInfo.DeliverableId = uploadedRequirement.DeliverableId;
+                    UploadedFilesInfo.Description = uploadedRequirement.Description;
+                    UploadedFilesInfo.DocUrl = uploadedRequirement.DocUrl;
+                    UploadedFilesInfo.IsActive = true;
+                    UploadedFilesInfo.CreatedById = httpContext.GetLoggedInUserId();
+                    UploadedFilesInfo.IsDeleted = false;
+                    await _context.PMUploadedRequirements.AddAsync(UploadedFilesInfo);
+                    await _context.SaveChangesAsync();
+                }
+
+                var getDeliverablefFile = await _context.PMUploadedRequirements.Where(x => x.IsActive == true && x.DeliverableId == uploadedRequirement.DeliverableId).ToListAsync();
+
+                return CommonResponse.Send(ResponseCodes.SUCCESS, getDeliverablefFile, ResponseMessage.EntitySuccessfullyFound);
+
+            }
+
+
+            return CommonResponse.Send(ResponseCodes.FAILURE, null, ResponseMessage.EntityNotFound) ;
+
+
+        }
+
+
 
 
 
@@ -770,6 +822,7 @@ namespace HaloBiz.MyServices.Impl
         {
 
 
+            //PMUploadedRequirement();
 
                 var deliverableArray = new List<DeliverableWithStatusDTO>();
             
@@ -809,6 +862,7 @@ namespace HaloBiz.MyServices.Impl
                         deliverableInstance.TaskId = deliverable.TaskId;
                         deliverableInstance.TimeEstimate = deliverable.TimeEstimate;
                         deliverableInstance.UpdatedAt = deliverable.UpdatedAt;
+                        deliverableInstance.UploadedRequirement = await _context.PMUploadedRequirements.Where(x => x.IsActive == true && x.DeliverableId == deliverableInstance.Id).ToListAsync();
                         deliverableInstance.Videos = await _context.Videos.Where(x => x.DeliverableId == deliverable.Id).ToListAsync();
                         deliverableInstance.userProfile = await _context.UserProfiles.FirstOrDefaultAsync(x => x.Id == deliverable.CreatedById);
 

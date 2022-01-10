@@ -108,6 +108,7 @@ namespace HaloBiz.MyServices
         Task<ApiCommonResponse> getAssignedDeliverableStatus(HttpContext httpContext, List<DeliverableStatusDTO> deliverableStatusDTOs);
         Task<ApiCommonResponse> getWorkspaceWithStatus(HttpContext httpContext);
         Task<ApiCommonResponse> getCurrentDeliverableStatus(HttpContext httpContext, long workspaceId);
+        Task<ApiCommonResponse> createUploadedRequirement(HttpContext httpContext, UploadedRequirement uploadedRequirement);
 
 
 

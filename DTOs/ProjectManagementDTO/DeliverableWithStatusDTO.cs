@@ -57,6 +57,12 @@ namespace HaloBiz.DTOs.ProjectManagementDTO
 			set;
 		}
 
+		public ICollection<PMUploadedRequirement> UploadedRequirement
+		{
+			get;
+			set;
+		}
+
 		public long? TaskId
 		{
 			get;

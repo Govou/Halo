@@ -479,7 +479,14 @@ namespace HaloBiz.Controllers
             return await _projectAllocationService.createNewDeliverable(HttpContext, taskId,deliverableDTO);
 
         }
-        
+
+        [HttpPost("UploadRequirementsDetails")]
+        public async Task<ApiCommonResponse> CreateUploadedRequirement(UploadedRequirement uploadedRequirement)
+        {
+            return await _projectAllocationService.createUploadedRequirement(HttpContext,uploadedRequirement);
+
+        }
+
 
         [HttpPost("CreateNewDeliverableOnTask/{taskId}")]
         public async Task<ApiCommonResponse> CreateNewDeliverableOnTask(long taskId, DeliverableDTO deliverableDTO)
