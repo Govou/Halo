@@ -213,13 +213,15 @@ namespace HaloBiz.MyServices.Impl
                 try
                 {
                     _logger.LogInformation("Searching for Invoices to Post.......");
-                    var queryable = _invoiceRepo.GetInvoiceQueryiable();
+                  //  var queryable = _invoiceRepo.GetInvoiceQueryiable();
+
                     var today = DateTime.Now;
 
                     //var today = DateTime.Parse("2021-04-01");
 
-                    var invoices = await queryable
-                        .Where(x => !x.IsAccountPosted.Value && x.IsFinalInvoice.Value && x.StartDate.Date == today.Date)
+                    var invoices = await _context
+                        .Invoices
+                        .Where(x => x.IsAccountPosted==false && x.IsFinalInvoice==true && x.StartDate.Date == today.Date)
                             .ToListAsync();
 
                     ContractService contractService;
@@ -230,6 +232,7 @@ namespace HaloBiz.MyServices.Impl
                     if(invoices.Count() == 0)
                     {
                         _logger.LogInformation($"No Invoice Scheduled For Posting Today {DateTime.Now.Date}.......");
+                        return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);
                     }
 
                     foreach (var invoice in invoices)
