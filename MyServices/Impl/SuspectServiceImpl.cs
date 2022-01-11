@@ -205,7 +205,7 @@ namespace HaloBiz.MyServices.Impl
                     RCNumber = suspect?.RCNumber,
                 });
 
-                if (!leadSaveResponse.responseCode.Contains("00"))
+                if (leadSaveResponse.responseCode.Contains("00"))
                 {
                     var lead = (LeadTransferDTO) leadSaveResponse.responseData;
 
