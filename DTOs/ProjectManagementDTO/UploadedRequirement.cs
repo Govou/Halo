@@ -48,6 +48,13 @@ namespace HaloBiz.DTOs.ProjectManagementDTO
 			set;
 		}
 
+		public long? RequirementId
+		{
+			get;
+			set;
+		}
+
+
 		public string DocUrl
 		{
 			get;

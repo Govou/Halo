@@ -451,6 +451,30 @@ namespace HaloBiz.Controllers
             return Ok(response);
         }
 
+        [HttpPost("PickDeliverable/{deliverableId}/")]
+        public async Task<ActionResult> PickDeliverable(List<StatusFlow> statusFlows,long deliverableId)
+        {
+            var response = await _projectAllocationService.pickDeliverable(HttpContext, statusFlows,deliverableId);
+            return Ok(response);
+        }
+
+
+        [HttpPost("AddComments/{deliverableId}/{deliverableAssigneeId}")]
+        public async Task<ActionResult> AddComment(CommentsDTO comments, long deliverableId,long deliverableAssigneeId)
+        {
+            var response = await _projectAllocationService.addComments(HttpContext, deliverableId, deliverableAssigneeId,comments);
+            return Ok(response);
+        }
+
+
+
+        [HttpPost("SelectStatus/{statusId}/{deliverableId}")]
+        public async Task<ActionResult> PickDeliverable(long statusId, long deliverableId)
+        {
+            var response = await _projectAllocationService.selectStatus(HttpContext, statusId, deliverableId);
+            return Ok(response);
+        }
+
         //[HttpGet("GetDeliverableStatus")]
         //public async Task<ActionResult> GetDeliverableStatus()
         //{
@@ -479,6 +503,22 @@ namespace HaloBiz.Controllers
             return await _projectAllocationService.createNewDeliverable(HttpContext, taskId,deliverableDTO);
 
         }
+
+        [HttpPost("moveToAnotherStatus/{statusId}/{deliverableId}/{statusCode}")]
+        public async Task<ApiCommonResponse> createNewDeliverable(long statusId, long deliverableId,List<StatusFlow> statuses,int statusCode)
+        {
+            return await _projectAllocationService.moveToAnotherStatus(HttpContext, statuses,statusId,deliverableId,statusCode);
+
+        }
+
+
+        [HttpDelete("disableUploadedRequirement/{uploadedRequirementId}")]
+        public async Task<ApiCommonResponse> createNewDeliverable(long uploadedRequirementId)
+        {
+            return await _projectAllocationService.disableRequirementUpload(HttpContext, uploadedRequirementId);
+
+        }
+
 
         [HttpPost("UploadRequirementsDetails")]
         public async Task<ApiCommonResponse> CreateUploadedRequirement(UploadedRequirement uploadedRequirement)

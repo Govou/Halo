@@ -80,11 +80,6 @@ namespace HaloBiz.MyServices
 
         Task<ApiCommonResponse> getDeliverablesById(HttpContext httpContext, long id);
 
-
-        //Task<ApiCommonResponse> getAllDeliverablesByTaskId(HttpContext httpContext, long taskId);
-
-        //Task<ApiCommonResponse> getDeliverablesById(HttpContext httpContext, long id);
-
         Task<ApiCommonResponse> getAllPrivacyAccessByWorkspaceId(HttpContext httpContext, long workspaceId);
         Task<ApiCommonResponse> getRequirementsByDeliverableId(HttpContext httpContext, long deliverableId);
         Task<ApiCommonResponse> getAssignedTask(HttpContext httpContext);
@@ -104,32 +99,17 @@ namespace HaloBiz.MyServices
         Task<ApiCommonResponse> updateDeliverable(HttpContext httpContext, long taskId, long deliverableId, DeliverableDTO deliverableDTO);
         Task<ApiCommonResponse> disableDeliverable(HttpContext httpContext, long taskId, long deliverableId);
         Task<ApiCommonResponse> getBarChartDetails(HttpContext httpContext, long taskId);
-        //Task<ApiCommonResponse> getDeliverableStatus(HttpContext httpContext);
         Task<ApiCommonResponse> getAssignedDeliverableStatus(HttpContext httpContext, List<DeliverableStatusDTO> deliverableStatusDTOs);
         Task<ApiCommonResponse> getWorkspaceWithStatus(HttpContext httpContext);
         Task<ApiCommonResponse> getCurrentDeliverableStatus(HttpContext httpContext, long workspaceId);
         Task<ApiCommonResponse> createUploadedRequirement(HttpContext httpContext, UploadedRequirement uploadedRequirement);
+        Task<ApiCommonResponse> disableRequirementUpload(HttpContext httpContext, long uploadedRequirementId);
+        Task<ApiCommonResponse> moveToAnotherStatus(HttpContext httpContext, List<StatusFlow> statuses, long statusId, long deliverableId, int statusCode);
+        Task<ApiCommonResponse> pickDeliverable(HttpContext httpContext, List<StatusFlow> statuses, long deliverableId);
+        Task<ApiCommonResponse> selectStatus(HttpContext httpContext, long statusId, long deliverableId);
+        Task<ApiCommonResponse> addComments(HttpContext httpContext, long deliverableId, long deliverableAssigneeId, CommentsDTO comments);
 
 
-
-        //Task<ApiCommonResponse> getAllPrivacyAccessByWorkspaceId(HttpContext httpContext, long workspaceId);
-        //Task<ApiCommonResponse> getRequirementsByDeliverableId(HttpContext httpContext, long deliverableId);
-        //Task<ApiCommonResponse> getAssignedTask(HttpContext httpContext);
-        //Task<ApiCommonResponse> getAllProjectCreatorsWorkspace(HttpContext httpContext);
-        //Task<ApiCommonResponse> pickUptask(long taskId, HttpContext httpContext);
-        //Task<ApiCommonResponse> dropTask(long taskId, long taskOwnershipId, HttpContext httpContext);
-        //Task<ApiCommonResponse> getAllPickedTask(HttpContext httpContext);
-        //Task<ApiCommonResponse> AssignDeliverable(HttpContext context, long taskId, long deliverableId, long assigneDeliverableId, AssignDeliverableDTO assignDeliverableDTO);
-        //Task<ApiCommonResponse> createDeliverableIllustrattions(HttpContext context, long deliverableId, long taskId, List<IllustrationsDTO> illustrationsDTO);
-        //Task<ApiCommonResponse> DeleteIllustration(HttpContext context, long taskId, long deliverableId,long illustrationId);
-        //Task<ApiCommonResponse> createTaskIllustration(List<IllustrationsDTO> illustrationsDTO, long taskId, HttpContext httpContext);
-        //Task<ApiCommonResponse> getTaskIllustrationById(long taskId);
-        //Task<ApiCommonResponse> removeIllustrationById(long taskId, long illustrationId);
-        //Task<ApiCommonResponse> createNewDeliverableFromTask(HttpContext httpContext, long TaskId, DeliverableDTO deliverableDTO);
-        //Task<ApiCommonResponse> addMoreTaskAssignees(HttpContext context, long taskId, List<TaskAssigneeDTO> taskAssigneeDTO);
-        //Task<ApiCommonResponse> disableTaskAssignee(HttpContext context, long taskId, long assigneeId);
-        //Task<ApiCommonResponse> updateDeliverable(HttpContext httpContext, long taskId, long deliverableId, DeliverableDTO deliverableDTO);
-        //Task<ApiCommonResponse> disableDeliverable(HttpContext httpContext, long taskId, long deliverableId);
 
 
     }

@@ -623,6 +623,8 @@ namespace HaloBiz.MyServices.Impl
                 assignDuration.Add(assignValue);
                 finalUserArray.Add(userInstance);
             }
+
+
             workLoad.DeliverableUser = finalUserArray;
             workLoad.assignedRate = assignDuration;
             workLoad.pickedRate = pickedList;
@@ -638,66 +640,7 @@ namespace HaloBiz.MyServices.Impl
         }
 
 
-        //public async Task<ApiCommonResponse> getDeliverableStatus(HttpContext httpContext)
-        //{
-        //    var getAllAssignedDeliverable = await _context.AssignTasks.Where(x => x.IsActive == true && x.DeliverableAssigneeId == httpContext.GetLoggedInUserId()).ToListAsync();
-
-        //    if(getAllAssignedDeliverable.Count == 0)
-        //    {
-        //        return CommonResponse.Send
-        //        (
-
-        //        ResponseCodes.FAILURE,
-        //        null,
-        //        "User with id " + httpContext.GetLoggedInUserId() + " was not assigned to any deliverable."
-        //        );
-        //    }
-
-        //    else
-        //    {
-        //        var deliverableArray = new List<DeliverableStatusDTO>();
-        //        foreach(var assignee in getAllAssignedDeliverable)
-        //        {
-        //            var deliverable = await _context.Deliverables.FirstOrDefaultAsync(x => x.IsActive == true && x.Id == assignee.DeliverableId);
-        //            if(deliverable != null)
-        //            {
-        //                var deliverableInstance = new DeliverableStatusDTO();
-        //                deliverableInstance.Alias = deliverable.Alias;
-        //                deliverableInstance.Caption = deliverable.Caption;
-        //                deliverableInstance.Description = deliverable.Description;
-        //                deliverableInstance.Budget = deliverable.Budget;
-        //                deliverableInstance.CreatedAt = deliverable.CreatedAt;
-        //                deliverableInstance.CreatedById = deliverable.CreatedById;
-        //                deliverableInstance.DatePicked = deliverable.DatePicked;
-        //                deliverableInstance.DependentType = deliverable.DependentType;
-        //                deliverableInstance.Dependencies = await _context.Dependencies.Where(x => x.DependencyDeliverableId == deliverable.Id).ToListAsync();
-        //                deliverableInstance.EndDate = deliverable.EndDate;
-        //                deliverableInstance.Id = deliverable.Id;
-        //                deliverableInstance.IsActive = deliverable.IsActive;
-        //                deliverableInstance.PMIllustrations = await _context.PMIllustrations.Where(x => x.IsActive == true && x.TaskOrDeliverableId == deliverable.Id).ToListAsync();
-        //                deliverableInstance.Requirements = await _context.PMRequirements.Where(x => x.IsActive == true && x.DeliverableId == deliverable.Id).ToListAsync();
-        //                deliverableInstance.StartDate = deliverable.StartDate;
-        //                deliverableInstance.TaskId = deliverable.TaskId;
-        //                deliverableInstance.TimeEstimate = deliverable.TimeEstimate;
-        //                deliverableInstance.UpdatedAt = deliverable.UpdatedAt;
-        //                deliverableInstance.AssignDeliverable = await _context.AssignTasks.Where(x => x.IsActive == true && x.DeliverableId == deliverable.Id).FirstOrDefaultAsync();
-        //                deliverableInstance.statusFlows = await getDeliverableStatusFlow(httpContext,deliverable.TaskId);
-        //                deliverableInstance.Workspace = await getDeliverableWorkspace(httpContext, deliverable.TaskId);
-        //                deliverableArray.Add(deliverableInstance);
-
-        //            }
-        //        }
-
-        //        return CommonResponse.Send
-        //        (
-
-        //        ResponseCodes.SUCCESS,
-        //        deliverableArray,
-        //        ResponseMessage.EntitySuccessfullyFound
-        //        );
-        //    }
-
-        //}
+      
 
 
         public async Task<ApiCommonResponse> getWorkspaceWithStatus(HttpContext httpContext)
@@ -736,6 +679,101 @@ namespace HaloBiz.MyServices.Impl
         }
 
 
+
+        public async Task<ApiCommonResponse> pickDeliverable(HttpContext httpContext, List<StatusFlow> statuses,long deliverableId)
+        {
+            var getNextStatus = statuses.ElementAt(1);
+            var getDeliverableToUpdate = await _context.Deliverables.Where(x => x.IsActive == true && x.Id == deliverableId).FirstOrDefaultAsync();
+            getDeliverableToUpdate.StatusId = getNextStatus.Id;
+            getDeliverableToUpdate.IsPicked = true;
+            _context.Deliverables.Update(getDeliverableToUpdate);
+            _context.SaveChanges();
+
+            return CommonResponse.Send(ResponseCodes.SUCCESS, null, "Deliverable successfully picked");
+        }
+
+
+
+        public async Task<ApiCommonResponse> selectStatus(HttpContext httpContext, long statusId, long deliverableId)
+        {
+
+            var getDeliverableToUpdate = await _context.Deliverables.Where(x => x.IsActive == true && x.Id == deliverableId).FirstOrDefaultAsync();
+            getDeliverableToUpdate.StatusId = statusId;
+            getDeliverableToUpdate.IsPicked = true;
+            _context.Deliverables.Update(getDeliverableToUpdate);
+            _context.SaveChanges();
+
+            var getCurrentStatus = await _context.StatusFlows.FirstOrDefaultAsync(x => x.IsDeleted == false && x.Id == statusId);
+
+            return CommonResponse.Send(ResponseCodes.SUCCESS, null, "successfully updated status to " + getCurrentStatus.Caption);
+        }
+
+        
+
+        public async Task<ApiCommonResponse> moveToAnotherStatus(HttpContext httpContext, List<StatusFlow> statuses,long statusId,long deliverableId,int statusCode)
+        {
+            if (statuses.LastOrDefault().Id == statusId && statusCode == +1)
+            {
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "This action cannot be performed because you are at the last status,therefore your deliverable is pending approval");
+            }
+            else if(statuses.LastOrDefault().Id == statusId && statusCode == -1)
+            {
+                var getCurrentStatusIndex = statuses.FindIndex(x => x.Id == statusId);
+                var getNewIndex = getCurrentStatusIndex - 1;
+                var getNewStatusId = statuses.ElementAt(getNewIndex).Id;
+                var getDeliverableToUpdate = await _context.Deliverables.Where(x => x.IsActive == true && x.Id == deliverableId).FirstOrDefaultAsync();
+                getDeliverableToUpdate.StatusId = getNewStatusId;
+                getDeliverableToUpdate.IsPicked = true;
+                _context.Deliverables.Update(getDeliverableToUpdate);
+                _context.SaveChanges();
+
+                var getCurrentStatus = await _context.StatusFlows.FirstOrDefaultAsync(x => x.IsDeleted == false && x.Id == getNewStatusId);
+
+                return CommonResponse.Send(ResponseCodes.SUCCESS, null, "Status successfully moved to " + getCurrentStatus.Caption);
+
+            }
+            else if(statuses.FirstOrDefault().Id == statusId && statusCode == -1)
+            {
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "This action cannot be performed because you are at the first status,therefore you cannot move backward");
+            }
+            else if(statuses.FirstOrDefault().Id == statusId && statusCode == +1)
+            {
+                var getCurrentStatusIndex = statuses.FindIndex(x => x.Id == statusId);
+                var getNewIndex = getCurrentStatusIndex + 1;
+                var getNewStatusId = statuses.ElementAt(getNewIndex).Id;
+                var getDeliverableToUpdate = await _context.Deliverables.Where(x => x.IsActive == true && x.Id == deliverableId).FirstOrDefaultAsync();
+                getDeliverableToUpdate.StatusId = getNewStatusId;
+                getDeliverableToUpdate.IsPicked = true;
+                _context.Deliverables.Update(getDeliverableToUpdate);
+                _context.SaveChanges();
+
+                var getCurrentStatus = await _context.StatusFlows.FirstOrDefaultAsync(x => x.IsDeleted == false && x.Id == getNewStatusId);
+
+                return CommonResponse.Send(ResponseCodes.SUCCESS, null, "Status successfully moved to " + getCurrentStatus.Caption);
+
+            }
+            else if(statuses.FirstOrDefault().Id != statusId || statuses.LastOrDefault().Id == statusId)
+            {
+                var getCurrentStatusIndex = statuses.FindIndex(x => x.Id == statusId);
+                var getNewIndex = getCurrentStatusIndex + statusCode;
+                var getNewStatusId = statuses.ElementAt(getNewIndex).Id;
+                var getDeliverableToUpdate = await _context.Deliverables.Where(x => x.IsActive == true && x.Id == deliverableId).FirstOrDefaultAsync();
+                getDeliverableToUpdate.StatusId = getNewStatusId;
+                getDeliverableToUpdate.IsPicked = true;
+                _context.Deliverables.Update(getDeliverableToUpdate);
+                _context.SaveChanges();
+
+                var getCurrentStatus = await _context.StatusFlows.FirstOrDefaultAsync(x => x.IsDeleted == false && x.Id == getNewStatusId);
+
+                return CommonResponse.Send(ResponseCodes.SUCCESS, null, "Status successfully moved to " + getCurrentStatus.Caption);
+            }
+
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "This operation was not successfull");
+
+        }
+
+
+
         public async Task<List<WorkspaceRoot>> getWorkspaceWithUser(HttpContext httpContext,List<Workspace> workspaces)
         {
             var workspaceArray = new List<WorkspaceRoot>();
@@ -760,6 +798,43 @@ namespace HaloBiz.MyServices.Impl
             
         }
 
+        public async Task<ApiCommonResponse> disableRequirementUpload(HttpContext httpContext, long uploadedRequirementId)
+        {
+
+            var getUploadedRequirement = await _context.PMUploadedRequirements.FirstOrDefaultAsync(x => x.Id == uploadedRequirementId && x.IsActive == true);
+
+
+            if(getUploadedRequirement != null)
+            {
+                getUploadedRequirement.IsActive = false;
+                _context.Update(getUploadedRequirement);
+                _context.SaveChanges();
+            }
+
+            return CommonResponse.Send(ResponseCodes.SUCCESS, getUploadedRequirement, "Entity successfully deleted");
+        }
+
+
+        public async Task<ApiCommonResponse> addComments(HttpContext httpContext,long deliverableId,long deliverableAssigneeId,CommentsDTO comments)
+        {
+
+            var noteToBeSaved = new PMNote
+            {
+                Caption = comments.caption,
+                Description = comments.description,
+                DeliverableId = deliverableId,
+                CreatedById = httpContext.GetLoggedInUserId(),
+                //DeliverableAssigneeId = deliverableAssigneeId,
+                CreatedAt = DateTime.Now
+            };
+
+            await _context.PMNotes.AddAsync(noteToBeSaved);
+            await _context.SaveChangesAsync();
+
+            var getAllNotesByDeliverableId = await _context.PMNotes.Where(x => x.DeliverableId == deliverableId).ToListAsync();
+
+            return CommonResponse.Send(ResponseCodes.SUCCESS, getAllNotesByDeliverableId, "Comment successfully created");
+        }
 
 
         public async Task<ApiCommonResponse> createUploadedRequirement(HttpContext httpContext, UploadedRequirement uploadedRequirement )
@@ -767,13 +842,12 @@ namespace HaloBiz.MyServices.Impl
             var checkIfDeliverableExist = await _context.Deliverables.FirstOrDefaultAsync(x => x.Id == uploadedRequirement.DeliverableId && x.IsActive == true);
             if(checkIfDeliverableExist != null) {
 
-                var checkUploadedFileExistence = await _context.PMUploadedRequirements.FirstOrDefaultAsync(x => x.IsActive == true && x.Caption == uploadedRequirement.Caption.Trim());
+                var checkUploadedFileExistence = await _context.PMUploadedRequirements.FirstOrDefaultAsync(x => x.IsActive == true && x.RequirementId == uploadedRequirement.RequirementId);
 
                 if(checkUploadedFileExistence != null)
                 {
-                    var UploadedFilesInfo = new PMUploadedRequirement();
-
                     checkUploadedFileExistence.Alias = uploadedRequirement.Alias;
+                    checkUploadedFileExistence.RequirementId = uploadedRequirement.RequirementId;
                     checkUploadedFileExistence.Extension = uploadedRequirement.Extension;
                     checkUploadedFileExistence.Caption = uploadedRequirement.Caption;
                     checkUploadedFileExistence.CreatedAt = DateTime.Now;
@@ -787,7 +861,9 @@ namespace HaloBiz.MyServices.Impl
                 {
                     var UploadedFilesInfo = new PMUploadedRequirement();
 
+
                     UploadedFilesInfo.Alias = uploadedRequirement.Alias;
+                    UploadedFilesInfo.RequirementId = uploadedRequirement.RequirementId;
                     UploadedFilesInfo.Extension = uploadedRequirement.Extension;
                     UploadedFilesInfo.Caption = uploadedRequirement.Caption;
                     UploadedFilesInfo.CreatedAt = DateTime.Now;
@@ -842,6 +918,9 @@ namespace HaloBiz.MyServices.Impl
                         deliverableInstance.AssignTaskId = deliverable.AssignTaskId;
                         deliverableInstance.Balances = await _context.Balances.Where(x => x.DeliverableId == deliverable.Id).ToListAsync();
                         deliverableInstance.Budget = deliverable.Budget;
+                        deliverableInstance.IsPicked = deliverable.IsPicked;
+                        deliverableInstance.IsApproved = deliverable.IsApproved;
+                        deliverableInstance.IsDeclined = deliverable.IsDeclined;
                         deliverableInstance.CreatedAt = deliverable.CreatedAt;
                         deliverableInstance.CreatedById = deliverable.CreatedById;
                         deliverableInstance.DatePicked = deliverable.DatePicked;
@@ -852,7 +931,7 @@ namespace HaloBiz.MyServices.Impl
                         deliverableInstance.EndDate = deliverable.EndDate;
                         deliverableInstance.Id = deliverable.Id;
                         deliverableInstance.IsActive = deliverable.IsActive;
-                        deliverableInstance.Notes = deliverable.Notes;
+                        deliverableInstance.Notes = await _context.PMNotes.Where(x =>x.DeliverableId == deliverable.Id).ToListAsync();
                         deliverableInstance.PMIllustrations = await _context.PMIllustrations.Where(x => x.IsActive == true && x.TaskOrDeliverableId == deliverable.Id).ToListAsync();
                         deliverableInstance.Pictures = await _context.Pictures.Where(x => x.DeliverableId == deliverable.Id).ToListAsync();
                         deliverableInstance.Requirements = await _context.PMRequirements.Where(x => x.DeliverableId == deliverable.Id && x.IsActive == true).ToListAsync();
@@ -862,6 +941,7 @@ namespace HaloBiz.MyServices.Impl
                         deliverableInstance.TaskId = deliverable.TaskId;
                         deliverableInstance.TimeEstimate = deliverable.TimeEstimate;
                         deliverableInstance.UpdatedAt = deliverable.UpdatedAt;
+                        
                         deliverableInstance.UploadedRequirement = await _context.PMUploadedRequirements.Where(x => x.IsActive == true && x.DeliverableId == deliverableInstance.Id).ToListAsync();
                         deliverableInstance.Videos = await _context.Videos.Where(x => x.DeliverableId == deliverable.Id).ToListAsync();
                         deliverableInstance.userProfile = await _context.UserProfiles.FirstOrDefaultAsync(x => x.Id == deliverable.CreatedById);
@@ -870,7 +950,7 @@ namespace HaloBiz.MyServices.Impl
                     }
 
                 }
-
+            
 
             return CommonResponse.Send(ResponseCodes.SUCCESS, deliverableArray, ResponseMessage.EntitySuccessfullyFound);
 

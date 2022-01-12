@@ -33,6 +33,24 @@ namespace HaloBiz.DTOs.ProjectManagementDTO
 			set;
 		}
 
+		public bool IsPicked
+		{
+			get;
+			set;
+		}
+
+		public bool IsApproved
+		{
+			get;
+			set;
+		}
+
+		public bool IsDeclined
+		{
+			get;
+			set;
+		}
+
 		public decimal Budget
 		{
 			get;
