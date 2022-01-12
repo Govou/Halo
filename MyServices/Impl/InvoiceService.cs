@@ -1060,6 +1060,7 @@ namespace HaloBiz.MyServices.Impl
                 DateTime today = DateTime.Now.Date;
 
                 invoices = await _context.Invoices
+                    .AsNoTracking()
                     .Where(x => x.IsFinalInvoice.Value && !x.IsDeleted && x.GroupInvoiceNumber == null
                             && x.DateToBeSent.Date == today && !x.IsInvoiceSent).ToListAsync();
                 
@@ -1077,20 +1078,25 @@ namespace HaloBiz.MyServices.Impl
 
                 #region special case for group invoice
                 theGroupInvoices = await _context.Invoices
+                    .AsNoTracking()
                     .Where(x => x.IsFinalInvoice.Value && !x.IsDeleted && x.GroupInvoiceNumber != null
                             && x.DateToBeSent.Date == today && !x.IsInvoiceSent).ToListAsync();
 
                 var groupings = theGroupInvoices.GroupBy(x => x.GroupInvoiceNumber);
                 foreach (var group in groupings)
                 {
-                    var invoiceSent = ((Invoice)(await SendInvoice(group.FirstOrDefault())).responseData)?.IsInvoiceSent; //await SendInvoice(group.FirstOrDefault());
-                    if (invoiceSent==true)
+                    var responseAndInvoices = await SendInvoice(group.FirstOrDefault());
+                    if (responseAndInvoices.responseCode == "00")
                     {
-                        foreach (var invoice in group)
+                        var sentInvoices = (IEnumerable<Invoice>)responseAndInvoices.responseData;
+                        foreach(var sentInvoice in sentInvoices)
                         {
-                            invoice.IsInvoiceSent = true;
+                            sentInvoice.IsInvoiceSent = true;
                         }
-                    }                 
+
+                        _context.Invoices.UpdateRange(sentInvoices);
+                        await _context.SaveChangesAsync();
+                    }
                 }
 
                 await _context.SaveChangesAsync();
@@ -1103,37 +1109,25 @@ namespace HaloBiz.MyServices.Impl
                 _logger.LogError(e.Message);
                 _logger.LogError(e.StackTrace);
                 return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
-            }finally{
-                try
-                {
-                    if(invoices.Count() > 0)
-                        _context.Invoices.UpdateRange(invoices);
-
-                    if (theGroupInvoices.Count() > 0)
-                        _context.Invoices.UpdateRange(theGroupInvoices);
-                }
-                catch (System.Exception e)
-                {
-                    _logger.LogError(e.Message);
-                    _logger.LogError(e.StackTrace);
-                }
-            }
-            
+            }            
         }
 
         private async Task<ApiCommonResponse> SendInvoice(Invoice invoice)
         {
             try
             {
-                InvoiceMailDTO invoiceMailDTO = await GenerateInvoiceMailDTO(invoice);
-                return await _mailAdapter.SendPeriodicInvoice(invoiceMailDTO);
+                var (invoiceMailDTO, invoices) = await GenerateInvoiceMailDTO(invoice);
+                var sendResult =  await _mailAdapter.SendPeriodicInvoice(invoiceMailDTO);
+                sendResult.responseData = invoices;
+                return sendResult;
+               
             }
             catch (System.Exception ex)
             {
                 _logger.LogError($"An Error occured while trying to send Invoice with Id: {invoice.Id}");
                 _logger.LogError($"Error: {ex.Message}");
                 _logger.LogError($"Error: {ex.StackTrace}");
-                return CommonResponse.Send(ResponseCodes.FAILURE,null,ex.Message);
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, ex.Message);
             }
 
         }
@@ -1151,7 +1145,7 @@ namespace HaloBiz.MyServices.Impl
                     return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
                 }
 
-                InvoiceMailDTO invoiceMailDTO = await GenerateInvoiceMailDTO(invoice);
+                var (invoiceMailDTO, invoices) = await GenerateInvoiceMailDTO(invoice);
                 return CommonResponse.Send(ResponseCodes.SUCCESS,invoiceMailDTO);
             }
             catch (System.Exception ex)
@@ -1176,7 +1170,7 @@ namespace HaloBiz.MyServices.Impl
                     return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
                 }
 
-                InvoiceMailDTO invoiceMailDTO = await GenerateInvoiceMailDTO(invoice);
+                var (invoiceMailDTO, invoices) = await GenerateInvoiceMailDTO(invoice);
                 return await _mailAdapter.SendPeriodicInvoice(invoiceMailDTO);
               
             }
@@ -1302,7 +1296,7 @@ namespace HaloBiz.MyServices.Impl
         }
 
 
-        private async Task<InvoiceMailDTO> GenerateInvoiceMailDTO(Invoice invoice)
+        private async Task<(InvoiceMailDTO, IEnumerable<Invoice>)> GenerateInvoiceMailDTO(Invoice invoice)
         {
             bool isProforma = invoice.IsFinalInvoice == false;
 
@@ -1316,20 +1310,23 @@ namespace HaloBiz.MyServices.Impl
 
 
             IEnumerable<Invoice> invoices;
+            List<Invoice> invoicesToUpdate = new List<Invoice>();
             if (String.IsNullOrWhiteSpace(invoice.GroupInvoiceNumber))
             {
-                invoices = await _context.Invoices.AsNoTracking()
+                invoices = await _context.Invoices
                         .Include(x => x.ContractService)
                         .ThenInclude(x => x.Service)
                         .Where(x => x.Id == invoice.Id && x.StartDate == invoice.StartDate && ((bool)x.IsFinalInvoice || isProforma)
-                                    && !x.IsDeleted).ToListAsync();
+                                    && !x.IsDeleted)
+                        .ToListAsync();
             }
             else
             {
-                invoices = await _context.Invoices.AsNoTracking()
+                invoices = await _context.Invoices
                        .Include(x => x.ContractService)
-                       .ThenInclude(x => x.Service)
+                            .ThenInclude(x => x.Service)
                        .Where(x => x.GroupInvoiceNumber == invoice.GroupInvoiceNumber && !x.IsDeleted && ((bool)x.IsFinalInvoice || isProforma))
+                       .AsNoTracking()
                        .ToListAsync();
 
                 var contractService = await _context.ContractServices.FindAsync(invoice.ContractServiceId);
@@ -1370,6 +1367,10 @@ namespace HaloBiz.MyServices.Impl
                 unInvoicedAmount += (double)(theInvoice.ContractService.BillableAmount - theInvoice.ContractService.AdHocInvoicedAmount);
                 invoiceCycle = theInvoice.ContractService.InvoicingInterval.ToString();
                 keyServiceName = theInvoice.ContractService.Service.Name;
+
+                var forUpdate = _mapper.Map<Invoice>(theInvoice);
+                forUpdate.ContractService = null;
+                invoicesToUpdate.Add(forUpdate);
 
                 contractServiceMailDTOs.Add(new ContractServiceMailDTO()
                 {
@@ -1414,7 +1415,7 @@ namespace HaloBiz.MyServices.Impl
                 ContractServices = contractServiceMailDTOs
             };
 
-            return invoiceMailDTO;
+            return (invoiceMailDTO, invoicesToUpdate);
         }
 
         private async Task<long> GetServiceIncomeAccountForRetailClient(Service service)
