@@ -55,7 +55,7 @@ namespace HaloBiz.MyServices.Impl
                 vehicle.SMORegionId = vehicleTieReceivingDTO.SMORegionId;
                 vehicle.ResourceId = vehicleTieReceivingDTO.ResourceId;
                 vehicle.SMORouteId = vehicleTieReceivingDTO.SMORouteId[i];
-                var IdExist = _vehiclesRepository.GetResourceRegIdRegionAndRouteId(vehicleTieReceivingDTO.ResourceId, vehicleTieReceivingDTO.SMORouteId[i], vehicleTieReceivingDTO.SMORegionId);
+                var IdExist = _vehiclesRepository.GetResourceRegIdRegionAndRouteId(vehicleTieReceivingDTO.ResourceId, vehicleTieReceivingDTO.SMORouteId[i]);
                 if (IdExist == null)
                 {
                     vehicle.CreatedById = context.GetLoggedInUserId();

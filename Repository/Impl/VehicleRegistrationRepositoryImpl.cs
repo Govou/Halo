@@ -86,10 +86,10 @@ namespace HaloBiz.Repository.Impl
         //        .FirstOrDefaultAsync(v => v.ResourceId == resourceId && v.IsDeleted == false);
         //}
 
-        public VehicleSMORoutesResourceTie GetResourceRegIdRegionAndRouteId(long regRessourceId, long? RouteId, long? RegionId)
+        public VehicleSMORoutesResourceTie GetResourceRegIdRegionAndRouteId(long regRessourceId, long? RouteId)
         {
             return _context.VehicleSMORoutesResourceTies.Where
-               (ct => ct.ResourceId == regRessourceId && ct.SMORouteId == RouteId && ct.SMORegionId == RegionId && ct.IsDeleted == false).FirstOrDefault();
+               (ct => ct.ResourceId == regRessourceId && ct.SMORouteId == RouteId  && ct.IsDeleted == false).FirstOrDefault();
         }
 
         public async Task<Vehicle> SaveVehicle(Vehicle vehicle)

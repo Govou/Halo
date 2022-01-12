@@ -54,7 +54,7 @@ namespace HaloBiz.MyServices.Impl
                 pilot.SMORegionId = pilotReceivingTieDTO.SMORegionId;
                 pilot.ResourceId = pilotReceivingTieDTO.ResourceId;
                 pilot.SMORouteId = pilotReceivingTieDTO.SMORouteId[i];
-                var IdExist = _pilotProfileRepository.GetResourceRegIdRegionAndRouteId(pilotReceivingTieDTO.ResourceId, pilotReceivingTieDTO.SMORouteId[i], pilotReceivingTieDTO.SMORegionId);
+                var IdExist = _pilotProfileRepository.GetResourceRegIdRegionAndRouteId(pilotReceivingTieDTO.ResourceId, pilotReceivingTieDTO.SMORouteId[i]);
                 if (IdExist == null)
                 {
                     pilot.CreatedById = context.GetLoggedInUserId();

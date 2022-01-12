@@ -29,7 +29,7 @@ namespace HaloBiz.Repository
 
         Task<IEnumerable<ArmedEscortSMORoutesResourceTie>> FindAllArmedEscortTies();
 
-         ArmedEscortSMORoutesResourceTie GetServiceRegIdRegionAndRoute(long regRessourceId, long? RouteId, long? RegionId);
+         ArmedEscortSMORoutesResourceTie GetServiceRegIdRegionAndRoute(long regRessourceId, long? RouteId);
 
         //Task<ArmedEscortProfile> UpdateArmedEscort(ArmedEscortProfile armedEscortProfile);
 

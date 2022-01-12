@@ -29,7 +29,7 @@ namespace HaloBiz.Repository
         Task<IEnumerable<VehicleSMORoutesResourceTie>> FindVehicleTieByResourceId(long resourceId);
         Task<IEnumerable<VehicleSMORoutesResourceTie>> FindAllVehicleTies();
 
-        VehicleSMORoutesResourceTie GetResourceRegIdRegionAndRouteId(long regRessourceId, long? RouteId, long? RegionId);
+        VehicleSMORoutesResourceTie GetResourceRegIdRegionAndRouteId(long regRessourceId, long? RouteId);
         Task<bool> DeleteVehicleTie(VehicleSMORoutesResourceTie vehicleTie);
     }
 }

@@ -79,10 +79,10 @@ namespace HaloBiz.Repository.Impl
         //       .FirstOrDefaultAsync(ae => ae.ResourceId == resourceId && ae.IsDeleted == false);
         //}
 
-        public ArmedEscortSMORoutesResourceTie GetServiceRegIdRegionAndRoute(long regRessourceId, long? RouteId, long? RegionId)
+        public ArmedEscortSMORoutesResourceTie GetServiceRegIdRegionAndRoute(long regRessourceId, long? RouteId)
         {
             return _context.ArmedEscortSMORoutesResourceTies.Where
-                (ct => ct.ResourceId == regRessourceId && ct.SMORouteId == RouteId && ct.SMORegionId == RegionId && ct.IsDeleted == false).FirstOrDefault();
+                (ct => ct.ResourceId == regRessourceId && ct.SMORouteId == RouteId  && ct.IsDeleted == false).FirstOrDefault();
         }
 
         public async Task<ArmedEscortProfile> SaveArmedEscort(ArmedEscortProfile armedEscortProfile)

@@ -52,7 +52,7 @@ namespace HaloBiz.MyServices.Impl
                 escort.SMORegionId = armedEscortTieReceivingDTO.SMORegionId;
                 escort.ResourceId = armedEscortTieReceivingDTO.ResourceId;
                 escort.SMORouteId = armedEscortTieReceivingDTO.SMORouteId[i];
-                var IdExist = _armedEscortsRepository.GetServiceRegIdRegionAndRoute(armedEscortTieReceivingDTO.ResourceId, armedEscortTieReceivingDTO.SMORouteId[i], armedEscortTieReceivingDTO.SMORegionId);
+                var IdExist = _armedEscortsRepository.GetServiceRegIdRegionAndRoute(armedEscortTieReceivingDTO.ResourceId, armedEscortTieReceivingDTO.SMORouteId[i]);
                 if (IdExist == null)
                 {
                     escort.CreatedById = context.GetLoggedInUserId();

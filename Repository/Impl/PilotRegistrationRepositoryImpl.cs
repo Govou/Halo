@@ -74,10 +74,10 @@ namespace HaloBiz.Repository.Impl
         //       .Include(pi => pi.Resource).Include(pi => pi.CreatedBy).FirstOrDefaultAsync(aer => aer.ResourceId == resourceId && aer.IsDeleted == false);
         //}
 
-        public PilotSMORoutesResourceTie GetResourceRegIdRegionAndRouteId(long regRessourceId, long? RouteId, long? RegionId)
+        public PilotSMORoutesResourceTie GetResourceRegIdRegionAndRouteId(long regRessourceId, long? RouteId)
         {
             return _context.PilotSMORoutesResourceTies.Where
-                (ct => ct.ResourceId == regRessourceId && ct.SMORouteId == RouteId && ct.SMORegionId == RegionId && ct.IsDeleted == false).FirstOrDefault();
+                (ct => ct.ResourceId == regRessourceId && ct.SMORouteId == RouteId  && ct.IsDeleted == false).FirstOrDefault();
         }
 
         public async Task<PilotProfile> SavePilot(PilotProfile pilotProfile)

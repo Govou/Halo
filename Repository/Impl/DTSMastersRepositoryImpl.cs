@@ -90,7 +90,7 @@ namespace HaloBiz.Repository.Impl
         {
             return await _context.ArmedEscortDTSMasters.Include(dts => dts.GenericDays.Where(x => x.IsDeleted == false))
                 .Include(dts => dts.CreatedBy).Include(dts => dts.ArmedEscortResource).Include(dts => dts.ArmedEscortResource.SupplierService)
-                .FirstOrDefaultAsync(aer => aer.ArmedEscortResourceId == resourceId && aer.IsDeleted == false);
+                .FirstOrDefaultAsync(aer => aer.ArmedEscortResourceId == resourceId &&  aer.AvailablilityEnd >= DateTime.UtcNow &&  aer.IsDeleted == false);
         }
 
         public async Task<CommanderDTSMaster> FindCommanderMasterById(long Id)
@@ -104,7 +104,7 @@ namespace HaloBiz.Repository.Impl
         {
             return await _context.CommanderDTSMasters.Include(dts => dts.GenericDays.Where(x => x.IsDeleted == false))
                .Include(dts => dts.CreatedBy).Include(dts => dts.CommanderResource).Include(dts => dts.CommanderResource.Profile)
-               .FirstOrDefaultAsync(aer => aer.CommanderResourceId == resourceId && aer.IsDeleted == false);
+               .FirstOrDefaultAsync(aer => aer.CommanderResourceId == resourceId &&  aer.AvailablilityEnd >= DateTime.UtcNow && aer.IsDeleted == false);
         }
 
         public async Task<PilotDTSMaster> FindPilotMasterById(long Id)
@@ -118,7 +118,7 @@ namespace HaloBiz.Repository.Impl
         {
             return await _context.PilotDTSMasters.Include(dts => dts.GenericDays.Where(x => x.IsDeleted == false))
              .Include(dts => dts.CreatedBy).Include(dts => dts.PilotResource)
-             .FirstOrDefaultAsync(aer => aer.PilotResourceId == resourceId && aer.IsDeleted == false);
+             .FirstOrDefaultAsync(aer => aer.PilotResourceId == resourceId && aer.AvailablilityEnd >= DateTime.UtcNow && aer.IsDeleted == false);
         }
 
         public async Task<VehicleDTSMaster> FindVehicleMasterById(long Id)
@@ -132,7 +132,7 @@ namespace HaloBiz.Repository.Impl
         {
             return await _context.VehicleDTSMasters.Include(dts => dts.GenericDays.Where(x => x.IsDeleted == false))
                .Include(dts => dts.CreatedBy).Include(dts => dts.VehicleResource).Include(dts => dts.VehicleResource.SupplierService)
-               .FirstOrDefaultAsync(aer => aer.VehicleResourceId == resourceId && aer.IsDeleted == false);
+               .FirstOrDefaultAsync(aer => aer.VehicleResourceId  == resourceId && aer.AvailablilityEnd >= DateTime.UtcNow  && aer.IsDeleted == false);
         }
 
         public ArmedEscortDTSMaster GetArmedEscortProfileId(long? profileId)

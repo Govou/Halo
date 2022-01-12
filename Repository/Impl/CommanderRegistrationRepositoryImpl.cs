@@ -97,10 +97,10 @@ namespace HaloBiz.Repository.Impl
         //    throw new NotImplementedException();
         //}
 
-        public CommanderSMORoutesResourceTie GetResourceRegIdRegionAndRouteId(long regRessourceId, long? RouteId, long? RegionId)
+        public CommanderSMORoutesResourceTie GetResourceRegIdRegionAndRouteId(long regRessourceId, long? RouteId)
         {
             return _context.CommanderSMORoutesResourceTies.Where
-               (ct => ct.ResourceId == regRessourceId && ct.SMORouteId == RouteId && ct.SMORegionId == RegionId && ct.IsDeleted == false).FirstOrDefault();
+               (ct => ct.ResourceId == regRessourceId && ct.SMORouteId == RouteId  && ct.IsDeleted == false).FirstOrDefault();
         }
 
         public async Task<CommanderProfile> SaveCommander(CommanderProfile commanderProfile)

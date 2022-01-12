@@ -56,7 +56,7 @@ namespace HaloBiz.MyServices.Impl
             var getServiceRegistration = await _serviceRegistrationRepository.FindServiceById(getServiceAssignment.ServiceRegistration.Id);
             var getEscortDetail = await _serviceAssignmentDetailsRepository.FindEscortServiceAssignmentDetailByResourceId(armedEscortReceivingDTO.ArmedEscortResourceId);
             var getEscortDetailListById = await _serviceAssignmentDetailsRepository.FindAllEscortServiceAssignmentDetailsByAssignmentId(armedEscortReceivingDTO.ServiceAssignmentId);
-            var RouteExists = _armedEscortRegistrationRepository.GetServiceRegIdRegionAndRoute(armedEscortReceivingDTO.ArmedEscortResourceId, getServiceAssignment.SMORouteId, getServiceAssignment.SMORegionId);
+            var RouteExists = _armedEscortRegistrationRepository.GetServiceRegIdRegionAndRoute(armedEscortReceivingDTO.ArmedEscortResourceId, getServiceAssignment.SMORouteId);
             var getResourceTypePerService = await _serviceRegistrationRepository.FindArmedEscortResourceByServiceRegId(getServiceAssignment.ServiceRegistration.Id);
             var getResourceSchedule = await _dTSMastersRepository.FindArmedEscortMasterByResourceId(armedEscortReceivingDTO.ArmedEscortResourceId);
            // var getGenericDaysByDTSMasterId = await _dTSDetailGenericDaysRepository.FindArmedEscortGenericByMasterId(getResourceSchedule.Id);
@@ -65,18 +65,72 @@ namespace HaloBiz.MyServices.Impl
             {
                 if(  getServiceAssignment.PickupDate >= getResourceSchedule.AvailabilityStart && getServiceAssignment.PickupDate <= getResourceSchedule.AvailablilityEnd)
                 {
-                    foreach(var item in getResourceSchedule.GenericDays)
+
+                    if (getResourceSchedule.GenericDays.Count() != 0)
                     {
-                        if(getServiceAssignment.PickoffTime.TimeOfDay >= item.OpeningTime.TimeOfDay)
+                        var lastItem = getResourceSchedule.GenericDays.Last();
+                        foreach (var item in getResourceSchedule.GenericDays)
                         {
-                            break;
-                        }
-                        else
-                        {
-                            //return new ApiResponse(448);//for  schedule time
-                            return CommonResponse.Send(ResponseCodes.FAILURE, null, ResponseMessage.ScheduleTimeMismatch448);
+                            if (!(getServiceAssignment.PickoffTime.TimeOfDay >= item.OpeningTime.TimeOfDay && getServiceAssignment.PickoffTime.TimeOfDay <= item.ClosingTime.TimeOfDay))
+                            {
+                                if (item.Equals(lastItem))
+                                {
+                                    return CommonResponse.Send(ResponseCodes.FAILURE, null, ResponseMessage.NoGenericDay449);
+
+                                }
+                                else
+                                {
+                                    continue;
+                                }
+
+                            }
+                            if (getServiceAssignment.PickoffTime.TimeOfDay >= item.OpeningTime.TimeOfDay && getServiceAssignment.PickoffTime.TimeOfDay <= item.ClosingTime.TimeOfDay)
+                            {
+                                if (getServiceAssignment.PickupDate.DayOfWeek.ToString() == "Monday" && item.Monday == true)
+                                {
+                                    break;
+                                }
+                                else if (getServiceAssignment.PickupDate.DayOfWeek.ToString() == "Tuesday" && item.Tuesday == true)
+                                {
+                                    break;
+                                }
+                                else if (getServiceAssignment.PickupDate.DayOfWeek.ToString() == "Wednesday" && item.Wednesday == true)
+                                {
+                                    break;
+                                }
+                                else if (getServiceAssignment.PickupDate.DayOfWeek.ToString() == "Thursday" && item.Thursday == true)
+                                {
+                                    break;
+                                }
+                                else if (getServiceAssignment.PickupDate.DayOfWeek.ToString() == "Friday" && item.Friday == true)
+                                {
+                                    break;
+                                }
+                                else if (getServiceAssignment.PickupDate.DayOfWeek.ToString() == "Saturday" && item.Saturday == true)
+                                {
+                                    break;
+                                }
+                                else if (getServiceAssignment.PickupDate.DayOfWeek.ToString() == "Sunday" && item.Sunday == true)
+                                {
+                                    break;
+                                }
+                                else
+                                {
+                                    return CommonResponse.Send(ResponseCodes.FAILURE, null, ResponseMessage.ScheduleTimeMismatch448);
+                                }
+                            }
+                            else
+                            {
+                                //return new ApiResponse(448);//for  schedule time
+                                return CommonResponse.Send(ResponseCodes.FAILURE, null, ResponseMessage.ScheduleTimeMismatch448);
+                            }
                         }
                     }
+                    else
+                    {
+                        return CommonResponse.Send(ResponseCodes.FAILURE, null, ResponseMessage.NoGenericDay449);
+                    }
+                   
                    
                         if (RouteExists != null)
                         {
@@ -353,7 +407,7 @@ namespace HaloBiz.MyServices.Impl
             var getServiceRegistration = await _serviceRegistrationRepository.FindServiceById(getServiceAssignment.ServiceRegistration.Id);
             var getCommanderDetail = await _serviceAssignmentDetailsRepository.FindCommanderServiceAssignmentDetailByResourceId(commanderReceivingDTO.CommanderResourceId);
             var getCommanderDetailListById = await _serviceAssignmentDetailsRepository.FindAllCommanderServiceAssignmentDetailsByAssignmentId(commanderReceivingDTO.ServiceAssignmentId);
-            var RouteExists = _commanderRegistrationRepository.GetResourceRegIdRegionAndRouteId(commanderReceivingDTO.CommanderResourceId, getServiceAssignment.SMORouteId, getServiceAssignment.SMORegionId);
+            var RouteExists = _commanderRegistrationRepository.GetResourceRegIdRegionAndRouteId(commanderReceivingDTO.CommanderResourceId, getServiceAssignment.SMORouteId);
             var getResourceTypePerService = await _serviceRegistrationRepository.FindCommanderResourceByServiceRegId(getServiceAssignment.ServiceRegistration.Id);
             //var typeExists = _serviceRegistrationRepository.GetCommanderResourceApplicableTypeReqById(getServiceRegistration.Id, getResourceTypePerService.CommanderTypeId);
            
@@ -363,18 +417,71 @@ namespace HaloBiz.MyServices.Impl
             {
                 if (getServiceAssignment.PickupDate >= getResourceSchedule.AvailabilityStart && getServiceAssignment.PickupDate <= getResourceSchedule.AvailablilityEnd)
                 {
-                    foreach (var item in getResourceSchedule.GenericDays)
+                    if (getResourceSchedule.GenericDays.Count() != 0)
                     {
-                        if (getServiceAssignment.PickoffTime.TimeOfDay >= item.OpeningTime.TimeOfDay)
+                        var lastItem = getResourceSchedule.GenericDays.Last();
+                        foreach (var item in getResourceSchedule.GenericDays)
                         {
-                            break;
-                        }
-                        else
-                        {
-                            //return new ApiResponse(448);//for  schedule time
-                            return CommonResponse.Send(ResponseCodes.FAILURE, null, ResponseMessage.ScheduleTimeMismatch448);
+                            if (!(getServiceAssignment.PickoffTime.TimeOfDay >= item.OpeningTime.TimeOfDay && getServiceAssignment.PickoffTime.TimeOfDay <= item.ClosingTime.TimeOfDay))
+                            {
+                                if (item.Equals(lastItem))
+                                {
+                                    return CommonResponse.Send(ResponseCodes.FAILURE, null, ResponseMessage.NoGenericDay449);
+                                   
+                                }
+                                else
+                                {
+                                    continue;
+                                }
+                               
+                            }
+                            if (getServiceAssignment.PickoffTime.TimeOfDay >= item.OpeningTime.TimeOfDay && getServiceAssignment.PickoffTime.TimeOfDay <= item.ClosingTime.TimeOfDay)
+                            {
+                                if (getServiceAssignment.PickupDate.DayOfWeek.ToString() == "Monday" && item.Monday == true)
+                                {
+                                    break;
+                                }
+                                else if (getServiceAssignment.PickupDate.DayOfWeek.ToString() == "Tuesday" && item.Tuesday == true)
+                                {
+                                    break;
+                                }
+                                else if (getServiceAssignment.PickupDate.DayOfWeek.ToString() == "Wednesday" && item.Wednesday == true)
+                                {
+                                    break;
+                                }
+                                else if (getServiceAssignment.PickupDate.DayOfWeek.ToString() == "Thursday" && item.Thursday == true)
+                                {
+                                    break;
+                                }
+                                else if (getServiceAssignment.PickupDate.DayOfWeek.ToString() == "Friday" && item.Friday == true)
+                                {
+                                    break;
+                                }
+                                else if (getServiceAssignment.PickupDate.DayOfWeek.ToString() == "Saturday" && item.Saturday == true)
+                                {
+                                    break;
+                                }
+                                else if (getServiceAssignment.PickupDate.DayOfWeek.ToString() == "Sunday" && item.Sunday == true)
+                                {
+                                    break;
+                                }
+                                else
+                                {
+                                    return CommonResponse.Send(ResponseCodes.FAILURE, null, ResponseMessage.NoGenericDay449);
+                                }
+                            }
+                            else
+                            {
+                                //return new ApiResponse(448);//for  schedule time
+                                return CommonResponse.Send(ResponseCodes.FAILURE, null, ResponseMessage.ScheduleTimeMismatch448);
+                            }
                         }
                     }
+                    else
+                    {
+                        return CommonResponse.Send(ResponseCodes.FAILURE, null, ResponseMessage.NoGenericDay449);
+                    }
+                    
 
                     if (RouteExists != null)
                     {
@@ -416,7 +523,7 @@ namespace HaloBiz.MyServices.Impl
                         }
                         else
                         {
-                            if (getCommanderDetailListById.Count() < getServiceRegistration.ArmedEscortQuantityRequired)
+                            if (getCommanderDetailListById.Count() < getServiceRegistration.CommanderQuantityRequired)
                             {
                                 master.IsTemporarilyHeld = true;
                                 master.DateTemporarilyHeld = DateTime.UtcNow;
@@ -638,9 +745,10 @@ namespace HaloBiz.MyServices.Impl
             var getServiceRegistration = await _serviceRegistrationRepository.FindServiceById(getServiceAssignment.ServiceRegistration.Id);
             var getPilotDetail = await _serviceAssignmentDetailsRepository.FindPilotServiceAssignmentDetailByResourceId(pilotReceivingDTO.PilotResourceId);
             var getPilotDetailListById = await _serviceAssignmentDetailsRepository.FindAllPilotServiceAssignmentDetailsByAssignmentId(pilotReceivingDTO.ServiceAssignmentId);
-            var RouteExists = _pilotRegistrationRepository.GetResourceRegIdRegionAndRouteId(pilotReceivingDTO.PilotResourceId, getServiceAssignment.SMORouteId, getServiceAssignment.SMORegionId);
+            var RouteExists = _pilotRegistrationRepository.GetResourceRegIdRegionAndRouteId(pilotReceivingDTO.PilotResourceId, getServiceAssignment.SMORouteId);
             var getResourceTypePerService = await _serviceRegistrationRepository.FindPilotResourceByServiceRegId(getServiceAssignment.ServiceRegistration.Id);
             //var typeExists = _serviceRegistrationRepository.GetPilotResourceApplicableTypeReqById(getServiceRegistration.Id, getResourceTypePerService.PilotTypeId);
+            //Get Active Pilot resource schedule
             var getResourceSchedule = await _dTSMastersRepository.FindPilotMasterByResourceId(pilotReceivingDTO.PilotResourceId);
           
 
@@ -648,17 +756,70 @@ namespace HaloBiz.MyServices.Impl
             {
                 if (getServiceAssignment.PickupDate >= getResourceSchedule.AvailabilityStart && getServiceAssignment.PickupDate <= getResourceSchedule.AvailablilityEnd)
                 {
-                    foreach (var item in getResourceSchedule.GenericDays)
+                    if (getResourceSchedule.GenericDays.Count() !=0)
                     {
-                        if (getServiceAssignment.PickoffTime.TimeOfDay >= item.OpeningTime.TimeOfDay)
+                        var lastItem = getResourceSchedule.GenericDays.Last();
+                        foreach (var item in getResourceSchedule.GenericDays)
                         {
-                            break;
-                        }
-                        else
-                        {
-                            return CommonResponse.Send(ResponseCodes.FAILURE, null, ResponseMessage.ScheduleTimeMismatch448);
+                            if (!(getServiceAssignment.PickoffTime.TimeOfDay >= item.OpeningTime.TimeOfDay && getServiceAssignment.PickoffTime.TimeOfDay <= item.ClosingTime.TimeOfDay))
+                            {
+                                if (item.Equals(lastItem))
+                                {
+                                    return CommonResponse.Send(ResponseCodes.FAILURE, null, ResponseMessage.NoGenericDay449);
+
+                                }
+                                else
+                                {
+                                    continue;
+                                }
+
+                            }
+                            if (getServiceAssignment.PickoffTime.TimeOfDay >= item.OpeningTime.TimeOfDay && getServiceAssignment.PickoffTime.TimeOfDay <= item.ClosingTime.TimeOfDay)
+                            {
+                                if (getServiceAssignment.PickupDate.DayOfWeek.ToString() == "Monday" && item.Monday == true)
+                                {
+                                    break;
+                                }
+                                else if (getServiceAssignment.PickupDate.DayOfWeek.ToString() == "Tuesday" && item.Tuesday == true)
+                                {
+                                    break;
+                                }
+                                else if (getServiceAssignment.PickupDate.DayOfWeek.ToString() == "Wednesday" && item.Wednesday == true)
+                                {
+                                    break;
+                                }
+                                else if (getServiceAssignment.PickupDate.DayOfWeek.ToString() == "Thursday" && item.Thursday == true)
+                                {
+                                    break;
+                                }
+                                else if (getServiceAssignment.PickupDate.DayOfWeek.ToString() == "Friday" && item.Friday == true)
+                                {
+                                    break;
+                                }
+                                else if (getServiceAssignment.PickupDate.DayOfWeek.ToString() == "Saturday" && item.Saturday == true)
+                                {
+                                    break;
+                                }
+                                else if (getServiceAssignment.PickupDate.DayOfWeek.ToString() == "Sunday" && item.Sunday == true)
+                                {
+                                    break;
+                                }
+                                else
+                                {
+                                    return CommonResponse.Send(ResponseCodes.FAILURE, null, ResponseMessage.ScheduleTimeMismatch448);
+                                }
+                            }
+                            else
+                            {
+                                return CommonResponse.Send(ResponseCodes.FAILURE, null, ResponseMessage.ScheduleTimeMismatch448);
+                            }
                         }
                     }
+                    else
+                    {
+                        return CommonResponse.Send(ResponseCodes.FAILURE, null, ResponseMessage.NoGenericDay449);
+                    }
+                    
 
                     if (RouteExists != null)
                     {
@@ -700,7 +861,7 @@ namespace HaloBiz.MyServices.Impl
                         }
                         else
                         {
-                            if (getPilotDetailListById.Count() < getServiceRegistration.ArmedEscortQuantityRequired)
+                            if (getPilotDetailListById.Count() < getServiceRegistration.PilotQuantityRequired)
                             {
                                 master.IsTemporarilyHeld = true;
                                 master.DateTemporarilyHeld = DateTime.UtcNow;
@@ -897,7 +1058,7 @@ namespace HaloBiz.MyServices.Impl
             var getServiceRegistration = await _serviceRegistrationRepository.FindServiceById(getServiceAssignment.ServiceRegistration.Id);
             var getVehicleDetail = await _serviceAssignmentDetailsRepository.FindVehicleServiceAssignmentDetailByResourceId(vehicleReceivingDTO.VehicleResourceId);
             var getVehicleDetailListById = await _serviceAssignmentDetailsRepository.FindAllVehicleServiceAssignmentDetailsByAssignmentId(vehicleReceivingDTO.ServiceAssignmentId);
-            var RouteExists = _vehicleRegistrationRepository.GetResourceRegIdRegionAndRouteId(vehicleReceivingDTO.VehicleResourceId, getServiceAssignment.SMORouteId, getServiceAssignment.SMORegionId);
+            var RouteExists = _vehicleRegistrationRepository.GetResourceRegIdRegionAndRouteId(vehicleReceivingDTO.VehicleResourceId, getServiceAssignment.SMORouteId);
             var getResourceTypePerService = await _serviceRegistrationRepository.FindVehicleResourceByServiceRegId(getServiceAssignment.ServiceRegistration.Id);
              
             var getResourceSchedule = await _dTSMastersRepository.FindVehicleMasterByResourceId(vehicleReceivingDTO.VehicleResourceId);
@@ -907,17 +1068,71 @@ namespace HaloBiz.MyServices.Impl
             {
                 if (getServiceAssignment.PickupDate >= getResourceSchedule.AvailabilityStart && getServiceAssignment.PickupDate <= getResourceSchedule.AvailablilityEnd)
                 {
-                    foreach (var item in getResourceSchedule.GenericDays)
+                    if (getResourceSchedule.GenericDays.Count() != 0)
                     {
-                        if (getServiceAssignment.PickoffTime.TimeOfDay >= item.OpeningTime.TimeOfDay )
+                        var lastItem = getResourceSchedule.GenericDays.Last();
+                        foreach (var item in getResourceSchedule.GenericDays)
                         {
-                            break;
-                        }
-                        else
-                        {
-                            return CommonResponse.Send(ResponseCodes.FAILURE, null, ResponseMessage.ScheduleTimeMismatch448);
+                            
+                            if (!(getServiceAssignment.PickoffTime.TimeOfDay >= item.OpeningTime.TimeOfDay && getServiceAssignment.PickoffTime.TimeOfDay <= item.ClosingTime.TimeOfDay))
+                            {
+                                if (item.Equals(lastItem))
+                                {
+                                    return CommonResponse.Send(ResponseCodes.FAILURE, null, ResponseMessage.NoGenericDay449);
+
+                                }
+                                else
+                                {
+                                    continue;
+                                }
+
+                            }
+                            if (getServiceAssignment.PickoffTime.TimeOfDay >= item.OpeningTime.TimeOfDay && getServiceAssignment.PickoffTime.TimeOfDay <= item.ClosingTime.TimeOfDay)
+                            {
+                                if (getServiceAssignment.PickupDate.DayOfWeek.ToString() == "Monday" && item.Monday == true)
+                                {
+                                    break;
+                                }
+                                else if (getServiceAssignment.PickupDate.DayOfWeek.ToString() == "Tuesday" && item.Tuesday == true)
+                                {
+                                    break;
+                                }
+                                else if (getServiceAssignment.PickupDate.DayOfWeek.ToString() == "Wednesday" && item.Wednesday == true)
+                                {
+                                    break;
+                                }
+                                else if (getServiceAssignment.PickupDate.DayOfWeek.ToString() == "Thursday" && item.Thursday == true)
+                                {
+                                    break;
+                                }
+                                else if (getServiceAssignment.PickupDate.DayOfWeek.ToString() == "Friday" && item.Friday == true)
+                                {
+                                    break;
+                                }
+                                else if (getServiceAssignment.PickupDate.DayOfWeek.ToString() == "Saturday" && item.Saturday == true)
+                                {
+                                    break;
+                                }
+                                else if (getServiceAssignment.PickupDate.DayOfWeek.ToString() == "Sunday" && item.Sunday == true)
+                                {
+                                    break;
+                                }
+                                else
+                                {
+                                    return CommonResponse.Send(ResponseCodes.FAILURE, null, ResponseMessage.ScheduleTimeMismatch448);
+                                }
+                            }
+                            else
+                            {
+                                return CommonResponse.Send(ResponseCodes.FAILURE, null, ResponseMessage.ScheduleTimeMismatch448);
+                            }
                         }
                     }
+                    else
+                    {
+                        return CommonResponse.Send(ResponseCodes.FAILURE, null, ResponseMessage.NoGenericDay449);
+                    }
+                   
 
                     if (RouteExists != null)
                     {
@@ -959,7 +1174,7 @@ namespace HaloBiz.MyServices.Impl
                         }
                         else
                         {
-                            if (getVehicleDetailListById.Count() < getServiceRegistration.ArmedEscortQuantityRequired)
+                            if (getVehicleDetailListById.Count() < getServiceRegistration.VehicleQuantityRequired)
                             {
                                 master.IsTemporarilyHeld = true;
                                 master.DateTemporarilyHeld = DateTime.UtcNow;

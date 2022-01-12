@@ -29,6 +29,6 @@ namespace HaloBiz.Repository
         Task<IEnumerable<PilotSMORoutesResourceTie>> FindAllPilotTies();
 
         Task<bool> DeletePilotTie(PilotSMORoutesResourceTie pilotProfileTie);
-        PilotSMORoutesResourceTie GetResourceRegIdRegionAndRouteId(long regRessourceId, long? RouteId, long? RegionId);
+        PilotSMORoutesResourceTie GetResourceRegIdRegionAndRouteId(long regRessourceId, long? RouteId);
     }
 }
