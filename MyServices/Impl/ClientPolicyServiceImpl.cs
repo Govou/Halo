@@ -30,18 +30,27 @@ namespace HaloBiz.MyServices.Impl
             this._logger = logger;
         }
 
-        public async Task<ApiCommonResponse> AddClientPolicy(HttpContext context, ClientPolicyReceivingDTO clientPolicyReceivingDTO)
+        public async Task<ApiCommonResponse> AddClientPolicy(HttpContext context, List<ClientPolicyReceivingDTO> clientPolicyReceivingDTOs)
         {
+            var CreatedById = context.GetLoggedInUserId();
 
-            var clientPolicy = _mapper.Map<ClientPolicy>(clientPolicyReceivingDTO);
-            clientPolicy.CreatedById = context.GetLoggedInUserId();
-            var savedclientPolicy = await _clientPolicyRepo.SaveClientPolicy(clientPolicy);
-            if (savedclientPolicy == null)
+            foreach (var clientPolicyReceivingDTO in clientPolicyReceivingDTOs)
             {
-                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+                //check that this does not exist
+                var thePolicy = await _clientPolicyRepo.FindClientPolicyByContractServiceId(clientPolicyReceivingDTO.ContractServiceId);
+                if(thePolicy == null)
+                {
+                    var clientPolicy = _mapper.Map<ClientPolicy>(clientPolicyReceivingDTO);
+                    clientPolicy.CreatedById = CreatedById;
+                    var savedclientPolicy = await _clientPolicyRepo.SaveClientPolicy(clientPolicy);
+                    if (savedclientPolicy == null)
+                    {
+                        return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+                    }
+                }               
             }
-            var clientPolicyTransferDTO = _mapper.Map<ClientPolicyTransferDTO>(clientPolicy);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,clientPolicyTransferDTO);
+
+            return CommonResponse.Send(ResponseCodes.SUCCESS);
         }
 
         public async Task<ApiCommonResponse> DeleteClientPolicy(long id)
@@ -81,17 +90,7 @@ namespace HaloBiz.MyServices.Impl
             var clientPolicyTransferDTOs = _mapper.Map<ClientPolicyTransferDTO>(clientPolicy);
             return CommonResponse.Send(ResponseCodes.SUCCESS,clientPolicyTransferDTOs);
         }
-
-        public async Task<ApiCommonResponse> FindClientPolicyByContractId(long id)
-        {
-            var clientPolicy = await _clientPolicyRepo.FindClientPolicyByContractId(id);
-            if (clientPolicy == null)
-            {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
-            }
-            var clientPolicyTransferDTOs = _mapper.Map<ClientPolicyTransferDTO>(clientPolicy);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,clientPolicyTransferDTOs);
-        }
+     
 
         public async Task<ApiCommonResponse> FindClientPolicyByContractServiceId(long id)
         {
@@ -115,42 +114,44 @@ namespace HaloBiz.MyServices.Impl
             return CommonResponse.Send(ResponseCodes.SUCCESS,clientPolicyTransferDTOs);
         }*/
 
-        public async Task<ApiCommonResponse> UpdateClientPolicy(HttpContext context, long id, ClientPolicyReceivingDTO clientPolicyReceivingDTO)
+        public async Task<ApiCommonResponse> UpdateClientPolicy(HttpContext context, List< ClientPolicyReceivingDTO> clientPolicyReceivingDTOs)
         {
-            var clientPolicyToUpdate = await _clientPolicyRepo.FindClientPolicyById(id);
-            if (clientPolicyToUpdate == null)
+            foreach (var clientPolicyReceivingDTO in clientPolicyReceivingDTOs)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                var clientPolicyToUpdate = await _clientPolicyRepo.FindClientPolicyByContractServiceId(clientPolicyReceivingDTO.ContractServiceId);
+                if (clientPolicyToUpdate == null)
+                {
+                    return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE); ;
+                }
+
+                var summary = $"Initial details before change, \n {clientPolicyToUpdate.ToString()} \n";
+
+                clientPolicyToUpdate.ContractServiceId = clientPolicyReceivingDTO.ContractServiceId;
+                clientPolicyToUpdate.AutoRenew = clientPolicyReceivingDTO.AutoRenew;
+                clientPolicyToUpdate.RateReviewInterval = clientPolicyReceivingDTO.RateReviewInterval;
+                clientPolicyToUpdate.NextRateReviewDate = clientPolicyReceivingDTO.NextRateReviewDate;
+
+                var updatedclientPolicy = await _clientPolicyRepo.UpdateClientPolicy(clientPolicyToUpdate);
+
+                summary += $"Details after change, \n {updatedclientPolicy} \n";
+
+                if (updatedclientPolicy == null)
+                {
+                    return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+                }
+
+                ModificationHistory history = new ModificationHistory()
+                {
+                    ModelChanged = "clientPolicy",
+                    ChangeSummary = summary,
+                    ChangedById = context.GetLoggedInUserId(),
+                    ModifiedModelId = updatedclientPolicy.Id
+                };
+
+                await _historyRepo.SaveHistory(history);
             }
 
-            var summary = $"Initial details before change, \n {clientPolicyToUpdate.ToString()} \n";
-
-            clientPolicyToUpdate.ContractId = clientPolicyReceivingDTO.ContractId;
-            clientPolicyToUpdate.ContractServiceId = clientPolicyReceivingDTO.ContractServiceId;
-            clientPolicyToUpdate.CustomerDivisionId = clientPolicyReceivingDTO.CustomerDivisionId;
-            clientPolicyToUpdate.AutoRenew = clientPolicyReceivingDTO.AutoRenew;
-            clientPolicyToUpdate.RateReviewInterval = clientPolicyReceivingDTO.RateReviewInterval;
-            clientPolicyToUpdate.NextRateReviewDate = clientPolicyReceivingDTO.NextRateReviewDate;
-
-            var updatedclientPolicy = await _clientPolicyRepo.UpdateClientPolicy(clientPolicyToUpdate);
-
-            summary += $"Details after change, \n {updatedclientPolicy} \n";
-
-            if (updatedclientPolicy == null)
-            {
-                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
-            }
-            ModificationHistory history = new ModificationHistory()
-            {
-                ModelChanged = "clientPolicy",
-                ChangeSummary = summary,
-                ChangedById = context.GetLoggedInUserId(),
-                ModifiedModelId = updatedclientPolicy.Id
-            };
-            await _historyRepo.SaveHistory(history);
-
-            var clientPolicyTransferDTOs = _mapper.Map<ClientPolicyTransferDTO>(updatedclientPolicy);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,clientPolicyTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS);
         }
     }
 }
