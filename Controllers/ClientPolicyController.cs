@@ -46,11 +46,7 @@ namespace HaloBiz.Controllers
 
         }
 
-        [HttpGet("GetByContractId/{contractId}")]
-        public async Task<ApiCommonResponse> FindClientPolicyByContractId(long contractId)
-        {
-            return await _ClientPolicyService.FindClientPolicyByContractId(contractId);
-        }
+      
 
         [HttpGet("GetByContractServiceId/{contractServiceId}")]
         public async Task<ApiCommonResponse> FindClientPolicyByContractServiceId(long contractServiceId)
@@ -58,16 +54,16 @@ namespace HaloBiz.Controllers
             return await _ClientPolicyService.FindClientPolicyByContractServiceId(contractServiceId);
         }
 
-        [HttpPost("")]
-        public async Task<ApiCommonResponse> AddNewClientPolicy(ClientPolicyReceivingDTO ClientPolicyReceiving)
+        [HttpPost]
+        public async Task<ApiCommonResponse> AddNewClientPolicy(List<ClientPolicyReceivingDTO> ClientPolicyReceiving)
         {
             return await _ClientPolicyService.AddClientPolicy(HttpContext, ClientPolicyReceiving);
         }
 
-        [HttpPut("{id}")]
-        public async Task<ApiCommonResponse> UpdateById(long id, ClientPolicyReceivingDTO ClientPolicyReceiving)
+        [HttpPut]
+        public async Task<ApiCommonResponse> UpdatePolicies( List<ClientPolicyReceivingDTO> ClientPolicyReceiving)
         {
-            return await _ClientPolicyService.UpdateClientPolicy(HttpContext, id, ClientPolicyReceiving);
+            return await _ClientPolicyService.UpdateClientPolicy(HttpContext, ClientPolicyReceiving);
         }
 
         [HttpDelete("{id}")]
