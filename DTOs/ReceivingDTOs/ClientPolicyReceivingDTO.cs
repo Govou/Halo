@@ -13,5 +13,6 @@ namespace HaloBiz.DTOs.ReceivingDTOs
         public bool AutoRenew { get; set; }
         public long? RateReviewInterval { get; set; }
         public DateTime? NextRateReviewDate { get; set; }
+        public int? RenewalTenor { get; set; }
     }
 }
