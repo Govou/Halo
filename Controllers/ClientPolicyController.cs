@@ -44,9 +44,7 @@ namespace HaloBiz.Controllers
         {
             return await _ClientPolicyService.GetClientPolicyById(id);
 
-        }
-
-      
+        }      
 
         [HttpGet("GetByContractServiceId/{contractServiceId}")]
         public async Task<ApiCommonResponse> FindClientPolicyByContractServiceId(long contractServiceId)
