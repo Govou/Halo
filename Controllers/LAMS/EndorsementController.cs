@@ -66,6 +66,14 @@ namespace Controllers.Controllers
             
         }
 
+        //Task<ApiCommonResponse> JobPostingRenewContractService(HttpContext httpContext) [HttpPut("DeclineEndorsementApproval/{id}/{sequence}")]
+        [HttpPut("JobPostingRenewContractService")]
+        public async Task<ApiCommonResponse> JobPostingRenewContractService()
+        {
+            return await _contractServiceForEndorsementService.JobPostingRenewContractService(HttpContext);
+        }
+
+
 
         [HttpPut("ConverToContract/{contractServiceForEndorsementId}")]
         public async Task<ApiCommonResponse> ConvertEndorsementToCOntract(long contractServiceForEndorsementId)
