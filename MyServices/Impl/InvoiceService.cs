@@ -797,7 +797,7 @@ namespace HaloBiz.MyServices.Impl
                 {
                     Name = $"{customerDivision.DivisionName} VAT",
                     Description = $"VAT Account of {customerDivision.DivisionName}",
-                    Alias = customerDivision.DTrackCustomerNumber,
+                    Alias = customerDivision?.DTrackCustomerNumber ?? "",
                     IsDebitBalance = true,
                     ControlAccountId = controlAccount.Id,
                     CreatedById = LoggedInUserId
@@ -1463,7 +1463,7 @@ namespace HaloBiz.MyServices.Impl
                 {
                     Name = serviceClientIncomeAccountName,
                     Description = $"{service.Name} Income Account for {customerDivision.DivisionName}",
-                    Alias = customerDivision.DTrackCustomerNumber,
+                    Alias = customerDivision.DTrackCustomerNumber ?? "",
                     IsDebitBalance = true,
                     ControlAccountId = (long)service.ControlAccountId,
                     CreatedById = LoggedInUserId

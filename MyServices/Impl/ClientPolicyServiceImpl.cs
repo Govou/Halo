@@ -129,6 +129,7 @@ namespace HaloBiz.MyServices.Impl
                 clientPolicyToUpdate.ContractServiceId = clientPolicyReceivingDTO.ContractServiceId;
                 clientPolicyToUpdate.AutoRenew = clientPolicyReceivingDTO.AutoRenew;
                 clientPolicyToUpdate.RateReviewInterval = clientPolicyReceivingDTO.RateReviewInterval;
+                clientPolicyToUpdate.RenewalTenor = clientPolicyReceivingDTO.RenewalTenor;
                 clientPolicyToUpdate.NextRateReviewDate = clientPolicyReceivingDTO.NextRateReviewDate;
 
                 var updatedclientPolicy = await _clientPolicyRepo.UpdateClientPolicy(clientPolicyToUpdate);
