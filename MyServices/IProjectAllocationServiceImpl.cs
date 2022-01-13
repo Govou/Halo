@@ -108,6 +108,9 @@ namespace HaloBiz.MyServices
         Task<ApiCommonResponse> pickDeliverable(HttpContext httpContext, List<StatusFlow> statuses, long deliverableId);
         Task<ApiCommonResponse> selectStatus(HttpContext httpContext, long statusId, long deliverableId);
         Task<ApiCommonResponse> addComments(HttpContext httpContext, long deliverableId, long deliverableAssigneeId, CommentsDTO comments);
+        Task<ApiCommonResponse> disableComment(HttpContext httpContext, long commentId, long deliverableId);
+        Task<ApiCommonResponse> saveAmountSpent(HttpContext httpContext, decimal amount, long deliverableId);
+        Task<ApiCommonResponse> getDeliverableApprovalList(HttpContext httpContext);
 
 
 

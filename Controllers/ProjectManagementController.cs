@@ -451,6 +451,13 @@ namespace HaloBiz.Controllers
             return Ok(response);
         }
 
+        [HttpGet("GetDeliverableForApproval")]
+        public async Task<ActionResult> GetDeliverableForApproval()
+        {
+            var response = await _projectAllocationService.getDeliverableApprovalList(HttpContext);
+            return Ok(response);
+        }
+
         [HttpPost("PickDeliverable/{deliverableId}/")]
         public async Task<ActionResult> PickDeliverable(List<StatusFlow> statusFlows,long deliverableId)
         {
@@ -458,11 +465,24 @@ namespace HaloBiz.Controllers
             return Ok(response);
         }
 
+        [HttpPost("saveAmount/{amount}/{deliverableId}")]
+        public async Task<ActionResult> saveAmount(long amount,long deliverableId)
+        {
+            var response = await _projectAllocationService.saveAmountSpent(HttpContext, amount, deliverableId);
+            return Ok(response);
+        }
 
         [HttpPost("AddComments/{deliverableId}/{deliverableAssigneeId}")]
         public async Task<ActionResult> AddComment(CommentsDTO comments, long deliverableId,long deliverableAssigneeId)
         {
             var response = await _projectAllocationService.addComments(HttpContext, deliverableId, deliverableAssigneeId,comments);
+            return Ok(response);
+        }
+
+        [HttpDelete("disableComments/{commentId}/{deliverableId}")]
+        public async Task<ActionResult> disableComment(long commentId, long deliverableId)
+        {
+            var response = await _projectAllocationService.disableComment(HttpContext, commentId, deliverableId);
             return Ok(response);
         }
 

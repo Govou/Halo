@@ -798,6 +798,115 @@ namespace HaloBiz.MyServices.Impl
             
         }
 
+        public async Task<ApiCommonResponse> disableComment(HttpContext httpContext, long commentId,long deliverableId)
+        {
+            var getComment = await _context.PMNotes.FirstOrDefaultAsync(x => x.IsActive == true && x.Id == commentId);
+            if(getComment != null)
+            {
+                 getComment.IsActive = false;
+                _context.PMNotes.Update(getComment);
+                _context.SaveChanges();
+            }
+
+            var getAllNotesByDeliverable = await _context.PMNotes.Where(x => x.IsActive == true && x.DeliverableId == deliverableId).ToListAsync();
+            return CommonResponse.Send(ResponseCodes.SUCCESS, getAllNotesByDeliverable, "Entity successfully removed");
+        }
+
+        public async Task<ApiCommonResponse> saveAmountSpent(HttpContext httpContext,decimal amount, long deliverableId)
+        {
+            var getBalance = await _context.Balances.FirstOrDefaultAsync(x => x.IsActive == true && x.DeliverableId == deliverableId);
+            var getDeliverableById = await _context.Deliverables.FirstOrDefaultAsync(x => x.IsActive == true && x.Id == deliverableId);
+
+            if (getBalance != null)
+            {
+               if(amount > getDeliverableById.Budget)
+                {
+                    return CommonResponse.Send(ResponseCodes.FAILURE, null, "You can't spend more than the budgeted amount for this deliverable");
+                }
+                else
+                {
+                    getBalance.AmountSpent = amount;
+                    getBalance.CreatedAt = DateTime.Now;
+                    getBalance.CreatedById = httpContext.GetLoggedInUserId();
+                    getBalance.DeliverableId = deliverableId;
+                    getBalance.IsActive = true;
+                    getBalance.PM_Balance = getDeliverableById.Budget - amount;
+                    getBalance.TotalAmountSpent = amount;
+                    _context.Balances.Update(getBalance);
+                    _context.SaveChanges();
+                }
+
+            }
+            else
+            {
+                if (amount > getDeliverableById.Budget)
+                {
+                    return CommonResponse.Send(ResponseCodes.FAILURE, null, "You can't spend more than the budgeted amount for this deliverable");
+                }
+                else
+                {
+                    var balance = new Balance();
+                    balance.AmountSpent = amount;
+                    balance.CreatedAt = DateTime.Now;
+                    balance.CreatedById = httpContext.GetLoggedInUserId();
+                    balance.DeliverableId = deliverableId;
+                    balance.IsActive = true;
+                    balance.PM_Balance = getDeliverableById.Budget - amount;
+                    balance.TotalAmountSpent = amount;
+                    await _context.Balances.AddAsync(balance);
+                    await _context.SaveChangesAsync();
+                }
+
+            }
+            
+
+            var getAllBalance = await _context.Balances.Where(x => x.IsActive == true && x.DeliverableId == deliverableId).FirstOrDefaultAsync();
+            return CommonResponse.Send(ResponseCodes.SUCCESS, getAllBalance, "Entity successfully saved");
+        }
+
+
+
+        public async Task<ApiCommonResponse> getDeliverableApprovalList(HttpContext httpContext)
+        {
+
+            var deliverableQuery = await _context.Deliverables.Where(x => x.CreatedById == httpContext.GetLoggedInUserId() && x.IsActive == true)
+                                    .Include(x => x.Task)
+                                    .ThenInclude(x => x.Project)
+                                    .ThenInclude(x => x.Workspace)
+                                    .ThenInclude(x => x.StatusFlows.Where(x => x.IsDeleted == false))
+                                    .ToListAsync();
+
+            var newProjectArray = new List<Project>();
+            var counter = 0;
+            foreach (var checker in deliverableQuery)
+            {
+                
+                
+                var lastValueInStatusFlow = checker.Task.Project.Workspace.StatusFlows.Last();
+
+                if (checker.StatusId == lastValueInStatusFlow.Id)
+                {
+                    newProjectArray.Add(checker.Task.Project);
+                    counter = counter + 1;
+                }
+
+            }
+
+            var ProjectListResult = newProjectArray.GroupBy(p => p.Id)
+                          .Select(result => result.First())
+                          .ToArray();
+
+            var assignedDeliverable = new AssigneDeliverableDTO();
+
+            assignedDeliverable.Project = ProjectListResult;
+            assignedDeliverable.DeliverableCount = counter;
+
+
+            return CommonResponse.Send(ResponseCodes.SUCCESS, assignedDeliverable, "Entity successfully FOUND");
+        }
+                                   
+
+
         public async Task<ApiCommonResponse> disableRequirementUpload(HttpContext httpContext, long uploadedRequirementId)
         {
 
@@ -824,6 +933,7 @@ namespace HaloBiz.MyServices.Impl
                 Description = comments.description,
                 DeliverableId = deliverableId,
                 CreatedById = httpContext.GetLoggedInUserId(),
+                IsActive = true,
                 //DeliverableAssigneeId = deliverableAssigneeId,
                 CreatedAt = DateTime.Now
             };
@@ -831,7 +941,7 @@ namespace HaloBiz.MyServices.Impl
             await _context.PMNotes.AddAsync(noteToBeSaved);
             await _context.SaveChangesAsync();
 
-            var getAllNotesByDeliverableId = await _context.PMNotes.Where(x => x.DeliverableId == deliverableId).ToListAsync();
+            var getAllNotesByDeliverableId = await _context.PMNotes.Where(x => x.DeliverableId == deliverableId && x.IsActive == true).ToListAsync();
 
             return CommonResponse.Send(ResponseCodes.SUCCESS, getAllNotesByDeliverableId, "Comment successfully created");
         }
