@@ -465,6 +465,20 @@ namespace HaloBiz.Controllers
             return Ok(response);
         }
 
+        [HttpPost("PushForApproval/{deliverableId}")]
+        public async Task<ActionResult> PushForApproval(long deliverableId)
+        {
+            var response = await _projectAllocationService.pushForApproval(HttpContext, deliverableId);
+            return Ok(response);
+        }
+
+        [HttpPost("ReverseApproval/{deliverableId}")]
+        public async Task<ActionResult> ReverseApproval(long deliverableId)
+        {
+            var response = await _projectAllocationService.reverseApproval(HttpContext, deliverableId);
+            return Ok(response);
+        }
+
         [HttpPost("saveAmount/{amount}/{deliverableId}")]
         public async Task<ActionResult> saveAmount(long amount,long deliverableId)
         {
@@ -509,10 +523,10 @@ namespace HaloBiz.Controllers
             return Ok(response);
         }
 
-        [HttpGet("GetAssignedDeliverableStatus/{workspaceId}")]
-        public async Task<ActionResult> GetAssignedDeliverableStatus(long workspaceId)
+        [HttpGet("GetAssignedDeliverableStatus/{statusId}")]
+        public async Task<ActionResult> GetAssignedDeliverableStatus(long statusId)
         {
-            var response = await _projectAllocationService.getCurrentDeliverableStatus(HttpContext,workspaceId);
+            var response = await _projectAllocationService.getCurrentDeliverableStatus(HttpContext, statusId);
             return Ok(response);
         }
 

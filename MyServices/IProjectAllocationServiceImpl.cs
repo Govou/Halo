@@ -111,9 +111,8 @@ namespace HaloBiz.MyServices
         Task<ApiCommonResponse> disableComment(HttpContext httpContext, long commentId, long deliverableId);
         Task<ApiCommonResponse> saveAmountSpent(HttpContext httpContext, decimal amount, long deliverableId);
         Task<ApiCommonResponse> getDeliverableApprovalList(HttpContext httpContext);
-
-
-
+        Task<ApiCommonResponse> pushForApproval(HttpContext httpContext, long deliverableId);
+        Task<ApiCommonResponse> reverseApproval(HttpContext httpContext, long deliverableId);
 
     }
 }
