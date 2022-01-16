@@ -618,7 +618,7 @@ namespace HaloBiz.MyServices.Impl
                 userInstance.imageUrl = user.ImageUrl;
                 userInstance.fullname = user.FirstName + " " + user.LastName;
                 assignValue = element.Value;
-                pickedValue = 0;
+                pickedValue = await getPickedRate(httpContext, element.Key,taskId);
                 pickedList.Add(pickedValue);
                 assignDuration.Add(assignValue);
                 finalUserArray.Add(userInstance);
@@ -640,7 +640,27 @@ namespace HaloBiz.MyServices.Impl
         }
 
 
-      
+
+        public async Task<int> getPickedRate(HttpContext httpContext,long userId,long taskId)
+        {
+            var getPickedRate = await _context.AssignTasks.Where(x => x.IsActive == true && x.DeliverableAssigneeId == userId)
+                                .Include(x => x.Deliverable).ToListAsync();
+
+            int ratePicked = 0;
+            foreach(var pickRate in getPickedRate) {
+
+                if(pickRate.Deliverable.IsPicked == true && pickRate.Deliverable.TaskId == taskId)
+                {
+                    ratePicked = ratePicked + 1;
+                }
+            }
+
+            return ratePicked;
+
+        }
+
+
+
 
 
         public async Task<ApiCommonResponse> getWorkspaceWithStatus(HttpContext httpContext)
@@ -874,7 +894,7 @@ namespace HaloBiz.MyServices.Impl
                 getDeliverable.DatePushedForApproval = DateTime.Now;
             }
 
-            _context.Deliverables.Add(getDeliverable);
+            _context.Deliverables.Update(getDeliverable);
             _context.SaveChanges();
 
             return CommonResponse.Send(ResponseCodes.SUCCESS, getDeliverable, "Deliverable successfully pushed for approval");
@@ -890,7 +910,7 @@ namespace HaloBiz.MyServices.Impl
                 getDeliverable.IsPushedForApproval = false;
             }
 
-            _context.Deliverables.Add(getDeliverable);
+            _context.Deliverables.Update(getDeliverable);
             _context.SaveChanges();
 
             return CommonResponse.Send(ResponseCodes.SUCCESS, getDeliverable, "Deliverable successfully pushed for approval");
@@ -1029,7 +1049,7 @@ namespace HaloBiz.MyServices.Impl
 
 
 
-        public async Task<ApiCommonResponse> getCurrentDeliverableStatus(HttpContext httpContext, long statusId)
+        public async Task<ApiCommonResponse> getCurrentDeliverableStatus(HttpContext httpContext, long statusId,long deliverableId)
         {
 
 
@@ -1038,7 +1058,7 @@ namespace HaloBiz.MyServices.Impl
                 var deliverableArray = new List<DeliverableWithStatusDTO>();
 
             //var deliverables = await _context.Deliverables.Where(x => x.IsActive == true && x.WorkspaceId == workspaceId).ToListAsync();
-              var deliverables = await _context.Deliverables.Where(x => x.IsActive == true && x.StatusId == statusId).ToListAsync();
+              var deliverables = await _context.Deliverables.Where(x => x.IsActive == true && x.StatusId == statusId && x.Id == deliverableId ).ToListAsync();
 
 
             if (deliverables.Count > 0)
@@ -1066,6 +1086,9 @@ namespace HaloBiz.MyServices.Impl
                         deliverableInstance.Documents = await _context.Documents.Where(x => x.DeliverableId == deliverable.Id).ToListAsync();
                         deliverableInstance.EndDate = deliverable.EndDate;
                         deliverableInstance.Id = deliverable.Id;
+                        deliverableInstance.IsPushedForApproval = deliverable.IsPushedForApproval;
+                        deliverableInstance.DatePushedForApproval = deliverable.DatePushedForApproval;
+                        deliverableInstance.DeclineReason = deliverable.DeclineReason;
                         deliverableInstance.IsActive = deliverable.IsActive;
                         deliverableInstance.Notes = await _context.PMNotes.Where(x =>x.DeliverableId == deliverable.Id).ToListAsync();
                         deliverableInstance.PMIllustrations = await _context.PMIllustrations.Where(x => x.IsActive == true && x.TaskOrDeliverableId == deliverable.Id).ToListAsync();
@@ -1669,9 +1692,9 @@ namespace HaloBiz.MyServices.Impl
 
         {
 
-            var getAllDeliverables = await _context.Deliverables.FirstOrDefaultAsync(x => x.IsActive == true && x.Id == id && x.CreatedById == httpContext.GetLoggedInUserId());
+            var deliverable = await _context.Deliverables.FirstOrDefaultAsync(x => x.IsActive == true && x.Id == id);
 
-            if (getAllDeliverables == null)
+            if (deliverable == null)
             {
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);
 
@@ -1679,31 +1702,47 @@ namespace HaloBiz.MyServices.Impl
             else
             {
 
-                    var deliverableToDisplayInstance = new Deliverable();
-                    deliverableToDisplayInstance.Alias = getAllDeliverables.Alias;
-                    deliverableToDisplayInstance.Budget = getAllDeliverables.Budget;
-                    deliverableToDisplayInstance.Caption = getAllDeliverables.Caption;
-                    deliverableToDisplayInstance.Description = getAllDeliverables.Description;
-                    deliverableToDisplayInstance.Balances = await _context.Balances.Where(x => x.DeliverableId == getAllDeliverables.Id && x.CreatedById == httpContext.GetLoggedInUserId()).ToListAsync();
-                    deliverableToDisplayInstance.CreatedById = httpContext.GetLoggedInUserId();
-                    deliverableToDisplayInstance.DatePicked = getAllDeliverables.DatePicked;
-                    deliverableToDisplayInstance.DeliverableAssignees = await _context.DeliverableAssignees.Where(x => x.DeliverableId == getAllDeliverables.Id && x.CreatedById == httpContext.GetLoggedInUserId() && x.IsActive == true).ToListAsync();
-                    deliverableToDisplayInstance.Dependencies = await _context.Dependencies.Where(x => x.DependencyDeliverableId == getAllDeliverables.Id && x.CreatedById == httpContext.GetLoggedInUserId()).ToListAsync();
-                    deliverableToDisplayInstance.DependentType = getAllDeliverables.DependentType;
-                    deliverableToDisplayInstance.EndDate = getAllDeliverables.EndDate;
-                    deliverableToDisplayInstance.Id = getAllDeliverables.Id;
-                    deliverableToDisplayInstance.TimeEstimate = getAllDeliverables.TimeEstimate;
-                    deliverableToDisplayInstance.Videos = await _context.Videos.Where(x => x.DeliverableId == getAllDeliverables.Id && x.CreatedById == httpContext.GetLoggedInUserId()).ToListAsync();
-                    deliverableToDisplayInstance.Task = await _context.Tasks.FirstOrDefaultAsync(x => x.Id == getAllDeliverables.TaskId && x.CreatedById == httpContext.GetLoggedInUserId() && x.IsActive == true);
-                    deliverableToDisplayInstance.StartDate = getAllDeliverables.StartDate;
-                    deliverableToDisplayInstance.Requirements = await _context.PMRequirements.Where(x => x.DeliverableId == getAllDeliverables.Id && x.CreatedById == httpContext.GetLoggedInUserId() && x.IsActive == false).ToListAsync();
-                    deliverableToDisplayInstance.Pictures = await _context.Pictures.Where(x => x.DeliverableId == getAllDeliverables.Id && x.CreatedById == httpContext.GetLoggedInUserId()).ToListAsync();
-                    deliverableToDisplayInstance.IsActive = getAllDeliverables.IsActive;
-                    deliverableToDisplayInstance.Documents = await _context.Documents.Where(x => x.DeliverableId == getAllDeliverables.Id && x.CreatedById == httpContext.GetLoggedInUserId()).ToListAsync();
-                    
+                var deliverableInstance = new DeliverableWithStatusDTO();
+                deliverableInstance.Caption = deliverable.Caption;
+                deliverableInstance.Alias = deliverable.Alias;
+                deliverableInstance.Description = deliverable.Description;
+                deliverableInstance.AssignTask = await _context.AssignTasks.FirstOrDefaultAsync(x => x.IsActive == true && x.DeliverableId == deliverable.Id);
+                deliverableInstance.AssignTaskId = deliverable.AssignTaskId;
+                deliverableInstance.Balances = await _context.Balances.Where(x => x.DeliverableId == deliverable.Id).ToListAsync();
+                deliverableInstance.Budget = deliverable.Budget;
+                deliverableInstance.IsPicked = deliverable.IsPicked;
+                deliverableInstance.IsApproved = deliverable.IsApproved;
+                deliverableInstance.IsDeclined = deliverable.IsDeclined;
+                deliverableInstance.CreatedAt = deliverable.CreatedAt;
+                deliverableInstance.CreatedById = deliverable.CreatedById;
+                deliverableInstance.DatePicked = deliverable.DatePicked;
+                deliverableInstance.DeliverableAssignees = await _context.DeliverableAssignees.Where(x => x.IsActive == true && x.DeliverableId == deliverable.Id).ToListAsync();
+                deliverableInstance.Dependencies = await _context.Dependencies.Where(x => x.DependencyDeliverableId == deliverable.Id).ToListAsync();
+                deliverableInstance.DependentType = deliverable.DependentType;
+                deliverableInstance.Documents = await _context.Documents.Where(x => x.DeliverableId == deliverable.Id).ToListAsync();
+                deliverableInstance.EndDate = deliverable.EndDate;
+                deliverableInstance.Id = deliverable.Id;
+                deliverableInstance.IsPushedForApproval = deliverable.IsPushedForApproval;
+                deliverableInstance.DatePushedForApproval = deliverable.DatePushedForApproval;
+                deliverableInstance.DeclineReason = deliverable.DeclineReason;
+                deliverableInstance.IsActive = deliverable.IsActive;
+                deliverableInstance.Notes = await _context.PMNotes.Where(x => x.DeliverableId == deliverable.Id && x.IsActive == true).ToListAsync();
+                deliverableInstance.PMIllustrations = await _context.PMIllustrations.Where(x => x.IsActive == true && x.TaskOrDeliverableId == deliverable.Id).ToListAsync();
+                deliverableInstance.Pictures = await _context.Pictures.Where(x => x.DeliverableId == deliverable.Id).ToListAsync();
+                deliverableInstance.Requirements = await _context.PMRequirements.Where(x => x.DeliverableId == deliverable.Id && x.IsActive == true).ToListAsync();
+                deliverableInstance.StartDate = deliverable.StartDate;
+                deliverableInstance.StatusFlow = await _context.StatusFlows.FirstOrDefaultAsync(x => x.IsDeleted == false && x.Id == deliverable.StatusId);
+                deliverableInstance.Task = await _context.Tasks.Where(x => x.IsActive == true && x.Id == deliverable.TaskId).Include(x => x.Project).FirstOrDefaultAsync();
+                deliverableInstance.TaskId = deliverable.TaskId;
+                deliverableInstance.TimeEstimate = deliverable.TimeEstimate;
+                deliverableInstance.UpdatedAt = deliverable.UpdatedAt;
+
+                deliverableInstance.UploadedRequirement = await _context.PMUploadedRequirements.Where(x => x.IsActive == true && x.DeliverableId == deliverableInstance.Id).ToListAsync();
+                deliverableInstance.Videos = await _context.Videos.Where(x => x.DeliverableId == deliverable.Id).ToListAsync();
+                deliverableInstance.userProfile = await _context.UserProfiles.FirstOrDefaultAsync(x => x.Id == deliverable.CreatedById);
 
 
-                return CommonResponse.Send(ResponseCodes.SUCCESS, deliverableToDisplayInstance);
+                return CommonResponse.Send(ResponseCodes.SUCCESS, deliverableInstance);
 
             }
 
@@ -2267,9 +2306,7 @@ namespace HaloBiz.MyServices.Impl
                         taskSummary.Project = await _context.Projects.FirstOrDefaultAsync(x => x.Id == item.ProjectId && x.IsActive == true);
                         taskSummary.TaskAssignees = await _context.TaskAssignees.Where(X => X.TaskId == item.Id && X.IsActive == true).ToListAsync();
                         taskSummary.workspace = await _context.Workspaces.FirstOrDefaultAsync(x => x.Id == taskSummary.Project.WorkspaceId && x.IsActive == true);
-
                         taskSummaryList.Add(taskSummary);
-
                     }
 
                 }
@@ -2290,6 +2327,10 @@ namespace HaloBiz.MyServices.Impl
                         assignDeliverableDTO.DeliverableAssigneeId = getAssigndDeliverable.DeliverableAssigneeId;
                     if (assignDeliverableDTO.Priority == null)
                         assignDeliverableDTO.Priority = getAssigndDeliverable.Priority;
+
+                    var deliverable = await _context.Deliverables.FirstOrDefaultAsync(x => x.IsActive == true && x.Id == deliverableId);
+                    deliverable.IsAssigned = true;
+                    _context.Deliverables.Update(deliverable);
 
                     getAssigndDeliverable.Priority = assignDeliverableDTO.Priority;
                     getAssigndDeliverable.DeliverableAssigneeId = assignDeliverableDTO.DeliverableAssigneeId;
@@ -2330,6 +2371,7 @@ namespace HaloBiz.MyServices.Impl
 
                     deliverableToBeUpdated.WorkspaceId = getStatuses.Task.Project.WorkspaceId;
                     deliverableToBeUpdated.StatusId = getStatuses.Task.Project.Workspace.StatusFlows.First().Id;
+                    deliverableToBeUpdated.IsAssigned = true;
                     _context.Deliverables.Update(deliverableToBeUpdated);
                     await _context.SaveChangesAsync();
 
@@ -2982,100 +3024,104 @@ namespace HaloBiz.MyServices.Impl
             }
         }
 
-        public async Task<ApiCommonResponse> getAssignedTask(HttpContext httpContext)
-        {
-
-            var projectArray = new List<Project>();
-            var getAllAssigned = await _context.TaskAssignees.Where(x => x.IsActive == true && x.TaskAssigneeId == httpContext.GetLoggedInUserId())
-                                                              .Include(x => x.Task)
-                                                              .ThenInclude(x => x.Project)
-                                                              .ToListAsync();
-            if (getAllAssigned.Count() > 0)
+            public async Task<ApiCommonResponse> getAssignedTask(HttpContext httpContext)
             {
 
-                foreach (var assigned in getAllAssigned)
+            var projectArray = new List<Project>();
+            //var getAllAssigned = await _context.TaskAssignees.Where(x => x.IsActive == true && x.TaskAssigneeId == httpContext.GetLoggedInUserId())
+            //                                                  .Include(x => x.Task)
+            //                                                  .ThenInclude(x => x.Project)
+            //                                                      .ToListAsync();
+
+            var getAllAssigned = await _context.Tasks.Where(x => x.IsActive == true && x.TaskAssignees.Any(t => t.TaskAssigneeId == httpContext.GetLoggedInUserId()))
+                                .Include(x=>x.TaskAssignees)
+                                .ToListAsync();
+
+            
+
+
+            if (getAllAssigned.Count() > 0)
                 {
-                    projectArray.Add(assigned.Task.Project);
+
+                    foreach (var assigned in getAllAssigned)
+                    {
+                        projectArray.Add(assigned.Project);
+                    }
+
                 }
 
-            }
-
-            var projectResult = projectArray.GroupBy(p => p.Id)
+                var projectResult = projectArray.GroupBy(p => p.Id)
                           .Select(result => result.First())
                           .ToArray();
 
-            return CommonResponse.Send(ResponseCodes.SUCCESS, projectResult, ResponseMessage.EntitySuccessfullyFound);
 
 
+                //var getAllAssigneeId = await _context.TaskAssignees.Where(x => x.IsActive == true && x.TaskAssigneeId == httpContext.GetLoggedInUserId()).ToListAsync();
+                //if (getAllAssigneeId.Count() == 0)
+                //{
+                //    return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE, "No Assignee details  was found");
+                //}
+
+                //else
+                //{
+                //    var taskArray = new List<TaskRevampDTO>();
+                //    foreach (var item in getAllAssigneeId)
+                //    {
+                //    var getTaskAssigned = await _context.Tasks.Where(x => x.IsActive == true && x.Id == item.TaskId).FirstOrDefaultAsync();
+                //    if (getTaskAssigned != null)
+                //    {
+                //        var taskAssigneeInstance = new TaskRevampDTO();
+                //        taskAssigneeInstance.Alias = getTaskAssigned.Alias;
+                //        taskAssigneeInstance.Id = getTaskAssigned.Id;
+                //        taskAssigneeInstance.Caption = getTaskAssigned.Caption;
+                //        taskAssigneeInstance.CreatedAt = getTaskAssigned.CreatedAt;
+                //        taskAssigneeInstance.CreatedById = getTaskAssigned.CreatedById;
+                //        taskAssigneeInstance.Deliverables = await _context.Deliverables.Where(x => x.IsActive == true && x.TaskId == getTaskAssigned.Id).ToListAsync();
+                //        taskAssigneeInstance.Description = getTaskAssigned.Description;
+                //        taskAssigneeInstance.DueTime = getTaskAssigned.DueTime;
+                //        taskAssigneeInstance.IsAssigned = getTaskAssigned.IsAssigned;
+                //        taskAssigneeInstance.IsMilestone = getTaskAssigned.IsReassigned;
+                //        taskAssigneeInstance.IsReassigned = getTaskAssigned.IsReassigned;
+                //        taskAssigneeInstance.IsWorkbenched = getTaskAssigned.IsWorkbenched;
+                //        taskAssigneeInstance.IsPickedUp = getTaskAssigned.IsPickedUp;
+                //        taskAssigneeInstance.project = await _context.Projects.Where(x => x.IsActive == true && x.Id == getTaskAssigned.ProjectId).FirstOrDefaultAsync();
+                //        taskAssigneeInstance.ProjectId = getTaskAssigned.ProjectId;
+                //        var assignees = await getAssignees(getTaskAssigned.Id, httpContext);
+                //        taskAssigneeInstance.TaskAssignees = assignees.GroupBy(x => x.TaskAssigneeId)
+                //        .Select(g => g.First())
+                //        .ToList();
+                //        taskAssigneeInstance.TaskEndDate = getTaskAssigned.TaskEndDate;
+                //        taskAssigneeInstance.TaskStartDate = getTaskAssigned.TaskStartDate;
+                //        taskAssigneeInstance.UpdatedAt = getTaskAssigned.UpdatedAt;
+                //        taskAssigneeInstance.WorkingManHours = getTaskAssigned.WorkingManHours;
+                //        taskArray.Add(taskAssigneeInstance);
+
+                //    }
+
+                //}
 
 
+                //var projectArray = new List<Project>();
+                //foreach (var task in taskArray)
+                //{
+                //    projectArray.Add(task.project);
+                //}
 
+                //var taskResult = taskArray.GroupBy(p => p.Id)
+                //              .Select(result => result.First())
+                //              .ToArray();
 
-            //var userId = httpContext.GetLoggedInUserId();
-            //var getAllAssigneeId = await _context.TaskAssignees.Where(x => x.IsActive == true && x.TaskAssigneeId == httpContext.GetLoggedInUserId()).ToListAsync();
-            //if (getAllAssigneeId == null || getAllAssigneeId.Count() == 0)
-            //{
-            //    return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE, "No Assignee details  was found");
-            //}
+                return CommonResponse.Send(ResponseCodes.SUCCESS, projectResult, ResponseMessage.EntitySuccessfullyFound);
+             } 
 
-            //else
-            //{
-            //    var taskArray = new List<TaskRevampDTO>();
-            //    foreach (var item in getAllAssigneeId)
-            //    {
-            //        var getTaskAssigned = await _context.Tasks.FirstOrDefaultAsync(x => x.IsActive == true && x.Id == item.TaskId);
-            //        if (getTaskAssigned != null)
-            //        {
-            //            var taskAssigneeInstance = new TaskRevampDTO();
-            //            taskAssigneeInstance.Alias = getTaskAssigned.Alias;
-            //            taskAssigneeInstance.Id = getTaskAssigned.Id;
-            //            taskAssigneeInstance.Caption = getTaskAssigned.Caption;
-            //            taskAssigneeInstance.CreatedAt = getTaskAssigned.CreatedAt;
-            //            taskAssigneeInstance.CreatedById = getTaskAssigned.CreatedById;
-            //            taskAssigneeInstance.Deliverables = await _context.Deliverables.Where(x => x.IsActive == true && x.TaskId == getTaskAssigned.Id).ToListAsync();
-            //            taskAssigneeInstance.Description = getTaskAssigned.Description;
-            //            taskAssigneeInstance.DueTime = getTaskAssigned.DueTime;
-            //            taskAssigneeInstance.IsAssigned = getTaskAssigned.IsAssigned;
-            //            taskAssigneeInstance.IsMilestone = getTaskAssigned.IsReassigned;
-            //            taskAssigneeInstance.IsReassigned = getTaskAssigned.IsReassigned;
-            //            taskAssigneeInstance.IsWorkbenched = getTaskAssigned.IsWorkbenched;
-            //            taskAssigneeInstance.IsPickedUp = getTaskAssigned.IsPickedUp;
-            //            taskAssigneeInstance.project = await _context.Projects.Where(x => x.IsActive == true && x.Id == getTaskAssigned.ProjectId).FirstOrDefaultAsync();
-            //            taskAssigneeInstance.ProjectId = getTaskAssigned.ProjectId;
-            //            var assignees = await getAssignees(getTaskAssigned.Id, httpContext);
-            //            taskAssigneeInstance.TaskAssignees = assignees.GroupBy(x => x.TaskAssigneeId)
-            //            .Select(g => g.First())
-            //            .ToList();
-            //            taskAssigneeInstance.TaskEndDate = getTaskAssigned.TaskEndDate;
-            //            taskAssigneeInstance.TaskStartDate = getTaskAssigned.TaskStartDate;
-            //            taskAssigneeInstance.UpdatedAt = getTaskAssigned.UpdatedAt;
-            //            taskAssigneeInstance.WorkingManHours = getTaskAssigned.WorkingManHours;
-            //            taskArray.Add(taskAssigneeInstance);
-            //        }
+        
 
+               public async Task<List<TaskAssigneeDTO>> getAssignees(HttpContext httpContext, long taskId)
+                {
+                    var taskAssigneeList = new List<TaskAssigneeDTO>();
 
-            //    }
-
-
-            //    //var projectArray = new List<Project>();
-            //    //foreach(var task in taskArray)
-            //    //{
-            //    //    projectArray.Add(task.project);
-            //    //}
-
-            //    //var projectResult = projectArray.GroupBy(p => p.Id)
-            //    //              .Select(result => result.First())
-            //    //              .ToArray();
-
-
-        }
-
-        public async Task<List<TaskAssigneeDTO>> getAssignees(long taskId, HttpContext httpContext)
-        {
-            var taskAssigneeList = new List<TaskAssigneeDTO>();
-
-            if (taskId != 0)
-            {
+                    if (taskId != 0)
+                    {
 
 
                 var getTaskAssignees = await _context.TaskAssignees.Where(x => x.IsActive == true && x.TaskId == taskId && x.CreatedById == httpContext.GetLoggedInUserId()).ToListAsync();
@@ -3094,8 +3140,6 @@ namespace HaloBiz.MyServices.Impl
 
                     taskAssigneeList.Add(taskAssignee);
                 }
-
-
 
             }
 
@@ -3139,45 +3183,46 @@ namespace HaloBiz.MyServices.Impl
             else
             {
 
-                //var canDropTask = await _context.Tasks.Where(x => x.IsActive == true && x.Id == taskId)
-                //                   .Include(x => x.Deliverables.Where(x => x.IsActive == true))
-                //                   .ThenInclude(x => x.AssignTask).ToListAsync();
+                var canDropTask = await _context.Deliverables.Where(x=>x.IsActive == true && x.TaskId == taskId && x.IsAssigned == true)
+                             .ToListAsync();
 
-                //var verifyAssignTask = canDropTask.Where(x => x.Deliverables.Where(x => x.AssignTask.DeliverableAssigneeId != 0)).To;
-                //verifyAssignTask.
+                if (canDropTask.Count > 0)
+                {
+                    return CommonResponse.Send(ResponseCodes.FAILURE, null, "This task contains deliverables that has been assigned,therefore cannot  be dropped.");
+                }
+                else
+                { 
 
 
+                taskToBePicked.IsPickedUp = false;
+                _context.Tasks.Update(taskToBePicked);
+                taskOwnerShip.IsDeleted = true;
+                //taskOwnerShip.TaskOwnerId = 0;
 
+                _context.TaskOwnerships.Update(taskOwnerShip);
+                await _context.SaveChangesAsync();
 
-                    taskToBePicked.IsPickedUp = false;
-                    _context.Tasks.Update(taskToBePicked);
-                    taskOwnerShip.IsDeleted = true;
-                    //taskOwnerShip.TaskOwnerId = 0;
+                var getUpdatedTaskownerShip = await _context.TaskOwnerships.Where(x => x.IsDeleted == false && x.TaskOwnerId == httpContext.GetLoggedInUserId()).ToListAsync();
 
-                    _context.TaskOwnerships.Update(taskOwnerShip);
-                    await _context.SaveChangesAsync();
+                var taskArray = new List<Task>();
+                if (getUpdatedTaskownerShip != null || getUpdatedTaskownerShip.Count() > 0)
+                {
 
-                    var getUpdatedTaskownerShip = await _context.TaskOwnerships.Where(x => x.IsDeleted == false && x.TaskOwnerId == httpContext.GetLoggedInUserId()).ToListAsync();
-
-                    var taskArray = new List<Task>();
-                    if (getUpdatedTaskownerShip != null || getUpdatedTaskownerShip.Count() > 0)
+                    foreach (var item in getUpdatedTaskownerShip)
                     {
 
-                        foreach (var item in getUpdatedTaskownerShip)
-                        {
+                        var taskGotten = await _context.Tasks.Where(x => x.IsActive == true && x.TaskOwnershipId == item.Id).ToListAsync();
 
-                            var taskGotten = await _context.Tasks.Where(x => x.IsActive == true && x.TaskOwnershipId == item.Id).ToListAsync();
-
-                            taskArray.AddRange(taskGotten);
-
-                        }
-
+                        taskArray.AddRange(taskGotten);
 
                     }
 
-                    return CommonResponse.Send(ResponseCodes.SUCCESS, taskArray);
-                
 
+                }
+
+                return CommonResponse.Send(ResponseCodes.SUCCESS, taskArray);
+
+            }
 
 
             }

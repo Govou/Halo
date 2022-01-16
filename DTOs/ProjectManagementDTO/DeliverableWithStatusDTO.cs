@@ -21,6 +21,12 @@ namespace HaloBiz.DTOs.ProjectManagementDTO
 			set;
 		}
 
+		public string DeclineReason
+		{
+			get;
+			set;
+		}
+
 		public string Caption
 		{
 			get;
@@ -94,6 +100,12 @@ namespace HaloBiz.DTOs.ProjectManagementDTO
 		}
 
 		public long TimeEstimate
+		{
+			get;
+			set;
+		}
+
+		public bool IsPushedForApproval
 		{
 			get;
 			set;
@@ -189,6 +201,12 @@ namespace HaloBiz.DTOs.ProjectManagementDTO
 		}
 
 		public DateTime CreatedAt
+		{
+			get;
+			set;
+		}
+
+		public DateTime DatePushedForApproval
 		{
 			get;
 			set;

@@ -472,6 +472,13 @@ namespace HaloBiz.Controllers
             return Ok(response);
         }
 
+        [HttpGet("GetTaskAssignees/{taskId}")]
+        public async Task<ActionResult> GetTaskAssignees(long taskId)
+        {
+            var response = await _projectAllocationService.getAssignees(HttpContext, taskId);
+            return Ok(response);
+        }
+
         [HttpPost("ReverseApproval/{deliverableId}")]
         public async Task<ActionResult> ReverseApproval(long deliverableId)
         {
@@ -523,10 +530,10 @@ namespace HaloBiz.Controllers
             return Ok(response);
         }
 
-        [HttpGet("GetAssignedDeliverableStatus/{statusId}")]
-        public async Task<ActionResult> GetAssignedDeliverableStatus(long statusId)
+        [HttpGet("GetAssignedDeliverableStatus/{statusId}/{deliverableId}")]
+        public async Task<ActionResult> GetAssignedDeliverableStatus(long statusId,long deliverableId)
         {
-            var response = await _projectAllocationService.getCurrentDeliverableStatus(HttpContext, statusId);
+            var response = await _projectAllocationService.getCurrentDeliverableStatus(HttpContext, statusId, deliverableId);
             return Ok(response);
         }
 

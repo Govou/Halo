@@ -101,7 +101,7 @@ namespace HaloBiz.MyServices
         Task<ApiCommonResponse> getBarChartDetails(HttpContext httpContext, long taskId);
         Task<ApiCommonResponse> getAssignedDeliverableStatus(HttpContext httpContext, List<DeliverableStatusDTO> deliverableStatusDTOs);
         Task<ApiCommonResponse> getWorkspaceWithStatus(HttpContext httpContext);
-        Task<ApiCommonResponse> getCurrentDeliverableStatus(HttpContext httpContext, long workspaceId);
+        Task<ApiCommonResponse> getCurrentDeliverableStatus(HttpContext httpContext, long statusId,long deliverableId);
         Task<ApiCommonResponse> createUploadedRequirement(HttpContext httpContext, UploadedRequirement uploadedRequirement);
         Task<ApiCommonResponse> disableRequirementUpload(HttpContext httpContext, long uploadedRequirementId);
         Task<ApiCommonResponse> moveToAnotherStatus(HttpContext httpContext, List<StatusFlow> statuses, long statusId, long deliverableId, int statusCode);
@@ -113,6 +113,7 @@ namespace HaloBiz.MyServices
         Task<ApiCommonResponse> getDeliverableApprovalList(HttpContext httpContext);
         Task<ApiCommonResponse> pushForApproval(HttpContext httpContext, long deliverableId);
         Task<ApiCommonResponse> reverseApproval(HttpContext httpContext, long deliverableId);
+        Task<List<TaskAssigneeDTO>> getAssignees(HttpContext httpContext, long taskId);
 
     }
 }
