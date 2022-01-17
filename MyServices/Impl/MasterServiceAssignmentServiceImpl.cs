@@ -50,10 +50,12 @@ namespace HaloBiz.MyServices.Impl
             //    return CommonResponse.Send(ResponseCodes.FAILURE, null, ResponseMessage.RecordExists409);
             //}
          
-            master.CreatedById = context.GetLoggedInUserId();
+            //master.CreatedBy = context.User.Claims();
             master.PickoffTime = pickofftime;
             master.CreatedAt = DateTime.UtcNow;
             master.TripTypeId = 1;
+            master.SAExecutionStatus = 0;
+            master.AssignmentStatus = "Open";
             var savedRank = await _serviceAssignmentMasterRepository.SaveServiceAssignment(master);
              getId = savedRank.Id;
             if (savedRank == null)
@@ -67,9 +69,11 @@ namespace HaloBiz.MyServices.Impl
                 master.PickoffLocation = masterReceivingDTO.DropoffLocation;
                 master.DropoffLocation = masterReceivingDTO.PickoffLocation;
                 master.TripTypeId = 2;
+                master.SAExecutionStatus = 0;
                 master.PickoffTime = pickofftime;
+                master.AssignmentStatus = "open";
                 master.PrimaryTripAssignmentId = getId ;
-                master.CreatedById = context.GetLoggedInUserId();
+                //master.CreatedById = context.GetLoggedInUserId();
                 master.CreatedAt = DateTime.UtcNow;
                  var savedItem = await _serviceAssignmentMasterRepository.SaveServiceAssignment(master);
                 if (savedItem == null)

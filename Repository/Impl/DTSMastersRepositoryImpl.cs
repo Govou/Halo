@@ -90,7 +90,7 @@ namespace HaloBiz.Repository.Impl
         {
             return await _context.ArmedEscortDTSMasters.Include(dts => dts.GenericDays.Where(x => x.IsDeleted == false))
                 .Include(dts => dts.CreatedBy).Include(dts => dts.ArmedEscortResource).Include(dts => dts.ArmedEscortResource.SupplierService)
-                .FirstOrDefaultAsync(aer => aer.ArmedEscortResourceId == resourceId &&  aer.AvailablilityEnd >= DateTime.UtcNow &&  aer.IsDeleted == false);
+                .FirstOrDefaultAsync(aer => aer.ArmedEscortResourceId == resourceId && aer.AvailablilityEnd >= DateTime.UtcNow &&  aer.IsDeleted == false);
         }
 
         public async Task<CommanderDTSMaster> FindCommanderMasterById(long Id)

@@ -451,6 +451,25 @@ namespace HaloBiz.Helpers
             CreateMap<PassengerReceivingDTO, Passenger>();
             CreateMap<Passenger, PassengerTransferDTO>();
 
+            //JourneyStartandStop
+            CreateMap<JourneyStartReceivingDTO, ArmadaJourneyStart>();
+            CreateMap<JourneyEndReceivingDTO, ArmadaJourneyStart>();
+            CreateMap<ArmadaJourneyStart, JourneyStartTransferDTO>();
+            //
+            CreateMap<JourneyStopReceivingDTO, ArmadaJourneyStop>();
+            CreateMap<ArmadaJourneyStop, JourneyStopTransferDTO>();
+            //
+            CreateMap<JourneyLeadCommanderReceivingDTO, JourneyLeadCommander>();
+            CreateMap<JourneyLeadCommander, JourneyLeadCommanderTransferDTO>();
+            //
+            CreateMap<JourneyIncidentReceivingDTO, JourneyIncident>();
+            CreateMap<JourneyIncident, JourneyIncidentTransferDTO>();
+            //
+            CreateMap<JourneyIncidentPictureReceivingDTO, JourneyIncidentPicture>();
+            CreateMap<JourneyIncidentPicture, JourneyIncidentPictureTransferDTO>();
+            //
+            CreateMap<JourneyNoteReceivingDTO, JourneyNote>();
+            CreateMap<JourneyNote, JourneyNoteTransferDTO>();
 
             //CreateMap<CommanderType, SMORegionTransferDTO>();
         }
