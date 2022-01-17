@@ -296,10 +296,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                     {
                         await RetainSbuInfo(contractService, contractServiceToRetire, true);
 
-                        await ServiceRenewalEndorsement(
-                                                        contractServiceToRetire,
-                                                        contractService,
-                                                        contractServiceForEndorsement,
+                        await ServiceRenewalEndorsement(contractService,
                                                         service,
                                                         customerDivision);
                     }
@@ -310,6 +307,92 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
                     contractServiceForEndorsement.IsConvertedToContractService = true;
                     _context.ContractServiceForEndorsements.Update(contractServiceForEndorsement);
+                    await _context.SaveChangesAsync();
+
+                    await transaction.CommitAsync();
+
+                    return CommonResponse.Send(ResponseCodes.SUCCESS);
+                }
+                catch (System.Exception e)
+                {
+                    await transaction.RollbackAsync();
+                    _logger.LogError(e.Message);
+                    _logger.LogError(e.StackTrace);
+                    return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+                }
+            }
+
+        }
+       
+
+    public async Task<ApiCommonResponse> JobPostingRenewContractService(HttpContext httpContext)
+        {
+            using (var transaction = await _context.Database.BeginTransactionAsync())
+            {
+                try
+                {
+                    this.loggedInUserId = httpContext.GetLoggedInUserId();
+
+                    //get all the contract services that are due for renwal
+                    var today = DateTime.Now.Date;
+                    var allContractServicesEndingToday = await _context.ContractServices
+                                                .Where(x => x.ContractEndDate.Value.Date == today)
+                                                .Include(x => x.ClientPolicy)
+                                                .Include(x => x.Service)
+                                                .ToListAsync();
+
+                    var contractServicesToRenew = allContractServicesEndingToday.Where(x => x.ClientPolicy != null && x.ClientPolicy?.AutoRenew==true).ToList();
+                   
+                    if (contractServicesToRenew.Count == 0)
+                    {
+                        return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE, null, "No renewal policy for today");
+                    }
+
+                    foreach (var contractServiceToRetire in contractServicesToRenew)
+                    { 
+                        if (contractServiceToRetire.InvoicingInterval == (int) TimeCycle.Adhoc || contractServiceToRetire.InvoicingInterval==(int) TimeCycle.OneTime)
+                        {
+                            continue;
+                        }
+
+                        var clientPolicy = contractServiceToRetire.ClientPolicy;
+                         var contractServiceToSave = _mapper.Map<ContractService>(contractServiceToRetire);
+                        var contractEndDate = DateTime.Now.AddMonths((int)clientPolicy.RenewalTenor);
+                        contractServiceToSave.ContractEndDate = contractEndDate;
+                        contractServiceToSave.ContractStartDate = DateTime.Today;
+                        contractServiceToSave.FirstInvoiceSendDate = DateTime.Now.AddDays(5);
+
+                        contractServiceToSave.Id = 0;
+
+                        var contractServiceEntity = await _context.ContractServices.AddAsync(contractServiceToSave);
+                        await _context.SaveChangesAsync();
+
+                        var contractService = contractServiceEntity.Entity;
+
+                        var contract = await _context.Contracts
+                                    .Where(x => x.Id == contractServiceToRetire.ContractId)
+                                    .Include(x => x.CustomerDivision)
+                                    .FirstOrDefaultAsync();
+
+                        var customerDivision = contract.CustomerDivision;
+                        
+                        await RetainSbuInfo(contractService, contractServiceToRetire, true);
+
+                        await ServiceRenewalEndorsement(
+
+                                                        contractService,
+                                                        contractServiceToRetire.Service,
+                                                        customerDivision);
+
+                        //now change the contractServiceId of this in the clientPolicy
+                        clientPolicy.ContractServiceId = contractService.Id;
+                        clientPolicy.ContractService = contractService;
+                        clientPolicy.NextRateReviewDate = contractEndDate.AddDays(1);
+                        clientPolicy.UpdatedAt = DateTime.Today;
+                        _context.ClientPolicies.Update(clientPolicy);
+                        await _context.SaveChangesAsync();
+                    }
+
                     await _context.SaveChangesAsync();
 
                     await transaction.CommitAsync();
@@ -577,13 +660,10 @@ namespace HaloBiz.MyServices.Impl.LAMS
             return true;
         }
 
-        private async Task<bool> ServiceRenewalEndorsement(
-                                                            ContractService retiredContractService,
-                                                            ContractService newContractService,
-                                                            ContractServiceForEndorsement contractServiceForEndorsement,
+        private async Task<bool> ServiceRenewalEndorsement(ContractService newContractService,
                                                             Service service, CustomerDivision customerDivision)
         {
-            contractServiceForEndorsement.DateForNewContractToTakeEffect = newContractService.ContractStartDate;
+
             var renewalVoucherName = this._configuration.GetSection("VoucherTypes:SalesRetentionVoucher").Value;
             var financialVoucherType = await _context.FinanceVoucherTypes
                             .FirstOrDefaultAsync(x => x.VoucherType.ToLower() == renewalVoucherName.ToLower());

@@ -189,9 +189,9 @@ namespace HaloBiz.MyServices.Impl
                                 .Sum(x => x.ReceiptValue);
             double invoiceValue = invoiceTransferDTOS
                                 .Sum(x => x.Value);
-            double amountLeft = invoiceValue - amountPaid;
+            var amountLeft = (invoiceValue - amountPaid).ToString("#.##");
 
-            if(totalReceiptAmount > amountLeft)
+            if(totalReceiptAmount > double.Parse(amountLeft))
             {
                 return CommonResponse.Send(ResponseCodes.FAILURE,null, "Amount is greater than what is left");
             }
