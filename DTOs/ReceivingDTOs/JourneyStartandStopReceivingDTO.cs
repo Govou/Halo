@@ -48,7 +48,7 @@ namespace HaloBiz.DTOs.ReceivingDTOs
     public class JourneyLeadCommanderReceivingDTO
     {
         //public bool IsActive { get; set; }
-        public long JourneyStartId { get; set; }
+       // public long JourneyStartId { get; set; }
         public long LeadCommanderId { get; set; }
     }
     public class JourneyNoteReceivingDTO

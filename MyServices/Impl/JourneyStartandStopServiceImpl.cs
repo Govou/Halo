@@ -335,6 +335,17 @@ namespace HaloBiz.MyServices.Impl
             return CommonResponse.Send(ResponseCodes.SUCCESS, TransferDTO);
         }
 
+        public async Task<ApiCommonResponse> GetAllJourneyStopsByJourneyStartId(long startId)
+        {
+            var getAll = await _journeyStartandStopRepository.FindAllJouneyStopsByStartId(startId);
+            if (getAll == null)
+            {
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE); ;
+            }
+            var TransferDTO = _mapper.Map<IEnumerable<JourneyStopTransferDTO>>(getAll);
+            return CommonResponse.Send(ResponseCodes.SUCCESS, TransferDTO);
+        }
+
         public async Task<ApiCommonResponse> GetAllStartJourneys()
         {
             var getAll = await _journeyStartandStopRepository.FindAllJouneyStarts();

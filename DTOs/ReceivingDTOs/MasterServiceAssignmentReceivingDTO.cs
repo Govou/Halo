@@ -23,5 +23,11 @@ namespace HaloBiz.DTOs.ReceivingDTOs
        
         //public long? SourceTypeId { get; set; }
         public DateTime PickoffTime { get; set; }
+        public double PickupLocationLongitude { get; set; }
+        public double PickupLocationLatitude { get; set; }
+        public double DropoffLocationLongitude { get; set; }
+        public double DropoffLocationLatitude { get; set; }
+       
+        public double DistanceInKM { get; set; }
     }
 }

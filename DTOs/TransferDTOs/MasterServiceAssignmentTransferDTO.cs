@@ -26,9 +26,13 @@ namespace HaloBiz.DTOs.TransferDTOs
         public DateTime DropoffDate { get; set; }
         public DateTime PickupDate { get; set; }
         public ContractService ContractService { get; set; }
-      
+        public int SAExecutionStatus { get; set; }
         public long? ContractServiceId { get; set; }
-       
+        public double PickupLocationLongitude { get; set; }
+        public double PickupLocationLatitude { get; set; }
+        public double DropoffLocationLongitude { get; set; }
+        public double DropoffLocationLatitude { get; set; }
+        public double DistanceInKM { get; set; }
         public ServiceRegistration ServiceRegistration { get; set; }
         public long? ServiceRegistrationId { get; set; }
         public CustomerDivision CustomerDivision { get; set; }

@@ -106,6 +106,16 @@ namespace HaloBiz.Controllers
             //return Ok(cType);
         }
 
+        [HttpGet("GetAllCommanderDetailsByProfileId/{id}")]
+        public async Task<ApiCommonResponse> GetAllCommanderDetailsByProfileId(long id)
+        {
+            return await _serviceAssignmentDetailsService.GetAllCommanderDetailsByProfileId(id);
+            //if (response.StatusCode >= 400)
+            //    return StatusCode(response.StatusCode, response);
+            //var cType = ((ApiOkResponse)response).Result;
+            //return Ok(cType);
+        }
+
         [HttpGet("GetCommanderDetailById/{id}")]
         public async Task<ApiCommonResponse> GetCommanderDetailById(long id)
         {

@@ -35,6 +35,7 @@ namespace HaloBiz.Repository
 
         Task<IEnumerable<CommanderServiceAssignmentDetail>> FindAllCommanderServiceAssignmentDetails();
         Task<IEnumerable<CommanderServiceAssignmentDetail>> FindAllCommanderServiceAssignmentDetailsByAssignmentId(long assignmentId);
+        Task<IEnumerable<CommanderServiceAssignmentDetail>> FindAllCommanderServiceAssignmentDetailsByProfileId(long profileId);
 
         //MasterServiceAssignment GetName(string name);
 

@@ -9,6 +9,7 @@ using HaloBiz.Repository;
 using HalobizMigrations.Models;
 using HalobizMigrations.Models.Armada;
 using Microsoft.AspNetCore.Http;
+using RestSharp;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -1496,6 +1497,17 @@ namespace HaloBiz.MyServices.Impl
             return CommonResponse.Send(ResponseCodes.SUCCESS, TransferDTO);
         }
 
+        public async Task<ApiCommonResponse> GetAllCommanderDetailsByProfileId(long profileId)
+        {
+            var master = await _serviceAssignmentDetailsRepository.FindAllCommanderServiceAssignmentDetailsByProfileId(profileId);
+            if (master == null)
+            {
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);
+            }
+            var TransferDTO = _mapper.Map<IEnumerable<CommanderServiceAssignmentDetailsTransferDTO>>(master);
+            return CommonResponse.Send(ResponseCodes.SUCCESS, TransferDTO);
+        }
+
         public async Task<ApiCommonResponse> GetAllPassengers()
         {
             var master = await _serviceAssignmentDetailsRepository.FindAllPassengers();
@@ -1777,5 +1789,9 @@ namespace HaloBiz.MyServices.Impl
             var contractTransferDTOs = _mapper.Map<IEnumerable<ContractTransferDTO>>(contracts);
             return CommonResponse.Send(ResponseCodes.SUCCESS, contractTransferDTOs);
         }
+
+       
+
+      
     }
 }

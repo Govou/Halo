@@ -24,6 +24,7 @@ namespace HaloBiz.MyServices
         //Journey Stop
         Task<ApiCommonResponse> AddSStopJourney(HttpContext context, JourneyStopReceivingDTO journeyStopReceiving);
         Task<ApiCommonResponse> GetAllStopJourneys();
+        Task<ApiCommonResponse> GetAllJourneyStopsByJourneyStartId(long startId);
         Task<ApiCommonResponse> GetStopJourneyById(long id);
          Task<ApiCommonResponse> UpdateStopJourney(HttpContext context, long id, JourneyStopReceivingDTO journeyStopReceiving);
         //Task<ApiCommonResponse> UpdateStopJourneyForStop(long id);

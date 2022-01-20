@@ -23,6 +23,7 @@ namespace HaloBiz.MyServices
         Task<ApiCommonResponse> AddCommanderDetail(HttpContext context, CommanderServiceAssignmentDetailsReceivingDTO commanderReceivingDTO);
         Task<ApiCommonResponse> GetAllCommanderDetails();
         Task<ApiCommonResponse> GetAllCommanderDetailsByAssignmentId(long assignmentId);
+        Task<ApiCommonResponse> GetAllCommanderDetailsByProfileId(long profileId);
         Task<ApiCommonResponse> GetCommanderDetailById(long id);
         Task<ApiCommonResponse> UpdateCommanderDetail(HttpContext context, long id, CommanderServiceAssignmentDetailsReceivingDTO commanderReceivingDTO);
         Task<ApiCommonResponse> DeleteCommanderDetail(long id);

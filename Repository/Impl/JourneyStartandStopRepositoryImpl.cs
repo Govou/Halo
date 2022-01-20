@@ -119,6 +119,13 @@ namespace HaloBiz.Repository.Impl
            .ToListAsync();
         }
 
+        public async Task<IEnumerable<ArmadaJourneyStop>> FindAllJouneyStopsByStartId(long startId)
+        {
+            return await _context.ArmadaJourneyStops.Where(jr => jr.IsDeleted == false && jr.JourneyStartId == startId)
+         .Include(ct => ct.JourneyStart).OrderByDescending(x => x.Id)
+         .ToListAsync();
+        }
+
         public async Task<IEnumerable<JourneyNote>> FindAllJourneyNotes()
         {
             return await _context.JourneyNotes.Where(jr => jr.IsDeleted == false )

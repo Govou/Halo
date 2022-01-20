@@ -32,7 +32,7 @@ namespace HaloBiz.Repository
         Task<ArmadaJourneyStop> FindJourneyStopById(long Id);
 
         Task<IEnumerable<ArmadaJourneyStop>> FindAllJouneyStops();
-
+        Task<IEnumerable<ArmadaJourneyStop>> FindAllJouneyStopsByStartId(long startId);
         //ArmadaJourneyStart GetTypename(string rankName);
 
         Task<ArmadaJourneyStop> UpdateJourneyStop(ArmadaJourneyStop journeyStop);

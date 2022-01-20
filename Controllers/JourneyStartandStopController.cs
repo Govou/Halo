@@ -68,6 +68,13 @@ namespace HaloBiz.Controllers
             return await _journeyStartandStopService.GetAllStopJourneys();
         }
 
+
+        [HttpGet("GetAllJourneyStopsByJourneyStartId/{id}")]
+        public async Task<ApiCommonResponse> GetAllJourneyStopsByJourneyStartId(long id)
+        {
+            return await _journeyStartandStopService.GetAllJourneyStopsByJourneyStartId(id);
+        }
+
         [HttpGet("GetJouneyStopById/{id}")]
         public async Task<ApiCommonResponse> GetJouneyStopById(long id)
         {

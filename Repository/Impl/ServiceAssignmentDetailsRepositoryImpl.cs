@@ -103,9 +103,25 @@ namespace HaloBiz.Repository.Impl
         {
             return await _context.CommanderServiceAssignmentDetails.Where(type => type.IsDeleted == false && type.ServiceAssignmentId == assignmentId)
                .Include(ct => ct.CommanderResource).Include(t => t.CommanderResource.Profile).Include(t => t.TiedVehicleResource).Include(t => t.ServiceAssignment)
+               .Include(ct => ct.ServiceAssignment.ServiceRegistration).Include(ct => ct.ServiceAssignment.ServiceRegistration.Service)
                .Include(t => t.TempReleaseType).Include(t => t.CreatedBy).Include(t => t.ActionReleaseType).Include(t => t.CommanderResource.CommanderType)
                .OrderByDescending(x => x.Id)
                .ToListAsync();
+        }
+
+        public async Task<IEnumerable<CommanderServiceAssignmentDetail>> FindAllCommanderServiceAssignmentDetailsByProfileId(long profileId)
+        {
+            var query =  _context.CommanderServiceAssignmentDetails.Where(type => type.IsDeleted == false)
+             .Include(ct => ct.CommanderResource).Include(t => t.CommanderResource.Profile).Include(t => t.TiedVehicleResource).Include(t => t.ServiceAssignment)
+             .Include(ct=>ct.ServiceAssignment.ServiceRegistration).Include(ct => ct.ServiceAssignment.ServiceRegistration.Service)
+             .Include(t => t.TempReleaseType).Include(t => t.CreatedBy).Include(t => t.ActionReleaseType).Include(t => t.CommanderResource.CommanderType);
+
+            return await query.Where(type => type.CommanderResource.ProfileId == profileId && type.ServiceAssignment.AssignmentStatus == "Open" && type.ServiceAssignment.ReadyStatus == true).OrderByDescending(x => x.Id).ToListAsync();
+             //   _context.CommanderServiceAssignmentDetails.Where(type => type.IsDeleted == false)
+             //.Include(ct => ct.CommanderResource).Include(t => t.CommanderResource.Profile).Include(t => t.TiedVehicleResource).Include(t => t.ServiceAssignment)
+             //.Include(t => t.TempReleaseType).Include(t => t.CreatedBy).Include(t => t.ActionReleaseType).Include(t => t.CommanderResource.CommanderType).Where(type => type.CommanderResource.ProfileId == profileId && type.ServiceAssignment.AssignmentStatus == "Open" && type.ServiceAssignment.ReadyStatus == true)
+             //.OrderByDescending(x => x.Id)
+             //.ToListAsync();
         }
 
         public async Task<IEnumerable<Contract>> FindAllContracts()
