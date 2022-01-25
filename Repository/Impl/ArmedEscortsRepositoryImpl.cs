@@ -36,13 +36,13 @@ namespace HaloBiz.Repository.Impl
         public async Task<IEnumerable<ArmedEscortRank>> FindAllArmedEscortRanks()
         {
             return await _context.ArmedEscortRanks.Where(rank=>rank.IsDeleted == false)
-                .Include(ct=>ct.ArmedEscortType)
+                .Include(ct=>ct.ArmedEscortType).OrderByDescending(x=>x.Id)
                 .ToListAsync();
         }
 
         public async Task<IEnumerable<ArmedEscortType>> FindAllArmedEscortTypes()
         {
-            return await _context.ArmedEscortTypes.Where(rank => rank.IsDeleted == false).Include(c=>c.CreatedBy)
+            return await _context.ArmedEscortTypes.Where(rank => rank.IsDeleted == false).Include(c=>c.CreatedBy).OrderByDescending(x=>x.Id)
                .ToListAsync();
         }
 

@@ -54,7 +54,7 @@ namespace HaloBiz.MyServices.Impl
                 commander.SMORegionId = commanderReceivingDTO.SMORegionId;
                 commander.ResourceId = commanderReceivingDTO.ResourceId;
                 commander.SMORouteId = commanderReceivingDTO.SMORouteId[i];
-                var IdExist = _commanderRepository.GetResourceRegIdRegionAndRouteId(commanderReceivingDTO.ResourceId, commanderReceivingDTO.SMORouteId[i], commanderReceivingDTO.SMORegionId);
+                var IdExist = _commanderRepository.GetResourceRegIdRegionAndRouteId(commanderReceivingDTO.ResourceId, commanderReceivingDTO.SMORouteId[i]);
                 if (IdExist == null)
                 {
                     commander.CreatedById = context.GetLoggedInUserId();
@@ -126,6 +126,18 @@ namespace HaloBiz.MyServices.Impl
             }
             var TransferDTO = _mapper.Map<IEnumerable<CommanderSMORoutesResourceTieTransferDTO>>(commanders);
             return CommonResponse.Send(ResponseCodes.SUCCESS,TransferDTO);
+        }
+
+       
+        public async Task<ApiCommonResponse> GetAllCommanderTiesByResourceId(long resourceId)
+        {
+            var commanders = await _commanderRepository.FindAllCommanderTiesByResourceId(resourceId);
+            if (commanders == null)
+            {
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);
+            }
+            var TransferDTO = _mapper.Map<IEnumerable<CommanderSMORoutesResourceTieTransferDTO>>(commanders);
+            return CommonResponse.Send(ResponseCodes.SUCCESS, TransferDTO);
         }
 
         public async Task<ApiCommonResponse> GetCommanderById(long id)

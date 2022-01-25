@@ -21,5 +21,6 @@ namespace HaloBiz.MyServices
         Task<ApiCommonResponse> GetAllPilotTies();
         Task<ApiCommonResponse> GetPilotTieById(long id);
         Task<ApiCommonResponse> DeletePilotTie(long id);
+        Task<ApiCommonResponse> GetAllPilotTiesByResourceId(long resourceId);
     }
 }
