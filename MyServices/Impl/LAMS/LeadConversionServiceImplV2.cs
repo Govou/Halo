@@ -362,7 +362,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                     ContractId = contractId,
                     CreatedById = LoggedInUserId,
                     ServiceId = quoteService.ServiceId,
-                    OfficeId = leadDivision.OfficeId,
+                    OfficeId = quoteService.OfficeId,
                     BranchId = quoteService.BranchId,
                     UniqueTag = quoteService.UniqueTag,
                     AdminDirectTie = quoteService.AdminDirectTie
