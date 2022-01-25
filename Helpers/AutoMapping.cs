@@ -420,6 +420,57 @@ namespace HaloBiz.Helpers
             CreateMap<VehicleDTSDetailGenericDaysReceivingDTO, VehicleDTSDetailGenericDay>();
             CreateMap<VehicleDTSDetailGenericDay, VehicleDTSDetailGenericDaysTransferDTO>();
 
+            //ServiceAssignment Types
+            CreateMap<PassengerTypesForServiceAssignmentReceivingDTO, PassengerType>();
+            CreateMap<TripTypesForServiceAssignmentReceivingDTO, TripType>();
+            CreateMap<SourceTypesForServiceAssignmentReceivingDTO, SourceType>();
+            CreateMap<ReleaseTypesForServiceAssignmentReceivingDTO, ReleaseType>();
+
+            //Transfer
+            CreateMap<PassengerType, PassengerTypesForServiceAssignmentTransferDTO>();
+            CreateMap<TripType, TripTypesForServiceAssignmentTransferDTO>();
+            CreateMap<SourceType, SourceTypesForServiceAssignmentTransferDTO>();
+            CreateMap<ReleaseType, ReleaseTypesForServiceAssignmentTransferDTO>();
+
+            //ServiceAssignment
+            CreateMap<MasterServiceAssignmentReceivingDTO, MasterServiceAssignment>();
+            CreateMap<MasterServiceAssignment, MasterServiceAssignmentTransferDTO>();
+
+            //ServiceAssignmentDetail
+            CreateMap<ArmedEscortServiceAssignmentDetailsReceivingDTO, ArmedEscortServiceAssignmentDetail>();
+            CreateMap<CommanderServiceAssignmentDetailsReceivingDTO, CommanderServiceAssignmentDetail>();
+            CreateMap<PilotServiceAssignmentDetailsReceivingDTO, PilotServiceAssignmentDetail>();
+            CreateMap<VehicleServiceAssignmentDetailsReceivingDTO, VehicleServiceAssignmentDetail>();
+
+
+            CreateMap<ArmedEscortServiceAssignmentDetail, ArmedEscortServiceAssignmentDetailsTransferDTO>();
+            CreateMap<CommanderServiceAssignmentDetail, CommanderServiceAssignmentDetailsTransferDTO>();
+            CreateMap<PilotServiceAssignmentDetail, PilotServiceAssignmentDetailsTransferDTO>();
+            CreateMap<VehicleServiceAssignmentDetail, VehicleServiceAssignmentDetailsTransferDTO>();
+
+            CreateMap<PassengerReceivingDTO, Passenger>();
+            CreateMap<Passenger, PassengerTransferDTO>();
+
+            //JourneyStartandStop
+            CreateMap<JourneyStartReceivingDTO, ArmadaJourneyStart>();
+            CreateMap<JourneyEndReceivingDTO, ArmadaJourneyStart>();
+            CreateMap<ArmadaJourneyStart, JourneyStartTransferDTO>();
+            //
+            CreateMap<JourneyStopReceivingDTO, ArmadaJourneyStop>();
+            CreateMap<ArmadaJourneyStop, JourneyStopTransferDTO>();
+            //
+            CreateMap<JourneyLeadCommanderReceivingDTO, JourneyLeadCommander>();
+            CreateMap<JourneyLeadCommander, JourneyLeadCommanderTransferDTO>();
+            //
+            CreateMap<JourneyIncidentReceivingDTO, JourneyIncident>();
+            CreateMap<JourneyIncident, JourneyIncidentTransferDTO>();
+            //
+            CreateMap<JourneyIncidentPictureReceivingDTO, JourneyIncidentPicture>();
+            CreateMap<JourneyIncidentPicture, JourneyIncidentPictureTransferDTO>();
+            //
+            CreateMap<JourneyNoteReceivingDTO, JourneyNote>();
+            CreateMap<JourneyNote, JourneyNoteTransferDTO>();
+
             //CreateMap<CommanderType, SMORegionTransferDTO>();
         }
     }

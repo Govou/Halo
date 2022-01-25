@@ -54,7 +54,7 @@ namespace HaloBiz.MyServices.Impl
                 pilot.SMORegionId = pilotReceivingTieDTO.SMORegionId;
                 pilot.ResourceId = pilotReceivingTieDTO.ResourceId;
                 pilot.SMORouteId = pilotReceivingTieDTO.SMORouteId[i];
-                var IdExist = _pilotProfileRepository.GetResourceRegIdRegionAndRouteId(pilotReceivingTieDTO.ResourceId, pilotReceivingTieDTO.SMORouteId[i], pilotReceivingTieDTO.SMORegionId);
+                var IdExist = _pilotProfileRepository.GetResourceRegIdRegionAndRouteId(pilotReceivingTieDTO.ResourceId, pilotReceivingTieDTO.SMORouteId[i]);
                 if (IdExist == null)
                 {
                     pilot.CreatedById = context.GetLoggedInUserId();
@@ -126,6 +126,18 @@ namespace HaloBiz.MyServices.Impl
             }
             var TransferDTO = _mapper.Map<IEnumerable<PilotSMORoutesResourceTieTransferDTO>>(pilot);
             return CommonResponse.Send(ResponseCodes.SUCCESS,TransferDTO);
+        }
+
+        
+        public async Task<ApiCommonResponse> GetAllPilotTiesByResourceId(long resourceId)
+        {
+            var pilot = await _pilotProfileRepository.FindPilotTieByResourceId(resourceId);
+            if (pilot == null)
+            {
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);
+            }
+            var TransferDTO = _mapper.Map<IEnumerable<PilotSMORoutesResourceTieTransferDTO>>(pilot);
+            return CommonResponse.Send(ResponseCodes.SUCCESS, TransferDTO);
         }
 
         public async Task<ApiCommonResponse> GetPilotById(long id)

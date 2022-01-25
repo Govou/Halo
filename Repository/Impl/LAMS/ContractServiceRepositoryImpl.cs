@@ -110,5 +110,13 @@ namespace HaloBiz.Repository.Impl.LAMS
                 return false;
             }
         }
+
+        public async Task<IEnumerable<ContractService>> FindAllContractServices()
+        {
+            return await _context.ContractServices
+                .Include(t=>t.Service)
+                 .Where(x =>  x.IsDeleted == false)
+                 .ToListAsync();
+        }
     }
 }

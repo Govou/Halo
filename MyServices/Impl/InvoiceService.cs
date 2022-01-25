@@ -1132,6 +1132,26 @@ namespace HaloBiz.MyServices.Impl
 
         }
 
+        private async Task<ApiCommonResponse> SendJourneyManagementPkan(Invoice invoice)
+        {
+            try
+            {
+                var (invoiceMailDTO, invoices) = await GenerateInvoiceMailDTO(invoice);
+                var sendResult = await _mailAdapter.SendPeriodicInvoice(invoiceMailDTO);
+                sendResult.responseData = invoices;
+                return sendResult;
+
+            }
+            catch (System.Exception ex)
+            {
+                _logger.LogError($"An Error occured while trying to send Invoice with Id: {invoice.Id}");
+                _logger.LogError($"Error: {ex.Message}");
+                _logger.LogError($"Error: {ex.StackTrace}");
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, ex.Message);
+            }
+
+        }
+
         public async Task<ApiCommonResponse> GetInvoiceDetails(long invoiceId)
         {
             try

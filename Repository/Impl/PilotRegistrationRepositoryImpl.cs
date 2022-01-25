@@ -60,10 +60,24 @@ namespace HaloBiz.Repository.Impl
                .Include(pi => pi.Resource).Include(pi => pi.CreatedBy).FirstOrDefaultAsync(aer => aer.Id == Id && aer.IsDeleted == false);
         }
 
-        public PilotSMORoutesResourceTie GetResourceRegIdRegionAndRouteId(long regRessourceId, long RouteId, long RegionId)
+        public async Task<IEnumerable<PilotSMORoutesResourceTie>> FindPilotTieByResourceId(long resourceId)
+        {
+            return await _context.PilotSMORoutesResourceTies.Where(pi => pi.IsDeleted == false && pi.ResourceId == resourceId)
+               .Include(pi => pi.SMORegion).Include(pi => pi.SMORoute).Include(s => s.Resource.PilotType)
+               .Include(pi => pi.Resource).Include(pi => pi.CreatedBy)
+                                      .ToListAsync();
+        }
+
+        //public async Task<PilotSMORoutesResourceTie> FindPilotTieByResourceId(long resourceId)
+        //{
+        //    return await _context.PilotSMORoutesResourceTies.Include(pi => pi.SMORegion).Include(pi => pi.SMORoute).Include(s => s.Resource.PilotType)
+        //       .Include(pi => pi.Resource).Include(pi => pi.CreatedBy).FirstOrDefaultAsync(aer => aer.ResourceId == resourceId && aer.IsDeleted == false);
+        //}
+
+        public PilotSMORoutesResourceTie GetResourceRegIdRegionAndRouteId(long regRessourceId, long? RouteId)
         {
             return _context.PilotSMORoutesResourceTies.Where
-                (ct => ct.ResourceId == regRessourceId && ct.SMORouteId == RouteId && ct.SMORegionId == RegionId && ct.IsDeleted == false).FirstOrDefault();
+                (ct => ct.ResourceId == regRessourceId && ct.SMORouteId == RouteId  && ct.IsDeleted == false).FirstOrDefault();
         }
 
         public async Task<PilotProfile> SavePilot(PilotProfile pilotProfile)

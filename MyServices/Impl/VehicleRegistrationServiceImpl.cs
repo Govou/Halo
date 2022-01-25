@@ -13,7 +13,7 @@ using System.Threading.Tasks;
 
 namespace HaloBiz.MyServices.Impl
 {
-    public class VehicleRegistrationServiceImpl:IVehicleRegistrationService
+    public class VehicleRegistrationServiceImpl : IVehicleRegistrationService
     {
         private readonly IVehicleRegistrationRepository _vehiclesRepository;
         private readonly IMapper _mapper;
@@ -30,7 +30,7 @@ namespace HaloBiz.MyServices.Impl
             var IdExist = _vehiclesRepository.FindVehicleServiceById(vehicleReceivingDTO.SupplierServiceId);
             if (IdExist != null)
             {
-                                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE,null, "No record exists");;
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE, null, "No record exists"); ;
             }
 
             vehicle.CreatedById = context.GetLoggedInUserId();
@@ -42,7 +42,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
             var typeTransferDTO = _mapper.Map<VehicleTransferDTO>(vehicle);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,typeTransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS, typeTransferDTO);
         }
 
         public async Task<ApiCommonResponse> AddVehicleTie(HttpContext context, VehicleSMORoutesResourceTieReceivingDTO vehicleTieReceivingDTO)
@@ -55,7 +55,7 @@ namespace HaloBiz.MyServices.Impl
                 vehicle.SMORegionId = vehicleTieReceivingDTO.SMORegionId;
                 vehicle.ResourceId = vehicleTieReceivingDTO.ResourceId;
                 vehicle.SMORouteId = vehicleTieReceivingDTO.SMORouteId[i];
-                var IdExist = _vehiclesRepository.GetResourceRegIdRegionAndRouteId(vehicleTieReceivingDTO.ResourceId, vehicleTieReceivingDTO.SMORouteId[i], vehicleTieReceivingDTO.SMORegionId);
+                var IdExist = _vehiclesRepository.GetResourceRegIdRegionAndRouteId(vehicleTieReceivingDTO.ResourceId, vehicleTieReceivingDTO.SMORouteId[i]);
                 if (IdExist == null)
                 {
                     vehicle.CreatedById = context.GetLoggedInUserId();
@@ -70,7 +70,7 @@ namespace HaloBiz.MyServices.Impl
                 }
 
             }
-            return CommonResponse.Send(ResponseCodes.SUCCESS,"Record(s) Added");
+            return CommonResponse.Send(ResponseCodes.SUCCESS, "Record(s) Added");
         }
 
         public async Task<ApiCommonResponse> DeleteVehicle(long id)
@@ -79,7 +79,7 @@ namespace HaloBiz.MyServices.Impl
 
             if (typeToDelete == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE); ;
             }
 
             if (!await _vehiclesRepository.DeleteVehicle(typeToDelete))
@@ -96,7 +96,7 @@ namespace HaloBiz.MyServices.Impl
 
             if (typeToDelete == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE); ;
             }
 
             if (!await _vehiclesRepository.DeleteVehicleTie(typeToDelete))
@@ -112,10 +112,10 @@ namespace HaloBiz.MyServices.Impl
             var vehicles = await _vehiclesRepository.FindAllVehicles();
             if (vehicles == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE); ;
             }
             var TransferDTO = _mapper.Map<IEnumerable<VehicleTransferDTO>>(vehicles);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,TransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS, TransferDTO);
         }
 
         public async Task<ApiCommonResponse> GetAllVehicleTies()
@@ -123,10 +123,22 @@ namespace HaloBiz.MyServices.Impl
             var vehicles = await _vehiclesRepository.FindAllVehicleTies();
             if (vehicles == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE); ;
             }
             var TransferDTO = _mapper.Map<IEnumerable<VehicleSMORoutesResourceTieTransferDTO>>(vehicles);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,TransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS, TransferDTO);
+        }
+
+
+        public async Task<ApiCommonResponse> GetAllVehicleTiesByResourceId(long resourceId)
+        {
+            var vehicles = await _vehiclesRepository.FindVehicleTieByResourceId(resourceId);
+            if (vehicles == null)
+            {
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);
+            }
+            var TransferDTO = _mapper.Map<IEnumerable<VehicleSMORoutesResourceTieTransferDTO>>(vehicles);
+            return CommonResponse.Send(ResponseCodes.SUCCESS, TransferDTO);
         }
 
         public async Task<ApiCommonResponse> GetVehicleById(long id)
@@ -134,10 +146,10 @@ namespace HaloBiz.MyServices.Impl
             var vehicle = await _vehiclesRepository.FindVehicleById(id);
             if (vehicle == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE); ;
             }
             var TransferDTO = _mapper.Map<VehicleTransferDTO>(vehicle);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,TransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS, TransferDTO);
         }
 
         public async Task<ApiCommonResponse> GetVehicleTieById(long id)
@@ -145,10 +157,10 @@ namespace HaloBiz.MyServices.Impl
             var vehicle = await _vehiclesRepository.FindVehicleTieById(id);
             if (vehicle == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE); ;
             }
             var TransferDTO = _mapper.Map<VehicleSMORoutesResourceTieTransferDTO>(vehicle);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,TransferDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS, TransferDTO);
         }
 
         public async Task<ApiCommonResponse> UpdateVehicle(HttpContext context, long id, VehicleReceivingDTO vehicleReceivingDTO)
@@ -156,7 +168,7 @@ namespace HaloBiz.MyServices.Impl
             var ToUpdate = await _vehiclesRepository.FindVehicleById(id);
             if (ToUpdate == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE); ;
             }
 
             var summary = $"Initial details before change, \n {ToUpdate.ToString()} \n";
@@ -176,7 +188,7 @@ namespace HaloBiz.MyServices.Impl
             }
 
             var typeTransferDTOs = _mapper.Map<VehicleTransferDTO>(updatedType);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,typeTransferDTOs);
+            return CommonResponse.Send(ResponseCodes.SUCCESS, typeTransferDTOs);
         }
     }
 }

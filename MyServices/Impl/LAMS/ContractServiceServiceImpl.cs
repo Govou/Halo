@@ -91,10 +91,21 @@ namespace HaloBiz.MyServices.Impl.LAMS
             var contractService = await _contractServiceRepo.FindContractServiceById(id);
             if (contractService == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);
             }
             var contractTransferDTOs = _mapper.Map<ContractServiceTransferDTO>(contractService);
             return CommonResponse.Send(ResponseCodes.SUCCESS,contractTransferDTOs);
+        }
+
+        public async Task<ApiCommonResponse> GetAllContractsServcie()
+        {
+            var contractService = await _contractServiceRepo.FindAllContractServices();
+            if (contractService == null)
+            {
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);
+            }
+            var contractServiceTransferDTOs = _mapper.Map<IEnumerable<ContractServiceTransferDTO>>(contractService);
+            return CommonResponse.Send(ResponseCodes.SUCCESS, contractServiceTransferDTOs);
         }
     }
 }
