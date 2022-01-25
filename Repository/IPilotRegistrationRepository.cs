@@ -24,10 +24,11 @@ namespace HaloBiz.Repository
         Task<PilotSMORoutesResourceTie> SavePilotTie(PilotSMORoutesResourceTie pilotProfileTie);
 
         Task<PilotSMORoutesResourceTie> FindPilotTieById(long Id);
-
+        //Task<PilotSMORoutesResourceTie> FindPilotTieByResourceId(long resourceId);
+        Task<IEnumerable<PilotSMORoutesResourceTie>> FindPilotTieByResourceId(long resourceId);
         Task<IEnumerable<PilotSMORoutesResourceTie>> FindAllPilotTies();
 
         Task<bool> DeletePilotTie(PilotSMORoutesResourceTie pilotProfileTie);
-        PilotSMORoutesResourceTie GetResourceRegIdRegionAndRouteId(long regRessourceId, long RouteId, long RegionId);
+        PilotSMORoutesResourceTie GetResourceRegIdRegionAndRouteId(long regRessourceId, long? RouteId);
     }
 }

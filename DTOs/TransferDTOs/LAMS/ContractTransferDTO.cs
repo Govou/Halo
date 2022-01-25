@@ -13,6 +13,8 @@ namespace HaloBiz.DTOs.TransferDTOs.LAMS
         public long QuoteId { get; set; }
         public virtual Quote Quote { get; set; }
         public IEnumerable<ContractServiceTransferDTO> ContractService { get; set; }
+        public string Caption { get; set; }
+        public int Version { get; set; }
     }
 
      public class ContractForCustomerDivisionTransferDTO

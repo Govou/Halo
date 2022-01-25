@@ -71,10 +71,25 @@ namespace HaloBiz.Repository.Impl
                 .FirstOrDefaultAsync(v => v.Id == Id && v.IsDeleted == false);
         }
 
-        public VehicleSMORoutesResourceTie GetResourceRegIdRegionAndRouteId(long regRessourceId, long RouteId, long RegionId)
+        public async Task<IEnumerable<VehicleSMORoutesResourceTie>> FindVehicleTieByResourceId(long resourceId)
+        {
+            return await _context.VehicleSMORoutesResourceTies.Where(r => r.IsDeleted == false && r.ResourceId == resourceId)
+                .Include(s => s.Resource).Include(t => t.SMORoute).Include(s => s.Resource.VehicleType)
+                .Include(r => r.SMORegion).Include(cr => cr.CreatedBy).Include(r => r.Resource.SupplierService)
+                                      .ToListAsync();
+        }
+
+        //public async Task<VehicleSMORoutesResourceTie> FindVehicleTieByResourceId(long resourceId)
+        //{
+        //    return await _context.VehicleSMORoutesResourceTies.Include(s => s.Resource).Include(t => t.SMORoute)
+        //        .Include(r => r.SMORegion).Include(cr => cr.CreatedBy).Include(s => s.Resource.VehicleType).Include(r => r.Resource.SupplierService)
+        //        .FirstOrDefaultAsync(v => v.ResourceId == resourceId && v.IsDeleted == false);
+        //}
+
+        public VehicleSMORoutesResourceTie GetResourceRegIdRegionAndRouteId(long regRessourceId, long? RouteId)
         {
             return _context.VehicleSMORoutesResourceTies.Where
-               (ct => ct.ResourceId == regRessourceId && ct.SMORouteId == RouteId && ct.SMORegionId == RegionId && ct.IsDeleted == false).FirstOrDefault();
+               (ct => ct.ResourceId == regRessourceId && ct.SMORouteId == RouteId  && ct.IsDeleted == false).FirstOrDefault();
         }
 
         public async Task<Vehicle> SaveVehicle(Vehicle vehicle)

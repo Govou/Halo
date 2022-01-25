@@ -1,5 +1,6 @@
 ﻿using HaloBiz.DTOs.ApiDTOs;
 using HaloBiz.DTOs.MailDTOs;
+using HaloBiz.DTOs.ReceivingDTOs;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,6 +19,7 @@ namespace HaloBiz.Adapters
         Task<ApiCommonResponse> ApproveNewQuoteService(string serializedApprovals);
         Task<ApiCommonResponse> SendQuoteNotification(string serializedQuote);
         Task<ApiCommonResponse> SendPeriodicInvoice(InvoiceMailDTO invoiceMailDTO);
+        Task<ApiCommonResponse> SendJourneyManagementPlan(MasterServiceAssignmentMailVMDTO masterServiceAssignmentMailVMDTO);
         Task<ApiCommonResponse> SendComplaintResolutionConfirmationMail(ConfirmComplaintResolutionMailDTO model);
     }
 }

@@ -19,6 +19,7 @@ namespace HaloBiz.MyServices
         //Tie
         Task<ApiCommonResponse> AddArmedEscortTie(HttpContext context, ArmedEscortSMORoutesResourceTieReceivingDTO armedEscortTieReceivingDTO);
         Task<ApiCommonResponse> GetAllArmedEscortTies();
+        Task<ApiCommonResponse> GetAllArmedEscortTiesByResourceId(long resourceId);
         Task<ApiCommonResponse> GetArmedEscortTieById(long id);
         Task<ApiCommonResponse> DeleteArmedEscortTie(long id);
 
