@@ -111,6 +111,13 @@ namespace HaloBiz.DTOs.ProjectManagementDTO
 			set;
 		}
 
+
+		public Workspace Workspace
+		{
+			get;
+			set;
+		}
+
 		public ICollection<Dependency> Dependencies
 		{
 			get;
@@ -189,7 +196,10 @@ namespace HaloBiz.DTOs.ProjectManagementDTO
 			set;
 		}
 
+
+
 		public StatusFlow StatusFlow { get; set; }
+		public UserProfile AssignedTo { get; set; }
 		public UserProfile userProfile { get; set; }
 
 		public ICollection<PMIllustration> PMIllustrations { get; set; }
