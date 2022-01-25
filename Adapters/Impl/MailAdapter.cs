@@ -13,6 +13,7 @@ using Microsoft.Extensions.Configuration;
 
 using HalobizMigrations.Data;
 using Microsoft.EntityFrameworkCore;
+using HaloBiz.DTOs.ReceivingDTOs;
 
 namespace HaloBiz.Adapters.Impl
 {
@@ -292,6 +293,8 @@ namespace HaloBiz.Adapters.Impl
             }
         }
 
+
+
         public async Task<ApiCommonResponse> SendComplaintResolutionConfirmationMail(ConfirmComplaintResolutionMailDTO model)
         {
             var baseUrl = $"{_mailBaseUrl}/Mail/ComplaintResolutionConfirmation";
@@ -306,6 +309,24 @@ namespace HaloBiz.Adapters.Impl
                 _logger.LogInformation(ex.Message);
                 _logger.LogInformation(ex.StackTrace);
                 return  CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+            }
+        }
+
+        public async Task<ApiCommonResponse> SendJourneyManagementPlan(MasterServiceAssignmentMailVMDTO masterServiceAssignmentMailVMDTO)
+        {
+
+            var baseUrl = $"{_mailBaseUrl}/Mail/JourneyManagementPlan";
+            try
+            {
+                var response = await baseUrl.AllowAnyHttpStatus()
+                   .PostJsonAsync(masterServiceAssignmentMailVMDTO).ReceiveJson();
+                return CommonResponse.Send(ResponseCodes.SUCCESS);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogInformation(ex.Message);
+                _logger.LogInformation(ex.StackTrace);
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
         }
 

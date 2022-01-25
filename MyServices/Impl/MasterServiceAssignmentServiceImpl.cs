@@ -86,7 +86,7 @@ namespace HaloBiz.MyServices.Impl
                     return CommonResponse.Send(ResponseCodes.FAILURE, null, ResponseMessage.InternalServer500);
                 }
             }
-            //var typeTransferDTO = _mapper.Map<ArmedEscortTypeTransferDTO>(master);
+            var typeTransferDTO = _mapper.Map<MasterServiceAssignmentTransferDTO>(master);
             return CommonResponse.Send(ResponseCodes.SUCCESS, null, ResponseMessage.Success200);
         }
 

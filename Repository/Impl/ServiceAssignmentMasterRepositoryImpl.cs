@@ -29,9 +29,9 @@ namespace HaloBiz.Repository.Impl
 
         public async Task<IEnumerable<object>> FindAllCustomerDivision()
         {
-            return await _context.CustomerDivisions.Where(x => !x.IsDeleted)
+            return await _context.CustomerDivisions.Where(x => !x.IsDeleted)//.Include(x=>x.Contracts).Select(x=>x.ContractServiceForEndorsements)
                .OrderBy(x => x.DivisionName)
-               .Select(x => new { Id = x.Id, DivisionName = x.DivisionName, Contracts = x.Contracts.Where(x=> x.IsDeleted == false) })
+               .Select(x => new { Id = x.Id, DivisionName = x.DivisionName, Contracts = x.Contracts.Where(x=> x.IsDeleted == false), ContractServiceForEndorsements = x.ContractServiceForEndorsements })
                .ToListAsync();
         }
 

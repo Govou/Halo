@@ -35,7 +35,8 @@ namespace HaloBiz.DTOs.ReceivingDTOs
         public string JourneyIncidentActualAddress { get; set; }
         public double JourneyIncidentActualLongitude { get; set; }
         public double JourneyIncidentActualLatitude { get; set; }
-        public JourneyIncidentType JourneyIncidentType { get; set; }
+        public JourneyIncidentType JourneyIncidentTypeId { get; set; }
+        public int JourneyIncidentSeverityRating { get; set; }
         public string JourneyIncidentDescription { get; set; }
         public string JourneyIncidentCaption { get; set; }
         public long JourneyStartId { get; set; }

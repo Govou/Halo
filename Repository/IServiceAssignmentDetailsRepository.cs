@@ -25,6 +25,7 @@ namespace HaloBiz.Repository
 
         Task<bool> DeleteEscortServiceAssignmentDetail(ArmedEscortServiceAssignmentDetail serviceAssignmentDetail);
         Task<bool> DeleteEscortServiceAssignmentDetailByAssignmentId(ArmedEscortServiceAssignmentDetail serviceAssignmentDetail);
+        Task<bool> UpdateEscortServiceAssignmentDetailForEndJourneyByAssignmentId(ArmedEscortServiceAssignmentDetail serviceAssignmentDetail);
 
         //Commander
         Task<CommanderServiceAssignmentDetail> SaveCommanderServiceAssignmentdetail(CommanderServiceAssignmentDetail serviceAssignmentDetail);
@@ -43,6 +44,7 @@ namespace HaloBiz.Repository
 
         Task<bool> DeleteCommanderServiceAssignmentDetail(CommanderServiceAssignmentDetail serviceAssignmentDetail);
         Task<bool> DeleteCommanderServiceAssignmentDetailByAssignmentId(CommanderServiceAssignmentDetail serviceAssignmentDetail);
+        Task<bool> UpdateCommanderServiceAssignmentDetailForEndJourneyByAssignmentId(CommanderServiceAssignmentDetail serviceAssignmentDetail);
 
         //Pilot
         Task<PilotServiceAssignmentDetail> SavePilotServiceAssignmentdetail(PilotServiceAssignmentDetail serviceAssignmentDetail);
@@ -60,6 +62,7 @@ namespace HaloBiz.Repository
 
         Task<bool> DeletePilotServiceAssignmentDetail(PilotServiceAssignmentDetail serviceAssignmentDetail);
         Task<bool> DeletePilotServiceAssignmentDetailByAssignmentId(PilotServiceAssignmentDetail serviceAssignmentDetail);
+        Task<bool> UpdatePilotServiceAssignmentDetailForEndJourneyByAssignmentId(PilotServiceAssignmentDetail serviceAssignmentDetail);
 
         //Vehicle
         Task<VehicleServiceAssignmentDetail> SaveVehicleServiceAssignmentdetail(VehicleServiceAssignmentDetail serviceAssignmentDetail);
@@ -77,7 +80,7 @@ namespace HaloBiz.Repository
 
         Task<bool> DeleteVehicleServiceAssignmentDetail(VehicleServiceAssignmentDetail serviceAssignmentDetail);
         Task<bool> DeleteVehicleServiceAssignmentDetailByAssignmentId(VehicleServiceAssignmentDetail serviceAssignmentDetail);
-
+        Task<bool> UpdateVehicleServiceAssignmentDetailForEndJourneyByAssignmentId(VehicleServiceAssignmentDetail serviceAssignmentDetail);
 
         //Passenger
         Task<Passenger> SavePassenger(Passenger passenger);

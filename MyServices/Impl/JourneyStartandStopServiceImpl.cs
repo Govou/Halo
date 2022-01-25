@@ -18,13 +18,15 @@ namespace HaloBiz.MyServices.Impl
     {
         private readonly IJourneyStartandStopRepository _journeyStartandStopRepository;
         private readonly IServiceAssignmentMasterRepository _serviceAssignmentMasterRepository;
+        private readonly IServiceAssignmentDetailsRepository _serviceAssignmentDetailsRepository;
         private readonly IMapper _mapper;
 
-        public JourneyStartandStopServiceImpl(IMapper mapper, IJourneyStartandStopRepository journeyStartandStopRepository, IServiceAssignmentMasterRepository serviceAssignmentMasterRepository)
+        public JourneyStartandStopServiceImpl(IMapper mapper, IJourneyStartandStopRepository journeyStartandStopRepository, IServiceAssignmentMasterRepository serviceAssignmentMasterRepository, IServiceAssignmentDetailsRepository serviceAssignmentDetailsRepository)
         {
             _mapper = mapper;
             _journeyStartandStopRepository = journeyStartandStopRepository;
             _serviceAssignmentMasterRepository = serviceAssignmentMasterRepository;
+            _serviceAssignmentDetailsRepository = serviceAssignmentDetailsRepository;
         }
 
         public async Task<ApiCommonResponse> AddJourneyIncident(HttpContext context, JourneyIncidentReceivingDTO journeyIncidentReceiving)
@@ -35,6 +37,7 @@ namespace HaloBiz.MyServices.Impl
             //{
             //    return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE, null, "No record exists");
             //}
+            //if(journeyIncidentReceiving.JourneyIncidentType == Fire)
             itemToAdd.CreatedById = context.GetLoggedInUserId();
             //itemToAdd.CreatedBy = context.User()
             itemToAdd.JourneyIncidentTime = DateTime.UtcNow;
@@ -419,7 +422,7 @@ namespace HaloBiz.MyServices.Impl
             {
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE); ;
             }
-            var TransferDTO = _mapper.Map<IEnumerable<JourneyStartTransferDTO>>(getItem);
+            var TransferDTO = _mapper.Map<JourneyStartTransferDTO>(getItem);
             return CommonResponse.Send(ResponseCodes.SUCCESS, TransferDTO);
         }
 
@@ -495,6 +498,10 @@ namespace HaloBiz.MyServices.Impl
             else
             {
                 var endItemToUpdate = await _serviceAssignmentMasterRepository.FindServiceAssignmentById(journeyEndReceiving.ServiceAssignmentId);
+                var escortToDelete = await _serviceAssignmentDetailsRepository.FindAllEscortServiceAssignmentDetailsByAssignmentId(journeyEndReceiving.ServiceAssignmentId);
+                var commanderToDelete = await _serviceAssignmentDetailsRepository.FindAllCommanderServiceAssignmentDetailsByAssignmentId(journeyEndReceiving.ServiceAssignmentId);
+                var pilotToDelete = await _serviceAssignmentDetailsRepository.FindAllPilotServiceAssignmentDetailsByAssignmentId(journeyEndReceiving.ServiceAssignmentId);
+                var vehicleToDelete = await _serviceAssignmentDetailsRepository.FindAllVehicleServiceAssignmentDetailsByAssignmentId(journeyEndReceiving.ServiceAssignmentId);
 
                 if (endItemToUpdate == null)
                 {
@@ -505,10 +512,40 @@ namespace HaloBiz.MyServices.Impl
                 {
                     return CommonResponse.Send(ResponseCodes.FAILURE, null, ResponseMessage.InternalServer500);
                 }
+
+                if (escortToDelete.Count() != 0)
+                {
+                    foreach (var item in escortToDelete)
+                    {
+                        await _serviceAssignmentDetailsRepository.DeleteEscortServiceAssignmentDetail(item);
+                    }
+
+                }
+                if (commanderToDelete.Count() != 0)
+                {
+                    foreach (var item in commanderToDelete)
+                    {
+                        await _serviceAssignmentDetailsRepository.DeleteCommanderServiceAssignmentDetail(item);
+                    }
+                }
+                if (pilotToDelete.Count() != 0)
+                {
+                    foreach (var item in pilotToDelete)
+                    {
+                        await _serviceAssignmentDetailsRepository.DeletePilotServiceAssignmentDetail(item);
+                    }
+                }
+                if (vehicleToDelete.Count() != 0)
+                {
+                    foreach (var item in vehicleToDelete)
+                    {
+                        await _serviceAssignmentDetailsRepository.DeleteVehicleServiceAssignmentDetail(item);
+                    }
+                }
             }
 
-            var TransferDTOs = _mapper.Map<JourneyIncidentTransferDTO>(updatedRank);
-            return CommonResponse.Send(ResponseCodes.SUCCESS, TransferDTOs);
+            //var TransferDTOs = _mapper.Map<JourneyStartTransferDTO>(updatedRank);
+            return CommonResponse.Send(ResponseCodes.SUCCESS);
         }
 
         //public Task<ApiCommonResponse> RelinquishJourneyNote(long id)

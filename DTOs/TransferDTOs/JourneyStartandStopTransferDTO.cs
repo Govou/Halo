@@ -64,7 +64,7 @@ namespace HaloBiz.DTOs.TransferDTOs
         public double JourneyIncidentActualLongitude { get; set; }
         public DateTime UpdatedAt { get; set; }
         public double JourneyIncidentActualLatitude { get; set; }
-        public JourneyIncidentType JourneyIncidentType { get; set; }
+        public HalobizMigrations.Models.Armada.JourneyIncidentType JourneyIncidentType { get; set; }
         public string JourneyIncidentDescription { get; set; }
         public string JourneyIncidentCaption { get; set; }
         public ArmadaJourneyStart JourneyStart { get; set; }

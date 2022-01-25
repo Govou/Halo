@@ -56,7 +56,7 @@ namespace HaloBiz.Controllers
         {
             return await _journeyStartandStopService.UpdateCancelStartJourney(id);
         }
-        [HttpDelete("UpdateEndJourneyStartById/{id}")]
+        [HttpPut("UpdateEndJourneyStartById/{id}")]
         public async Task<ApiCommonResponse> UpdateEndJourneyStartById(long id, JourneyEndReceivingDTO Receiving)
         {
             return await _journeyStartandStopService.UpdateEndStartJourney(HttpContext, id, Receiving);
@@ -186,7 +186,7 @@ namespace HaloBiz.Controllers
             return await _journeyStartandStopService.AddJourneyLeadCommander(HttpContext, ReceivingDTO);
         }
 
-        [HttpPut("RelinquishJourneyLeadCommanderById/{id}")]
+        [HttpDelete("RelinquishJourneyLeadCommanderById/{id}")]
         public async Task<ApiCommonResponse> RelinquishJourneyLeadCommanderById(int id)
         {
             return await _journeyStartandStopService.RelinquishJourneyLeadCommander(id);
