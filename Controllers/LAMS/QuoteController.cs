@@ -26,6 +26,7 @@ namespace Controllers.Controllers
         {
             return await _quoteService.GetAllQuote();
         }
+
         [HttpGet("reference/{reference}")]
         public async Task<ApiCommonResponse> GetByReferenceNumber(string reference)
         {

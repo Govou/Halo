@@ -49,6 +49,8 @@ namespace HaloBiz.DTOs.ReceivingDTOs
         public long ServiceId { get; set; }
 
         public int BranchId { get; set; }
+        public int OfficeId { get; set; }
+
         [ForeignKey("BranchId")]
         public Branch Branch { get; set; }
         public string UniqueTag { get; set; }
