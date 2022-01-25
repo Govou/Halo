@@ -185,9 +185,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 {
                     item.QuoteId = id;
                     item.CreatedById = createdById;
-                }
-
-               
+                }               
 
                 if (quote.QuoteServices.Any())
                 {

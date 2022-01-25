@@ -100,6 +100,14 @@ namespace HaloBiz.MyServices.Impl
                 _logger.LogError("Error in FindServiceRelationshipByDirectId", ex);
                 return  CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
-        }      
+        }
+
+        public async Task<ApiCommonResponse> FindAllDirectServices()
+        {
+            var response = await _context.Services
+                           .Where(x => x.ServiceRelationshipEnum == HalobizMigrations.Models.Shared.ServiceRelationshipEnum.Direct)
+                           .ToListAsync();
+            return CommonResponse.Send(ResponseCodes.SUCCESS, response);
+        }
     }
 }

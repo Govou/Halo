@@ -20,8 +20,18 @@ namespace HaloBiz.Repository.Impl
 
         public async Task<bool> SaveRangeServiceRequredServiceQualificationElement(IEnumerable<ServiceRequredServiceQualificationElement> serviceRequredServiceQualificationElement)
         {
-            await _context.ServiceRequredServiceQualificationElements.AddRangeAsync(serviceRequredServiceQualificationElement);
-            return await SaveChanges();
+            try
+            {
+                await _context.ServiceRequredServiceQualificationElements.AddRangeAsync(serviceRequredServiceQualificationElement);
+                var affected = await _context.SaveChangesAsync();
+                return affected > 0 ? true : false;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.StackTrace);
+            }
+
+            return false;
         }
         public async Task<ServiceRequredServiceQualificationElement> SaveServiceRequredServiceQualificationElement(ServiceRequredServiceQualificationElement serviceRequredServiceQualificationElement)
         {

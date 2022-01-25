@@ -16,6 +16,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using HaloBiz.MyServices.LAMS;
 
 namespace HaloBiz.MyServices.Impl
 {
@@ -24,37 +25,28 @@ namespace HaloBiz.MyServices.Impl
         private readonly ILogger<AccountMasterServiceImpl> _logger;
         private readonly IAccountMasterRepository _accountMasterRepo;
         private readonly IMapper _mapper;
-        private readonly IInvoiceRepository _invoiceRepo;
         private readonly HalobizContext _context;
         private readonly IConfiguration _configuration;
-        private readonly string RETAIL = "retail";
-
-        //private string VALUE_ADDED_TAX;
-        private bool isRetail;
-        //private string RETAIL_RECEIVABLE_ACCOUNT;
         private long LoggedInUserId;
         private string SALES_INVOICE_VOUCHER;
+        private readonly ILeadConversionService _leadConversionService;
 
-        private readonly string RETAIL_RECEIVABLE_ACCOUNT = "RETAIL RECEIVABLE ACCOUNT";
-        private readonly string RETAIL_VAT_ACCOUNT = "RETAIL VAT ACCOUNT";
 
         public AccountMasterServiceImpl(
                     IConfiguration configuration,
                     IAccountMasterRepository accountMasterRepo,
                     ILogger<AccountMasterServiceImpl> logger, 
                     IMapper mapper,
-                    IInvoiceRepository invoiceRepo,
+                     ILeadConversionService leadConversionService,
                     HalobizContext context)
         {
-            this._configuration = configuration;
-            this._mapper = mapper;
-            this._accountMasterRepo = accountMasterRepo;
-            this._logger = logger;
-            this._invoiceRepo = invoiceRepo;
-            this._context = context;
-            // this.RETAIL_RECEIVABLE_ACCOUNT = _configuration.GetSection("AccountsInformation:RetailReceivableAccount").Value;
-            this.SALES_INVOICE_VOUCHER = _configuration.GetSection("VoucherTypes:SalesInvoiceVoucher").Value;
-            //this.VALUE_ADDED_TAX = _configuration.GetSection("AccountsInformation:ValueAddedTask").Value;
+            _configuration = configuration;
+            _mapper = mapper;
+            _accountMasterRepo = accountMasterRepo;
+            _logger = logger;
+            _context = context;
+            SALES_INVOICE_VOUCHER = _configuration.GetSection("VoucherTypes:SalesInvoiceVoucher").Value;
+            _leadConversionService = leadConversionService;
         }
 
         public async Task<ApiCommonResponse> AddAccountMaster(HttpContext context, AccountMasterReceivingDTO accountMasterReceivingDTO)
@@ -207,27 +199,18 @@ namespace HaloBiz.MyServices.Impl
         }
 
         public async Task<ApiCommonResponse> PostPeriodicAccountMaster()
-        {
-            using(var transaction = await _context.Database.BeginTransactionAsync())
-            {
+        {               
+            
                 try
                 {
                     _logger.LogInformation("Searching for Invoices to Post.......");
-                  //  var queryable = _invoiceRepo.GetInvoiceQueryiable();
 
-                    var today = DateTime.Now;
+                   var today = DateTime.Now;
+                   //var today = DateTime.Parse("2022-01-01").Date;
 
-                    //var today = DateTime.Parse("2021-04-01");
-
-                    var invoices = await _context
-                        .Invoices
-                        .Where(x => x.IsAccountPosted==false && x.IsFinalInvoice==true && x.StartDate.Date == today.Date)
-                            .ToListAsync();
-
-                    ContractService contractService;
-                    CustomerDivision customerDivision;
-                    Service service;
-                    double VAT;
+                    var invoices = await _context.Invoices
+                            .Where(x => x.IsAccountPosted==false && x.IsFinalInvoice==true && x.StartDate.Date == today)
+                            .ToListAsync();                  
 
                     if(invoices.Count() == 0)
                     {
@@ -237,326 +220,55 @@ namespace HaloBiz.MyServices.Impl
 
                     foreach (var invoice in invoices)
                     {
-                        _logger.LogInformation($"Posting Invoice with Id: {invoice.Id}");
+                        var transaction = await _context.Database.BeginTransactionAsync();
+                        try
+                        {
+                            _logger.LogInformation($"Posting Invoice with Id: {invoice.Id}");
 
-                        this.LoggedInUserId = invoice.CreatedById?? 31;
+                            this.LoggedInUserId = invoice.CreatedById ?? 31;
 
-                        contractService = await _context.ContractServices.FirstOrDefaultAsync(x => x.Id == invoice.ContractServiceId);
-                        customerDivision = await _context.CustomerDivisions
-                                        .Include(x => x.Customer)
-                                        .FirstOrDefaultAsync(x => x.Id == invoice.CustomerDivisionId);
+                            var contractService = await _context.ContractServices
+                                        .Include(x => x.Service)
+                                        .FirstOrDefaultAsync(x => x.Id == invoice.ContractServiceId);
 
-                        this.isRetail = customerDivision.Customer.GroupName.ToLower() == this.RETAIL;
+                            var customerDivision = await _context.CustomerDivisions
+                                            .Where(x => x.Id == invoice.CustomerDivisionId)
+                                            .Include(x => x.Customer)
+                                                .ThenInclude(x => x.GroupType)
+                                            .FirstOrDefaultAsync();
 
-                        FinanceVoucherType accountVoucherType = await _context.FinanceVoucherTypes
-                                .FirstOrDefaultAsync(x => x.VoucherType == this.SALES_INVOICE_VOUCHER);
+                            FinanceVoucherType accountVoucherType = await _context.FinanceVoucherTypes
+                                    .FirstOrDefaultAsync(x => x.VoucherType == this.SALES_INVOICE_VOUCHER);
 
-                        service = await _context.Services
-                                .FirstOrDefaultAsync(x => x.Id == contractService.ServiceId);
+                            
+                            await _leadConversionService.CreateAccounts(contractService, customerDivision, (long)contractService.BranchId
+                                , (long)contractService.OfficeId, contractService.Service, accountVoucherType, null, LoggedInUserId, false, invoice);
 
-                        VAT = invoice.Value * (7.5 / 107.5);
 
-                        await PostAccounts( contractService,
-                                            customerDivision,
-                                            accountVoucherType.Id,
-                                            VAT, 
-                                            invoice.Value, 
-                                            service
-                                         );
+                            invoice.IsAccountPosted = true;
+                            _context.Invoices.Update(invoice);
+                            await _context.SaveChangesAsync();
+                            await transaction.CommitAsync();
+                        }
+                        catch (Exception ex)
+                        {
+                            await transaction.RollbackAsync();
+                            _logger.LogError($"Error ocurred posting account for invoice with id {invoice.Id}");
+                            _logger.LogError(ex.StackTrace);
+                        }
 
-                        invoice.IsAccountPosted = true;
+                     _logger.LogInformation($"Posted Account Master For Invoice with Id: {invoice.Id}\n\n");
+                    }                   
 
-                        _logger.LogInformation($"Posted Account Master For Invoice with Id: {invoice.Id}\n\n");
-                    }
-                    _context.Invoices.UpdateRange(invoices);
-                    await _context.SaveChangesAsync();
-                    await transaction.CommitAsync();
                     return CommonResponse.Send(ResponseCodes.SUCCESS);
                 }
                 catch (System.Exception e)
                 {
                     _logger.LogError(e.Message);
                     _logger.LogError(e.StackTrace);
-                    await transaction.RollbackAsync();
                     return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
-                }
-            }
-        }
-
-        private async Task<bool>  PostAccounts(ContractService contractService,
-                                         CustomerDivision customerDivision,
-                                         long accountVoucherId,
-                                         double VAT, 
-                                         double billableAmount, 
-                                         Service service
-                                         )
-        {
-
-            var totalAfterTax = billableAmount - VAT;
-
-            string description = $"Sales of {service.Name} with service ID: {service.Id} to {customerDivision.DivisionName}";
-            
-            string transactionId  = GenerateTransactionNumber(service.ServiceCode, contractService);
-
-            var accountMaster = await CreateAccountMaster(
-                                                    billableAmount,
-                                                    customerDivision.Id,
-                                                    transactionId,
-                                                    contractService.Id,
-                                                    accountVoucherId,
-                                                    (long)contractService.BranchId,
-                                                    (long)contractService.OfficeId,
-                                                    description
-                                                    );
-            await PostCustomerReceivablAccounts(
-                             description,
-                             contractService.Id,
-                             customerDivision,
-                             (long)contractService.BranchId,
-                             (long)contractService.OfficeId,
-                             accountVoucherId,
-                             billableAmount,
-                             accountMaster.Id,
-                             transactionId
-                            );
-            
-
-            await PostVATAccountDetails(
-                                    description,
-                                    contractService.Id,
-                                    customerDivision,
-                                    (long)contractService.BranchId,
-                                    (long)contractService.OfficeId,
-                                    accountVoucherId,
-                                    accountMaster.Id,
-                                    VAT,
-                                    transactionId
-                                    );
-            await PostIncomeAccountMasterAndDetails(
-                                                    description,
-                                                    contractService.Id,
-                                                    customerDivision,
-                                                    (long)contractService.BranchId,
-                                                    (long)contractService.OfficeId,
-                                                    accountVoucherId,
-                                                    accountMaster.Id,
-                                                    totalAfterTax,
-                                                    transactionId,
-                                                    service
-                                                        );
-
-            return true;
-        }
-
-        private string GenerateTransactionNumber(string serviceCode, ContractService contractService)
-        {
-            //to check
-            return String.IsNullOrWhiteSpace(contractService.Contract?.GroupInvoiceNumber) ?  $"{serviceCode}/{contractService.Id}"
-            : $"{contractService.Contract?.GroupInvoiceNumber?.Replace("GINV", "TRS")}/{contractService.Id}" ;
-                    
-        } 
-
-        public async  Task<AccountMaster> CreateAccountMaster(double value,
-                                          long customerDivisionId,
-                                          string transactionId,
-                                          long contractServiceId,
-                                          long voucherId,
-                                          long branchId, 
-                                          long officeId, 
-                                          string description)
-        {
-            var accountMaster = new AccountMaster(){
-                Description = description,
-                IntegrationFlag = false,
-                Value = value,
-                VoucherId = voucherId,
-                TransactionId = transactionId,
-                BranchId = branchId,
-                OfficeId = officeId,
-                CustomerDivisionId = customerDivisionId,
-                CreatedById =  this.LoggedInUserId
-            };
-            var savedAccountMaster = await _accountMasterRepo.SaveAccountMaster(accountMaster);
-            await _context.SaveChangesAsync();
-            return savedAccountMaster;
-        }
-
-
-        private async Task<AccountDetail> PostAccountDetail(
-                                                    string description,
-                                                    long contractServiceId,  
-                                                    long accountVoucherTypeId, 
-                                                    long branchId, 
-                                                    long officeId,
-                                                    double amount,
-                                                    bool isCredit,
-                                                    long accountMasterId,
-                                                    long accountId,
-                                                    string transactionId
-                                                    )
-        {
-
-            AccountDetail accountDetail = new AccountDetail(){
-                Description =description,
-                IntegrationFlag = false,
-                VoucherId = accountVoucherTypeId,
-                TransactionId = transactionId,
-                TransactionDate = DateTime.Now,
-                Credit = isCredit ? amount : 0,
-                Debit = !isCredit ? amount : 0,
-                AccountId = accountId,
-                BranchId = branchId,
-                OfficeId = officeId,
-                AccountMasterId = accountMasterId,
-                CreatedById = this.LoggedInUserId,
-            };
-
-            var savedAccountDetails = await _context.AccountDetails.AddAsync(accountDetail);
-            await _context.SaveChangesAsync();
-            return savedAccountDetails.Entity;
-        }
-
-        private async Task<bool> PostCustomerReceivablAccounts(
-                                    string description,
-                                    long contractServiceId,
-                                    CustomerDivision customerDivision,
-                                    long branchId,
-                                    long officeId,
-                                    long accountVoucherTypeId,
-                                    double totalContractBillable,
-                                    long accountMasterId,
-                                    string transactionId
-                                    )
-        {
-            long accountId;
-            if(isRetail)
-            {
-                accountId = await GetRetailAccount(customerDivision);
-            }else{
-                accountId = (long) customerDivision.ReceivableAccountId;
-            }
-            await PostAccountDetail(description, 
-                                    contractServiceId, 
-                                    accountVoucherTypeId, 
-                                    branchId, 
-                                    officeId,
-                                    totalContractBillable, 
-                                    false,
-                                    accountMasterId,
-                                    accountId,
-                                    transactionId
-                                    );
-            
-            return true;
-        }
-
-        private async Task<long> GetRetailAccount(CustomerDivision customerDivision )
-        {
-            Account retailAccount  = await _context.Accounts.FirstOrDefaultAsync(x => x.Name == RETAIL_RECEIVABLE_ACCOUNT);
-            return retailAccount.Id;
-        }
-
-        private async Task<long> GetRetailVATAccount(CustomerDivision customerDivision)
-        {
-            Account retailAccount = await _context.Accounts.FirstOrDefaultAsync(x => x.Name == RETAIL_VAT_ACCOUNT);
-            return retailAccount.Id;
-        }
-
-        private async Task<bool> PostVATAccountDetails(
-                                    string description,
-                                    long contractServiceId,
-                                    CustomerDivision customerDivision,
-                                    long branchId,
-                                    long officeId,
-                                    long accountVoucherTypeId,
-                                    long accountMasterId,
-                                    double totalVAT,
-                                    string transactionId
-                                    )
-        {
-            long vatAccountId;
-            if (isRetail)
-            {
-                vatAccountId = await GetRetailVATAccount(customerDivision);
-            }
-            else
-            {
-                vatAccountId = (long)customerDivision.VatAccountId;
-            }
-
-            //var vatAccount = await _context.Accounts.FirstOrDefaultAsync(x => x.Name == this.VALUE_ADDED_TAX);
- 
-            await PostAccountDetail(description, 
-                                    contractServiceId, 
-                                    accountVoucherTypeId, 
-                                    branchId, 
-                                    officeId,
-                                    totalVAT, 
-                                    true,
-                                    accountMasterId,
-                                    vatAccountId,
-                                    transactionId);
-            
-            return true;
-        }
-
-        private async Task<bool> PostIncomeAccountMasterAndDetails(
-                                    string description,
-                                    long contractServiceId,
-                                    CustomerDivision customerDivision,
-                                    long branchId,
-                                    long officeId,
-                                    long accountVoucherTypeId,
-                                    long accountMasterId,
-                                    double totalBillableAfterTax,
-                                    string transactionId,
-                                    Service service
-                                    )
-        {
-            long accountId;
-
-            if (isRetail)
-            {
-                accountId = await GetServiceIncomeAccountForRetailClient(service);
-            }
-            else
-            {
-                accountId = await GetServiceIncomeAccountForClient(customerDivision, service);
-            }
-
-            await PostAccountDetail(description, 
-                                    contractServiceId, 
-                                    accountVoucherTypeId, 
-                                    branchId, 
-                                    officeId,
-                                    totalBillableAfterTax, 
-                                    true,
-                                    accountMasterId,
-                                    accountId,
-                                    transactionId
-                                    );
-            
-            return true;
-        }
-
-        private async Task<long> GetServiceIncomeAccountForRetailClient(Service service)
-        {
-            string serviceClientIncomeAccountName = $"{service.Name} Income for {RETAIL}";
-
-            Account serviceClientIncomeAccount = await _context.Accounts
-                .FirstOrDefaultAsync(x => x.ControlAccountId == (long)service.ControlAccountId && x.Name == serviceClientIncomeAccountName);
-
-            return serviceClientIncomeAccount.Id;
-        }
-
-        private async Task<long> GetServiceIncomeAccountForClient(CustomerDivision customerDivision, Service service)
-        {
-            string serviceClientIncomeAccountName = $"{service.Name} Income for {customerDivision.DivisionName}";
-
-            Account serviceClientIncomeAccount = await _context.Accounts
-                .FirstOrDefaultAsync(x => x.ControlAccountId == (long)service.ControlAccountId && x.Name == serviceClientIncomeAccountName);
-
-            return serviceClientIncomeAccount.Id;
-        }
+                }            
+        }   
+      
     }
 }
