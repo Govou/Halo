@@ -31,6 +31,15 @@ namespace HaloBiz.Controllers
         {
             return await _commanderService.GetAllCommanderTies();
         }
+        [HttpGet("GetAllCommanderTiesByResourceId")]
+        public async Task<ApiCommonResponse> GetAllCommanderTiesByResourceId(long id)
+        {
+            return await _commanderService.GetAllCommanderTiesByResourceId(id);
+            //if (response.StatusCode >= 400)
+            //    return StatusCode(response.StatusCode, response);
+            //var cRank = ((ApiOkResponse)response).Result;
+            //return Ok(cRank);
+        }
 
         [HttpGet("GetProfileById/{id}")]
         public async Task<ApiCommonResponse> GetProfileById(long id)

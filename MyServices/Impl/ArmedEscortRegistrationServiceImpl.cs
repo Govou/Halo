@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using HaloBiz.DTOs.ApiDTOs;
+using HaloBiz.DTOs.GenericResponseDTO;
 using HaloBiz.DTOs.ReceivingDTOs;
 using HaloBiz.DTOs.TransferDTOs;
 using HaloBiz.Helpers;
@@ -51,7 +52,7 @@ namespace HaloBiz.MyServices.Impl
                 escort.SMORegionId = armedEscortTieReceivingDTO.SMORegionId;
                 escort.ResourceId = armedEscortTieReceivingDTO.ResourceId;
                 escort.SMORouteId = armedEscortTieReceivingDTO.SMORouteId[i];
-                var IdExist = _armedEscortsRepository.GetServiceRegIdRegionAndRoute(armedEscortTieReceivingDTO.ResourceId, armedEscortTieReceivingDTO.SMORouteId[i], armedEscortTieReceivingDTO.SMORegionId);
+                var IdExist = _armedEscortsRepository.GetServiceRegIdRegionAndRoute(armedEscortTieReceivingDTO.ResourceId, armedEscortTieReceivingDTO.SMORouteId[i]);
                 if (IdExist == null)
                 {
                     escort.CreatedById = context.GetLoggedInUserId();
@@ -125,6 +126,18 @@ namespace HaloBiz.MyServices.Impl
             return CommonResponse.Send(ResponseCodes.SUCCESS,rankTransferDTO);
         }
 
+        public async Task<ApiCommonResponse> GetAllArmedEscortTiesByResourceId(long resourceId)
+        {
+            var armedescorts = await _armedEscortsRepository.FindArmedEscortTieByResourceId(resourceId);
+            if (armedescorts == null)
+            {
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);
+            }
+            var rankTransferDTO = _mapper.Map<IEnumerable<ArmedEscortSMORoutesResourceTieTransferDTO>>(armedescorts);
+            return CommonResponse.Send(ResponseCodes.SUCCESS, rankTransferDTO, ResponseMessage.Success200);
+        }
+
+      
         public async Task<ApiCommonResponse> GetArmedEscortById(long id)
         {
             var escort = await _armedEscortsRepository.FindArmedEscortById(id);

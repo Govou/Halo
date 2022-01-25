@@ -33,6 +33,16 @@ namespace HaloBiz.Controllers
             return await _pilotService.GetAllPilotTies();
         }
 
+        [HttpGet("GetAllPilotTiesByResourceId")]
+        public async Task<ApiCommonResponse> GetAllPilotTiesByResourceId(long id)
+        {
+            return await _pilotService.GetAllPilotTiesByResourceId(id);
+            //if (response.StatusCode >= 400)
+            //    return StatusCode(response.StatusCode, response);
+            //var res = ((ApiOkResponse)response).Result;
+            //return Ok(res);
+        }
+
 
         [HttpGet("GetProfileById/{id}")]
         public async Task<ApiCommonResponse> GetProfileById(long id)

@@ -95,10 +95,9 @@ namespace HaloBiz.MyServices.Impl
                     
 
                     var isFieldsSaved = await _reqServiceElementRepo.SaveRangeServiceRequredServiceQualificationElement(serviceQualificationElements);
-
                     var isDocSaved = await _requiredServiceDocRepo.SaveRangeServiceRequiredServiceDocument(serviceRequiredServiceDocument);
-
                     var successful = await _approvalService.SetUpApprovalsForServiceCreation(savedService, context);
+
                     if (!successful) 
                     {
                         await transaction.RollbackAsync();
@@ -174,49 +173,49 @@ namespace HaloBiz.MyServices.Impl
             return CommonResponse.Send(ResponseCodes.SUCCESS,serviceTransferDTO);
         }
 
-        public async Task<ApiCommonResponse> UpdateService(HttpContext context, long id, ServiceReceivingDTO serviceReceivingDTO)
-        {
-            var serviceToUpdate = await _servicesRepository.FindServicesById(id);
-            if (serviceToUpdate == null)
-            {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
-            }
+        //public async Task<ApiCommonResponse> UpdateService(HttpContext context, long id, ServiceReceivingDTO serviceReceivingDTO)
+        //{
+        //    var serviceToUpdate = await _servicesRepository.FindServicesById(id);
+        //    if (serviceToUpdate == null)
+        //    {
+        //        return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+        //    }
 
-            var summary = $"Initial details before change, \n {serviceToUpdate.ToString()} \n";
+        //    var summary = $"Initial details before change, \n {serviceToUpdate.ToString()} \n";
 
 
-            serviceToUpdate.Name = serviceReceivingDTO.Name;
-            serviceToUpdate.Description = serviceReceivingDTO.Description;
-            serviceToUpdate.ImageUrl = serviceReceivingDTO.ImageUrl;
-            serviceToUpdate.TargetId = serviceReceivingDTO.TargetId;
-            serviceToUpdate.UnitPrice = serviceReceivingDTO.UnitPrice;
-            serviceToUpdate.ServiceTypeId = serviceReceivingDTO.ServiceTypeId;
-            serviceToUpdate.IsVatable = serviceReceivingDTO.IsVatable;
-            serviceToUpdate.CanBeSoldOnline = serviceReceivingDTO.CanBeSoldOnline;
-            serviceToUpdate.ServiceRelationshipEnum = serviceReceivingDTO.ServiceRelationshipEnum;
+        //    serviceToUpdate.Name = serviceReceivingDTO.Name;
+        //    serviceToUpdate.Description = serviceReceivingDTO.Description;
+        //    serviceToUpdate.ImageUrl = serviceReceivingDTO.ImageUrl;
+        //    serviceToUpdate.TargetId = serviceReceivingDTO.TargetId;
+        //    serviceToUpdate.UnitPrice = serviceReceivingDTO.UnitPrice;
+        //    serviceToUpdate.ServiceTypeId = serviceReceivingDTO.ServiceTypeId;
+        //    serviceToUpdate.IsVatable = serviceReceivingDTO.IsVatable;
+        //    serviceToUpdate.CanBeSoldOnline = serviceReceivingDTO.CanBeSoldOnline;
+        //    serviceToUpdate.ServiceRelationshipEnum = serviceReceivingDTO.ServiceRelationshipEnum;
 
-            var updatedService = await _servicesRepository.UpdateServices(serviceToUpdate);
+        //    var updatedService = await _servicesRepository.UpdateServices(serviceToUpdate);
 
-            if (updatedService == null)
-            {
-                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
-            }
+        //    if (updatedService == null)
+        //    {
+        //        return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+        //    }
 
-            summary += $"Details after change, \n {serviceToUpdate.ToString()} \n";
+        //    summary += $"Details after change, \n {serviceToUpdate.ToString()} \n";
 
-            ModificationHistory history = new ModificationHistory()
-            {
-                ModelChanged = "Service",
-                ChangeSummary = summary,
-                ChangedById = context.GetLoggedInUserId(),
-                ModifiedModelId = updatedService.Id
-            };
+        //    ModificationHistory history = new ModificationHistory()
+        //    {
+        //        ModelChanged = "Service",
+        //        ChangeSummary = summary,
+        //        ChangedById = context.GetLoggedInUserId(),
+        //        ModifiedModelId = updatedService.Id
+        //    };
 
-            await _modificationRepo.SaveHistory(history);
-            var serviceTransferDTO = _mapper.Map<ServiceTransferDTO>(updatedService);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,serviceTransferDTO);
+        //    await _modificationRepo.SaveHistory(history);
+        //    var serviceTransferDTO = _mapper.Map<ServiceTransferDTO>(updatedService);
+        //    return CommonResponse.Send(ResponseCodes.SUCCESS,serviceTransferDTO);
 
-        }
+        //}
         public async Task<ApiCommonResponse> UpdateServices(HttpContext context, long id, ServiceReceivingDTO serviceReceivingDTO)
         {
             using (var transaction = _context.Database.BeginTransaction())
@@ -224,14 +223,18 @@ namespace HaloBiz.MyServices.Impl
                 try
                 {
                     //Gets the service to update
-                    var serviceToUpdate = await _context.Services.Include(service => service.Target)
+                    var serviceToUpdate = await _context.Services
+                        .Where(service => service.Id == id && service.IsDeleted == false)
+                        .Include(service => service.Target)
                         .Include(service => service.ServiceType)
                         .Include(service => service.Account)
                         .Include(service => service.ServiceRequiredServiceDocuments.Where(row => row.IsDeleted == false))
                             .ThenInclude(row => row.RequiredServiceDocument)
                         .Include(service => service.ServiceRequredServiceQualificationElements.Where(row => row.IsDeleted == false))
                             .ThenInclude(row => row.RequredServiceQualificationElement)
-                        .FirstOrDefaultAsync( service => service.Id == id && service.IsDeleted == false);
+                        .FirstOrDefaultAsync();
+
+                    bool isAdminPreviously = serviceToUpdate.ServiceRelationshipEnum == ServiceRelationshipEnum.Admin;
                     
                     if (serviceToUpdate == null)
                     {
@@ -253,6 +256,7 @@ namespace HaloBiz.MyServices.Impl
                             _context.ServiceRequiredServiceDocuments.Remove(doc);
                         }
                     }
+
                     await _context.SaveChangesAsync();
 
                     foreach (long docId in serviceReceivingDTO.RequiredDocumentsId)
@@ -288,11 +292,12 @@ namespace HaloBiz.MyServices.Impl
                             ServicesId = id,
                             RequredServiceQualificationElementId = elementId
                         });
-                    }
+                    }                   
 
                     await _context.SaveChangesAsync();
-                    
-                    if(listOfElementToAdd.Count > 0)
+                    await manageServiceRelationship(isAdminPreviously, id, serviceReceivingDTO, context);
+
+                    if (listOfElementToAdd.Count > 0)
                         await _context.ServiceRequredServiceQualificationElements.AddRangeAsync(listOfElementToAdd);
                     
                     var summary = $"Initial details before change, \n {serviceToUpdate.ToString()} \n";
@@ -307,6 +312,7 @@ namespace HaloBiz.MyServices.Impl
                     serviceToUpdate.CanBeSoldOnline = serviceReceivingDTO.CanBeSoldOnline;
                     serviceToUpdate.ServiceRelationshipEnum = serviceReceivingDTO.ServiceRelationshipEnum;
                     serviceToUpdate.DirectServiceId = serviceReceivingDTO.DirectServiceId;
+                    serviceToUpdate.Alias = serviceReceivingDTO.Alias;
 
                     var updatedService =  _context.Services.Update(serviceToUpdate).Entity;
                     await _context.SaveChangesAsync();
@@ -325,19 +331,86 @@ namespace HaloBiz.MyServices.Impl
                     await _context.SaveChangesAsync();
                     await transaction.CommitAsync();
 
-                    var service = await _servicesRepository.FindServicesById(id);
-
-                    var serviceTransferDTO = _mapper.Map<ServiceTransferDTO>(service);
-                    return CommonResponse.Send(ResponseCodes.SUCCESS,serviceTransferDTO);
+                    //var service = await _servicesRepository.FindServicesById(id);
+                    //var serviceTransferDTO = _mapper.Map<ServiceTransferDTO>(service);
+                    return CommonResponse.Send(ResponseCodes.SUCCESS);
 
                 }
-                catch (System.Exception)
+                catch (System.Exception ex)
                 {
                     transaction.Rollback();
-                    return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+                    return CommonResponse.Send(ResponseCodes.FAILURE, null, ex.Message);
                 }
             }
         }
+
+        private async Task<bool> manageServiceRelationship(bool isAdminPreviously, long id, ServiceReceivingDTO serviceReceivingDTO, HttpContext context)
+        {
+            try
+            {
+                long userId = context.GetLoggedInUserId();
+
+                if (isAdminPreviously)
+                {
+                    var relationship = await _context.ServiceRelationships.Where(x => x.AdminServiceId == id).FirstOrDefaultAsync();
+                    //check if it's still admin
+                    if (relationship != null)
+                    {
+                        if (serviceReceivingDTO.ServiceRelationshipEnum != ServiceRelationshipEnum.Admin)
+                        {
+                            //delete the relationship 
+                            _context.ServiceRelationships.Remove(relationship);
+                        }
+                        else
+                        {
+                            //check that the direct partner was maintained
+                            if (relationship.DirectServiceId != serviceReceivingDTO.DirectServiceId)
+                            {
+                                //change the direct partner
+                                relationship.DirectServiceId = serviceReceivingDTO.DirectServiceId;
+                                _context.ServiceRelationships.Update(relationship);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        //add the relationship, though rare scenerio
+                        await _context.ServiceRelationships.AddAsync(new ServiceRelationship
+                        {
+                            AdminServiceId = id,
+                            DirectServiceId = serviceReceivingDTO.DirectServiceId,
+                            CreatedById = userId,
+                            CreatedAt = DateTime.Now
+                        });
+                    }
+                }
+                else
+                {
+                    //it is admin now?
+                    if (serviceReceivingDTO.ServiceRelationshipEnum == ServiceRelationshipEnum.Admin)
+                    {
+                        //add the relationship, though rare scenerio
+                        await _context.ServiceRelationships.AddAsync(new ServiceRelationship
+                        {
+                            AdminServiceId = id,
+                            DirectServiceId = serviceReceivingDTO.DirectServiceId,
+                            CreatedById = userId,
+                            CreatedAt = DateTime.Now
+                        });
+                    }
+                }
+
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.StackTrace);
+                return false;
+            }
+
+            return true;
+        }
+
         public async Task<ApiCommonResponse> ApproveService(HttpContext context, long id, long sequence)
         {
 

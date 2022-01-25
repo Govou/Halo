@@ -33,6 +33,16 @@ namespace HaloBiz.Controllers
             return await _vehicleService.GetAllVehicleTies(); 
         }
 
+        [HttpGet("GetAllVehicleTiesByResourceId")]
+        public async Task<ApiCommonResponse> GetAllVehicleTiesByResourceId(long id)
+        {
+            return await _vehicleService.GetAllVehicleTiesByResourceId(id);
+            //if (response.StatusCode >= 400)
+            //    return StatusCode(response.StatusCode, response);
+            //var cType = ((ApiOkResponse)response).Result;
+            //return Ok(cType);
+        }
+
         [HttpGet("GetVehicleById/{id}")]
         public async Task<ApiCommonResponse> GetVehicleById(long id)
         {
