@@ -1,4 +1,5 @@
 using HalobizMigrations.Models;
+using Microsoft.AspNetCore.Http;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -11,7 +12,7 @@ namespace HaloBiz.Repository.LAMS
         Task<QuoteService> FindQuoteServiceById(long Id);
         Task<QuoteService> FindQuoteServiceByTag(string tag);
         Task<IEnumerable<QuoteService>> FindAllQuoteServiceByQuoteId(long id);
-        Task<bool> UpdateQuoteServicesByQuoteId(long quoteId, IEnumerable<QuoteService> quoteServices);
+        Task<bool> UpdateQuoteServicesByQuoteId(long quoteId, IEnumerable<QuoteService> quoteServices, HttpContext context);
 
         Task<IEnumerable<QuoteService>> FindAllQuoteService();
         Task<QuoteService> UpdateQuoteService(QuoteService quoteService);

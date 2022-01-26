@@ -244,8 +244,6 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 return customerDivision;
             }
 
-
-
             try
             {
                 //creates customer division from lead division and saves the customer division

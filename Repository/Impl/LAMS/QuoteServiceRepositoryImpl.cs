@@ -8,6 +8,8 @@ using HaloBiz.Repository.LAMS;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using HalobizMigrations.Models;
+using Microsoft.AspNetCore.Http;
+using HaloBiz.Helpers;
 
 namespace HaloBiz.Repository.Impl.LAMS
 {
@@ -87,12 +89,13 @@ namespace HaloBiz.Repository.Impl.LAMS
             return null;
         }
 
-        public async Task<bool> UpdateQuoteServicesByQuoteId(long quoteId, IEnumerable<QuoteService> quoteServices)
+        public async Task<bool> UpdateQuoteServicesByQuoteId(long quoteId, IEnumerable<QuoteService> quoteServices, HttpContext context)
         {
             using var transaction = _context.Database.BeginTransaction();
 
             try
             {
+                var userId = context.GetLoggedInUserId();
                 //check first that this quote exist
                 var exist = _context.Quotes.Any(x => x.Id == quoteId);
                 if (!exist)
@@ -104,7 +107,7 @@ namespace HaloBiz.Repository.Impl.LAMS
                 foreach (var item in newServices)
                 {
                     item.QuoteId = quoteId;
-                    item.CreatedById = 47;
+                    item.CreatedById = userId;
                     item.CreatedAt = DateTime.Now;
                     item.UpdatedAt = DateTime.Now;
                 }
@@ -124,7 +127,7 @@ namespace HaloBiz.Repository.Impl.LAMS
                     if (forEdit != null)
                     {
                         forEdit.QuoteId = quoteId;
-                        forEdit.CreatedById = 47;
+                        forEdit.CreatedById = userId;
                         toUpdate.Add(forEdit);
                     }
                     else
