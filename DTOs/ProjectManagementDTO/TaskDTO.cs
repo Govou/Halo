@@ -11,6 +11,7 @@ namespace HaloBiz.DTOs.ProjectManagementDTO
         public long CreatedById { get; set; }
         public List<TaskAssigneeDTO> TaskAssignees { get; set; }
         public List<Deliverable> Deliverables { get; set; }
+        public List<DeliverableWithStatusDTO> DeliverableStatusDTOs { get; set; }
         public bool IsReassigned { get; set; }
         public bool IsAssigned { get; set; }
          public DateTime DueTime { get; set; }
