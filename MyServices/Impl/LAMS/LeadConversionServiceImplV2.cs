@@ -892,9 +892,14 @@ namespace HaloBiz.MyServices.Impl.LAMS
             int interval;
 
             if (invoice == null)
+            {
                 (interval, totalContractBillable, totalVAT) = CalculateTotalBillableForPeriod(contractService);
+            }
             else
-                totalContractBillable = invoice.Value; totalVAT = invoice.Value * 0.075;
+            {
+                totalContractBillable = invoice.Value; totalVAT = invoice.Value * 0.075; 
+            }
+            
             
             var totalAfterTax = totalContractBillable - totalVAT;
 
