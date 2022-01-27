@@ -50,6 +50,7 @@ namespace HaloBiz.MyServices
         Task<ApiCommonResponse> updateStatus(HttpContext httpContext, long workspaceId, long statusFlowId, StatusFlowDTO statusFlowDTO);
         Task<ApiCommonResponse> updateToPublic(long workspaceId);
         Task<ApiCommonResponse> getWorkspaceWithProjectWatcher(HttpContext httpContext);
+        Task<ApiCommonResponse> getAllTaskFromProjectRevamped(HttpContext httpContext, long projectId);
         Task<ApiCommonResponse> getAllTaskFromProject(HttpContext httpContext, long projectId);
         Task<ApiCommonResponse> moveStatusSequenec(HttpContext httpContext, long workspaceId, List<StatusFlowDTO> statusFlowDTO);
         Task<ApiCommonResponse> createProject(HttpContext httpContext, ProjectDTO projectDTO);

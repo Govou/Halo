@@ -643,6 +643,13 @@ namespace HaloBiz.Controllers
             return Ok(response);
         }
 
+        [HttpGet("GetTaskFromProjectRevamped/{projectId}")]
+        public async Task<ActionResult> GetTaskFromProjectRevamped(long projectId)
+        {
+            var response = await _projectAllocationService.getAllTaskFromProjectRevamped(HttpContext, projectId);
+            return Ok(response);
+        }
+
         [HttpGet("GetAssignedDeliverableStatus/{deliverableId}")]
         public async Task<ActionResult> GetAssignedDeliverableStatus(long deliverableId)
         {

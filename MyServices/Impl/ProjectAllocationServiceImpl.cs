@@ -967,6 +967,46 @@ namespace HaloBiz.MyServices.Impl
         }
 
 
+
+
+        public async Task<ApiCommonResponse> getAllTaskFromProjectRevamped(HttpContext httpContext, long projectId)
+        {
+            var getTaskQuery = await _context.Tasks.Where(x => x.IsActive == true && x.ProjectId == projectId)
+                                                    .Include(x => x.Deliverables.Where(x => x.IsActive == true)
+                                                    .Select(x => new 
+                                                    {
+                                                        Caption = x.Caption,
+                                                        Alias = x.Alias,
+                                                        Description = x.Description,
+                                                        AssignTask = _context.AssignTasks.Where(c => c.IsActive == true && c.DeliverableId == c.Id).FirstOrDefault(),
+                                                        Balances = _context.Balances.Where(c => c.DeliverableId == c.Id).ToList(),
+                                                        Budget = x.Budget,
+                                                        IsPicked = x.IsPicked,
+                                                        IsApproved = x.IsApproved,
+                                                        IsDeclined = x.IsDeclined,
+                                                        CreatedAt = x.CreatedAt,
+                                                        CreatedById = x.CreatedById,
+                                                        DatePicked = x.DatePicked,
+                                                        DependentType = x.DependentType,
+                                                        EndDate = x.EndDate,
+                                                        Id = x.Id,
+                                                        IsPushedForApproval = x.IsPushedForApproval,
+                                                        DatePushedForApproval = x.DatePushedForApproval,
+                                                        DeclineReason = x.DeclineReason,
+                                                        IsActive = x.IsActive,
+                                                        AssignedTo = _context.UserProfiles.FirstOrDefault(x => x.Id == _context.AssignTasks.FirstOrDefault(c => c.IsActive == true && c.DeliverableId == c.Id).DeliverableAssigneeId),
+                                                     }))
+                                                    .ToListAsync();
+
+
+
+            return CommonResponse.Send(ResponseCodes.SUCCESS, getTaskQuery);
+
+
+
+        }
+
+
         public async Task<List<DeliverableWithStatusDTO>> getDeliverables(long taskId)
         {
             var deliverables = await _context.Deliverables.Where(x => x.IsActive == true && x.TaskId == taskId).ToListAsync();
@@ -980,7 +1020,7 @@ namespace HaloBiz.MyServices.Impl
                     deliverableInstance.Caption = deliverable.Caption;
                     deliverableInstance.Alias = deliverable.Alias;
                     deliverableInstance.Description = deliverable.Description;
-                    deliverableInstance.AssignTask = await _context.AssignTasks.FirstOrDefaultAsync(x => x.IsActive == true && x.DeliverableId == deliverable.Id);
+                    deliverableInstance.AssignTask = await _context.AssignTasks.Where(x => x.IsActive == true && x.DeliverableId == deliverable.Id).FirstOrDefaultAsync();
                     deliverableInstance.AssignTaskId = deliverableInstance.AssignTask == null ? 0 : deliverableInstance.AssignTask.DeliverableAssigneeId;
                     deliverableInstance.Balances = await _context.Balances.Where(x => x.DeliverableId == deliverable.Id).ToListAsync();
                     deliverableInstance.Budget = deliverable.Budget;
@@ -988,31 +1028,31 @@ namespace HaloBiz.MyServices.Impl
                     deliverableInstance.IsApproved = deliverable.IsApproved;
                     deliverableInstance.IsDeclined = deliverable.IsDeclined;
                     deliverableInstance.CreatedAt = deliverable.CreatedAt;
-                    deliverableInstance.CreatedBy = await _context.UserProfiles.FirstOrDefaultAsync(x => x.Id == deliverable.CreatedById);
+                    //deliverableInstance.CreatedBy = await _context.UserProfiles.FirstOrDefaultAsync(x => x.Id == deliverable.CreatedById);
                     deliverableInstance.CreatedById = deliverable.CreatedById;
                     deliverableInstance.DatePicked = deliverable.DatePicked;
-                    deliverableInstance.DeliverableAssignees = await _context.DeliverableAssignees.Where(x => x.IsActive == true && x.DeliverableId == deliverable.Id).ToListAsync();
-                    deliverableInstance.Dependencies = await _context.Dependencies.Where(x => x.DependencyDeliverableId == deliverable.Id).ToListAsync();
+                    //deliverableInstance.DeliverableAssignees = await _context.DeliverableAssignees.Where(x => x.IsActive == true && x.DeliverableId == deliverable.Id).ToListAsync();
+                    //deliverableInstance.Dependencies = await _context.Dependencies.Where(x => x.DependencyDeliverableId == deliverable.Id).ToListAsync();
                     deliverableInstance.DependentType = deliverable.DependentType;
-                    deliverableInstance.Documents = await _context.Documents.Where(x => x.DeliverableId == deliverable.Id).ToListAsync();
+                    //deliverableInstance.Documents = await _context.Documents.Where(x => x.DeliverableId == deliverable.Id).ToListAsync();
                     deliverableInstance.EndDate = deliverable.EndDate;
                     deliverableInstance.Id = deliverable.Id;
                     deliverableInstance.IsPushedForApproval = deliverable.IsPushedForApproval;
                     deliverableInstance.DatePushedForApproval = deliverable.DatePushedForApproval;
                     deliverableInstance.DeclineReason = deliverable.DeclineReason;
                     deliverableInstance.IsActive = deliverable.IsActive;
-                    deliverableInstance.Notes = await _context.PMNotes.Where(x => x.DeliverableId == deliverable.Id && x.IsActive == true).ToListAsync();
-                    deliverableInstance.PMIllustrations = await _context.PMIllustrations.Where(x => x.IsActive == true && x.TaskOrDeliverableId == deliverable.Id).ToListAsync();
-                    deliverableInstance.Pictures = await _context.Pictures.Where(x => x.DeliverableId == deliverable.Id).ToListAsync();
-                    deliverableInstance.Requirements = await _context.PMRequirements.Where(x => x.DeliverableId == deliverable.Id && x.IsActive == true).ToListAsync();
+                    //deliverableInstance.Notes = await _context.PMNotes.Where(x => x.DeliverableId == deliverable.Id && x.IsActive == true).ToListAsync();
+                    //deliverableInstance.PMIllustrations = await _context.PMIllustrations.Where(x => x.IsActive == true && x.TaskOrDeliverableId == deliverable.Id).ToListAsync();
+                    //deliverableInstance.Pictures = await _context.Pictures.Where(x => x.DeliverableId == deliverable.Id).ToListAsync();
+                    //deliverableInstance.Requirements = await _context.PMRequirements.Where(x => x.DeliverableId == deliverable.Id && x.IsActive == true).ToListAsync();
                     deliverableInstance.StartDate = deliverable.StartDate;
                     deliverableInstance.StatusFlow = await _context.StatusFlows.FirstOrDefaultAsync(x => x.IsDeleted == false && x.Id == deliverable.StatusId);
                     deliverableInstance.Task = await _context.Tasks.Where(x => x.IsActive == true && x.Id == deliverable.TaskId).Include(x => x.Project).FirstOrDefaultAsync();
                     deliverableInstance.TaskId = deliverable.TaskId;
                     deliverableInstance.TimeEstimate = deliverable.TimeEstimate;
                     deliverableInstance.UpdatedAt = deliverable.UpdatedAt;
-                    deliverableInstance.UploadedRequirement = await _context.PMUploadedRequirements.Where(x => x.IsActive == true && x.DeliverableId == deliverableInstance.Id).ToListAsync();
-                    deliverableInstance.Videos = await _context.Videos.Where(x => x.DeliverableId == deliverable.Id).ToListAsync();
+                    //deliverableInstance.UploadedRequirement = await _context.PMUploadedRequirements.Where(x => x.IsActive == true && x.DeliverableId == deliverableInstance.Id).ToListAsync();
+                    //deliverableInstance.Videos = await _context.Videos.Where(x => x.DeliverableId == deliverable.Id).ToListAsync();
                     deliverableInstance.AssignedTo = await _context.UserProfiles.FirstOrDefaultAsync(x => x.Id == deliverableInstance.AssignTaskId);
                     if(deliverableInstance.AssignTask != null)
                     {
