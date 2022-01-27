@@ -21,7 +21,8 @@ namespace HaloBiz.MyServices.LAMS
                                     FinanceVoucherType accountVoucherType,
                                     QuoteService quoteService,
                                     long loggedInUserId,
-                                    bool isReversal
+                                    bool isReversal,
+                                    Invoice invoice
                                     );
         List<Invoice> GenerateListOfInvoiceCycle(
                                             ContractService contractService, 

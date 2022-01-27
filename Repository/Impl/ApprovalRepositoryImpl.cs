@@ -36,7 +36,7 @@ namespace HaloBiz.Repository.Impl
                 await _context.Approvals.AddRangeAsync(approvals);
                 var affected = await _context.SaveChangesAsync();
                 _context.ChangeTracker.Clear();
-                return affected > 1 ? true : false;
+                return affected > 0 ? true : false;
             }
             catch (Exception ex)
             {

@@ -8,6 +8,7 @@ namespace HaloBiz.DTOs.ProjectManagementDTO
     public class TaskAssigneeDTO
     {
         public string Name { get; set; }
+        public string UserImage { get; set; }
         public long? TaskId { get; set; }
        
         public bool IsActive { get; set; }

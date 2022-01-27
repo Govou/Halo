@@ -489,6 +489,8 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
                     var contract = await _context.Contracts
                                 .Include(x => x.CustomerDivision)
+                                    .ThenInclude(x=>x.Customer)
+                                        .ThenInclude(x=>x.GroupType)
                                 .FirstOrDefaultAsync(x => x.Id == contractServiceForEndorsement.ContractId);
 
                     var customerDivision = contract.CustomerDivision;
@@ -705,7 +707,8 @@ namespace HaloBiz.MyServices.Impl.LAMS
                                             financialVoucherType,
                                             null,
                                             loggedInUserId,
-                                            true);
+                                            true,
+                                            null);
 
             return true;
         }
@@ -734,7 +737,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                                             financialVoucherType,
                                             null,
                                             loggedInUserId,
-                                            false);
+                                            false, null);
 
             return true;
         }

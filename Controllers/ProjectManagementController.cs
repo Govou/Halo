@@ -69,6 +69,22 @@ namespace HaloBiz.Controllers
             return await _projectAllocationService.getAllWorkspaces(HttpContext);
         }
 
+        [HttpGet("GetAllSideBarValues")]
+
+        public async Task<ApiCommonResponse> GetAllSideBarValues()
+        {
+            return await _projectAllocationService.getAllDataForWorkspaceSideBar(HttpContext);
+        }
+
+
+        [HttpGet("GetAllWorkspacesRevamped")]
+
+        public async Task<ApiCommonResponse> GetAllWorkspacesRevamped()
+        {
+            return await _projectAllocationService.getAllWorkspacesRevamped(HttpContext);
+        }
+
+
         [HttpGet("GetWorkspaceById/{id}")]
 
         public async Task<ApiCommonResponse> GetWorkspaceById(long id)
@@ -117,6 +133,14 @@ namespace HaloBiz.Controllers
         {
             return await _projectAllocationService.getAllDefaultStatus();
             
+        }
+
+        [HttpGet("GetWorkspaceByIdRevamped/{workspaceId}")]
+
+        public async Task<ApiCommonResponse> GetWorkspaceByIdRevamped(long workspaceId)
+        {
+            return await _projectAllocationService.getWorkspaceById(HttpContext,workspaceId);
+
         }
 
 
@@ -187,6 +211,15 @@ namespace HaloBiz.Controllers
 
         }
 
+        [HttpGet("GetProjectById/{projectId}")]
+        public async Task<ApiCommonResponse> GetProjectById(long projectId)
+        {
+            return await _projectAllocationService.getProjectById(HttpContext, projectId);
+
+        }
+
+
+
 
         [HttpPut("AddMoreStatus/{workspaceId}")]
         public async Task<ApiCommonResponse> addMoreStatus(long workspaceId, List<StatusFlowDTO> statusFlowDTO)
@@ -200,10 +233,16 @@ namespace HaloBiz.Controllers
             return await _projectAllocationService.moveStatusSequenec(HttpContext, workspaceId, statusFlowDTO);
         }
 
-        [HttpPut("ChangeStatusFlowOption/{workspaceId}/{statusOption}")]
-        public async Task<ApiCommonResponse> ChangeStatusFlowOption(long workspaceId, string statusOption,List<StatusFlowDTO> statusFlowDTOs)
+        [HttpPut("ChangeStatusFlowOptionToDefault/{workspaceId}")]
+        public async Task<ApiCommonResponse> ChangeStatusFlowOptionToDefault(long workspaceId)
         {
-            return await _projectAllocationService.updateStatusFlowOpton(HttpContext, workspaceId, statusOption, statusFlowDTOs);
+            return await _projectAllocationService.updateStatusFlowOptionToDefault(HttpContext, workspaceId);
+        }
+
+        [HttpPut("ChangeStatusFlowOptionToCustom/{workspaceId}")]
+        public async Task<ApiCommonResponse> ChangeStatusFlowOptionToCustom(long workspaceId, List<StatusFlowDTO> statusFlowDTOs)
+        {
+            return await _projectAllocationService.updateStatusFlowOptionToCustom(HttpContext, workspaceId,statusFlowDTOs);
         }
 
 
@@ -218,6 +257,27 @@ namespace HaloBiz.Controllers
         {
             return await _projectAllocationService.removeWatcher(HttpContext, projectId, projectWatcherId);
     
+        }
+
+        [HttpDelete("DisableProject/{projectId}/{workspacedId}")]
+        public async Task<ApiCommonResponse> DisableProject(long projectId, long workspacedId)
+        {
+            return await _projectAllocationService.removeProject(HttpContext, projectId, workspacedId);
+
+        }
+
+        [HttpDelete("DisableTask/{taskId}/{projectId}")]
+        public async Task<ApiCommonResponse> DisableTask(long taskId, long projectId)
+        {
+            return await _projectAllocationService.removeTask(HttpContext, taskId, projectId);
+
+        }
+
+        [HttpDelete("DisableDeliverable/{deliverableId}/{taskId}")]
+        public async Task<ApiCommonResponse> DisableDeliverable(long deliverableId, long taskId)
+        {
+            return await _projectAllocationService.removeDeliverable(HttpContext, deliverableId, taskId);
+
         }
 
 
@@ -329,12 +389,12 @@ namespace HaloBiz.Controllers
 
         }
 
-        [HttpDelete("DisableDeliverable/{taskId}/{deliverableId}")]
-        public async Task<ApiCommonResponse> DisableDeliverable(long taskId, long deliverableId)
-        {
-            return await _projectAllocationService.disableDeliverable(HttpContext, taskId, deliverableId);
+        //[HttpDelete("DisableDeliverable/{taskId}/{deliverableId}")]
+        //public async Task<ApiCommonResponse> DisableDeliverable(long taskId, long deliverableId)
+        //{
+        //    return await _projectAllocationService.disableDeliverable(HttpContext, taskId, deliverableId);
 
-        }
+        //}
 
         [HttpGet("GetAllTaskIllustrations/{taskId}")]
 
@@ -444,12 +504,183 @@ namespace HaloBiz.Controllers
 
         }
 
+        [HttpGet("GetBarChart/{taskId}")]
+        public async Task<ActionResult> GetBarChart(long taskId)
+        {
+            var response = await _projectAllocationService.getBarChartDetails(HttpContext, taskId);
+            return Ok(response);
+        }
+
+        [HttpGet("GetDeliverableForApproval")]
+        public async Task<ActionResult> GetDeliverableForApproval()
+        {
+            var response = await _projectAllocationService.getDeliverableApprovalList(HttpContext);
+            return Ok(response);
+        }
+
+        [HttpGet("GetProjectWatcherList")]
+        public async Task<ActionResult> GetProjectWatcherList()
+        {
+            var response = await _projectAllocationService.getprojectForWatchers(HttpContext);
+            return Ok(response);
+        }
+
+        [HttpGet("GetDeliverableApproved")]
+        public async Task<ActionResult> GetDeliverableApproved()
+        {
+            var response = await _projectAllocationService.getDeliverableApproved(HttpContext);
+            return Ok(response);
+        }
+
+
+
+        [HttpGet("GetDeliverableDeclined")]
+        public async Task<ActionResult> GetDeliverableDeclined()
+        {
+            var response = await _projectAllocationService.getDeliverableIsDeclined(HttpContext);
+            return Ok(response);
+        }
+
+        [HttpPost("PickDeliverable/{deliverableId}/")]
+        public async Task<ActionResult> PickDeliverable(long deliverableId)
+        {
+            var response = await _projectAllocationService.pickDeliverable(HttpContext,deliverableId);
+            return Ok(response);
+        }
+
+        [HttpPost("PushForApproval/{deliverableId}")]
+        public async Task<ActionResult> PushForApproval(long deliverableId)
+        {
+            var response = await _projectAllocationService.pushForApproval(HttpContext, deliverableId);
+            return Ok(response);
+        }
+
+        [HttpGet("GetTaskAssignees/{taskId}")]
+        public async Task<ActionResult> GetTaskAssignees(long taskId)
+        {
+            var response = await _projectAllocationService.getAssignees(HttpContext, taskId);
+            return Ok(response);
+        }
+
+        [HttpPost("ReverseApproval/{deliverableId}")]
+        public async Task<ActionResult> ReverseApproval(long deliverableId)
+        {
+            var response = await _projectAllocationService.reverseApproval(HttpContext, deliverableId);
+            return Ok(response);
+        }
+
+        [HttpPost("saveAmount/{amount}/{deliverableId}")]
+        public async Task<ActionResult> saveAmount(long amount,long deliverableId)
+        {
+            var response = await _projectAllocationService.saveAmountSpent(HttpContext, amount, deliverableId);
+            return Ok(response);
+        }
+
+        [HttpPost("AddComments/{deliverableId}")]
+        public async Task<ActionResult> AddComment(CommentsDTO comments, long deliverableId)
+        {
+            var response = await _projectAllocationService.addComments(HttpContext, deliverableId,comments);
+            return Ok(response);
+        }
+
+        [HttpDelete("disableComments/{commentId}/{deliverableId}")]
+        public async Task<ActionResult> disableComment(long commentId, long deliverableId)
+        {
+            var response = await _projectAllocationService.disableComment(HttpContext, commentId, deliverableId);
+            return Ok(response);
+        }
+
+
+        [HttpPut("declineDeliverable/{deliverableId}/{deliverableReason}")]
+        public async Task<ActionResult> declineDeliverable(long deliverableId, string deliverableReason)
+        {
+            var response = await _projectAllocationService.DeclineDeliverable(HttpContext, deliverableId, deliverableReason);
+            return Ok(response);
+        }
+
+
+        [HttpPut("ApproveDeliverable/{deliverableId}")]
+        public async Task<ActionResult> ApproveDeliverable(long deliverableId)
+        {
+            var response = await _projectAllocationService.ApproveDeliverable(HttpContext, deliverableId);
+            return Ok(response);
+        }
+
+
+
+        [HttpPost("SelectStatus/{statusId}/{deliverableId}")]
+        public async Task<ActionResult> PickDeliverable(long statusId, long deliverableId)
+        {
+            var response = await _projectAllocationService.selectStatus(HttpContext, statusId, deliverableId);
+            return Ok(response);
+        }
+
+        //[HttpGet("GetDeliverableStatus")]
+        //public async Task<ActionResult> GetDeliverableStatus()
+        //{
+        //    var response = await _projectAllocationService.getDeliverableStatus(HttpContext);
+        //    return Ok(response);
+        //}
+
+        [HttpGet("GetWorkspaceStatus")]
+        public async Task<ActionResult> GetWorkspaceStatus()
+        {
+            var response = await _projectAllocationService.getWorkspaceWithStatus(HttpContext);
+            return Ok(response);
+        }
+
+        [HttpGet("GetWorkspacewithWatcher")]
+        public async Task<ActionResult> GetWorkspacewithWatcher()
+        {
+            var response = await _projectAllocationService.getWorkspaceWithProjectWatcher(HttpContext);
+            return Ok(response);
+        }
+
+        [HttpGet("GetTaskFromProject/{projectId}")]
+        public async Task<ActionResult> GetTaskFromProject(long projectId)
+        {
+            var response = await _projectAllocationService.getAllTaskFromProject(HttpContext,projectId);
+            return Ok(response);
+        }
+
+        [HttpGet("GetAssignedDeliverableStatus/{deliverableId}")]
+        public async Task<ActionResult> GetAssignedDeliverableStatus(long deliverableId)
+        {
+            var response = await _projectAllocationService.getCurrentDeliverableStatus(HttpContext, deliverableId);
+            return Ok(response);
+        }
+
+
         [HttpPost("CreateNewDeliverable/{taskId}")]
         public async Task<ApiCommonResponse> createNewDeliverable(long taskId,DeliverableDTO deliverableDTO)
         {
             return await _projectAllocationService.createNewDeliverable(HttpContext, taskId,deliverableDTO);
 
         }
+
+        [HttpPost("moveToAnotherStatus/{statusId}/{deliverableId}/{statusCode}")]
+        public async Task<ApiCommonResponse> createNewDeliverable(long statusId, long deliverableId,List<StatusFlow> statuses,int statusCode)
+        {
+            return await _projectAllocationService.moveToAnotherStatus(HttpContext, statuses,statusId,deliverableId,statusCode);
+
+        }
+
+
+        [HttpDelete("disableUploadedRequirement/{uploadedRequirementId}")]
+        public async Task<ApiCommonResponse> createNewDeliverable(long uploadedRequirementId)
+        {
+            return await _projectAllocationService.disableRequirementUpload(HttpContext, uploadedRequirementId);
+
+        }
+
+
+        [HttpPost("UploadRequirementsDetails")]
+        public async Task<ApiCommonResponse> CreateUploadedRequirement(UploadedRequirement uploadedRequirement)
+        {
+            return await _projectAllocationService.createUploadedRequirement(HttpContext,uploadedRequirement);
+
+        }
+
 
         [HttpPost("CreateNewDeliverableOnTask/{taskId}")]
         public async Task<ApiCommonResponse> CreateNewDeliverableOnTask(long taskId, DeliverableDTO deliverableDTO)

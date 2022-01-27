@@ -1,9 +1,7 @@
 ﻿using System;
-using HalobizMigrations.Models.ProjectManagement;
-
 namespace HaloBiz.DTOs.ProjectManagementDTO
 {
-    public class AssignDeliverableDTO
+    public class UploadedRequirement
     {
 		
 		public long Id
@@ -30,30 +28,11 @@ namespace HaloBiz.DTOs.ProjectManagementDTO
 			set;
 		}
 
-		public string Priority
+		public bool IsActive
 		{
 			get;
 			set;
 		}
-
-		public string ConfidenceLevel
-		{
-			get;
-			set;
-		}
-
-		public long? DeliverableAssigneeId
-		{
-			get;
-			set;
-		}
-
-		public DeliverableUser? DeliverableUser
-		{
-			get;
-			set;
-		}
-
 
 		public long? DeliverableId
 		{
@@ -61,13 +40,28 @@ namespace HaloBiz.DTOs.ProjectManagementDTO
 			set;
 		}
 
-		public bool IsActive
+		
+
+		public string Extension
 		{
 			get;
 			set;
 		}
 
-		public DateTime DueDate
+		public long? RequirementId
+		{
+			get;
+			set;
+		}
+
+
+		public string DocUrl
+		{
+			get;
+			set;
+		}
+
+		public bool IsDeleted
 		{
 			get;
 			set;
@@ -92,6 +86,5 @@ namespace HaloBiz.DTOs.ProjectManagementDTO
 			get;
 			set;
 		}
-
-    }
+	}
 }

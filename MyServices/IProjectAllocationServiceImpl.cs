@@ -32,19 +32,25 @@ namespace HaloBiz.MyServices
         Task<ApiCommonResponse> getDefaultStatus();
 
         Task<ApiCommonResponse> getAllDefaultStatus();
-        Task<ApiCommonResponse> updateStatusFlowOpton(HttpContext httpContext, long workspaceId, string statusOption, List<StatusFlowDTO> statusFlowDTOs);
+        Task<ApiCommonResponse> updateStatusFlowOptionToDefault(HttpContext httpContext, long workspaceId);
         Task<ApiCommonResponse> addmoreStatus(HttpContext httpContext, long workspaceId, List<StatusFlowDTO> statusFlowDTO);
-
+        Task<ApiCommonResponse> getProjectById(HttpContext httpContext, long projectId);
         Task<ApiCommonResponse> createDefaultStatus(HttpContext httpContext, List<DefaultStatusDTO> defaultStatusDTOs);
-
+        Task<ApiCommonResponse> updateStatusFlowOptionToCustom(HttpContext httpContext, long workspaceId, List<StatusFlowDTO> statusFlowDTOs);
+        Task<ApiCommonResponse> removeProject(HttpContext httpContext, long projectId, long workspaceId);
+        Task<ApiCommonResponse> removeTask(HttpContext httpContext, long taskId, long projectId);
+        Task<ApiCommonResponse> removeDeliverable(HttpContext httpContext, long deliverableId, long taskId);
         Task<ApiCommonResponse> updateWorkspace(HttpContext httpContext, long id, UpdateWorkspaceDTO workspaceDTO);
         Task<ApiCommonResponse> addMoreProjectCreators(HttpContext httpContext, long id, List<AddMoreUserDto> projectCreatorDtos);
         Task<ApiCommonResponse> removeFromProjectCreator(long workspaceId, long creatorId);
         Task<ApiCommonResponse> disablePrivateUser(long workspaceId, long privateUserId);
+        Task<ApiCommonResponse> getDeliverableIsDeclined(HttpContext httpContext);
         Task<ApiCommonResponse> addMorePrivateUser(HttpContext httpContext, long workspaceId, List<AddMoreUserDto> privateUserid);
         Task<ApiCommonResponse> disableStatus(long workspaceId, long statusId);
         Task<ApiCommonResponse> updateStatus(HttpContext httpContext, long workspaceId, long statusFlowId, StatusFlowDTO statusFlowDTO);
         Task<ApiCommonResponse> updateToPublic(long workspaceId);
+        Task<ApiCommonResponse> getWorkspaceWithProjectWatcher(HttpContext httpContext);
+        Task<ApiCommonResponse> getAllTaskFromProject(HttpContext httpContext, long projectId);
         Task<ApiCommonResponse> moveStatusSequenec(HttpContext httpContext, long workspaceId, List<StatusFlowDTO> statusFlowDTO);
         Task<ApiCommonResponse> createProject(HttpContext httpContext, ProjectDTO projectDTO);
         Task<ApiCommonResponse> getAllProjects(HttpContext httpContext);
@@ -98,6 +104,28 @@ namespace HaloBiz.MyServices
         Task<ApiCommonResponse> disableTaskAssignee(HttpContext context, long taskId, long assigneeId);
         Task<ApiCommonResponse> updateDeliverable(HttpContext httpContext, long taskId, long deliverableId, DeliverableDTO deliverableDTO);
         Task<ApiCommonResponse> disableDeliverable(HttpContext httpContext, long taskId, long deliverableId);
-
+        Task<ApiCommonResponse> getBarChartDetails(HttpContext httpContext, long taskId);
+        Task<ApiCommonResponse> getAssignedDeliverableStatus(HttpContext httpContext, List<DeliverableStatusDTO> deliverableStatusDTOs);
+        Task<ApiCommonResponse> getWorkspaceWithStatus(HttpContext httpContext);
+        Task<ApiCommonResponse> getCurrentDeliverableStatus(HttpContext httpContext,long deliverableId);
+        Task<ApiCommonResponse> createUploadedRequirement(HttpContext httpContext, UploadedRequirement uploadedRequirement);
+        Task<ApiCommonResponse> disableRequirementUpload(HttpContext httpContext, long uploadedRequirementId);
+        Task<ApiCommonResponse> moveToAnotherStatus(HttpContext httpContext, List<StatusFlow> statuses, long statusId, long deliverableId, int statusCode);
+        Task<ApiCommonResponse> pickDeliverable(HttpContext httpContext, long deliverableId);
+        Task<ApiCommonResponse> selectStatus(HttpContext httpContext, long statusId, long deliverableId);
+        Task<ApiCommonResponse> addComments(HttpContext httpContext, long deliverableId,CommentsDTO comments);
+        Task<ApiCommonResponse> disableComment(HttpContext httpContext, long commentId, long deliverableId);
+        Task<ApiCommonResponse> saveAmountSpent(HttpContext httpContext, decimal amount, long deliverableId);
+        Task<ApiCommonResponse> getDeliverableApprovalList(HttpContext httpContext);
+        Task<ApiCommonResponse> pushForApproval(HttpContext httpContext, long deliverableId);
+        Task<ApiCommonResponse> reverseApproval(HttpContext httpContext, long deliverableId);
+        Task<List<TaskAssigneeDTO>> getAssignees(HttpContext httpContext, long taskId);
+        Task<ApiCommonResponse> ApproveDeliverable(HttpContext httpContext, long deliverableId);
+        Task<ApiCommonResponse> DeclineDeliverable(HttpContext httpContext, long deliverableId, string declineReason);
+        Task<ApiCommonResponse> getDeliverableApproved(HttpContext httpContext);
+        Task<ApiCommonResponse> getprojectForWatchers(HttpContext httpContext);
+        Task<ApiCommonResponse> getAllWorkspacesRevamped(HttpContext httpContext);
+        Task<ApiCommonResponse> getAllDataForWorkspaceSideBar(HttpContext httpContext);
+        Task<ApiCommonResponse> getWorkspaceById(HttpContext httpContext, long workspaceId);
     }
 }
