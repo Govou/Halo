@@ -1313,6 +1313,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
             }
             else
             {
+                this.LoggedInUserId = loggedInUserId;
                 accountId = await GetServiceIncomeAccountForClient(customerDivision, service);
             }
             
