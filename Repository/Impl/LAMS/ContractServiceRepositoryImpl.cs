@@ -115,7 +115,7 @@ namespace HaloBiz.Repository.Impl.LAMS
         {
             return await _context.ContractServices
                 .Include(t=>t.Service)
-                 .Where(x =>  x.IsDeleted == false)
+                 .Where(x =>  x.IsDeleted == false && x.Version == 0)
                  .ToListAsync();
         }
     }
