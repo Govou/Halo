@@ -19,6 +19,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using HalobizMigrations.Models.Shared;
 using HaloBiz.MyServices.LAMS;
+using HalobizMigrations.Models.Armada;
 
 namespace HaloBiz.MyServices.Impl
 {
@@ -1130,25 +1131,31 @@ namespace HaloBiz.MyServices.Impl
 
         }
 
-        private async Task<ApiCommonResponse> SendJourneyManagementPkan(Invoice invoice)
-        {
-            try
-            {
-                var (invoiceMailDTO, invoices) = await GenerateInvoiceMailDTO(invoice);
-                var sendResult = await _mailAdapter.SendPeriodicInvoice(invoiceMailDTO);
-                sendResult.responseData = invoices;
-                return sendResult;
+        //private async Task<ApiCommonResponse> SendJourneyManagementPlan(long serviceAssignmentId)
+        //{
+        //    try
+        //    {
+        //        MasterServiceAssignment MSA = await _context.MasterServiceAssignments
+        //                    .Where(x => x.Id == serviceAssignmentId && !x.IsDeleted)
+        //                    .FirstOrDefaultAsync();
 
-            }
-            catch (System.Exception ex)
-            {
-                _logger.LogError($"An Error occured while trying to send Invoice with Id: {invoice.Id}");
-                _logger.LogError($"Error: {ex.Message}");
-                _logger.LogError($"Error: {ex.StackTrace}");
-                return CommonResponse.Send(ResponseCodes.FAILURE, null, ex.Message);
-            }
+        //        if (serviceAssignmentId == null)
+        //        {
+        //            return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE); ;
+        //        }
 
-        }
+        //        var (masterServiceAssignmentMailDTO, assignments) = await GenerateInvoiceMailDTO(MSA);
+        //        return await _mailAdapter.SendJourneyManagementPlan(masterServiceAssignmentMailDTO);
+
+        //    }
+        //    catch (System.Exception ex)
+        //    {
+        //        _logger.LogError($"An Error occured while trying to send JMP with Id: {serviceAssignmentId}");
+        //        _logger.LogError($"Error: {ex.Message}");
+        //        _logger.LogError($"Error: {ex.StackTrace}");
+        //        return CommonResponse.Send(ResponseCodes.FAILURE, null, "JMP Not Sent");
+        //    }
+        //}
 
         public async Task<ApiCommonResponse> GetInvoiceDetails(long invoiceId)
         {
@@ -1435,6 +1442,128 @@ namespace HaloBiz.MyServices.Impl
 
             return (invoiceMailDTO, invoicesToUpdate);
         }
+
+        //private async Task<(MasterServiceAssignmentMailVMDTO, IEnumerable<MasterServiceAssignment>)> GenerateJMPMailDTO(MasterServiceAssignment invoice)
+        //{
+        //    bool isProforma = invoice.IsFinalInvoice == false;
+
+        //    var customerDivision = await _context.CustomerDivisions
+        //                    .Where(x => x.Id == invoice.CustomerDivisionId)
+        //                    .Include(x => x.PrimaryContact)
+        //                    .Include(x => x.SecondaryContact)
+        //                    .Include(x => x.State)
+        //                    .Include(x => x.Lga)
+        //                    .FirstOrDefaultAsync();
+
+
+        //    IEnumerable<Invoice> invoices;
+        //    List<Invoice> invoicesToUpdate = new List<Invoice>();
+        //    if (String.IsNullOrWhiteSpace(invoice.GroupInvoiceNumber))
+        //    {
+        //        invoices = await _context.Invoices
+        //                .Include(x => x.ContractService)
+        //                .ThenInclude(x => x.Service)
+        //                .Where(x => x.Id == invoice.Id && x.StartDate == invoice.StartDate && ((bool)x.IsFinalInvoice || isProforma)
+        //                            && !x.IsDeleted)
+        //                .ToListAsync();
+        //    }
+        //    else
+        //    {
+        //        invoices = await _context.Invoices
+        //               .Include(x => x.ContractService)
+        //                    .ThenInclude(x => x.Service)
+        //               .Where(x => x.GroupInvoiceNumber == invoice.GroupInvoiceNumber && !x.IsDeleted && ((bool)x.IsFinalInvoice || isProforma))
+        //               .AsNoTracking()
+        //               .ToListAsync();
+
+        //        var contractService = await _context.ContractServices.FindAsync(invoice.ContractServiceId);
+        //        if (contractService.InvoicingInterval == (int)TimeCycle.Adhoc)
+        //        {
+        //            invoices = invoices.Where(x => x.AdhocGroupingId == invoice.AdhocGroupingId);
+        //        }
+        //        else
+        //        {
+        //            invoices = invoices.Where(x => x.StartDate.ToShortDateString() == invoice.StartDate.ToShortDateString());
+        //        }
+        //    }
+
+        //    double discount = 0.0;
+        //    double subTotal = 0.0;
+        //    double unInvoicedAmount = 0.0;
+        //    double VAT = 0.0;
+        //    string invoiceCycle = null;
+        //    string keyServiceName = "";
+
+        //    List<string> recepients = new List<string>();
+        //    recepients.Add(customerDivision.Email);
+        //    if (customerDivision.SecondaryContact != null)
+        //        recepients.Add(customerDivision.SecondaryContact.Email);
+
+        //    if (customerDivision.PrimaryContact != null)
+        //        recepients.Add(customerDivision.PrimaryContact.Email);
+        //    List<ContractServiceMailDTO> contractServiceMailDTOs = new List<ContractServiceMailDTO>();
+
+        //    foreach (var theInvoice in invoices)
+        //    {
+        //        discount += theInvoice.Discount;
+        //        subTotal += (double)theInvoice.Value;
+        //        if (!contractServiceMailDTOs.Any(x => x.Description == theInvoice.ContractService.Service.Name))
+        //        {
+        //            VAT += (double)theInvoice.ContractService.Vat;
+        //        }
+        //        unInvoicedAmount += (double)(theInvoice.ContractService.BillableAmount - theInvoice.ContractService.AdHocInvoicedAmount);
+        //        invoiceCycle = theInvoice.ContractService.InvoicingInterval.ToString();
+        //        keyServiceName = theInvoice.ContractService.Service.Name;
+
+        //        var forUpdate = _mapper.Map<Invoice>(theInvoice);
+        //        forUpdate.ContractService = null;
+        //        invoicesToUpdate.Add(forUpdate);
+
+        //        contractServiceMailDTOs.Add(new ContractServiceMailDTO()
+        //        {
+        //            Description = theInvoice.ContractService.Service.Name,
+        //            UnitPrice = theInvoice.UnitPrice,
+        //            Quantity = theInvoice.Quantity,
+        //            Total = theInvoice.Value,
+        //            Discount = theInvoice.Discount,
+        //            UniqueTag = theInvoice.ContractService.UniqueTag,
+        //            AdminDirectTie = theInvoice.ContractService.AdminDirectTie,
+        //            Id = theInvoice.ContractServiceId,
+        //            StartDate = theInvoice.StartDate.ToString("G")
+        //        });
+
+        //    }
+
+        //    ClientInfoMailDTO client = new ClientInfoMailDTO()
+        //    {
+        //        Name = customerDivision.DivisionName,
+        //        Email = customerDivision.Email,
+        //        Street = customerDivision.Street,
+        //        State = customerDivision.State != null ? customerDivision.State.Name : "No State Provided",
+        //        LGA = customerDivision.Lga != null ? customerDivision.Lga.Name : "No LGA Provided"
+        //    };
+
+        //    InvoiceMailDTO invoiceMailDTO = new InvoiceMailDTO()
+        //    {
+        //        Id = invoice.Id,
+        //        InvoiceNumber = invoice.InvoiceNumber,
+        //        Total = invoice.Value,
+        //        SubTotal = subTotal,
+        //        VAT = VAT, //subTotal * (7.5 / 100),
+        //        UnInvoicedAmount = unInvoicedAmount,
+        //        Discount = discount,
+        //        InvoicingCycle = invoiceCycle,
+        //        StartDate = invoice.StartDate,
+        //        EndDate = invoice.EndDate,
+        //        Subject = $"Invoice {invoice.InvoiceNumber} for {keyServiceName} due {invoice.EndDate.ToString("dddd, dd MMMM yyyy")}",
+        //        Recepients = recepients.ToArray(),
+        //        DaysUntilDeadline = (int)invoice.EndDate.Subtract(DateTime.Now).TotalDays,
+        //        ClientInfo = client,
+        //        ContractServices = contractServiceMailDTOs
+        //    };
+
+        //    return (invoiceMailDTO, invoicesToUpdate);
+        //}
 
         private async Task<long> GetServiceIncomeAccountForRetailClient(Service service)
         {

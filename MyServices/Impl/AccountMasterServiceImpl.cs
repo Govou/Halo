@@ -206,9 +206,9 @@ namespace HaloBiz.MyServices.Impl
                     _logger.LogInformation("Searching for Invoices to Post.......");
 
                    var today = DateTime.Now;
-                   //var today = DateTime.Parse("2022-01-01").Date;
+                   //var today = DateTime.Parse("2022-04-30").Date; //30-Apr-2022
 
-                    var invoices = await _context.Invoices
+                var invoices = await _context.Invoices
                             .Where(x => x.IsAccountPosted==false && x.IsFinalInvoice==true && x.StartDate.Date == today)
                             .ToListAsync();                  
 

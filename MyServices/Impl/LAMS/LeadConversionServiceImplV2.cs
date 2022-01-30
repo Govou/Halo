@@ -244,8 +244,6 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 return customerDivision;
             }
 
-
-
             try
             {
                 //creates customer division from lead division and saves the customer division
@@ -894,9 +892,14 @@ namespace HaloBiz.MyServices.Impl.LAMS
             int interval;
 
             if (invoice == null)
+            {
                 (interval, totalContractBillable, totalVAT) = CalculateTotalBillableForPeriod(contractService);
+            }
             else
-                totalContractBillable = invoice.Value; totalVAT = invoice.Value * 0.075;
+            {
+                totalContractBillable = invoice.Value; totalVAT = invoice.Value * 0.075; 
+            }
+            
             
             var totalAfterTax = totalContractBillable - totalVAT;
 
@@ -1310,6 +1313,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
             }
             else
             {
+                this.LoggedInUserId = loggedInUserId;
                 accountId = await GetServiceIncomeAccountForClient(customerDivision, service);
             }
             
