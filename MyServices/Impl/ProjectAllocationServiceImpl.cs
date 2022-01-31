@@ -1680,12 +1680,17 @@ namespace HaloBiz.MyServices.Impl
                                                                        .ThenInclude(x=>x.Project)
                                                                .Include(x => x.Status)
                                                                .Include(x => x.UploadedRequirements.Where(x => x.IsActive == true))
-                                                               .Include(x => x.Workspace)
-                                                                       .ThenInclude(x=>x.StatusFlows.Where(x=>x.IsDeleted == false))
+                                                               //.Include(x => x.Workspace)
+                                                                       //.ThenInclude(x=>x.StatusFlows.Where(x=>x.IsDeleted == false))
                                                                .ToListAsync();
             var deliverableArray = new List<Deliverable>();
             foreach(var deliverable in deliverableQuery)
             {
+
+                deliverable.Workspace = await _context.Workspaces.Where(x => x.IsActive == true && x.Id == deliverable.WorkspaceId)
+                                                                    .Include(x => x.StatusFlows.Where(x=>x.IsDeleted == false))
+                                                                    .FirstOrDefaultAsync();
+
                 deliverable.AssignTask = await _context.AssignTasks.Where(x => x.IsActive == true && x.DeliverableId == deliverable.Id)
                                                                     .Include(x=>x.DeliverableAssignee)
                                                                     .FirstOrDefaultAsync();
