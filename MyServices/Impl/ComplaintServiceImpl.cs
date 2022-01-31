@@ -57,8 +57,16 @@ namespace HaloBiz.MyServices.Impl
                 complaint.DateRegistered = DateTime.Now;
 
                 complaint.IsRegistered = true;
-
-                var savedcomplaint = await _complaintRepo.SaveComplaint(complaint);
+                foreach(var evidence in complaint.Evidences)
+                {
+                    evidence.CreatedById = loggedInUserId;
+                    evidence.CreatedAt = DateTime.Now;
+                    evidence.EvidenceCaptureById = loggedInUserId;
+                    evidence.DateCaptured = DateTime.Now;
+                }
+                await _context.Complaints.AddAsync(complaint);
+                await _context.SaveChangesAsync();
+                var savedcomplaint = complaint;
                 if (savedcomplaint == null)
                 {
                     return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
@@ -95,7 +103,7 @@ namespace HaloBiz.MyServices.Impl
             {
                 await transaction.RollbackAsync();
                 _logger.LogError(ex.Message);
-                return  CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+                return  CommonResponse.Send(ResponseCodes.FAILURE, null, ex.Message);
             }           
         }
 

@@ -356,7 +356,7 @@ namespace HaloBiz.MyServices.Impl
             {
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE); ;
             }
-            var TransferDTO = _mapper.Map<IEnumerable<JourneyNoteTransferDTO>>(getAll);
+            var TransferDTO = _mapper.Map<IEnumerable<JourneyStartTransferDTO>>(getAll);
             return CommonResponse.Send(ResponseCodes.SUCCESS, TransferDTO);
         }
 
