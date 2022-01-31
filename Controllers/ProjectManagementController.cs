@@ -304,7 +304,7 @@ namespace HaloBiz.Controllers
         }
 
         [HttpPost("createDeliverableIllustration/{deliverableId}/{taskId}")]
-        public async Task<ApiCommonResponse> createDeliverableIllustration(long taskId, long deliverableId, List<IllustrationsDTO> illustrationsDTOs)
+        public async Task<ApiCommonResponse> createDeliverableIllustration(long taskId, long deliverableId, IllustrationsDTO illustrationsDTOs)
         {
             return await _projectAllocationService.createDeliverableIllustrattions(HttpContext, deliverableId, taskId, illustrationsDTOs);
 
@@ -369,7 +369,7 @@ namespace HaloBiz.Controllers
 
         [HttpPost("CreateTaskIllustration/{taskId}")]
 
-        public async Task<ApiCommonResponse> CreateTaskIllustration(List<IllustrationsDTO> illustrations,long taskId)
+        public async Task<ApiCommonResponse> CreateTaskIllustration(IllustrationsDTO illustrations,long taskId)
         {
             return await _projectAllocationService.createTaskIllustration( illustrations,taskId,HttpContext);
 
@@ -654,6 +654,13 @@ namespace HaloBiz.Controllers
         public async Task<ActionResult> GetAssignedDeliverableStatus(long deliverableId)
         {
             var response = await _projectAllocationService.getCurrentDeliverableStatus(HttpContext, deliverableId);
+            return Ok(response);
+        }
+
+        [HttpGet("GetDeliverableByTaskIdRevamped/{taskId}")]
+        public async Task<ActionResult> GetDeliverableByTaskIdRevamped(long taskId)
+        {
+            var response = await _projectAllocationService.getDeliverablesByTaskId(HttpContext, taskId);
             return Ok(response);
         }
 

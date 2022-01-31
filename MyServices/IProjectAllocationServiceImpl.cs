@@ -95,10 +95,11 @@ namespace HaloBiz.MyServices
         Task<ApiCommonResponse> dropTask(long taskId, long taskOwnershipId, HttpContext httpContext);
         Task<ApiCommonResponse> getAllPickedTask(HttpContext httpContext);
         Task<ApiCommonResponse> AssignDeliverable(HttpContext context, long taskId, long deliverableId, long assigneDeliverableId, AssignDeliverableDTO assignDeliverableDTO);
-        Task<ApiCommonResponse> createDeliverableIllustrattions(HttpContext context, long deliverableId, long taskId, List<IllustrationsDTO> illustrationsDTO);
+        Task<ApiCommonResponse> createDeliverableIllustrattions(HttpContext context, long deliverableId, long taskId,IllustrationsDTO illustrationsDTO);
         Task<ApiCommonResponse> DeleteIllustration(HttpContext context, long taskId, long deliverableId,long illustrationId);
-        Task<ApiCommonResponse> createTaskIllustration(List<IllustrationsDTO> illustrationsDTO, long taskId, HttpContext httpContext);
+        Task<ApiCommonResponse> createTaskIllustration(IllustrationsDTO illustrationsDTO, long taskId, HttpContext httpContext);
         Task<ApiCommonResponse> getTaskIllustrationById(long taskId);
+        Task<ApiCommonResponse> getDeliverablesByTaskId(HttpContext httpContext, long taskId);
         Task<ApiCommonResponse> removeIllustrationById(long taskId, long illustrationId);
         Task<ApiCommonResponse> createNewDeliverableFromTask(HttpContext httpContext, long TaskId, DeliverableDTO deliverableDTO);
         Task<ApiCommonResponse> addMoreTaskAssignees(HttpContext context, long taskId, List<TaskAssigneeDTO> taskAssigneeDTO);
