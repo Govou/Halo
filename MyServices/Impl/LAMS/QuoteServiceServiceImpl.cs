@@ -82,7 +82,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
         {
             var userId = context.GetLoggedInUserId();
             var _quoteServices = _mapper.Map<IEnumerable<QuoteService>>(quoteServices);
-            var response = await _quoteServiceRepo.UpdateQuoteServicesByQuoteId(quoteId, _quoteServices);
+            var response = await _quoteServiceRepo.UpdateQuoteServicesByQuoteId(quoteId, _quoteServices, context);
             return CommonResponse.Send(ResponseCodes.SUCCESS,response);
 
         }

@@ -62,5 +62,7 @@ namespace HaloBiz.DTOs.TransferDTOs.LAMS
         public string UniqueTag { get; set; }
         public string AdminDirectTie { get; set; }
         public long BranchId { get; set; }
+        public long OfficeId { get; set; }
+
     }
 }

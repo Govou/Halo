@@ -157,8 +157,13 @@ namespace HaloBiz.MyServices.Impl
                         .WithHeader("Authorization", $"Bearer {token}")
                         .PostJsonAsync(requestBody);
 
+
+                    _logger.LogInformation($"Customer to create: {JsonConvert.SerializeObject(requestBody)}");
+
                     var responseMessage = await response.GetStringAsync();
                     _logger.LogInformation($"Response | [{response.StatusCode}] | {responseMessage}");
+                    var content = await response.ResponseMessage.Content.ReadAsStringAsync();
+                    _logger.LogInformation("content: " + content);
 
                     if (response.StatusCode == 200 || response.StatusCode == 204)
                     {
@@ -378,7 +383,9 @@ namespace HaloBiz.MyServices.Impl
 
         private async Task<string> GetAPIToken()
         {
-            var tokenResponse = await _dTrackBaseUrl.AppendPathSegment("token")
+            try
+            {
+                var tokenResponse = await _dTrackBaseUrl.AppendPathSegment("token")
                         .PostUrlEncodedAsync(new
                         {
                             grant_type = "password",
@@ -386,9 +393,16 @@ namespace HaloBiz.MyServices.Impl
                             password = _dTrackPassword
                         }).ReceiveJson();
 
-            string token = tokenResponse.access_token;
-            _logger.LogInformation($"The token => {token}");
-            return token;
+                string token = tokenResponse.access_token;
+                _logger.LogInformation($"The token => {token}");
+                return token;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.StackTrace);
+
+                throw;
+            }
         }
 
         private void DisableFlurlCertificateValidation()
