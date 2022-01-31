@@ -59,7 +59,7 @@ namespace HaloBiz.MyServices.Impl
                 int alreadyCreated = 0;
 
                 var customerAccountsThatHaveNotBeenIntegrated = await _context.Accounts
-                    .Where(x => x.IntegrationFlag == false && x.ControlAccount.Caption == "Receivable" && x.Id== 1200000078).ToListAsync();
+                    .Where(x => x.IntegrationFlag == false && x.ControlAccount.Caption == "Receivable").ToListAsync();
 
                 int allRecords = customerAccountsThatHaveNotBeenIntegrated.Count;
 
@@ -244,7 +244,7 @@ namespace HaloBiz.MyServices.Impl
                 DisableFlurlCertificateValidation();
 
                 var integratedCustomerAcccounts = await _context.Accounts
-                    .Where(x => x.IntegrationFlag == true && x.ControlAccount.Caption == ReceivableControlAccount && x.Id == 1200000078)
+                    .Where(x => x.IntegrationFlag == true && x.ControlAccount.Caption == ReceivableControlAccount)
                     .ToListAsync();
 
                 _logger.LogInformation($"Integrated Customer Accounts Count => {integratedCustomerAcccounts.Count()}");
