@@ -1327,8 +1327,9 @@ namespace HaloBiz.MyServices.Impl
 
             var customerDivision = await _context.CustomerDivisions
                             .Where(x => x.Id == invoice.CustomerDivisionId)
-                            .Include(x => x.PrimaryContact)
-                            .Include(x => x.SecondaryContact)
+                            //todo Contact adjustment
+                            //.Include(x => x.PrimaryContact)
+                            //.Include(x => x.SecondaryContact)
                             .Include(x => x.State)
                             .Include(x => x.Lga)
                             .FirstOrDefaultAsync();
@@ -1374,11 +1375,12 @@ namespace HaloBiz.MyServices.Impl
 
             List<string> recepients = new List<string>();
             recepients.Add(customerDivision.Email);
-            if (customerDivision.SecondaryContact != null)
-                recepients.Add(customerDivision.SecondaryContact.Email);
+            //todo Contact adjustment
+            //if (customerDivision.SecondaryContact != null)
+            //    recepients.Add(customerDivision.SecondaryContact.Email);
 
-            if (customerDivision.PrimaryContact != null)
-                recepients.Add(customerDivision.PrimaryContact.Email);
+            //if (customerDivision.PrimaryContact != null)
+            //    recepients.Add(customerDivision.PrimaryContact.Email);
             List<ContractServiceMailDTO> contractServiceMailDTOs = new List<ContractServiceMailDTO>();
 
             foreach (var theInvoice in invoices)
