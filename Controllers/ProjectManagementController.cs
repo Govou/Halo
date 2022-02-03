@@ -636,12 +636,56 @@ namespace HaloBiz.Controllers
             return Ok(response);
         }
 
+
+        [HttpGet("GetTaskValueForPieChart")]
+        public async Task<ActionResult> GetTaskValueForPieChart()
+        {
+            var response = await _projectAllocationService.getTaskPieChartData(HttpContext);
+            return Ok(response);
+        }
+
         [HttpGet("GetTaskFromProject/{projectId}")]
         public async Task<ActionResult> GetTaskFromProject(long projectId)
         {
             var response = await _projectAllocationService.getAllTaskFromProject(HttpContext,projectId);
             return Ok(response);
         }
+
+        [HttpGet("GetProjectCountBarChart")]
+        public async Task<ActionResult> GetProjectCountBarChart()
+        {
+            var response = await _projectAllocationService.getProjectCountBarChart(HttpContext);
+            return Ok(response);
+        }
+
+        [HttpGet("GetWorkspaceCountBarChart")]
+        public async Task<ActionResult> getWorkspaceCountBarChart()
+        {
+            var response = await _projectAllocationService.getWorkspaceCountBarChart(HttpContext);
+            return Ok(response);
+        }
+
+        [HttpGet("GetTaskOwnershipDTO")]
+        public async Task<ActionResult> getTaskOwnershipDTO()
+        {
+            var response = await _projectAllocationService.getTaskOwnershipDTO(HttpContext);
+            return Ok(response);
+        }
+
+        [HttpGet("GetAllMileStoneTask")]
+        public async Task<ActionResult> GetAllMileStoneTask()
+        {
+            var response = await _projectAllocationService.getAllMilestoneTaskForWatcher(HttpContext);
+            return Ok(response);
+        }
+
+        [HttpGet("GetAllTaskDueToday")]
+        public async Task<ActionResult> GetAllTaskDueToday()
+        {
+            var response = await _projectAllocationService.getAllTaskToDueToday(HttpContext);
+            return Ok(response);
+        }
+
 
         [HttpGet("GetTaskFromProjectRevamped/{projectId}")]
         public async Task<ActionResult> GetTaskFromProjectRevamped(long projectId)
