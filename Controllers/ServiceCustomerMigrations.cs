@@ -283,8 +283,8 @@ namespace HaloBiz.Controllers
                     StateId = stateId,
                     Lga = null,
                     Street = null,
-                    PrimaryContactId = primaryContactId,
-                    SecondaryContactId = null,
+                    //PrimaryContactId = primaryContactId,
+                    //SecondaryContactId = null,
                     CreatedById = userIdToUse,
                     DTrackCustomerNumber = customer.CustomerNumber
                 });
