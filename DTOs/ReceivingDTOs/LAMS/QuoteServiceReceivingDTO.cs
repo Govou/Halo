@@ -48,7 +48,9 @@ namespace HaloBiz.DTOs.ReceivingDTOs
         public bool IsConvertedToContractService { get; set; } = false;
         public long ServiceId { get; set; }
 
-        public int BranchId { get; set; }
+        public long BranchId { get; set; }
+        public long OfficeId { get; set; }
+
         [ForeignKey("BranchId")]
         public Branch Branch { get; set; }
         public string UniqueTag { get; set; }

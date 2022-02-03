@@ -17,6 +17,8 @@ namespace HaloBiz.DTOs.ProjectManagementDTO
         public ICollection<PMRequirement> Requirements { get; set; }
         public AssignDeliverableDTO AssignDeliverableDTO { get; set; }
         public List<PMIllustration> PMIllustrations { get; set; }
+        public Project Project { get; set; }
+        public Task Task { get; set; }
         public DateTime CreatedAt { get; set; }
         public long TimeEstimate { get; set; }
         public long? TaskId { get; set; }
@@ -30,6 +32,6 @@ namespace HaloBiz.DTOs.ProjectManagementDTO
         public string Caption { get; set; }
         public string Alias { get; set; }
         public DateTime UpdatedAt { get; set; }
-
+        public List<DeliverableAssignee> DeliverableAssignees { get; internal set; }
     }
 }

@@ -352,6 +352,7 @@ namespace HaloBiz.MyServices.Impl
                     //get the hightest 
                     var hightestGroupingId = await _context.Invoices.MaxAsync(x => x.AdhocGroupingId);
                     var adhocGroupingId = 1 + hightestGroupingId ?? 0;
+
                     foreach (var invoiceId in invoicesIds)
                     {
                         var invoice = await _context.Invoices
@@ -374,6 +375,7 @@ namespace HaloBiz.MyServices.Impl
                         var customerDivision = await _context.CustomerDivisions
                                             .Where(x => x.Id == invoice.CustomerDivisionId)
                                             .Include(x => x.Customer)
+                                                .ThenInclude(x=>x.GroupType)
                                             .FirstOrDefaultAsync();
 
                         this.isRetail = customerDivision.Customer.GroupName == RETAIL;
@@ -384,11 +386,8 @@ namespace HaloBiz.MyServices.Impl
                         var service = await _context.Services
                                         .FirstOrDefaultAsync(x => x.Id == contractService.ServiceId);
 
-
-                        var VAT = (double)invoice.Value * (7.5 / 107.5);
-
-                        await PostAccounts(contractService, customerDivision, accountVoucherType.Id,
-                                            VAT, invoice.Value, service);
+                        await _leadConversionService.CreateAccounts(contractService, customerDivision, (long)contractService?.BranchId, (long)contractService?.OfficeId,
+                            service, accountVoucherType, null, LoggedInUserId, false, invoice);
 
                         invoice.IsFinalInvoice = true;
                         invoice.AdhocGroupingId = adhocGroupingId;
@@ -1061,11 +1060,9 @@ namespace HaloBiz.MyServices.Impl
                 DateTime today = DateTime.Now.Date;
 
                 invoices = await _context.Invoices
-                    .AsNoTracking()
-                    .Where(x => x.IsFinalInvoice.Value && !x.IsDeleted && x.GroupInvoiceNumber == null
+                    .Where(x => x.IsFinalInvoice == true && !x.IsDeleted && x.GroupInvoiceNumber == null
                             && x.DateToBeSent.Date == today && !x.IsInvoiceSent).ToListAsync();
-                
-                
+
                 foreach (var invoice in invoices)
                 {
                     var response = await SendInvoice(invoice);
@@ -1075,6 +1072,7 @@ namespace HaloBiz.MyServices.Impl
                     }
                 }
 
+                _context.Invoices.UpdateRange(invoices);
                 await _context.SaveChangesAsync();
 
                 #region special case for group invoice
@@ -1090,7 +1088,7 @@ namespace HaloBiz.MyServices.Impl
                     if (responseAndInvoices.responseCode == "00")
                     {
                         var sentInvoices = (IEnumerable<Invoice>)responseAndInvoices.responseData;
-                        foreach(var sentInvoice in sentInvoices)
+                        foreach (var sentInvoice in sentInvoices)
                         {
                             sentInvoice.IsInvoiceSent = true;
                         }
@@ -1329,8 +1327,9 @@ namespace HaloBiz.MyServices.Impl
 
             var customerDivision = await _context.CustomerDivisions
                             .Where(x => x.Id == invoice.CustomerDivisionId)
-                            .Include(x => x.PrimaryContact)
-                            .Include(x => x.SecondaryContact)
+                            //todo Contact adjustment
+                            //.Include(x => x.PrimaryContact)
+                            //.Include(x => x.SecondaryContact)
                             .Include(x => x.State)
                             .Include(x => x.Lga)
                             .FirstOrDefaultAsync();
@@ -1376,11 +1375,12 @@ namespace HaloBiz.MyServices.Impl
 
             List<string> recepients = new List<string>();
             recepients.Add(customerDivision.Email);
-            if (customerDivision.SecondaryContact != null)
-                recepients.Add(customerDivision.SecondaryContact.Email);
+            //todo Contact adjustment
+            //if (customerDivision.SecondaryContact != null)
+            //    recepients.Add(customerDivision.SecondaryContact.Email);
 
-            if (customerDivision.PrimaryContact != null)
-                recepients.Add(customerDivision.PrimaryContact.Email);
+            //if (customerDivision.PrimaryContact != null)
+            //    recepients.Add(customerDivision.PrimaryContact.Email);
             List<ContractServiceMailDTO> contractServiceMailDTOs = new List<ContractServiceMailDTO>();
 
             foreach (var theInvoice in invoices)

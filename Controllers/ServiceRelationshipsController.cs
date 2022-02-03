@@ -44,6 +44,12 @@ namespace HaloBiz.Controllers
             return await _servicesService.FindServiceRelationshipByDirectId(id);
         }
 
+        [HttpGet("FindAllDirectServices")]
+        public async Task<ApiCommonResponse> FindAllDirectServices()
+        {
+            return await _servicesService.FindAllDirectServices();
+        }
+
 
     }
 }

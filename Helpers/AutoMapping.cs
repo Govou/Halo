@@ -174,7 +174,7 @@ namespace HaloBiz.Helpers
             CreateMap<QuoteService, QuoteServiceTransferDTO>();
             CreateMap<LeadDivisionReceivingDTO, LeadDivision>();
             CreateMap<LeadDivision, LeadDivisionTransferDTO>();
-            CreateMap<Contact, ContactTransferDTO>();
+            CreateMap<ContactDTO, ContactTransferDTO>();
             CreateMap<ClosureDocument, ClosureDocumentTransferDTO>();
             CreateMap<ClosureDocumentReceivingDTO, ClosureDocument>();
             CreateMap<ClosureDocument, DocumentSetupTransferDTO>();

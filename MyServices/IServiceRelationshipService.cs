@@ -9,5 +9,6 @@ namespace HaloBiz.MyServices
         Task<ApiCommonResponse> FindServiceRelationshipByDirectId(long Id); 
         Task<ApiCommonResponse> FindAllUnmappedDirects();
         Task<ApiCommonResponse> FindAllRelationships();
+        Task<ApiCommonResponse> FindAllDirectServices();
     }
 }
