@@ -125,17 +125,17 @@ namespace HaloBiz.MyServices.Impl
                             }
                             else customerDivision.State = state;
 
-                            if (!customerDivision.PrimaryContactId.HasValue)
-                            {
-                                _logger.LogInformation($"Customer division {customerDivision.DivisionName} does not have primary contact");
-                                continue;
-                            };
-                            var primaryContact = await _context.LeadDivisionContacts.FindAsync(customerDivision.PrimaryContactId.Value);
-                            if (primaryContact == null)
-                            {
-                                _logger.LogInformation($"Customer division {customerDivision.DivisionName} does not have primary contact");
-                                continue;
-                            };
+                            //if (!customerDivision.PrimaryContactId.HasValue)
+                            //{
+                            //    _logger.LogInformation($"Customer division {customerDivision.DivisionName} does not have primary contact");
+                            //    continue;
+                            //};
+                            //var primaryContact = await _context.LeadDivisionContacts.FindAsync(customerDivision.PrimaryContactId.Value);
+                            //if (primaryContact == null)
+                            //{
+                            //    _logger.LogInformation($"Customer division {customerDivision.DivisionName} does not have primary contact");
+                            //    continue;
+                            //};
 
                             var customer = await _context.Customers.FindAsync(customerDivision.CustomerId);
                             if (customer == null)
@@ -174,7 +174,7 @@ namespace HaloBiz.MyServices.Impl
                                 Location = $"{Extensions.GetStateShortName(customerDivision?.State?.Capital)}",
                                 BusinessSector = sector,
                                 OtherInfo = $"{customerDivision?.DivisionName}-{customer?.Rcnumber}-{customer?.CreatedAt}",
-                                Contact = $"{primaryContact?.FirstName} {primaryContact?.LastName}"
+                                //Contact = $"{primaryContact?.FirstName} {primaryContact?.LastName}"
                             };
                         }
 

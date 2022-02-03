@@ -47,8 +47,8 @@ namespace HaloBiz.Repository.Impl.LAMS
                                         .FirstOrDefaultAsync(x => x.Id == result.ServiceId && x.IsDeleted != true);
 
             result.CustomerDivision = await _context.CustomerDivisions.AsNoTracking()
-                                                .Include(x => x.PrimaryContact)
-                                                .Include(x => x.SecondaryContact)
+                                                //.Include(x => x.PrimaryContact)
+                                                //.Include(x => x.SecondaryContact)
                                                 .Include(x => x.Customer)
                                                 .FirstOrDefaultAsync(x => x.Id == result.CustomerDivisionId && x.IsDeleted != true);
 
