@@ -15,10 +15,12 @@ namespace HaloBiz.Controllers
     public class MasterServiceAssignmentController : ControllerBase
     {
         private readonly IMasterServiceAssignmentService _masterServiceAssignmentService;
+        private readonly IInvoiceService _invoiceService;
 
-        public MasterServiceAssignmentController(IMasterServiceAssignmentService masterServiceAssignmentService)
+        public MasterServiceAssignmentController(IMasterServiceAssignmentService masterServiceAssignmentService, IInvoiceService invocieService)
         {
             _masterServiceAssignmentService = masterServiceAssignmentService;
+            _invoiceService = invocieService;
         }
 
         [HttpGet("GetAllServiceAssignmentMasters")]
@@ -76,6 +78,19 @@ namespace HaloBiz.Controllers
         {
             return await _masterServiceAssignmentService.DeleteMasterServiceAssignment(id);
             //return StatusCode(response.StatusCode);
+        }
+
+        [HttpGet("GetJMPDetails/{id}")]
+
+        public async Task<ApiCommonResponse> GetJMPDetails(long id)
+        {
+            return await _invoiceService.GetJMPDetails(id);
+        }
+
+        [HttpGet("SendJMP/{id}")]
+        public async Task<ApiCommonResponse> SendJMP(long id)
+        {
+            return await _invoiceService.SendJourneyManagementPlan(id);
         }
     }
 }
