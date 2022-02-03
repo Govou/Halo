@@ -108,7 +108,7 @@ namespace HaloBiz.Helpers
 
         public static string GetStateShortName(string stateName)
         {
-            switch (stateName.ToUpper())
+            switch (stateName?.ToUpper())
             {
                 case "ABA":
                     return "ABA";
@@ -161,13 +161,13 @@ namespace HaloBiz.Helpers
                 case "SOKOTO":
                     return "SKT";
                 default:
-                    return stateName.ToUpper().Substring(0, 4);
+                    return stateName?.ToUpper()?.Substring(0, 4);
             }
         }
 
         public static string GetIndustryShortName(string industry)
         {
-            switch (industry.ToUpper())
+            switch (industry?.ToUpper())
             {
                 case "SERVICE INDUSTRY":
                     return "01";
@@ -214,7 +214,7 @@ namespace HaloBiz.Helpers
                 case "GENERAL BUSINESS":
                     return "XXX";
                 default:
-                    return industry.ToUpper().Substring(0, 4);
+                    return industry?.ToUpper()?.Substring(0, 4);
             }
         }
     }
