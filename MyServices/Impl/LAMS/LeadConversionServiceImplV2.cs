@@ -217,8 +217,8 @@ namespace HaloBiz.MyServices.Impl.LAMS
                     Email = "",
                     PhoneNumber = "",
                     CreatedById = LoggedInUserId,
-                    PrimaryContactId = lead.PrimaryContactId,
-                    SecondaryContactId = lead.SecondaryContactId
+                    //PrimaryContactId = lead.PrimaryContactId,
+                    //SecondaryContactId = lead.SecondaryContactId
                 });
 
                 await context.SaveChangesAsync();
@@ -266,8 +266,8 @@ namespace HaloBiz.MyServices.Impl.LAMS
                     State = leadDivision.State,
                     Lga = leadDivision.Lga,
                     Street = leadDivision.Street,
-                    PrimaryContactId = leadDivision?.PrimaryContactId,
-                    SecondaryContactId = leadDivision?.SecondaryContactId,
+                    //PrimaryContactId = leadDivision?.PrimaryContactId,
+                    //SecondaryContactId = leadDivision?.SecondaryContactId,
                     CreatedById = LoggedInUserId,
                     DTrackCustomerNumber = isRetail == false ? null : await GetDtrackCustomerNumber(leadDivision)
                 });
