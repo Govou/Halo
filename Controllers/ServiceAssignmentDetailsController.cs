@@ -336,6 +336,15 @@ namespace HaloBiz.Controllers
             //var cType = ((ApiOkResponse)response).Result;
             //return Ok(cType);
         }
+        [HttpGet("GetAllContractServices/{customerDivisionId}")]
+        public async Task<ApiCommonResponse> GetAllContractServices(long customerDivisionId)
+        {
+            return await _contractServiceService.GetAllContractsServceByid(customerDivisionId);
+            //if (response.StatusCode >= 400)
+            //    return StatusCode(response.StatusCode, response);
+            //var cType = ((ApiOkResponse)response).Result;
+            //return Ok(cType);
+        }
         [HttpGet("GetAllContracts")]
         public async Task<ApiCommonResponse> GetAllContract()
         {

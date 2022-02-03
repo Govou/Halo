@@ -55,6 +55,9 @@ namespace HaloBiz.Controllers.AccountsModel
             return await _invoiceService.SendInvoice(invoiceId);
         }
 
+
+        
+
         [HttpGet("GetInvoiceDetails/{invoiceId}")]
 
         public async Task<ApiCommonResponse> SendInvoiceDetails(long invoiceId)
