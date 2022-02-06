@@ -1144,7 +1144,7 @@ namespace HaloBiz.MyServices.Impl
         //            return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE); ;
         //        }
 
-        //        var (masterServiceAssignmentMailDTO, assignments) = await GenerateInvoiceMailDTO(MSA);
+        //        var (masterServiceAssignmentMailDTO, assignments) = await GenerateJMPMailDTO(MSA);
         //        return await _mailAdapter.SendJourneyManagementPlan(masterServiceAssignmentMailDTO);
 
         //    }
@@ -1327,8 +1327,9 @@ namespace HaloBiz.MyServices.Impl
 
             var customerDivision = await _context.CustomerDivisions
                             .Where(x => x.Id == invoice.CustomerDivisionId)
-                            .Include(x => x.PrimaryContact)
-                            .Include(x => x.SecondaryContact)
+                            //todo Contact adjustment
+                            //.Include(x => x.PrimaryContact)
+                            //.Include(x => x.SecondaryContact)
                             .Include(x => x.State)
                             .Include(x => x.Lga)
                             .FirstOrDefaultAsync();
@@ -1374,11 +1375,12 @@ namespace HaloBiz.MyServices.Impl
 
             List<string> recepients = new List<string>();
             recepients.Add(customerDivision.Email);
-            if (customerDivision.SecondaryContact != null)
-                recepients.Add(customerDivision.SecondaryContact.Email);
+            //todo Contact adjustment
+            //if (customerDivision.SecondaryContact != null)
+            //    recepients.Add(customerDivision.SecondaryContact.Email);
 
-            if (customerDivision.PrimaryContact != null)
-                recepients.Add(customerDivision.PrimaryContact.Email);
+            //if (customerDivision.PrimaryContact != null)
+            //    recepients.Add(customerDivision.PrimaryContact.Email);
             List<ContractServiceMailDTO> contractServiceMailDTOs = new List<ContractServiceMailDTO>();
 
             foreach (var theInvoice in invoices)
@@ -1443,127 +1445,263 @@ namespace HaloBiz.MyServices.Impl
             return (invoiceMailDTO, invoicesToUpdate);
         }
 
-        //private async Task<(MasterServiceAssignmentMailVMDTO, IEnumerable<MasterServiceAssignment>)> GenerateJMPMailDTO(MasterServiceAssignment invoice)
-        //{
-        //    bool isProforma = invoice.IsFinalInvoice == false;
+        private async Task<(MasterServiceAssignmentMailVMDTO, IEnumerable<MasterServiceAssignment>)> GenerateJMPMailDTO(MasterServiceAssignment invoice)
+        {
+            //bool isProforma = invoice.IsFinalInvoice == false;
 
-        //    var customerDivision = await _context.CustomerDivisions
-        //                    .Where(x => x.Id == invoice.CustomerDivisionId)
-        //                    .Include(x => x.PrimaryContact)
-        //                    .Include(x => x.SecondaryContact)
-        //                    .Include(x => x.State)
-        //                    .Include(x => x.Lga)
-        //                    .FirstOrDefaultAsync();
+            //var customerDivision = await _context.CustomerDivisions
+            //                .Where(x => x.Id == invoice.CustomerDivisionId)
+            //                .Include(x => x.PrimaryContact)
+            //                .Include(x => x.SecondaryContact)
+            //                .Include(x => x.State)
+            //                .Include(x => x.Lga)
+            //                .FirstOrDefaultAsync();
+            var serviceReg = await _context.ServiceRegistrations
+                          .Where(x => x.Id == invoice.ServiceRegistrationId)
+                          .Include(x => x.Service)
+                          .FirstOrDefaultAsync();
+            var passengers = await _context.Passengers
+                         .Where(x => x.ServiceAssignmentId == invoice.Id)
+                         .Include(x => x.ServiceAssignment)
+                         
+                         .ToListAsync();
+            var commanders = await _context.CommanderServiceAssignmentDetails
+                        .Where(x => x.ServiceAssignmentId == invoice.Id)
+                        .Include(x => x.ServiceAssignment)
+                        .Include(x => x.CommanderResource)
+                        .Include(x=>x.CommanderResource.Profile)
+                       
+                        .ToListAsync();
+            var armedEscorts = await _context.ArmedEscortServiceAssignmentDetails
+                        .Where(x => x.ServiceAssignmentId == invoice.Id)
+                        .Include(x => x.ServiceAssignment)
+                        .Include(x => x.ArmedEscortResource)
+                        .ToListAsync();
+            var pilots = await _context.PilotServiceAssignmentDetails
+                        .Where(x => x.ServiceAssignmentId == invoice.Id)
+                        .Include(x => x.ServiceAssignment)
+                        .Include(x => x.PilotResource)
+                        
+                        .ToListAsync();
+            var vehicles = await _context.VehicleServiceAssignmentDetails
+                        .Where(x => x.ServiceAssignmentId == invoice.Id)
+                        .Include(x => x.ServiceAssignment)
+                        .Include(x => x.VehicleResource)
+                        .Include(x => x.VehicleResource.SupplierService)
+                        .ToListAsync();
 
 
-        //    IEnumerable<Invoice> invoices;
-        //    List<Invoice> invoicesToUpdate = new List<Invoice>();
-        //    if (String.IsNullOrWhiteSpace(invoice.GroupInvoiceNumber))
-        //    {
-        //        invoices = await _context.Invoices
-        //                .Include(x => x.ContractService)
-        //                .ThenInclude(x => x.Service)
-        //                .Where(x => x.Id == invoice.Id && x.StartDate == invoice.StartDate && ((bool)x.IsFinalInvoice || isProforma)
-        //                            && !x.IsDeleted)
-        //                .ToListAsync();
-        //    }
-        //    else
-        //    {
-        //        invoices = await _context.Invoices
-        //               .Include(x => x.ContractService)
-        //                    .ThenInclude(x => x.Service)
-        //               .Where(x => x.GroupInvoiceNumber == invoice.GroupInvoiceNumber && !x.IsDeleted && ((bool)x.IsFinalInvoice || isProforma))
-        //               .AsNoTracking()
-        //               .ToListAsync();
+            IEnumerable<MasterServiceAssignment> invoices;
+            List<MasterServiceAssignment> invoicesToUpdate = new List<MasterServiceAssignment>();
+            invoices = await _context.MasterServiceAssignments
+                       .Where(x => x.Id == invoice.Id)
+                       .Include(x => x.ServiceRegistration)
+                       .Include(x => x.ContractService).Include(x=>x.CreatedBy)
+                       
+                       .ToListAsync();
+            //if (String.IsNullOrWhiteSpace(invoice.GroupInvoiceNumber))
+            //{
+            //    invoices = await _context.Invoices
+            //            .Include(x => x.ContractService)
+            //            .ThenInclude(x => x.Service)
+            //            .Where(x => x.Id == invoice.Id && x.StartDate == invoice.StartDate && ((bool)x.IsFinalInvoice || isProforma)
+            //                        && !x.IsDeleted)
+            //            .ToListAsync();
+            //}
+            //else
+            //{
+            //    invoices = await _context.Invoices
+            //           .Include(x => x.ContractService)
+            //                .ThenInclude(x => x.Service)
+            //           .Where(x => x.GroupInvoiceNumber == invoice.GroupInvoiceNumber && !x.IsDeleted && ((bool)x.IsFinalInvoice || isProforma))
+            //           .AsNoTracking()
+            //           .ToListAsync();
 
-        //        var contractService = await _context.ContractServices.FindAsync(invoice.ContractServiceId);
-        //        if (contractService.InvoicingInterval == (int)TimeCycle.Adhoc)
-        //        {
-        //            invoices = invoices.Where(x => x.AdhocGroupingId == invoice.AdhocGroupingId);
-        //        }
-        //        else
-        //        {
-        //            invoices = invoices.Where(x => x.StartDate.ToShortDateString() == invoice.StartDate.ToShortDateString());
-        //        }
-        //    }
+            //    var contractService = await _context.ContractServices.FindAsync(invoice.ContractServiceId);
+            //    if (contractService.InvoicingInterval == (int)TimeCycle.Adhoc)
+            //    {
+            //        invoices = invoices.Where(x => x.AdhocGroupingId == invoice.AdhocGroupingId);
+            //    }
+            //    else
+            //    {
+            //        invoices = invoices.Where(x => x.StartDate.ToShortDateString() == invoice.StartDate.ToShortDateString());
+            //    }
+            //}
 
-        //    double discount = 0.0;
-        //    double subTotal = 0.0;
-        //    double unInvoicedAmount = 0.0;
-        //    double VAT = 0.0;
-        //    string invoiceCycle = null;
-        //    string keyServiceName = "";
+            //double discount = 0.0;
+            //double subTotal = 0.0;
+            //double unInvoicedAmount = 0.0;
+            //double VAT = 0.0;
+            //string invoiceCycle = null;
+            //string keyServiceName = "";
 
-        //    List<string> recepients = new List<string>();
-        //    recepients.Add(customerDivision.Email);
-        //    if (customerDivision.SecondaryContact != null)
-        //        recepients.Add(customerDivision.SecondaryContact.Email);
+            List<string> recepients = new List<string>();
+            foreach (var item in passengers)
+            {
+                recepients.Add(item.Email);
+            }
+            
+            //if (passengers. != null)
+            //    recepients.Add(customerDivision.SecondaryContact.Email);
 
-        //    if (customerDivision.PrimaryContact != null)
-        //        recepients.Add(customerDivision.PrimaryContact.Email);
-        //    List<ContractServiceMailDTO> contractServiceMailDTOs = new List<ContractServiceMailDTO>();
+            //if (customerDivision.PrimaryContact != null)
+            //    recepients.Add(customerDivision.PrimaryContact.Email);
 
-        //    foreach (var theInvoice in invoices)
-        //    {
-        //        discount += theInvoice.Discount;
-        //        subTotal += (double)theInvoice.Value;
-        //        if (!contractServiceMailDTOs.Any(x => x.Description == theInvoice.ContractService.Service.Name))
-        //        {
-        //            VAT += (double)theInvoice.ContractService.Vat;
-        //        }
-        //        unInvoicedAmount += (double)(theInvoice.ContractService.BillableAmount - theInvoice.ContractService.AdHocInvoicedAmount);
-        //        invoiceCycle = theInvoice.ContractService.InvoicingInterval.ToString();
-        //        keyServiceName = theInvoice.ContractService.Service.Name;
+            //List<ContractServiceMailDTO> contractServiceMailDTOs = new List<ContractServiceMailDTO>();
+            List<CommandersMailDTO> commandersMailDTO = new List<CommandersMailDTO>();
+            List<ArmedEscortsMailDTO> armedEscortsMailDTO = new List<ArmedEscortsMailDTO>();
+            List<PilotsMailDTO> pilotsMailDTO = new List<PilotsMailDTO>();
+            List<VehiclesMailDTO> vehiclesMailDTO = new List<VehiclesMailDTO>();
+            List<PassengersMailDTO> passengersMailDTO = new List<PassengersMailDTO>();
 
-        //        var forUpdate = _mapper.Map<Invoice>(theInvoice);
-        //        forUpdate.ContractService = null;
-        //        invoicesToUpdate.Add(forUpdate);
+            foreach (var theInvoice in commanders)
+            {
+                List<CommanderServiceAssignmentDetail> commanderToUpdate = new List<CommanderServiceAssignmentDetail>();
+                var forUpdate = _mapper.Map<CommanderServiceAssignmentDetail>(theInvoice);
+                //forUpdate.ContractService = null;
+                commanderToUpdate.Add(forUpdate);
 
-        //        contractServiceMailDTOs.Add(new ContractServiceMailDTO()
-        //        {
-        //            Description = theInvoice.ContractService.Service.Name,
-        //            UnitPrice = theInvoice.UnitPrice,
-        //            Quantity = theInvoice.Quantity,
-        //            Total = theInvoice.Value,
-        //            Discount = theInvoice.Discount,
-        //            UniqueTag = theInvoice.ContractService.UniqueTag,
-        //            AdminDirectTie = theInvoice.ContractService.AdminDirectTie,
-        //            Id = theInvoice.ContractServiceId,
-        //            StartDate = theInvoice.StartDate.ToString("G")
-        //        });
+                commandersMailDTO.Add(new CommandersMailDTO()
+                {
+                    Firstname = theInvoice.CommanderResource.Profile.FirstName,
+                    Lastname = theInvoice.CommanderResource.Profile.LastName,
+                    Mobile = theInvoice.CommanderResource.Profile.MobileNumber,
+                    ImageUrl = theInvoice.CommanderResource.Profile.ImageUrl,
 
-        //    }
+                });
 
-        //    ClientInfoMailDTO client = new ClientInfoMailDTO()
-        //    {
-        //        Name = customerDivision.DivisionName,
-        //        Email = customerDivision.Email,
-        //        Street = customerDivision.Street,
-        //        State = customerDivision.State != null ? customerDivision.State.Name : "No State Provided",
-        //        LGA = customerDivision.Lga != null ? customerDivision.Lga.Name : "No LGA Provided"
-        //    };
+            }
 
-        //    InvoiceMailDTO invoiceMailDTO = new InvoiceMailDTO()
-        //    {
-        //        Id = invoice.Id,
-        //        InvoiceNumber = invoice.InvoiceNumber,
-        //        Total = invoice.Value,
-        //        SubTotal = subTotal,
-        //        VAT = VAT, //subTotal * (7.5 / 100),
-        //        UnInvoicedAmount = unInvoicedAmount,
-        //        Discount = discount,
-        //        InvoicingCycle = invoiceCycle,
-        //        StartDate = invoice.StartDate,
-        //        EndDate = invoice.EndDate,
-        //        Subject = $"Invoice {invoice.InvoiceNumber} for {keyServiceName} due {invoice.EndDate.ToString("dddd, dd MMMM yyyy")}",
-        //        Recepients = recepients.ToArray(),
-        //        DaysUntilDeadline = (int)invoice.EndDate.Subtract(DateTime.Now).TotalDays,
-        //        ClientInfo = client,
-        //        ContractServices = contractServiceMailDTOs
-        //    };
+            foreach (var theInvoice in armedEscorts)
+            {
+                List<ArmedEscortServiceAssignmentDetail> itemToUpdate = new List<ArmedEscortServiceAssignmentDetail>();
+                var forUpdate = _mapper.Map<ArmedEscortServiceAssignmentDetail>(theInvoice);
+                //forUpdate.ContractService = null;
+                itemToUpdate.Add(forUpdate);
 
-        //    return (invoiceMailDTO, invoicesToUpdate);
-        //}
+                armedEscortsMailDTO.Add(new ArmedEscortsMailDTO()
+                {
+                    Firstname = theInvoice.ArmedEscortResource.FirstName,
+                    Lastname = theInvoice.ArmedEscortResource.LastName,
+                    Mobile = theInvoice.ArmedEscortResource.Mobile,
+                    ImageUrl = theInvoice.ArmedEscortResource.ImageUrl,
+
+                });
+
+            }
+
+            foreach (var theInvoice in pilots)
+            {
+                List<PilotServiceAssignmentDetail> itemToUpdate = new List<PilotServiceAssignmentDetail>();
+                var forUpdate = _mapper.Map<PilotServiceAssignmentDetail>(theInvoice);
+                //forUpdate.ContractService = null;
+                itemToUpdate.Add(forUpdate);
+
+                pilotsMailDTO.Add(new PilotsMailDTO()
+                {
+                    Firstname = theInvoice.PilotResource.Firstname,
+                    Lastname = theInvoice.PilotResource.Lastname,
+                    Mobile = theInvoice.PilotResource.Mobile,
+                    ImageUrl = theInvoice.PilotResource.ImageUrl,
+
+                });
+
+            }
+
+            foreach (var theInvoice in vehicles)
+            {
+                List<VehicleServiceAssignmentDetail> itemToUpdate = new List<VehicleServiceAssignmentDetail>();
+                var forUpdate = _mapper.Map<VehicleServiceAssignmentDetail>(theInvoice);
+                //forUpdate.ContractService = null;
+                itemToUpdate.Add(forUpdate);
+
+                vehiclesMailDTO.Add(new VehiclesMailDTO()
+                {
+                    serviceName = theInvoice.VehicleResource.SupplierService.ServiceName,
+                    IdentificationNumber = theInvoice.VehicleResource.SupplierService.IdentificationNumber,
+                   
+
+                });
+
+            }
+
+            foreach (var theInvoice in passengers)
+            {
+                List<Passenger> itemToUpdate = new List<Passenger>();
+                var forUpdate = _mapper.Map<Passenger>(theInvoice);
+                //forUpdate.ContractService = null;
+                itemToUpdate.Add(forUpdate);
+
+                passengersMailDTO.Add(new PassengersMailDTO()
+                {
+                    Firstname = theInvoice.Firstname,
+                    Lastname = theInvoice.Lastname,
+                    Mobile = theInvoice.Mobile,
+                    Email = theInvoice.Email,
+
+                });
+
+            }
+
+            //foreach (var theInvoice in invoices)
+            //{
+
+            //    var forUpdate = _mapper.Map<MasterServiceAssignment>(theInvoice);
+            //    forUpdate.ContractService = null;
+            //    invoicesToUpdate.Add(forUpdate);
+
+            //    contractServiceMailDTOs.Add(new ContractServiceMailDTO()
+            //    {
+            //        Description = theInvoice.ContractService.Service.Name,
+            //        UnitPrice = theInvoice.UnitPrice,
+            //        Quantity = theInvoice.Quantity,
+            //        Total = theInvoice.Value,
+
+            //    });
+
+            //}
+
+            ServiceMailDTO serviceMailDTO = new ServiceMailDTO()
+            {
+                Name = serviceReg.Service.Name,
+                Description = serviceReg.Service.Description,
+                //Street = customerDivision.Street,
+                //State = customerDivision.State != null ? customerDivision.State.Name : "No State Provided",
+                //LGA = customerDivision.Lga != null ? customerDivision.Lga.Name : "No LGA Provided"
+            };
+            //PassengersMailDTO passengersMail = new PassengersMailDTO()
+            //{
+            //    Firstname = passengers.,
+            //    Lastname = serviceReg.Service.Description,
+            //    Mobile = serviceReg.Service.Description,
+
+            //};
+
+            MasterServiceAssignmentMailVMDTO masterServiceAssignmentMailDTO = new MasterServiceAssignmentMailVMDTO()
+            {
+                id = invoice.Id,
+                PickupDate = invoice.PickupDate,
+                PickoffTime = invoice.PickoffTime,
+                PickoffLocation = invoice.PickoffLocation,
+                ServiceRegistrationId = invoice.ServiceRegistrationId,
+                DropoffLocation = invoice.DropoffLocation,
+                CreatedBy = invoice.CreatedBy.FirstName + " " +invoice.CreatedBy.LastName,
+                CreatedByMobile = invoice.CreatedBy.MobileNumber,
+                //Subject = $"JMP {invoice.InvoiceNumber} for {keyServiceName} due {invoice.EndDate.ToString("dddd, dd MMMM yyyy")}",
+                Subject = $"Journey Management Plan",
+                Recepients = recepients.ToArray(),
+                passengers = passengersMailDTO,
+                Commanders = commandersMailDTO,
+                armedEscorts = armedEscortsMailDTO,
+                pilots = pilotsMailDTO,
+                vehicles = vehiclesMailDTO,
+                //ClientInfo = client,
+                ServiceMailDTO = serviceMailDTO,
+                //ContractServices = contractServiceMailDTOs
+            };
+
+            return (masterServiceAssignmentMailDTO, invoicesToUpdate);
+        }
 
         private async Task<long> GetServiceIncomeAccountForRetailClient(Service service)
         {
@@ -1648,6 +1786,59 @@ namespace HaloBiz.MyServices.Impl
             {
                 _logger.LogError(ex.StackTrace);
                 return CommonResponse.Send(ResponseCodes.FAILURE, null, $"Some system errors occurred");
+            }
+        }
+
+        public async Task<ApiCommonResponse> SendJourneyManagementPlan(long serviceAssignmentId)
+        {
+            try
+            {
+                MasterServiceAssignment MSA = await _context.MasterServiceAssignments
+                            .Where(x => x.Id == serviceAssignmentId && !x.IsDeleted)
+                            .FirstOrDefaultAsync();
+
+                if (serviceAssignmentId == null)
+                {
+                    return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE); ;
+                }
+
+                var (masterServiceAssignmentMailDTO, assignments) = await GenerateJMPMailDTO(MSA);
+                return await _mailAdapter.SendJourneyManagementPlan(masterServiceAssignmentMailDTO);
+
+            }
+            catch (System.Exception ex)
+            {
+                _logger.LogError($"An Error occured while trying to send JMP with Id: {serviceAssignmentId}");
+                _logger.LogError($"Error: {ex.Message}");
+                _logger.LogError($"Error: {ex.StackTrace}");
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "JMP Not Sent");
+            }
+        }
+
+        public async Task<ApiCommonResponse> GetJMPDetails(long serviceAssignmentId)
+        {
+            try
+            {
+                MasterServiceAssignment MSA = await _context.MasterServiceAssignments
+                            .Where(x => x.Id == serviceAssignmentId && !x.IsDeleted)
+                            .FirstOrDefaultAsync();
+
+                if (serviceAssignmentId == null)
+                {
+                    return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE); ;
+                }
+
+                var (masterServiceAssignmentMailDTO, assignments) = await GenerateJMPMailDTO(MSA);
+                return CommonResponse.Send(ResponseCodes.SUCCESS, masterServiceAssignmentMailDTO);
+                //return await _mailAdapter.SendJourneyManagementPlan(masterServiceAssignmentMailDTO);
+
+            }
+            catch (System.Exception ex)
+            {
+                _logger.LogError($"An Error occured while trying to send JMP with Id: {serviceAssignmentId}");
+                _logger.LogError($"Error: {ex.Message}");
+                _logger.LogError($"Error: {ex.StackTrace}");
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "JMP Not Sent");
             }
         }
     }

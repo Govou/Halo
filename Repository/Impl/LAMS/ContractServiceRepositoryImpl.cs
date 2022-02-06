@@ -111,11 +111,18 @@ namespace HaloBiz.Repository.Impl.LAMS
             }
         }
 
+        public async Task<List<ContractService>> FindAllContractServices(long CustomerDivisionId)
+        {
+            return await _context.ContractServices
+                .Include(t=>t.Service).Include(x=>x.Contract)
+                 .Where(x =>  x.IsDeleted == false && x.Version == 0 && x.Contract.CustomerDivisionId == CustomerDivisionId)
+                 .ToListAsync();
+        }
         public async Task<IEnumerable<ContractService>> FindAllContractServices()
         {
             return await _context.ContractServices
-                .Include(t=>t.Service)
-                 .Where(x =>  x.IsDeleted == false && x.Version == 0)
+                .Include(t => t.Service)
+                 .Where(x => x.IsDeleted == false && x.Version == 0)
                  .ToListAsync();
         }
     }
