@@ -61,38 +61,11 @@ namespace HaloBiz.Controllers
             catch (Exception ex)
             {
                 return CommonResponse.Send(ResponseCodes.FAILURE, null, ex.StackTrace);
-
             }
 
             return CommonResponse.Send(ResponseCodes.SUCCESS);
         }
-        void setServiceTypes()
-        {
-            _serviceTypes.Add(new ServiceTypes { ServiceType = "TEC", ServiceTypeName = "ALARM INSTALLATION SERVICE" });
-            _serviceTypes.Add(new ServiceTypes { ServiceType = "AGS", ServiceTypeName = "ARMED GUARDING SERVICE" });
-            _serviceTypes.Add(new ServiceTypes { ServiceType = "FCS", ServiceTypeName = "CYBER SECURITY SERVICES" });
-            _serviceTypes.Add(new ServiceTypes { ServiceType = "DOG", ServiceTypeName = "DOG SERVICE" });
-            _serviceTypes.Add(new ServiceTypes { ServiceType = "ELECT", ServiceTypeName = "ELECTRONICS SERVICES" });
-            _serviceTypes.Add(new ServiceTypes { ServiceType = "E", ServiceTypeName = "EVENT MANAGEMENT SERVICE" });
-            _serviceTypes.Add(new ServiceTypes { ServiceType = "GES", ServiceTypeName = "FLEET EQUIPMENT SERVICE" });
-            _serviceTypes.Add(new ServiceTypes { ServiceType = "GSS", ServiceTypeName = "FLEET MAINTENANCE SUBSCRIPTION" });
-            _serviceTypes.Add(new ServiceTypes { ServiceType = "GADM", ServiceTypeName = "GUARD ADMIN SERVICE", Enum = ServiceRelationshipEnum.Admin, AdminDirectTie = "1233564" });
-            _serviceTypes.Add(new ServiceTypes { ServiceType = "GD", ServiceTypeName = "GUARD DIRECT SERVICE", Enum = ServiceRelationshipEnum.Direct, AdminDirectTie = "1233564" });
-            _serviceTypes.Add(new ServiceTypes { ServiceType = "GCD", ServiceTypeName = "GUARD TOUR / CLOCKING DEVICE" });
-            _serviceTypes.Add(new ServiceTypes { ServiceType = "OS", ServiceTypeName = "OUTSOURCING SERVICE" });
-            _serviceTypes.Add(new ServiceTypes { ServiceType = "ALRM", ServiceTypeName = "PANIC ALARM SERVICE" });
-            _serviceTypes.Add(new ServiceTypes { ServiceType = "PS", ServiceTypeName = "PROTOCOL /ESCORT SERVICE" });
-            _serviceTypes.Add(new ServiceTypes { ServiceType = "PEAC", ServiceTypeName = "PROTOCOL/ESCORT ADMIN CHARGES", Enum = ServiceRelationshipEnum.Admin, AdminDirectTie = "123344" }); //match
-            _serviceTypes.Add(new ServiceTypes { ServiceType = "PEDC", ServiceTypeName = "PROTOCOL/ESCORT DIRECT CHARGES", Enum = ServiceRelationshipEnum.Direct, AdminDirectTie = "123344" });//match
-            _serviceTypes.Add(new ServiceTypes { ServiceType = "RAS", ServiceTypeName = "RISK ASSESSMENT SERVICES" });
-            _serviceTypes.Add(new ServiceTypes { ServiceType = "SNA", ServiceTypeName = "SCANNER SERVICE" });
-            _serviceTypes.Add(new ServiceTypes { ServiceType = "GDM", ServiceTypeName = "Service GDM" });
-            _serviceTypes.Add(new ServiceTypes { ServiceType = "GEO", ServiceTypeName = "Service GEO" });
-            _serviceTypes.Add(new ServiceTypes { ServiceType = "TES", ServiceTypeName = "TELTONIKA SUBSCRIPTION" });
-            _serviceTypes.Add(new ServiceTypes { ServiceType = "VCS", ServiceTypeName = "VETTING CONSULTANCY SERVICES" });
-            _serviceTypes.Add(new ServiceTypes { ServiceType = "WKT", ServiceTypeName = "WALKIE TALKIE SERVICE" });
-
-        }
+       
 
         private async Task saveContracts()
         {
@@ -113,6 +86,7 @@ namespace HaloBiz.Controllers
                     customers.Add(customer);
                 }
 
+              
                 var defaultOffice = await _context.Offices.FirstOrDefaultAsync();
                 var contract = await _context.Contracts.Where(x => x.CustomerDivisionId == customer.CustomerDivisionId && x.Caption == contracto.ContractNumber).FirstOrDefaultAsync();
                 if (contract == null)
@@ -284,7 +258,8 @@ namespace HaloBiz.Controllers
                     Lga = null,
                     Street = null,
                     //PrimaryContactId = primaryContactId,
-                    //SecondaryContactId = null,
+                    //SecondaryContactId = null,            //todo Contact adjustment
+
                     CreatedById = userIdToUse,
                     DTrackCustomerNumber = customer.CustomerNumber
                 });
@@ -416,6 +391,34 @@ namespace HaloBiz.Controllers
             {
                 throw;
             }
+        }
+
+        void setServiceTypes()
+        {
+            _serviceTypes.Add(new ServiceTypes { ServiceType = "TEC", ServiceTypeName = "ALARM INSTALLATION SERVICE" });
+            _serviceTypes.Add(new ServiceTypes { ServiceType = "AGS", ServiceTypeName = "ARMED GUARDING SERVICE" });
+            _serviceTypes.Add(new ServiceTypes { ServiceType = "FCS", ServiceTypeName = "CYBER SECURITY SERVICES" });
+            _serviceTypes.Add(new ServiceTypes { ServiceType = "DOG", ServiceTypeName = "DOG SERVICE" });
+            _serviceTypes.Add(new ServiceTypes { ServiceType = "ELECT", ServiceTypeName = "ELECTRONICS SERVICES" });
+            _serviceTypes.Add(new ServiceTypes { ServiceType = "E", ServiceTypeName = "EVENT MANAGEMENT SERVICE" });
+            _serviceTypes.Add(new ServiceTypes { ServiceType = "GES", ServiceTypeName = "FLEET EQUIPMENT SERVICE" });
+            _serviceTypes.Add(new ServiceTypes { ServiceType = "GSS", ServiceTypeName = "FLEET MAINTENANCE SUBSCRIPTION" });
+            _serviceTypes.Add(new ServiceTypes { ServiceType = "GADM", ServiceTypeName = "GUARD ADMIN SERVICE", Enum = ServiceRelationshipEnum.Admin, AdminDirectTie = "1233564" });
+            _serviceTypes.Add(new ServiceTypes { ServiceType = "GD", ServiceTypeName = "GUARD DIRECT SERVICE", Enum = ServiceRelationshipEnum.Direct, AdminDirectTie = "1233564" });
+            _serviceTypes.Add(new ServiceTypes { ServiceType = "GCD", ServiceTypeName = "GUARD TOUR / CLOCKING DEVICE" });
+            _serviceTypes.Add(new ServiceTypes { ServiceType = "OS", ServiceTypeName = "OUTSOURCING SERVICE" });
+            _serviceTypes.Add(new ServiceTypes { ServiceType = "ALRM", ServiceTypeName = "PANIC ALARM SERVICE" });
+            _serviceTypes.Add(new ServiceTypes { ServiceType = "PS", ServiceTypeName = "PROTOCOL /ESCORT SERVICE" });
+            _serviceTypes.Add(new ServiceTypes { ServiceType = "PEAC", ServiceTypeName = "PROTOCOL/ESCORT ADMIN CHARGES", Enum = ServiceRelationshipEnum.Admin, AdminDirectTie = "123344" }); //match
+            _serviceTypes.Add(new ServiceTypes { ServiceType = "PEDC", ServiceTypeName = "PROTOCOL/ESCORT DIRECT CHARGES", Enum = ServiceRelationshipEnum.Direct, AdminDirectTie = "123344" });//match
+            _serviceTypes.Add(new ServiceTypes { ServiceType = "RAS", ServiceTypeName = "RISK ASSESSMENT SERVICES" });
+            _serviceTypes.Add(new ServiceTypes { ServiceType = "SNA", ServiceTypeName = "SCANNER SERVICE" });
+            _serviceTypes.Add(new ServiceTypes { ServiceType = "GDM", ServiceTypeName = "Service GDM" });
+            _serviceTypes.Add(new ServiceTypes { ServiceType = "GEO", ServiceTypeName = "Service GEO" });
+            _serviceTypes.Add(new ServiceTypes { ServiceType = "TES", ServiceTypeName = "TELTONIKA SUBSCRIPTION" });
+            _serviceTypes.Add(new ServiceTypes { ServiceType = "VCS", ServiceTypeName = "VETTING CONSULTANCY SERVICES" });
+            _serviceTypes.Add(new ServiceTypes { ServiceType = "WKT", ServiceTypeName = "WALKIE TALKIE SERVICE" });
+
         }
     }    
 }

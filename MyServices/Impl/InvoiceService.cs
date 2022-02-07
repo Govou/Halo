@@ -1327,6 +1327,7 @@ namespace HaloBiz.MyServices.Impl
 
             var customerDivision = await _context.CustomerDivisions
                             .Where(x => x.Id == invoice.CustomerDivisionId)
+                            //todo Contact adjustment
                             //.Include(x => x.PrimaryContact)
                             //.Include(x => x.SecondaryContact)
                             .Include(x => x.State)
@@ -1374,6 +1375,7 @@ namespace HaloBiz.MyServices.Impl
 
             List<string> recepients = new List<string>();
             recepients.Add(customerDivision.Email);
+            //todo Contact adjustment
             //if (customerDivision.SecondaryContact != null)
             //    recepients.Add(customerDivision.SecondaryContact.Email);
 

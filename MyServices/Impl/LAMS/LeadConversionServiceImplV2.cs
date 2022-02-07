@@ -217,6 +217,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                     Email = "",
                     PhoneNumber = "",
                     CreatedById = LoggedInUserId,
+                    //todo Contact adjustment
                     //PrimaryContactId = lead.PrimaryContactId,
                     //SecondaryContactId = lead.SecondaryContactId
                 });
@@ -266,6 +267,8 @@ namespace HaloBiz.MyServices.Impl.LAMS
                     State = leadDivision.State,
                     Lga = leadDivision.Lga,
                     Street = leadDivision.Street,
+                    //todo Contact adjustment
+
                     //PrimaryContactId = leadDivision?.PrimaryContactId,
                     //SecondaryContactId = leadDivision?.SecondaryContactId,
                     CreatedById = LoggedInUserId,

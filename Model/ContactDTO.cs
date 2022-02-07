@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 namespace HaloBiz.Model
 {
 
-    public class Contact
+    public class ContactDTO
     {
         [Key]
         public long Id { get; set; }

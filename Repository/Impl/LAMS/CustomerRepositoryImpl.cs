@@ -47,6 +47,8 @@ namespace HaloBiz.Repository.Impl.LAMS
                 customer.CustomerDivisions = await _context.CustomerDivisions
                     //.Include(x => x.PrimaryContact)
                     //.Include(x => x.SecondaryContact)
+                    //todo Contact adjustment
+
                     .Include(x => x.LeadKeyPeople)
                     .Where(x => x.CustomerId == customer.Id && x.IsDeleted == false)
                     .ToListAsync();
