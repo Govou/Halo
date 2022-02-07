@@ -5,11 +5,13 @@ using HaloBiz.DTOs.ApiDTOs;
 using HaloBiz.MigrationsHelpers;
 using HalobizMigrations.Data;
 using HalobizMigrations.Models;
+using HalobizMigrations.Models.Halobiz;
 using HalobizMigrations.Models.Shared;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -23,20 +25,20 @@ namespace HaloBiz.Controllers
     [ApiController]
     public class ServiceCustomerMigrations : ControllerBase
     {
-        private IConfiguration _config;
+        private ILogger _logger;
         private HalobizContext _context;
 
           private HttpSender sender;
           List<Customero> customers = new List<Customero>();
-          List<Contracto> contracts = new List<Contracto>();
           long userIdToUse = 31;
           List<ServiceTypes> _serviceTypes = new List<ServiceTypes>();
 
-        public ServiceCustomerMigrations(IConfiguration config,
+        public ServiceCustomerMigrations(ILogger logger,
             HalobizContext context)
         {
-            _config = config;
+            _logger = logger;
             _context = context;
+            sender = new HttpSender();
         }
 
         [HttpGet]
@@ -48,68 +50,85 @@ namespace HaloBiz.Controllers
             {
                 var transaction = await _context.Database.BeginTransactionAsync();
 
-                var cb = await sender.getServiceContract();
-                contracts = cb.Items.Take(5).ToList();
-
                 //var customerBody = await sender.getCustomers();
                 //customers = customerBody.Items;
-
+                _logger.LogInformation("MIGRATION OF CUSTOMER AND CONTRACT STARTED");
                 await saveContracts();
 
                 transaction.Commit();
             }
             catch (Exception ex)
             {
-                return CommonResponse.Send(ResponseCodes.FAILURE, null, ex.StackTrace);
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, ex.Message);
             }
 
             return CommonResponse.Send(ResponseCodes.SUCCESS);
         }
-       
 
-        private async Task saveContracts()
+
+        private async Task<bool> saveContracts()
         {
+            int totalSaved = 0;
+
+            List<Contracto> contracts = new List<Contracto>();
+
+            var cb = await sender.getServiceContract();
+            contracts = cb.Items.Take(5).ToList();
+
             var group = _context.GroupTypes.Where(x => x.Caption == "Corporate").FirstOrDefault();
             var designation = _context.Designations.FirstOrDefault();
 
+            _logger.LogInformation($"Total of {contracts.Count} contracts fetched");
+
             foreach (var contracto in contracts)
             {
+                //check if this contract exist previously and skip
+                if (_context.Contracts.Any(x => x.Caption == contracto.ContractNumber))
+                {
+                    continue;
+                }
+
                 //check if this customer exist and fetch
-                var customer =  customers.Where(x => x.CustomerNumber == contracto.CustomerNumber).FirstOrDefault();
-                if(customer == null)
+                var customer = customers.Where(x => x.CustomerNumber == contracto.CustomerNumber).FirstOrDefault();
+                if (customer == null)
                 {
                     //fetch this customer from the api
-                    customer = await sender.getCustomerWithCustomerNumber(contracto.CustomerNumber);
-                     (long customerId, long divisionId) = await SaveCustomer(customer, group.Id, designation.Id);
+                    customer = sender.getCustomerWithCustomerNumber(contracto.CustomerNumber).GetAwaiter().GetResult();
+                    (long customerId, long divisionId) = await SaveCustomer(customer, group.Id, designation.Id);
                     customer.CustomerId = customerId;
                     customer.CustomerDivisionId = divisionId;
                     customers.Add(customer);
                 }
 
-              
-                var defaultOffice = await _context.Offices.FirstOrDefaultAsync();
-                var contract = await _context.Contracts.Where(x => x.CustomerDivisionId == customer.CustomerDivisionId && x.Caption == contracto.ContractNumber).FirstOrDefaultAsync();
+                var defaultOffice = _context.Offices.FirstOrDefault();
+                var contract = _context.Contracts.Where(x => x.CustomerDivisionId == customer.CustomerDivisionId && x.Caption == contracto.ContractNumber).FirstOrDefault();
                 if (contract == null)
                 {
                     //save the contract now
-                    var entity = await _context.Contracts.AddAsync(new Contract
+                    var contract_ = new Contract
                     {
                         CustomerDivisionId = customer.CustomerDivisionId,
                         Caption = contracto.ContractNumber,
                         GroupContractCategory = GroupContractCategory.GroupContractWithSameDetails,
-                        GroupInvoiceNumber = GenerateGroupInvoiceNumber(),
+                        GroupInvoiceNumber = await GenerateGroupInvoiceNumber(),
                         CreatedById = userIdToUse,
                         CreatedAt = DateTime.Now,
                         UpdatedAt = DateTime.Now,
                         IsDeleted = false,
-                    });
+                    };
 
-                    var r = await _context.SaveChangesAsync();
-                    if (r > 0)
+                    var entity = _context.Contracts.Add(contract_);
+                    System.Threading.Thread.Sleep(4000);
+                    var afftected = _context.SaveChanges();
+                    if (afftected > 0)
                     {
-                        var contractId = entity.Entity.Id;
+                        var contractId = contract_.Id;
+                        ++totalSaved;
+
+                        _logger.LogInformation($"Successfully saved contract with Id:{contractId}, details: {JsonConvert.SerializeObject(contracto)}");
+
                         //now get the contract services for this contract
-                        var contractServiceDetails = await sender.getServiceContractDetail(contracto.ContractNumber);
+                        var contractServiceDetails = sender.getServiceContractDetail(contracto.ContractNumber).GetAwaiter().GetResult();
                         var contractServices = contractServiceDetails.ServiceContractItems;
 
                         //now save the contract service
@@ -126,7 +145,7 @@ namespace HaloBiz.Controllers
                             }
 
                             //now save the contract service
-                            var saveContractEntity = await _context.ContractServices.AddAsync(new ContractService
+                            var saveContractEntity = _context.ContractServices.Add(new ContractService
                             {
                                 AdminDirectTie = admindirectMatch,
                                 ServiceId = apiContractService.ServiceId,
@@ -139,17 +158,22 @@ namespace HaloBiz.Controllers
                                 Quantity = contractService.Quantity,
                                 UniqueTag = $"{contractService.Description}@{contractId}",
                                 BranchId = defaultOffice.BranchId,
-                                OfficeId = defaultOffice.Id
+                                OfficeId = defaultOffice.Id,
+                                CreatedById = userIdToUse
                             });
 
-                            await _context.SaveChangesAsync();
+                            System.Threading.Thread.Sleep(4000);
+                            var affected = _context.SaveChanges();
                         }
                     }
                 }
             }
+
+            _logger.LogInformation($"Total saved to db {totalSaved}");
+            return true;
         }
 
-        private   ServiceTypes GetServiceType(ServiceTypes apiContractService)
+        private ServiceTypes GetServiceType(ServiceTypes apiContractService)
         {
             var names = apiContractService.ServiceTypeName.Split(" ");
             var systemContractService = _context.Services.Where(x => x.Name.Contains(names[0]) && x.Name.Contains(names[1])).FirstOrDefault();
@@ -169,15 +193,14 @@ namespace HaloBiz.Controllers
             return apiContractService;
         }
 
-          async Task<bool> saveCustomers()
+       /* async Task<bool> saveCustomers()
         {
             //get the group all should belong
             var group = _context.GroupTypes.Where(x => x.Caption == "Corporate").FirstOrDefault();
             var designation = _context.Designations.FirstOrDefault();
             try
             {
-
-                foreach (var customer in customers)
+                await foreach (var customer in customers)
                 {
                     customer.Name = customer.Name.Replace("  ", " ");
 
@@ -196,7 +219,7 @@ namespace HaloBiz.Controllers
                     }
                     else
                     {
-                        //Console.WriteLine($"Record already exist: {dbCustomerDivision.DivisionName}");
+                        //_logger.LogInformation($"Record already exist: {dbCustomerDivision.DivisionName}");
                         //pick the customerId and division Id
                         customer.CustomerId = dbCustomerDivision.CustomerId;
                         customer.CustomerDivisionId = dbCustomerDivision.Id;
@@ -212,18 +235,23 @@ namespace HaloBiz.Controllers
             }
 
             return true;
-        }
+        }  */
 
         private async Task<(long, long)> SaveCustomer(Customero customer, long GroupTypeId, long designationId)
         {
-            //create customer first
-            long? primaryContactId = null;
-            try
+            var dbCustomerDivision = _context.CustomerDivisions.Where(x => x.DivisionName == customer.Name || x.DTrackCustomerNumber == customer.CustomerNumber).FirstOrDefault();
+            if (dbCustomerDivision != null)
             {
-                //create the contact person
-                //if (!string.IsNullOrEmpty(customer.Contact)){
-                //    primaryContactId = CreatePrimaryContact(customer, designationId);
-                //}
+                if (!string.IsNullOrEmpty(customer.Contact))
+                {
+                    await CreatePrimaryContact(customer, dbCustomerDivision.Id);
+                }
+                return (dbCustomerDivision.CustomerId, dbCustomerDivision.Id); 
+            }
+
+            //create customer first
+            try
+            {         
 
                 var customerEntity = await _context.Customers.AddAsync(new Customer()
                 {
@@ -234,9 +262,7 @@ namespace HaloBiz.Controllers
                     LogoUrl = "",
                     Email = customer.EmailAddress ?? "",
                     PhoneNumber = customer.TelephoneNumber ?? "",
-                    CreatedById = userIdToUse,
-                    PrimaryContactId = primaryContactId,
-                    SecondaryContactId = null,
+                    CreatedById = userIdToUse
                 });
 
                 var p = await _context.SaveChangesAsync();
@@ -257,14 +283,16 @@ namespace HaloBiz.Controllers
                     StateId = stateId,
                     Lga = null,
                     Street = null,
-                    //PrimaryContactId = primaryContactId,
-                    //SecondaryContactId = null,            //todo Contact adjustment
-
                     CreatedById = userIdToUse,
                     DTrackCustomerNumber = customer.CustomerNumber
                 });
 
-                await _context.SaveChangesAsync();              
+                await _context.SaveChangesAsync();
+
+                if (!string.IsNullOrEmpty(customer.Contact))
+                {
+                    await CreatePrimaryContact(customer, dbCustomerDivision.Id);
+                }
 
                 return (newCustomer.Id, customerDivisionEntity.Entity.Id);
             }
@@ -275,26 +303,42 @@ namespace HaloBiz.Controllers
             }
         }
 
-        private long CreatePrimaryContact(Customero customer, long designationId)
+        private async Task<bool> CreatePrimaryContact(Customero customer, long customerDivisionId)
         {
-            var contactEntity = _context.LeadDivisionContacts.Add(new LeadDivisionContact
+            //check if this contact exist previously
+            var contact = _context.Contacts.Where(x => x.Email == customer.EmailAddress).FirstOrDefaultAsync();
+            if(contact != null)
+            {
+                return true;
+            }
+            
+            var contactEntity = _context.Contacts.Add(new Contact
             {
                 FirstName = customer.Contact,
                 LastName = "",
-                MobileNumber = customer.TelephoneNumber ?? "100000001",
+                Mobile = customer.TelephoneNumber ?? "100000001",
                 Email = customer.EmailAddress,
                 DateOfBirth = DateTime.Now,
                 CreatedById = userIdToUse,
                 CreatedAt = DateTime.Now,
-                Gender = "Male",
+                Gender = Gender.Unspecified,
                 Title = "Mr",
-                DesignationId = designationId
+                Priority = ContactPriority.PrimaryContact,
+                Designation =  ContactDesignation.Self                
+            });
+            _context.SaveChanges();
+            var contactId = contactEntity.Entity.Id;
 
+            //now save this contact to the customerDivision
+            _context.CustomerDivisionContacts.Add(new CustomerDivisionContact
+            { 
+                CustomerDivisionId =  customerDivisionId,
+                ContactId = contactId
             });
 
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
 
-            return contactEntity.Entity.Id;
+            return true;
         }
 
         private long GetStateId(string stateCode)
@@ -363,9 +407,7 @@ namespace HaloBiz.Controllers
             }
         }
 
-
-
-        private string GenerateGroupInvoiceNumber()
+        private async Task<string> GenerateGroupInvoiceNumber()
         {
             try
             {
@@ -375,7 +417,7 @@ namespace HaloBiz.Controllers
                 {
                     newNumber = 1;
                     _context.GroupInvoiceTrackers.Add(new GroupInvoiceTracker() { Number = newNumber + 1 });
-                    _context.SaveChangesAsync();
+                    await _context.SaveChangesAsync();
                     return $"GINV{newNumber.ToString().PadLeft(7, '0')}";
                 }
                 else
@@ -383,7 +425,7 @@ namespace HaloBiz.Controllers
                     newNumber = tracker.Number;
                     tracker.Number = tracker.Number + 1;
                     _context.GroupInvoiceTrackers.Update(tracker);
-                    _context.SaveChangesAsync();
+                    await _context.SaveChangesAsync();
                     return $"GINV{newNumber.ToString().PadLeft(7, '0')}";
                 }
             }
@@ -418,7 +460,6 @@ namespace HaloBiz.Controllers
             _serviceTypes.Add(new ServiceTypes { ServiceType = "TES", ServiceTypeName = "TELTONIKA SUBSCRIPTION" });
             _serviceTypes.Add(new ServiceTypes { ServiceType = "VCS", ServiceTypeName = "VETTING CONSULTANCY SERVICES" });
             _serviceTypes.Add(new ServiceTypes { ServiceType = "WKT", ServiceTypeName = "WALKIE TALKIE SERVICE" });
-
         }
     }    
 }
