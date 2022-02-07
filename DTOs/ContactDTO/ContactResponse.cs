@@ -1,12 +1,17 @@
 ﻿using System;
-using HaloBiz.DTOs.TransferDTOs;
+using HalobizMigrations.Models;
+using HalobizMigrations.Models.Halobiz;
 using HalobizMigrations.Models.Shared;
 
 namespace HaloBiz.DTOs.ContactDTO
 {
-    public class Contactdto
+    public class ContactResponse
     {
-
+		public long Id
+		{
+			get;
+			set;
+		}
 
 		public string Title
 		{
@@ -98,20 +103,11 @@ namespace HaloBiz.DTOs.ContactDTO
 			set;
 		}
 
-		//public long Priority
-		//{
-		//	get;
-		//	set;
-		//}
 		public ContactDesignation Designation
 		{
 			get;
 			set;
 		}
-
-		
-
-		public long DesignationId { get; set; }
 
 		public long? CustomerDivisionId
 		{
@@ -120,6 +116,11 @@ namespace HaloBiz.DTOs.ContactDTO
 		}
 
 		
+		public CustomerDivision CustomerDivision
+		{
+			get;
+			set;
+		}
 
 		public bool IsDeleted
 		{
@@ -134,6 +135,11 @@ namespace HaloBiz.DTOs.ContactDTO
 		}
 
 		
+		public UserProfile CreatedBy
+		{
+			get;
+			set;
+		}
 
 		public DateTime CreatedAt
 		{

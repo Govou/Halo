@@ -16,6 +16,8 @@ using HalobizMigrations.Models.Complaints;
 
 using HalobizMigrations.Models.Armada;
 using HalobizMigrations.Models.Shared;
+using HaloBiz.Controllers;
+using HaloBiz.DTOs.ContactDTO;
 
 namespace HaloBiz.Helpers
 {
@@ -175,6 +177,8 @@ namespace HaloBiz.Helpers
             CreateMap<LeadDivisionReceivingDTO, LeadDivision>();
             CreateMap<LeadDivision, LeadDivisionTransferDTO>();
             CreateMap<ContactDTO, ContactTransferDTO>();
+            CreateMap<Contactdto, Contact>();
+            CreateMap<ContactResponse, Contact>();
             CreateMap<ClosureDocument, ClosureDocumentTransferDTO>();
             CreateMap<ClosureDocumentReceivingDTO, ClosureDocument>();
             CreateMap<ClosureDocument, DocumentSetupTransferDTO>();
