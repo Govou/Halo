@@ -97,7 +97,8 @@ namespace HaloBiz
                 {
                     try
                     {
-                        var response = await client.GetAsync("http://localhost:80");
+                        string appSwaggerUrl = Configuration.GetConnectionString("HalobizSwaggerUrl");
+                        var response = await client.GetAsync(appSwaggerUrl);
 
                         if (!response.IsSuccessStatusCode)
                         {
