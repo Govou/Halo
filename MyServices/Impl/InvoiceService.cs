@@ -1457,34 +1457,34 @@ namespace HaloBiz.MyServices.Impl
             //                .Include(x => x.Lga)
             //                .FirstOrDefaultAsync();
             var serviceReg = await _context.ServiceRegistrations
-                          .Where(x => x.Id == invoice.ServiceRegistrationId)
+                          .Where(x => x.Id == invoice.ServiceRegistrationId && x.IsDeleted == false)
                           .Include(x => x.Service)
                           .FirstOrDefaultAsync();
             var passengers = await _context.Passengers
-                         .Where(x => x.ServiceAssignmentId == invoice.Id)
+                         .Where(x => x.ServiceAssignmentId == invoice.Id && x.IsDeleted == false)
                          .Include(x => x.ServiceAssignment)
                          
                          .ToListAsync();
             var commanders = await _context.CommanderServiceAssignmentDetails
-                        .Where(x => x.ServiceAssignmentId == invoice.Id)
+                        .Where(x => x.ServiceAssignmentId == invoice.Id && x.IsDeleted == false)
                         .Include(x => x.ServiceAssignment)
                         .Include(x => x.CommanderResource)
                         .Include(x=>x.CommanderResource.Profile)
                        
                         .ToListAsync();
             var armedEscorts = await _context.ArmedEscortServiceAssignmentDetails
-                        .Where(x => x.ServiceAssignmentId == invoice.Id)
+                        .Where(x => x.ServiceAssignmentId == invoice.Id && x.IsDeleted == false)
                         .Include(x => x.ServiceAssignment)
                         .Include(x => x.ArmedEscortResource)
                         .ToListAsync();
             var pilots = await _context.PilotServiceAssignmentDetails
-                        .Where(x => x.ServiceAssignmentId == invoice.Id)
+                        .Where(x => x.ServiceAssignmentId == invoice.Id && x.IsDeleted == false)
                         .Include(x => x.ServiceAssignment)
                         .Include(x => x.PilotResource)
                         
                         .ToListAsync();
             var vehicles = await _context.VehicleServiceAssignmentDetails
-                        .Where(x => x.ServiceAssignmentId == invoice.Id)
+                        .Where(x => x.ServiceAssignmentId == invoice.Id && x.IsDeleted == false)
                         .Include(x => x.ServiceAssignment)
                         .Include(x => x.VehicleResource)
                         .Include(x => x.VehicleResource.SupplierService)
