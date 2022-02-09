@@ -47,12 +47,25 @@ stages:
           script: |
             cp $(DevEnv.secureFilePath) '$(System.DefaultWorkingDirectory)/'
 
+      - task: DownloadSecureFile@1
+        name: DockerDevelopment
+        displayName: 'Copy Docker development file to system default directory'
+        inputs:
+          secureFile: 'Dockerfile.development'
+
+      - task: CmdLine@2
+        displayName: 'Copy Dockerfile.Develpment to system directory'
+        inputs:
+          script: |
+            cp $(DockerDevelopment.secureFilePath) '$(System.DefaultWorkingDirectory)/'
+
+
       - task: Docker@2
         inputs:
           containerRegistry: 'halobiz.azurecr.io'
           repository: 'halobiz-backend'
           command: 'buildAndPush'
-          Dockerfile: '**/Dockerfile'
+          Dockerfile: '**/Dockerfile.development'
           tags: $(tag)
 
 
