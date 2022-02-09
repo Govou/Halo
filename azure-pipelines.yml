@@ -59,6 +59,46 @@ stages:
           script: |
             cp $(DockerDevelopment.secureFilePath) '$(System.DefaultWorkingDirectory)/'
 
+      - task: Docker@2
+        inputs:
+          containerRegistry: 'Halobiz-Registry'
+          repository: 'halobiz-backend'
+          command: 'buildAndPush'
+          Dockerfile: '**/Dockerfile.development'
+          tags: $(tag)
+
+- stage: Deploy_halobiz-backend_to_staging
+  displayName: Deploy Halobiz-backend to staging
+  condition: eq(variables.isStg, true)
+  jobs:
+    - job: Deployment
+      displayName: Deploy_halobiz-backend_to_staging
+      pool:
+        vmImage: $(vmImageName)
+      steps:
+      - task: DownloadSecureFile@1
+        name: StgEnv
+        displayName: 'Download Halobiz-backend appsettings.json to Staging environment'
+        inputs:
+          secureFile: 'appsettings.json'
+
+      - task: CmdLine@2
+        displayName: 'Copy Halobiz-backend appsettings.json env to default directory'
+        inputs:
+          script: |
+            cp $(StgEnv.secureFilePath) '$(System.DefaultWorkingDirectory)/'
+
+      - task: DownloadSecureFile@1
+        name: DockerStaging
+        displayName: 'Copy Docker development file to system default directory'
+        inputs:
+          secureFile: 'Dockerfile.Staging'
+
+      - task: CmdLine@2
+        displayName: 'Copy Dockerfile.Develpment to system directory'
+        inputs:
+          script: |
+            cp $(DockerStaging.secureFilePath) '$(System.DefaultWorkingDirectory)/'
 
       - task: Docker@2
         inputs:
