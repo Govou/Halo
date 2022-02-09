@@ -438,6 +438,49 @@ namespace HaloBiz.MyServices.Impl.LAMS
             return true;
         }
 
+        public async Task<bool> onMigrationAccountsForContracts(ContractService contractService,                                                                    HalobizContext context,
+                                                                      CustomerDivision customerDivision,
+                                                                      long contractId,
+                                                                      LeadDivision leadDivision)
+        {
+            try
+            {
+
+               
+
+                if (contractService.InvoicingInterval != (int)TimeCycle.Adhoc)
+                {
+                    FinanceVoucherType accountVoucherType = await _context.FinanceVoucherTypes
+                        .FirstOrDefaultAsync(x => x.VoucherType == SALESINVOICEVOUCHER);
+
+
+
+                    var (createSuccess, createMsg) = await CreateAccounts(
+                                          contractService,
+                                          customerDivision,
+                                          (long)leadDivision.BranchId,
+                                         (long)leadDivision.OfficeId,
+                                         contractService.Service,
+                                         accountVoucherType,
+                                         null,
+                                         LoggedInUserId,
+                                         false, null);
+
+                    var _serviceCode = contractService.Service?.ServiceCode;
+                    var (invoiceSuccess, invoiceMsg) = await GenerateInvoices(contractService, customerDivision.Id, _serviceCode, LoggedInUserId);
+                    var (amoSuccess, amoMsg) = await GenerateAmortizations(contractService, customerDivision, (double)contractService.BillableAmount);
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("Error converting", ex);
+                throw;
+            }
+
+            return true;
+        }
+
+
         private async Task<bool> ConvertSBUToQuoteServicePropToSBUToContractServiceProp(long quoteServiceId, long contractServiceId, HalobizContext context)
         {
             try

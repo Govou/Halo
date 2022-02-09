@@ -1,8 +1,11 @@
 ﻿using Flurl;
 using Flurl.Http;
 using Flurl.Http.Configuration;
+using GoogleMaps.LocationServices;
 using HaloBiz.DTOs.ApiDTOs;
+using HaloBiz.Helpers;
 using HaloBiz.MigrationsHelpers;
+using HaloBiz.MyServices.LAMS;
 using HalobizMigrations.Data;
 using HalobizMigrations.Models;
 using HalobizMigrations.Models.Halobiz;
@@ -25,37 +28,35 @@ namespace HaloBiz.Controllers
     [ApiController]
     public class ServiceCustomerMigrations : ControllerBase
     {
-        private ILogger _logger;
+        private ILogger<ServiceCustomerMigrations> _logger;
         private HalobizContext _context;
+        private ILeadConversionService _leadConversionService;
 
           private HttpSender sender;
           List<Customero> customers = new List<Customero>();
           long userIdToUse = 31;
           List<ServiceTypes> _serviceTypes = new List<ServiceTypes>();
 
-        public ServiceCustomerMigrations(ILogger logger,
+        public ServiceCustomerMigrations(ILogger<ServiceCustomerMigrations> logger,
+            ILeadConversionService leadConversionService,
             HalobizContext context)
         {
             _logger = logger;
             _context = context;
             sender = new HttpSender();
+            _leadConversionService = leadConversionService;
         }
 
         [HttpGet]
         public async Task<ApiCommonResponse> RunMigration()
         {
             setServiceTypes();
-
             try
             {
-                var transaction = await _context.Database.BeginTransactionAsync();
-
                 //var customerBody = await sender.getCustomers();
                 //customers = customerBody.Items;
                 _logger.LogInformation("MIGRATION OF CUSTOMER AND CONTRACT STARTED");
                 await saveContracts();
-
-                transaction.Commit();
             }
             catch (Exception ex)
             {
@@ -68,8 +69,7 @@ namespace HaloBiz.Controllers
 
         private async Task<bool> saveContracts()
         {
-            int totalSaved = 0;
-
+            int totalSaved=0, previouslySaved=0, errorLaden = 0;
             List<Contracto> contracts = new List<Contracto>();
 
             var cb = await sender.getServiceContract();
@@ -82,94 +82,202 @@ namespace HaloBiz.Controllers
 
             foreach (var contracto in contracts)
             {
-                //check if this contract exist previously and skip
-                if (_context.Contracts.Any(x => x.Caption == contracto.ContractNumber))
+                try
                 {
-                    continue;
-                }
+                    HalobizContext _context = new HalobizContext();
 
-                //check if this customer exist and fetch
-                var customer = customers.Where(x => x.CustomerNumber == contracto.CustomerNumber).FirstOrDefault();
-                if (customer == null)
-                {
-                    //fetch this customer from the api
-                    customer = sender.getCustomerWithCustomerNumber(contracto.CustomerNumber).GetAwaiter().GetResult();
-                    (long customerId, long divisionId) = await SaveCustomer(customer, group.Id, designation.Id);
-                    customer.CustomerId = customerId;
-                    customer.CustomerDivisionId = divisionId;
-                    customers.Add(customer);
-                }
+                    var transaction = await _context.Database.BeginTransactionAsync();
 
-                var defaultOffice = _context.Offices.FirstOrDefault();
-                var contract = _context.Contracts.Where(x => x.CustomerDivisionId == customer.CustomerDivisionId && x.Caption == contracto.ContractNumber).FirstOrDefault();
-                if (contract == null)
-                {
-                    //save the contract now
-                    var contract_ = new Contract
+
+                    //check if this contract exist previously and skip
+                    if (_context.Contracts.Any(x => x.Caption == contracto.ContractNumber))
                     {
-                        CustomerDivisionId = customer.CustomerDivisionId,
-                        Caption = contracto.ContractNumber,
-                        GroupContractCategory = GroupContractCategory.GroupContractWithSameDetails,
-                        GroupInvoiceNumber = await GenerateGroupInvoiceNumber(),
-                        CreatedById = userIdToUse,
-                        CreatedAt = DateTime.Now,
-                        UpdatedAt = DateTime.Now,
-                        IsDeleted = false,
-                    };
+                        ++previouslySaved;
+                        continue;
+                    }
 
-                    var entity = _context.Contracts.Add(contract_);
-                    System.Threading.Thread.Sleep(4000);
-                    var afftected = _context.SaveChanges();
-                    if (afftected > 0)
+                    //check if this customer exist and fetch
+                    var customer = customers.Where(x => x.CustomerNumber == contracto.CustomerNumber).FirstOrDefault();
+                    if (customer == null)
                     {
-                        var contractId = contract_.Id;
-                        ++totalSaved;
+                        //fetch this customer from the api
+                        customer = sender.getCustomerWithCustomerNumber(contracto.CustomerNumber).GetAwaiter().GetResult();
+                        (long customerId, long divisionId) = await SaveCustomer(customer, group.Id, designation.Id);
+                        customer.CustomerId = customerId;
+                        customer.CustomerDivisionId = divisionId;
+                        customers.Add(customer);
+                    }
 
-                        _logger.LogInformation($"Successfully saved contract with Id:{contractId}, details: {JsonConvert.SerializeObject(contracto)}");
-
-                        //now get the contract services for this contract
-                        var contractServiceDetails = sender.getServiceContractDetail(contracto.ContractNumber).GetAwaiter().GetResult();
-                        var contractServices = contractServiceDetails.ServiceContractItems;
-
-                        //now save the contract service
-                        var admindirectMatch = DateTime.Now.ToString("yyyyMMddHHmmss");
-
-                        foreach (var contractService in contractServices)
+                    var defaultOffice = _context.Offices.FirstOrDefault();
+                    var contract = _context.Contracts.Where(x => x.CustomerDivisionId == customer.CustomerDivisionId && x.Caption == contracto.ContractNumber).FirstOrDefault();
+                    if (contract == null)
+                    {
+                        var lastDate = contracto.StartDate;
+                        while (lastDate < DateTime.Today)
                         {
-                            //get the corrresponding service
-                            var apiContractService = _serviceTypes.Where(x => x.ServiceType == contractService.ServiceType).FirstOrDefault();
-                            //check if this contract service has id
-                            if (apiContractService.ServiceId == 0)
-                            {
-                                apiContractService = GetServiceType(apiContractService);
-                            }
+                            lastDate = lastDate.AddYears(1);
+                        }
+                        var startDate = lastDate.AddYears(-1);
+
+                        //save the contract now
+                        var contract_ = new Contract
+                        {
+                            CustomerDivisionId = customer.CustomerDivisionId,
+                            Caption = contracto.ContractNumber,
+                            GroupContractCategory = GroupContractCategory.GroupContractWithSameDetails,
+                            GroupInvoiceNumber = await GenerateGroupInvoiceNumber(),
+                            CreatedById = userIdToUse,
+                            CreatedAt = DateTime.Now,
+                            UpdatedAt = DateTime.Now,
+                            IsDeleted = false,
+                        };
+
+                        var entity = _context.Contracts.Add(contract_);
+                        System.Threading.Thread.Sleep(5000);
+                        var afftected = _context.SaveChanges();
+                        if (afftected > 0)
+                        {
+                            var contractId = contract_.Id;
+                            ++totalSaved;
+
+                            _logger.LogInformation($"Successfully saved contract with Id:{contractId}, details: {JsonConvert.SerializeObject(contracto)}");
+
+                            //now get the contract services for this contract
+                            var contractServiceDetails = sender.getServiceContractDetail(contracto.ContractNumber).GetAwaiter().GetResult();
+                            var contractServices = contractServiceDetails.ServiceContractItems;
 
                             //now save the contract service
-                            var saveContractEntity = _context.ContractServices.Add(new ContractService
-                            {
-                                AdminDirectTie = admindirectMatch,
-                                ServiceId = apiContractService.ServiceId,
-                                BillableAmount = contractService.Amount,
-                                ActivationDate = contractService.StartDate,
-                                ContractStartDate = contractService.StartDate,
-                                ContractEndDate = DateTime.Now.AddYears(1),
-                                ContractId = contractId,
-                                Vat = contractService.Taxable == 1 ? 0.075 * contractService.Amount : 0,
-                                Quantity = contractService.Quantity,
-                                UniqueTag = $"{contractService.Description}@{contractId}",
-                                BranchId = defaultOffice.BranchId,
-                                OfficeId = defaultOffice.Id,
-                                CreatedById = userIdToUse
-                            });
+                            var admindirectMatchFirst = DateTime.Now.AddMilliseconds(-1000).ToString("yyyyMMddHHmmss");
+                            var adminDirectMatchSecond = DateTime.Now.ToString("yyyyMMddHHmmss");
 
-                            System.Threading.Thread.Sleep(4000);
-                            var affected = _context.SaveChanges();
+
+                            foreach (var contractService in contractServices)
+                            {
+                                string admindirectMatch = "";
+                                var description = contractService.Description.ToLower();
+                                if (description.Contains("supervisor") && description.Contains("direct"))
+                                {
+                                    contractService.ServiceType = "SUPDR";
+                                }
+                                else if (description.Contains("supervisor") && description.Contains("admin"))
+                                {
+                                    contractService.ServiceType = "SUPAD";
+                                }
+                                else if (description.Contains("dog") && description.Contains("handler") && description.Contains("direct"))
+                                {
+                                    contractService.ServiceType = "DH";
+                                }
+                                else if (description.Contains("dog") && description.Contains("handler") && description.Contains("admin"))
+                                {
+                                    contractService.ServiceType = "DHA";
+                                }
+
+
+                                //get the corrresponding service
+                                var apiContractService = _serviceTypes.Where(x => x.ServiceType == contractService.ServiceType).FirstOrDefault();
+
+                                if (apiContractService.Enum != ServiceRelationshipEnum.Standalone)
+                                {
+                                    if (apiContractService.AdminDirectTie == "1233564")
+                                        admindirectMatch = admindirectMatchFirst;
+                                    else if (apiContractService.AdminDirectTie == "1235643564")
+                                        admindirectMatch = adminDirectMatchSecond;
+                                    else
+                                        admindirectMatch = adminDirectMatchSecond + "01";
+                                }
+
+                                //check if this contract service has id
+                                if (apiContractService.ServiceId == 0)
+                                {
+                                    apiContractService = GetServiceType(apiContractService);
+                                }
+
+                                //now save the contract service
+                                var saveContractEntity = _context.ContractServices.Add(new ContractService
+                                {
+                                    AdminDirectTie = admindirectMatch,
+                                    ServiceId = apiContractService.ServiceId,
+                                    BillableAmount = contractService.Amount,
+                                    ActivationDate = contractService.StartDate,
+                                    ContractStartDate = startDate,
+                                    ContractEndDate = lastDate.AddDays(-1),
+                                    ContractId = contractId,
+                                    UnitPrice = contractService.UnitPrice,
+                                    Vat = contractService.Taxable == 1 ? 0.075 * contractService.Amount : 0,
+                                    Quantity = contractService.Quantity,
+                                    UniqueTag = $"{contractService.Description}@{contractId}",
+                                    BranchId = defaultOffice.BranchId,
+                                    OfficeId = defaultOffice.Id,
+                                    CreatedById = userIdToUse,
+                                    InvoicingInterval = (int)TimeCycle.Monthly,
+                                    FirstInvoiceSendDate = startDate.AddDays(15),
+                                });
+
+                                System.Threading.Thread.Sleep(3000);
+
+                                var affected = _context.SaveChanges();
+                                if (affected > 0)
+                                {
+                                    var contractServiceCreated = saveContractEntity.Entity;
+                                    _logger.LogInformation($"Saved for contract with ID:{contractId}, Service: {JsonConvert.SerializeObject(contractService)}");
+
+                                    //var honder = await _leadConversionService.onMigrationAccountsForContracts(contractServiceCreated, _context,
+                                    //                                      CustomerDivision customerDivision,
+                                    //                                      long contractId,
+                                    //                                      LeadDivision leadDivision);
+                                }
+                            }
+                            //create location for this contract
                         }
                     }
+
+                    _context.SaveChanges();
+                    transaction.Commit();
                 }
+                catch (Exception ex)
+                {
+                    ++errorLaden;
+                    _logger.LogError($"Error on contract with number {contracto.ContractNumber}, Error: {ex.InnerException?.Message ?? ex.Message}");
+                }               
             }
 
-            _logger.LogInformation($"Total saved to db {totalSaved}");
+            _logger.LogInformation($"Total contracts: {contracts.Count}, Saved to db: {totalSaved}; Skipped for duplicate: {previouslySaved}; With error {errorLaden}");
+
+            return true;
+        }
+
+        private async Task<bool> createLocation(Contracto contract, long customerDivisionId)
+        {
+            string address = "";
+            var googleKey = "AIzaSyCQuetprs2UHb_zKSXznyumyfvw95ERCDY";
+
+            if (contract.AddressLine1.ToLower().Contains(contract.AddressLine2.ToLower()))
+            {
+                address = string.Concat(contract.AddressLine1, contract.AddressLine2);
+            }
+            else
+            {
+                address = string.Concat(contract.AddressLine1, contract.AddressLine2, contract.AddressLine3);
+            }
+
+            var locationService = new GoogleLocationService(googleKey);
+            var point = locationService.GetLatLongFromAddress(address);
+
+            await _context.Locations.AddAsync(new Location
+            {
+                Longitutude = point.Longitude,
+                Latitude = point.Longitude,
+                CustomerDivisionId = customerDivisionId,
+                CreatedById = userIdToUse,
+                Name = contract.BillTo,
+                Description = contract.Description,
+                UpdatedAt = DateTime.Now,
+                CreatedAt = DateTime.Now,
+                Street = address,
+            });
+
+            await _context.SaveChangesAsync();
+
             return true;
         }
 
@@ -191,54 +299,11 @@ namespace HaloBiz.Controllers
             }
 
             return apiContractService;
-        }
-
-       /* async Task<bool> saveCustomers()
-        {
-            //get the group all should belong
-            var group = _context.GroupTypes.Where(x => x.Caption == "Corporate").FirstOrDefault();
-            var designation = _context.Designations.FirstOrDefault();
-            try
-            {
-                await foreach (var customer in customers)
-                {
-                    customer.Name = customer.Name.Replace("  ", " ");
-
-                    //check if the customer exist previously
-                    var dbCustomerDivision = _context.CustomerDivisions.Where(x => x.DivisionName == customer.Name || x.DTrackCustomerNumber==customer.CustomerNumber).FirstOrDefault();
-                   // var dbCustomerDivision = _context.CustomerDivisions.FirstOrDefault();
-
-                    if (dbCustomerDivision == null)
-                    {
-                        //create the contact of this customer                       
-                        //save the customer
-                        //save the customerDivision
-                        var (customerId, divisionId) = await SaveCustomer(customer, group.Id, designation.Id);
-                        customer.CustomerId = customerId;
-                        customer.CustomerDivisionId = divisionId;
-                    }
-                    else
-                    {
-                        //_logger.LogInformation($"Record already exist: {dbCustomerDivision.DivisionName}");
-                        //pick the customerId and division Id
-                        customer.CustomerId = dbCustomerDivision.CustomerId;
-                        customer.CustomerDivisionId = dbCustomerDivision.Id;
-                    }
-                }
-
-                _context.SaveChanges();
-            }
-            catch (Exception ex)
-            {
-                var p = ex.StackTrace;
-                return false;
-            }
-
-            return true;
-        }  */
+        }     
 
         private async Task<(long, long)> SaveCustomer(Customero customer, long GroupTypeId, long designationId)
-        {
+        {          
+
             var dbCustomerDivision = _context.CustomerDivisions.Where(x => x.DivisionName == customer.Name || x.DTrackCustomerNumber == customer.CustomerNumber).FirstOrDefault();
             if (dbCustomerDivision != null)
             {
@@ -246,6 +311,7 @@ namespace HaloBiz.Controllers
                 {
                     await CreatePrimaryContact(customer, dbCustomerDivision.Id);
                 }
+
                 return (dbCustomerDivision.CustomerId, dbCustomerDivision.Id); 
             }
 
@@ -287,6 +353,8 @@ namespace HaloBiz.Controllers
                     DTrackCustomerNumber = customer.CustomerNumber
                 });
 
+                dbCustomerDivision = customerDivisionEntity.Entity;
+
                 await _context.SaveChangesAsync();
 
                 if (!string.IsNullOrEmpty(customer.Contact))
@@ -298,46 +366,78 @@ namespace HaloBiz.Controllers
             }
             catch (Exception ex)
             {
-                var p = ex.StackTrace;
-                return (0, 0);
+                throw;
             }
         }
 
         private async Task<bool> CreatePrimaryContact(Customero customer, long customerDivisionId)
         {
             //check if this contact exist previously
-            var contact = _context.Contacts.Where(x => x.Email == customer.EmailAddress).FirstOrDefaultAsync();
-            if(contact != null)
+            try
             {
-                return true;
+                var email = string.IsNullOrEmpty(customer.EmailAddress) ? customer.FaxNumber : customer.EmailAddress;
+                if (string.IsNullOrEmpty(email))
+                    return false;
+
+                var contact = await _context.Contacts.Where(x => x.Email == email).FirstOrDefaultAsync();
+                if (contact != null)
+                {
+                    return true;
+                }
+
+                var contactNew = new Contact
+                {
+                    Mobile = customer.TelephoneNumber ?? "",
+                    Email = customer.EmailAddress,
+                    DateOfBirth = DateTime.Now,
+                    CreatedById = userIdToUse,
+                    CreatedAt = DateTime.Now,
+                    Gender = Gender.Unspecified
+                };
+
+                string[] titles = { "mr", "mrs", "ms" };
+                var input = customer.Contact?.Replace(".", ""); //remove period
+                var splitName = input.Split(' ');
+
+                if (titles.Contains(splitName[0].ToLower()) && splitName.Length == 3)
+                {
+                    contactNew.Title = splitName[0];
+                    contactNew.FirstName = splitName[1];
+                    contactNew.LastName = splitName[2];
+                    contactNew.Gender = splitName[0].ToLower() == "mr" ? Gender.Male : Gender.Female;
+                }
+                else if (splitName.Length == 2)
+                {
+                    contactNew.Title = "";
+                    contactNew.FirstName = splitName[0];
+                    contactNew.LastName = splitName[1];
+                }
+                else
+                {
+                    contactNew.Title = "";
+                    contactNew.FirstName = customer.Contact;
+                    contactNew.LastName = "";
+                }
+
+                var contactEntity = _context.Contacts.Add(contactNew);
+
+                _context.SaveChanges();
+                var contactId = contactEntity.Entity.Id;
+
+                //now save this contact to the customerDivision
+                _context.CustomerDivisionContacts.Add(new CustomerDivisionContact
+                {
+                    CustomerDivisionId = customerDivisionId,
+                    ContactId = contactId,
+                });
+
+                await _context.SaveChangesAsync();
             }
-            
-            var contactEntity = _context.Contacts.Add(new Contact
+            catch (Exception ex)
             {
-                FirstName = customer.Contact,
-                LastName = "",
-                Mobile = customer.TelephoneNumber ?? "100000001",
-                Email = customer.EmailAddress,
-                DateOfBirth = DateTime.Now,
-                CreatedById = userIdToUse,
-                CreatedAt = DateTime.Now,
-                Gender = Gender.Unspecified,
-                Title = "Mr",
-                Priority = ContactPriority.PrimaryContact,
-                Designation =  ContactDesignation.Self                
-            });
-            _context.SaveChanges();
-            var contactId = contactEntity.Entity.Id;
-
-            //now save this contact to the customerDivision
-            _context.CustomerDivisionContacts.Add(new CustomerDivisionContact
-            { 
-                CustomerDivisionId =  customerDivisionId,
-                ContactId = contactId
-            });
-
-            await _context.SaveChangesAsync();
-
+                _logger.LogError(ex.StackTrace);
+                throw;
+            }
             return true;
         }
 
@@ -460,6 +560,15 @@ namespace HaloBiz.Controllers
             _serviceTypes.Add(new ServiceTypes { ServiceType = "TES", ServiceTypeName = "TELTONIKA SUBSCRIPTION" });
             _serviceTypes.Add(new ServiceTypes { ServiceType = "VCS", ServiceTypeName = "VETTING CONSULTANCY SERVICES" });
             _serviceTypes.Add(new ServiceTypes { ServiceType = "WKT", ServiceTypeName = "WALKIE TALKIE SERVICE" });
+            _serviceTypes.Add(new ServiceTypes { ServiceType = "SUPAD", ServiceTypeName = "SUPERVISOR ADMIN SERVICE", Enum = ServiceRelationshipEnum.Admin, AdminDirectTie = "1235643564" });
+            _serviceTypes.Add(new ServiceTypes { ServiceType = "SUPDR", ServiceTypeName = "SUPERVISOR DIRECT SERVICE", Enum = ServiceRelationshipEnum.Admin, AdminDirectTie = "1235643564" });
+            // Static Guards
+            _serviceTypes.Add(new ServiceTypes { ServiceType = "SD", ServiceTypeName = "STATIC GUARDS", Enum = ServiceRelationshipEnum.Standalone});
+            //Dog Handlers Direct Charges
+            _serviceTypes.Add(new ServiceTypes { ServiceType = "DH", ServiceTypeName = "DOG HANDLER DIRECT", Enum = ServiceRelationshipEnum.Direct, AdminDirectTie="92828778" });
+            _serviceTypes.Add(new ServiceTypes { ServiceType = "DHA", ServiceTypeName = "DOG HANDLER ADMIN", Enum = ServiceRelationshipEnum.Admin, AdminDirectTie = "92828778" });
+
+
         }
     }    
 }
