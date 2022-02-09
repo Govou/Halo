@@ -103,7 +103,7 @@ stages:
       - task: Docker@2
         inputs:
           containerRegistry: 'Halobiz-Registry'
-          repository: 'halobiz-backend'
+          repository: 'halobiz-backend-staging'
           command: 'buildAndPush'
           Dockerfile: '**/Dockerfile.development'
           tags: $(tag)
