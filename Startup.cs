@@ -85,11 +85,33 @@ namespace HaloBiz
                         .RequireAuthenticatedUser()
                         .Build();
                 });
-            }*/      
+            }*/
 
             // singletons
             //services.AddSingleton(Configuration.GetSection("AppSettings").Get<AppSettings>());
 
+            services.AddHealthChecks().AddAsyncCheck("Http", async () =>
+            {
+                using (System.Net.Http.HttpClient client = new System.Net.Http.HttpClient())
+                {
+                    try
+                    {
+                        string appSwaggerUrl = Configuration.GetConnectionString("HalobizSwaggerUrl");
+                        var response = await client.GetAsync(appSwaggerUrl);
+
+                        if (!response.IsSuccessStatusCode)
+                        {
+                            throw new Exception("Url not responding with 200 OK");
+                        }
+                    }
+                    catch (Exception)
+                    {
+                        return await Task.FromResult(Microsoft.Extensions.Diagnostics.HealthChecks.HealthCheckResult.Unhealthy());
+                    }
+                }
+
+                return await Task.FromResult(Microsoft.Extensions.Diagnostics.HealthChecks.HealthCheckResult.Healthy());
+            });
             services.RegisterServiceLayerDi();
             services.AddSingleton<JwtHelper>();
 
@@ -158,7 +180,24 @@ namespace HaloBiz
             app.UseSwagger();
             app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "HaloBiz v1"));
 
+            app.UseHealthChecks("/healthcheck", new Microsoft.AspNetCore.Diagnostics.HealthChecks.HealthCheckOptions
+            {
+                ResponseWriter = async (context, report) =>
+                {
+                    var result = Newtonsoft.Json.JsonConvert.SerializeObject(new
+                    {
+                        status = report.Status.ToString(),
+                        checks = report.Entries.Select(c => new
+                        {
+                            check = c.Key,
+                            result = c.Value.Status.ToString()
+                        }),
+                    });
 
+                    context.Response.ContentType = System.Net.Mime.MediaTypeNames.Application.Json;
+                    await context.Response.WriteAsync(result);
+                }
+            });
 
             app.UseCors(cors => cors.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
 
