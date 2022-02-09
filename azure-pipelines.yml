@@ -1,0 +1,59 @@
+trigger:
+  branches:
+    include:
+      - develop
+      - staging
+      - production
+      - pipe-fix/ft
+
+pr:
+  - develop
+  - staging
+  - production
+  #- pipe-fix/ft
+resources:
+- repo: self
+
+variables:
+  tag: '$(Build.BuildId)'
+  isDev: $[eq(variables['Build.SourceBranchName'], 'develop')]
+  isStg: $[eq(variables['Build.SourceBranchName'], 'staging')]
+  isCi: $[eq(variables['Build.SourceBranchName'], 'pipe-fix/ft')]
+  isProd: $[eq(variables['Build.SourceBranchName'], 'production')]
+  vmImageName: 'ubuntu-18.04'
+  BuildConfiguration: 'Release'
+  SolutionPath: '$(System.DefaultWorkingDirectory)/HaloBiz.csproj'
+
+
+stages:
+- stage: Deploy_to_Dev
+  displayName: Deploy Halobiz-backend to Dev
+  condition: eq(variables.isDev, true)
+  jobs:
+    - job: Deployment
+      displayName: Deploy_to_Dev
+      pool:
+        vmImage: $(vmImageName)
+      steps:
+      - task: DownloadSecureFile@1
+        name: DevEnv
+        displayName: 'Download Halobiz-backend appsettings.json to Dev environment'
+        inputs:
+          secureFile: 'appsettings.json'
+
+      - task: CmdLine@2
+        displayName: 'Copy Halobiz-backend appsettings.json env to default directory'
+        inputs:
+          script: |
+            cp $(DevEnv.secureFilePath) '$(System.DefaultWorkingDirectory)/'
+
+      - task: Docker@2
+        inputs:
+          containerRegistry: 'halobiz.azurecr.io'
+          repository: 'halobiz-backend'
+          command: 'buildAndPush'
+          Dockerfile: '**/Dockerfile'
+          tags: $(tag)
+
+
+
