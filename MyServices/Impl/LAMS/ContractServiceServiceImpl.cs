@@ -107,16 +107,5 @@ namespace HaloBiz.MyServices.Impl.LAMS
             var contractServiceTransferDTOs = _mapper.Map<IEnumerable<ContractServiceTransferDTO>>(contractService);
             return CommonResponse.Send(ResponseCodes.SUCCESS, contractServiceTransferDTOs);
         }
-
-        public async Task<ApiCommonResponse> GetAllContractsServceByid(long customerDivision)
-        {
-            var contractService = await _contractServiceRepo.FindAllContractServices(customerDivision);
-            if (contractService == null)
-            {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);
-            }
-            var contractServiceTransferDTOs = _mapper.Map<IEnumerable<ContractServiceTransferDTO>>(contractService);
-            return CommonResponse.Send(ResponseCodes.SUCCESS, contractServiceTransferDTOs);
-        }
     }
 }

@@ -19,8 +19,7 @@ namespace HaloBiz.MyServices
         Task<ApiCommonResponse> ConvertInvoiceToFinalInvoice(List<long> invoiceIds, HttpContext httpContext);
         Task<ApiCommonResponse> SendPeriodicInvoices();
         Task<ApiCommonResponse> SendInvoice(long invoiceId);
-        Task<ApiCommonResponse> SendJourneyManagementPlan(long serviceAssignmentId);
-        Task<ApiCommonResponse> GetJMPDetails(long serviceAssignmentId);
+        //Task<ApiCommonResponse> SendJourneyManagementPlan(long serviceAssignmentId);
         Task<ApiCommonResponse> GetInvoiceDetails(long invoiceId);
         Task<ApiCommonResponse> RemoveProformaInvoice(long invoiceId);
         Task<ApiCommonResponse> GetGroupInvoiceSendDateByContractId(long contractId);

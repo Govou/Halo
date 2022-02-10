@@ -45,21 +45,16 @@ namespace HaloBiz.MyServices
         Task<ApiCommonResponse> removeFromProjectCreator(long workspaceId, long creatorId);
         Task<ApiCommonResponse> disablePrivateUser(long workspaceId, long privateUserId);
         Task<ApiCommonResponse> getDeliverableIsDeclined(HttpContext httpContext);
-        Task<ApiCommonResponse> getAllMilestoneTaskForWatcher(HttpContext httpContext);
         Task<ApiCommonResponse> addMorePrivateUser(HttpContext httpContext, long workspaceId, List<AddMoreUserDto> privateUserid);
         Task<ApiCommonResponse> disableStatus(long workspaceId, long statusId);
         Task<ApiCommonResponse> updateStatus(HttpContext httpContext, long workspaceId, long statusFlowId, StatusFlowDTO statusFlowDTO);
         Task<ApiCommonResponse> updateToPublic(long workspaceId);
-        Task<ApiCommonResponse> getAllTaskToDueToday(HttpContext httpContext);
         Task<ApiCommonResponse> getWorkspaceWithProjectWatcher(HttpContext httpContext);
         Task<ApiCommonResponse> getAllTaskFromProjectRevamped(HttpContext httpContext, long projectId);
-        Task<ApiCommonResponse> getProjectCountBarChart(HttpContext httpContext);
-        Task<ApiCommonResponse> getWorkspaceCountBarChart(HttpContext httpContext);
         Task<ApiCommonResponse> getAllTaskFromProject(HttpContext httpContext, long projectId);
         Task<ApiCommonResponse> moveStatusSequenec(HttpContext httpContext, long workspaceId, List<StatusFlowDTO> statusFlowDTO);
         Task<ApiCommonResponse> createProject(HttpContext httpContext, ProjectDTO projectDTO);
         Task<ApiCommonResponse> getAllProjects(HttpContext httpContext);
-        Task<ApiCommonResponse> getTaskOwnershipDTO(HttpContext httpContext);
         Task<ApiCommonResponse> getProjectByProjectName(HttpContext httpContext, string projectName);
 
         Task<ApiCommonResponse> getWorkByProjectCreatorId(HttpContext httpContext);
@@ -104,7 +99,6 @@ namespace HaloBiz.MyServices
         Task<ApiCommonResponse> DeleteIllustration(HttpContext context, long taskId, long deliverableId,long illustrationId);
         Task<ApiCommonResponse> createTaskIllustration(IllustrationsDTO illustrationsDTO, long taskId, HttpContext httpContext);
         Task<ApiCommonResponse> getTaskIllustrationById(long taskId);
-        Task<ApiCommonResponse> getTaskPieChartData(HttpContext httpContext);
         Task<ApiCommonResponse> getDeliverablesByTaskId(HttpContext httpContext, long taskId);
         Task<ApiCommonResponse> removeIllustrationById(long taskId, long illustrationId);
         Task<ApiCommonResponse> createNewDeliverableFromTask(HttpContext httpContext, long TaskId, DeliverableDTO deliverableDTO);

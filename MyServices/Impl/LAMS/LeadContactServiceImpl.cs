@@ -64,14 +64,12 @@ namespace HaloBiz.MyServices.Impl.LAMS
                     var savedLeadContact = contactEntity.Entity;
 
                     //Assign Attach the lead contact to lead based on the contact Contact and update lead
-                    //todo Contact adjustment
-
-                    //if(leadContactReceivingDTO.Type == ContactType.Primary)
-                    //{
-                    //    lead.PrimaryContactId = savedLeadContact.Id;
-                    //}else{
-                    //    lead.SecondaryContactId = savedLeadContact.Id;
-                    //}
+                    if(leadContactReceivingDTO.Type == ContactType.Primary)
+                    {
+                        lead.PrimaryContactId = savedLeadContact.Id;
+                    }else{
+                        lead.SecondaryContactId = savedLeadContact.Id;
+                    }
                     _context.Leads.Update(lead);
                     await _context.SaveChangesAsync();
                     //Map savedContact to a dto and return it

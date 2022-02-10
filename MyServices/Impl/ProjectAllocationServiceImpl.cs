@@ -978,7 +978,7 @@ namespace HaloBiz.MyServices.Impl
         //                                                 .Include(x=>x.TaskOwnership)
         //                                                        .ThenInclude(x=>x.TaskOwner)
         //                                           .ToListAsync();
-
+      
 
 
 
@@ -986,202 +986,6 @@ namespace HaloBiz.MyServices.Impl
 
         //}
 
-        public async Task<ApiCommonResponse> getProjectCountBarChart(HttpContext httpContext)
-        {
-            var projectQuery = await _context.Watchers.Where(x => x.IsActive == true && x.ProjectWatcherId == httpContext.GetLoggedInUserId())
-                                                      .Include(x => x.Project)
-                                                      .ThenInclude(x => x.Tasks)
-                                                      .ToListAsync();
-            var projectArray = new List<Project>();
-            foreach(var watcher in projectQuery)
-            {
-                if(watcher.Project.IsActive == true)
-                {
-                    projectArray.Add(watcher.Project);
-                }
-            }
-
-            //var projectBarChart = new ProjectBarChartDTO();
-            //if(projectArray.Count > 0)
-            //{
-            //    foreach (var project in projectArray)
-            //    {
-            //        projectBarChart.ProjectNames.Add(project.Caption);
-            //        projectBarChart.TaskCount.Add(project.Tasks.Count);
-
-            //    }
-            //}
-            
-
-            return CommonResponse.Send(ResponseCodes.SUCCESS, projectArray);
-        }
-
-        public async Task<ApiCommonResponse> getWorkspaceCountBarChart(HttpContext httpContext)
-        {
-            var watcherQuery = await _context.Watchers.Where(x => x.IsActive == true && x.ProjectWatcherId == httpContext.GetLoggedInUserId())
-                                                       .Include(x => x.Project)
-                                                       .ThenInclude(x => x.Workspace)
-                                                          .ThenInclude(x => x.Projects.Where(x => x.IsActive == true))
-                                                                      .ThenInclude(x => x.Tasks)
-                                                       .ToListAsync();
-                                                       
-
-            var workspaceArray = new List<Workspace>();
-            foreach(var watcher in watcherQuery)
-            {
-                workspaceArray.Add(watcher.Project.Workspace);
-            }
-
-            //var workspaceBarchart = new WorkspaceBarchartDTO();
-            //if (workspaceArray.Count > 0)
-            //{
-
-            //    foreach (var workspace in workspaceArray)
-            //    {
-            //        workspaceBarchart.WorkspaceName.Add(workspace.Caption);
-            //        workspaceBarchart.TaskCount.Add(_context.Projects.Where(x => x.IsActive == true && x.WorkspaceId == workspace.Id)
-            //                                    .Include(x => x.Tasks.Where(x => x.IsActive == true))
-            //                                    .ToList().Count);
-
-            //        foreach (var project in workspace.Projects)
-            //        {
-            //            workspaceBarchart.TaskCount.Add(project.Tasks.Count);
-            //        }
-
-
-            //    }
-
-            //}
-
-            var workspaceResult = workspaceArray.GroupBy(p => p.Id)
-                           .Select(result => result.First())
-                           .ToArray();
-
-
-            return CommonResponse.Send(ResponseCodes.SUCCESS, workspaceResult);
-
-        }
-
-        
-        public async Task<ApiCommonResponse> getAllMilestoneTaskForWatcher(HttpContext httpContext)
-        {
-            var milestoneQuery = await _context.Watchers.Where(x => x.IsActive == true && x.ProjectWatcherId == httpContext.GetLoggedInUserId())
-                                                        .Include(x => x.Project)
-                                                                .ThenInclude(x => x.Tasks.Where(x => x.IsActive == true && x.IsMilestone == true))
-                                                                      .ThenInclude(x=>x.Deliverables.Where(x=>x.IsActive == true))
-                                                        .ToListAsync();
-            var taskList = new List<Task>();
-            foreach(var watcher in milestoneQuery)
-            {
-                if(watcher.Project.Tasks != null || watcher.Project.Tasks.Count != 0)
-                {
-                    taskList.AddRange(watcher.Project.Tasks);
-                }
-                
-            }
-
-            return CommonResponse.Send(ResponseCodes.SUCCESS, taskList);
-        }
-
-        public async Task<ApiCommonResponse> getAllTaskToDueToday(HttpContext httpContext)
-        {
-            var taskDuetoday = await _context.Watchers.Where(x => x.IsActive == true && x.ProjectWatcherId == httpContext.GetLoggedInUserId())
-                                                       .Include(x => x.Project)
-                                                               .ThenInclude(x => x.Tasks.Where(x => x.IsActive == true && x.IsMilestone == true))
-                                                                            .ThenInclude(x => x.Deliverables.Where(x => x.IsActive == true))
-                                                       .ToListAsync();
-
-            var taskList = new List<Task>();
-            foreach (var watcher in taskDuetoday)
-            {
-                var today = DateTime.Now;
-                var getTaskDuetoday = watcher.Project.Tasks.Where(x => x.IsActive && x.TaskEndDate == today).ToList();
-                if(getTaskDuetoday.Count != 0)
-                {
-                    taskList.AddRange(getTaskDuetoday);
-                }
-                 
-            }
-
-            return CommonResponse.Send(ResponseCodes.SUCCESS, taskList);
-        }
-
-        public async Task<ApiCommonResponse> getTaskOwnershipDTO(HttpContext httpContext)
-        {
-
-            var taskOwnersQuery = await _context.Watchers.Where(x => x.IsActive == true && x.ProjectWatcherId == httpContext.GetLoggedInUserId())
-                                                         .Include(x => x.Project)
-                                                                .ThenInclude(x => x.Tasks.Where(x => x.IsActive == true))
-                                                                   .ThenInclude(x => x.TaskOwnership)
-                                                                               .ThenInclude(x=>x.Tasks.Where(x=>x.IsActive == true))
-                                                                               .ToListAsync();
-
-            var taskArray = new List<Task>();
-            if(taskOwnersQuery.Count > 0)
-            {
-                var taskBar = new TaskBarChartDTO();
-                foreach(var watchers in taskOwnersQuery)
-                {
-                    taskArray.AddRange(watchers.Project.Tasks);
-                }
-
-            }
-
-
-            var taskOwnerDTO = new List<TaskBarChartDTO>();
-            if (taskArray.Count > 0)
-            {
-
-                foreach (var task in taskArray)
-                {
-                    var taskOwner = new TaskBarChartDTO();
-                    var owner = await _context.UserProfiles.Where(x => x.IsDeleted == false && x.Id == task.TaskOwnership.TaskOwnerId).FirstOrDefaultAsync();
-                    taskOwner.TaskOwnerName = owner.FirstName + " " + owner.LastName;
-                    
-                    taskOwner.TaskCount = _context.Tasks.Where(x => x.IsActive == true && x.TaskOwnershipId == task.TaskOwnershipId)
-                                                              .ToList().Count();
-                    taskOwnerDTO.Add(taskOwner);
-                }
-
-
-
-            }
-
-            return CommonResponse.Send(ResponseCodes.SUCCESS, taskOwnerDTO);
-
-        }
-
-
-
-
-        public async Task<ApiCommonResponse> getTaskPieChartData(HttpContext httpContext)
-        {
-            var watcherQuery = await _context.Watchers.Where(x => x.IsActive == true && x.ProjectWatcherId == httpContext.GetLoggedInUserId())
-                                                       .Include(x => x.Project)
-                                                               .ThenInclude(x => x.Tasks.Where(x => x.IsActive == true))
-                                                               .ThenInclude(x=>x.Deliverables.Where(x=>x.IsActive == true))
-                                                        .ToListAsync();
-
-
-            var taskArray = new List<Task>();
-            foreach(var watcher in watcherQuery)
-            {
-
-
-                foreach(var task in watcher.Project.Tasks)
-                {
-                    if(task.Deliverables.Count > 0)
-                    {
-
-                    taskArray.Add(task);
-
-                    }
-                }
-
-            }
-
-            return CommonResponse.Send(ResponseCodes.SUCCESS, taskArray);
-        }
 
         public async Task<ApiCommonResponse> getAllTaskFromProjectRevamped(HttpContext httpContext, long projectId)
         {
@@ -1205,7 +1009,6 @@ namespace HaloBiz.MyServices.Impl
                                                                                  .Include(x => x.DeliverableAssignee).FirstOrDefaultAsync();
                     deliverable.Balances = await _context.Balances.Where(x => x.IsActive == true && x.DeliverableId == deliverable.Id).ToListAsync();
                     deliverable.Status = await _context.StatusFlows.Where(x => x.IsDeleted == false && x.Id == deliverable.StatusId).FirstOrDefaultAsync();
-                    deliverable.Dependencies = await _context.Dependencies.Where(x => x.DependencyDeliverableId == deliverable.Id).ToListAsync();
                     deliverableArray.Add(deliverable);
                 }
 
@@ -1865,40 +1668,33 @@ namespace HaloBiz.MyServices.Impl
 
         public async Task<ApiCommonResponse> getDeliverablesByTaskId(HttpContext httpContext, long taskId)
         {
-            //var deliverableQuery = await _context.Deliverables.Where(x => x.IsActive == true && x.TaskId == taskId && x.IsApproved == false && x.AssignTask.DeliverableAssigneeId == httpContext.GetLoggedInUserId())
-            //                                                   //.Include(x => x.Dependencies)
-            //                                                   //.Include(x => x.Balances.Where(x => x.IsActive == true))
-            //.Include(x => x.CreatedBy)
-            //.Include(x => x.Notes.Where(x => x.IsActive == true))
-            //.Include(x => x.Requirements.Where(x => x.IsActive == true))
-            //.Include(x => x.Task)
-            //        .ThenInclude(x=>x.Project)
-            //.Include(x => x.Status)
-            //.Include(x => x.UploadedRequirements.Where(x => x.IsActive == true))
-            //.ToListAsync();
-
-            var assigneeDeliverable = await _context.AssignTasks.Where(x => x.IsActive == true && x.DeliverableAssigneeId == httpContext.GetLoggedInUserId())
-                                              .Include(x => x.DeliverableAssignee)
-                                              .Include(x => x.Deliverable)
-                                                      .ThenInclude(x => x.Status)
-                                              .ToListAsync();
-
+            var deliverableQuery = await _context.Deliverables.Where(x => x.IsActive == true && x.TaskId == taskId && x.IsApproved == false)
+                                                               .Include(x => x.Dependencies)
+                                                               //.Include(x=>x.AssignTask)
+                                                               //        .ThenInclude(x=>x.DeliverableAssignee)
+                                                               .Include(x => x.Balances.Where(x => x.IsActive == true))
+                                                               .Include(x => x.CreatedBy)
+                                                               .Include(x => x.Notes.Where(x => x.IsActive == true))
+                                                               .Include(x => x.Requirements.Where(x => x.IsActive == true))
+                                                               .Include(x => x.Task)
+                                                                       .ThenInclude(x=>x.Project)
+                                                               .Include(x => x.Status)
+                                                               .Include(x => x.UploadedRequirements.Where(x => x.IsActive == true))
+                                                               //.Include(x => x.Workspace)
+                                                                       //.ThenInclude(x=>x.StatusFlows.Where(x=>x.IsDeleted == false))
+                                                               .ToListAsync();
             var deliverableArray = new List<Deliverable>();
-            foreach(var assignee in assigneeDeliverable)
+            foreach(var deliverable in deliverableQuery)
             {
-                if (assignee.Deliverable.IsActive == true && assignee.Deliverable.TaskId == taskId && assignee.Deliverable.IsApproved == false)
-                {
-                    assignee.Deliverable.AssignTask = await _context.AssignTasks.Where(x => x.IsActive == true && x.DeliverableAssigneeId == assignee.DeliverableAssigneeId).FirstOrDefaultAsync();
-                    assignee.Deliverable.Task = await _context.Tasks.Where(x => x.IsActive == true && x.Id == taskId)
-                                                                    .Include(x=>x.Project)
+
+                deliverable.Workspace = await _context.Workspaces.Where(x => x.IsActive == true && x.Id == deliverable.WorkspaceId)
+                                                                    .Include(x => x.StatusFlows.Where(x=>x.IsDeleted == false))
                                                                     .FirstOrDefaultAsync();
-                    assignee.Deliverable.Balances = await _context.Balances.Where(x => x.IsActive == true && x.DeliverableId == assignee.Deliverable.Id).ToListAsync();
-                    assignee.Deliverable.Workspace = await _context.Workspaces.Where(x => x.IsActive == true && x.Id == assignee.Deliverable.WorkspaceId)
-                                                                               .Include(x => x.StatusFlows.Where(x => x.IsDeleted == false))
-                                                                               .FirstOrDefaultAsync();
-                    deliverableArray.Add(assignee.Deliverable);
-                }
-                
+
+                deliverable.AssignTask = await _context.AssignTasks.Where(x => x.IsActive == true && x.DeliverableId == deliverable.Id)
+                                                                    .Include(x=>x.DeliverableAssignee)
+                                                                    .FirstOrDefaultAsync();
+                deliverableArray.Add(deliverable);
             }
 
             return CommonResponse.Send(ResponseCodes.SUCCESS, deliverableArray, ResponseMessage.EntitySuccessfullyFound);
