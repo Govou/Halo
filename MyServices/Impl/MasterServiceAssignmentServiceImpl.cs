@@ -156,6 +156,7 @@ namespace HaloBiz.MyServices.Impl
             {
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE); ;
             }
+            
             // var CustomerDivisionTransferDTOs = _mapper.Map<IEnumerable<CustomerDivisionTransferDTO>>(CustomerDivisions);
             return CommonResponse.Send(ResponseCodes.SUCCESS, CustomerDivisions);
         }

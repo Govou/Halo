@@ -128,16 +128,22 @@ namespace HaloBiz.MyServices.Impl.LAMS
             {
                 Customer customer;
 
-                if (lead.GroupType.Caption.ToLower().Trim() == "individual" || lead.GroupType.Caption.ToLower().Trim() == "sme")
-                {
-                    isRetail = true;
-                    customer = await GetRetailCustomer(lead, _context);
-                }
-                else
-                {
-                    isRetail = false;
-                    customer = await GetOtherCustomer(lead, _context);
-                }
+                //this was previously used but was used due to dtrack not allowing retails customers details to 
+                //to be posted
+
+                //if (lead.GroupType.Caption.ToLower().Trim() == "individual" || lead.GroupType.Caption.ToLower().Trim() == "halobiz")
+                //{
+                //    isRetail = true;
+                //    customer = await GetRetailCustomer(lead, _context);
+                //}
+                //else
+                //{
+                //    isRetail = false;
+                //    customer = await GetOtherCustomer(lead, _context);
+                //}
+
+                isRetail = false;
+                customer = await GetOtherCustomer(lead, _context);
 
                 lead.CustomerId = customer.Id;
                 lead.LeadConversionStatus = true;
@@ -211,8 +217,9 @@ namespace HaloBiz.MyServices.Impl.LAMS
                     Email = "",
                     PhoneNumber = "",
                     CreatedById = LoggedInUserId,
-                    PrimaryContactId = lead.PrimaryContactId,
-                    SecondaryContactId = lead.SecondaryContactId
+                    //todo Contact adjustment
+                    //PrimaryContactId = lead.PrimaryContactId,
+                    //SecondaryContactId = lead.SecondaryContactId
                 });
 
                 await context.SaveChangesAsync();
@@ -260,8 +267,10 @@ namespace HaloBiz.MyServices.Impl.LAMS
                     State = leadDivision.State,
                     Lga = leadDivision.Lga,
                     Street = leadDivision.Street,
-                    PrimaryContactId = leadDivision?.PrimaryContactId,
-                    SecondaryContactId = leadDivision?.SecondaryContactId,
+                    //todo Contact adjustment
+
+                    //PrimaryContactId = leadDivision?.PrimaryContactId,
+                    //SecondaryContactId = leadDivision?.SecondaryContactId,
                     CreatedById = LoggedInUserId,
                     DTrackCustomerNumber = isRetail == false ? null : await GetDtrackCustomerNumber(leadDivision)
                 });
@@ -289,6 +298,12 @@ namespace HaloBiz.MyServices.Impl.LAMS
         private async Task<string> GetDtrackCustomerNumber(LeadDivision leadDivision)
         {
             var dTrackCustomerNumber = $"{GenerateClientAlias(leadDivision.DivisionName)}_{await GenerateNextCustomerNumberSequence()}";
+            return dTrackCustomerNumber;
+        }
+
+        public async Task<string> GetDtrackCustomerNumber(CustomerDivision customer)
+        {
+            var dTrackCustomerNumber = $"{GenerateClientAlias(customer.DivisionName)}_{await GenerateNextCustomerNumberSequence()}";
             return dTrackCustomerNumber;
         }
 
@@ -885,7 +900,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                     throw new Exception("The customer divison must include customer and the customer must then include grouptype");              
 
                 var groupType = customerDivision?.Customer?.GroupType;
-                isRetail = groupType.Caption.ToLower().Trim() == "individual" || groupType.Caption.ToLower().Trim() == "sme";
+                isRetail = false; //groupType.Caption.ToLower().Trim() == "individual" || groupType.Caption.ToLower().Trim() == "sme";
             }
 
             double totalContractBillable, totalVAT;
