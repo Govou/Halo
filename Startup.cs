@@ -91,7 +91,7 @@ namespace HaloBiz
             // singletons
             //services.AddSingleton(Configuration.GetSection("AppSettings").Get<AppSettings>());
 
-            services.AddHealthChecks().AddAsyncCheck("Http", async () =>
+            services.AddHealthChecks().AddAsyncCheck("Https", async () =>
             {
                 using (System.Net.Http.HttpClient client = new System.Net.Http.HttpClient())
                 {
