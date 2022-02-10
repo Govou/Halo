@@ -108,5 +108,14 @@ stages:
           Dockerfile: '**/Dockerfile.development'
           tags: $(tag)
 
+      - task: AzureWebAppContainer@1
+        dispayName
+        inputs:
+          azureSubscription: 'Halogen-IT(d041e96e-4105-4b10-81d2-7b8bcbf6c52b)'
+          appName: 'dev-halobiz-backend'
+          deployToSlotOrASE: true
+          resourceGroupName: 'Halogen-Dev-Application'
+          slotName: 'production'
+          containers: 'halobiz.azurecr.io/halobiz-backend-staging:$(tag)'
 
 
