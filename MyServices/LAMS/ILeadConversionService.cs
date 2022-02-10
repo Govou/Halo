@@ -30,7 +30,5 @@ namespace HaloBiz.MyServices.LAMS
                                             string serviceCode,
                                             long loggedInUserId
                                             );
-
-        public Task<string> GetDtrackCustomerNumber(CustomerDivision customer);
     }
 }

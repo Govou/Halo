@@ -1,5 +1,4 @@
-﻿using HalobizMigrations.Models.Armada;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -38,16 +37,13 @@ namespace HaloBiz.DTOs.ReceivingDTOs
 
 
         public long id { get; set; }
-        public long? ServiceRegistrationId { get; set; }
-
-        //public ServiceRegistration ServiceRegistration { get; set; }
+        public long ServiceRegistrationId { get; set; }
+       
         public string DropoffLocation { get; set; }
         public string PickoffLocation { get; set; }
-        public string[] Recepients { get; set; }
+        //public DateTime DropoffDate { get; set; }
         public DateTime PickupDate { get; set; }
-        public string Subject { get; set; }
-        public string CreatedBy { get; set; }
-        public string CreatedByMobile { get; set; }
+
         public DateTime PickoffTime { get; set; }
         public ServiceMailDTO ServiceMailDTO { get; set; }
 
@@ -65,7 +61,6 @@ namespace HaloBiz.DTOs.ReceivingDTOs
         public string Lastname { get; set; }
         public string Mobile { get; set; }
         public string ImageUrl { get; set; }
-        public long? ResourceId { get; set; }
     }
     public class ArmedEscortsMailDTO
     {
@@ -73,7 +68,6 @@ namespace HaloBiz.DTOs.ReceivingDTOs
         public string Lastname { get; set; }
         public string Mobile { get; set; }
         public string ImageUrl { get; set; }
-        public long ForceId { get; set; }
     }
     public class PilotsMailDTO
     {
@@ -81,14 +75,11 @@ namespace HaloBiz.DTOs.ReceivingDTOs
         public string Lastname { get; set; }
         public string Mobile { get; set; }
         public string ImageUrl { get; set; }
-        public long? ResourceId { get; set; }
-        
     }
     public class VehiclesMailDTO
     {
         public string serviceName { get; set; }
         public string IdentificationNumber { get; set; }
-        
         //public string Mobile { get; set; }
         //public string ImageUrl { get; set; }
     }
@@ -98,7 +89,6 @@ namespace HaloBiz.DTOs.ReceivingDTOs
         public string Lastname { get; set; }
         public string Mobile { get; set; }
         public string Email { get; set; }
-        public string PassengerType { get; set; }
     }
     public class ServiceMailDTO
     {
