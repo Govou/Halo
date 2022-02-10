@@ -36,5 +36,10 @@ namespace HaloBiz.Controllers
             return await _contactServiceImpl.disableContact(HttpContext, contactId);
         }
 
+        [HttpPut("UpdateContact/{contactId}")]
+        public async Task<ApiCommonResponse> UpdateContact(long contactId,Contactdto contactDto)
+        {
+            return await _contactServiceImpl.updateContact(HttpContext, contactId, contactDto);
+        }
     }
 }

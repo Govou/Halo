@@ -12,6 +12,8 @@ using HaloBiz.Model;
 using HalobizMigrations.Models.Halobiz;
 using HaloBiz.DTOs.ContactDTO;
 using System.Linq;
+using HalobizMigrations.Models;
+using HalobizMigrations.Models.Visitors;
 
 namespace HaloBiz.MyServices.Impl
 {
@@ -88,10 +90,65 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.SUCCESS);
 
             }
+
+
+
         }
+
+
+        public async Task<ApiCommonResponse> updateContact(HttpContext httpContext, long contactId, Contactdto contactdto)
+        {
+            var contactToUpdate = await _context.Contacts.Where(x => x.IsDeleted == false && x.Id == contactId).FirstOrDefaultAsync();
+            if (contactToUpdate == null)
+            {
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);
+               
+            }
+            else
+            {
+                var summary = $"Initial details before change, \n {contactToUpdate.ToString()} \n";
+                contactToUpdate.DateOfBirth = contactdto.DateOfBirth;
+                contactToUpdate.Email = contactdto.Email;
+                contactToUpdate.Email2 = contactdto.Email2;
+                contactToUpdate.Facebook = contactdto.Facebook;
+                contactToUpdate.FirstName = contactdto.FirstName;
+                contactToUpdate.Gender = contactdto.Gender;
+                contactToUpdate.Instagram = contactdto.Instagram;
+                contactToUpdate.IsDeleted = contactdto.IsDeleted;
+                contactToUpdate.LastName = contactdto.LastName;
+                contactToUpdate.MiddleName = contactdto.MiddleName;
+                contactToUpdate.Mobile = contactdto.Mobile;
+                contactToUpdate.Mobile2 = contactdto.Mobile2;
+                contactToUpdate.ProfilePicture = contactdto.ProfilePicture;
+                contactToUpdate.Title = contactdto.Title;
+                contactToUpdate.Twitter = contactdto.Twitter;
+
+                var mappedUpdatedContact = _mapper.Map<Contact>(contactToUpdate);
+
+                var updatedContacts = _context.Contacts.Update(mappedUpdatedContact).Entity;
+                await _context.SaveChangesAsync();
+
+                summary += $"Details after change, \n {updatedContacts.ToString()} \n";
+
+                ModificationHistory history = new ModificationHistory()
+                {
+                    ModelChanged = "Contact",
+                    ChangeSummary = summary,
+                    ChangedById = httpContext.GetLoggedInUserId(),
+                    ModifiedModelId = updatedContacts.Id
+                };
+
+                await _context.ModificationHistories.AddAsync(history);
+                await _context.SaveChangesAsync();
+                return CommonResponse.Send(ResponseCodes.SUCCESS, updatedContacts);
+            }
+        }
+
+        
 
         public async Task<ApiCommonResponse> GetAllContact(HttpContext httpContext)
         {
+            
             var contact = await _context.Contacts.Where(x => x.IsDeleted == false && x.CreatedById == httpContext.GetLoggedInUserId()).ToListAsync();
             if (contact == null)
             {
