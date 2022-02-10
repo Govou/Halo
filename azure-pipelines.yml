@@ -109,7 +109,7 @@ stages:
           tags: $(tag)
 
       - task: AzureWebAppContainer@1
-        dispayName
+        dispayName: 'Halobiz-backend deployment to Azure Container'
         inputs:
           azureSubscription: 'Halogen-IT(d041e96e-4105-4b10-81d2-7b8bcbf6c52b)'
           appName: 'dev-halobiz-backend'
