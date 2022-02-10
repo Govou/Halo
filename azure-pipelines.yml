@@ -67,7 +67,19 @@ stages:
           Dockerfile: '**/Dockerfile.development'
           tags: $(tag)
 
-- stage: Deploy_halobiz-backend_to_staging
+      - task: AzureWebAppContainer@1
+        displayName: 'Halobiz-backend deployment to Azure Container'
+        inputs:
+          azureSubscription: 'Halogen-IT(d041e96e-4105-4b10-81d2-7b8bcbf6c52b)'
+          appName: 'dev-halobiz-backend'
+          deployToSlotOrASE: true
+          resourceGroupName: 'Halogen-Dev-Application'
+          slotName: 'production'
+          containers: 'halobiz.azurecr.io/halobiz-backend-staging:$(tag)'
+
+
+
+- stage: Deploy_halobiz_backend_to_staging
   displayName: Deploy Halobiz-backend to staging
   condition: eq(variables.isStg, true)
   jobs:
@@ -107,15 +119,5 @@ stages:
           command: 'buildAndPush'
           Dockerfile: '**/Dockerfile.development'
           tags: $(tag)
-
-      - task: AzureWebAppContainer@1
-        displayName: 'Halobiz-backend deployment to Azure Container'
-        inputs:
-          azureSubscription: 'Halogen-IT(d041e96e-4105-4b10-81d2-7b8bcbf6c52b)'
-          appName: 'dev-halobiz-backend'
-          deployToSlotOrASE: true
-          resourceGroupName: 'Halogen-Dev-Application'
-          slotName: 'production'
-          containers: 'halobiz.azurecr.io/halobiz-backend-staging:$(tag)'
 
 
