@@ -75,7 +75,7 @@ stages:
           deployToSlotOrASE: true
           resourceGroupName: 'Halogen-Dev-Application'
           slotName: 'production'
-          containers: 'halobiz.azurecr.io/halobiz-backend-staging:$(tag)'
+          containers: 'halobiz.azurecr.io/halobiz-backend:$(tag)'
 
 
 
