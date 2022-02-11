@@ -39,14 +39,14 @@ namespace HaloBiz.MyServices.Impl
             using (var transaction = _context.Database.BeginTransaction())
             {
                 try
-                                                           {
+                    {
                     //Check if the user with the same lastname,email or phonenumber already exist
                     var contactInstance = await _context.Contacts.FirstOrDefaultAsync(x => x.Email  == contactDTO.Email && x.IsDeleted == false
                                                                                       || x.LastName == contactDTO.LastName && x.IsDeleted == false
                                                                                       || x.Mobile == contactDTO.Mobile && x.IsDeleted == false);
                     if (contactInstance != null)
                     {
-                        return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE,"A user with the same Email,LastName or Mobile number already exists"); ;
+                        return CommonResponse.Send(ResponseCodes.FAILURE,null,"A user with the same Email,LastName or Mobile number already exists"); ;
                     }
 
                     //Map Dto to constact, add the logged in user info and save the contact
@@ -173,6 +173,43 @@ namespace HaloBiz.MyServices.Impl
             {
                 return CommonResponse.Send(ResponseCodes.SUCCESS, suspect);
             }
+
+        }
+
+
+        public async Task<ApiCommonResponse> AttachToSuspect(HttpContext httpContext,long suspectId,SuspectContactDTO suspectContactDTO)
+        {
+
+            using (var transaction = _context.Database.BeginTransaction())
+            {
+                try
+                {
+                    //Check if the user with the same lastname,email or phonenumber already exist
+                    var suspect = await _context.Suspects.Where(x => x.IsDeleted == false && x.Id == suspectId).FirstOrDefaultAsync();
+
+                    if (suspect != null)
+                    {
+                        return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE); ;
+                    }
+
+                    //Map Dto to constact, add the logged in user info and save the contact
+                    var newContact = _mapper.Map<SuspectContact>(suspectContactDTO);
+                    newContact = false;
+                    var contactEntity = await _context.SuspectContacts.AddAsync(newContact);
+                    await _context.SaveChangesAsync();
+                    var savedContact = contactEntity.Entity;
+                    await transaction.CommitAsync();
+
+                    return CommonResponse.Send(ResponseCodes.SUCCESS, savedContact);
+                }
+                catch (Exception e)
+                {
+                    _logger.LogError(e.Message);
+                    transaction.Rollback();
+                    return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+                }
+            }
+
 
         }
 
