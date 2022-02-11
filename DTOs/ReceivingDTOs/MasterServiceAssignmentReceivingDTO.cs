@@ -65,6 +65,7 @@ namespace HaloBiz.DTOs.ReceivingDTOs
         public string Lastname { get; set; }
         public string Mobile { get; set; }
         public string ImageUrl { get; set; }
+        public long? ResourceId { get; set; }
     }
     public class ArmedEscortsMailDTO
     {
@@ -72,6 +73,7 @@ namespace HaloBiz.DTOs.ReceivingDTOs
         public string Lastname { get; set; }
         public string Mobile { get; set; }
         public string ImageUrl { get; set; }
+        public long ForceId { get; set; }
     }
     public class PilotsMailDTO
     {
@@ -79,6 +81,8 @@ namespace HaloBiz.DTOs.ReceivingDTOs
         public string Lastname { get; set; }
         public string Mobile { get; set; }
         public string ImageUrl { get; set; }
+        public long? ResourceId { get; set; }
+        
     }
     public class VehiclesMailDTO
     {
@@ -94,6 +98,7 @@ namespace HaloBiz.DTOs.ReceivingDTOs
         public string Lastname { get; set; }
         public string Mobile { get; set; }
         public string Email { get; set; }
+        public string PassengerType { get; set; }
     }
     public class ServiceMailDTO
     {
