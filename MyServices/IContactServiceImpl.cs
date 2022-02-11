@@ -12,6 +12,7 @@ namespace HaloBiz.MyServices
         Task<ApiCommonResponse> GetAllContact(HttpContext httpContext);
         Task<ApiCommonResponse> disableContact(HttpContext httpContext, long contactId);
         Task<ApiCommonResponse> updateContact(HttpContext httpContext, long contactId, Contactdto contactdto);
+        Task<ApiCommonResponse> GetAllSuspect();
 
     }
 }

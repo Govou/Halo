@@ -161,6 +161,23 @@ namespace HaloBiz.MyServices.Impl
             
         }
 
+        public async Task<ApiCommonResponse> GetAllSuspect()
+        {
+
+            var suspect = await _context.Suspects.Where(x => x.IsDeleted == false).ToListAsync();
+            if (suspect == null)
+            {
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);
+            }
+            else
+            {
+                return CommonResponse.Send(ResponseCodes.SUCCESS, suspect);
+            }
+
+        }
+
+
+
 
 
 

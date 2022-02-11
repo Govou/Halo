@@ -41,5 +41,11 @@ namespace HaloBiz.Controllers
         {
             return await _contactServiceImpl.updateContact(HttpContext, contactId, contactDto);
         }
+
+        [HttpGet("GetAllSupects")]
+        public async Task<ApiCommonResponse> GetAllSupects()
+        {
+            return await _contactServiceImpl.GetAllSuspect();
+        }
     }
 }
