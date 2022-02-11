@@ -177,28 +177,34 @@ namespace HaloBiz.MyServices.Impl
         }
 
 
-        public async Task<ApiCommonResponse> AttachToSuspect(HttpContext httpContext,long suspectId,SuspectContactDTO suspectContactDTO)
+        public async Task<ApiCommonResponse> AttachToSuspect(HttpContext httpContext,SuspectContactDTO suspectContactDTO)
         {
 
             using (var transaction = _context.Database.BeginTransaction())
             {
                 try
                 {
-                    //Check if the user with the same lastname,email or phonenumber already exist
-                    var suspect = await _context.Suspects.Where(x => x.IsDeleted == false && x.Id == suspectId).FirstOrDefaultAsync();
 
-                    if (suspect != null)
+                    
+                    //Check if the user with the same lastname,email or phonenumber already exist
+                    var checkIfCntactExist = await _context.SuspectContacts.Where(x => x.IsDeleted == false
+                                                             && x.SuspectId == suspectContactDTO.SuspectId
+                                                             && x.ContactId == suspectContactDTO.ContactId)
+                                                            .FirstOrDefaultAsync();
+
+                    if (checkIfCntactExist != null)
                     {
-                        return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE); ;
+                        return CommonResponse.Send(ResponseCodes.FAILURE,null,"This contact has already been attached to this suspect");
                     }
 
                     //Map Dto to constact, add the logged in user info and save the contact
                     var newContact = _mapper.Map<SuspectContact>(suspectContactDTO);
-                    newContact = false;
+                    newContact.IsDeleted = false;
                     var contactEntity = await _context.SuspectContacts.AddAsync(newContact);
                     await _context.SaveChangesAsync();
                     var savedContact = contactEntity.Entity;
                     await transaction.CommitAsync();
+
 
                     return CommonResponse.Send(ResponseCodes.SUCCESS, savedContact);
                 }
@@ -213,11 +219,56 @@ namespace HaloBiz.MyServices.Impl
 
         }
 
+        public async Task<ApiCommonResponse> GetContactsAttachedToSuspect(long suspectId)
+        {
+
+            var suspect = await _context.SuspectContacts.Where(x => x.IsDeleted == false && x.SuspectId == suspectId)
+                                                              .Include(x=>x.Contact)
+                                                              .Include(x=>x.Suspect)
+                                                              .ToListAsync();
+            if (suspect == null)
+            {
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);
+            }
+            else
+            {
+                return CommonResponse.Send(ResponseCodes.SUCCESS, suspect);
+            }
+
+            //_context.Meetings
+        }
 
 
 
+        public async Task<ApiCommonResponse> detachContact(HttpContext httpContext,long suspectid,long contactId)
+        {
 
+            using (var transaction = _context.Database.BeginTransaction())
+            {
+                try
+                {
 
+                    var checkIfCntactExist = await _context.SuspectContacts.FirstOrDefaultAsync(x => x.IsDeleted == false && x.SuspectId == suspectid && x.ContactId == contactId);
+                    if (checkIfCntactExist == null)
+                    {
+                        return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);
+                    }
+
+                    checkIfCntactExist.IsDeleted = true;
+                    _context.SuspectContacts.Update(checkIfCntactExist);
+                    await _context.SaveChangesAsync();
+                    await transaction.CommitAsync();
+                    return CommonResponse.Send(ResponseCodes.SUCCESS);
+                }
+                catch (Exception e)
+                {
+                    _logger.LogError(e.Message);
+                    transaction.Rollback();
+                    return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+                }
+            }
+
+        }
 
     }
 }

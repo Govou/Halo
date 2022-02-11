@@ -160,6 +160,7 @@ namespace HaloBiz.Helpers
             CreateMap<CustomerDivisionReceivingDTO, CustomerDivision>();
             CreateMap<CustomerDivision, CustomerDivisionTransferDTO>();
             CreateMap<CustomerDivision, CustomerDivisionWithoutObjectsTransferDTO>();
+            CreateMap<SuspectContactDTO, SuspectContact>();
             CreateMap<LeadReceivingDTO, Lead>();
             CreateMap<Lead, LeadTransferDTO>();
             CreateMap<Lead, LeadWithoutModelsTransferDTO>();

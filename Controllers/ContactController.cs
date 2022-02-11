@@ -24,6 +24,15 @@ namespace HaloBiz.Controllers
             return await _contactServiceImpl.AddNewContact(HttpContext, contactDto);
         }
 
+
+        [HttpPost("AttachContactToSuspect")]
+        public async Task<ApiCommonResponse> AttachContactToSuspect(SuspectContactDTO suspectContactDTO)
+        {
+            return await _contactServiceImpl.AttachToSuspect(HttpContext, suspectContactDTO);
+        }
+
+
+
         [HttpGet("GetAllContacts")]
         public async Task<ApiCommonResponse> GetAllContacts()
         {
@@ -46,6 +55,18 @@ namespace HaloBiz.Controllers
         public async Task<ApiCommonResponse> GetAllSupects()
         {
             return await _contactServiceImpl.GetAllSuspect();
+        }
+
+        [HttpGet("GetContactsAttachedToSuspects/{suspectId}")]
+        public async Task<ApiCommonResponse> GetAllSupects(long suspectId)
+        {
+            return await _contactServiceImpl.GetContactsAttachedToSuspect(suspectId);
+        }
+
+        [HttpPut("DetatchContact/{suspectId}/{contactId}")]
+        public async Task<ApiCommonResponse> DetatchContact(long suspectId,long contactId)
+        {
+            return await _contactServiceImpl.detachContact(HttpContext,suspectId,contactId);
         }
     }
 }

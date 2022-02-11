@@ -6,6 +6,8 @@ namespace HaloBiz.DTOs.ContactDTO
 {
     public class SuspectContactDTO
     {
+
+
 		public long? SuspectId
 		{
 			get;
@@ -47,5 +49,6 @@ namespace HaloBiz.DTOs.ContactDTO
 			get;
 			set;
 		}
+
 	}
 }
