@@ -1462,7 +1462,7 @@ namespace HaloBiz.MyServices.Impl
                           .FirstOrDefaultAsync();
             var passengers = await _context.Passengers
                          .Where(x => x.ServiceAssignmentId == invoice.Id && x.IsDeleted == false)
-                         .Include(x => x.ServiceAssignment)
+                         .Include(x => x.ServiceAssignment).Include(x=>x.PassengerType)
                          
                          .ToListAsync();
             var commanders = await _context.CommanderServiceAssignmentDetails
