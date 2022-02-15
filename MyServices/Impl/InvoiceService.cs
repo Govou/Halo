@@ -1462,7 +1462,7 @@ namespace HaloBiz.MyServices.Impl
                           .FirstOrDefaultAsync();
             var passengers = await _context.Passengers
                          .Where(x => x.ServiceAssignmentId == invoice.Id && x.IsDeleted == false)
-                         .Include(x => x.ServiceAssignment)
+                         .Include(x => x.ServiceAssignment).Include(x=>x.PassengerType)
                          
                          .ToListAsync();
             var commanders = await _context.CommanderServiceAssignmentDetails
@@ -1563,6 +1563,7 @@ namespace HaloBiz.MyServices.Impl
 
                 commandersMailDTO.Add(new CommandersMailDTO()
                 {
+                    ResourceId = theInvoice.CommanderResource.ProfileId,
                     Firstname = theInvoice.CommanderResource.Profile.FirstName,
                     Lastname = theInvoice.CommanderResource.Profile.LastName,
                     Mobile = theInvoice.CommanderResource.Profile.MobileNumber,
@@ -1581,6 +1582,7 @@ namespace HaloBiz.MyServices.Impl
 
                 armedEscortsMailDTO.Add(new ArmedEscortsMailDTO()
                 {
+                    ForceId = theInvoice.ArmedEscortResource.ForceId,
                     Firstname = theInvoice.ArmedEscortResource.FirstName,
                     Lastname = theInvoice.ArmedEscortResource.LastName,
                     Mobile = theInvoice.ArmedEscortResource.Mobile,
@@ -1599,6 +1601,7 @@ namespace HaloBiz.MyServices.Impl
 
                 pilotsMailDTO.Add(new PilotsMailDTO()
                 {
+                    ResourceId = theInvoice.PilotResource.Id,
                     Firstname = theInvoice.PilotResource.Firstname,
                     Lastname = theInvoice.PilotResource.Lastname,
                     Mobile = theInvoice.PilotResource.Mobile,
@@ -1638,6 +1641,7 @@ namespace HaloBiz.MyServices.Impl
                     Lastname = theInvoice.Lastname,
                     Mobile = theInvoice.Mobile,
                     Email = theInvoice.Email,
+                    PassengerType = theInvoice.PassengerType.TypeName,
 
                 });
 

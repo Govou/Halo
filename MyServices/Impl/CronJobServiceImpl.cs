@@ -313,7 +313,7 @@ namespace HaloBiz.MyServices.Impl
                             }
 
                             var accountDetails = await _context.AccountDetails
-                                .Where(x => x.AccountMasterId == accountMaster.Id && !x.IntegrationFlag && x.AccountId.HasValue)
+                                //.Where(x => x.AccountMasterId == accountMaster.Id && !x.IntegrationFlag && x.AccountId.HasValue)
                                 .ToListAsync();
 
                             if (accountDetails.Count < 1)
@@ -328,7 +328,7 @@ namespace HaloBiz.MyServices.Impl
                             foreach (var accountDetail in accountDetails)
                             {
                                 #region Get Detail's Account and Control Account
-                                var detailAccount = await _context.Accounts.FindAsync(accountDetail.AccountId.Value);
+                                var detailAccount = await _context.Accounts.FindAsync(accountDetail.AccountId);
                                 if (detailAccount == null) throw new Exception($"Account Detail {accountDetail.Id} is not tied to an account");
 
                                 if (detailAccount.ControlAccountId == 0) throw new Exception($"Account {detailAccount.Name} is not tied to a control account.");
