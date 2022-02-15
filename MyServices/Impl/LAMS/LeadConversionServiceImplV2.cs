@@ -440,26 +440,24 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
         public async Task<bool> onMigrationAccountsForContracts(ContractService contractService,                                                                    HalobizContext context,
                                                                       CustomerDivision customerDivision,
-                                                                      long contractId,
-                                                                      LeadDivision leadDivision)
+                                                                      long contractId, long userId)
         {
             try
             {
 
-               
+
 
                 if (contractService.InvoicingInterval != (int)TimeCycle.Adhoc)
                 {
                     FinanceVoucherType accountVoucherType = await _context.FinanceVoucherTypes
                         .FirstOrDefaultAsync(x => x.VoucherType == SALESINVOICEVOUCHER);
 
-
-
+                    LoggedInUserId = userId;
                     var (createSuccess, createMsg) = await CreateAccounts(
                                           contractService,
                                           customerDivision,
-                                          (long)leadDivision.BranchId,
-                                         (long)leadDivision.OfficeId,
+                                          (long)contractService.BranchId,
+                                         (long)contractService.OfficeId,
                                          contractService.Service,
                                          accountVoucherType,
                                          null,
@@ -937,14 +935,16 @@ namespace HaloBiz.MyServices.Impl.LAMS
                                     )
         {
             //check that we define the type of customer
-            if(isRetail == null)
-            {
-                if(customerDivision?.Customer?.GroupType == null)                
-                    throw new Exception("The customer divison must include customer and the customer must then include grouptype");              
+            //if(isRetail == null)
+            //{
+            //    if(customerDivision?.Customer?.GroupType == null)                
+            //        throw new Exception("The customer divison must include customer and the customer must then include grouptype");              
 
-                var groupType = customerDivision?.Customer?.GroupType;
-                isRetail = false; //groupType.Caption.ToLower().Trim() == "individual" || groupType.Caption.ToLower().Trim() == "sme";
-            }
+            //    var groupType = customerDivision?.Customer?.GroupType;
+            //    isRetail = groupType.Caption.ToLower().Trim() == "individual" || groupType.Caption.ToLower().Trim() == "sme";
+            //}
+
+            isRetail = false;
 
             double totalContractBillable, totalVAT;
             int interval;
@@ -1423,7 +1423,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 return id;
             }
             catch (Exception ex)
-            {
+            {                                                                                                                                                                                                                                                                                                            
                 _logger.LogError(ex.ToString());
                 throw;
             }

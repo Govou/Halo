@@ -10,8 +10,7 @@ namespace HaloBiz.MyServices.LAMS
     {
         Task<bool> onMigrationAccountsForContracts(ContractService contractService, HalobizContext context,
                                                                       CustomerDivision customerDivision,
-                                                                      long contractId,
-                                                                      LeadDivision leadDivision);
+                                                                      long contractId, long userId);
         Task<(bool, string)> ConvertLeadToClient(long leadId, long loggedInUserId);
         Task<(bool, string)> GenerateInvoices(ContractService contractService, long customerDivisionId, string serviceCode, long loggedInUserId);
         Task<(bool, string)> GenerateAmortizations(ContractService contractService, CustomerDivision customerDivision, double billableAmount, ContractServiceForEndorsement endorsement =  null);
