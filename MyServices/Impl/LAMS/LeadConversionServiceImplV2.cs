@@ -438,7 +438,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
             return true;
         }
 
-        public async Task<bool> onMigrationAccountsForContracts(ContractService contractService,                                                                    HalobizContext context,
+        public async Task<bool> onMigrationAccountsForContracts(ContractService contractService,
                                                                       CustomerDivision customerDivision,
                                                                       long contractId, long userId)
         {
@@ -1397,19 +1397,16 @@ namespace HaloBiz.MyServices.Impl.LAMS
         {
             try
             {
-                await _context.Database.ExecuteSqlRawAsync("SET IDENTITY_INSERT dbo.Accounts ON");
-                await _context.SaveChangesAsync();
-
-
+                
                 var lastSavedAccount = await _context.Accounts.Where(x => x.ControlAccountId == account.ControlAccountId)
                     .OrderBy(x => x.Id).LastOrDefaultAsync();
-                if (lastSavedAccount == null || lastSavedAccount.Id < 1000000000)
+                if (lastSavedAccount == null || lastSavedAccount.AccountNumber < 1000000000)
                 {
-                    account.Id = (long)account.ControlAccountId + 1;
+                    account.AccountNumber = (long)account.ControlAccountId + 1;
                 }
                 else
                 {
-                    account.Id = lastSavedAccount.Id + 1;
+                    account.AccountNumber = lastSavedAccount.AccountNumber + 1;
                 }
 
                 _context.ChangeTracker.Clear();
@@ -1471,8 +1468,9 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 _logger.LogInformation($"Data account master: {JsonConvert.SerializeObject(accountMaster)}");
                
                 _context.ChangeTracker.Clear();
+                //_context.Database.SetCommandTimeout(80000);
 
-                var savedAccountMaster = await _context.AccountMasters.AddAsync(accountMaster);                
+                var savedAccountMaster = await _context.AccountMasters.AddAsync(accountMaster);
                 await _context.SaveChangesAsync();
                 long id = accountMaster.Id;
                 _context.ChangeTracker.Clear();

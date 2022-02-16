@@ -57,6 +57,30 @@ namespace HaloBiz.Controllers
             _environment = environment;
         }
 
+        [HttpGet("CreateAccount/{Id}")]
+        public async Task<ApiCommonResponse> CreateAccount(long Id)
+        {
+            try
+            {
+                var contract = _context.Contracts
+                        .Include(x=>x.ContractServices)
+                        .Where(x => x.Id == Id).FirstOrDefault();
+                var division = _context.CustomerDivisions.Where(x => x.Id == contract.CustomerDivisionId).FirstOrDefault();
+                foreach (var item in contract.ContractServices)
+                {
+                    var result = await _leadConversionService.onMigrationAccountsForContracts(item,
+                                                            division,
+                                                             Id, userIdToUse);
+                }
+            }
+            catch (Exception ex)
+            {
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, ex.Message);
+            }
+
+            return CommonResponse.Send(ResponseCodes.SUCCESS);
+        }
+
         [HttpGet("RunMigration/{page}")]
         public async Task<ApiCommonResponse> RunMigration(int page)
         {
@@ -71,7 +95,7 @@ namespace HaloBiz.Controllers
                     return CommonResponse.Send(ResponseCodes.FAILURE, null, "No service with name: Migrations");
 
                 var cb = await sender.getServiceContract(page);
-                var contracts = cb.Items;
+                var contracts = cb.Items.Take(10).ToList();
 
                 if(contracts.Count == 0)
                 {
@@ -79,6 +103,7 @@ namespace HaloBiz.Controllers
                 }
 
                 _logger.LogInformation("MIGRATION OF CUSTOMER AND CONTRACT STARTED");
+                contracts = contracts.Where(x => x.Status == 1).ToList();
                 await saveContracts(contracts, page);
             }
             catch (Exception ex)
@@ -110,7 +135,7 @@ namespace HaloBiz.Controllers
                     var worksheet = workbook.Worksheets.Add($"ContractServices_{page}");
                     var currentRow = 1;
                     worksheet.Cell(currentRow, 1).Value = "ContractNumber";
-                    worksheet.Cell(currentRow, 2).Value = "Contract Id(Halobiz)";
+                    worksheet.Cell(currentRow, 2).Value = "Customer Name";
                     worksheet.Cell(currentRow, 3).Value = "Description";
                     worksheet.Cell(currentRow, 4).Value = "Quantity";
                     worksheet.Cell(currentRow, 5).Value = "UnitPrice";
@@ -119,12 +144,13 @@ namespace HaloBiz.Controllers
                     worksheet.Cell(currentRow, 8).Value = "Service Name";
                     worksheet.Cell(currentRow, 9).Value = "StartDate";
                     worksheet.Cell(currentRow, 10).Value = "End Date (Halobiz)";
-                    worksheet.Cell(currentRow, 11).Value = "InvoiceItemDetail";
+                    worksheet.Cell(currentRow, 11).Value = "Contract Service Id(Halobiz)";
                     worksheet.Cell(currentRow, 12).Value = "Billing Cycle";
-                    worksheet.Cell(currentRow, 13).Value = "ContractService Id (Halobiz)";
+                    worksheet.Cell(currentRow, 13).Value = "Service Id (Halobiz)";
                     worksheet.Cell(currentRow, 14).Value = "Type (Halobiz)";
                     worksheet.Cell(currentRow, 15).Value = "Admin Direct Tie (Halobiz)";
-                    worksheet.Cell(currentRow, 16).Value = "Taxable";
+                    worksheet.Cell(currentRow, 16).Value = "Taxable";//Contract Service Id(Halobiz)
+                    worksheet.Cell(currentRow, 17).Value = "InvoiceItemDetail";
 
 
 
@@ -132,7 +158,7 @@ namespace HaloBiz.Controllers
                     {
                         currentRow++;
                         worksheet.Cell(currentRow, 1).Value = service.ContractNumber;
-                        worksheet.Cell(currentRow, 2).Value = service.ContractId; //contractId
+                        worksheet.Cell(currentRow, 2).Value = service.CustomerName; //contractId
                         worksheet.Cell(currentRow, 3).Value = service.Description;
                         worksheet.Cell(currentRow, 4).Value = service.Quantity;
                         worksheet.Cell(currentRow, 5).Value = service.UnitPrice;
@@ -141,12 +167,14 @@ namespace HaloBiz.Controllers
                         worksheet.Cell(currentRow, 8).Value = service.ApiContractService.ServiceTypeName;
                         worksheet.Cell(currentRow, 9).Value = service.StartDate;
                         worksheet.Cell(currentRow, 10).Value = service.EndDate;
-                        worksheet.Cell(currentRow, 11).Value = service.InvoiceItemDetail;
+                        worksheet.Cell(currentRow, 11).Value = service.ContractServiceId;
                         worksheet.Cell(currentRow, 12).Value = service.BillingCycle;
                         worksheet.Cell(currentRow, 13).Value = service.ApiContractService.ServiceId;
                         worksheet.Cell(currentRow, 14).Value = service.Enum.ToString();
                         worksheet.Cell(currentRow, 15).Value = service.AdminDirectTie;
                         worksheet.Cell(currentRow, 16).Value = service.Taxable;
+                        worksheet.Cell(currentRow, 17).Value = service.InvoiceItemDetail;
+
                     }
 
                     using (var stream = new MemoryStream())
@@ -175,276 +203,291 @@ namespace HaloBiz.Controllers
             _logger.LogInformation($"Total of {contracts.Count} contracts fetched");
 
             List<ServiceContractItem> allContractServiceItems = new List<ServiceContractItem>();
+           
+            var transaction = _context.Database.BeginTransaction();
 
             foreach (var _contract in contracts)
             {
-                //check if this exist previously
-                //check if this contract exist previously and skip
-                if (_context.Contracts.Any(x => x.Caption == _contract.ContractNumber))
+                try
                 {
-                    ++previouslySaved;
-                    continue;
-                }
-
-
-                var contractServiceDetails = await sender.getServiceContractDetail(_contract.ContractNumber);//
-                var contractServices = contractServiceDetails.ServiceContractItems;
-
-                int counter = 0;
-                List<ServiceContractItem> directsAndStandalone = new List<ServiceContractItem>();
-                List<ServiceContractItem> admins = new List<ServiceContractItem>();
-                List<ServiceContractItem> sortedOutServices = new List<ServiceContractItem>();
-                List<ServiceContractItem> finalSortedOutServices = new List<ServiceContractItem>();
-                List<ServiceContractItem> mergedAdminCasesSorted = new List<ServiceContractItem>();
-
-                //check if this customer exist and fetch
-                var customer = customers.Where(x => x.CustomerNumber == _contract.CustomerNumber).FirstOrDefault();
-                if (customer == null)
-                {
-                    //fetch this customer from the api
-                    customer = sender.getCustomerWithCustomerNumber(_contract.CustomerNumber).GetAwaiter().GetResult();
-                    (long customerId, long divisionId, CustomerDivision customerDivision) = await SaveCustomer(customer, group.Id, designation.Id);
-                    customer.CustomerId = customerId;
-                    customer.CustomerDivisionId = divisionId;
-                    customer.customerDivision = customerDivision;
-                    customers.Add(customer);
-                }
-
-                var lastDate = _contract.StartDate;
-                while (lastDate < DateTime.Today)
-                {
-                    lastDate = lastDate.AddYears(1);
-                }
-
-                var startDate = lastDate.AddYears(-1);
-                lastDate = lastDate.AddDays(-1);
-
-                //cut off position parameters
-                var cutOffDate = startDate.AddDays(-1);
-                var input = new AccountBalanceInput
-                {
-                    SubAccount = _contract.SubAccount,
-                    GLAccount = customer.GLAccount,
-                    FinancialYear = cutOffDate.Year,
-                    AsAtDate = cutOffDate
-                };
-
-                var migrationContractSaved = await setCutOffMigration(_contract.ContractNumber, customer.customerDivision, input, customer.CustomerNumber, _context, defaultOffice);
-                //create contract
-                if (!migrationContractSaved)
-                {
-                    continue;
-                }
-
-                //save the contract now
-                var contract_ = new Contract
-                {
-                    CustomerDivisionId = customer.CustomerDivisionId,
-                    Caption = _contract.ContractNumber,
-                    GroupContractCategory = GroupContractCategory.GroupContractWithSameDetails,
-                    GroupInvoiceNumber = await GenerateGroupInvoiceNumber(),
-                    CreatedById = userIdToUse,
-                    CreatedAt = DateTime.Now,
-                    UpdatedAt = DateTime.Now,
-                    IsDeleted = false,
-                };
-
-                var entity = _context.Contracts.Add(contract_);
-                System.Threading.Thread.Sleep(5000);
-                var afftected = _context.SaveChanges();
-
-                if (afftected == 0) continue;                
-
-                var contractId = contract_.Id;
-                ++totalSaved;
-
-                foreach (var contractService in contractServices)
-                 {
-                    contractService.SerialNo = ++counter;
-                    contractService.ContractId = contractId;
-                    contractService.StartDate = startDate;
-                    contractService.EndDate = lastDate;
-
-
-                    var description = contractService.Description.ToLower();
-                    if (description.Contains("supervisor") && description.Contains("direct"))
+                    //check if this contract exist previously and skip
+                    if (_context.Contracts.Any(x => x.Caption == _contract.ContractNumber))
                     {
-                        contractService.ServiceType = "SUPDR";
-                    }
-                    else if (description.Contains("supervisor") && description.Contains("admin"))
-                    {
-                        contractService.ServiceType = "SUPAD";
-                    }
-                    else if (description.Contains("dog") && description.Contains("handler") && description.Contains("direct"))
-                    {
-                        contractService.ServiceType = "DH";
-                    }
-                    else if (description.Contains("dog") && description.Contains("handler") && description.Contains("admin"))
-                    {
-                        contractService.ServiceType = "DHA";
-                    }
-                    else if (description.Contains("supervisor"))
-                    {
-                        contractService.ServiceType = "SUPDR";
+                        ++previouslySaved;
+                        continue;
                     }
 
-                    //get the corrresponding service
-                    var apiContractService = _serviceTypes.Where(x => x.ServiceType == contractService.ServiceType).FirstOrDefault();
 
-                    if (apiContractService == null)
+                    var contractServiceDetails = await sender.getServiceContractDetail(_contract.ContractNumber);//
+                    var contractServices = contractServiceDetails.ServiceContractItems;
+
+                    int counter = 0;
+                    List<ServiceContractItem> directsAndStandalone = new List<ServiceContractItem>();
+                    List<ServiceContractItem> admins = new List<ServiceContractItem>();
+                    List<ServiceContractItem> sortedOutServices = new List<ServiceContractItem>();
+                    List<ServiceContractItem> finalSortedOutServices = new List<ServiceContractItem>();
+                    List<ServiceContractItem> mergedAdminCasesSorted = new List<ServiceContractItem>();
+
+                    //check if this customer exist and fetch
+                    var customer = customers.Where(x => x.CustomerNumber == _contract.CustomerNumber).FirstOrDefault();
+                    if (customer == null)
+                    {
+                        //fetch this customer from the api
+                        customer = sender.getCustomerWithCustomerNumber(_contract.CustomerNumber).GetAwaiter().GetResult();
+                        (long customerId, long divisionId, CustomerDivision customerDivision) = await SaveCustomer(customer, group.Id, designation.Id);
+                        customer.CustomerId = customerId;
+                        customer.CustomerDivisionId = divisionId;
+                        customer.customerDivision = customerDivision;
+                        customers.Add(customer);
+                    }
+
+                    var lastDate = _contract.StartDate;
+                    while (lastDate < DateTime.Today)
+                    {
+                        lastDate = lastDate.AddYears(1);
+                    }
+
+                    var startDate = lastDate.AddYears(-1);
+                    lastDate = lastDate.AddDays(-1);
+
+                    //cut off position parameters
+                    var cutOffDate = startDate.AddDays(-1);
+                    var input = new AccountBalanceInput
+                    {
+                        SubAccount = _contract.SubAccount,
+                        GLAccount = customer.GLAccount,
+                        FinancialYear = cutOffDate.Year,
+                        AsAtDate = cutOffDate
+                    };
+
+                    var migrationContractSaved = await setCutOffMigration(_contract.ContractNumber, customer.customerDivision, input, customer.CustomerNumber, _context, defaultOffice);
+                    //create contract
+                    if (!migrationContractSaved)
                     {
                         continue;
                     }
 
-                    //check if this contract service has id
-                    if (apiContractService.ServiceId == 0)
+                    //save the contract now
+                    var contract_ = new Contract
                     {
-                        apiContractService = GetServiceType(apiContractService);
-                    }
+                        CustomerDivisionId = customer.CustomerDivisionId,
+                        Caption = _contract.ContractNumber,
+                        GroupContractCategory = GroupContractCategory.GroupContractWithSameDetails,
+                        GroupInvoiceNumber = await GenerateGroupInvoiceNumber(),
+                        CreatedById = userIdToUse,
+                        CreatedAt = DateTime.Now,
+                        UpdatedAt = DateTime.Now,
+                        IsDeleted = false,
+                    };
 
-                    contractService.Enum = apiContractService.Enum;
-                    contractService.AdminDirectTie = apiContractService.AdminDirectTie;
-                    contractService.ApiContractService = apiContractService;
+                    var entity = _context.Contracts.Add(contract_);
+                    System.Threading.Thread.Sleep(5000);
+                    var afftected = _context.SaveChanges();
 
-                    if (contractService.Enum == ServiceRelationshipEnum.Admin) admins.Add(contractService);
-                    else { directsAndStandalone.Add(contractService); }
-                }
+                    if (afftected == 0) continue;
 
-                var backwardTimer = 1000;
-                foreach (var _contractService in directsAndStandalone)
-                {
-                    //prepare the direct details
-                    if (_contractService.Enum == ServiceRelationshipEnum.Direct)
+                    var contractId = contract_.Id;
+
+                    //create location for this customer
+                    await createLocation(_contract, customer.CustomerDivisionId);
+
+                    foreach (var contractService in contractServices)
                     {
-                        //get the corresponding admin
-                        var adminMatch = admins.Where(x => x.Quantity == _contractService.Quantity && x.AdminDirectTie == _contractService.AdminDirectTie).FirstOrDefault();
-                        if (adminMatch != null)
+                        contractService.SerialNo = ++counter;
+                        contractService.ContractId = contractId;
+                        contractService.StartDate = startDate;
+                        contractService.EndDate = lastDate;
+                        contractService.CustomerName = customer.Name;
+
+
+                        var description = contractService.Description.ToLower();
+                        if (description.Contains("supervisor") && description.Contains("direct"))
                         {
-                            backwardTimer += backwardTimer;
-                            //create the ties for the contractService
-                            var adminDirectMatch = DateTime.Now.AddMilliseconds(backwardTimer).ToString("yyyyMMddHHmmss");
-
-                            //give it the admin direct tie
-                            _contractService.AdminDirectTie = adminDirectMatch;
-                            adminMatch.AdminDirectTie = adminDirectMatch;
-
-                            //add this to the list
-                            sortedOutServices.Add(adminMatch);
-                            //now remove this admin from the admin list
-                            var index = admins.FindIndex(x => x.SerialNo == adminMatch.SerialNo);
-                            if(index != -1)
-                            {
-                                admins.RemoveAt(index);
-                            }
+                            contractService.ServiceType = "SUPDR";
                         }
-                        //add the direct
-                        sortedOutServices.Add(_contractService);
-                    }
-                    else
-                    {
-                        //it is standalone
-                        sortedOutServices.Add(_contractService);
-                    }
-                }
-
-
-                ServiceContractItem _adminMatch = null;
-                finalSortedOutServices.AddRange(sortedOutServices);
-
-                foreach (var item in admins)
-                {
-                    var itemStr = JsonConvert.SerializeObject(item);
-                    var itsDirects = sortedOutServices.Where(x => x.Enum == ServiceRelationshipEnum.Direct && x.AdminDirectTie == item.AdminDirectTie);
-                    //spit this amoung the direct remaining
-                    if (itsDirects.Any())
-                        foreach (var direct in itsDirects)
+                        else if (description.Contains("supervisor") && description.Contains("admin"))
                         {
-                            backwardTimer += backwardTimer;
-                            //create the ties for the contractService
-                            var adminDirectTie = DateTime.Now.AddMilliseconds(backwardTimer).ToString("yyyyMMddHHmmss");
-
-                            var adminToMatch = JsonConvert.DeserializeObject<ServiceContractItem>(itemStr);
-                            adminToMatch.Quantity = direct.Quantity;
-                            adminToMatch.Description = adminToMatch.Description + "--Split admin";
-                            adminToMatch.AdminDirectTie = adminDirectTie;
-                            finalSortedOutServices.Add(adminToMatch);
-
-                            //change the tie of the direct in question
-                            direct.AdminDirectTie = adminDirectTie;
-                            //find the index
-                            int index = finalSortedOutServices.FindIndex(x => x.SerialNo == direct.SerialNo);
-                            if(index != -1)
-                            {
-                                finalSortedOutServices[index] = direct;
-                            }
+                            contractService.ServiceType = "SUPAD";
                         }
-                }
-
-                foreach (var service in finalSortedOutServices)
-                {
-                    if (service.Enum == ServiceRelationshipEnum.Direct)
-                    {
-                        _adminMatch = finalSortedOutServices.Where(x => x.AdminDirectTie == service.AdminDirectTie && x.Enum != ServiceRelationshipEnum.Direct).FirstOrDefault();
-                        if (_adminMatch == null)
+                        else if (description.Contains("dog") && description.Contains("handler") && description.Contains("direct"))
                         {
-                            _adminMatch = admins.Where(x => x.Quantity == service.Quantity).FirstOrDefault();
-                            if (_adminMatch != null)
+                            contractService.ServiceType = "DH";
+                        }
+                        else if (description.Contains("dog") && description.Contains("handler") && description.Contains("admin"))
+                        {
+                            contractService.ServiceType = "DHA";
+                        }
+                        else if (description.Contains("supervisor"))
+                        {
+                            contractService.ServiceType = "SUPDR";
+                        }
+
+                        //get the corrresponding service
+                        var apiContractService = _serviceTypes.Where(x => x.ServiceType == contractService.ServiceType).FirstOrDefault();
+
+                        if (apiContractService == null)
+                        {
+                            continue;
+                        }
+
+                        //check if this contract service has id
+                        if (apiContractService.ServiceId == 0)
+                        {
+                            apiContractService = GetServiceType(apiContractService);
+                        }
+
+                        contractService.Enum = apiContractService.Enum;
+                        contractService.AdminDirectTie = apiContractService.AdminDirectTie;
+                        contractService.ApiContractService = apiContractService;
+
+                        if (contractService.Enum == ServiceRelationshipEnum.Admin) admins.Add(contractService);
+                        else { directsAndStandalone.Add(contractService); }
+                    }
+
+                    var backwardTimer = 1000;
+                    foreach (var _contractService in directsAndStandalone)
+                    {
+                        //prepare the direct details
+                        if (_contractService.Enum == ServiceRelationshipEnum.Direct)
+                        {
+                            //get the corresponding admin
+                            var adminMatch = admins.Where(x => x.Quantity == _contractService.Quantity && x.AdminDirectTie == _contractService.AdminDirectTie).FirstOrDefault();
+                            if (adminMatch != null)
                             {
-                                var adminDirectTie = DateTime.Now.AddMilliseconds(-1000).ToString("yyyyMMddHHmmss");
+                                backwardTimer += backwardTimer;
+                                //create the ties for the contractService
+                                var adminDirectMatch = DateTime.Now.AddMilliseconds(backwardTimer).ToString("yyyyMMddHHmmss");
 
-                                //we have found a pair
-                                _adminMatch.AdminDirectTie = adminDirectTie;
-                                service.AdminDirectTie = adminDirectTie;
-                                mergedAdminCasesSorted.Add(_adminMatch);
+                                //give it the admin direct tie
+                                _contractService.AdminDirectTie = adminDirectMatch;
+                                adminMatch.AdminDirectTie = adminDirectMatch;
 
-                                //remove this from the list
-                                var index = admins.FindIndex(x => x.SerialNo == _adminMatch.SerialNo);
-                                if(index != -1)
+                                //add this to the list
+                                sortedOutServices.Add(adminMatch);
+                                //now remove this admin from the admin list
+                                var index = admins.FindIndex(x => x.SerialNo == adminMatch.SerialNo);
+                                if (index != -1)
                                 {
                                     admins.RemoveAt(index);
                                 }
                             }
-                            else
-                            {
-                                var adminDirectTie = DateTime.Now.AddMilliseconds(-2000).ToString("yyyyMMddHHmmss");
-
-                                //we need to create a corresponding admin match
-                                var serviceType = _serviceTypes.Where(x => x.AdminDirectTie == service.AdminDirectTie && x.Enum == ServiceRelationshipEnum.Admin).FirstOrDefault();
-                                //get the corrresponding service
-                                var apiContractService = _serviceTypes.Where(x => x.ServiceType == serviceType.ServiceType).FirstOrDefault();
-                                //check if this contract service has id
-                                if (apiContractService.ServiceId == 0)
-                                {
-                                    apiContractService = GetServiceType(apiContractService);
-                                }
-
-                                var adminNew = new ServiceContractItem
-                                {
-                                    Enum = ServiceRelationshipEnum.Admin,
-                                    Quantity = 0,
-                                    Amount = 0,
-                                    Description = "Generated admin: " + service.Description,
-                                    AdminDirectTie = adminDirectTie,
-                                    ApiContractService = apiContractService,
-                                    ContractId = contractId
-                                };
-
-                                service.AdminDirectTie = adminDirectTie;
-                                mergedAdminCasesSorted.Add(adminNew);
-                            }
+                            //add the direct
+                            sortedOutServices.Add(_contractService);
+                        }
+                        else
+                        {
+                            //it is standalone
+                            sortedOutServices.Add(_contractService);
                         }
                     }
 
-                    mergedAdminCasesSorted.Add(service);
+
+                    ServiceContractItem _adminMatch = null;
+                    finalSortedOutServices.AddRange(sortedOutServices);
+
+                    foreach (var item in admins)
+                    {
+                        var itemStr = JsonConvert.SerializeObject(item);
+                        var itsDirects = sortedOutServices.Where(x => x.Enum == ServiceRelationshipEnum.Direct && x.AdminDirectTie == item.AdminDirectTie);
+                        //spit this amoung the direct remaining
+                        if (itsDirects.Any())
+                            foreach (var direct in itsDirects)
+                            {
+                                backwardTimer += backwardTimer;
+                                //create the ties for the contractService
+                                var adminDirectTie = DateTime.Now.AddMilliseconds(backwardTimer).ToString("yyyyMMddHHmmss");
+
+                                var adminToMatch = JsonConvert.DeserializeObject<ServiceContractItem>(itemStr);
+                                adminToMatch.Quantity = direct.Quantity;
+                                adminToMatch.Description = adminToMatch.Description + "--Split admin";
+                                adminToMatch.AdminDirectTie = adminDirectTie;
+                                finalSortedOutServices.Add(adminToMatch);
+
+                                //change the tie of the direct in question
+                                direct.AdminDirectTie = adminDirectTie;
+                                //find the index
+                                int index = finalSortedOutServices.FindIndex(x => x.SerialNo == direct.SerialNo);
+                                if (index != -1)
+                                {
+                                    finalSortedOutServices[index] = direct;
+                                }
+                            }
+                    }
+
+                    foreach (var service in finalSortedOutServices)
+                    {
+                        if (service.Enum == ServiceRelationshipEnum.Direct)
+                        {
+                            _adminMatch = finalSortedOutServices.Where(x => x.AdminDirectTie == service.AdminDirectTie && x.Enum != ServiceRelationshipEnum.Direct).FirstOrDefault();
+                            if (_adminMatch == null)
+                            {
+                                _adminMatch = admins.Where(x => x.Quantity == service.Quantity).FirstOrDefault();
+                                if (_adminMatch != null)
+                                {
+                                    var adminDirectTie = DateTime.Now.AddMilliseconds(-1000).ToString("yyyyMMddHHmmss");
+
+                                    //we have found a pair
+                                    _adminMatch.AdminDirectTie = adminDirectTie;
+                                    service.AdminDirectTie = adminDirectTie;
+                                    mergedAdminCasesSorted.Add(_adminMatch);
+
+                                    //remove this from the list
+                                    var index = admins.FindIndex(x => x.SerialNo == _adminMatch.SerialNo);
+                                    if (index != -1)
+                                    {
+                                        admins.RemoveAt(index);
+                                    }
+                                }
+                                else
+                                {
+                                    var adminDirectTie = DateTime.Now.AddMilliseconds(-2000).ToString("yyyyMMddHHmmss");
+
+                                    //we need to create a corresponding admin match
+                                    var serviceType = _serviceTypes.Where(x => x.AdminDirectTie == service.AdminDirectTie && x.Enum == ServiceRelationshipEnum.Admin).FirstOrDefault();
+                                    //get the corrresponding service
+                                    var apiContractService = _serviceTypes.Where(x => x.ServiceType == serviceType.ServiceType).FirstOrDefault();
+                                    //check if this contract service has id
+                                    if (apiContractService.ServiceId == 0)
+                                    {
+                                        apiContractService = GetServiceType(apiContractService);
+                                    }
+
+                                    var adminNew = new ServiceContractItem
+                                    {
+                                        Enum = ServiceRelationshipEnum.Admin,
+                                        Quantity = 0,
+                                        Amount = 0,
+                                        Description = "Generated admin: " + service.Description,
+                                        AdminDirectTie = adminDirectTie,
+                                        ApiContractService = apiContractService,
+                                        ContractId = contractId
+                                    };
+
+                                    service.AdminDirectTie = adminDirectTie;
+                                    mergedAdminCasesSorted.Add(adminNew);
+                                }
+                            }
+                        }
+
+                        mergedAdminCasesSorted.Add(service);
+                    }
+
+                    foreach (var item in mergedAdminCasesSorted)
+                    {
+                       item.ContractServiceId = await postContractService(item, customer, defaultOffice, _context);
+                    }
+
+                    allContractServiceItems.AddRange(mergedAdminCasesSorted);
+
+                    //save the contract services at this point
+                    transaction.Commit();
+                    ++totalSaved;
                 }
-
-                allContractServiceItems.AddRange(mergedAdminCasesSorted);
-
-                //save the contract services at this point
-
-
+                catch (Exception e)
+                {
+                    _logger.LogError(e.StackTrace);
+                }
             }
-
 
             await saveToExcel(allContractServiceItems, page);
 
@@ -453,7 +496,7 @@ namespace HaloBiz.Controllers
             return true;
         }
 
-        private async Task<bool> postContractService(ServiceContractItem contractService, Customero customer, Office defaultOffice, HalobizContext _context)
+        private async Task<long> postContractService(ServiceContractItem contractService, Customero customer, Office defaultOffice, HalobizContext _context)
         {
             var saveContractEntity = _context.ContractServices.Add(new ContractService
             {
@@ -475,7 +518,7 @@ namespace HaloBiz.Controllers
                 FirstInvoiceSendDate = contractService.StartDate.AddDays(15),
             });
 
-            //System.Threading.Thread.Sleep(3000);
+            System.Threading.Thread.Sleep(3000);
 
             var affected = _context.SaveChanges();
             if (affected > 0)
@@ -483,12 +526,13 @@ namespace HaloBiz.Controllers
                 var contractServiceCreated = saveContractEntity.Entity;
                 _logger.LogInformation($"Saved for contract with ID:{contractService.ContractId}, Service: {JsonConvert.SerializeObject(contractService)}");
                 contractServiceCreated.Service = _services.Where(x => x.Id == contractService.ApiContractService.ServiceId).FirstOrDefault();
-                await _leadConversionService.onMigrationAccountsForContracts(contractServiceCreated, _context,
-                                                        customer.customerDivision,
-                                                         contractService.ContractId, userIdToUse);
+                //await _leadConversionService.onMigrationAccountsForContracts(contractServiceCreated,
+                //                                        customer.customerDivision,
+                //                                         contractService.ContractId, userIdToUse);
+                return contractServiceCreated.Id;
             }
 
-            return true;
+            return 0;
         }
 
         private async Task<bool> setCutOffMigration(string contractNo, CustomerDivision division, AccountBalanceInput input, string customerNumber, HalobizContext _context, Office defaultOffice)
@@ -504,9 +548,15 @@ namespace HaloBiz.Controllers
 
                 var accounts = await sender.getCutOffPosition(input);
                 var customerInput = accounts.Where(x => x.SubLedgerCode == customerNumber).FirstOrDefault();
-                if (customerNumber == null)
+                if (customerInput == null)
                     throw new Exception($"Cut off for contract {contractNo} is zero. Input is {JsonConvert.SerializeObject(input)}");
 
+                if(customerInput.Amount < 0)
+                {
+                    //we create a credit note for the customer
+
+                    return true;
+                }
                 //save the contract now
                 var contract_ = new Contract
                 {
@@ -521,11 +571,12 @@ namespace HaloBiz.Controllers
                 };
 
                 var entity = _context.Contracts.Add(contract_);
-                var contractId = entity?.Entity?.Id;
-                System.Threading.Thread.Sleep(5000);
+              //  System.Threading.Thread.Sleep(5000);
                 var afftected = _context.SaveChanges();
-                if (afftected > 0 && contractId > 0)
+                long contractId = 0;
+                if (afftected > 0)
                 {
+                    contractId = entity.Entity.Id;
                     var startingPoint = input.AsAtDate?.AddYears(-1);
                     var saveContractEntity = _context.ContractServices.Add(new ContractService
                     {
@@ -538,29 +589,31 @@ namespace HaloBiz.Controllers
                         UnitPrice = customerInput.Amount,
                         Vat = 0,
                         Quantity = 1,
+                        InvoicingInterval = (int)TimeCycle.Monthly,
                         UniqueTag = $"Migration contract for {caption}",
                         BranchId = defaultOffice.BranchId,
                         OfficeId = defaultOffice.Id,
                         CreatedById = userIdToUse,
                     });
 
-                    System.Threading.Thread.Sleep(3000);
+                   // System.Threading.Thread.Sleep(3000);
 
                     var affected = _context.SaveChanges();
                     if (affected > 0)
                     {
                         var contractServiceCreated = saveContractEntity.Entity;
                         contractServiceCreated.Service = MigrationService;
-                        var result = await _leadConversionService.onMigrationAccountsForContracts(contractServiceCreated, _context,
-                                                                division,
-                                                                 (long)contractId, userIdToUse);
+                       // _context.Dispose();
+                        //var result = await _leadConversionService.onMigrationAccountsForContracts(contractServiceCreated,
+                        //                                        division,
+                        //                                         (long)contractId, userIdToUse);
                     }
                 }
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex.StackTrace);
-                return false;
+                throw;
             }
 
             return true;
@@ -665,7 +718,7 @@ namespace HaloBiz.Controllers
             {
                 if (!string.IsNullOrEmpty(customer.Contact))
                 {
-                    await CreatePrimaryContact(customer, dbCustomerDivision.Id);
+                    await CreatePrimaryContact(customer, dbCustomerDivision.CustomerId);
                 }
 
                 return (dbCustomerDivision.CustomerId, dbCustomerDivision.Id, dbCustomerDivision);
@@ -715,7 +768,7 @@ namespace HaloBiz.Controllers
 
                 if (!string.IsNullOrEmpty(customer.Contact))
                 {
-                    await CreatePrimaryContact(customer, dbCustomerDivision.Id);
+                    await CreatePrimaryContact(customer, newCustomer.Id);
                 }
 
                 return (newCustomer.Id, customerDivisionEntity.Entity.Id, dbCustomerDivision);
@@ -726,7 +779,7 @@ namespace HaloBiz.Controllers
             }
         }
 
-        private async Task<bool> CreatePrimaryContact(Customero customer, long customerDivisionId)
+        private async Task<bool> CreatePrimaryContact(Customero customer, long customerId)
         {
             //check if this contact exist previously
             try
@@ -809,9 +862,9 @@ namespace HaloBiz.Controllers
                 var contactId = contactEntity.Entity.Id;
 
                 //now save this contact to the customerDivision
-                _context.CustomerDivisionContacts.Add(new CustomerDivisionContact
+                _context.CustomerContacts.Add(new CustomerContact
                 {
-                    CustomerDivisionId = customerDivisionId,
+                    CustomerId = customerId,
                     ContactId = contactId,
                 });
 

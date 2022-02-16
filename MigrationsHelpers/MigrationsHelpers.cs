@@ -236,6 +236,8 @@ namespace HaloBiz.MigrationsHelpers
         public string AdminDirectTie { get; set; }
         public ServiceTypes ApiContractService { get; set; }
         public long ContractId { get; set; }
+        public long ContractServiceId { get; set; }
+        public string CustomerName { get; set; }
     }
 
     public class ServiceContractDetais : Contracto

@@ -8,7 +8,7 @@ namespace HaloBiz.MyServices.LAMS
 {
     public interface ILeadConversionService
     {
-        Task<bool> onMigrationAccountsForContracts(ContractService contractService, HalobizContext context,
+        Task<bool> onMigrationAccountsForContracts(ContractService contractService,
                                                                       CustomerDivision customerDivision,
                                                                       long contractId, long userId);
         Task<(bool, string)> ConvertLeadToClient(long leadId, long loggedInUserId);
