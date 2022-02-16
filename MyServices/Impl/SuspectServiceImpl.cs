@@ -234,7 +234,7 @@ namespace HaloBiz.MyServices.Impl
                         return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
                     }
 
-                    suspect.LeadId = lead.Id;
+                    //suspect.LeadId = lead.Id;
                     suspect.IsConverted = true;
 
                     _context.Suspects.Update(suspect);
