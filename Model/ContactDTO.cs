@@ -10,6 +10,7 @@ namespace HaloBiz.Model
 {
 
     public class ContactDTO
+
     {
         [Key]
         public long Id { get; set; }

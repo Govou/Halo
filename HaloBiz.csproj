@@ -86,6 +86,7 @@
   <ItemGroup>
     <Folder Include="Log\" />
     <Folder Include="Auth\" />
+    <Folder Include="DTOs\ContactDTO\" />
     <Folder Include="wwwroot\" />
   </ItemGroup>
 
