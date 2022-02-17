@@ -75,15 +75,16 @@ namespace HaloBiz.Repository.Impl
             await _context.Database.OpenConnectionAsync();
             using(var transaction = await _context.Database.BeginTransactionAsync()){
             try{
-                await _context.Database.ExecuteSqlRawAsync("SET IDENTITY_INSERT dbo.Accounts ON");
+              //  await _context.Database.ExecuteSqlRawAsync("SET IDENTITY_INSERT dbo.Accounts ON");
 
                 var  lastSavedAccount = await _context.Accounts.Where(x => x.ControlAccountId == account.ControlAccountId)
                     .OrderBy(x => x.Id).LastOrDefaultAsync();
-                if(lastSavedAccount == null || lastSavedAccount.Id < 1000000000)
+                    var _controlAccount = await _context.ControlAccounts.Where(x => x.Id == account.ControlAccountId).FirstOrDefaultAsync();
+                if(lastSavedAccount == null || lastSavedAccount.AccountNumber < 1000000000)
                 {
-                    account.Id = (long) account.ControlAccountId + 1;
+                    account.AccountNumber = _controlAccount.AccountNumber + 1;
                 }else{
-                    account.Id = lastSavedAccount.Id + 1;
+                    account.AccountNumber = lastSavedAccount.AccountNumber + 1;
                 }
                 var controlAccount = await _context.ControlAccounts
                         .Include(x => x.AccountClass).FirstOrDefaultAsync(x => x.Id == account.ControlAccountId);
@@ -100,7 +101,7 @@ namespace HaloBiz.Repository.Impl
                 return null;
             }finally{
                 
-                await _context.Database.ExecuteSqlRawAsync("SET IDENTITY_INSERT dbo.Accounts OFF");
+              //  await _context.Database.ExecuteSqlRawAsync("SET IDENTITY_INSERT dbo.Accounts OFF");
                 await _context.Database.CloseConnectionAsync();
             }
             }

@@ -97,7 +97,6 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
                 }
 
-                 _context.Database.ExecuteSqlRaw("SET IDENTITY_INSERT dbo.Divisions ON;");
 
 
                 await _context.SaveChangesAsync();
@@ -114,8 +113,8 @@ namespace HaloBiz.MyServices.Impl.LAMS
             }
             finally
             {
-                _context.Database.ExecuteSqlRaw("SET IDENTITY_INSERT dbo.Accounts OFF;");
-                _context.Database.ExecuteSqlRaw("SET IDENTITY_INSERT dbo.ControlAccounts OFF;");
+               // _context.Database.ExecuteSqlRaw("SET IDENTITY_INSERT dbo.Accounts OFF;");
+               // _context.Database.ExecuteSqlRaw("SET IDENTITY_INSERT dbo.ControlAccounts OFF;");
                 _context.Database.ExecuteSqlRaw("SET IDENTITY_INSERT dbo.Divisions OFF;");
                 _context.Database.ExecuteSqlRaw("SET IDENTITY_INSERT dbo.FinanceVoucherTypes OFF;");
                 _context.Database.ExecuteSqlRaw("SET IDENTITY_INSERT dbo.GroupType OFF;");
@@ -743,7 +742,14 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 var (interval, billableForInvoicingPeriod, vat) = CalculateTotalBillableForPeriod(contractService);
                 var allMonthAndYear = new List<MonthsAndYears>();
 
+                billableAmount = billableAmount == 0 ? billableForInvoicingPeriod : billableAmount;
+
                 billableAmount *= interval; 
+
+                if(contractService.InvoicingInterval == (int)TimeCycle.OneTime)
+                {
+                    endDate = startDate.AddMonths(1).AddDays(-1);
+                }
 
                 while (startDate < endDate)
                 {
@@ -767,7 +773,6 @@ namespace HaloBiz.MyServices.Impl.LAMS
                             GroupInvoiceNumber = contractService?.Contract?.GroupInvoiceNumber,
                             QuoteServiceId = contractService.QuoteServiceId,
                         };
-
 
                         await _context.RepAmortizationMasters.AddAsync(repAmoritizationMaster);
                         var affected = await _context.SaveChangesAsync();
@@ -1414,20 +1419,14 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 account.Alias = account.Alias ?? "";
 
                 var savedAccount = await _context.Accounts.AddAsync(account);
-                var id = account.Id;
                 await _context.SaveChangesAsync();
                 _context.ChangeTracker.Clear();
-                return id;
+                return savedAccount.Entity.Id;
             }
             catch (Exception ex)
             {                                                                                                                                                                                                                                                                                                            
                 _logger.LogError(ex.ToString());
                 throw;
-            }
-            finally
-            {
-                await _context.Database.ExecuteSqlRawAsync("SET IDENTITY_INSERT dbo.Accounts OFF");
-                await _context.SaveChangesAsync();
             }
 
         }

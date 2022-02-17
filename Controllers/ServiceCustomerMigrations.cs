@@ -64,14 +64,19 @@ namespace HaloBiz.Controllers
             {
                 var contract = _context.Contracts
                         .Include(x=>x.ContractServices)
+                            .ThenInclude(x=>x.Service)
                         .Where(x => x.Id == Id).FirstOrDefault();
                 var division = _context.CustomerDivisions.Where(x => x.Id == contract.CustomerDivisionId).FirstOrDefault();
+                var transaction = _context.Database.BeginTransaction();
+
                 foreach (var item in contract.ContractServices)
                 {
                     var result = await _leadConversionService.onMigrationAccountsForContracts(item,
                                                             division,
                                                              Id, userIdToUse);
                 }
+
+                transaction.Commit();
             }
             catch (Exception ex)
             {
@@ -127,13 +132,17 @@ namespace HaloBiz.Controllers
 
                 string filePath = Path.Combine(path + $"/ContractServices.xlsx");
 
-                FileStream fs = System.IO.File.Create(filePath);
+                FileStream fs = System.IO.File.OpenWrite(filePath);
                 fs.Dispose();
 
-                using (var workbook = new XLWorkbook())
+                using (var workbook = new XLWorkbook(filePath))
                 {
-                    var worksheet = workbook.Worksheets.Add($"ContractServices_{page}");
-                    var currentRow = 1;
+                    var timestamp = DateTime.Now.ToString("yyyyMMddHHmmss");
+                    var worksheet = workbook.Worksheets.Add($"CS_{page}_{timestamp}");
+                    //int NumberOfLastRow = worksheet.LastRowUsed().RowNumber();
+
+                    var currentRow = 1; // + NumberOfLastRow;
+
                     worksheet.Cell(currentRow, 1).Value = "ContractNumber";
                     worksheet.Cell(currentRow, 2).Value = "Customer Name";
                     worksheet.Cell(currentRow, 3).Value = "Description";
@@ -161,7 +170,7 @@ namespace HaloBiz.Controllers
                         worksheet.Cell(currentRow, 2).Value = service.CustomerName; //contractId
                         worksheet.Cell(currentRow, 3).Value = service.Description;
                         worksheet.Cell(currentRow, 4).Value = service.Quantity;
-                        worksheet.Cell(currentRow, 5).Value = service.UnitPrice;
+                        worksheet.Cell(currentRow, 5).Value = service. UnitPrice;
                         worksheet.Cell(currentRow, 6).Value = service.Amount;
                         worksheet.Cell(currentRow, 7).Value = service.ServiceType;
                         worksheet.Cell(currentRow, 8).Value = service.ApiContractService.ServiceTypeName;
@@ -177,12 +186,14 @@ namespace HaloBiz.Controllers
 
                     }
 
+                    // workbook.Save();
+
                     using (var stream = new MemoryStream())
                     {
                         workbook.SaveAs(stream);
                         var content = stream.ToArray();
 
-                        await System.IO.File.WriteAllBytesAsync(filePath, content);                       
+                        System.IO.File.WriteAllBytes(filePath, content);
                     }
                 }
             }
@@ -260,7 +271,7 @@ namespace HaloBiz.Controllers
                         AsAtDate = cutOffDate
                     };
 
-                    var migrationContractSaved = await setCutOffMigration(_contract.ContractNumber, customer.customerDivision, input, customer.CustomerNumber, _context, defaultOffice);
+                    var migrationContractSaved = await setCutOffMigration(startDate, lastDate, _contract.ContractNumber, customer.customerDivision, input, customer.CustomerNumber, _context, defaultOffice);
                     //create contract
                     if (!migrationContractSaved)
                     {
@@ -489,7 +500,8 @@ namespace HaloBiz.Controllers
                 }
             }
 
-            await saveToExcel(allContractServiceItems, page);
+            if(allContractServiceItems.Count > 0)
+                await saveToExcel(allContractServiceItems, page);
 
             _logger.LogInformation($"Total contracts: {contracts.Count}, Saved to db: {totalSaved}; Skipped for duplicate: {previouslySaved}; With error {errorLaden}");
 
@@ -524,18 +536,22 @@ namespace HaloBiz.Controllers
             if (affected > 0)
             {
                 var contractServiceCreated = saveContractEntity.Entity;
-                _logger.LogInformation($"Saved for contract with ID:{contractService.ContractId}, Service: {JsonConvert.SerializeObject(contractService)}");
-                contractServiceCreated.Service = _services.Where(x => x.Id == contractService.ApiContractService.ServiceId).FirstOrDefault();
-                //await _leadConversionService.onMigrationAccountsForContracts(contractServiceCreated,
-                //                                        customer.customerDivision,
-                //                                         contractService.ContractId, userIdToUse);
+                var _contractService = _context.ContractServices
+                        .Include(x=>x.Service)
+                        .Include(x=>x.Contract)
+                        .Where(x => x.Id == contractServiceCreated.Id).FirstOrDefault();
+                _logger.LogInformation($"Saved for contract with ID:{_contractService.ContractId}, Service: {JsonConvert.SerializeObject(contractService)}");
+               
+                await _leadConversionService.onMigrationAccountsForContracts(_contractService,
+                                                        customer.customerDivision,
+                                                         _contractService.ContractId, userIdToUse);
                 return contractServiceCreated.Id;
             }
 
             return 0;
         }
 
-        private async Task<bool> setCutOffMigration(string contractNo, CustomerDivision division, AccountBalanceInput input, string customerNumber, HalobizContext _context, Office defaultOffice)
+        private async Task<bool> setCutOffMigration(DateTime startdate, DateTime enddate, string contractNo, CustomerDivision division, AccountBalanceInput input, string customerNumber, HalobizContext _context, Office defaultOffice)
         {
             //first check if a cut off migration exist for this customer previously on this contract
             var caption = contractNo + "_Migration";
@@ -554,9 +570,14 @@ namespace HaloBiz.Controllers
                 if(customerInput.Amount < 0)
                 {
                     //we create a credit note for the customer
-
+                    //skip for now
+                    return false;
+                }else if (customerInput.Amount == 0)
+                {
+                    //customer is not owing
                     return true;
                 }
+
                 //save the contract now
                 var contract_ = new Contract
                 {
@@ -577,23 +598,23 @@ namespace HaloBiz.Controllers
                 if (afftected > 0)
                 {
                     contractId = entity.Entity.Id;
-                    var startingPoint = input.AsAtDate?.AddYears(-1);
                     var saveContractEntity = _context.ContractServices.Add(new ContractService
                     {
                         ServiceId = MigrationService.Id,
                         BillableAmount = customerInput.Amount,
-                        ActivationDate = startingPoint,
-                        ContractStartDate = startingPoint,
-                        ContractEndDate = input.AsAtDate,
+                        ActivationDate = startdate,
+                        ContractStartDate = startdate,
+                        ContractEndDate = enddate,
                         ContractId = (long)contractId,
                         UnitPrice = customerInput.Amount,
                         Vat = 0,
                         Quantity = 1,
-                        InvoicingInterval = (int)TimeCycle.Monthly,
-                        UniqueTag = $"Migration contract for {caption}",
+                        InvoicingInterval = (int)TimeCycle.OneTime,
+                        UniqueTag = $"Cutoff_{caption}",
                         BranchId = defaultOffice.BranchId,
                         OfficeId = defaultOffice.Id,
                         CreatedById = userIdToUse,
+                        FirstInvoiceSendDate = startdate.AddDays(15)
                     });
 
                    // System.Threading.Thread.Sleep(3000);
@@ -602,11 +623,14 @@ namespace HaloBiz.Controllers
                     if (affected > 0)
                     {
                         var contractServiceCreated = saveContractEntity.Entity;
-                        contractServiceCreated.Service = MigrationService;
-                       // _context.Dispose();
-                        //var result = await _leadConversionService.onMigrationAccountsForContracts(contractServiceCreated,
-                        //                                        division,
-                        //                                         (long)contractId, userIdToUse);
+                        var _contractService = _context.ContractServices
+                                .Include(x => x.Service)
+                                .Include(x => x.Contract)
+                                .Where(x => x.Id == contractServiceCreated.Id).FirstOrDefault();
+
+                        await _leadConversionService.onMigrationAccountsForContracts(_contractService,
+                                                                division,
+                                                                 _contractService.ContractId, userIdToUse);
                     }
                 }
             }
@@ -650,8 +674,8 @@ namespace HaloBiz.Controllers
 
                 await _context.Locations.AddAsync(new Location
                 {
-                    Longitutude = point.Longitude,
-                    Latitude = point.Longitude,
+                    Longitutude = point?.Longitude,
+                    Latitude = point?.Longitude,
                     CustomerDivisionId = customerDivisionId,
                     CreatedById = userIdToUse,
                     Name = contract.BillTo,
@@ -747,7 +771,7 @@ namespace HaloBiz.Controllers
                 //creates customer division from lead division and saves the customer division
                 var customerDivisionEntity = await _context.CustomerDivisions.AddAsync(new CustomerDivision()
                 {
-                    Industry = "",
+                    Industry = "Engineering",
                     Rcnumber = "",
                     DivisionName = customer.Name,
                     Email = customer.EmailAddress ?? "",
