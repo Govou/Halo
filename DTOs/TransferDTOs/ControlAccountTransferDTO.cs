@@ -10,6 +10,7 @@ namespace HaloBiz.DTOs.TransferDTOs
         public string Description { get; set; }
         public string Alias { get; set; }
         public AccountClass AccountClass { get; set; }
+        public long AccountNumber { get; set; }
         public IEnumerable<AccountTransferDTO> Accounts { get; set; }
     }
     public class ControlAccountWithoutAccountClassTransferDTO
@@ -18,6 +19,8 @@ namespace HaloBiz.DTOs.TransferDTOs
         public string Caption { get; set; }
         public string Description { get; set; }
         public string Alias { get; set; }
+        public long AccountNumber { get; set; }
+
     }
 
     public class ControlAccountWithTotal : ControlAccountWithoutAccountClassTransferDTO

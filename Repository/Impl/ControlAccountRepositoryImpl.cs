@@ -26,17 +26,16 @@ namespace HaloBiz.Repository.Impl
             {
                 try{
                     await _context.Database.OpenConnectionAsync();
-                    await _context.Database.ExecuteSqlRawAsync("SET IDENTITY_INSERT dbo.ControlAccounts ON");
 
                     var  lastSavedControl = await _context.ControlAccounts.Where(control => control.AccountClassId == controlAccount.AccountClassId)
                         .OrderBy(control => control.CreatedAt).LastOrDefaultAsync();
 
                     
-                    if(lastSavedControl == null || lastSavedControl.Id < 100000000)
+                    if(lastSavedControl == null || lastSavedControl.AccountNumber < 100000000)
                     {
-                        controlAccount.Id = controlAccount.AccountClassId + 100000000;
+                        controlAccount.Id = controlAccount.AccountNumber + 100000000;
                     }else{
-                        var num = lastSavedControl.Id;
+                        var num = lastSavedControl.AccountNumber;
                         var firstCharacter = num.ToString()[0];
                         var otherNumbers = num.ToString()[1..].Replace("0", "");
                         string id;
@@ -49,7 +48,7 @@ namespace HaloBiz.Repository.Impl
                             id = firstCharacter + (int.Parse(otherNumbers) + 1).ToString().PadRight(9, '0');
                         }
 
-                        controlAccount.Id = long.Parse(id);
+                        controlAccount.AccountNumber = long.Parse(id);
                     }
                     var savedControlAccount = await _context.ControlAccounts.AddAsync(controlAccount);
                     await _context.SaveChangesAsync();
@@ -62,7 +61,6 @@ namespace HaloBiz.Repository.Impl
                     _logger.LogError(e.StackTrace);
                     return null;
                 }finally{
-                    await _context.Database.ExecuteSqlRawAsync("SET IDENTITY_INSERT dbo.ControlAccounts OFF");
                     await _context.Database.CloseConnectionAsync();
                 }
             }

@@ -26,7 +26,8 @@ namespace HaloBiz.Controllers.AccountsModel
         [HttpGet("")]
         public async Task<ApiCommonResponse> GetAccountMasters([FromQuery]AccountMasterTransactionDateQueryParams query)
         {
-            return await _AccountMasterService.QueryAccountMasters( query);
+            var result = await _AccountMasterService.QueryAccountMasters(query);
+            return result;
         }
 
         [HttpGet("{id}")]
