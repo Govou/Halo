@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using HaloBiz.DTOs.ApiDTOs;
 using HaloBiz.DTOs.ContactDTO;
 using HaloBiz.MyServices;
+using HalobizMigrations.Models.ProjectManagement;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HaloBiz.Controllers
@@ -86,11 +88,35 @@ namespace HaloBiz.Controllers
         {
             return await _contactServiceImpl.updateMeeting(HttpContext, meetingId, meetingDTO);
         }
+        [HttpPost("AddMorStaff/{meetingId}")]
+        public async Task<ApiCommonResponse> AddMorStaff(long meetingId,List<MeetingStaff> meetingDTO)
+        {
+            return await _contactServiceImpl.AddmoreStaff(HttpContext,meetingId, meetingDTO);
+        }
+
+        [HttpPost("AddMoreContact/{meetingId}")]
+        public async Task<ApiCommonResponse> AddMoreContacts(long meetingId, List<MeetingContact> meetingContacts)
+        {
+            return await _contactServiceImpl.AddmoreContact(HttpContext, meetingId, meetingContacts);
+        }
+
 
         [HttpDelete("DisableMeeting/{meetingId}")]
         public async Task<ApiCommonResponse> DisableMeeting(long meetingId)
         {
             return await _contactServiceImpl.removeMeeting(HttpContext, meetingId);
+        }
+
+        [HttpDelete("DisableMeetingContact/{meetingId}/{contactId}")]
+        public async Task<ApiCommonResponse> DisableMeetingContact(long meetingId,long contactId)
+        {
+            return await _contactServiceImpl.removeContact(HttpContext, meetingId,contactId);
+        }
+
+        [HttpDelete("DisableMeetingStaff/{meetingId}/{staffId}")]
+        public async Task<ApiCommonResponse> DisableMeetingStaff(long meetingId, long staffId)
+        {
+            return await _contactServiceImpl.removeStaff(HttpContext, meetingId, staffId);
         }
 
         [HttpPost("CreateNewGoal/{suspectId}")]
@@ -107,6 +133,12 @@ namespace HaloBiz.Controllers
 
         [HttpDelete("DisableGoal/{goalId}")]
         public async Task<ApiCommonResponse> DisableGoal(long goalId)
+        {
+            return await _contactServiceImpl.removeGoal(HttpContext, goalId);
+        }
+
+        [HttpDelete("DisableStaff/{meetingId}")]
+        public async Task<ApiCommonResponse> DisableStaff(long goalId)
         {
             return await _contactServiceImpl.removeGoal(HttpContext, goalId);
         }

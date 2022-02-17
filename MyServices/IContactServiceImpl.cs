@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using HaloBiz.DTOs.ApiDTOs;
 using HaloBiz.DTOs.ContactDTO;
+using HalobizMigrations.Models.ProjectManagement;
 using Microsoft.AspNetCore.Http;
 
 namespace HaloBiz.MyServices
@@ -28,6 +30,11 @@ namespace HaloBiz.MyServices
         Task<ApiCommonResponse> UpdateTodo(HttpContext httpContext, long todoId, TodoDTO todoDTO);
         Task<ApiCommonResponse> removeTodo(HttpContext httpContext, long todoId);
         Task<ApiCommonResponse> getTodoByGoalId(HttpContext httpContext, long goalId);
+        Task<ApiCommonResponse> removeStaff(HttpContext httpContext, long meetingId, long staffId);
+        Task<ApiCommonResponse> removeContact(HttpContext httpContext, long meetingId, long contactId);
+        Task<ApiCommonResponse> AddmoreContact(HttpContext httpContext, long meetingId, List<MeetingContact> meetingDTO);
+        Task<ApiCommonResponse> AddmoreStaff(HttpContext httpContext, long meetingId, List<MeetingStaff> meetingDTO);
+
     }
 
 }
