@@ -1456,6 +1456,10 @@ namespace HaloBiz.MyServices.Impl
             //                .Include(x => x.State)
             //                .Include(x => x.Lga)
             //                .FirstOrDefaultAsync();
+            var serviceAss = await _context.MasterServiceAssignments
+                         .Where(x => x.Id == invoice.Id && x.IsDeleted == false)
+                         .Include(x => x.CustomerDivision).Include(x=>x.CreatedBy)
+                         .FirstOrDefaultAsync();
             var serviceReg = await _context.ServiceRegistrations
                           .Where(x => x.Id == invoice.ServiceRegistrationId && x.IsDeleted == false)
                           .Include(x => x.Service)
@@ -1463,8 +1467,11 @@ namespace HaloBiz.MyServices.Impl
             var passengers = await _context.Passengers
                          .Where(x => x.ServiceAssignmentId == invoice.Id && x.IsDeleted == false)
                          .Include(x => x.ServiceAssignment).Include(x=>x.PassengerType)
-                         
                          .ToListAsync();
+            var passengersTogetMail = await _context.Passengers
+                        .Where(x => x.ServiceAssignmentId == invoice.Id && x.IsDeleted == false && x.PassengerType.TypeName == "Principal")
+                        .Include(x => x.ServiceAssignment).Include(x => x.PassengerType)
+                        .ToListAsync();
             var commanders = await _context.CommanderServiceAssignmentDetails
                         .Where(x => x.ServiceAssignmentId == invoice.Id && x.IsDeleted == false)
                         .Include(x => x.ServiceAssignment)
@@ -1536,11 +1543,18 @@ namespace HaloBiz.MyServices.Impl
             //string keyServiceName = "";
 
             List<string> recepients = new List<string>();
-            foreach (var item in passengers)
+            //send mail to Principal passenger
+            foreach (var item in passengersTogetMail)
             {
                 recepients.Add(item.Email);
             }
-            
+            //send to detailing officer
+            if (serviceAss.CreatedBy.Email != null)
+                recepients.Add(serviceAss.CreatedBy.Email);
+            //send to client company
+            if(serviceAss.CustomerDivision.Email != null)
+            recepients.Add(serviceAss.CustomerDivision.Email);
+
             //if (passengers. != null)
             //    recepients.Add(customerDivision.SecondaryContact.Email);
 
