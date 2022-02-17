@@ -402,20 +402,30 @@ namespace HaloBiz.MyServices.Impl
 
         public async Task<ApiCommonResponse> AddmoreStaff(HttpContext httpContext, long meetingId, List<MeetingStaff> meetingDTO)
         {
-            if(meetingDTO != null)
-            {
 
+            var getStaffsById = await _context.MeetingStaffs.Where(x => x.IsActive == true && x.MeetingId == meetingId).ToListAsync();
+
+            if(getStaffsById != null)
+            {
                 var staffArray = new List<MeetingStaff>();
-                foreach(var staff in meetingDTO) {
-                    var staffInstance = new MeetingStaff();
-                    staffInstance.CreatedAt = DateTime.Now;
-                    staffInstance.CreatedById = httpContext.GetLoggedInUserId();
-                    staffInstance.IsActive = true;
-                    staffInstance.MeetingId = meetingId;
-                    staffInstance.StaffId = staff.StaffId;
-                    staffInstance.StaffName = staff.StaffName;
-                    staffInstance.StaffProfileImg = staff.StaffProfileImg;
-                    staffArray.Add(staffInstance);
+                foreach (var user in meetingDTO)
+                {
+                    if (getStaffsById.Any(cus => cus.StaffId == user.StaffId))
+                    {
+                        continue;
+                    }
+                    else
+                    {
+                        var staffInstance = new MeetingStaff();
+                        staffInstance.CreatedAt = DateTime.Now;
+                        staffInstance.CreatedById = httpContext.GetLoggedInUserId();
+                        staffInstance.IsActive = true;
+                        staffInstance.MeetingId = meetingId;
+                        staffInstance.StaffId = user.StaffId;
+                        staffInstance.StaffName = user.StaffName;
+                        staffInstance.StaffProfileImg = user.StaffProfileImg;
+                        staffArray.Add(staffInstance);
+                    }
                 }
 
                 await _context.MeetingStaffs.AddRangeAsync(staffArray);
@@ -425,30 +435,41 @@ namespace HaloBiz.MyServices.Impl
                           .Select(result => result.First())
                           .ToArray();
                 return CommonResponse.Send(ResponseCodes.SUCCESS, groupedResult, "Successffully saved");
-
             }
+
+           
 
             return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
 
         }
 
         public async Task<ApiCommonResponse> AddmoreContact(HttpContext httpContext, long meetingId, List<MeetingContact> meetingDTO)
-        {
-            if (meetingDTO != null)
-            {
 
+        {
+            var getConstactsId = await _context.MeetingContacts.Where(x => x.IsActive == true && x.MeetingId == meetingId).ToListAsync();
+
+            if (getConstactsId != null)
+            {
                 var contactArray = new List<MeetingContact>();
-                foreach (var contact in meetingDTO)
+                foreach (var user in meetingDTO)
                 {
-                    var contactInstance = new MeetingContact();
-                    contactInstance.CreatedAt = DateTime.Now;
-                    contactInstance.CreatedById = httpContext.GetLoggedInUserId();
-                    contactInstance.IsActive = true;
-                    contactInstance.MeetingId = meetingId;
-                    contactInstance.ContactId = contact.ContactId;
-                    contactInstance.Name = contact.Name;
-                    contactInstance.ProfilePicture = contact.ProfilePicture;
-                    contactArray.Add(contactInstance);
+                    if (getConstactsId.Any(cus => cus.ContactId == user.ContactId))
+                    {
+                        continue;
+                    }
+                    else
+                    {
+                        var contactInstance = new MeetingContact();
+                        contactInstance.CreatedAt = DateTime.Now;
+                        contactInstance.CreatedById = httpContext.GetLoggedInUserId();
+                        contactInstance.IsActive = true;
+                        contactInstance.MeetingId = meetingId;
+                        contactInstance.ContactId = user.ContactId;
+                        contactInstance.Name = user.Name;
+                        contactInstance.ProfilePicture = user.ProfilePicture;
+                        contactArray.Add(contactInstance);
+                    }
+
                 }
 
                 await _context.MeetingContacts.AddRangeAsync(contactArray);
@@ -458,7 +479,7 @@ namespace HaloBiz.MyServices.Impl
                          .Select(result => result.First())
                          .ToArray();
                 return CommonResponse.Send(ResponseCodes.SUCCESS, groupedResult, "Successfully saved Contact");
-
+               
             }
 
             return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
