@@ -86,8 +86,8 @@ namespace HaloBiz.Controllers
             return CommonResponse.Send(ResponseCodes.SUCCESS);
         }
 
-        [HttpGet("RunMigration/{page}")]
-        public async Task<ApiCommonResponse> RunMigration(int page)
+        [HttpGet("RunMigration/{page}/{cutoffdate}")]
+        public async Task<ApiCommonResponse> RunMigration(int page, string cutoffdate)
         {
             setServiceTypes();
             try
@@ -109,7 +109,7 @@ namespace HaloBiz.Controllers
 
                 _logger.LogInformation("MIGRATION OF CUSTOMER AND CONTRACT STARTED");
                 contracts = contracts.Where(x => x.Status == 1).ToList();
-                await saveContracts(contracts, page);
+                await saveContracts(contracts, page, cutoffdate);
             }
             catch (Exception ex)
             {
@@ -161,8 +161,6 @@ namespace HaloBiz.Controllers
                     worksheet.Cell(currentRow, 16).Value = "Taxable";//Contract Service Id(Halobiz)
                     worksheet.Cell(currentRow, 17).Value = "InvoiceItemDetail";
 
-
-
                     foreach (var service in services)
                     {
                         currentRow++;
@@ -183,7 +181,6 @@ namespace HaloBiz.Controllers
                         worksheet.Cell(currentRow, 15).Value = service.AdminDirectTie;
                         worksheet.Cell(currentRow, 16).Value = service.Taxable;
                         worksheet.Cell(currentRow, 17).Value = service.InvoiceItemDetail;
-
                     }
 
                     // workbook.Save();
@@ -203,7 +200,7 @@ namespace HaloBiz.Controllers
             }           
         }
         
-        private async Task<bool> saveContracts(List<Contracto> contracts, int page)
+        private async Task<bool> saveContracts(List<Contracto> contracts, int page, string cutOffDateStr)
         {
             int totalSaved = 0, previouslySaved = 0, errorLaden = 0;
 
@@ -262,7 +259,7 @@ namespace HaloBiz.Controllers
                     lastDate = lastDate.AddDays(-1);
 
                     //cut off position parameters
-                    var cutOffDate = startDate.AddDays(-1);
+                    var cutOffDate = DateTime.Parse(cutOffDateStr);
                     var input = new AccountBalanceInput
                     {
                         SubAccount = _contract.SubAccount,
@@ -526,7 +523,7 @@ namespace HaloBiz.Controllers
                 BranchId = defaultOffice.BranchId,
                 OfficeId = defaultOffice.Id,
                 CreatedById = userIdToUse,
-                InvoicingInterval = (int)TimeCycle.Monthly,
+                InvoicingInterval = (int)TimeCycle.Monthly, //get confirmation to adjust 
                 FirstInvoiceSendDate = contractService.StartDate.AddDays(15),
             });
 
@@ -551,10 +548,39 @@ namespace HaloBiz.Controllers
             return 0;
         }
 
+        private async Task<bool> CreditNoteEndorsement(ContractService currentContractService,
+                                                        CustomerDivision customerDivision,
+                                                        Service service,
+                                                        ContractServiceForEndorsement contractServiceForEndorsement)
+        {
+
+            //var financialVoucherType = await _context.FinanceVoucherTypes
+            //                .FirstOrDefaultAsync(x => x.VoucherType == "Credit Note");
+
+            //var contractServiceDifference = _mapper.Map<ContractService>(currentContractService);
+
+            //contractServiceDifference.BillableAmount = contractServiceForEndorsement.BillableAmount;
+            //contractServiceDifference.Vat = contractServiceForEndorsement.Vat;
+
+            //await _leadConversionService.CreateAccounts(
+            //                                contractServiceDifference,
+            //                                customerDivision,
+            //                                (long)contractServiceForEndorsement.BranchId,
+            //                                (long)contractServiceForEndorsement.OfficeId,
+            //                                service,
+            //                                financialVoucherType,
+            //                                null,
+            //                                loggedInUserId,
+            //                                true,
+            //                                null);
+
+            return true;
+        }
+
         private async Task<bool> setCutOffMigration(DateTime startdate, DateTime enddate, string contractNo, CustomerDivision division, AccountBalanceInput input, string customerNumber, HalobizContext _context, Office defaultOffice)
         {
             //first check if a cut off migration exist for this customer previously on this contract
-            var caption = contractNo + "_Migration";
+            var caption = customerNumber + "_Migration";
             try
             {
                 if (_context.Contracts.Any(x => x.Caption == caption))
@@ -565,7 +591,7 @@ namespace HaloBiz.Controllers
                 var accounts = await sender.getCutOffPosition(input);
                 var customerInput = accounts.Where(x => x.SubLedgerCode == customerNumber).FirstOrDefault();
                 if (customerInput == null)
-                    throw new Exception($"Cut off for contract {contractNo} is zero. Input is {JsonConvert.SerializeObject(input)}");
+                    return true;
 
                 if(customerInput.Amount < 0)
                 {

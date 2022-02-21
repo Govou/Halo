@@ -79,11 +79,12 @@ namespace HaloBiz.Repository.Impl
 
                 var  lastSavedAccount = await _context.Accounts.Where(x => x.ControlAccountId == account.ControlAccountId)
                     .OrderBy(x => x.Id).LastOrDefaultAsync();
-                    var _controlAccount = await _context.ControlAccounts.Where(x => x.Id == account.ControlAccountId).FirstOrDefaultAsync();
-                if(lastSavedAccount == null || lastSavedAccount.AccountNumber < 1000000000)
+                if(lastSavedAccount == null || lastSavedAccount?.AccountNumber < 1000000000)
                 {
-                    account.AccountNumber = _controlAccount.AccountNumber + 1;
-                }else{
+                        var _controlAccount = await _context.ControlAccounts.Where(x => x.Id == account.ControlAccountId).FirstOrDefaultAsync();
+                        account.AccountNumber = _controlAccount.AccountNumber + 1;
+                }
+                else{
                     account.AccountNumber = lastSavedAccount.AccountNumber + 1;
                 }
                 var controlAccount = await _context.ControlAccounts

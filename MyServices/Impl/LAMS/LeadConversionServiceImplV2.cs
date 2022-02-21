@@ -94,12 +94,23 @@ namespace HaloBiz.MyServices.Impl.LAMS
                     {
                         await ConvertQuoteServiceToContractService(quoteService, _context, customerDivision, contract.Id, leadDivision);
                     }
-
                 }
 
+                //convert the contacts of the suspect to those of customer
+                var suspectsContacts = await _context.SuspectContacts.Where(x => x.SuspectId == lead.SuspectId).ToListAsync();
+                var customerContacts = new List<CustomerContact>();
+                foreach (var item in suspectsContacts)
+                {
+                    customerContacts.Add(new CustomerContact
+                    {
+                        CustomerId = customer.Id,
+                        ContactId = item.ContactId
+                    });
+                }
 
-
+                await _context.CustomerContacts.AddRangeAsync(customerContacts);
                 await _context.SaveChangesAsync();
+
 
                 await transaction.CommitAsync();
                 return (true, "Success");
