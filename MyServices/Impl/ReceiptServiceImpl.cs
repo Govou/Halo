@@ -372,7 +372,7 @@ namespace HaloBiz.MyServices.Impl
                 {
                     Name = clientWHTAccountName,
                     Description = $"WHT Account for {customerDivision.DivisionName}",
-                    Alias = customerDivision.DTrackCustomerNumber,
+                    Alias = string.IsNullOrEmpty(customerDivision?.DTrackCustomerNumber) ? "" : customerDivision?.DTrackCustomerNumber,
                     IsDebitBalance = true,
                     ControlAccountId = whtControlAccount.Id,
                     CreatedById = LoggedInUserId
@@ -429,9 +429,10 @@ namespace HaloBiz.MyServices.Impl
 
                 var lastSavedAccount = await _context.Accounts.Where(x => x.ControlAccountId == account.ControlAccountId)
                     .OrderBy(x => x.Id).LastOrDefaultAsync();
-                if (lastSavedAccount == null || lastSavedAccount.AccountNumber < 1000000000)
+                if (lastSavedAccount == null || lastSavedAccount?.AccountNumber < 1000000000)
                 {
-                    account.AccountNumber = (long)account.AccountNumber + 1;
+                    var _controlAccount = await _context.ControlAccounts.Where(x => x.Id == account.ControlAccountId).FirstOrDefaultAsync();
+                    account.AccountNumber = _controlAccount.AccountNumber + 1;
                 }
                 else
                 {
