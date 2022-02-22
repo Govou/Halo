@@ -64,12 +64,13 @@ namespace HaloBiz.MigrationsHelpers
             return JsonConvert.DeserializeObject<CustomerList>(responseMessage);
         }
 
-        public async Task<ServiceContracts> getServiceContract() //
+        public async Task<ServiceContracts> getServiceContract(int page) //
         {
             var token = await GetAPIToken();
 
             var response = await _dTrackBaseUrl.AllowAnyHttpStatus()
                            .AppendPathSegment("api/ServiceContracts")
+                           .SetQueryParam("input.pageNumber", page)
                            .WithHeader("Authorization", $"Bearer {token}")
                            .GetAsync();
 
@@ -77,6 +78,23 @@ namespace HaloBiz.MigrationsHelpers
             return JsonConvert.DeserializeObject<ServiceContracts>(responseMessage);
         }
 
+        public async Task<List<Account>> getCutOffPosition(AccountBalanceInput request)
+        {
+            var token = await GetAPIToken();
+
+            var response = await _dTrackBaseUrl.AllowAnyHttpStatus()
+                           .AppendPathSegment($"api/AccountBalances/GetBySubLedger")
+                           .SetQueryParam("input.subAccount", request.SubAccount)
+                           .SetQueryParam("input.glaccount", request.GLAccount)
+                           .SetQueryParam("input.financialYear", request.FinancialYear)
+                           .SetQueryParam("input.asAtDate", request.AsAtDate)
+                           .WithHeader("Authorization", $"Bearer {token}")
+                           .GetAsync();
+
+            var responseMessage = await response.GetStringAsync();
+            var result = JsonConvert.DeserializeObject<Ledger>(responseMessage);
+            return result.Items;
+        }
         public async Task<ServiceContractDetais> getServiceContractDetail(string contractNumber)
         {
             var token = await GetAPIToken();
@@ -104,6 +122,40 @@ namespace HaloBiz.MigrationsHelpers
             var responseMessage = await response.GetStringAsync();
             return JsonConvert.DeserializeObject<Customero>(responseMessage);
         }
+    }
+
+    public class AccountBalanceInput
+    {
+        /// <summary>
+        /// Business unit is mandatory. Usually '01','02','03', etc depending on how many business units you have.
+        /// </summary>
+        public string SubAccount { get; set; } = "01";
+        /// <summary>
+        /// Account Type is optional. Possible values are: Income, Expense, Asset, Liability, Capital
+        /// </summary>
+        public string AccountType { get; set; }
+        /// <summary>
+        /// SubType is optional
+        /// </summary>
+        public string SubType { get; set; }
+        /// <summary>
+        /// GLAccount (Account Number) is optional. Can be set to a specific account you want to get the Balance on.
+        /// </summary>
+        public string GLAccount { get; set; }
+
+        /// <summary>
+        /// Financial Year is mandatory
+        /// </summary>
+        public int FinancialYear { get; set; }
+        /// <summary>
+        /// StartPeriod and EndPeriod if both are set, will be used to get the range of period you want to get the summary for..
+        /// </summary>
+        public int StartPeriod { get; set; }
+        public int EndPeriod { get; set; }
+        /// <summary>
+        /// AsAtDate is optional and nullable. If it has a value, it is used to get the upper limit of Transaction date to use in the summary.
+        /// </summary>
+        public DateTime? AsAtDate { get; set; }
     }
 
     public class UntrustedCertClientFactory : DefaultHttpClientFactory
@@ -150,6 +202,7 @@ namespace HaloBiz.MigrationsHelpers
         public string SubAccount { get; set; }
         public long CustomerId { get; set; }
         public long CustomerDivisionId { get; set; }
+        public CustomerDivision customerDivision { get; set; }
     }
 
     public class CustomerList
@@ -178,7 +231,13 @@ namespace HaloBiz.MigrationsHelpers
         public string ShiftPattern { get; set; }
         public int BilledYear { get; set; }
         public int BilledMonth { get; set; }
-        public int SerialNo { get; set; }
+        public int SerialNo { get; set; }      
+        public ServiceRelationshipEnum Enum { get; set; } = ServiceRelationshipEnum.Standalone;
+        public string AdminDirectTie { get; set; }
+        public ServiceTypes ApiContractService { get; set; }
+        public long ContractId { get; set; }
+        public long ContractServiceId { get; set; }
+        public string CustomerName { get; set; }
     }
 
     public class ServiceContractDetais : Contracto
@@ -221,4 +280,23 @@ namespace HaloBiz.MigrationsHelpers
         public string AdminDirectTie { get; set; }
         public ServiceRelationshipEnum Enum { get; set; } = ServiceRelationshipEnum.Standalone;
     }
+
+    // Root myDeserializedClass = JsonConvert.DeserializeObject<Root>(myJsonResponse);
+    public class Account
+    {
+        public string GLAccount { get; set; }
+        public string AccountName { get; set; }
+        public string SubLedgerType { get; set; }
+        public string SubLedgerCode { get; set; }
+        public string SubLedgerName { get; set; }
+        public double Amount { get; set; }
+    }
+
+    public class Ledger
+    {
+        public List<Account> Items { get; set; }
+        public int TotalCount { get; set; }
+    }
+
+
 }

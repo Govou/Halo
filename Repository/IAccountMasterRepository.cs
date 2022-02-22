@@ -14,7 +14,7 @@ namespace HaloBiz.Repository
         Task<AccountMaster> FindAccountMasterById(long Id);
         Task<IEnumerable<AccountMaster>> FindAllAccountMasters();
         Task<AccountMaster> UpdateAccountMaster(AccountMaster accountMaster);
-        IQueryable<AccountMaster> GetAccountMastersQueryable();
+       // IQueryable<AccountMaster> GetAccountMastersQueryable();
         Task<bool> DeleteAccountMaster(AccountMaster accountMaster);
         Task<IEnumerable<AccountMaster>> FindAccountMastersByTransactionId(string transactionId);
         Task<IEnumerable<AccountMaster>> FindAllAccountMastersByCustomerId(AccountMasterTransactionDateQueryParams searchDTO);

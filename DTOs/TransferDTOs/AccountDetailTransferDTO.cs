@@ -40,6 +40,8 @@ namespace HaloBiz.DTOs.TransferDTOs
         public virtual Branch Branch { get; set; }
         public long AccountMasterId { get; set; }
         public long AccountId  { get; set; }
+        public long AccountNumber { get; set; }
+
         public Account Account { get; set; }
     }
 }

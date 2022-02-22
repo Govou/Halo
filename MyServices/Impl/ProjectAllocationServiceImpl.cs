@@ -1890,12 +1890,20 @@ namespace HaloBiz.MyServices.Impl
                 {
                     assignee.Deliverable.AssignTask = await _context.AssignTasks.Where(x => x.IsActive == true && x.DeliverableAssigneeId == assignee.DeliverableAssigneeId).FirstOrDefaultAsync();
                     assignee.Deliverable.Task = await _context.Tasks.Where(x => x.IsActive == true && x.Id == taskId)
-                                                                    .Include(x=>x.Project)
-                                                                    .FirstOrDefaultAsync();
+                                                                    .Include(x => x.Project)
+                                                                  .FirstOrDefaultAsync();
+
+                    //assignee.Deliverable.UploadedRequirements = await _context.PMUploadedRequirements.Where(x => x.IsActive == true && x.DeliverableId == assignee.Deliverable.Id)
+                    //                                                                                  .ToListAsync();
+
+                    assignee.Deliverable.Dependencies = await _context.Dependencies.Where(x => x.DependencyDeliverableId == assignee.Deliverable.Id).ToListAsync();
+
                     assignee.Deliverable.Balances = await _context.Balances.Where(x => x.IsActive == true && x.DeliverableId == assignee.Deliverable.Id).ToListAsync();
                     assignee.Deliverable.Workspace = await _context.Workspaces.Where(x => x.IsActive == true && x.Id == assignee.Deliverable.WorkspaceId)
-                                                                               .Include(x => x.StatusFlows.Where(x => x.IsDeleted == false))
+                                                                               .Include(x => x.StatusFlows.Where(x => x.WorkspaceId == assignee.Deliverable.WorkspaceId && x.IsDeleted == false))
                                                                                .FirstOrDefaultAsync();
+
+
                     deliverableArray.Add(assignee.Deliverable);
                 }
                 

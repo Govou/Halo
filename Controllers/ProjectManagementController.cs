@@ -492,7 +492,7 @@ namespace HaloBiz.Controllers
         [HttpGet("GetDeliverableById/{Id}")]
         public async Task<ApiCommonResponse> GetDeliverableById(long Id)
         {
-            return await _projectAllocationService.getDeliverablesById(HttpContext, Id);
+            return await _projectAllocationService.getDeliverablesByTaskId(HttpContext, Id);
 
         }
 

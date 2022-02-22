@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using HalobizMigrations.Data;
 using HalobizMigrations.Models;
 
 
@@ -7,6 +8,9 @@ namespace HaloBiz.MyServices.LAMS
 {
     public interface ILeadConversionService
     {
+        Task<bool> onMigrationAccountsForContracts(ContractService contractService,
+                                                                      CustomerDivision customerDivision,
+                                                                      long contractId, long userId);
         Task<(bool, string)> ConvertLeadToClient(long leadId, long loggedInUserId);
         Task<(bool, string)> GenerateInvoices(ContractService contractService, long customerDivisionId, string serviceCode, long loggedInUserId);
         Task<(bool, string)> GenerateAmortizations(ContractService contractService, CustomerDivision customerDivision, double billableAmount, ContractServiceForEndorsement endorsement =  null);

@@ -16,6 +16,8 @@ namespace HaloBiz.DTOs.TransferDTOs
         public bool IsDebitBalance { get; set; }
         public bool IsActive { get; set; }
         public long ControlAccountId { get; set; }
+        public long AccountNumber { get; set; }
+
         public IEnumerable<AccountDetailWithoutAccountMasterTransferDTO> AccountDetails { get; set; }
     }
 }

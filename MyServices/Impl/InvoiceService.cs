@@ -731,17 +731,20 @@ namespace HaloBiz.MyServices.Impl
         private async Task<Account> SaveAccount(Account account)
         {
             try{
-                await _context.Database.ExecuteSqlRawAsync("SET IDENTITY_INSERT dbo.Accounts ON");
+               // await _context.Database.ExecuteSqlRawAsync("SET IDENTITY_INSERT dbo.Accounts ON");
 
                 var  lastSavedAccount = await _context.Accounts.Where(x => x.ControlAccountId == account.ControlAccountId)
                     .OrderBy(x => x.Id).LastOrDefaultAsync();
-                if(lastSavedAccount == null || lastSavedAccount.Id < 1000000000)
+                
+
+                if (lastSavedAccount == null || lastSavedAccount?.AccountNumber < 1000000000)
                 {
-                    account.Id = (long)account.ControlAccountId + 1;
+                    var _controlAccount = await _context.ControlAccounts.Where(x => x.Id == account.ControlAccountId).FirstOrDefaultAsync();
+                    account.AccountNumber = _controlAccount.AccountNumber + 1;
                 }
                 else
                 {
-                    account.Id = lastSavedAccount.Id + 1;
+                    account.AccountNumber = lastSavedAccount.AccountNumber + 1;
                 }
                 var savedAccount = await _context.Accounts.AddAsync(account);
                 await _context.SaveChangesAsync();
@@ -750,7 +753,7 @@ namespace HaloBiz.MyServices.Impl
             {
                 throw;
             }finally{
-                await _context.Database.ExecuteSqlRawAsync("SET IDENTITY_INSERT dbo.Accounts OFF");
+               // await _context.Database.ExecuteSqlRawAsync("SET IDENTITY_INSERT dbo.Accounts OFF");
             }
            
         }
@@ -1456,6 +1459,10 @@ namespace HaloBiz.MyServices.Impl
             //                .Include(x => x.State)
             //                .Include(x => x.Lga)
             //                .FirstOrDefaultAsync();
+            var serviceAss = await _context.MasterServiceAssignments
+                         .Where(x => x.Id == invoice.Id && x.IsDeleted == false)
+                         .Include(x => x.CustomerDivision).Include(x=>x.CreatedBy)
+                         .FirstOrDefaultAsync();
             var serviceReg = await _context.ServiceRegistrations
                           .Where(x => x.Id == invoice.ServiceRegistrationId && x.IsDeleted == false)
                           .Include(x => x.Service)
@@ -1463,8 +1470,11 @@ namespace HaloBiz.MyServices.Impl
             var passengers = await _context.Passengers
                          .Where(x => x.ServiceAssignmentId == invoice.Id && x.IsDeleted == false)
                          .Include(x => x.ServiceAssignment).Include(x=>x.PassengerType)
-                         
                          .ToListAsync();
+            var passengersTogetMail = await _context.Passengers
+                        .Where(x => x.ServiceAssignmentId == invoice.Id && x.IsDeleted == false && x.PassengerType.TypeName == "Principal")
+                        .Include(x => x.ServiceAssignment).Include(x => x.PassengerType)
+                        .ToListAsync();
             var commanders = await _context.CommanderServiceAssignmentDetails
                         .Where(x => x.ServiceAssignmentId == invoice.Id && x.IsDeleted == false)
                         .Include(x => x.ServiceAssignment)
@@ -1536,11 +1546,18 @@ namespace HaloBiz.MyServices.Impl
             //string keyServiceName = "";
 
             List<string> recepients = new List<string>();
-            foreach (var item in passengers)
+            //send mail to Principal passenger
+            foreach (var item in passengersTogetMail)
             {
                 recepients.Add(item.Email);
             }
-            
+            //send to detailing officer
+            if (serviceAss.CreatedBy.Email != null)
+                recepients.Add(serviceAss.CreatedBy.Email);
+            //send to client company
+            if(serviceAss.CustomerDivision.Email != null)
+            recepients.Add(serviceAss.CustomerDivision.Email);
+
             //if (passengers. != null)
             //    recepients.Add(customerDivision.SecondaryContact.Email);
 

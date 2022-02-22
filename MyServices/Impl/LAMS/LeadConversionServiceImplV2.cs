@@ -94,13 +94,23 @@ namespace HaloBiz.MyServices.Impl.LAMS
                     {
                         await ConvertQuoteServiceToContractService(quoteService, _context, customerDivision, contract.Id, leadDivision);
                     }
-
                 }
 
-                 _context.Database.ExecuteSqlRaw("SET IDENTITY_INSERT dbo.Divisions ON;");
+                //convert the contacts of the suspect to those of customer
+                var suspectsContacts = await _context.SuspectContacts.Where(x => x.SuspectId == lead.SuspectId).ToListAsync();
+                var customerContacts = new List<CustomerContact>();
+                foreach (var item in suspectsContacts)
+                {
+                    customerContacts.Add(new CustomerContact
+                    {
+                        CustomerId = customer.Id,
+                        ContactId = item.ContactId
+                    });
+                }
 
-
+                await _context.CustomerContacts.AddRangeAsync(customerContacts);
                 await _context.SaveChangesAsync();
+
 
                 await transaction.CommitAsync();
                 return (true, "Success");
@@ -114,8 +124,8 @@ namespace HaloBiz.MyServices.Impl.LAMS
             }
             finally
             {
-                _context.Database.ExecuteSqlRaw("SET IDENTITY_INSERT dbo.Accounts OFF;");
-                _context.Database.ExecuteSqlRaw("SET IDENTITY_INSERT dbo.ControlAccounts OFF;");
+               // _context.Database.ExecuteSqlRaw("SET IDENTITY_INSERT dbo.Accounts OFF;");
+               // _context.Database.ExecuteSqlRaw("SET IDENTITY_INSERT dbo.ControlAccounts OFF;");
                 _context.Database.ExecuteSqlRaw("SET IDENTITY_INSERT dbo.Divisions OFF;");
                 _context.Database.ExecuteSqlRaw("SET IDENTITY_INSERT dbo.FinanceVoucherTypes OFF;");
                 _context.Database.ExecuteSqlRaw("SET IDENTITY_INSERT dbo.GroupType OFF;");
@@ -438,6 +448,47 @@ namespace HaloBiz.MyServices.Impl.LAMS
             return true;
         }
 
+        public async Task<bool> onMigrationAccountsForContracts(ContractService contractService,
+                                                                      CustomerDivision customerDivision,
+                                                                      long contractId, long userId)
+        {
+            try
+            {
+
+
+
+                if (contractService.InvoicingInterval != (int)TimeCycle.Adhoc)
+                {
+                    FinanceVoucherType accountVoucherType = await _context.FinanceVoucherTypes
+                        .FirstOrDefaultAsync(x => x.VoucherType == SALESINVOICEVOUCHER);
+
+                    LoggedInUserId = userId;
+                    var (createSuccess, createMsg) = await CreateAccounts(
+                                          contractService,
+                                          customerDivision,
+                                          (long)contractService.BranchId,
+                                         (long)contractService.OfficeId,
+                                         contractService.Service,
+                                         accountVoucherType,
+                                         null,
+                                         LoggedInUserId,
+                                         false, null);
+
+                    var _serviceCode = contractService.Service?.ServiceCode;
+                    var (invoiceSuccess, invoiceMsg) = await GenerateInvoices(contractService, customerDivision.Id, _serviceCode, LoggedInUserId);
+                    var (amoSuccess, amoMsg) = await GenerateAmortizations(contractService, customerDivision, (double)contractService.BillableAmount);
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("Error converting", ex);
+                throw;
+            }
+
+            return true;
+        }
+
+
         private async Task<bool> ConvertSBUToQuoteServicePropToSBUToContractServiceProp(long quoteServiceId, long contractServiceId, HalobizContext context)
         {
             try
@@ -702,7 +753,14 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 var (interval, billableForInvoicingPeriod, vat) = CalculateTotalBillableForPeriod(contractService);
                 var allMonthAndYear = new List<MonthsAndYears>();
 
+                billableAmount = billableAmount == 0 ? billableForInvoicingPeriod : billableAmount;
+
                 billableAmount *= interval; 
+
+                if(contractService.InvoicingInterval == (int)TimeCycle.OneTime)
+                {
+                    endDate = startDate.AddMonths(1).AddDays(-1);
+                }
 
                 while (startDate < endDate)
                 {
@@ -726,7 +784,6 @@ namespace HaloBiz.MyServices.Impl.LAMS
                             GroupInvoiceNumber = contractService?.Contract?.GroupInvoiceNumber,
                             QuoteServiceId = contractService.QuoteServiceId,
                         };
-
 
                         await _context.RepAmortizationMasters.AddAsync(repAmoritizationMaster);
                         var affected = await _context.SaveChangesAsync();
@@ -894,14 +951,16 @@ namespace HaloBiz.MyServices.Impl.LAMS
                                     )
         {
             //check that we define the type of customer
-            if(isRetail == null)
-            {
-                if(customerDivision?.Customer?.GroupType == null)                
-                    throw new Exception("The customer divison must include customer and the customer must then include grouptype");              
+            //if(isRetail == null)
+            //{
+            //    if(customerDivision?.Customer?.GroupType == null)                
+            //        throw new Exception("The customer divison must include customer and the customer must then include grouptype");              
 
-                var groupType = customerDivision?.Customer?.GroupType;
-                isRetail = false; //groupType.Caption.ToLower().Trim() == "individual" || groupType.Caption.ToLower().Trim() == "sme";
-            }
+            //    var groupType = customerDivision?.Customer?.GroupType;
+            //    isRetail = groupType.Caption.ToLower().Trim() == "individual" || groupType.Caption.ToLower().Trim() == "sme";
+            //}
+
+            isRetail = false;
 
             double totalContractBillable, totalVAT;
             int interval;
@@ -1354,19 +1413,16 @@ namespace HaloBiz.MyServices.Impl.LAMS
         {
             try
             {
-                await _context.Database.ExecuteSqlRawAsync("SET IDENTITY_INSERT dbo.Accounts ON");
-                await _context.SaveChangesAsync();
-
-
+                
                 var lastSavedAccount = await _context.Accounts.Where(x => x.ControlAccountId == account.ControlAccountId)
                     .OrderBy(x => x.Id).LastOrDefaultAsync();
-                if (lastSavedAccount == null || lastSavedAccount.Id < 1000000000)
+                if (lastSavedAccount == null || lastSavedAccount.AccountNumber < 1000000000)
                 {
-                    account.Id = (long)account.ControlAccountId + 1;
+                    account.AccountNumber = (long)account.ControlAccountId + 1;
                 }
                 else
                 {
-                    account.Id = lastSavedAccount.Id + 1;
+                    account.AccountNumber = lastSavedAccount.AccountNumber + 1;
                 }
 
                 _context.ChangeTracker.Clear();
@@ -1374,20 +1430,14 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 account.Alias = account.Alias ?? "";
 
                 var savedAccount = await _context.Accounts.AddAsync(account);
-                var id = account.Id;
                 await _context.SaveChangesAsync();
                 _context.ChangeTracker.Clear();
-                return id;
+                return savedAccount.Entity.Id;
             }
             catch (Exception ex)
-            {
+            {                                                                                                                                                                                                                                                                                                            
                 _logger.LogError(ex.ToString());
                 throw;
-            }
-            finally
-            {
-                await _context.Database.ExecuteSqlRawAsync("SET IDENTITY_INSERT dbo.Accounts OFF");
-                await _context.SaveChangesAsync();
             }
 
         }
@@ -1428,8 +1478,9 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 _logger.LogInformation($"Data account master: {JsonConvert.SerializeObject(accountMaster)}");
                
                 _context.ChangeTracker.Clear();
+                //_context.Database.SetCommandTimeout(80000);
 
-                var savedAccountMaster = await _context.AccountMasters.AddAsync(accountMaster);                
+                var savedAccountMaster = await _context.AccountMasters.AddAsync(accountMaster);
                 await _context.SaveChangesAsync();
                 long id = accountMaster.Id;
                 _context.ChangeTracker.Clear();
