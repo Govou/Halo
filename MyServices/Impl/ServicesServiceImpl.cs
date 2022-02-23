@@ -569,5 +569,16 @@ namespace HaloBiz.MyServices.Impl
 
             return CommonResponse.Send(ResponseCodes.SUCCESS);
         }
+
+        public async Task<ApiCommonResponse> GetAllSecuredMobilityServices()
+        {
+            var services = await _servicesRepository.FindAllSecuredMobilityServices();
+            if (services == null)
+            {
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE); ;
+            }
+            var serviceTransferDTO = _mapper.Map<IEnumerable<ServiceTransferDTO>>(services);
+            return CommonResponse.Send(ResponseCodes.SUCCESS, serviceTransferDTO);
+        }
     }
 }
