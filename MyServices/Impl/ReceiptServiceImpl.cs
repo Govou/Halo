@@ -358,35 +358,43 @@ namespace HaloBiz.MyServices.Impl
         }
 
         private async Task<long> GetWHTAccountForClient(CustomerDivision customerDivision, ControlAccount whtControlAccount)
-        {          
+        {
 
-            string clientWHTAccountName = $"WHT for {customerDivision.DivisionName}";
-
-            Account clientWHTAccount = await _context.Accounts
-                .FirstOrDefaultAsync(x => x.ControlAccountId == whtControlAccount.Id && x.Name == clientWHTAccountName);
-
-            long accountId = 0;
-            if (clientWHTAccount == null)
+            try
             {
-                Account account = new Account()
+                string clientWHTAccountName = $"WHT for {customerDivision.DivisionName}";
+
+                Account clientWHTAccount = await _context.Accounts
+                    .FirstOrDefaultAsync(x => x.ControlAccountId == whtControlAccount.Id && x.Name == clientWHTAccountName);
+
+                long accountId = 0;
+                if (clientWHTAccount == null)
                 {
-                    Name = clientWHTAccountName,
-                    Description = $"WHT Account for {customerDivision.DivisionName}",
-                    Alias = string.IsNullOrEmpty(customerDivision?.DTrackCustomerNumber) ? "" : customerDivision?.DTrackCustomerNumber,
-                    IsDebitBalance = true,
-                    ControlAccountId = whtControlAccount.Id,
-                    CreatedById = LoggedInUserId
-                };
-                var savedAccount = await SaveAccount(account);
-                accountId = savedAccount.Id;
-                await _context.SaveChangesAsync();
-            }
-            else
-            {
-                accountId = clientWHTAccount.Id;
-            }
+                    Account account = new Account()
+                    {
+                        Name = clientWHTAccountName,
+                        Description = $"WHT Account for {customerDivision.DivisionName}",
+                        Alias = string.IsNullOrEmpty(customerDivision?.DTrackCustomerNumber) ? "" : customerDivision?.DTrackCustomerNumber,
+                        IsDebitBalance = true,
+                        ControlAccountId = whtControlAccount.Id,
+                        CreatedById = LoggedInUserId
+                    };
+                    var savedAccount = await SaveAccount(account);
+                    accountId = savedAccount.Id;
+                    await _context.SaveChangesAsync();
+                }
+                else
+                {
+                    accountId = clientWHTAccount.Id;
+                }
 
-            return accountId;
+                return accountId;
+            }
+            catch (Exception ex)
+            {
+                var p = ex;
+                throw;
+            }
         }
 
         private async Task<long> GetWHTAccountForRetailClient(ControlAccount whtControlAccount)

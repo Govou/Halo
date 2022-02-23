@@ -108,7 +108,11 @@ namespace HaloBiz.MyServices.Impl.LAMS
                     });
                 }
 
-                await _context.CustomerContacts.AddRangeAsync(customerContacts);
+                if (customerContacts.Any())
+                {
+                    await _context.CustomerContacts.AddRangeAsync(customerContacts);
+                }
+
                 await _context.SaveChangesAsync();
 
 
@@ -282,7 +286,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                     //PrimaryContactId = leadDivision?.PrimaryContactId,
                     //SecondaryContactId = leadDivision?.SecondaryContactId,
                     CreatedById = LoggedInUserId,
-                    DTrackCustomerNumber = isRetail == false ? null : await GetDtrackCustomerNumber(leadDivision)
+                    DTrackCustomerNumber = await GetDtrackCustomerNumber(leadDivision)
                 });
 
                 await context.SaveChangesAsync();
@@ -435,7 +439,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                                         false, null);
 
                  var _serviceCode = quoteService?.Service?.ServiceCode ?? contractService.Service?.ServiceCode;
-                 var (invoiceSuccess, invoiceMsg) =   await GenerateInvoices(contractService, customerDivision.Id, _serviceCode, LoggedInUserId);
+                 var (invoiceSuccess, invoiceMsg) =   await GenerateInvoices(contractService, customerDivision.Id, _serviceCode, LoggedInUserId,"");
                  var (amoSuccess, amoMsg) = await GenerateAmortizations(contractService, customerDivision, (double)contractService.BillableAmount);
                 }
             }
@@ -450,7 +454,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
         public async Task<bool> onMigrationAccountsForContracts(ContractService contractService,
                                                                       CustomerDivision customerDivision,
-                                                                      long contractId, long userId)
+                                                                      long contractId, long userId, string startDate)
         {
             try
             {
@@ -475,8 +479,8 @@ namespace HaloBiz.MyServices.Impl.LAMS
                                          false, null);
 
                     var _serviceCode = contractService.Service?.ServiceCode;
-                    var (invoiceSuccess, invoiceMsg) = await GenerateInvoices(contractService, customerDivision.Id, _serviceCode, LoggedInUserId);
-                    var (amoSuccess, amoMsg) = await GenerateAmortizations(contractService, customerDivision, (double)contractService.BillableAmount);
+                    var (invoiceSuccess, invoiceMsg) = await GenerateInvoices(contractService, customerDivision.Id, _serviceCode, LoggedInUserId, startDate);
+                    var (amoSuccess, amoMsg) = await GenerateAmortizationsMigration(contractService, customerDivision, (double)contractService.BillableAmount, startDate);
                 }
             }
             catch (Exception ex)
@@ -548,13 +552,13 @@ namespace HaloBiz.MyServices.Impl.LAMS
             return true;
         }
 
-        public async Task<(bool, string)> GenerateInvoices(ContractService contractService, long customerDivisionId, string serviceCode, long loggedInUserId)
+        public async Task<(bool, string)> GenerateInvoices(ContractService contractService, long customerDivisionId, string serviceCode, long loggedInUserId, string startDate)
         {
             List<Invoice> invoicesToSave = GenerateListOfInvoiceCycle(
                                                                         contractService,
                                                                         customerDivisionId,
                                                                         serviceCode,
-                                                                        loggedInUserId);
+                                                                        loggedInUserId, startDate);
             try
             {
                 await _context.Invoices.AddRangeAsync(invoicesToSave);
@@ -573,13 +577,13 @@ namespace HaloBiz.MyServices.Impl.LAMS
                                             ContractService contractService,
                                             long customerDivisionId,
                                             string serviceCode,
-                                            long loggedInUserId
+                                            long loggedInUserId, string _startDate
                                             )
         {
             try
             {
                 int invoiceNumber = 1;
-                DateTime startDate = (DateTime)contractService.ContractStartDate;
+                DateTime startDate = string.IsNullOrEmpty(_startDate) ? (DateTime)contractService.ContractStartDate : DateTime.Parse(_startDate);
                 DateTime firstInvoiceSendDate = (DateTime)contractService.FirstInvoiceSendDate;
                 DateTime endDate = (DateTime)contractService.ContractEndDate;
                 TimeCycle cycle = (TimeCycle)contractService.InvoicingInterval;
@@ -592,7 +596,6 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
                 if (cycle == TimeCycle.OneTime)
                 {
-
                     invoices.Add(GenerateInvoice(startDate, endDate, amount, firstInvoiceSendDate,
                                                      contractService, customerDivisionId, serviceCode, invoiceNumber, loggedInUserId));
 
@@ -748,8 +751,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 DateTime startDate = endorsement == null ? (DateTime)contractService.ContractStartDate : (DateTime) endorsement?.DateForNewContractToTakeEffect;
                 DateTime endDate = (DateTime)contractService.ContractEndDate;
                 var InitialYear = startDate.Year;
-
-               
+                
                 var (interval, billableForInvoicingPeriod, vat) = CalculateTotalBillableForPeriod(contractService);
                 var allMonthAndYear = new List<MonthsAndYears>();
 
@@ -807,6 +809,83 @@ namespace HaloBiz.MyServices.Impl.LAMS
                         await _context.SaveChangesAsync();
                         _context.ChangeTracker.Clear();
                     }                   
+
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("", ex);
+                return (false, ex.Message);
+            }
+
+            return (true, "success");
+        }
+
+        public async Task<(bool, string)> GenerateAmortizationsMigration(ContractService contractService, CustomerDivision customerDivision, double billableAmount, string _startDate)
+        {
+            try
+            {
+                DateTime startDate = string.IsNullOrEmpty(_startDate) ? (DateTime)contractService.ContractStartDate : DateTime.Parse(_startDate);
+                DateTime endDate = (DateTime)contractService.ContractEndDate;
+                var InitialYear = startDate.Year;
+
+                var (interval, billableForInvoicingPeriod, vat) = CalculateTotalBillableForPeriod(contractService);
+                var allMonthAndYear = new List<MonthsAndYears>();
+
+                billableAmount = billableAmount == 0 ? billableForInvoicingPeriod : billableAmount;
+
+                billableAmount *= interval;
+
+                if (contractService.InvoicingInterval == (int)TimeCycle.OneTime)
+                {
+                    endDate = startDate.AddMonths(1).AddDays(-1);
+                }
+
+                while (startDate < endDate)
+                {
+                    allMonthAndYear.Add(new MonthsAndYears { Month = startDate.Month, Year = startDate.Year });
+                    startDate = startDate.AddMonths(interval);
+                }
+
+                for (int i = InitialYear; i <= endDate.Year; i++)
+                {
+                    var thisYearValues = allMonthAndYear.Where(x => x.Year == i).ToList();
+
+                    if (thisYearValues.Count > 0)
+                    {
+                        var repAmoritizationMaster = new RepAmortizationMaster()
+                        {
+                            Year = i,
+                            ClientId = customerDivision?.CustomerId,
+                            DivisionId = customerDivision.Id,
+                            ContractId = contractService.ContractId,
+                            ContractServiceId = contractService.Id,
+                            GroupInvoiceNumber = contractService?.Contract?.GroupInvoiceNumber,
+                            QuoteServiceId = contractService.QuoteServiceId,
+                        };
+
+                        await _context.RepAmortizationMasters.AddAsync(repAmoritizationMaster);
+                        var affected = await _context.SaveChangesAsync();
+
+                        if (affected == 0)
+                            throw new Exception($"no data saved for year {i} for contract service with quote id {contractService?.QuoteServiceId}");
+
+
+                        List<RepAmortizationDetail> repAmortizationDetails = new List<RepAmortizationDetail>();
+                        foreach (var item in thisYearValues)
+                        {
+                            repAmortizationDetails.Add(new RepAmortizationDetail
+                            {
+                                Month = item.Month,
+                                BillableAmount = billableAmount,
+                                RepAmortizationMasterId = repAmoritizationMaster.Id,
+                            });
+                        }
+
+                        await _context.RepAmortizationDetails.AddRangeAsync(repAmortizationDetails);
+                        await _context.SaveChangesAsync();
+                        _context.ChangeTracker.Clear();
+                    }
 
                 }
             }
@@ -1416,9 +1495,11 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 
                 var lastSavedAccount = await _context.Accounts.Where(x => x.ControlAccountId == account.ControlAccountId)
                     .OrderBy(x => x.Id).LastOrDefaultAsync();
-                if (lastSavedAccount == null || lastSavedAccount.AccountNumber < 1000000000)
+                if (lastSavedAccount == null || lastSavedAccount?.AccountNumber < 1000000000)
                 {
-                    account.AccountNumber = (long)account.ControlAccountId + 1;
+                    var _controlAccount = await _context.ControlAccounts.Where(x => x.Id == account.ControlAccountId).FirstOrDefaultAsync();
+
+                    account.AccountNumber = _controlAccount.AccountNumber + 1;
                 }
                 else
                 {
