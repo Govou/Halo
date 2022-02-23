@@ -104,7 +104,11 @@ namespace HaloBiz.MyServices.Impl.LAMS
                     customerContacts.Add(new CustomerContact
                     {
                         CustomerId = customer.Id,
-                        ContactId = item.ContactId
+                        ContactId = item.ContactId,
+                        ContactPriority = item.ContactPriority,
+                        ContactDesignation = item.ContactDesignation,
+                        ContactQualification = item.ContactQualification,
+                        IsDeleted = item.IsDeleted
                     });
                 }
 

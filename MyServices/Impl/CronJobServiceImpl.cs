@@ -150,9 +150,14 @@ namespace HaloBiz.MyServices.Impl
                                 continue;
                             };
                             //check that there is a primary contact for this customer
-                            if (_context.CustomerContacts.Any(x => x.CustomerId == customerDivision.CustomerId))
+                            var contactPerson = _context.CustomerContacts
+                                    .Where(x => x.CustomerId == customerDivision.CustomerId && x.ContactPriority == HalobizMigrations.Models.Shared.ContactPriority.PrimaryContact)
+                                    .Include(x=>x.Contact)
+                                    .FirstOrDefault();
+                            if (contactPerson == null)
                             {
-
+                                _logger.LogInformation($"There is no primary contact for {customerDivision.DivisionName}");
+                                continue;
                             }
 
                             #endregion
@@ -186,8 +191,7 @@ namespace HaloBiz.MyServices.Impl
                                 Location = $"{Extensions.GetStateShortName(customerDivision?.State?.Capital)}",
                                 BusinessSector = sector,
                                 OtherInfo = $"{customerDivision?.DivisionName}-{customer?.Rcnumber}-{customer?.CreatedAt}",
-                                //todo Contact adjustment
-                                // Contact = $"{primaryContact?.FirstName} {primaryContact?.LastName}"
+                                 Contact = $"{contactPerson.Contact?.FirstName} {contactPerson.Contact?.LastName}"
                             };
                         }
 
