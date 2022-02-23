@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using HalobizMigrations.Data;
@@ -10,10 +11,12 @@ namespace HaloBiz.MyServices.LAMS
     {
         Task<bool> onMigrationAccountsForContracts(ContractService contractService,
                                                                       CustomerDivision customerDivision,
-                                                                      long contractId, long userId);
+                                                                      long contractId, long userId, string startDate);
         Task<(bool, string)> ConvertLeadToClient(long leadId, long loggedInUserId);
-        Task<(bool, string)> GenerateInvoices(ContractService contractService, long customerDivisionId, string serviceCode, long loggedInUserId);
+        Task<(bool, string)> GenerateInvoices(ContractService contractService, long customerDivisionId, string serviceCode, long loggedInUserId, string startDate = null);
         Task<(bool, string)> GenerateAmortizations(ContractService contractService, CustomerDivision customerDivision, double billableAmount, ContractServiceForEndorsement endorsement =  null);
+        
+        Task<(bool, string)> GenerateAmortizationsMigration(ContractService contractService, CustomerDivision customerDivision, double billableAmount, string startDate = null);
 
         Task<(bool, string)> CreateTaskAndDeliverables(ContractService contractServcie, long customerDivisionId, string endorsementType, long? loggedInUserId);
         Task<(bool, string)> CreateAccounts(
@@ -32,7 +35,7 @@ namespace HaloBiz.MyServices.LAMS
                                             ContractService contractService, 
                                             long customerDivisionId,
                                             string serviceCode,
-                                            long loggedInUserId
+                                            long loggedInUserId, string startDate
                                             );
 
         public Task<string> GetDtrackCustomerNumber(CustomerDivision customer);

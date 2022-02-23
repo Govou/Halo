@@ -57,34 +57,7 @@ namespace HaloBiz.Controllers
             _environment = environment;
         }
 
-        [HttpGet("CreateAccount/{Id}")]
-        public async Task<ApiCommonResponse> CreateAccount(long Id)
-        {
-            try
-            {
-                var contract = _context.Contracts
-                        .Include(x=>x.ContractServices)
-                            .ThenInclude(x=>x.Service)
-                        .Where(x => x.Id == Id).FirstOrDefault();
-                var division = _context.CustomerDivisions.Where(x => x.Id == contract.CustomerDivisionId).FirstOrDefault();
-                var transaction = _context.Database.BeginTransaction();
-
-                foreach (var item in contract.ContractServices)
-                {
-                    var result = await _leadConversionService.onMigrationAccountsForContracts(item,
-                                                            division,
-                                                             Id, userIdToUse);
-                }
-
-                transaction.Commit();
-            }
-            catch (Exception ex)
-            {
-                return CommonResponse.Send(ResponseCodes.FAILURE, null, ex.Message);
-            }
-
-            return CommonResponse.Send(ResponseCodes.SUCCESS);
-        }
+      
 
         [HttpGet("RunMigration/{page}/{cutoffdate}")]
         public async Task<ApiCommonResponse> RunMigration(int page, string cutoffdate)
@@ -100,7 +73,7 @@ namespace HaloBiz.Controllers
                     return CommonResponse.Send(ResponseCodes.FAILURE, null, "No service with name: Migrations");
 
                 var cb = await sender.getServiceContract(page);
-                var contracts = cb.Items.Take(10).ToList();
+                var contracts = cb.Items.Take(60).ToList();
 
                 if(contracts.Count == 0)
                 {
@@ -135,64 +108,57 @@ namespace HaloBiz.Controllers
                 FileStream fs = System.IO.File.OpenWrite(filePath);
                 fs.Dispose();
 
-                using (var workbook = new XLWorkbook(filePath))
+                using var workbook = new XLWorkbook(filePath);
+                var timestamp = DateTime.Now.ToString("yyyyMMddHHmmss");
+                var worksheet = workbook.Worksheets.Add($"CS_{page}_{timestamp}");
+                //int NumberOfLastRow = worksheet.LastRowUsed().RowNumber();
+
+                var currentRow = 1; // + NumberOfLastRow;
+
+                worksheet.Cell(currentRow, 1).Value = "ContractNumber";
+                worksheet.Cell(currentRow, 2).Value = "Customer Name";
+                worksheet.Cell(currentRow, 3).Value = "Description";
+                worksheet.Cell(currentRow, 4).Value = "Quantity";
+                worksheet.Cell(currentRow, 5).Value = "UnitPrice";
+                worksheet.Cell(currentRow, 6).Value = "Amount";
+                worksheet.Cell(currentRow, 7).Value = "ServiceType";
+                worksheet.Cell(currentRow, 8).Value = "Service Name";
+                worksheet.Cell(currentRow, 9).Value = "StartDate";
+                worksheet.Cell(currentRow, 10).Value = "End Date (Halobiz)";
+                worksheet.Cell(currentRow, 11).Value = "Contract Service Id(Halobiz)";
+                worksheet.Cell(currentRow, 12).Value = "Billing Cycle";
+                worksheet.Cell(currentRow, 13).Value = "Service Id (Halobiz)";
+                worksheet.Cell(currentRow, 14).Value = "Type (Halobiz)";
+                worksheet.Cell(currentRow, 15).Value = "Admin Direct Tie (Halobiz)";
+                worksheet.Cell(currentRow, 16).Value = "Taxable";//Contract Service Id(Halobiz)
+                worksheet.Cell(currentRow, 17).Value = "InvoiceItemDetail";
+
+                foreach (var service in services)
                 {
-                    var timestamp = DateTime.Now.ToString("yyyyMMddHHmmss");
-                    var worksheet = workbook.Worksheets.Add($"CS_{page}_{timestamp}");
-                    //int NumberOfLastRow = worksheet.LastRowUsed().RowNumber();
-
-                    var currentRow = 1; // + NumberOfLastRow;
-
-                    worksheet.Cell(currentRow, 1).Value = "ContractNumber";
-                    worksheet.Cell(currentRow, 2).Value = "Customer Name";
-                    worksheet.Cell(currentRow, 3).Value = "Description";
-                    worksheet.Cell(currentRow, 4).Value = "Quantity";
-                    worksheet.Cell(currentRow, 5).Value = "UnitPrice";
-                    worksheet.Cell(currentRow, 6).Value = "Amount";
-                    worksheet.Cell(currentRow, 7).Value = "ServiceType";
-                    worksheet.Cell(currentRow, 8).Value = "Service Name";
-                    worksheet.Cell(currentRow, 9).Value = "StartDate";
-                    worksheet.Cell(currentRow, 10).Value = "End Date (Halobiz)";
-                    worksheet.Cell(currentRow, 11).Value = "Contract Service Id(Halobiz)";
-                    worksheet.Cell(currentRow, 12).Value = "Billing Cycle";
-                    worksheet.Cell(currentRow, 13).Value = "Service Id (Halobiz)";
-                    worksheet.Cell(currentRow, 14).Value = "Type (Halobiz)";
-                    worksheet.Cell(currentRow, 15).Value = "Admin Direct Tie (Halobiz)";
-                    worksheet.Cell(currentRow, 16).Value = "Taxable";//Contract Service Id(Halobiz)
-                    worksheet.Cell(currentRow, 17).Value = "InvoiceItemDetail";
-
-                    foreach (var service in services)
-                    {
-                        currentRow++;
-                        worksheet.Cell(currentRow, 1).Value = service.ContractNumber;
-                        worksheet.Cell(currentRow, 2).Value = service.CustomerName; //contractId
-                        worksheet.Cell(currentRow, 3).Value = service.Description;
-                        worksheet.Cell(currentRow, 4).Value = service.Quantity;
-                        worksheet.Cell(currentRow, 5).Value = service. UnitPrice;
-                        worksheet.Cell(currentRow, 6).Value = service.Amount;
-                        worksheet.Cell(currentRow, 7).Value = service.ServiceType;
-                        worksheet.Cell(currentRow, 8).Value = service.ApiContractService.ServiceTypeName;
-                        worksheet.Cell(currentRow, 9).Value = service.StartDate;
-                        worksheet.Cell(currentRow, 10).Value = service.EndDate;
-                        worksheet.Cell(currentRow, 11).Value = service.ContractServiceId;
-                        worksheet.Cell(currentRow, 12).Value = service.BillingCycle;
-                        worksheet.Cell(currentRow, 13).Value = service.ApiContractService.ServiceId;
-                        worksheet.Cell(currentRow, 14).Value = service.Enum.ToString();
-                        worksheet.Cell(currentRow, 15).Value = service.AdminDirectTie;
-                        worksheet.Cell(currentRow, 16).Value = service.Taxable;
-                        worksheet.Cell(currentRow, 17).Value = service.InvoiceItemDetail;
-                    }
-
-                    // workbook.Save();
-
-                    using (var stream = new MemoryStream())
-                    {
-                        workbook.SaveAs(stream);
-                        var content = stream.ToArray();
-
-                        System.IO.File.WriteAllBytes(filePath, content);
-                    }
+                    currentRow++;
+                    worksheet.Cell(currentRow, 1).Value = service.ContractNumber;
+                    worksheet.Cell(currentRow, 2).Value = service.CustomerName; //contractId
+                    worksheet.Cell(currentRow, 3).Value = service.Description;
+                    worksheet.Cell(currentRow, 4).Value = service.Quantity;
+                    worksheet.Cell(currentRow, 5).Value = service.UnitPrice;
+                    worksheet.Cell(currentRow, 6).Value = service.Amount;
+                    worksheet.Cell(currentRow, 7).Value = service.ServiceType;
+                    worksheet.Cell(currentRow, 8).Value = service.ApiContractService.ServiceTypeName;
+                    worksheet.Cell(currentRow, 9).Value = service.StartDate;
+                    worksheet.Cell(currentRow, 10).Value = service.EndDate;
+                    worksheet.Cell(currentRow, 11).Value = service.ContractServiceId;
+                    worksheet.Cell(currentRow, 12).Value = service.BillingCycle;
+                    worksheet.Cell(currentRow, 13).Value = service.ApiContractService.ServiceId;
+                    worksheet.Cell(currentRow, 14).Value = service.Enum.ToString();
+                    worksheet.Cell(currentRow, 15).Value = service.AdminDirectTie;
+                    worksheet.Cell(currentRow, 16).Value = service.Taxable;
+                    worksheet.Cell(currentRow, 17).Value = service.InvoiceItemDetail;
                 }
+
+                using var stream = new MemoryStream();
+                workbook.SaveAs(stream);
+                var content = stream.ToArray();
+                System.IO.File.WriteAllBytes(filePath, content);
             }
             catch (Exception ex)
             {
@@ -268,7 +234,7 @@ namespace HaloBiz.Controllers
                         AsAtDate = cutOffDate
                     };
 
-                    var migrationContractSaved = await setCutOffMigration(startDate, lastDate, _contract.ContractNumber, customer.customerDivision, input, customer.CustomerNumber, _context, defaultOffice);
+                    var migrationContractSaved = await setCutOffMigration(startDate, lastDate, _contract.ContractNumber, customer.customerDivision, input, customer.CustomerNumber, _context, defaultOffice, cutOffDate);
                     //create contract
                     if (!migrationContractSaved)
                     {
@@ -482,7 +448,7 @@ namespace HaloBiz.Controllers
 
                     foreach (var item in mergedAdminCasesSorted)
                     {
-                       item.ContractServiceId = await postContractService(item, customer, defaultOffice, _context);
+                       item.ContractServiceId = await postContractService(item, customer, defaultOffice, _context, cutOffDateStr);
                     }
 
                     allContractServiceItems.AddRange(mergedAdminCasesSorted);
@@ -505,7 +471,7 @@ namespace HaloBiz.Controllers
             return true;
         }
 
-        private async Task<long> postContractService(ServiceContractItem contractService, Customero customer, Office defaultOffice, HalobizContext _context)
+        private async Task<long> postContractService(ServiceContractItem contractService, Customero customer, Office defaultOffice, HalobizContext _context, string cutoffdate)
         {
             var saveContractEntity = _context.ContractServices.Add(new ContractService
             {
@@ -541,7 +507,7 @@ namespace HaloBiz.Controllers
                
                 await _leadConversionService.onMigrationAccountsForContracts(_contractService,
                                                         customer.customerDivision,
-                                                         _contractService.ContractId, userIdToUse);
+                                                         _contractService.ContractId, userIdToUse, cutoffdate);
                 return contractServiceCreated.Id;
             }
 
@@ -550,34 +516,29 @@ namespace HaloBiz.Controllers
 
         private async Task<bool> CreditNoteEndorsement(ContractService currentContractService,
                                                         CustomerDivision customerDivision,
-                                                        Service service,
-                                                        ContractServiceForEndorsement contractServiceForEndorsement)
+                                                        Service service, long loggedInUserId)
         {
 
-            //var financialVoucherType = await _context.FinanceVoucherTypes
-            //                .FirstOrDefaultAsync(x => x.VoucherType == "Credit Note");
+            var financialVoucherType = await _context.FinanceVoucherTypes
+                            .FirstOrDefaultAsync(x => x.VoucherType == "Credit Note");          
 
-            //var contractServiceDifference = _mapper.Map<ContractService>(currentContractService);
 
-            //contractServiceDifference.BillableAmount = contractServiceForEndorsement.BillableAmount;
-            //contractServiceDifference.Vat = contractServiceForEndorsement.Vat;
-
-            //await _leadConversionService.CreateAccounts(
-            //                                contractServiceDifference,
-            //                                customerDivision,
-            //                                (long)contractServiceForEndorsement.BranchId,
-            //                                (long)contractServiceForEndorsement.OfficeId,
-            //                                service,
-            //                                financialVoucherType,
-            //                                null,
-            //                                loggedInUserId,
-            //                                true,
-            //                                null);
+            await _leadConversionService.CreateAccounts(
+                                            currentContractService,
+                                            customerDivision,
+                                            (long)currentContractService.BranchId,
+                                            (long)currentContractService.OfficeId,
+                                            service,
+                                            financialVoucherType,
+                                            null,
+                                            loggedInUserId,
+                                            true,
+                                            null);
 
             return true;
         }
 
-        private async Task<bool> setCutOffMigration(DateTime startdate, DateTime enddate, string contractNo, CustomerDivision division, AccountBalanceInput input, string customerNumber, HalobizContext _context, Office defaultOffice)
+        private async Task<bool> setCutOffMigration(DateTime startdate, DateTime enddate, string contractNo, CustomerDivision division, AccountBalanceInput input, string customerNumber, HalobizContext _context, Office defaultOffice, DateTime cutOffDate)
         {
             //first check if a cut off migration exist for this customer previously on this contract
             var caption = customerNumber + "_Migration";
@@ -593,12 +554,7 @@ namespace HaloBiz.Controllers
                 if (customerInput == null)
                     return true;
 
-                if(customerInput.Amount < 0)
-                {
-                    //we create a credit note for the customer
-                    //skip for now
-                    return false;
-                }else if (customerInput.Amount == 0)
+                if(customerInput.Amount == 0)
                 {
                     //customer is not owing
                     return true;
@@ -627,7 +583,7 @@ namespace HaloBiz.Controllers
                     var saveContractEntity = _context.ContractServices.Add(new ContractService
                     {
                         ServiceId = MigrationService.Id,
-                        BillableAmount = customerInput.Amount,
+                        BillableAmount = Math.Abs(customerInput.Amount),
                         ActivationDate = startdate,
                         ContractStartDate = startdate,
                         ContractEndDate = enddate,
@@ -640,7 +596,7 @@ namespace HaloBiz.Controllers
                         BranchId = defaultOffice.BranchId,
                         OfficeId = defaultOffice.Id,
                         CreatedById = userIdToUse,
-                        FirstInvoiceSendDate = startdate.AddDays(15)
+                        FirstInvoiceSendDate = cutOffDate.AddDays(15)
                     });
 
                    // System.Threading.Thread.Sleep(3000);
@@ -654,9 +610,18 @@ namespace HaloBiz.Controllers
                                 .Include(x => x.Contract)
                                 .Where(x => x.Id == contractServiceCreated.Id).FirstOrDefault();
 
-                        await _leadConversionService.onMigrationAccountsForContracts(_contractService,
-                                                                division,
-                                                                 _contractService.ContractId, userIdToUse);
+                        if (customerInput.Amount < 0)
+                        {
+                            //customer is not owing
+                            await CreditNoteEndorsement(_contractService, division, _contractService.Service, userIdToUse);
+                            return true;
+                        }
+                        else
+                        {
+                            await _leadConversionService.onMigrationAccountsForContracts(_contractService,
+                                                                    division,
+                                                                     _contractService.ContractId, userIdToUse, cutOffDate.ToString());
+                        }                       
                     }
                 }
             }

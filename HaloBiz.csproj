@@ -88,6 +88,7 @@
     <Folder Include="Auth\" />
     <Folder Include="DTOs\ContactDTO\" />
     <Folder Include="wwwroot\" />
+    <Folder Include="wwwroot\MigrationsLog\" />
   </ItemGroup>
 
 </Project>

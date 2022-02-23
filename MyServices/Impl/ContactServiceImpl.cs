@@ -237,7 +237,25 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.SUCCESS, suspect);
             }
 
-            //_context.Meetings
+        }
+
+        //GetContactsAttachedToSuspect
+        public async Task<ApiCommonResponse> GetContactsAttachedToCustomer(long customerId)
+        {
+
+            var customer = await _context.CustomerContacts.Where(x => x.CustomerId == customerId)
+                                                              .Include(x => x.Contact)
+                                                              .Include(x => x.Customer)
+                                                              .ToListAsync();
+            if (!customer.Any())
+            {
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);
+            }
+            else
+            {
+                return CommonResponse.Send(ResponseCodes.SUCCESS, customer);
+            }
+
         }
 
         public async Task<ApiCommonResponse> GetMeeting(long suspectId)
