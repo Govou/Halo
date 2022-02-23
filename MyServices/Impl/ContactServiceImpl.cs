@@ -239,7 +239,6 @@ namespace HaloBiz.MyServices.Impl
 
         }
 
-        //GetContactsAttachedToSuspect
         public async Task<ApiCommonResponse> GetContactsAttachedToCustomer(long customerId)
         {
 
