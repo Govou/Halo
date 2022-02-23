@@ -66,9 +66,9 @@ namespace HaloBiz.Controllers
         }
 
         [HttpGet("GetContactsAttachedToCustomer/{customerId}")]
-        public async Task<ApiCommonResponse> GetAllCustomers(long suspectId)
+        public async Task<ApiCommonResponse> GetAllCustomers(long customerId)
         {
-            return await _contactServiceImpl.GetContactsAttachedToSuspect(suspectId);
+            return await _contactServiceImpl.GetContactsAttachedToCustomer(customerId);
         }
 
         [HttpPut("DetatchContact/{suspectId}/{contactId}")]

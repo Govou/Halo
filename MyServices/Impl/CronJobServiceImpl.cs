@@ -124,6 +124,8 @@ namespace HaloBiz.MyServices.Impl
                                 continue;
                             }
                             else customerDivision.State = state;
+
+                          
                             //todo Contact adjustment
 
                             //if (!customerDivision.PrimaryContactId.HasValue)
@@ -147,6 +149,12 @@ namespace HaloBiz.MyServices.Impl
                                 _logger.LogInformation($"Customer division {customerDivision.DivisionName} does not have customer");
                                 continue;
                             };
+                            //check that there is a primary contact for this customer
+                            if (_context.CustomerContacts.Any(x => x.CustomerId == customerDivision.CustomerId))
+                            {
+
+                            }
+
                             #endregion
 
                             var isRetail = account.Name == RETAIL_RECEIVABLE_ACCOUNT;

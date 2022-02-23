@@ -45,10 +45,7 @@ namespace HaloBiz.Repository.Impl.LAMS
                                         .Include(x => x.ServiceCategory)
                                         .Include(x => x.Division)
                                         .FirstOrDefaultAsync(x => x.Id == result.ServiceId && x.IsDeleted != true);
-            //todo Contact adjustment
             result.CustomerDivision = await _context.CustomerDivisions.AsNoTracking()
-                                               // .Include(x => x.PrimaryContact)
-                                                //.Include(x => x.SecondaryContact)
                                                 .Include(x => x.Customer)
                                                 .FirstOrDefaultAsync(x => x.Id == result.CustomerDivisionId && x.IsDeleted != true);
 
