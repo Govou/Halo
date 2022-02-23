@@ -731,17 +731,20 @@ namespace HaloBiz.MyServices.Impl
         private async Task<Account> SaveAccount(Account account)
         {
             try{
-                await _context.Database.ExecuteSqlRawAsync("SET IDENTITY_INSERT dbo.Accounts ON");
+               // await _context.Database.ExecuteSqlRawAsync("SET IDENTITY_INSERT dbo.Accounts ON");
 
                 var  lastSavedAccount = await _context.Accounts.Where(x => x.ControlAccountId == account.ControlAccountId)
                     .OrderBy(x => x.Id).LastOrDefaultAsync();
-                if(lastSavedAccount == null || lastSavedAccount.Id < 1000000000)
+                
+
+                if (lastSavedAccount == null || lastSavedAccount?.AccountNumber < 1000000000)
                 {
-                    account.Id = (long)account.ControlAccountId + 1;
+                    var _controlAccount = await _context.ControlAccounts.Where(x => x.Id == account.ControlAccountId).FirstOrDefaultAsync();
+                    account.AccountNumber = _controlAccount.AccountNumber + 1;
                 }
                 else
                 {
-                    account.Id = lastSavedAccount.Id + 1;
+                    account.AccountNumber = lastSavedAccount.AccountNumber + 1;
                 }
                 var savedAccount = await _context.Accounts.AddAsync(account);
                 await _context.SaveChangesAsync();
@@ -750,7 +753,7 @@ namespace HaloBiz.MyServices.Impl
             {
                 throw;
             }finally{
-                await _context.Database.ExecuteSqlRawAsync("SET IDENTITY_INSERT dbo.Accounts OFF");
+               // await _context.Database.ExecuteSqlRawAsync("SET IDENTITY_INSERT dbo.Accounts OFF");
             }
            
         }

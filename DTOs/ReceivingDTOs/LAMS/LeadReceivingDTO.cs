@@ -20,7 +20,8 @@ namespace HaloBiz.DTOs.ReceivingDTOs.LAMS
         [StringLength(5000)]
         public string LogoUrl { get; set; }
         public string LeadCaptureDocumentUrl { get; set; }
-        
-        
+        public long SuspectId { get; set; }
+
+
     }
 }

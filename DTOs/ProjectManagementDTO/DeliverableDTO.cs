@@ -14,9 +14,11 @@ namespace HaloBiz.DTOs.ProjectManagementDTO
         public long CreatedById { get; set; }
         public DependentType? DependentType { get; set; }
         public ICollection<Dependency> Dependencies { get; set; }
+        public ICollection<Balance> Balances { get; set; }
         public ICollection<PMRequirement> Requirements { get; set; }
         public AssignDeliverableDTO AssignDeliverableDTO { get; set; }
         public List<PMIllustration> PMIllustrations { get; set; }
+
         public Project Project { get; set; }
         public Task Task { get; set; }
         public DateTime CreatedAt { get; set; }
@@ -31,6 +33,8 @@ namespace HaloBiz.DTOs.ProjectManagementDTO
         public string Description { get; set; }
         public string Caption { get; set; }
         public string Alias { get; set; }
+        public AssignTask AssignTask { get; set; }
+        public Workspace Workspace { get; set; }
         public DateTime UpdatedAt { get; set; }
         public List<DeliverableAssignee> DeliverableAssignees { get; internal set; }
     }

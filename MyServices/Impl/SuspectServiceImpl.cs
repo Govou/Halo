@@ -17,6 +17,7 @@ using HaloBiz.DTOs.ReceivingDTOs.LAMS;
 using HaloBiz.DTOs.TransferDTOs.LAMS;
 using HalobizMigrations.Data;
 using HaloBiz.Repository.LAMS;
+using HalobizMigrations.Models.Shared;
 
 namespace HaloBiz.MyServices.Impl
 {
@@ -187,6 +188,11 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);
             }
 
+            if (!(_context.SuspectContacts.Any(x => x.SuspectId == suspect.Id && x.ContactPriority==ContactPriority.PrimaryContact))) {
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "The suspect does not have any primary contact");
+            }
+
+
             var loggedInUserId = context.GetLoggedInUserId();
 
             using var transaction = await _context.Database.BeginTransactionAsync();
@@ -203,6 +209,7 @@ namespace HaloBiz.MyServices.Impl
                     LeadTypeId = suspect.LeadTypeId ?? 1,
                     LogoUrl = suspect.ImageUrl,
                     RCNumber = suspect?.RCNumber,
+                    SuspectId = suspect.Id
                 });
 
                 if (leadSaveResponse.responseCode.Contains("00"))
@@ -234,7 +241,7 @@ namespace HaloBiz.MyServices.Impl
                         return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
                     }
 
-                    suspect.LeadId = lead.Id;
+                    //suspect.LeadId = lead.Id;
                     suspect.IsConverted = true;
 
                     _context.Suspects.Update(suspect);

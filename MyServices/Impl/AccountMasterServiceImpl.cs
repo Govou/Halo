@@ -123,9 +123,16 @@ namespace HaloBiz.MyServices.Impl
         public async Task<ApiCommonResponse> GetAllAccountMastersByTransactionDate(AccountMasterTransactionDateQueryParams query)
         {
             try{
-                var queryable =  _accountMasterRepo.GetAccountMastersQueryable();
-                var accountMasters = await queryable.Where(x => x.CreatedAt >= query.StartDate
+                //var queryable =  _accountMasterRepo.GetAccountMastersQueryable();
+                var accountMasters = await _context.AccountMasters
+               .Include(x => x.AccountDetails)
+                   .ThenInclude(x => x.Account)
+               .Include(x => x.Voucher)
+               .Where(x=> x.CreatedAt >= query.StartDate
                             && x.CreatedAt <= query.EndDate && x.IsDeleted == false).ToListAsync();
+
+                //var accountMasters = await queryable.Where(x => x.CreatedAt >= query.StartDate
+                //            && x.CreatedAt <= query.EndDate && x.IsDeleted == false).ToListAsync();
                 var AccountMasterTransferDTOs = _mapper.Map<IEnumerable<AccountMasterTransferDTO>>(accountMasters);
                 return CommonResponse.Send(ResponseCodes.SUCCESS,AccountMasterTransferDTOs);
             }catch(Exception e)
@@ -138,11 +145,21 @@ namespace HaloBiz.MyServices.Impl
         public async Task<ApiCommonResponse> GetAllAccountMastersByVoucherId(AccountMasterTransactionDateQueryParams query)
         {
             try{
-                var queryable =  _accountMasterRepo.GetAccountMastersQueryable();
-                var accountMasters = await queryable.Where(x => x.CreatedAt >= query.StartDate
-                            && x.CreatedAt <= query.EndDate && !x.IsDeleted && query.VoucherTypeIds.Contains(x.VoucherId)).ToListAsync();
-                var AccountMasterTransferDTOs = _mapper.Map<IEnumerable<AccountMasterTransferDTO>>(accountMasters);
-                return CommonResponse.Send(ResponseCodes.SUCCESS,AccountMasterTransferDTOs);
+                //var queryable =  _accountMasterRepo.GetAccountMastersQueryable();
+
+                var accountMasters = await _context.AccountMasters
+                    .Where(x => !x.IsDeleted && x.CreatedAt >= query.StartDate
+                            && x.CreatedAt <= query.EndDate && !x.IsDeleted && query.VoucherTypeIds.Contains(x.VoucherId))
+                    .Include(x => x.Voucher)
+                    .Include(x => x.AccountDetails)
+                        .ThenInclude(x => x.Account)
+                    .ToListAsync();
+
+                //var accountMasters = await queryable.Where(x => x.CreatedAt >= query.StartDate
+                //            && x.CreatedAt <= query.EndDate && !x.IsDeleted && query.VoucherTypeIds.Contains(x.VoucherId)).ToListAsync();
+               // var AccountMasterTransferDTOs = _mapper.Map<IEnumerable<AccountMasterTransferDTO>>(accountMasters);
+                return CommonResponse.Send(ResponseCodes.SUCCESS, accountMasters);
+
             }catch(Exception e)
             {
                 _logger.LogError(e.Message);
