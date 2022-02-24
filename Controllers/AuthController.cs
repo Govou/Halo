@@ -121,7 +121,6 @@ namespace HaloBiz.Controllers
 
                 var user = response.responseData;
                 var userProfile = (UserProfileTransferDTO)user;
-                userProfile.Id = 4;
 
                 var permissions = await _roleService.GetPermissionEnumsOnUser(userProfile.Id);
 
