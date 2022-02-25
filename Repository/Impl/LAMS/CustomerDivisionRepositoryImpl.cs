@@ -49,13 +49,6 @@ namespace HaloBiz.Repository.Impl.LAMS
             
             client.Customer.CustomerDivisions = null;
 
-            //todo Contact adjustment
-            //client.CustomerDivisionContact = await _context.CustomerDivisionContacts
-            //    .Where(x => x.CustomerDivisionId == client.PrimaryContactId && x.IsDeleted == false).FirstOrDefaultAsync();
-
-            //client.SecondaryContact = await _context.LeadDivisionContacts
-            //    .Where(x => x.Id == client.SecondaryContactId && x.IsDeleted == false).FirstOrDefaultAsync();
-
             return client;
         }
 
