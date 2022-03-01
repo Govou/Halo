@@ -22,5 +22,15 @@ namespace HaloBiz.Repository
 
         Task<bool> DeleteServiceAssignment(MasterServiceAssignment serviceAssignment);
         Task<bool> UpdateReadyStatus(MasterServiceAssignment serviceAssignment);
+
+        //Secondary
+        Task<SecondaryServiceAssignment> SaveSecondaryServiceAssignment(SecondaryServiceAssignment serviceAssignment);
+
+        Task<SecondaryServiceAssignment> FindSecondaryServiceAssignmentById(long Id);
+
+        Task<IEnumerable<SecondaryServiceAssignment>> FindAllSecondaryServiceAssignments();
+        Task<IEnumerable<SecondaryServiceAssignment>> FindAllSecondaryServiceAssignmentsByAssignmentId(long Id);
+
+        Task<bool> DeleteSecondaryServiceAssignment(SecondaryServiceAssignment serviceAssignment);
     }
 }

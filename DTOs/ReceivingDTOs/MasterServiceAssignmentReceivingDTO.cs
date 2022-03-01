@@ -31,8 +31,16 @@ namespace HaloBiz.DTOs.ReceivingDTOs
         public string PickUpLocationGeometry { get; set; }
         public string DropOffLocationGeometry { get; set; }
         public double DistanceInKM { get; set; }
+        public long?[] SecondaryServiceRegistrationId { get; set; }
+        //public SecondaryServiceAssignmentReceivingDTO SecondaryServiceAssignmentReceivingDTO { get; set; }
     }
 
+    public class SecondaryServiceAssignmentReceivingDTO
+    {
+        public long? ServiceAssignmentId { get; set; }
+        public long?[] SecondaryServiceRegistrationId { get; set; }
+        public long? SecondaryContractServiceId { get; set; }
+    }
     public class MasterServiceAssignmentMailVMDTO
     {
 

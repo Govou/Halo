@@ -45,13 +45,15 @@ namespace HaloBiz.Repository
         Task<bool> DeleteSMOReturnRoute(SMOReturnRoute sMOReturnRoute);
 
         //MapStateToRoute
-        //Task<SMOReturnRoute> SaveSMORouteMap(SMOReturnRoute sMOReturnRoute);
-        //Task<SMOReturnRoute> UpdateSMORouteMap(SMOReturnRoute sMOReturnRoute);
-        //Task<SMOReturnRoute> FindSMORouteMapById(long id);
-        //SMOReturnRoute GetSMORouteMapId(long? routeId);
+        Task<SMORouteAndStateMap> SaveSMORouteMap(SMORouteAndStateMap sMOMapRoute);
+        Task<SMOReturnRoute> UpdateSMORouteMap(SMORouteAndStateMap sMOMapRoute);
+        Task<SMORouteAndStateMap> FindSMORouteMapById(long id);
+        SMORouteAndStateMap GetSMORouteMapId(long? routeId);
 
-        //Task<IEnumerable<SMOReturnRoute>> FindAllSMORoutesMap();
-        //Task<bool> DeleteSMORouteMap(SMOReturnRoute sMOReturnRoute);
+        Task<IEnumerable<SMORouteAndStateMap>> FindAllSMORoutesMap();
+        Task<bool> DeleteSMORouteMap(SMORouteAndStateMap sMOMapRoute);
+        SMORouteAndStateMap GetSMORouteMapByRouteIdAndStateId(long? routeId, long? stateId);
+        Task<IEnumerable<SMORouteAndStateMap>> FindAllRouteMapsByRouteId(long routeId);
     }
 
 

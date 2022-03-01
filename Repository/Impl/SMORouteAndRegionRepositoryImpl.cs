@@ -231,5 +231,62 @@ namespace HaloBiz.Repository.Impl
               .Include(r => r.SMORegion)
               .ToListAsync();
         }
+
+        //RouteMap
+        public async Task<SMORouteAndStateMap> SaveSMORouteMap(SMORouteAndStateMap sMOMapRoute)
+        {
+            var savedEntity = await _context.SMORouteAndStateMaps.AddAsync(sMOMapRoute);
+            if (await SaveChanges())
+            {
+                return savedEntity.Entity;
+            }
+            return null;
+        }
+
+        public Task<SMOReturnRoute> UpdateSMORouteMap(SMORouteAndStateMap sMOMapRoute)
+        {
+            throw new NotImplementedException();
+        }
+
+        public async Task<SMORouteAndStateMap> FindSMORouteMapById(long id)
+        {
+            return await _context.SMORouteAndStateMaps.Include(r => r.SMORegion).Include(x=>x.SMORoute)
+                 .Include(r => r.CreatedBy).Include(x=>x.State)
+                 .FirstOrDefaultAsync(route => route.Id == id );
+        }
+
+        public SMORouteAndStateMap GetSMORouteMapId(long? routeId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public async Task<IEnumerable<SMORouteAndStateMap>> FindAllSMORoutesMap()
+        {
+            return await _context.SMORouteAndStateMaps.Where(r => r.IsDeleted == false).Include(r => r.State)
+            .Include(r => r.SMORegion).
+            Include(r => r.SMORoute)
+            .ToListAsync();
+        }
+
+        public async Task<bool> DeleteSMORouteMap(SMORouteAndStateMap sMOMapRoute)
+        {
+            sMOMapRoute.IsDeleted = true;
+            _context.SMORouteAndStateMaps.Update(sMOMapRoute);
+            return await SaveChanges();
+        }
+
+        public  SMORouteAndStateMap GetSMORouteMapByRouteIdAndStateId(long? routeId, long? stateId)
+        {
+            return  _context.SMORouteAndStateMaps.Where
+             (ct => ct.SMORouteId == routeId && ct.StateId == stateId && ct.IsDeleted == false).FirstOrDefault();
+        }
+
+        public async Task<IEnumerable<SMORouteAndStateMap>> FindAllRouteMapsByRouteId(long routeId)
+        {
+            return await _context.SMORouteAndStateMaps.Where(r => r.IsDeleted == false && r.SMORouteId == routeId).Include(r => r.State)
+            .Include(r => r.SMORegion).
+            Include(r => r.SMORoute)
+            .ToListAsync();
+        }
     }
 }

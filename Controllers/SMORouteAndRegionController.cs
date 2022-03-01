@@ -49,6 +49,12 @@ namespace HaloBiz.Controllers
             return await _sMORoutesAndRegionServices.GetAllSMORoutes(); 
         }
 
+        [HttpGet("GetAllRouteMaps")]
+        public async Task<ApiCommonResponse> GetAllRouteMaps()
+        {
+            return await _sMORoutesAndRegionServices.GetAllSMORouteMaps();
+        }
+
         [HttpGet("GetRoutesByName")]
         public async Task<ApiCommonResponse> GetRoutesByName(string routeName)
         {
@@ -94,6 +100,17 @@ namespace HaloBiz.Controllers
             return await _sMORoutesAndRegionServices.GetSMORouteById(id); 
         }
 
+        [HttpGet("GetRouteMapById/{id}")]
+        public async Task<ApiCommonResponse> GetRouteMapById(long id)
+        {
+            return await _sMORoutesAndRegionServices.GetSMORouteMapById(id);
+        }
+
+        [HttpGet("GetAllRouteMapsByRouteId/{id}")]
+        public async Task<ApiCommonResponse> GetAllRouteMapsByRouteId(long id)
+        {
+            return await _sMORoutesAndRegionServices.GetAllRouteMapsByRouteId(id);
+        }
         [HttpPost("AddNewRegion")]
         public async Task<ApiCommonResponse> AddNewRegion(SMORegionReceivingDTO ReceivingDTO)
         {
@@ -110,6 +127,12 @@ namespace HaloBiz.Controllers
         public async Task<ApiCommonResponse> AddNewRoute(SMORouteReceivingDTO ReceivingDTO)
         {
             return await _sMORoutesAndRegionServices.AddSMORoute(HttpContext, ReceivingDTO); 
+        }
+
+        [HttpPost("AddNewRouteMap")]
+        public async Task<ApiCommonResponse> AddNewRouteMap(SMORouteMapReceivingDTO ReceivingDTO)
+        {
+            return await _sMORoutesAndRegionServices.AddSMORouteMap(HttpContext, ReceivingDTO);
         }
 
         [HttpPut("UpdateRegionById/{id}")]
@@ -146,6 +169,12 @@ namespace HaloBiz.Controllers
         public async Task<ApiCommonResponse> DeleteRouteById(int id)
         {
             return await _sMORoutesAndRegionServices.DeleteSMORoute(id);
+        }
+
+        [HttpDelete("DeleteRouteMapById/{id}")]
+        public async Task<ApiCommonResponse> DeleteRouteMapById(int id)
+        {
+            return await _sMORoutesAndRegionServices.DeleteSMORouteMap(id);
         }
 
     }
