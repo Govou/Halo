@@ -86,7 +86,8 @@ namespace HaloBiz.Repository.Impl
 
         public async Task<IEnumerable<ServiceRegistration>> FindAllServicess()
         {
-            return await _context.ServiceRegistrations.Where(s => s.IsDeleted == false)
+            //add service codes from appsettings
+            return await _context.ServiceRegistrations.Where(s => s.IsDeleted == false )
                           .Include(s=>s.ApplicableArmedEscortTypes.Where(type=>type.IsDeleted == false))
                           .Include(s=>s.ApplicableCommanderTypes.Where(type=>type.IsDeleted == false))
                           .Include(s=>s.ApplicablePilotTypes.Where(type=>type.IsDeleted ==  false))

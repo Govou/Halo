@@ -47,4 +47,19 @@ namespace HaloBiz.DTOs.TransferDTOs
         public DateTime PickoffTime { get; set; }
         public DateTime UpdatedAt { get; set; }
     }
+
+    public class SecondaryServiceAssignmentTransferDTO
+    {
+        public long Id { get; set; }
+        public long? ServiceAssignmentId { get; set; }
+        public MasterServiceAssignment ServiceAssignment { get; set; }
+        public long? SecondaryServiceRegistrationId { get; set; }
+        public ServiceRegistration SecondaryServiceRegistration { get; set; }
+        public long? SecondaryContractServiceId { get; set; }
+        public ContractService SecondaryContractService { get; set; }
+        public bool IsDeleted { get; set; }
+        public long CreatedById { get; set; }
+        public UserProfile CreatedBy { get; set; }
+        public DateTime CreatedAt { get; set; }
+    }
 }
