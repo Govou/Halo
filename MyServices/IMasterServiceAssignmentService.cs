@@ -11,6 +11,7 @@ namespace HaloBiz.MyServices
     public interface IMasterServiceAssignmentService
     {
         Task<ApiCommonResponse> AddMasterServiceAssignment(HttpContext context, MasterServiceAssignmentReceivingDTO masterReceivingDTO);
+        Task<ApiCommonResponse> AddMasterAutoServiceAssignment(HttpContext context, MasterServiceAssignmentForAutoReceivingDTO masterReceivingDTO);
         Task<ApiCommonResponse> GetAllMasterServiceAssignments();
         Task<ApiCommonResponse> GetMasterServiceAssignmentById(long id);
         Task<ApiCommonResponse> UpdateMasterServiceAssignment(HttpContext context, long id, MasterServiceAssignmentReceivingDTO masterReceivingDTO);

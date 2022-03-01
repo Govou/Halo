@@ -10,6 +10,7 @@ namespace HaloBiz.Repository
     public interface IServiceAssignmentMasterRepository
     {
         Task<MasterServiceAssignment> SaveServiceAssignment(MasterServiceAssignment serviceAssignment);
+        //Task<MasterServiceAssignment> SaveServiceAssignmentAutoAssign(MasterServiceAssignment serviceAssignment);
 
         Task<MasterServiceAssignment> FindServiceAssignmentById(long Id);
 
