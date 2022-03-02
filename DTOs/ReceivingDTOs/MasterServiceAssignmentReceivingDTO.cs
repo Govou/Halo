@@ -31,8 +31,56 @@ namespace HaloBiz.DTOs.ReceivingDTOs
         public string PickUpLocationGeometry { get; set; }
         public string DropOffLocationGeometry { get; set; }
         public double DistanceInKM { get; set; }
+        public long?[] SecondaryServiceRegistrationId { get; set; }
+        //public SecondaryServiceAssignmentReceivingDTO SecondaryServiceAssignmentReceivingDTO { get; set; }
     }
 
+    public class MasterServiceAssignmentForAutoReceivingDTO
+    {
+        public long ContractServiceId { get; set; }
+        public long? CustomerDivisionId { get; set; }
+        public long ServiceRegistrationId { get; set; }
+        public long SMORouteId { get; set; }
+        public long? SMORegionId { get; set; }
+        //public DateTime ReadinessTime { get; set; }
+        public string DropoffLocation { get; set; }
+        public string PickoffLocation { get; set; }
+        //public DateTime DropoffDate { get; set; }
+        public DateTime PickupDate { get; set; }
+        public bool IsReturnJourney { get; set; }
+
+        //public long? SourceTypeId { get; set; }
+        public DateTime PickoffTime { get; set; }
+        public double PickupLocationLongitude { get; set; }
+        public double PickupLocationLatitude { get; set; }
+        public double DropoffLocationLongitude { get; set; }
+        public double DropoffLocationLatitude { get; set; }
+        public string PickUpLocationGeometry { get; set; }
+        public string DropOffLocationGeometry { get; set; }
+        public double DistanceInKM { get; set; }
+        public long?[] SecondaryServiceRegistrationId { get; set; }
+        //For AEscort
+        public long ArmedEscortResourceId { get; set; }
+        public long ServiceAssignmentId { get; set; }
+        //For Vehicle
+        public long VehicleServiceAssignmentId { get; set; }
+        public long VehicleResourceId { get; set; }
+        //For Commander
+        public long CommanderServiceAssignmentId { get; set; }
+        public long CommanderResourceId { get; set; }
+        public long CommanderTiedVehicleResourceId { get; set; }
+        //For Pilot
+        public long PilotServiceAssignmentId { get; set; }
+        public long PilotResourceId { get; set; }
+        public long PilotTiedVehicleResourceId { get; set; }
+    }
+
+    public class SecondaryServiceAssignmentReceivingDTO
+    {
+        public long? ServiceAssignmentId { get; set; }
+        public long?[] SecondaryServiceRegistrationId { get; set; }
+        public long? SecondaryContractServiceId { get; set; }
+    }
     public class MasterServiceAssignmentMailVMDTO
     {
 

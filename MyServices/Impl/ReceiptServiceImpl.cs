@@ -358,35 +358,43 @@ namespace HaloBiz.MyServices.Impl
         }
 
         private async Task<long> GetWHTAccountForClient(CustomerDivision customerDivision, ControlAccount whtControlAccount)
-        {          
+        {
 
-            string clientWHTAccountName = $"WHT for {customerDivision.DivisionName}";
-
-            Account clientWHTAccount = await _context.Accounts
-                .FirstOrDefaultAsync(x => x.ControlAccountId == whtControlAccount.Id && x.Name == clientWHTAccountName);
-
-            long accountId = 0;
-            if (clientWHTAccount == null)
+            try
             {
-                Account account = new Account()
+                string clientWHTAccountName = $"WHT for {customerDivision.DivisionName}";
+
+                Account clientWHTAccount = await _context.Accounts
+                    .FirstOrDefaultAsync(x => x.ControlAccountId == whtControlAccount.Id && x.Name == clientWHTAccountName);
+
+                long accountId = 0;
+                if (clientWHTAccount == null)
                 {
-                    Name = clientWHTAccountName,
-                    Description = $"WHT Account for {customerDivision.DivisionName}",
-                    Alias = customerDivision.DTrackCustomerNumber,
-                    IsDebitBalance = true,
-                    ControlAccountId = whtControlAccount.Id,
-                    CreatedById = LoggedInUserId
-                };
-                var savedAccount = await SaveAccount(account);
-                accountId = savedAccount.Id;
-                await _context.SaveChangesAsync();
-            }
-            else
-            {
-                accountId = clientWHTAccount.Id;
-            }
+                    Account account = new Account()
+                    {
+                        Name = clientWHTAccountName,
+                        Description = $"WHT Account for {customerDivision.DivisionName}",
+                        Alias = string.IsNullOrEmpty(customerDivision?.DTrackCustomerNumber) ? "" : customerDivision?.DTrackCustomerNumber,
+                        IsDebitBalance = true,
+                        ControlAccountId = whtControlAccount.Id,
+                        CreatedById = LoggedInUserId
+                    };
+                    var savedAccount = await SaveAccount(account);
+                    accountId = savedAccount.Id;
+                    await _context.SaveChangesAsync();
+                }
+                else
+                {
+                    accountId = clientWHTAccount.Id;
+                }
 
-            return accountId;
+                return accountId;
+            }
+            catch (Exception ex)
+            {
+                var p = ex;
+                throw;
+            }
         }
 
         private async Task<long> GetWHTAccountForRetailClient(ControlAccount whtControlAccount)
@@ -425,17 +433,18 @@ namespace HaloBiz.MyServices.Impl
         {
             try
             {
-                await _context.Database.ExecuteSqlRawAsync("SET IDENTITY_INSERT dbo.Accounts ON");
+                //await _context.Database.ExecuteSqlRawAsync("SET IDENTITY_INSERT dbo.Accounts ON");
 
                 var lastSavedAccount = await _context.Accounts.Where(x => x.ControlAccountId == account.ControlAccountId)
                     .OrderBy(x => x.Id).LastOrDefaultAsync();
-                if (lastSavedAccount == null || lastSavedAccount.Id < 1000000000)
+                if (lastSavedAccount == null || lastSavedAccount?.AccountNumber < 1000000000)
                 {
-                    account.Id = (long)account.ControlAccountId + 1;
+                    var _controlAccount = await _context.ControlAccounts.Where(x => x.Id == account.ControlAccountId).FirstOrDefaultAsync();
+                    account.AccountNumber = _controlAccount.AccountNumber + 1;
                 }
                 else
                 {
-                    account.Id = lastSavedAccount.Id + 1;
+                    account.AccountNumber = lastSavedAccount.AccountNumber + 1;
                 }
                 var savedAccount = await _context.Accounts.AddAsync(account);
                 await _context.SaveChangesAsync();
@@ -447,7 +456,7 @@ namespace HaloBiz.MyServices.Impl
             }
             finally
             {
-                await _context.Database.ExecuteSqlRawAsync("SET IDENTITY_INSERT dbo.Accounts OFF");
+                //await _context.Database.ExecuteSqlRawAsync("SET IDENTITY_INSERT dbo.Accounts OFF");
             }
         }
     }

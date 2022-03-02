@@ -59,6 +59,7 @@ namespace HaloBiz.Repository.Impl
         {
             return  _context.AccountMasters
                 .Include(x => x.AccountDetails)
+                    .ThenInclude(x=>x.Account)
                 .Include(x => x.Voucher)
                 .Where(user => user.IsDeleted == false).AsQueryable();
         }
@@ -97,20 +98,24 @@ namespace HaloBiz.Repository.Impl
                                                 .Select(x => x.AccountMasterId).ToListAsync();
                 }
 
-                return  await _context.AccountMasters.AsNoTracking()
+                var result = await _context.AccountMasters.AsNoTracking()
                             .Include(x => x.AccountDetails)
                             .ThenInclude(x => x.Account)
                             .Include(x => x.Voucher)
                             .Where(x => accountMasterIds.Contains(x.Id)).ToArrayAsync();
+            return result;
         }
 
         public async Task<IEnumerable<AccountMaster>> FindAccountMastersByTransactionId(string transactionId)
         {
             //transactionId = String.Join("/",transactionId.Split("%2F"));
-            return await _context.AccountMasters
-                .Include(x => x.AccountDetails.Where(x => x.IsDeleted == false))
-                .ThenInclude(x => x.Account)
-                .Where(x => x.IsDeleted == false && x.TransactionId == transactionId).ToListAsync();
+            var result = await _context.AccountMasters
+                .Where(x => x.Id==long.Parse(transactionId))
+                .Include(x => x.Voucher)
+                .Include(x => x.AccountDetails)
+                  .ThenInclude(x => x.Account)
+                .ToListAsync();
+            return result;
         }
         public async Task<AccountMaster> SaveAccountMaster(AccountMaster accountMaster)
         {

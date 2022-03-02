@@ -124,6 +124,8 @@ namespace HaloBiz.MyServices.Impl
                                 continue;
                             }
                             else customerDivision.State = state;
+
+                          
                             //todo Contact adjustment
 
                             //if (!customerDivision.PrimaryContactId.HasValue)
@@ -147,6 +149,17 @@ namespace HaloBiz.MyServices.Impl
                                 _logger.LogInformation($"Customer division {customerDivision.DivisionName} does not have customer");
                                 continue;
                             };
+                            //check that there is a primary contact for this customer
+                            var contactPerson = _context.CustomerContacts
+                                    .Where(x => x.CustomerId == customerDivision.CustomerId && x.ContactPriority == HalobizMigrations.Models.Shared.ContactPriority.PrimaryContact)
+                                    .Include(x=>x.Contact)
+                                    .FirstOrDefault();
+                            if (contactPerson == null)
+                            {
+                                _logger.LogInformation($"There is no primary contact for {customerDivision.DivisionName}");
+                                continue;
+                            }
+
                             #endregion
 
                             var isRetail = account.Name == RETAIL_RECEIVABLE_ACCOUNT;
@@ -178,8 +191,7 @@ namespace HaloBiz.MyServices.Impl
                                 Location = $"{Extensions.GetStateShortName(customerDivision?.State?.Capital)}",
                                 BusinessSector = sector,
                                 OtherInfo = $"{customerDivision?.DivisionName}-{customer?.Rcnumber}-{customer?.CreatedAt}",
-                                //todo Contact adjustment
-                                // Contact = $"{primaryContact?.FirstName} {primaryContact?.LastName}"
+                                 Contact = $"{contactPerson.Contact?.FirstName} {contactPerson.Contact?.LastName}"
                             };
                         }
 

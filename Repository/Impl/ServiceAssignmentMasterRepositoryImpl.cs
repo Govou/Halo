@@ -20,6 +20,13 @@ namespace HaloBiz.Repository.Impl
             this._context = context;
         }
 
+        public async Task<bool> DeleteSecondaryServiceAssignment(SecondaryServiceAssignment serviceAssignment)
+        {
+            serviceAssignment.IsDeleted = true;
+            _context.SecondaryServiceAssignments.Update(serviceAssignment);
+            return await SaveChanges();
+        }
+
         public async Task<bool> DeleteServiceAssignment(MasterServiceAssignment serviceAssignment)
         {
             serviceAssignment.IsDeleted = true;
@@ -33,6 +40,24 @@ namespace HaloBiz.Repository.Impl
                .OrderBy(x => x.DivisionName)
                .Select(x => new { Id = x.Id, DivisionName = x.DivisionName, Contracts = x.Contracts.Where(x=> x.IsDeleted == false), ContractServiceForEndorsements = x.ContractServiceForEndorsements })
                .ToListAsync();
+        }
+
+        public async Task<IEnumerable<SecondaryServiceAssignment>> FindAllSecondaryServiceAssignments()
+        {
+            return await _context.SecondaryServiceAssignments.Where(type => type.IsDeleted == false)
+              .Include(ct => ct.ServiceAssignment).Include(t => t.SecondaryContractService).Include(t => t.SecondaryServiceRegistration)
+              
+              .OrderByDescending(x => x.Id)
+              .ToListAsync();
+        }
+
+        public async Task<IEnumerable<SecondaryServiceAssignment>> FindAllSecondaryServiceAssignmentsByAssignmentId(long Id)
+        {
+            return await _context.SecondaryServiceAssignments.Where(type => type.IsDeleted == false && type.ServiceAssignmentId == Id)
+             .Include(ct => ct.ServiceAssignment).Include(t => t.SecondaryContractService).Include(t => t.SecondaryServiceRegistration)
+
+             .OrderByDescending(x => x.Id)
+             .ToListAsync();
         }
 
         public async Task<IEnumerable<MasterServiceAssignment>> FindAllServiceAssignments()
@@ -49,6 +74,13 @@ namespace HaloBiz.Repository.Impl
                .ToListAsync();
         }
 
+        public async Task<SecondaryServiceAssignment> FindSecondaryServiceAssignmentById(long Id)
+        {
+            return await _context.SecondaryServiceAssignments.Where(type => type.IsDeleted == false && type.Id == Id)
+           .Include(ct => ct.ServiceAssignment).Include(t => t.SecondaryContractService).Include(t => t.SecondaryServiceRegistration)
+           .FirstOrDefaultAsync();
+        }
+
         public async Task<MasterServiceAssignment> FindServiceAssignmentById(long Id)
         {
             return await _context.MasterServiceAssignments
@@ -59,6 +91,16 @@ namespace HaloBiz.Repository.Impl
                .Include(t => t.ServiceRegistration.ApplicablePilotTypes.Where(t => t.IsDeleted == false))
                .Include(t => t.ServiceRegistration.ApplicableVehicleTypes.Where(t => t.IsDeleted == false))
                .FirstOrDefaultAsync(aer => aer.Id == Id && aer.IsDeleted == false);
+        }
+
+        public async Task<SecondaryServiceAssignment> SaveSecondaryServiceAssignment(SecondaryServiceAssignment serviceAssignment)
+        {
+            var savedEntity = await _context.SecondaryServiceAssignments.AddAsync(serviceAssignment);
+            if (await SaveChanges())
+            {
+                return savedEntity.Entity;
+            }
+            return null;
         }
 
         public async Task<MasterServiceAssignment> SaveServiceAssignment(MasterServiceAssignment serviceAssignment)

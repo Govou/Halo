@@ -24,5 +24,6 @@ namespace HaloBiz.DTOs.TransferDTOs
         public IEnumerable<ControlAccountWithTotal> ControlAccounts { get; set; }
 
         public double Total { get; set; }
+        public long AccountNumber { get; set; }
     }
 }

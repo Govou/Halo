@@ -17,6 +17,7 @@ namespace HaloBiz.MyServices
         Task<ApiCommonResponse> GetAllSuspect();
         Task<ApiCommonResponse> AttachToSuspect(HttpContext httpContext,SuspectContactDTO suspectContactDTO);
         Task<ApiCommonResponse> GetContactsAttachedToSuspect(long suspectId);
+        Task<ApiCommonResponse> GetContactsAttachedToCustomer(long customerId);
         Task<ApiCommonResponse> detachContact(HttpContext httpContext, long suspectid, long contactId);
         Task<ApiCommonResponse> removeMeeting(HttpContext httpContext, long meetingId);
         Task<ApiCommonResponse> createMeeting(HttpContext httpContext, MeetingDTO meetingDTO);
