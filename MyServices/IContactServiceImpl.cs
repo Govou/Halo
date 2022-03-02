@@ -34,6 +34,16 @@ namespace HaloBiz.MyServices
         Task<ApiCommonResponse> removeContact(HttpContext httpContext, long meetingId, long contactId);
         Task<ApiCommonResponse> AddmoreContact(HttpContext httpContext, long meetingId, List<MeetingContact> meetingDTO);
         Task<ApiCommonResponse> AddmoreStaff(HttpContext httpContext, long meetingId, List<MeetingStaff> meetingDTO);
+        Task<ApiCommonResponse> getContactsForSuspectsById(HttpContext httpContext, long suspectId);
+        Task<ApiCommonResponse> changeTodoStatus(HttpContext httpContext, long todoId);
+        Task<ApiCommonResponse> getDashBoardForSuspect(HttpContext httpContext, long suspectId);
+        Task<ApiCommonResponse> GetLeadClassificationsData(HttpContext httpContext);
+        Task<ApiCommonResponse> GetLeadClassificationsDataByDates(HttpContext httpContext, DateTime startDate, DateTime endDate);
+        Task<ApiCommonResponse> GetLeadClassificationsDataById(HttpContext httpContext, long CreatedById);
+        Task<ApiCommonResponse> GetLeadsOpportunityData(HttpContext httpContext);
+        Task<ApiCommonResponse> GetLeadsOpportunityDataByCreatedId(HttpContext httpContext, long createdById);
+        Task<ApiCommonResponse> getContractByLeadId(long Id);
+
 
     }
 
