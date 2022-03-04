@@ -103,6 +103,12 @@ namespace HaloBiz.Repository.Impl
                (ct => ct.ResourceId == regRessourceId && ct.SMORouteId == RouteId  && ct.IsDeleted == false).FirstOrDefault();
         }
 
+        public CommanderSMORoutesResourceTie GetResourceRegIdRegionAndRouteId2(long? regRessourceId, long? RouteId)
+        {
+            return _context.CommanderSMORoutesResourceTies.Where
+               (ct => ct.ResourceId == regRessourceId && ct.SMORouteId == RouteId && ct.IsDeleted == false).FirstOrDefault();
+        }
+
         public async Task<CommanderProfile> SaveCommander(CommanderProfile commanderProfile)
         {
             var savedEntity = await _context.CommanderProfiles.AddAsync(commanderProfile);

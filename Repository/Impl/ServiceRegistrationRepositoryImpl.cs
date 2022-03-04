@@ -99,6 +99,15 @@ namespace HaloBiz.Repository.Impl
             //              .Include(s => s.Service.OperatingEntity)
         }
 
+        public async Task<IEnumerable<VehicleResourceRequiredPerService>> FindAllVehicleResourceByServiceRegId(long seviceRegId)
+        {
+            return await _context.VehicleResourceRequiredPerServices.Where(s => s.IsDeleted == false  && s.ServiceRegistrationId == seviceRegId)
+                       .Include(s => s.CreatedBy).Include(s => s.ServiceRegistration).Include(s => s.ServiceRegistration.Service)
+                       .Include(s => s.VehicleType.ServiceRegistration).Include(s => s.ServiceRegistration.ApplicableArmedEscortTypes)
+                       .Include(s => s.VehicleType.ServiceRegistration.Service)
+                                 .ToListAsync();
+        }
+
         public async Task<IEnumerable<VehicleResourceRequiredPerService>> FindAllVehicleResources()
         {
             return await _context.VehicleResourceRequiredPerServices.Where(s => s.IsDeleted == false)

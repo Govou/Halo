@@ -13,10 +13,12 @@ namespace HaloBiz.Repository.Impl
     {
         private readonly HalobizContext _context;
         private readonly ILogger<PilotRegistrationRepositoryImpl> _logger;
-        public PilotRegistrationRepositoryImpl(HalobizContext context, ILogger<PilotRegistrationRepositoryImpl> logger)
+        private readonly IServiceAssignmentDetailsRepository _serviceAssignmentDetailsRepository;
+        public PilotRegistrationRepositoryImpl(HalobizContext context, ILogger<PilotRegistrationRepositoryImpl> logger, IServiceAssignmentDetailsRepository serviceAssignmentDetailsRepository)
         {
             this._logger = logger;
             this._context = context;
+            _serviceAssignmentDetailsRepository = serviceAssignmentDetailsRepository;
         }
         public async Task<bool> DeletePilot(PilotProfile pilotProfile)
         {
@@ -68,6 +70,21 @@ namespace HaloBiz.Repository.Impl
                                       .ToListAsync();
         }
 
+        //public Task<IEnumerable<PilotSMORoutesResourceTie>> GetAllPilotsOnRouteByResourceAndRouteId(long? RouteId)
+        //{
+        //    var services = new List<PilotSMORoutesResourceTie>();
+        //    var query = _context.PilotSMORoutesResourceTies.Where
+        //                  (ct => ct.SMORouteId == RouteId && ct.IsDeleted == false);
+        //    var getPilotDetailNoneHeld = _serviceAssignmentDetailsRepository.FindAllNoneHeldPilotServiceAssignmentDetails();
+
+        //    foreach (var items in getPilotDetailNoneHeld)
+        //    {
+        //        //quuery.Where(x => x.ServiceCode.Contains(items));
+        //        services.AddRange(query.Where(x => x.ResourceId == items.VehicleResourceId));
+        //    }
+        //    return services.ToList();
+        //}
+
         //public async Task<PilotSMORoutesResourceTie> FindPilotTieByResourceId(long resourceId)
         //{
         //    return await _context.PilotSMORoutesResourceTies.Include(pi => pi.SMORegion).Include(pi => pi.SMORoute).Include(s => s.Resource.PilotType)
@@ -78,6 +95,12 @@ namespace HaloBiz.Repository.Impl
         {
             return _context.PilotSMORoutesResourceTies.Where
                 (ct => ct.ResourceId == regRessourceId && ct.SMORouteId == RouteId  && ct.IsDeleted == false).FirstOrDefault();
+        }
+
+        public PilotSMORoutesResourceTie GetResourceRegIdRegionAndRouteId2(long? regRessourceId, long? RouteId)
+        {
+            return _context.PilotSMORoutesResourceTies.Where
+               (ct => ct.ResourceId == regRessourceId && ct.SMORouteId == RouteId && ct.IsDeleted == false).FirstOrDefault();
         }
 
         public async Task<PilotProfile> SavePilot(PilotProfile pilotProfile)
