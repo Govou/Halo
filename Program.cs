@@ -2,8 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -25,7 +28,45 @@ namespace HaloBiz
 
             try
             {
+                Assembly asm = Assembly.GetExecutingAssembly();
+
+                var controlleractionlist = asm.GetTypes()
+                        .Where(type => typeof(ControllerBase).IsAssignableFrom(type))
+                        //  .SelectMany(type => type.GetMethods(BindingFlags.Instance | BindingFlags.DeclaredOnly | BindingFlags.Public))
+                        //  .Where(m => !m.GetCustomAttributes(typeof(System.Runtime.CompilerServices.CompilerGeneratedAttribute), true).Any())
+                        //  .Select(x => new { Controller = x.DeclaringType.Name, Action = x.Name, ReturnType = x.ReturnType.BaseType, Fullname=x.ReturnType.FullName, Attributes = String.Join(",", x.GetCustomAttributes().Select(a => a.GetType().Name.Replace("Attribute", ""))) })
+                        // .OrderBy(x => x.Controller).ToList();
+
+                        .ToList();
+
+                int counter = 0;
+                foreach (var item in controlleractionlist)
+                {
+                    var name = item.Name.Replace("Controller","");
+                    var splitName = SplitCamelCase(name);
+
+                    //read
+                    Console.WriteLine($"[Display(GroupName = \"{name}\", Name = \"Get\", Description = \"Can view {splitName.ToLower()}\")]");
+                    Console.WriteLine($"{name}_Get = 0x{++counter},");
+
+                    //write
+                    Console.WriteLine($"[Display(GroupName = \"{name}\", Name = \"Post\", Description = \"Can create {splitName.ToLower()}\")]");
+                    Console.WriteLine($"{name}_Post = 0x{++counter},");
+
+                    //update
+                    Console.WriteLine($"[Display(GroupName = \"{name}\", Name = \"Put\", Description = \"Can update {splitName.ToLower()}\")]");
+                    Console.WriteLine($"{name}_Put = 0x{++counter},");
+
+                    //delete
+                    Console.WriteLine($"[Display(GroupName = \"{name}\", Name = \"Delete\", Description = \"Can delete {splitName.ToLower()}\")]");
+                    Console.WriteLine($"{name}_Delete = 0x{++counter},\n");
+
+                }
+
                 CreateHostBuilder(args).Build().Run();
+
+                
+
             }
             catch(Exception ex)
             {
@@ -35,6 +76,11 @@ namespace HaloBiz
             {
                 Log.CloseAndFlush();
             }   
+        }
+
+        static string SplitCamelCase(string source)
+        {
+            return string.Join(" ", Regex.Split(source, @"(?<!^)(?=[A-Z](?![A-Z]|$))"));
         }
 
         private static IConfiguration GetConfiguration(string[] args)

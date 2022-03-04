@@ -62,9 +62,18 @@ namespace HaloBiz.Controllers
         [HttpGet("RunMigration/{page}/{cutoffdate}")]
         public async Task<ApiCommonResponse> RunMigration(int page, string cutoffdate)
         {
-            setServiceTypes();
             try
             {
+                try
+                {
+                    DateTime.Parse(cutoffdate);
+                }
+                catch (Exception)
+                {
+                    return CommonResponse.Send(ResponseCodes.FAILURE, null, "Invalid date. Use the format yyyy-MM-dd");
+                }
+
+                 setServiceTypes();
                 _states = _context.States.Include(x => x.Lgas).ToList();
                 _services = _context.Services.ToList();
                 MigrationService = _context.Services.Where(x => x.Name == "Migrations").FirstOrDefault();
@@ -73,15 +82,14 @@ namespace HaloBiz.Controllers
                     return CommonResponse.Send(ResponseCodes.FAILURE, null, "No service with name: Migrations");
 
                 var cb = await sender.getServiceContract(page);
-                var contracts = cb.Items.Take(60).ToList();
+                var contracts =  cb.Items.Take(150).ToList();//cb.Items.Where(x => x.ContractNumber == "11/01/079-01").ToList();
 
-                if(contracts.Count == 0)
+                if (contracts.Count == 0)
                 {
                     return CommonResponse.Send(ResponseCodes.FAILURE, null, $"No contract fetched for page {page}");
                 }
 
                 _logger.LogInformation("MIGRATION OF CUSTOMER AND CONTRACT STARTED");
-                contracts = contracts.Where(x => x.Status == 1).ToList();
                 await saveContracts(contracts, page, cutoffdate);
             }
             catch (Exception ex)
@@ -103,14 +111,15 @@ namespace HaloBiz.Controllers
                     Directory.CreateDirectory(path);
                 }
 
-                string filePath = Path.Combine(path + $"/ContractServices.xlsx");
+                var timestamp = DateTime.Now.ToString("yyyyMMddHHmmss");
 
-                FileStream fs = System.IO.File.OpenWrite(filePath);
+                string filePath = Path.Combine(path + $"/CS_{timestamp}.xlsx");
+
+                FileStream fs = System.IO.File.Create(filePath);
                 fs.Dispose();
 
                 using var workbook = new XLWorkbook(filePath);
-                var timestamp = DateTime.Now.ToString("yyyyMMddHHmmss");
-                var worksheet = workbook.Worksheets.Add($"CS_{page}_{timestamp}");
+                var worksheet = workbook.Worksheets.Add($"CS_{page}");
                 //int NumberOfLastRow = worksheet.LastRowUsed().RowNumber();
 
                 var currentRow = 1; // + NumberOfLastRow;
@@ -178,7 +187,7 @@ namespace HaloBiz.Controllers
 
             List<ServiceContractItem> allContractServiceItems = new List<ServiceContractItem>();
            
-            var transaction = _context.Database.BeginTransaction();
+           // var transaction = _context.Database.BeginTransaction();
 
             foreach (var _contract in contracts)
             {
@@ -191,7 +200,12 @@ namespace HaloBiz.Controllers
                         continue;
                     }
 
+                    if(_contract.ContractNumber== "11/01/079-01")
+                    {
+                        var p = "start tracking";
+                    }
 
+                    //11/01/079-01
                     var contractServiceDetails = await sender.getServiceContractDetail(_contract.ContractNumber);//
                     var contractServices = contractServiceDetails.ServiceContractItems;
 
@@ -365,6 +379,7 @@ namespace HaloBiz.Controllers
                         var itsDirects = sortedOutServices.Where(x => x.Enum == ServiceRelationshipEnum.Direct && x.AdminDirectTie == item.AdminDirectTie);
                         //spit this amoung the direct remaining
                         if (itsDirects.Any())
+                        {
                             foreach (var direct in itsDirects)
                             {
                                 backwardTimer += backwardTimer;
@@ -386,6 +401,7 @@ namespace HaloBiz.Controllers
                                     finalSortedOutServices[index] = direct;
                                 }
                             }
+                        }
                     }
 
                     foreach (var service in finalSortedOutServices)
@@ -434,7 +450,9 @@ namespace HaloBiz.Controllers
                                         Description = "Generated admin: " + service.Description,
                                         AdminDirectTie = adminDirectTie,
                                         ApiContractService = apiContractService,
-                                        ContractId = contractId
+                                        ContractId = contractId,
+                                        StartDate = service.StartDate,
+                                        EndDate = service.EndDate,                                        
                                     };
 
                                     service.AdminDirectTie = adminDirectTie;
@@ -454,7 +472,7 @@ namespace HaloBiz.Controllers
                     allContractServiceItems.AddRange(mergedAdminCasesSorted);
 
                     //save the contract services at this point
-                    transaction.Commit();
+                   // transaction.Commit();
                     ++totalSaved;
                 }
                 catch (Exception e)
@@ -471,27 +489,58 @@ namespace HaloBiz.Controllers
             return true;
         }
 
+        private int getBillingCycle(string cycle)
+        {
+            switch (cycle)
+            {
+                case "m":  return (int) TimeCycle.Monthly;
+                case "q": return (int)TimeCycle.Quarterly;
+                case "b": return (int)TimeCycle.BiAnnually;
+                case "y": return (int)TimeCycle.Annually;
+                case "t": return (int)TimeCycle.Adhoc;
+                default: return (int)TimeCycle.Monthly;
+            }
+        }
+
         private async Task<long> postContractService(ServiceContractItem contractService, Customero customer, Office defaultOffice, HalobizContext _context, string cutoffdate)
         {
-            var saveContractEntity = _context.ContractServices.Add(new ContractService
+            var thisMonth = contractService.StartDate.Month;
+            var invoiceSendDate = contractService.StartDate.AddDays(10);
+            while (invoiceSendDate.Month - thisMonth != 0)
             {
-                AdminDirectTie = contractService.AdminDirectTie,
-                ServiceId = contractService.ApiContractService.ServiceId,
-                BillableAmount = contractService.Amount,
-                ActivationDate = contractService.StartDate,
-                ContractStartDate = contractService.StartDate,
-                ContractEndDate = contractService.EndDate, //lastDate.AddDays(-1),
-                ContractId = contractService.ContractId,
-                UnitPrice = contractService.UnitPrice,
-                Vat = contractService.Taxable == 1 ? 0.075 * contractService.Amount : 0,
-                Quantity = contractService.Quantity,
-                UniqueTag = $"{contractService.Description}@{contractService.ContractId}",
-                BranchId = defaultOffice.BranchId,
-                OfficeId = defaultOffice.Id,
-                CreatedById = userIdToUse,
-                InvoicingInterval = (int)TimeCycle.Monthly, //get confirmation to adjust 
-                FirstInvoiceSendDate = contractService.StartDate.AddDays(15),
-            });
+                invoiceSendDate = invoiceSendDate.AddDays(-1);
+            }
+
+            int cycle = 0;
+            try
+            {
+                cycle = getBillingCycle(contractService.BillingCycle?.ToLower()); //get confirmation to adjust 
+            }
+            catch (Exception ex)
+            {
+                var r = ex.ToString();
+            }
+
+            var service = new ContractService();
+            service.AdminDirectTie = contractService.AdminDirectTie;
+            service.ServiceId = contractService.ApiContractService.ServiceId;
+            service.BillableAmount = contractService.Amount;
+            service.ActivationDate = contractService.StartDate;
+            service.ContractStartDate = contractService.StartDate;
+            service.ContractEndDate = contractService.EndDate;
+            service.ContractId = contractService.ContractId;
+            service.UnitPrice = contractService.UnitPrice;
+            service.Vat = contractService.Taxable == 1 ? 0.075 * contractService.Amount : 0;
+            service.Quantity = contractService.Quantity;
+            service.UniqueTag = $"{contractService.Description}@{contractService.ContractId}";
+            service.BranchId = defaultOffice.BranchId;
+            service.OfficeId = defaultOffice.Id;
+            service.CreatedById = userIdToUse;
+            service.InvoicingInterval = cycle;
+            service.FirstInvoiceSendDate = invoiceSendDate;            
+
+           
+            var saveContractEntity = _context.ContractServices.Add(service);
 
             System.Threading.Thread.Sleep(3000);
 
@@ -502,7 +551,8 @@ namespace HaloBiz.Controllers
                 var _contractService = _context.ContractServices
                         .Include(x=>x.Service)
                         .Include(x=>x.Contract)
-                        .Where(x => x.Id == contractServiceCreated.Id).FirstOrDefault();
+                        .Where(x => x.Id == contractServiceCreated.Id)
+                        .FirstOrDefault();
                 _logger.LogInformation($"Saved for contract with ID:{_contractService.ContractId}, Service: {JsonConvert.SerializeObject(contractService)}");
                
                 await _leadConversionService.onMigrationAccountsForContracts(_contractService,
@@ -521,7 +571,6 @@ namespace HaloBiz.Controllers
 
             var financialVoucherType = await _context.FinanceVoucherTypes
                             .FirstOrDefaultAsync(x => x.VoucherType == "Credit Note");          
-
 
             await _leadConversionService.CreateAccounts(
                                             currentContractService,

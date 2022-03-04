@@ -205,7 +205,7 @@ namespace HaloBiz
 
             app.UseRouting();
 
-            // app.UseMiddleware<AuthenticationHandler>();           
+            app.UseMiddleware<AuthenticationHandler>();           
 
             app.UseAuthentication();
 
