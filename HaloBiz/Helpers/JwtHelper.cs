@@ -1,4 +1,4 @@
-﻿using Auth.PermissionParts;
+﻿using Halobiz.Auths.PermissionParts;
 using Google.Apis.Auth;
 using HaloBiz.DTOs.ApiDTOs;
 using HaloBiz.DTOs.ReceivingDTOs;

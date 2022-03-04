@@ -85,10 +85,13 @@
 
   <ItemGroup>
     <Folder Include="Log\" />
-    <Folder Include="Auth\" />
     <Folder Include="DTOs\ContactDTO\" />
     <Folder Include="wwwroot\" />
     <Folder Include="wwwroot\MigrationsLog\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Halobiz.Auths\Halobiz.Auths.csproj" />
   </ItemGroup>
 
 </Project>

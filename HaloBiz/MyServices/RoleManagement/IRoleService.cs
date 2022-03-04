@@ -1,4 +1,4 @@
-﻿using Auth.PermissionParts;
+﻿using Halobiz.Auths.PermissionParts;
 using HaloBiz.DTOs.ApiDTOs;
 using HaloBiz.DTOs.ReceivingDTOs.RoleManagement;
 using Microsoft.AspNetCore.Http;

@@ -1,4 +1,4 @@
-﻿using Auth.PermissionParts;
+﻿using Halobiz.Auths.PermissionParts;
 using HaloBiz.DTOs.ApiDTOs;
 using HalobizMigrations.Models;
 using Microsoft.AspNetCore.Http;

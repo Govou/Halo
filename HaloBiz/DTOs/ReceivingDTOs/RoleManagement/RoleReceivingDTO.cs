@@ -1,4 +1,4 @@
-﻿using Auth.PermissionParts;
+﻿using Halobiz.Auths.PermissionParts;
 using HalobizMigrations.Models;
 using System;
 using System.Collections.Generic;

@@ -1,4 +1,4 @@
-﻿using Auth.PermissionParts;
+﻿using Halobiz.Auths.PermissionParts;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
