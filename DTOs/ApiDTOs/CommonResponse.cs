@@ -30,6 +30,7 @@ namespace HaloBiz.DTOs.ApiDTOs
         SYSTEM_ERROR_OCCURRED = 03,
         NO_USER_PROFILE_FOUND = 04,
         INVALID_LOGIN_DETAILS = 05,
+        UNAUTHORIZED = 06,
     }
 
     public static class CommonResponse
