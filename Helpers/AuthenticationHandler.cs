@@ -55,7 +55,6 @@ namespace HaloBiz.Helpers
             if (!isExempted)
             {
                 var token = context.Request?.Headers["Authorization"].FirstOrDefault()?.Split(" ")?.Last();
-
                 if (token != null)
                 {
                     //validate the token
@@ -92,7 +91,7 @@ namespace HaloBiz.Helpers
                     await context.Response.WriteAsync("Unauthorized user");
                     return;
                 }
-            }           
+            } 
 
             await _next(context);
         }    

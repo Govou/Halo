@@ -90,7 +90,6 @@ namespace HaloBiz.Controllers
                 }
 
                 _logger.LogInformation("MIGRATION OF CUSTOMER AND CONTRACT STARTED");
-                contracts = contracts.Where(x => x.Status == 1).ToList();
                 await saveContracts(contracts, page, cutoffdate);
             }
             catch (Exception ex)
@@ -188,7 +187,7 @@ namespace HaloBiz.Controllers
 
             List<ServiceContractItem> allContractServiceItems = new List<ServiceContractItem>();
            
-            var transaction = _context.Database.BeginTransaction();
+           // var transaction = _context.Database.BeginTransaction();
 
             foreach (var _contract in contracts)
             {
@@ -199,6 +198,11 @@ namespace HaloBiz.Controllers
                     {
                         ++previouslySaved;
                         continue;
+                    }
+
+                    if(_contract.ContractNumber== "11/01/079-01")
+                    {
+                        var p = "start tracking";
                     }
 
                     //11/01/079-01
@@ -468,7 +472,7 @@ namespace HaloBiz.Controllers
                     allContractServiceItems.AddRange(mergedAdminCasesSorted);
 
                     //save the contract services at this point
-                    transaction.Commit();
+                   // transaction.Commit();
                     ++totalSaved;
                 }
                 catch (Exception e)
@@ -507,25 +511,36 @@ namespace HaloBiz.Controllers
                 invoiceSendDate = invoiceSendDate.AddDays(-1);
             }
 
-            var saveContractEntity = _context.ContractServices.Add(new ContractService
+            int cycle = 0;
+            try
             {
-                AdminDirectTie = contractService.AdminDirectTie,
-                ServiceId = contractService.ApiContractService.ServiceId,
-                BillableAmount = contractService.Amount,
-                ActivationDate = contractService.StartDate,
-                ContractStartDate = contractService.StartDate,
-                ContractEndDate = contractService.EndDate, 
-                ContractId = contractService.ContractId,
-                UnitPrice = contractService.UnitPrice,
-                Vat = contractService.Taxable == 1 ? 0.075 * contractService.Amount : 0,
-                Quantity = contractService.Quantity,
-                UniqueTag = $"{contractService.Description}@{contractService.ContractId}",
-                BranchId = defaultOffice.BranchId,
-                OfficeId = defaultOffice.Id,
-                CreatedById = userIdToUse,
-                InvoicingInterval = getBillingCycle(contractService.BillingCycle.ToLower()), //get confirmation to adjust 
-                FirstInvoiceSendDate = invoiceSendDate,
-            });
+                cycle = getBillingCycle(contractService.BillingCycle?.ToLower()); //get confirmation to adjust 
+            }
+            catch (Exception ex)
+            {
+                var r = ex.ToString();
+            }
+
+            var service = new ContractService();
+            service.AdminDirectTie = contractService.AdminDirectTie;
+            service.ServiceId = contractService.ApiContractService.ServiceId;
+            service.BillableAmount = contractService.Amount;
+            service.ActivationDate = contractService.StartDate;
+            service.ContractStartDate = contractService.StartDate;
+            service.ContractEndDate = contractService.EndDate;
+            service.ContractId = contractService.ContractId;
+            service.UnitPrice = contractService.UnitPrice;
+            service.Vat = contractService.Taxable == 1 ? 0.075 * contractService.Amount : 0;
+            service.Quantity = contractService.Quantity;
+            service.UniqueTag = $"{contractService.Description}@{contractService.ContractId}";
+            service.BranchId = defaultOffice.BranchId;
+            service.OfficeId = defaultOffice.Id;
+            service.CreatedById = userIdToUse;
+            service.InvoicingInterval = cycle;
+            service.FirstInvoiceSendDate = invoiceSendDate;            
+
+           
+            var saveContractEntity = _context.ContractServices.Add(service);
 
             System.Threading.Thread.Sleep(3000);
 
