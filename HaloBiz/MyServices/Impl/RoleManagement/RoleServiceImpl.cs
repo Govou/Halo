@@ -15,7 +15,7 @@ using HaloBiz.Repository.RoleManagement;
 using Microsoft.AspNetCore.Http;
 using HaloBiz.Model.RoleManagement;
 using HaloBiz.MyServices.RoleManagement;
-using Auth.PermissionParts;
+using Halobiz.Auths.PermissionParts;
 using System.Text.RegularExpressions;
 
 namespace HaloBiz.MyServices.Impl.RoleManagement

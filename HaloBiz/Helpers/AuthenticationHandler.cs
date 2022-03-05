@@ -1,14 +1,17 @@
-﻿using Auth.PermissionParts;
+﻿using Halobiz.Auths.PermissionParts;
+using HaloBiz.DTOs.ApiDTOs;
 using HalobizMigrations.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.IdentityModel.Tokens.Jwt;
+using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Text;
@@ -35,6 +38,9 @@ namespace HaloBiz.Helpers
 
         public async Task Invoke(HttpContext context)
         {
+            bool modifyResponse = true;
+            Stream originBody = null;
+
             var controllerActionDescriptor = context?
                         .GetEndpoint()?
                         .Metadata?
@@ -47,6 +53,7 @@ namespace HaloBiz.Helpers
             {
                 context.Response.StatusCode = StatusCodes.Status404NotFound;
                 await context.Response.WriteAsync("Path not found");
+
                 return;
             }
             
@@ -64,7 +71,7 @@ namespace HaloBiz.Helpers
                         if (!isValid)
                         {
                             context.Response.StatusCode = StatusCodes.Status401Unauthorized;
-                            await context.Response.WriteAsync("Token is expired or invalid");
+                            await context.Response.WriteAsync("Token is invalid or expired");
                             return;
                         }
                         else
@@ -72,8 +79,9 @@ namespace HaloBiz.Helpers
                             //test for the authorization
                             if(!CheckAuthorization(context, controllerName, permissionsList))
                             {
-                                context.Response.StatusCode = StatusCodes.Status401Unauthorized;
-                                await context.Response.WriteAsync("You do not have permission to access this endpoint");
+                                //use 200 ok here so that the user can know what he has access to
+                                context.Response.StatusCode = StatusCodes.Status200OK;
+                                await context.Response.WriteAsJsonAsync(CommonResponse.Send(ResponseCodes.UNAUTHORIZED, null, "You do not have permission to access this endpoint"));
                                 return;
                             }
                         }
@@ -94,8 +102,10 @@ namespace HaloBiz.Helpers
             } 
 
             await _next(context);
-        }    
-        
+        }
+
+       
+
         private bool CheckAuthorization(HttpContext context, string controller, List<short> permisssions)
         {
             var actionVerb = context.Request.Method;
