@@ -1,6 +1,6 @@
 using System.Threading.Tasks;
 using HaloBiz.DTOs.ReceivingDTOs.LAMS;
-using HaloBiz.DTOs.ApiDTOs;
+using Halobiz.Common.DTOs.ApiDTOs;
 using Microsoft.AspNetCore.Http;
 using System.Collections.Generic;
 

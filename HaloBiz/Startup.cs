@@ -27,9 +27,9 @@ using Microsoft.OpenApi.Models;
 using HaloBiz.Data;
 using HaloBiz.MyServices;
 using HaloBiz.MyServices.Impl;
-using HaloBiz.MyServices.RoleManagement;
-using HaloBiz.MyServices.Impl.RoleManagement;
 using System.Reflection;
+using Halobiz.Common.MyServices.RoleManagement;
+using Halobiz.Repository.RoleManagement;
 
 namespace HaloBiz
 {
@@ -115,11 +115,16 @@ namespace HaloBiz
             services.RegisterServiceLayerDi();
             services.AddSingleton<JwtHelper>();
 
+            services.AddTransient<IRoleService, RoleServiceImpl>();
+            services.AddTransient<IRoleRepository, RoleRepositoryImpl>();
+
             services.AddAutoMapper(typeof(Startup));
             services.AddControllersWithViews()
                 .AddNewtonsoftJson(options =>
                 options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore
             );
+
+           
 
             services.AddControllers()
                 .AddNewtonsoftJson(option => option.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore);

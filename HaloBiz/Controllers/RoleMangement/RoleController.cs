@@ -1,14 +1,14 @@
-﻿using HaloBiz.DTOs.ApiDTOs;
+﻿using Halobiz.Common.DTOs.ApiDTOs;
 using HaloBiz.DTOs.ReceivingDTOs.RoleManagement;
-using HaloBiz.DTOs.TransferDTOs.RoleManagement;
 using HaloBiz.Helpers;
-using HaloBiz.MyServices.RoleManagement;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Linq;
 using HaloBiz.DTOs.TransferDTOs;
+using Halobiz.Common.MyServices.RoleManagement;
+using Halobiz.Common.DTOs.ReceivingDTOs.RoleManagement;
 
 namespace HaloBiz.Controllers.RoleMangement
 {
@@ -28,17 +28,7 @@ namespace HaloBiz.Controllers.RoleMangement
             return await _roleService.GetAllRoles();
         }
 
-        [HttpGet("GetAllApplicationClaims")]
-        public async Task<ApiCommonResponse> GetApplicationClaims()
-        {
-            return await _roleService.GetAllClaims();
-        }
-
-        [HttpGet("GetUserRoleClaims")]
-        public async Task<ApiCommonResponse> GetUserRoleClaims()
-        {
-            return await _roleService.GetUserRoleClaims(HttpContext);
-        }
+      
 
         [HttpGet("GetPermissions")]
         public ApiCommonResponse GetPermissions()

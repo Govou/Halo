@@ -4,7 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
 using HaloBiz.Adapters;
-using HaloBiz.DTOs.ApiDTOs;
+using Halobiz.Common.DTOs.ApiDTOs;
 using HaloBiz.DTOs.MailDTOs;
 using HaloBiz.DTOs.ReceivingDTO;
 using HaloBiz.DTOs.TransferDTOs;
@@ -17,6 +17,7 @@ using HaloBiz.DTOs.ReceivingDTOs.RoleManagement;
 using HalobizMigrations.Models.Halobiz;
 using HalobizMigrations.Data;
 using Microsoft.AspNetCore.Http;
+using Halobiz.Common.DTOs.ReceivingDTOs.RoleManagement;
 
 namespace HaloBiz.MyServices.Impl
 {

@@ -1,4 +1,4 @@
-﻿using Halobiz.Auths.PermissionParts;
+﻿using Halobiz.Common.Auths.PermissionParts;
 using HalobizMigrations.Models;
 using System;
 using System.Collections.Generic;
@@ -6,7 +6,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace HaloBiz.DTOs.ReceivingDTOs.RoleManagement
+namespace Halobiz.Common.DTOs.ReceivingDTOs.RoleManagement
 {
     public class RoleReceivingDTO
     {
@@ -62,7 +62,5 @@ namespace HaloBiz.DTOs.ReceivingDTOs.RoleManagement
 
             PermissionCode = permissions.PackPermissionsIntoString();
         }
-
-
     }
 }

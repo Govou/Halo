@@ -4,7 +4,7 @@ using AutoMapper;
 using HaloBiz.DTOs.ReceivingDTOs.LAMS;
 using HaloBiz.DTOs.TransferDTOs.LAMS;
 using HaloBiz.Repository.LAMS;
-using HaloBiz.DTOs.ApiDTOs;
+using Halobiz.Common.DTOs.ApiDTOs;
 using System.Collections.Generic;
 using HaloBiz.MyServices.LAMS;
 using Microsoft.Extensions.Logging;

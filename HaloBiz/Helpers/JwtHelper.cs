@@ -1,12 +1,10 @@
-﻿using Halobiz.Auths.PermissionParts;
+﻿using Halobiz.Common.Auths.PermissionParts;
 using Google.Apis.Auth;
-using HaloBiz.DTOs.ApiDTOs;
+using Halobiz.Common.DTOs.ApiDTOs;
 using HaloBiz.DTOs.ReceivingDTOs;
 using HaloBiz.DTOs.TransferDTOs;
 using HaloBiz.Helpers;
 using HaloBiz.MyServices;
-using HaloBiz.MyServices.Impl.RoleManagement;
-using HaloBiz.MyServices.RoleManagement;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;

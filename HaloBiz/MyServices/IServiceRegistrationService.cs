@@ -1,5 +1,5 @@
 ﻿using HaloBiz.DTOs;
-using HaloBiz.DTOs.ApiDTOs;
+using Halobiz.Common.DTOs.ApiDTOs;
 using HaloBiz.DTOs.ReceivingDTOs;
 using HalobizMigrations.Models.Armada;
 using Microsoft.AspNetCore.Http;

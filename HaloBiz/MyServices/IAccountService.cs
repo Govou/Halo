@@ -1,4 +1,4 @@
-﻿using HaloBiz.DTOs.ApiDTOs;
+﻿using Halobiz.Common.DTOs.ApiDTOs;
 using HaloBiz.DTOs.ReceivingDTOs;
 using halobiz_backend.DTOs.ReceivingDTOs;
 using Microsoft.AspNetCore.Http;

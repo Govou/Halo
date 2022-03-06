@@ -1,5 +1,5 @@
 using System.Threading.Tasks;
-using HaloBiz.DTOs.ApiDTOs;
+using Halobiz.Common.DTOs.ApiDTOs;
 
 namespace HaloBiz.MyServices
 {

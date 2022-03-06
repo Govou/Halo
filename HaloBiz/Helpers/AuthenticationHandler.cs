@@ -1,5 +1,5 @@
-﻿using Halobiz.Auths.PermissionParts;
-using HaloBiz.DTOs.ApiDTOs;
+﻿using Halobiz.Common.Auths.PermissionParts;
+using Halobiz.Common.DTOs.ApiDTOs;
 using HalobizMigrations.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Controllers;
@@ -38,9 +38,6 @@ namespace HaloBiz.Helpers
 
         public async Task Invoke(HttpContext context)
         {
-            bool modifyResponse = true;
-            Stream originBody = null;
-
             var controllerActionDescriptor = context?
                         .GetEndpoint()?
                         .Metadata?

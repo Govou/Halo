@@ -8,7 +8,6 @@ using HaloBiz.DTOs.ReceivingDTOs.LAMS;
 using HaloBiz.DTOs.ReceivingDTOs.RoleManagement;
 using HaloBiz.DTOs.TransferDTOs;
 using HaloBiz.DTOs.TransferDTOs.LAMS;
-using HaloBiz.DTOs.TransferDTOs.RoleManagement;
 using HalobizMigrations.Models;
 using HalobizMigrations.Models.Halobiz;
 using HaloBiz.Model;
@@ -18,6 +17,7 @@ using HalobizMigrations.Models.Armada;
 using HalobizMigrations.Models.Shared;
 using HaloBiz.Controllers;
 using HaloBiz.DTOs.ContactDTO;
+using Halobiz.Common.Helpers;
 
 namespace HaloBiz.Helpers
 {
@@ -205,11 +205,7 @@ namespace HaloBiz.Helpers
             CreateMap<NegotiationDocument, NegotiationDocumentTransferDTO>();
             CreateMap<NegotiationDocumentReceivingDTO, NegotiationDocument>();
             CreateMap<NegotiationDocument, DocumentSetupTransferDTO>();
-            CreateMap<RoleReceivingDTO, Role>();
-            CreateMap<Role, RoleTransferDTO>();
-            CreateMap<Claim, ClaimTransferDTO>();
             CreateMap<RoleClaimReceivingDTO, RoleClaim>();
-            CreateMap<RoleClaim, RoleClaimTransferDTO>();
             CreateMap<OtherLeadCaptureInfoReceivingDTO, OtherLeadCaptureInfo>();
             CreateMap<OtherLeadCaptureInfo, OtherLeadCaptureInfoTransferDTO>();
             CreateMap<TaskFulfillmentReceivingDTO, TaskFulfillment>();

@@ -3,9 +3,9 @@
 
 using System.Linq;
 using System.Security.Claims;
-using Halobiz.Auths.PermissionParts;
+using Halobiz.Common.Auths.PermissionParts;
 
-namespace Halobiz.Auths.RolesToPermission
+namespace Halobiz.Common.Auths.RolesToPermission
 {
     public static class PermissionExtensions
     {

@@ -1,6 +1,6 @@
 using System.Linq;
 using System.Threading.Tasks;
-using HaloBiz.DTOs.ApiDTOs;
+using Halobiz.Common.DTOs.ApiDTOs;
 using HalobizMigrations.Data;
 using HalobizMigrations.Models;
 using Microsoft.EntityFrameworkCore;

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace HaloBiz.DTOs.ApiDTOs
+namespace Halobiz.Common.DTOs.ApiDTOs
 {
     public class ApiCommonResponse
     {

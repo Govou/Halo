@@ -1,4 +1,4 @@
-﻿using HaloBiz.DTOs.ApiDTOs;
+﻿using Halobiz.Common.DTOs.ApiDTOs;
 using HaloBiz.MyServices;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;

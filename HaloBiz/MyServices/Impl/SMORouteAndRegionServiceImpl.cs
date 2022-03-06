@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore;
 using HaloBiz.DTOs.SMODTO;
 using AutoMapper;
 using HaloBiz.Repository;
-using HaloBiz.DTOs.ApiDTOs;
+using Halobiz.Common.DTOs.ApiDTOs;
 using HaloBiz.DTOs.ReceivingDTOs;
 using HaloBiz.DTOs.TransferDTOs;
 

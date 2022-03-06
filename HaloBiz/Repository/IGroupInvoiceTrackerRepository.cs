@@ -1,4 +1,4 @@
-using HaloBiz.DTOs.ApiDTOs;
+using Halobiz.Common.DTOs.ApiDTOs;
 using System.Threading.Tasks;
 
 namespace HaloBiz.Repository
