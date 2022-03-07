@@ -70,6 +70,24 @@ namespace HaloBiz.Repository.Impl
                                       .ToListAsync();
         }
 
+        public IEnumerable<PilotSMORoutesResourceTie> GetAllPilotsOnRouteByResourceAndRouteId(long? RouteId)
+        {
+            var services = new List<PilotSMORoutesResourceTie>();
+            var query = _context.PilotSMORoutesResourceTies.Where
+                          (ct => ct.SMORouteId == RouteId && ct.IsDeleted == false);
+            //var getVehicleDetailNoneHeld =  _serviceAssignmentDetailsRepository.FindAllNoneHeldVehicleServiceAssignmentDetails2();
+            var getResources = _context.PilotProfiles.Where(r => r.IsDeleted == false)
+              .Include(s => s.MeansOfIdentification).Include(t => t.PilotType)
+                                    .ToList();
+
+            foreach (var items in getResources)
+            {
+                //quuery.Where(x => x.ServiceCode.Contains(items));
+                services.AddRange(query.Where(x => x.ResourceId == items.Id));
+            }
+            return services.ToList();
+        }
+
         //public Task<IEnumerable<PilotSMORoutesResourceTie>> GetAllPilotsOnRouteByResourceAndRouteId(long? RouteId)
         //{
         //    var services = new List<PilotSMORoutesResourceTie>();

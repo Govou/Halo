@@ -14,14 +14,11 @@ namespace HaloBiz.Repository.Impl
         private readonly HalobizContext _context;
         private readonly ILogger<VehicleRegistrationRepositoryImpl> _logger;
         private readonly IServiceAssignmentDetailsRepository _serviceAssignmentDetailsRepository;
-        private readonly IVehicleRegistrationRepository _vehiclesRepository;
-        public VehicleRegistrationRepositoryImpl(HalobizContext context, ILogger<VehicleRegistrationRepositoryImpl> logger, IServiceAssignmentDetailsRepository serviceAssignmentDetailsRepository,
-             IVehicleRegistrationRepository vehiclesRepository)
+        public VehicleRegistrationRepositoryImpl(HalobizContext context, ILogger<VehicleRegistrationRepositoryImpl> logger, IServiceAssignmentDetailsRepository serviceAssignmentDetailsRepository)
         {
             this._logger = logger;
             this._context = context;
             _serviceAssignmentDetailsRepository = serviceAssignmentDetailsRepository;
-            _vehiclesRepository = vehiclesRepository;
         }
 
         public async Task<bool> DeleteVehicle(Vehicle vehicle)
@@ -92,6 +89,7 @@ namespace HaloBiz.Repository.Impl
         public IEnumerable<VehicleSMORoutesResourceTie> GetAllVehiclesOnRouteByResourceAndRouteId( long? RouteId)
         {
             var services = new List<VehicleSMORoutesResourceTie>();
+            var services_ = new List<VehicleSMORoutesResourceTie>();
             var query = _context.VehicleSMORoutesResourceTies.Where
                           (ct =>  ct.SMORouteId == RouteId && ct.IsDeleted == false);
             //var getVehicleDetailNoneHeld =  _serviceAssignmentDetailsRepository.FindAllNoneHeldVehicleServiceAssignmentDetails2();
@@ -99,7 +97,14 @@ namespace HaloBiz.Repository.Impl
               .Include(s => s.SupplierService).Include(t => t.VehicleType)
               .Include(office => office.AttachedOffice).Include(br => br.AttachedBranch)
                                     .ToList();
-
+            //var confirmResourceDetailHeld = _context.VehicleServiceAssignmentDetails.Where(aer => aer.IsDeleted == false && aer.IsTemporarilyHeld == true)
+            //   .Include(ct => ct.VehicleResource).Include(t => t.ActionReleaseType).Include(t => t.TempReleaseType).Include(t => t.ServiceAssignment)
+            // .Include(t => t.TempReleaseType).Include(t => t.CreatedBy).Include(t => t.VehicleResource.SupplierService).Include(t => t.VehicleResource.VehicleType)
+            //   .ToList();
+            //foreach (var items in confirmResourceDetailHeld)
+            //{
+            //    getResources.Remove(getResources.Where(x => x.Id == items.VehicleResourceId));
+            //}
             foreach (var items in getResources)
             {
                 //quuery.Where(x => x.ServiceCode.Contains(items));

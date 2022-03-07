@@ -292,7 +292,7 @@ namespace HaloBiz.Repository.Impl
             return await _context.CommanderServiceAssignmentDetails
             .Include(ct => ct.CommanderResource).Include(t => t.CommanderResource.Profile).Include(t => t.TiedVehicleResource).Include(t => t.ServiceAssignment)
             .Include(t => t.TempReleaseType).Include(t => t.CreatedBy).Include(t => t.ActionReleaseType).Include(t => t.CommanderResource.CommanderType)
-            .FirstOrDefaultAsync(aer => aer.CommanderResourceId == resourceId && aer.IsDeleted == false);
+            .FirstOrDefaultAsync(aer => aer.CommanderResourceId == resourceId && aer.IsDeleted == false && aer.IsTemporarilyHeld == true);
         }
 
         public async Task<ArmedEscortServiceAssignmentDetail> FindEscortServiceAssignmentDetailByAssignmentId(long Id)
@@ -324,7 +324,7 @@ namespace HaloBiz.Repository.Impl
             return await _context.ArmedEscortServiceAssignmentDetails
              .Include(ct => ct.ArmedEscortResource).Include(t => t.ActionReleaseType).Include(t => t.TempReleaseType).Include(t => t.ServiceAssignment)
            .Include(t => t.TempReleaseType).Include(t => t.CreatedBy).Include(t => t.ArmedEscortResource.ArmedEscortType)
-             .FirstOrDefaultAsync(aer => aer.ArmedEscortResourceId == resourceId && aer.IsDeleted == false);
+             .FirstOrDefaultAsync(aer => aer.ArmedEscortResourceId == resourceId && aer.IsDeleted == false && aer.IsTemporarilyHeld == true);
         }
 
         public async Task<Passenger> FindPassengerByAssignmentId(long Id)
@@ -370,7 +370,7 @@ namespace HaloBiz.Repository.Impl
             return await _context.PilotServiceAssignmentDetails
             .Include(ct => ct.PilotResource).Include(t => t.ActionReleaseType).Include(t => t.TempReleaseType).Include(t => t.ServiceAssignment)
           .Include(t => t.TempReleaseType).Include(t => t.CreatedBy).Include(t => t.PilotResource.PilotType)
-            .FirstOrDefaultAsync(aer => aer.PilotResourceId == resourceId && aer.IsDeleted == false);
+            .FirstOrDefaultAsync(aer => aer.PilotResourceId == resourceId && aer.IsDeleted == false && aer.IsTemporarilyHeld == true);
         }
 
         public async Task<VehicleServiceAssignmentDetail> FindVehicleServiceAssignmentDetailByAssignmentId(long Id)
@@ -402,7 +402,7 @@ namespace HaloBiz.Repository.Impl
             return await _context.VehicleServiceAssignmentDetails
                .Include(ct => ct.VehicleResource).Include(t => t.ActionReleaseType).Include(t => t.TempReleaseType).Include(t => t.ServiceAssignment)
              .Include(t => t.TempReleaseType).Include(t => t.CreatedBy).Include(t => t.VehicleResource.SupplierService).Include(t => t.VehicleResource.VehicleType)
-               .FirstOrDefaultAsync(aer => aer.VehicleResourceId == resourceId && aer.IsDeleted == false);
+               .FirstOrDefaultAsync(aer => aer.VehicleResourceId == resourceId && aer.IsDeleted == false && aer.IsTemporarilyHeld == true);
         }
 
         public async Task<CommanderServiceAssignmentDetail> SaveCommanderServiceAssignmentdetail(CommanderServiceAssignmentDetail serviceAssignmentDetail)

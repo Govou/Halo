@@ -32,7 +32,7 @@ namespace HaloBiz.Repository
 
         CommanderSMORoutesResourceTie GetResourceRegIdRegionAndRouteId(long regRessourceId, long? RouteId);
         CommanderSMORoutesResourceTie GetResourceRegIdRegionAndRouteId2(long? regRessourceId, long? RouteId);
-
+        public IEnumerable<CommanderSMORoutesResourceTie> GetAllCommanderssOnRouteByResourceAndRouteId(long? RouteId);
         Task<IEnumerable<CommanderSMORoutesResourceTie>> FindAllCommanderTies();
         Task<bool> DeleteCommanderTie(CommanderSMORoutesResourceTie commanderProfileTie);
     }
