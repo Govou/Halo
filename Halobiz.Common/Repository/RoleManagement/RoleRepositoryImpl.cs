@@ -45,14 +45,14 @@ namespace Halobiz.Repository.RoleManagement
         public async Task<Role> FindRoleById(long Id)
         {
             return await _context.Roles.Where(x => x.IsDeleted == false)
-                .Include(x => x.RoleClaims.Where(x => x.IsDeleted == false))
+                //.Include(x => x.RoleClaims.Where(x => x.IsDeleted == false))
                 .FirstOrDefaultAsync( role => role.Id == Id);
         }
 
         public async Task<Role> FindRoleByName(string name)
         {
             return await _context.Roles.Where(x => x.IsDeleted == false && x.Name == name)
-                .Include(x => x.RoleClaims.Where(x => x.IsDeleted == false))
+               // .Include(x => x.RoleClaims.Where(x => x.IsDeleted == false))
                 .FirstOrDefaultAsync();
         }
 
@@ -74,7 +74,7 @@ namespace Halobiz.Repository.RoleManagement
         public async Task<IEnumerable<Role>> FindAllRole()
         {
             return await _context.Roles.Where(x => x.IsDeleted == false)
-                .Include(x => x.RoleClaims.Where(x => x.IsDeleted == false))
+                //.Include(x => x.RoleClaims.Where(x => x.IsDeleted == false))
                 .ToListAsync();
         }
 
@@ -104,16 +104,16 @@ namespace Halobiz.Repository.RoleManagement
 
         public async Task<bool> DeleteRoleClaims(Role role)
         {
-            if(!role.RoleClaims.Any())
+            //if(!role.RoleClaims.Any())
             {
                 return true;
             }
 
-            foreach (var roleClaim in role.RoleClaims)
+            //foreach (var roleClaim in role.RoleClaims)
             {
-                roleClaim.IsDeleted = true;
+          //      roleClaim.IsDeleted = true;
             }
-            _context.RoleClaims.UpdateRange(role.RoleClaims);
+            //_context.RoleClaims.UpdateRange(role.RoleClaims);
             return await SaveChanges();
         }
 

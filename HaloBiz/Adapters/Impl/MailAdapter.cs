@@ -45,7 +45,7 @@ namespace HaloBiz.Adapters.Impl
                        emailAddress = userProfile.Email,
                        userName = $"{userProfile.FirstName} {userProfile.LastName}",
                        role = userProfile.Role.Name,
-                       roleClaims = userProfile.Role.RoleClaims.Select(x => x.Name).ToArray()
+                       //roleClaims = userProfile.Role.RoleClaims.Select(x => x.Name).ToArray()
                    }).ReceiveJson();
 
                 return CommonResponse.Send(ResponseCodes.SUCCESS);
