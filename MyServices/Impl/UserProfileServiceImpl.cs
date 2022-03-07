@@ -108,7 +108,7 @@ namespace HaloBiz.MyServices.Impl
                         RoleId = userProfile.Role.Id
                     });
                 }
-                userProfile.Role.RoleClaims = roleClaims;
+                //userProfile.Role.RoleClaims = roleClaims;
             }
 
             var userProfileTransferDto = _mapper.Map<UserProfileTransferDTO>(userProfile);
