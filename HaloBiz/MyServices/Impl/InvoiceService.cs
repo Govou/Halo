@@ -6,7 +6,7 @@ using AutoMapper;
 using HaloBiz.Adapters;
 using HaloBiz.CustomExceptions;
 using HalobizMigrations.Data;
-using HaloBiz.DTOs.ApiDTOs;
+using Halobiz.Common.DTOs.ApiDTOs;
 using HaloBiz.DTOs.MailDTOs;
 using HaloBiz.DTOs.ReceivingDTOs;
 using HaloBiz.DTOs.TransferDTOs;

@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 
-namespace Auth.PermissionParts
+namespace Halobiz.Common.Auths.PermissionParts
 {
     public static class PermissionPackers
     {

@@ -4,42 +4,46 @@ using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
 using HalobizMigrations.Data;
-using HaloBiz.DTOs.ApiDTOs;
-using HaloBiz.DTOs.ReceivingDTOs.RoleManagement;
-using HaloBiz.DTOs.TransferDTOs;
-using HaloBiz.DTOs.TransferDTOs.RoleManagement;
-using HaloBiz.Helpers;
+using Halobiz.Common.DTOs.ApiDTOs;
 using HalobizMigrations.Models;
-using HaloBiz.Repository;
-using HaloBiz.Repository.RoleManagement;
 using Microsoft.AspNetCore.Http;
-using HaloBiz.Model.RoleManagement;
-using HaloBiz.MyServices.RoleManagement;
-using Halobiz.Auths.PermissionParts;
+using Halobiz.Common.Auths.PermissionParts;
 using System.Text.RegularExpressions;
+using Halobiz.Common.DTOs.ReceivingDTOs.RoleManagement;
+using Halobiz.Repository.RoleManagement;
+using Halobiz.Common.DTOs.TransferDTOs.RoleManagement;
 
-namespace HaloBiz.MyServices.Impl.RoleManagement
+namespace Halobiz.Common.MyServices.RoleManagement
 {
+    public interface IRoleService
+    {
+        Task<ApiCommonResponse> AddRole(HttpContext context, RoleReceivingDTO RoleReceivingDTO);
+        Task<ApiCommonResponse> GetRoleById(long id);
+        Task<ApiCommonResponse> GetRoleByName(string name);
+        Task<ApiCommonResponse> GetAllRoles();
+        Task<ApiCommonResponse> UpdateRole(HttpContext context, long id, RoleReceivingDTO RoleReceivingDTO);
+        Task<ApiCommonResponse> DeleteRole(long id);
+        ApiCommonResponse GetPermissions();
+        ApiCommonResponse GetGroupedPermissions();
+        Task<ApiCommonResponse> GetPermissionsOnRole(string name);
+        Task<ApiCommonResponse> FindRolesByUser(long userId);
+        Task<ApiCommonResponse> GetPermissionsOnUser(long userId);
+        Task<IEnumerable<Permissions>> GetPermissionEnumsOnUser(long userId);
+
+
+    }
     public class RoleServiceImpl : IRoleService
     {
-        private readonly IModificationHistoryRepository _historyRepo;
-        private readonly IMapper _mapper;
         private readonly IRoleRepository _roleRepo;
-        private readonly IUserProfileRepository _userProfileRepo;
         private readonly HalobizContext _context;
 
         public RoleServiceImpl(
-            IModificationHistoryRepository historyRepo,
             IRoleRepository roleRepo,
-            IUserProfileRepository userProfileRepo,
             HalobizContext dataContext,
             IMapper mapper)
         {
-            _mapper = mapper;
-            _historyRepo = historyRepo;
             _context = dataContext;
             _roleRepo = roleRepo;
-            _userProfileRepo = userProfileRepo;
         }
 
         public async Task<ApiCommonResponse> AddRole(HttpContext context, RoleReceivingDTO roleReceivingDto)
@@ -68,8 +72,7 @@ namespace HaloBiz.MyServices.Impl.RoleManagement
                     return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
                 }
 
-                var roleTransferDto = _mapper.Map<RoleTransferDTO>(role);
-                return CommonResponse.Send(ResponseCodes.SUCCESS,roleTransferDto);
+                return CommonResponse.Send(ResponseCodes.SUCCESS,role);
             }
             catch (Exception ex)
             {
@@ -80,9 +83,8 @@ namespace HaloBiz.MyServices.Impl.RoleManagement
         public async Task<ApiCommonResponse> FindRolesByUser(long userId)
         {
             var roles = await _roleRepo.FindRolesByUser(userId);
-            var roleTransferDto = _mapper.Map<IEnumerable<RoleTransferDTO>>(roles);
 
-            return CommonResponse.Send(ResponseCodes.SUCCESS,roleTransferDto);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,roles);
         }  
 
         public async Task<IEnumerable<Permissions>> GetPermissionEnumsOnUser(long userId)
@@ -172,8 +174,7 @@ namespace HaloBiz.MyServices.Impl.RoleManagement
 
                 await _context.SaveChangesAsync();
 
-                var roleTransferDto = _mapper.Map<RoleTransferDTO>(role);
-                return CommonResponse.Send(ResponseCodes.SUCCESS,roleTransferDto);
+                return CommonResponse.Send(ResponseCodes.SUCCESS,role);
             }
             catch (Exception ex)
             {
@@ -189,21 +190,11 @@ namespace HaloBiz.MyServices.Impl.RoleManagement
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }           
 
-           var roleTransfer = _mapper.Map<IEnumerable<RoleTransferDTO>>(roles);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,roleTransfer);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,roles);
         }
 
        
-        public async Task<ApiCommonResponse> GetAllClaims()
-        {
-            var claims = await _roleRepo.FindAllClaims();
-            if (claims == null)
-            {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
-            }
-            var claimTransferDto = _mapper.Map<IEnumerable<ClaimTransferDTO>>(claims);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,claimTransferDto);
-        }
+       
 
         public ApiCommonResponse GetPermissions()
         {
@@ -242,38 +233,7 @@ namespace HaloBiz.MyServices.Impl.RoleManagement
             return string.Join(" ", Regex.Split(source, @"(?<!^)(?=[A-Z](?![A-Z]|$))"));
         }
 
-        public async Task<ApiCommonResponse> GetUserRoleClaims(HttpContext context)
-        {
-            var userId = context.GetLoggedInUserId();
-            var user = await _userProfileRepo.FindUserById(userId);
-            if (user == null)
-            {
-                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
-            }
-
-            if (user.Role.Name == ClaimConstants.SuperAdmin)
-            {
-                var roleClaims = new List<RoleClaim>();
-                foreach (ClaimEnum item in Enum.GetValues(typeof(ClaimEnum)))
-                {
-                    roleClaims.Add(new RoleClaim
-                    {
-                        CanAdd = true,
-                        ClaimEnum = (int)item,
-                        CanDelete = true,
-                        CanUpdate = true,
-                        CanView = true,
-                        Description = item.ToString(),
-                        Name = item.ToString(),
-                        RoleId = user.Role.Id
-                    });
-                }
-                user.Role.RoleClaims = roleClaims;
-            }
-
-            var userDto = _mapper.Map<UserProfileTransferDTO>(user);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,userDto);
-        }
+       
 
         public async Task<ApiCommonResponse> GetRoleById(long id)
         {
@@ -282,8 +242,8 @@ namespace HaloBiz.MyServices.Impl.RoleManagement
             {
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
-            var roleTransferDtOs = _mapper.Map<RoleTransferDTO>(role);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,roleTransferDtOs);
+
+            return CommonResponse.Send(ResponseCodes.SUCCESS,role);
         }
 
         public async Task<ApiCommonResponse> GetRoleByName(string name)
@@ -293,70 +253,9 @@ namespace HaloBiz.MyServices.Impl.RoleManagement
             {
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
-            var roleTransferDtOs = _mapper.Map<RoleTransferDTO>(role);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,roleTransferDtOs);
-        }
-
-        //public async Task<ApiCommonResponse> UpdateRole(HttpContext context, long id, RoleReceivingDTO roleReceivingDto)
-        //{
-        //    var roleToUpdate = await _roleRepo.FindRoleById(id);
-        //    if (roleToUpdate == null)
-        //    {
-        //        return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
-        //    }
-
-        //    if(roleToUpdate.Name != roleReceivingDto.Name)
-        //    {
-        //        var item = await _roleRepo.FindRoleByName(roleReceivingDto.Name);
-        //        if (item != null)
-        //        {
-        //            return CommonResponse.Send(ResponseCodes.FAILURE,null, "Role Name Already Exists.");
-        //        }
-        //    }          
-
-        //    var summary = $"Initial details before change, \n {roleToUpdate} \n" ;
-
-        //    roleToUpdate.Name = roleReceivingDto.Name;
-        //    roleToUpdate.Description = roleReceivingDto.Description;
-
-        //    var updatedRole = await _roleRepo.UpdateRole(roleToUpdate);
-
-        //    if (updatedRole == null)
-        //    {
-        //        return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
-        //    }
-
-        //    var roleClaimsDeleted = await _roleRepo.DeleteRoleClaims(updatedRole);
-        //    if (!roleClaimsDeleted)
-        //    {
-        //        return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
-        //    }
-
-        //    //if (roleReceivingDto.RoleClaims.Any())
-        //    //{
-        //    //    var roleClaimsToSave = _mapper.Map<ICollection<RoleClaim>>(roleReceivingDto.RoleClaims);
-        //    //    foreach (var item in roleClaimsToSave)
-        //    //    {
-        //    //        item.RoleId = updatedRole.Id;
-        //    //    }
-        //    //    _context.RoleClaims.AddRange(roleClaimsToSave);
-        //    //}       
-
-        //    summary += $"Details after change, \n {updatedRole.ToString()} \n";
-    
-        //    ModificationHistory history = new ModificationHistory(){
-        //        ModelChanged = "Role",
-        //        ChangeSummary = summary,
-        //        ChangedById = context.GetLoggedInUserId(),
-        //        ModifiedModelId = updatedRole.Id
-        //    };
-
-        //    await _historyRepo.SaveHistory(history);
-
-        //    var roleTransferDto = _mapper.Map<RoleTransferDTO>(await _roleRepo.FindRoleById(id));
-        //    return CommonResponse.Send(ResponseCodes.SUCCESS,roleTransferDto);
-
-        //}
+           // var roleTransferDtOs = _mapper.Map<RoleTransferDTO>(role);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,role);
+        }      
 
         public async Task<ApiCommonResponse> DeleteRole(long id)
         {
@@ -366,22 +265,19 @@ namespace HaloBiz.MyServices.Impl.RoleManagement
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
 
-            if(roleToDelete.Name == ClaimConstants.SuperAdmin || roleToDelete.Name == ClaimConstants.UnAssigned)
-            {
-                return CommonResponse.Send(ResponseCodes.FAILURE);
-            }
+           
 
-            var userProfiles = await _userProfileRepo.FindAllUserProfilesAttachedToRole(id);
-            if (userProfiles.Any())
-            {
-                var unAssignedRole = await _roleRepo.FindRoleByName(ClaimConstants.UnAssigned);
-                foreach (var userProfile in userProfiles)
-                {
-                    userProfile.RoleId = unAssignedRole.Id;
-                }
+           // var userProfiles = await _userProfileRepo.FindAllUserProfilesAttachedToRole(id);
+            //if (userProfiles.Any())
+            //{
+            //    //var unAssignedRole = await _roleRepo.FindRoleByName(ClaimConstants.UnAssigned);
+            //    //foreach (var userProfile in userProfiles)
+            //    //{
+            //    //    userProfile.RoleId = unAssignedRole.Id;
+            //    //}
 
-                await _userProfileRepo.UpdateUserProfiles(userProfiles);
-            }
+            //    await _userProfileRepo.UpdateUserProfiles(userProfiles);
+            //}
 
 
             if (!await _roleRepo.DeleteRole(roleToDelete))

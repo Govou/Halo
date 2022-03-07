@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Reflection;
 
-namespace Halobiz.Auths.PermissionParts
+namespace Halobiz.Common.Auths.PermissionParts
 {
     public class PermissionDisplay
     {

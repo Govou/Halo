@@ -1,7 +1,7 @@
 ﻿using Flurl;
 using Flurl.Http;
 using Flurl.Http.Configuration;
-using HaloBiz.DTOs.ApiDTOs;
+using Halobiz.Common.DTOs.ApiDTOs;
 using HaloBiz.Helpers;
 using HaloBiz.MyServices.LAMS;
 using HalobizMigrations.Data;

@@ -1,5 +1,5 @@
 ﻿using HaloBiz.DTOs;
-using HaloBiz.DTOs.ApiDTOs;
+using Halobiz.Common.DTOs.ApiDTOs;
 using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;

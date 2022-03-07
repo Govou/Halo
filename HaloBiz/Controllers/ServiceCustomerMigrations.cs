@@ -3,7 +3,7 @@ using Flurl;
 using Flurl.Http;
 using Flurl.Http.Configuration;
 using GoogleMaps.LocationServices;
-using HaloBiz.DTOs.ApiDTOs;
+using Halobiz.Common.DTOs.ApiDTOs;
 using HaloBiz.Helpers;
 using HaloBiz.MigrationsHelpers;
 using HaloBiz.MyServices.LAMS;

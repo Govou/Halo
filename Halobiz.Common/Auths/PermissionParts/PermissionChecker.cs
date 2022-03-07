@@ -5,7 +5,7 @@ using System;
 using System.ComponentModel;
 using System.Linq;
 
-namespace Halobiz.Auths.PermissionParts
+namespace Halobiz.Common.Auths.PermissionParts
 {
     public static class PermissionChecker
     {

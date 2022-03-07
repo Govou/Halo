@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using AutoMapper;
 using HaloBiz.Adapters;
 using HalobizMigrations.Data;
-using HaloBiz.DTOs.ApiDTOs;
+using Halobiz.Common.DTOs.ApiDTOs;
 using HaloBiz.DTOs.ReceivingDTOs;
 using HaloBiz.DTOs.TransferDTOs.LAMS;
 using HaloBiz.Helpers;

@@ -2,7 +2,7 @@
 using System;
 using System.ComponentModel.DataAnnotations;
 
-namespace Auth.PermissionParts
+namespace Halobiz.Common.Auths.PermissionParts
 {
     public enum Permissions : short
     {

@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using AutoMapper;
 using HaloBiz.Helpers;
 //using Microsoft.AspNetCore.Http;
-using HaloBiz.DTOs.ApiDTOs;
+using Halobiz.Common.DTOs.ApiDTOs;
 using HalobizMigrations.Data;
 using Microsoft.Extensions.Logging;
 using Microsoft.AspNetCore.Http;
