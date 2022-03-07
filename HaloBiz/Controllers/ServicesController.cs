@@ -22,7 +22,11 @@ namespace HaloBiz.Controllers
         {
             return await _servicesService.GetAllServices();
         }
-
+        [HttpGet("AllSecuredMobilityServices")]
+        public async Task<ApiCommonResponse> AllSecuredMobilityServices()
+        {
+            return await _servicesService.GetAllSecuredMobilityServices();
+        }
         [HttpGet("GetUnpublishedServices")]
         public async Task<ApiCommonResponse> GetUnpublishedService()
         {

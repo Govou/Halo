@@ -10,18 +10,25 @@ using Microsoft.Extensions.Logging;
 using HaloBiz.Helpers;
 using HalobizMigrations.Models.Halobiz;
 using HalobizMigrations.Models.Shared;
+using Microsoft.Extensions.Configuration;
 
 namespace HaloBiz.Repository.Impl
 {
     public class ServicesRepositoryImpl : IServicesRepository
     {
         private readonly HalobizContext _context;
+        private readonly IConfiguration _configuration;
+        private readonly List<string> _agencies;
+        //private readonly string _agencies;
         private readonly ILogger<ServicesRepositoryImpl> _logger;
 
-        public ServicesRepositoryImpl(HalobizContext context, ILogger<ServicesRepositoryImpl> logger)
+        public ServicesRepositoryImpl(HalobizContext context, ILogger<ServicesRepositoryImpl> logger, IConfiguration configuration)
         {
             this._context = context;
             this._logger = logger;
+            _configuration = configuration;
+            //_agencies = _configuration["Codes"] ?? _configuration.GetSection("AppSettings:Codes").Value;
+            //_agencies = _configuration.GetSection("AppSettings:ServiceCodes").Get<string[]>().ToList();
         }
 
          public async Task<Service> SaveService(Service service)
@@ -193,6 +200,31 @@ namespace HaloBiz.Repository.Impl
                _logger.LogError(ex.Message);
                return false;
            }
+        }
+
+        public async Task<IEnumerable<Service>> FindAllSecuredMobilityServices()
+        {
+            //var _agencies = _configuration.GetSection("AppSettings:Codes").Value;
+            List<Service> services = new List<Service>();
+            //IList<Service> servicess = services;
+             
+            var quuery = _context.Services
+                .Include(service => service.Target)
+                .Include(service => service.ServiceType)
+                .Include(service => service.Account)
+                .Include(service => service.ServiceRequiredServiceDocuments.Where(row => row.IsDeleted == false))
+                    .ThenInclude(row => row.RequiredServiceDocument)
+                    .Include(service => service.ServiceRequredServiceQualificationElements.Where(row => row.IsDeleted == false))
+                    .ThenInclude(row => row.RequredServiceQualificationElement)
+                .Where(service => service.IsDeleted == false && service.PublishedApprovedStatus == true);
+            var _agencies = _configuration.GetSection("AppSettings:ServiceCodes").Get<string[]>().ToList();
+            foreach (var items in _agencies)
+            {
+                //quuery.Where(x => x.ServiceCode.Contains(items));
+                services.AddRange(quuery.Where(x => x.ServiceCode.Contains(items)));
+            }
+            return  services.ToList();
+          
         }
     }
 }

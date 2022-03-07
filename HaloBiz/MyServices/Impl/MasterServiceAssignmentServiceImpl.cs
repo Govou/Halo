@@ -35,9 +35,86 @@ namespace HaloBiz.MyServices.Impl
 
         }
 
+        public async Task<ApiCommonResponse> AddMasterAutoServiceAssignment(HttpContext context, MasterServiceAssignmentForAutoReceivingDTO masterReceivingDTO)
+        {
+            var master = _mapper.Map<MasterServiceAssignment>(masterReceivingDTO);
+            var secondary = new SecondaryServiceAssignment();
+            DateTime pickofftime = Convert.ToDateTime(masterReceivingDTO.PickoffTime.AddHours(1));
+            pickofftime = pickofftime.AddSeconds(-1 * pickofftime.Second);
+            pickofftime = pickofftime.AddMilliseconds(-1 * pickofftime.Millisecond);
+            var getRegService = await _serviceRegistrationRepository.FindServiceById(masterReceivingDTO.ServiceRegistrationId);
+            long getId = 0;
+
+            //var NameExist = _armedEscortsRepository.GetTypename(armedEscortTypeReceivingDTO.Name);
+            //if (NameExist != null)
+            //{
+            //    return CommonResponse.Send(ResponseCodes.FAILURE, null, ResponseMessage.RecordExists409);
+            //}
+
+            //master.CreatedBy = context.User.Claims();
+            master.CreatedById = context.GetLoggedInUserId();
+            master.PickoffTime = pickofftime;
+            master.CreatedAt = DateTime.UtcNow;
+            master.TripTypeId = 1;
+            master.SAExecutionStatus = 0;
+            master.AssignmentStatus = "Open";
+            var savedRank = await _serviceAssignmentMasterRepository.SaveServiceAssignment(master);
+
+            if (savedRank == null)
+            {
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, ResponseMessage.InternalServer500);
+            }
+            else
+            {
+                getId = savedRank.Id;
+            }
+
+            if (masterReceivingDTO.IsReturnJourney == true)
+            {
+                master.Id = 0;
+                master.PickoffLocation = masterReceivingDTO.DropoffLocation;
+                master.DropoffLocation = masterReceivingDTO.PickoffLocation;
+                master.TripTypeId = 2;
+                master.SAExecutionStatus = 0;
+                master.PickoffTime = pickofftime;
+                master.AssignmentStatus = "open";
+                master.PrimaryTripAssignmentId = getId;
+                master.CreatedById = context.GetLoggedInUserId();
+                master.CreatedAt = DateTime.UtcNow;
+                var savedItem = await _serviceAssignmentMasterRepository.SaveServiceAssignment(master);
+                if (savedItem == null)
+                {
+                    return CommonResponse.Send(ResponseCodes.FAILURE, null, ResponseMessage.InternalServer500);
+                }
+            }
+            if (getId != 0)
+            {
+                for (int i = 0; i < masterReceivingDTO.SecondaryServiceRegistrationId.Length; i++)
+                {
+                    secondary.Id = 0;
+                    secondary.SecondaryServiceRegistrationId = masterReceivingDTO.SecondaryServiceRegistrationId[i];
+
+                    secondary.SecondaryContractServiceId = masterReceivingDTO.ContractServiceId;
+                    secondary.ServiceAssignmentId = getId;
+                    secondary.CreatedById = context.GetLoggedInUserId();
+                    secondary.CreatedAt = DateTime.UtcNow;
+                    var savedItem = await _serviceAssignmentMasterRepository.SaveSecondaryServiceAssignment(secondary);
+                    if (savedItem == null)
+                    {
+                        return CommonResponse.Send(ResponseCodes.FAILURE, null, ResponseMessage.InternalServer500);
+                    }
+
+                }
+
+            }
+            var typeTransferDTO = _mapper.Map<MasterServiceAssignmentTransferDTO>(master);
+            return CommonResponse.Send(ResponseCodes.SUCCESS, null, ResponseMessage.Success200);
+        }
+
         public async Task<ApiCommonResponse> AddMasterServiceAssignment(HttpContext context, MasterServiceAssignmentReceivingDTO masterReceivingDTO)
         {
             var master = _mapper.Map<MasterServiceAssignment>(masterReceivingDTO);
+            var secondary = new SecondaryServiceAssignment();
             DateTime pickofftime = Convert.ToDateTime(masterReceivingDTO.PickoffTime.AddHours(1));
             pickofftime = pickofftime.AddSeconds(-1 * pickofftime.Second);
             pickofftime = pickofftime.AddMilliseconds(-1 * pickofftime.Millisecond);
@@ -86,8 +163,51 @@ namespace HaloBiz.MyServices.Impl
                     return CommonResponse.Send(ResponseCodes.FAILURE, null, ResponseMessage.InternalServer500);
                 }
             }
+            if (getId !=0)
+            {
+                for (int i = 0; i < masterReceivingDTO.SecondaryServiceRegistrationId.Length; i++)
+                {
+                    secondary.Id = 0;
+                    secondary.SecondaryServiceRegistrationId = masterReceivingDTO.SecondaryServiceRegistrationId[i];
+                   
+                        secondary.SecondaryContractServiceId = masterReceivingDTO.ContractServiceId;
+                        secondary.ServiceAssignmentId = getId;
+                        secondary.CreatedById = context.GetLoggedInUserId();
+                        secondary.CreatedAt = DateTime.UtcNow;
+                        var savedItem = await _serviceAssignmentMasterRepository.SaveSecondaryServiceAssignment(secondary);
+                        if (savedItem == null)
+                        {
+                            return CommonResponse.Send(ResponseCodes.FAILURE, null, ResponseMessage.InternalServer500);
+                        }
+
+                }
+               
+            }
             var typeTransferDTO = _mapper.Map<MasterServiceAssignmentTransferDTO>(master);
             return CommonResponse.Send(ResponseCodes.SUCCESS, null, ResponseMessage.Success200);
+        }
+
+      
+
+        public async Task<ApiCommonResponse> AddSecondaryServiceAssignment(HttpContext context, SecondaryServiceAssignmentReceivingDTO secondaryReceivingDTO)
+        {
+            var addItem = _mapper.Map<SecondaryServiceAssignment>(secondaryReceivingDTO);
+            //var NameExist = _sMORouteAndRegionRepository.GetRouteName(sMORouteReceivingDTO.RouteName);
+            //if (NameExist != null)
+            //{
+            //    return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE, null, "No record exists"); ;
+            //}
+            addItem.CreatedById = context.GetLoggedInUserId();
+            addItem.IsDeleted = false;
+            addItem.CreatedAt = DateTime.UtcNow;
+            var savedRank = await _serviceAssignmentMasterRepository.SaveSecondaryServiceAssignment(addItem);
+
+            if (savedRank == null)
+            {
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+            }
+            var TransferDTO = _mapper.Map<SecondaryServiceAssignmentTransferDTO>(addItem);
+            return CommonResponse.Send(ResponseCodes.SUCCESS, TransferDTO);
         }
 
         public async Task<ApiCommonResponse> DeleteMasterServiceAssignment(long id)
@@ -99,6 +219,7 @@ namespace HaloBiz.MyServices.Impl
             var pilotToDelete = await _serviceAssignmentDetailsRepository.FindAllPilotServiceAssignmentDetailsByAssignmentId(id);
             var vehicleToDelete = await _serviceAssignmentDetailsRepository.FindAllVehicleServiceAssignmentDetailsByAssignmentId(id);
             var passengerToDelete = await _serviceAssignmentDetailsRepository.FindAllPassengersByAssignmentId(id);
+            var secondaryAssignmentToDelete = await _serviceAssignmentMasterRepository.FindAllSecondaryServiceAssignmentsByAssignmentId(id);
 
             if (itemToDelete == null)
             {
@@ -138,6 +259,13 @@ namespace HaloBiz.MyServices.Impl
                     await _serviceAssignmentDetailsRepository.DeleteVehicleServiceAssignmentDetail(item);
                 }
             }
+            if (secondaryAssignmentToDelete.Count() != 0)
+            {
+                foreach (var item in secondaryAssignmentToDelete)
+                {
+                    await _serviceAssignmentMasterRepository.DeleteSecondaryServiceAssignment(item);
+                }
+            }
             if (passengerToDelete.Count() != 0)
             {
                 foreach (var item in passengerToDelete)
@@ -147,6 +275,23 @@ namespace HaloBiz.MyServices.Impl
             }
 
             return CommonResponse.Send(ResponseCodes.SUCCESS, null, ResponseMessage.Success200);
+        }
+
+        public async Task<ApiCommonResponse> DeleteSecondaryServiceAssignment(long id)
+        {
+            var itemToDelete = await _serviceAssignmentMasterRepository.FindSecondaryServiceAssignmentById(id);
+
+            if (itemToDelete == null)
+            {
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE); ;
+            }
+
+            if (!await _serviceAssignmentMasterRepository.DeleteSecondaryServiceAssignment(itemToDelete))
+            {
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+            }
+
+            return CommonResponse.Send(ResponseCodes.SUCCESS);
         }
 
         public async Task<ApiCommonResponse> GetAllCustomerDivisions()
@@ -172,6 +317,11 @@ namespace HaloBiz.MyServices.Impl
             return CommonResponse.Send(ResponseCodes.SUCCESS, TransferDTO, ResponseMessage.Success200);
         }
 
+        public Task<ApiCommonResponse> GetAllSecondaryServiceAssignments()
+        {
+            throw new NotImplementedException();
+        }
+
         public async Task<ApiCommonResponse> GetMasterServiceAssignmentById(long id)
         {
             var master = await _serviceAssignmentMasterRepository.FindServiceAssignmentById(id);
@@ -181,6 +331,11 @@ namespace HaloBiz.MyServices.Impl
             }
             var TransferDTO = _mapper.Map<MasterServiceAssignmentTransferDTO>(master);
             return CommonResponse.Send(ResponseCodes.SUCCESS, TransferDTO, ResponseMessage.Success200);
+        }
+
+        public Task<ApiCommonResponse> GetsecondaryServiceAssignmentById(long id)
+        {
+            throw new NotImplementedException();
         }
 
         public async Task<ApiCommonResponse> UpdateMasterServiceAssignment(HttpContext context, long id, MasterServiceAssignmentReceivingDTO masterReceivingDTO)

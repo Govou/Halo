@@ -331,6 +331,9 @@ namespace HaloBiz.Helpers
             CreateMap<SMORegion, SMORouteRegionTransferDTO>();
             CreateMap<SMORoute, SMORouteRegionTransferDTO>();
 
+            CreateMap<SMORouteMapReceivingDTO, SMORouteAndStateMap>();
+            CreateMap<SMORouteAndStateMap, SMORouteMapTransferDTO>();
+
             CreateMap<CommanderTypeAndRankReceivingDTO, CommanderType>(); //for type
             CreateMap<CommanderRankReceivingDTO, CommanderRank>();
             CreateMap<CommanderType, CommanderTypeAndRankTransferDTO>(); //for type
@@ -439,6 +442,8 @@ namespace HaloBiz.Helpers
             //ServiceAssignment
             CreateMap<MasterServiceAssignmentReceivingDTO, MasterServiceAssignment>();
             CreateMap<MasterServiceAssignment, MasterServiceAssignmentTransferDTO>();
+            CreateMap<SecondaryServiceAssignmentReceivingDTO, SecondaryServiceAssignment>();
+            CreateMap<SecondaryServiceAssignment, SecondaryServiceAssignmentTransferDTO>();
 
             //ServiceAssignmentDetail
             CreateMap<ArmedEscortServiceAssignmentDetailsReceivingDTO, ArmedEscortServiceAssignmentDetail>();

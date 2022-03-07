@@ -40,6 +40,11 @@ namespace HaloBiz.Controllers
             return await _masterServiceAssignmentService.GetAllCustomerDivisions();
         }
 
+        [HttpGet("GetAllSecondaryServiceAssignments")]
+        public async Task<ApiCommonResponse> GetAllSecondaryServiceAssignments()
+        {
+            return await _masterServiceAssignmentService.GetAllSecondaryServiceAssignments();
+        }
 
 
         [HttpGet("GetServiceAssignmentMasterById/{id}")]
@@ -52,6 +57,12 @@ namespace HaloBiz.Controllers
             //return Ok(Rank);
         }
 
+        [HttpGet("GetSecondaryServiceAssignmentById/{id}")]
+        public async Task<ApiCommonResponse> GetSecondaryServiceAssignmentById(long id)
+        {
+            return await _masterServiceAssignmentService.GetsecondaryServiceAssignmentById(id);
+        }
+
         [HttpPost("AddNewServiceAssignmentMaster")]
         public async Task<ApiCommonResponse> AddNewServiceAssignmentMaster(MasterServiceAssignmentReceivingDTO ReceivingDTO)
         {
@@ -61,6 +72,12 @@ namespace HaloBiz.Controllers
             //    return StatusCode(response.StatusCode, response);
             //var rank = ((ApiOkResponse)response).Result;
             //return Ok(rank);
+        }
+
+        [HttpPost("AddNewSecondaryServiceAssignment")]
+        public async Task<ApiCommonResponse> AddNewSecondaryServiceAssignment(SecondaryServiceAssignmentReceivingDTO ReceivingDTO)
+        {
+            return await _masterServiceAssignmentService.AddSecondaryServiceAssignment(HttpContext, ReceivingDTO);
         }
 
         [HttpPut("UpdateServiceAssignmentMasterById/{id}")]
@@ -77,6 +94,13 @@ namespace HaloBiz.Controllers
         public async Task<ApiCommonResponse> DeleteServiceAssignmentMasterById(int id)
         {
             return await _masterServiceAssignmentService.DeleteMasterServiceAssignment(id);
+            //return StatusCode(response.StatusCode);
+        }
+
+        [HttpDelete("DeleteSecondaryServiceAssignmentById/{id}")]
+        public async Task<ApiCommonResponse> DeleteSecondaryServiceAssignmentById(int id)
+        {
+            return await _masterServiceAssignmentService.DeleteSecondaryServiceAssignment(id);
             //return StatusCode(response.StatusCode);
         }
 

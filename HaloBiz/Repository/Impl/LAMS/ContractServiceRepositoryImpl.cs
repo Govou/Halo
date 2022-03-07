@@ -115,14 +115,14 @@ namespace HaloBiz.Repository.Impl.LAMS
         {
             return await _context.ContractServices
                 .Include(t=>t.Service).Include(x=>x.Contract)
-                 .Where(x =>  x.IsDeleted == false && x.Version == 0 && x.Contract.CustomerDivisionId == CustomerDivisionId)
+                 .Where(x =>  x.IsDeleted == false && x.Version == 0 && x.Contract.CustomerDivisionId == CustomerDivisionId && x.ContractEndDate > DateTime.Now)
                  .ToListAsync();
         }
         public async Task<IEnumerable<ContractService>> FindAllContractServices()
         {
             return await _context.ContractServices
                 .Include(t => t.Service)
-                 .Where(x => x.IsDeleted == false && x.Version == 0)
+                 .Where(x => x.IsDeleted == false && x.Version == 0 && x.ContractEndDate > DateTime.Now)
                  .ToListAsync();
         }
     }

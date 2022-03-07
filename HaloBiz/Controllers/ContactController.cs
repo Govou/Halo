@@ -83,6 +83,13 @@ namespace HaloBiz.Controllers
             return await _contactServiceImpl.GetMeeting(suspectId);
         }
 
+        [HttpGet("GetAllContactsBySuspect/{suspectId}")]
+        public async Task<ApiCommonResponse> GetAllContactsBySuspect(long suspectId)
+        {
+            return await _contactServiceImpl.getContactsForSuspectsById(HttpContext,suspectId);
+        }
+
+
         [HttpPost("CreateMeeting")]
         public async Task<ApiCommonResponse> CreateMeeting(MeetingDTO meetingDTO)
         {
@@ -94,6 +101,13 @@ namespace HaloBiz.Controllers
         {
             return await _contactServiceImpl.updateMeeting(HttpContext, meetingId, meetingDTO);
         }
+
+        [HttpPut("changeTodoStatus/{todoId}")]
+        public async Task<ApiCommonResponse> changeTodoStatus(long todoId)
+        {
+            return await _contactServiceImpl.changeTodoStatus(HttpContext, todoId);
+        }
+
         [HttpPost("AddMorStaff/{meetingId}")]
         public async Task<ApiCommonResponse> AddMorStaff(long meetingId,List<MeetingStaff> meetingDTO)
         {
@@ -177,6 +191,48 @@ namespace HaloBiz.Controllers
         public async Task<ApiCommonResponse> GetAllTodo(long goalId)
         {
             return await _contactServiceImpl.getTodoByGoalId(HttpContext, goalId);
+        }
+
+        [HttpGet("GetDashBoardSummary/{suspectId}")]
+        public async Task<ApiCommonResponse> GetDashBoardSummary(long suspectId)
+        {
+            return await _contactServiceImpl.getDashBoardForSuspect(HttpContext, suspectId);
+        }
+
+        [HttpGet("GetLeadClassificationsData")]
+        public async Task<ApiCommonResponse> GetLeadClassificationsData()
+        {
+            return await _contactServiceImpl.GetLeadClassificationsData(HttpContext);
+        }
+
+        [HttpGet("GetLeadClassificationsDataById/{createdById}")]
+        public async Task<ApiCommonResponse> GetLeadClassificationsDataBySuspectId(long createdById)
+        {
+            return await _contactServiceImpl.GetLeadClassificationsDataById(HttpContext, createdById);
+        }
+
+        [HttpGet("GetLeadClassificationsDataByDate/{startDate}/{endDate}")]
+        public async Task<ApiCommonResponse> GetLeadClassificationsDataBySuspectId(DateTime startDate,DateTime endDate)
+        {
+            return await _contactServiceImpl.GetLeadClassificationsDataByDates(HttpContext, startDate,endDate);
+        }
+
+        [HttpGet("GetLeadsOpportunity")]
+        public async Task<ApiCommonResponse> GetLeadsOpportunity()
+        {
+            return await _contactServiceImpl.GetLeadsOpportunityData(HttpContext);
+        }
+
+        [HttpGet("GetLeadsOpportunityById/{createdById}")]
+        public async Task<ApiCommonResponse> GetLeadsOpportunityById(long createdById)
+        {
+            return await _contactServiceImpl.GetLeadsOpportunityDataByCreatedId(HttpContext, createdById);
+        }
+
+        [HttpGet("GetContractByLead/{Id}")]
+        public async Task<ApiCommonResponse> GetContractByLead(long Id)
+        {
+            return await _contactServiceImpl.getContractByLeadId(Id);
         }
     }
 }

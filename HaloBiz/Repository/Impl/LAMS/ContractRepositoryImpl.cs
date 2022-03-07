@@ -50,6 +50,12 @@ namespace HaloBiz.Repository.Impl.LAMS
         public async Task<Contract> FindContractByReferenceNumber(string refNo)
         {
             //todo
+            //return await _context.Contracts
+            //    .Include(x => x.ContractServices)
+            //    .Include(x => x.CustomerDivision)
+
+            //    .FirstOrDefaultAsync(x => x.IsDeleted == false);
+
             return await _context.Contracts
                 .Include(x => x.ContractServices)
                 .Include(x => x.CustomerDivision)
