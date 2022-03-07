@@ -1,0 +1,123 @@
+trigger:
+  branches:
+    include:
+      - develop
+      - staging
+      - production
+      - pipe-fix/ft
+
+pr:
+  - develop
+  - staging
+  - production
+  #- pipe-fix/ft
+resources:
+- repo: self
+
+variables:
+  tag: '$(Build.BuildId)'
+  isDev: $[eq(variables['Build.SourceBranchName'], 'develop')]
+  isStg: $[eq(variables['Build.SourceBranchName'], 'staging')]
+  isCi: $[eq(variables['Build.SourceBranchName'], 'pipe-fix/ft')]
+  isProd: $[eq(variables['Build.SourceBranchName'], 'production')]
+  vmImageName: 'ubuntu-18.04'
+  BuildConfiguration: 'Release'
+  SolutionPath: '$(System.DefaultWorkingDirectory)/HaloBiz.csproj'
+
+
+stages:
+- stage: Deploy_to_Dev
+  displayName: Deploy Halobiz-backend to Dev
+  condition: eq(variables.isDev, true)
+  jobs:
+    - job: Deployment
+      displayName: Deploy_to_Dev
+      pool:
+        vmImage: $(vmImageName)
+      steps:
+      - task: DownloadSecureFile@1
+        name: DevEnv
+        displayName: 'Download Halobiz-backend appsettings.json to Dev environment'
+        inputs:
+          secureFile: 'appsettings.json'
+
+      - task: CmdLine@2
+        displayName: 'Copy Halobiz-backend appsettings.json env to default directory'
+        inputs:
+          script: |
+            cp $(DevEnv.secureFilePath) '$(System.DefaultWorkingDirectory)/'
+
+      - task: DownloadSecureFile@1
+        name: DockerDevelopment
+        displayName: 'Copy Docker development file to system default directory'
+        inputs:
+          secureFile: 'Dockerfile.development'
+
+      - task: CmdLine@2
+        displayName: 'Copy Dockerfile.Develpment to system directory'
+        inputs:
+          script: |
+            cp $(DockerDevelopment.secureFilePath) '$(System.DefaultWorkingDirectory)/'
+
+      - task: Docker@2
+        inputs:
+          containerRegistry: 'Halobiz-Registry'
+          repository: 'halobiz-backend'
+          command: 'buildAndPush'
+          Dockerfile: '**/Dockerfile.development'
+          tags: $(tag)
+
+      - task: AzureWebAppContainer@1
+        displayName: 'Halobiz-backend deployment to Azure Container'
+        inputs:
+          azureSubscription: 'Halogen-IT(d041e96e-4105-4b10-81d2-7b8bcbf6c52b)'
+          appName: 'dev-halobiz-backend'
+          deployToSlotOrASE: true
+          resourceGroupName: 'Halogen-Dev-Application'
+          slotName: 'production'
+          containers: 'halobiz.azurecr.io/halobiz-backend:$(tag)'
+
+
+
+- stage: Deploy_halobiz_backend_to_staging
+  displayName: Deploy Halobiz-backend to staging
+  condition: eq(variables.isStg, true)
+  jobs:
+    - job: Deployment
+      displayName: Deploy_halobiz-backend_to_staging
+      pool:
+        vmImage: $(vmImageName)
+      steps:
+      - task: DownloadSecureFile@1
+        name: StgEnv
+        displayName: 'Download Halobiz-backend appsettings.json to Staging environment'
+        inputs:
+          secureFile: 'appsettings.json'
+
+      - task: CmdLine@2
+        displayName: 'Copy Halobiz-backend appsettings.json env to default directory'
+        inputs:
+          script: |
+            cp $(StgEnv.secureFilePath) '$(System.DefaultWorkingDirectory)/'
+
+      - task: DownloadSecureFile@1
+        name: DockerStaging
+        displayName: 'Copy Docker development file to system default directory'
+        inputs:
+          secureFile: 'Dockerfile.Staging'
+
+      - task: CmdLine@2
+        displayName: 'Copy Dockerfile.Develpment to system directory'
+        inputs:
+          script: |
+            cp $(DockerStaging.secureFilePath) '$(System.DefaultWorkingDirectory)/'
+
+      - task: Docker@2
+        inputs:
+          containerRegistry: 'Halobiz-Registry'
+          repository: 'halobiz-backend-staging'
+          command: 'buildAndPush'
+          Dockerfile: '**/Dockerfile.development'
+          tags: $(tag)
+
+
