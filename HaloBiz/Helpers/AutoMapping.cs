@@ -18,6 +18,8 @@ using HalobizMigrations.Models.Shared;
 using HaloBiz.Controllers;
 using HaloBiz.DTOs.ContactDTO;
 using Halobiz.Common.Helpers;
+using Halobiz.Common.DTOs.ReceivingDTOs.RoleManagement;
+using Halobiz.Common.DTOs.TransferDTOs.RoleManagement;
 
 namespace HaloBiz.Helpers
 {
@@ -126,6 +128,8 @@ namespace HaloBiz.Helpers
             CreateMap<StandardSlaforOperatingEntity, StandardSlaforOperatingEntityTransferDTO>();
             CreateMap<TargetReceivingDTO, Target>();
             CreateMap<Target, TargetTransferDTO>();
+            CreateMap<RoleReceivingDTO, Role>();
+            CreateMap<Role, RoleTransferDTO>();
             CreateMap<Target, BaseSetupTransferDTO>();
             CreateMap<MeansOfIdentificationReceivingDTO, MeansOfIdentification>();
             CreateMap<MeansOfIdentification, MeansOfIdentificationTransferDTO>();

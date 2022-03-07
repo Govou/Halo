@@ -34,7 +34,7 @@ namespace Halobiz.Common.MyServices.RoleManagement
     }
     public class RoleServiceImpl : IRoleService
     {
-        private readonly IMapper _mapper;
+      //  private readonly IMapper _mapper;
         private readonly IRoleRepository _roleRepo;
         private readonly HalobizContext _context;
 
@@ -43,7 +43,7 @@ namespace Halobiz.Common.MyServices.RoleManagement
             HalobizContext dataContext,
             IMapper mapper)
         {
-            _mapper = mapper;
+         //   _mapper = mapper;
             _context = dataContext;
             _roleRepo = roleRepo;
         }
@@ -74,8 +74,8 @@ namespace Halobiz.Common.MyServices.RoleManagement
                     return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
                 }
 
-                var roleTransferDto = _mapper.Map<RoleTransferDTO>(role);
-                return CommonResponse.Send(ResponseCodes.SUCCESS,roleTransferDto);
+               // var roleTransferDto = _mapper.Map<RoleTransferDTO>(role);
+                return CommonResponse.Send(ResponseCodes.SUCCESS,role);
             }
             catch (Exception ex)
             {
@@ -86,9 +86,9 @@ namespace Halobiz.Common.MyServices.RoleManagement
         public async Task<ApiCommonResponse> FindRolesByUser(long userId)
         {
             var roles = await _roleRepo.FindRolesByUser(userId);
-            var roleTransferDto = _mapper.Map<IEnumerable<RoleTransferDTO>>(roles);
+           // var roleTransferDto = _mapper.Map<IEnumerable<RoleTransferDTO>>(roles);
 
-            return CommonResponse.Send(ResponseCodes.SUCCESS,roleTransferDto);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,roles);
         }  
 
         public async Task<IEnumerable<Permissions>> GetPermissionEnumsOnUser(long userId)
@@ -178,8 +178,8 @@ namespace Halobiz.Common.MyServices.RoleManagement
 
                 await _context.SaveChangesAsync();
 
-                var roleTransferDto = _mapper.Map<RoleTransferDTO>(role);
-                return CommonResponse.Send(ResponseCodes.SUCCESS,roleTransferDto);
+                //var roleTransferDto = _mapper.Map<RoleTransferDTO>(role);
+                return CommonResponse.Send(ResponseCodes.SUCCESS,role);
             }
             catch (Exception ex)
             {
@@ -195,8 +195,8 @@ namespace Halobiz.Common.MyServices.RoleManagement
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }           
 
-           var roleTransfer = _mapper.Map<IEnumerable<RoleTransferDTO>>(roles);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,roleTransfer);
+          // var roleTransfer = _mapper.Map<IEnumerable<RoleTransferDTO>>(roles);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,roles);
         }
 
        
@@ -248,8 +248,8 @@ namespace Halobiz.Common.MyServices.RoleManagement
             {
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
-            var roleTransferDtOs = _mapper.Map<RoleTransferDTO>(role);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,roleTransferDtOs);
+           // var roleTransferDtOs = _mapper.Map<RoleTransferDTO>(role);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,role);
         }
 
         public async Task<ApiCommonResponse> GetRoleByName(string name)
@@ -259,8 +259,8 @@ namespace Halobiz.Common.MyServices.RoleManagement
             {
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
-            var roleTransferDtOs = _mapper.Map<RoleTransferDTO>(role);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,roleTransferDtOs);
+           // var roleTransferDtOs = _mapper.Map<RoleTransferDTO>(role);
+            return CommonResponse.Send(ResponseCodes.SUCCESS,role);
         }      
 
         public async Task<ApiCommonResponse> DeleteRole(long id)
