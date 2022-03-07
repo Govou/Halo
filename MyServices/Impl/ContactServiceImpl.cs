@@ -166,7 +166,9 @@ namespace HaloBiz.MyServices.Impl
         public async Task<ApiCommonResponse> GetAllSuspect()
         {
 
-            var suspect = await _context.Suspects.Where(x => x.IsDeleted == false).ToListAsync();
+            var suspect = await _context.Suspects
+                .Include(x=>x.GroupType)
+                .Where(x => x.IsDeleted == false).ToListAsync();
             if (suspect == null)
             {
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);
@@ -975,12 +977,6 @@ namespace HaloBiz.MyServices.Impl
                 .Include(x => x.LeadOrigin)
                 .Include(x=>x.CreatedBy)
                 .Include(x => x.GroupType)
-                //.Include(x => x.Branch)
-                //.Include(x => x.Office)
-                //.Include(x => x.State)
-                //.Include(x => x.Lga)
-                //.Include(x => x.Industry)
-                //.Include(x => x.LeadType)
                 .Include(x => x.SuspectQualifications.Where(x => !x.IsDeleted && x.IsActive))
                 .ThenInclude(x => x.ServiceQualifications)
                 .ThenInclude(x => x.Service)
@@ -990,6 +986,19 @@ namespace HaloBiz.MyServices.Impl
             {
                 return CommonResponse.Send(ResponseCodes.FAILURE, null, "No Suspect was found");
             }
+
+            suspectsInConcern.ForEach(x => {
+
+                if(x.GroupType.Caption == "Individual")
+                {
+                    x.BusinessName = $"{x.FirstName} {x.LastName}";
+                }
+                else
+                {
+                    x.BusinessName = x.BusinessName;
+                }
+
+            });
 
             var leadInstance = new LeadsClassificationData();
 
@@ -1105,6 +1114,7 @@ namespace HaloBiz.MyServices.Impl
             }
 
 
+
             return CommonResponse.Send(ResponseCodes.SUCCESS, getAllLeads, "Suspect was successfully retrieved");
 
         }
@@ -1149,7 +1159,7 @@ namespace HaloBiz.MyServices.Impl
         public async Task<ApiCommonResponse> getContractByLeadId(long Id)
         {
 
-
+            
             var contract = await _context.Contracts
                                            .Where(x => x.IsDeleted == false && x.CustomerDivisionId == Id)
                                            .Include(x=>x.CreatedBy)
@@ -1169,6 +1179,43 @@ namespace HaloBiz.MyServices.Impl
             return CommonResponse.Send(ResponseCodes.SUCCESS, contract, "Contract was successfully retrieved");
 
         }
+
+        public async Task<ApiCommonResponse> getDeliverableDashboard(HttpContext httpContext)
+        {
+
+
+            var deliverable = await _context.Projects.Where(x=>x.IsActive == true && x.Watchers.Any(x=>x.ProjectWatcherId == httpContext.GetLoggedInUserId()))
+                                                .Include(x=>x.Workspace)
+                                                      .ThenInclude(x=>x.StatusFlows.Where(x=>x.IsDeleted == false))
+                                                .Include(x=>x.Tasks.Where(x=>x.IsActive == true))
+                                                     .ThenInclude(x => x.Deliverables.Where(x => x.IsActive == true))
+                                                             .ThenInclude(x => x.CreatedBy)
+                                                .ToListAsync();
+
+
+            if (deliverable == null)
+            {
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "No Project was found");
+            }
+            var projectArray = new List<Project>();
+            foreach (var x in deliverable)
+            {
+                    projectArray.Add(x);
+                
+            }
+
+            var projectResult = projectArray.GroupBy(p => p.Id)
+                         .Select(result => result.First())
+                         .ToArray();
+
+
+
+
+            return CommonResponse.Send(ResponseCodes.SUCCESS, projectResult, "Dasboard details was successfully retrieved");
+
+        }
+
+
 
 
     }

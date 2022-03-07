@@ -234,5 +234,11 @@ namespace HaloBiz.Controllers
         {
             return await _contactServiceImpl.getContractByLeadId(Id);
         }
+
+        [HttpGet("GetDeliverableDashboard")]
+        public async Task<ApiCommonResponse> GetDeliverableDashboard()
+        {
+            return await _contactServiceImpl.getDeliverableDashboard(HttpContext);
+        }
     }
 }
