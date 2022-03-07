@@ -12,6 +12,7 @@ using System.Text.RegularExpressions;
 using Halobiz.Common.DTOs.ReceivingDTOs.RoleManagement;
 using Halobiz.Repository.RoleManagement;
 using Halobiz.Common.DTOs.TransferDTOs.RoleManagement;
+using Halobiz.Common.Helpers;
 
 namespace Halobiz.Common.MyServices.RoleManagement
 {
@@ -253,8 +254,8 @@ namespace Halobiz.Common.MyServices.RoleManagement
             {
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
-           // var roleTransferDtOs = _mapper.Map<RoleTransferDTO>(role);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,role);
+            var roleTransferDtOs = Mapping.Mapper.Map<RoleTransferDTO>(role);
+            return CommonResponse.Send(ResponseCodes.SUCCESS, roleTransferDtOs);
         }      
 
         public async Task<ApiCommonResponse> DeleteRole(long id)

@@ -18,6 +18,7 @@ using halobiz_backend.DTOs.TransferDTOs;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Halobiz.Common.Repository;
 
 namespace HaloBiz.MyServices.Impl.LAMS
 {

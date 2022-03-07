@@ -505,7 +505,7 @@ namespace HaloBiz.Controllers
         private async Task<long> postContractService(ServiceContractItem contractService, Customero customer, Office defaultOffice, HalobizContext _context, string cutoffdate)
         {
             var thisMonth = contractService.StartDate.Month;
-            var invoiceSendDate = contractService.StartDate.AddDays(10);
+            var invoiceSendDate = contractService.StartDate.AddDays(5);
             while (invoiceSendDate.Month - thisMonth != 0)
             {
                 invoiceSendDate = invoiceSendDate.AddDays(-1);
