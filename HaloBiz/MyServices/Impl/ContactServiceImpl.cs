@@ -951,199 +951,199 @@ namespace HaloBiz.MyServices.Impl
 
 
                
-            var valueToBeExposed = new DashBoardSummary
-            {
-                Meeting = getMeetingsBySuspectId,
-                Goal = getGoalAndTodo,
-                Suspects = getSuspectContactsById,
-                MeetingDueToday = getMeetingsBySuspectId.Where(x => x.EndDate.Date == DateTime.Now.Date).ToList(),
-                TodoDueToday = getDistinctTodo
+            //var valueToBeExposed = new DashBoardSummary
+            //{
+            //    Meeting = getMeetingsBySuspectId,
+            //    Goal = getGoalAndTodo,
+            //    Suspects = getSuspectContactsById,
+            //    MeetingDueToday = getMeetingsBySuspectId.Where(x => x.EndDate.Date == DateTime.Now.Date).ToList(),
+            //    TodoDueToday = getDistinctTodo
 
-            };
+            //};
 
-            return CommonResponse.Send(ResponseCodes.SUCCESS,valueToBeExposed,"This value was successfully processed");
+            return CommonResponse.Send(ResponseCodes.SUCCESS,null,"This value was successfully processed");
 
 
         }
 
-        public async Task<ApiCommonResponse> GetLeadClassificationsData(HttpContext httpContext)
-        {
+        //public async Task<ApiCommonResponse> GetLeadClassificationsData(HttpContext httpContext)
+        //{
 
 
-            var suspectsInConcern = await _context.Suspects.AsNoTracking()
-                .Where(x=>x.IsDeleted == false)
-                .Include(x => x.LeadOrigin)
-                .Include(x=>x.CreatedBy)
-                .Include(x => x.GroupType)
-                //.Include(x => x.Branch)
-                //.Include(x => x.Office)
-                //.Include(x => x.State)
-                //.Include(x => x.Lga)
-                //.Include(x => x.Industry)
-                //.Include(x => x.LeadType)
-                .Include(x => x.SuspectQualifications.Where(x => !x.IsDeleted && x.IsActive))
-                .ThenInclude(x => x.ServiceQualifications)
-                .ThenInclude(x => x.Service)
-                .ToListAsync();
+        //    var suspectsInConcern = await _context.Suspects.AsNoTracking()
+        //        .Where(x=>x.IsDeleted == false)
+        //        .Include(x => x.LeadOrigin)
+        //        .Include(x=>x.CreatedBy)
+        //        .Include(x => x.GroupType)
+        //        //.Include(x => x.Branch)
+        //        //.Include(x => x.Office)
+        //        //.Include(x => x.State)
+        //        //.Include(x => x.Lga)
+        //        //.Include(x => x.Industry)
+        //        //.Include(x => x.LeadType)
+        //        .Include(x => x.SuspectQualifications.Where(x => !x.IsDeleted && x.IsActive))
+        //        .ThenInclude(x => x.ServiceQualifications)
+        //        .ThenInclude(x => x.Service)
+        //        .ToListAsync();
 
-            if(suspectsInConcern == null)
-            {
-                return CommonResponse.Send(ResponseCodes.FAILURE, null, "No Suspect was found");
-            }
+        //    if(suspectsInConcern == null)
+        //    {
+        //        return CommonResponse.Send(ResponseCodes.FAILURE, null, "No Suspect was found");
+        //    }
 
-            var leadInstance = new LeadsClassificationData();
+        //    //var leadInstance = new LeadsClassificationData();
 
-            leadInstance.UnqualifiedLeads = suspectsInConcern.Where(x => x.SuspectQualifications.Count == 0).ToList();
+        //    leadInstance.UnqualifiedLeads = suspectsInConcern.Where(x => x.SuspectQualifications.Count == 0).ToList();
            
-            leadInstance.LeadsInQualification = suspectsInConcern.Where(x => x.SuspectQualifications.Count > 0 && x.SuspectQualifications.Any(x => x.AuthorityCompleted == false)).ToList();
+        //    leadInstance.LeadsInQualification = suspectsInConcern.Where(x => x.SuspectQualifications.Count > 0 && x.SuspectQualifications.Any(x => x.AuthorityCompleted == false)).ToList();
 
-            leadInstance.QualifiedLeads = suspectsInConcern.Where(x => x.SuspectQualifications.Count > 0 && x.SuspectQualifications.Any(x=>x.AuthorityCompleted == true)).ToList();
-
-
-            return CommonResponse.Send(ResponseCodes.SUCCESS, leadInstance, "Suspect was successfully retrieved");
-
-        }
+        //    leadInstance.QualifiedLeads = suspectsInConcern.Where(x => x.SuspectQualifications.Count > 0 && x.SuspectQualifications.Any(x=>x.AuthorityCompleted == true)).ToList();
 
 
-        public async Task<ApiCommonResponse> GetLeadClassificationsDataById(HttpContext httpContext,long CreatedById)
-        {
+        //    return CommonResponse.Send(ResponseCodes.SUCCESS, leadInstance, "Suspect was successfully retrieved");
+
+        //}
 
 
-            var suspectsInConcern = await _context.Suspects.AsNoTracking()
-                .Where(x => x.IsDeleted == false && x.CreatedById == CreatedById)
-                .Include(x => x.LeadOrigin)
-                .Include(x => x.CreatedBy)
-                .Include(x => x.GroupType)
-                .Include(x => x.Branch)
-                .Include(x => x.Office)
-                .Include(x => x.State)
-                .Include(x => x.Lga)
-                .Include(x => x.Industry)
-                .Include(x => x.LeadType)
-                .Include(x => x.SuspectQualifications.Where(x => !x.IsDeleted && x.IsActive))
-                .ThenInclude(x => x.ServiceQualifications)
-                .ThenInclude(x => x.Service)
-                .ToListAsync();
-
-            if (suspectsInConcern == null)
-            {
-                return CommonResponse.Send(ResponseCodes.FAILURE, null, "No Suspect was found");
-            }
-
-            var leadInstance = new LeadsClassificationData();
-
-            leadInstance.UnqualifiedLeads = suspectsInConcern.Where(x => x.SuspectQualifications.Count == 0).ToList();
-
-            leadInstance.LeadsInQualification = suspectsInConcern.Where(x => x.SuspectQualifications.Count > 0 && x.SuspectQualifications.Any(x => x.AuthorityCompleted == false)).ToList();
-
-            leadInstance.QualifiedLeads = suspectsInConcern.Where(x => x.SuspectQualifications.Count > 0 && x.SuspectQualifications.Any(x => x.AuthorityCompleted == true)).ToList();
+        //public async Task<ApiCommonResponse> GetLeadClassificationsDataById(HttpContext httpContext,long CreatedById)
+        //{
 
 
-            return CommonResponse.Send(ResponseCodes.SUCCESS, leadInstance, "Suspect was successfully retrieved");
+        //    var suspectsInConcern = await _context.Suspects.AsNoTracking()
+        //        .Where(x => x.IsDeleted == false && x.CreatedById == CreatedById)
+        //        .Include(x => x.LeadOrigin)
+        //        .Include(x => x.CreatedBy)
+        //        .Include(x => x.GroupType)
+        //        .Include(x => x.Branch)
+        //        .Include(x => x.Office)
+        //        .Include(x => x.State)
+        //        .Include(x => x.Lga)
+        //        .Include(x => x.Industry)
+        //        .Include(x => x.LeadType)
+        //        .Include(x => x.SuspectQualifications.Where(x => !x.IsDeleted && x.IsActive))
+        //        .ThenInclude(x => x.ServiceQualifications)
+        //        .ThenInclude(x => x.Service)
+        //        .ToListAsync();
 
-        }
+        //    if (suspectsInConcern == null)
+        //    {
+        //        return CommonResponse.Send(ResponseCodes.FAILURE, null, "No Suspect was found");
+        //    }
 
-        public async Task<ApiCommonResponse> GetLeadClassificationsDataByDates(HttpContext httpContext, DateTime startDate,DateTime endDate)
-        {
+        //    //var leadInstance = new LeadsClassificationData();
 
+        //    leadInstance.UnqualifiedLeads = suspectsInConcern.Where(x => x.SuspectQualifications.Count == 0).ToList();
 
-            var suspectsInConcern = await _context.Suspects.AsNoTracking()
-                .Where(x => x.IsDeleted == false && x.CreatedAt.Date <= startDate.Date && x.CreatedAt.Date >= endDate.Date)
-                .Include(x => x.LeadOrigin)
-                .Include(x => x.CreatedBy)
-                .Include(x => x.GroupType)
-                .Include(x => x.Branch)
-                .Include(x => x.Office)
-                .Include(x => x.State)
-                .Include(x => x.Lga)
-                .Include(x => x.Industry)
-                .Include(x => x.LeadType)
-                .Include(x => x.SuspectQualifications.Where(x => !x.IsDeleted && x.IsActive))
-                .ThenInclude(x => x.ServiceQualifications)
-                .ThenInclude(x => x.Service)
-                .ToListAsync();
+        //    leadInstance.LeadsInQualification = suspectsInConcern.Where(x => x.SuspectQualifications.Count > 0 && x.SuspectQualifications.Any(x => x.AuthorityCompleted == false)).ToList();
 
-            if (suspectsInConcern == null)
-            {
-                return CommonResponse.Send(ResponseCodes.FAILURE, null, "No Suspect was found");
-            }
-
-            var leadInstance = new LeadsClassificationData();
-
-            leadInstance.UnqualifiedLeads = suspectsInConcern.Where(x => x.SuspectQualifications.Count == 0).ToList();
-
-            leadInstance.LeadsInQualification = suspectsInConcern.Where(x => x.SuspectQualifications.Count > 0 && x.SuspectQualifications.Any(x => x.AuthorityCompleted == false)).ToList();
-
-            leadInstance.QualifiedLeads = suspectsInConcern.Where(x => x.SuspectQualifications.Count > 0 && x.SuspectQualifications.Any(x => x.AuthorityCompleted == true)).ToList();
+        //    leadInstance.QualifiedLeads = suspectsInConcern.Where(x => x.SuspectQualifications.Count > 0 && x.SuspectQualifications.Any(x => x.AuthorityCompleted == true)).ToList();
 
 
-            return CommonResponse.Send(ResponseCodes.SUCCESS, leadInstance, "Suspect was successfully retrieved");
+        //    return CommonResponse.Send(ResponseCodes.SUCCESS, leadInstance, "Suspect was successfully retrieved");
 
-        }
+        //}
 
-        public async Task<ApiCommonResponse> GetLeadsOpportunityData(HttpContext httpContext)
-        {
+        //public async Task<ApiCommonResponse> GetLeadClassificationsDataByDates(HttpContext httpContext, DateTime startDate,DateTime endDate)
+        //{
+
+
+        //    var suspectsInConcern = await _context.Suspects.AsNoTracking()
+        //        .Where(x => x.IsDeleted == false && x.CreatedAt.Date <= startDate.Date && x.CreatedAt.Date >= endDate.Date)
+        //        .Include(x => x.LeadOrigin)
+        //        .Include(x => x.CreatedBy)
+        //        .Include(x => x.GroupType)
+        //        .Include(x => x.Branch)
+        //        .Include(x => x.Office)
+        //        .Include(x => x.State)
+        //        .Include(x => x.Lga)
+        //        .Include(x => x.Industry)
+        //        .Include(x => x.LeadType)
+        //        .Include(x => x.SuspectQualifications.Where(x => !x.IsDeleted && x.IsActive))
+        //        .ThenInclude(x => x.ServiceQualifications)
+        //        .ThenInclude(x => x.Service)
+        //        .ToListAsync();
+
+        //    if (suspectsInConcern == null)
+        //    {
+        //        return CommonResponse.Send(ResponseCodes.FAILURE, null, "No Suspect was found");
+        //    }
+
+        //    //var leadInstance = new LeadsClassificationData();
+
+        //    //leadInstance.UnqualifiedLeads = suspectsInConcern.Where(x => x.SuspectQualifications.Count == 0).ToList();
+
+        //    //leadInstance.LeadsInQualification = suspectsInConcern.Where(x => x.SuspectQualifications.Count > 0 && x.SuspectQualifications.Any(x => x.AuthorityCompleted == false)).ToList();
+
+        //    //leadInstance.QualifiedLeads = suspectsInConcern.Where(x => x.SuspectQualifications.Count > 0 && x.SuspectQualifications.Any(x => x.AuthorityCompleted == true)).ToList();
+
+
+        //    return CommonResponse.Send(ResponseCodes.SUCCESS, null, "Suspect was successfully retrieved");
+
+        //}
+
+        //public async Task<ApiCommonResponse> GetLeadsOpportunityData(HttpContext httpContext)
+        //{
 
 
           
 
-            var getAllLeads = await _context.Leads.AsNoTracking()
-                           .Where(x => x.IsDeleted == false)
-                           .Include(x => x.CreatedBy)
-                           .Include(x => x.GroupType)
-                           .Include(x => x.Suspect)
-                             .ThenInclude(x => x.SuspectQualifications)
-                                   .ThenInclude(x => x.ServiceQualifications)
+        //    var getAllLeads = await _context.Leads.AsNoTracking()
+        //                   .Where(x => x.IsDeleted == false)
+        //                   .Include(x => x.CreatedBy)
+        //                   .Include(x => x.GroupType)
+        //                   .Include(x => x.Suspect)
+        //                     .ThenInclude(x => x.SuspectQualifications)
+        //                           .ThenInclude(x => x.ServiceQualifications)
                                         
-                           .ToListAsync();
+        //                   .ToListAsync();
 
                          
 
-            if (getAllLeads == null)
-            {
-                return CommonResponse.Send(ResponseCodes.FAILURE, null, "No Suspect was found");
-            }
+        //    if (getAllLeads == null)
+        //    {
+        //        return CommonResponse.Send(ResponseCodes.FAILURE, null, "No Suspect was found");
+        //    }
 
 
-            return CommonResponse.Send(ResponseCodes.SUCCESS, getAllLeads, "Suspect was successfully retrieved");
+        //    return CommonResponse.Send(ResponseCodes.SUCCESS, getAllLeads, "Suspect was successfully retrieved");
 
-        }
+        //}
 
-        public async Task<ApiCommonResponse> GetLeadsOpportunityDataByCreatedId(HttpContext httpContext,long createdById)
-        {
-
-
-
-
-            var getAllLeads = await _context.Leads
-                           .Where(x => x.IsDeleted == false && x.CreatedById == createdById)
-                           .Include(x => x.GroupType)
-                           .Include(x => x.Suspect)
-                             .ThenInclude(x => x.SuspectQualifications)
-                                   .ThenInclude(x => x.ServiceQualifications)
-                                     .ThenInclude(x => x.Service)
-                           .ToListAsync();
+        //public async Task<ApiCommonResponse> GetLeadsOpportunityDataByCreatedId(HttpContext httpContext,long createdById)
+        //{
 
 
 
-            if (getAllLeads == null)
-            {
-                return CommonResponse.Send(ResponseCodes.FAILURE, null, "No Suspect was found");
-            }
 
-            var leadInstance = new LeadsOpportunityData();
+        //    var getAllLeads = await _context.Leads
+        //                   .Where(x => x.IsDeleted == false && x.CreatedById == createdById)
+        //                   .Include(x => x.GroupType)
+        //                   .Include(x => x.Suspect)
+        //                     .ThenInclude(x => x.SuspectQualifications)
+        //                           .ThenInclude(x => x.ServiceQualifications)
+        //                             .ThenInclude(x => x.Service)
+        //                   .ToListAsync();
 
-            leadInstance.Initiate = getAllLeads.Where(x => x.LeadCaptureStatus == false).ToList();
-            leadInstance.DealCapture = getAllLeads.Where(x => x.LeadCaptureStatus == true).ToList();
-            leadInstance.Closed = getAllLeads.Where(x => x.LeadClosureStatus == true).ToList();
-            leadInstance.Negotiations = getAllLeads.Where(x => x.LeadCaptureDocumentUrl != null && x.LeadCaptureStatus == true).ToList();
-            leadInstance.Dropped = getAllLeads.Where(x => x.IsLeadDropped == true).ToList();
-            leadInstance.Conversion = getAllLeads.Where(x => x.LeadConversionStatus == true).ToList();
-            leadInstance.ConversionRatio = (long)Math.Round((double)(100 * leadInstance.Conversion.Count) / getAllLeads.Count);
 
-            return CommonResponse.Send(ResponseCodes.SUCCESS, leadInstance, "Suspect was successfully retrieved");
 
-        }
+        //    if (getAllLeads == null)
+        //    {
+        //        return CommonResponse.Send(ResponseCodes.FAILURE, null, "No Suspect was found");
+        //    }
+
+        //    var leadInstance = new LeadsOpportunityData();
+
+        //    leadInstance.Initiate = getAllLeads.Where(x => x.LeadCaptureStatus == false).ToList();
+        //    leadInstance.DealCapture = getAllLeads.Where(x => x.LeadCaptureStatus == true).ToList();
+        //    leadInstance.Closed = getAllLeads.Where(x => x.LeadClosureStatus == true).ToList();
+        //    leadInstance.Negotiations = getAllLeads.Where(x => x.LeadCaptureDocumentUrl != null && x.LeadCaptureStatus == true).ToList();
+        //    leadInstance.Dropped = getAllLeads.Where(x => x.IsLeadDropped == true).ToList();
+        //    leadInstance.Conversion = getAllLeads.Where(x => x.LeadConversionStatus == true).ToList();
+        //    leadInstance.ConversionRatio = (long)Math.Round((double)(100 * leadInstance.Conversion.Count) / getAllLeads.Count);
+
+        //    return CommonResponse.Send(ResponseCodes.SUCCESS, leadInstance, "Suspect was successfully retrieved");
+
+        //}
 
 
         public async Task<ApiCommonResponse> getContractByLeadId(long Id)
@@ -1170,6 +1170,29 @@ namespace HaloBiz.MyServices.Impl
 
         }
 
+        public Task<ApiCommonResponse> GetLeadClassificationsData(HttpContext httpContext)
+        {
+            throw new NotImplementedException();
+        }
 
+        public Task<ApiCommonResponse> GetLeadClassificationsDataByDates(HttpContext httpContext, DateTime startDate, DateTime endDate)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<ApiCommonResponse> GetLeadClassificationsDataById(HttpContext httpContext, long CreatedById)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<ApiCommonResponse> GetLeadsOpportunityData(HttpContext httpContext)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<ApiCommonResponse> GetLeadsOpportunityDataByCreatedId(HttpContext httpContext, long createdById)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

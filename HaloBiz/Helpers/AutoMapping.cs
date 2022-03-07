@@ -17,7 +17,7 @@ using HalobizMigrations.Models.Armada;
 using HalobizMigrations.Models.Shared;
 using HaloBiz.Controllers;
 using HaloBiz.DTOs.ContactDTO;
-using Halobiz.Common.Helpers;
+//using Halobiz.Common.Helpers;
 using Halobiz.Common.DTOs.ReceivingDTOs.RoleManagement;
 using Halobiz.Common.DTOs.TransferDTOs.RoleManagement;
 
@@ -332,8 +332,8 @@ namespace HaloBiz.Helpers
             CreateMap<SMORegion, SMORouteRegionTransferDTO>();
             CreateMap<SMORoute, SMORouteRegionTransferDTO>();
 
-            CreateMap<SMORouteMapReceivingDTO, SMORouteAndStateMap>();
-            CreateMap<SMORouteAndStateMap, SMORouteMapTransferDTO>();
+            //CreateMap<SMORouteMapReceivingDTO, SMORouteAndStateMap>();
+            //CreateMap<SMORouteAndStateMap, SMORouteMapTransferDTO>();
 
             CreateMap<CommanderTypeAndRankReceivingDTO, CommanderType>(); //for type
             CreateMap<CommanderRankReceivingDTO, CommanderRank>();
