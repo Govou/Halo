@@ -1,0 +1,104 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using HalobizMigrations.Data;
+using HaloBiz.Repository.LAMS;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
+using HalobizMigrations.Models;
+
+namespace HaloBiz.Repository.Impl.LAMS
+{
+    public class QuoteRepositoryImpl : IQuoteRepository
+    {
+        private readonly HalobizContext _context;
+        private readonly ILogger<QuoteRepositoryImpl> _logger;
+        private readonly IQuoteServiceRepository _quoteServiceRepository;
+        public QuoteRepositoryImpl(HalobizContext context, ILogger<QuoteRepositoryImpl> logger, IQuoteServiceRepository quoteServiceRepository)
+        {
+            this._logger = logger;
+            this._context = context;
+            this._quoteServiceRepository = quoteServiceRepository;
+        }
+
+        public async Task<Quote> SaveQuote(Quote quote)
+        {
+            var quoteEntity = await _context.Quotes.AddAsync(quote);
+            if(await SaveChanges())
+            {
+                return quoteEntity.Entity;
+            }
+            return null;
+        }
+
+        public async Task<Quote> FindQuoteById(long Id)
+        {
+            return await _context.Quotes.AsNoTracking()
+                            .Include(a => a.QuoteServices.Where(a => a.IsDeleted == false))
+                            .FirstOrDefaultAsync(quote => quote.Id == Id && quote.IsDeleted == false);
+        }
+
+        public async Task<Quote> FindQuoteByReferenceNumber(string referenceNumber)
+        {
+            //todo
+            //return await _context.Quotes
+            //    .Where(quote => quote.ReferenceNo == referenceNumber && quote.IsDeleted == false)
+            //    .AsNoTracking()
+            //    .Include(a => a.QuoteServices.Where(a => a.IsDeleted == false))
+            //    .FirstOrDefaultAsync();
+            return null;
+        }
+
+        public async Task<Quote> FindByLeadDivisionId(long id)
+        {
+           _context.ChangeTracker.Clear();
+
+            var result = await _context.Quotes
+                .Where(quote => quote.LeadDivisionId == id && quote.IsDeleted == false)
+                .AsNoTracking()
+                .Include(a => a.QuoteServices.Where(a => a.IsDeleted == false))
+                .AsNoTracking()
+                .FirstOrDefaultAsync();
+            return result;
+        }
+
+        public async Task<IEnumerable<Quote>> FindAllQuote()
+        {
+            return await _context.Quotes.AsNoTracking()
+                .Include(a => a.QuoteServices.Where(a => a.IsDeleted == false))
+                .Where(quote => quote.IsDeleted == false)
+                .OrderBy(quote => quote.CreatedAt)
+                .ToListAsync();
+        }
+
+        public async Task<Quote> UpdateQuote(Quote quote)
+        {
+            var quoteEntity =  _context.Quotes.Update(quote);
+            if(await SaveChanges())
+            {
+                return quoteEntity.Entity;
+            }
+            return null;
+        }
+
+        public async Task<bool> DeleteQuote(Quote quote)
+        {
+            await _quoteServiceRepository.DeleteQuoteServiceRange(quote.QuoteServices);
+
+            quote.IsDeleted = true;
+            _context.Quotes.Update(quote);
+            return await SaveChanges();
+        }
+        private async Task<bool> SaveChanges()
+        {
+           try{
+               return  await _context.SaveChangesAsync() > 0;
+           }catch(Exception ex)
+           {
+               _logger.LogError(ex.Message);
+               return false;
+           }
+        }
+    }
+}
