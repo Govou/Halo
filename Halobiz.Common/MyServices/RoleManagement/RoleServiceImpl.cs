@@ -16,6 +16,23 @@ using Halobiz.Common.Helpers;
 
 namespace Halobiz.Common.MyServices.RoleManagement
 {
+    public interface IRoleService
+    {
+        Task<ApiCommonResponse> AddRole(HttpContext context, RoleReceivingDTO RoleReceivingDTO);
+        Task<ApiCommonResponse> GetRoleById(long id);
+        Task<ApiCommonResponse> GetRoleByName(string name);
+        Task<ApiCommonResponse> GetAllRoles();
+        Task<ApiCommonResponse> UpdateRole(HttpContext context, long id, RoleReceivingDTO RoleReceivingDTO);
+        Task<ApiCommonResponse> DeleteRole(long id);
+        ApiCommonResponse GetPermissions();
+        ApiCommonResponse GetGroupedPermissions();
+        Task<ApiCommonResponse> GetPermissionsOnRole(string name);
+        Task<ApiCommonResponse> FindRolesByUser(long userId);
+        Task<ApiCommonResponse> GetPermissionsOnUser(long userId);
+        Task<IEnumerable<Permissions>> GetPermissionEnumsOnUser(long userId);
+
+
+    }
     public class RoleServiceImpl : IRoleService
     {
         private readonly IMapper _mapper;
