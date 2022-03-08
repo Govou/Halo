@@ -1,13 +1,4 @@
 ﻿using Halobiz.Common.Auths.PermissionParts;
-using Google.Apis.Auth;
-using Halobiz.Common.DTOs.ApiDTOs;
-using HaloBiz.DTOs.ReceivingDTOs;
-using HaloBiz.DTOs.TransferDTOs;
-using HaloBiz.Helpers;
-using HaloBiz.MyServices;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
@@ -18,7 +9,8 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Security.Claims;
 using System.Text;
-using System.Threading.Tasks;
+using HalobizMigrations.Models;
+using Claim = System.Security.Claims.Claim;
 
 namespace HaloBiz.Helpers
 {
@@ -37,7 +29,7 @@ namespace HaloBiz.Helpers
 
         }
 
-        public string GenerateToken(UserProfileTransferDTO userProfile, IEnumerable<Permissions> permissions)
+        public string GenerateToken(UserProfile userProfile, IEnumerable<Permissions> permissions)
         {
             //get the permissions for this guy
             var permissionStr = JsonConvert.SerializeObject(permissions);
@@ -97,7 +89,6 @@ namespace HaloBiz.Helpers
                 _logger.LogError(ex.StackTrace);
                 return (false, new List<short>());
             }
-
         }
     }
 }

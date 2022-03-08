@@ -49,11 +49,11 @@ namespace HaloBiz.Controllers
             return await _sMORoutesAndRegionServices.GetAllSMORoutes(); 
         }
 
-        [HttpGet("GetAllRouteMaps")]
-        public async Task<ApiCommonResponse> GetAllRouteMaps()
-        {
-            return await _sMORoutesAndRegionServices.GetAllSMORouteMaps();
-        }
+        //[HttpGet("GetAllRouteMaps")]
+        //public async Task<ApiCommonResponse> GetAllRouteMaps()
+        //{
+        //    return await _sMORoutesAndRegionServices.GetAllSMORouteMaps();
+        //}
 
         [HttpGet("GetRoutesByName")]
         public async Task<ApiCommonResponse> GetRoutesByName(string routeName)
@@ -76,11 +76,11 @@ namespace HaloBiz.Controllers
         //    //return Ok(items);
         //}
 
-        [HttpGet("GetAllSMORoutesWithReturnRoute")]
-        public async Task<ApiCommonResponse> GetAllSMORoutesWithReturnRoute()
-        {
-            return await _sMORoutesAndRegionServices.GetAllSMORoutesWithReturnRoute(); 
-        }
+        //[HttpGet("GetAllSMORoutesWithReturnRoute")]
+        //public async Task<ApiCommonResponse> GetAllSMORoutesWithReturnRoute()
+        //{
+        //    return await _sMORoutesAndRegionServices.GetAllSMORoutesWithReturnRoute(); 
+        //}
 
         [HttpGet("GetRegionById/{id}")]
         public async Task<ApiCommonResponse> GetRegionById(long id)
@@ -100,17 +100,17 @@ namespace HaloBiz.Controllers
             return await _sMORoutesAndRegionServices.GetSMORouteById(id); 
         }
 
-        [HttpGet("GetRouteMapById/{id}")]
-        public async Task<ApiCommonResponse> GetRouteMapById(long id)
-        {
-            return await _sMORoutesAndRegionServices.GetSMORouteMapById(id);
-        }
+        //[HttpGet("GetRouteMapById/{id}")]
+        //public async Task<ApiCommonResponse> GetRouteMapById(long id)
+        //{
+        //    return await _sMORoutesAndRegionServices.GetSMORouteMapById(id);
+        //}
 
-        [HttpGet("GetAllRouteMapsByRouteId/{id}")]
-        public async Task<ApiCommonResponse> GetAllRouteMapsByRouteId(long id)
-        {
-            return await _sMORoutesAndRegionServices.GetAllRouteMapsByRouteId(id);
-        }
+        //[HttpGet("GetAllRouteMapsByRouteId/{id}")]
+        //public async Task<ApiCommonResponse> GetAllRouteMapsByRouteId(long id)
+        //{
+        //    return await _sMORoutesAndRegionServices.GetAllRouteMapsByRouteId(id);
+        //}
         [HttpPost("AddNewRegion")]
         public async Task<ApiCommonResponse> AddNewRegion(SMORegionReceivingDTO ReceivingDTO)
         {

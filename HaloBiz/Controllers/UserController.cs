@@ -1,13 +1,9 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Halobiz.Common.DTOs.ApiDTOs;
+using Halobiz.Common.DTOs.ReceivingDTO;
 using Halobiz.Common.DTOs.ReceivingDTOs.RoleManagement;
-using HaloBiz.DTOs.ReceivingDTO;
-using HaloBiz.DTOs.ReceivingDTOs.RoleManagement;
-using HaloBiz.DTOs.TransferDTOs;
-using HaloBiz.Helpers;
-using HaloBiz.MyServices;
-using Microsoft.AspNetCore.Authorization;
+using Halobiz.Common.MyServices;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HaloBiz.Controllers

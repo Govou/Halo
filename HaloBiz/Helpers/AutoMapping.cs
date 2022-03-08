@@ -2,7 +2,6 @@ using System;
 using System.Linq;
 using AutoMapper;
 using HaloBiz.DTOs;
-using HaloBiz.DTOs.ReceivingDTO;
 using HaloBiz.DTOs.ReceivingDTOs;
 using HaloBiz.DTOs.ReceivingDTOs.LAMS;
 using HaloBiz.DTOs.ReceivingDTOs.RoleManagement;
@@ -17,9 +16,9 @@ using HalobizMigrations.Models.Armada;
 using HalobizMigrations.Models.Shared;
 using HaloBiz.Controllers;
 using HaloBiz.DTOs.ContactDTO;
-using Halobiz.Common.Helpers;
 using Halobiz.Common.DTOs.ReceivingDTOs.RoleManagement;
 using Halobiz.Common.DTOs.TransferDTOs.RoleManagement;
+using Halobiz.Common.DTOs.ReceivingDTO;
 
 namespace HaloBiz.Helpers
 {
@@ -88,7 +87,7 @@ namespace HaloBiz.Helpers
                  .ForMember(dest => dest.QuoteServiceId, opt =>
                 opt.MapFrom(src => src.Id));
 
-
+            CreateMap<UserProfileTransferDTO, UserProfile>();
             CreateMap<StrategicBusinessUnit, SBUWithoutOperatingEntityTransferDTO>();
             CreateMap<StrategicBusinessUnitReceivingDTO, StrategicBusinessUnit>();
             CreateMap<ServiceGroup, ServiceGroupTransferDTO>();
@@ -332,8 +331,8 @@ namespace HaloBiz.Helpers
             CreateMap<SMORegion, SMORouteRegionTransferDTO>();
             CreateMap<SMORoute, SMORouteRegionTransferDTO>();
 
-            CreateMap<SMORouteMapReceivingDTO, SMORouteAndStateMap>();
-            CreateMap<SMORouteAndStateMap, SMORouteMapTransferDTO>();
+            //CreateMap<SMORouteMapReceivingDTO, SMORouteAndStateMap>();
+            //CreateMap<SMORouteAndStateMap, SMORouteMapTransferDTO>();
 
             CreateMap<CommanderTypeAndRankReceivingDTO, CommanderType>(); //for type
             CreateMap<CommanderRankReceivingDTO, CommanderRank>();

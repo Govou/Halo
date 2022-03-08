@@ -28,8 +28,11 @@ using HaloBiz.Data;
 using HaloBiz.MyServices;
 using HaloBiz.MyServices.Impl;
 using System.Reflection;
-using Halobiz.Common.MyServices.RoleManagement;
+//using Halobiz.Common.MyServices.RoleManagement;
 using Halobiz.Repository.RoleManagement;
+using Halobiz.Common.MyServices;
+using Halobiz.Common.Repository;
+using Halobiz.Common.MyServices.RoleManagement;
 
 namespace HaloBiz
 {
@@ -117,6 +120,9 @@ namespace HaloBiz
 
             services.AddTransient<IRoleService, RoleServiceImpl>();
             services.AddTransient<IRoleRepository, RoleRepositoryImpl>();
+            services.AddTransient<IUserProfileService, UserProfileServiceImpl>();
+            services.AddTransient<IUserProfileRepository, UserProfileRepositoryImpl>();
+
 
             services.AddAutoMapper(typeof(Startup));
             services.AddControllersWithViews()

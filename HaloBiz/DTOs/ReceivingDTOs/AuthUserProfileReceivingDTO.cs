@@ -1,4 +1,5 @@
-using HaloBiz.DTOs.ReceivingDTO;
+
+using Halobiz.Common.DTOs.ReceivingDTO;
 
 namespace HaloBiz.DTOs.ReceivingDTOs
 {
