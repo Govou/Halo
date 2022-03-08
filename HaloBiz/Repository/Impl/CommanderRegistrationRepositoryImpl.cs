@@ -92,6 +92,26 @@ namespace HaloBiz.Repository.Impl
                            .Where(ct => ct.ProfileId == profileId && ct.IsDeleted == false).FirstOrDefault();
         }
 
+        public IEnumerable<CommanderSMORoutesResourceTie> GetAllCommanderssOnRouteByResourceAndRouteId(long? RouteId)
+        {
+            var services = new List<CommanderSMORoutesResourceTie>();
+            var query = _context.CommanderSMORoutesResourceTies.Where
+                          (ct => ct.SMORouteId == RouteId && ct.IsDeleted == false);
+            //var getVehicleDetailNoneHeld =  _serviceAssignmentDetailsRepository.FindAllNoneHeldVehicleServiceAssignmentDetails2();
+            var getResources = _context.CommanderProfiles.Where(r => r.IsDeleted == false)
+              .Include(t => t.CommanderType)
+              .Include(office => office.AttachedOffice).Include(br => br.AttachedBranch)
+                                    .ToList();
+
+            foreach (var items in getResources)
+            {
+                //quuery.Where(x => x.ServiceCode.Contains(items));
+                services.AddRange(query.Where(x => x.ResourceId == items.Id));
+            }
+            return services.ToList();
+
+        }
+
         //public CommanderSMORoutesResourceTie FindCommanderUserProfileTieById(long Id)
         //{
         //    throw new NotImplementedException();
@@ -101,6 +121,12 @@ namespace HaloBiz.Repository.Impl
         {
             return _context.CommanderSMORoutesResourceTies.Where
                (ct => ct.ResourceId == regRessourceId && ct.SMORouteId == RouteId  && ct.IsDeleted == false).FirstOrDefault();
+        }
+
+        public CommanderSMORoutesResourceTie GetResourceRegIdRegionAndRouteId2(long? regRessourceId, long? RouteId)
+        {
+            return _context.CommanderSMORoutesResourceTies.Where
+               (ct => ct.ResourceId == regRessourceId && ct.SMORouteId == RouteId && ct.IsDeleted == false).FirstOrDefault();
         }
 
         public async Task<CommanderProfile> SaveCommander(CommanderProfile commanderProfile)

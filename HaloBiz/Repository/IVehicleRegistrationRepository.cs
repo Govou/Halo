@@ -15,6 +15,7 @@ namespace HaloBiz.Repository
         Vehicle FindVehicleServiceById(long Id);
 
         Task<IEnumerable<Vehicle>> FindAllVehicles();
+       // Task<IEnumerable<Vehicle>> FindAllVehicles2();
 
         Task<Vehicle> UpdateVehicle(Vehicle vehicle);
 
@@ -30,6 +31,9 @@ namespace HaloBiz.Repository
         Task<IEnumerable<VehicleSMORoutesResourceTie>> FindAllVehicleTies();
 
         VehicleSMORoutesResourceTie GetResourceRegIdRegionAndRouteId(long regRessourceId, long? RouteId);
+        VehicleSMORoutesResourceTie GetResourceRegIdRegionAndRouteId2(long? regRessourceId, long? RouteId);
+        IEnumerable<VehicleSMORoutesResourceTie> GetAllVehiclesOnRouteByResourceAndRouteId( long? RouteId);
+       // IEnumerable<VehicleSMORoutesResourceTie> GetAllVehiclesOnRouteByResourceAndRouteId(long? regRessourceId, long? RouteId);
         Task<bool> DeleteVehicleTie(VehicleSMORoutesResourceTie vehicleTie);
     }
 }

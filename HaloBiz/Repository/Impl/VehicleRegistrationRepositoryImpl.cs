@@ -13,10 +13,12 @@ namespace HaloBiz.Repository.Impl
     {
         private readonly HalobizContext _context;
         private readonly ILogger<VehicleRegistrationRepositoryImpl> _logger;
-        public VehicleRegistrationRepositoryImpl(HalobizContext context, ILogger<VehicleRegistrationRepositoryImpl> logger)
+        private readonly IServiceAssignmentDetailsRepository _serviceAssignmentDetailsRepository;
+        public VehicleRegistrationRepositoryImpl(HalobizContext context, ILogger<VehicleRegistrationRepositoryImpl> logger, IServiceAssignmentDetailsRepository serviceAssignmentDetailsRepository)
         {
             this._logger = logger;
             this._context = context;
+            _serviceAssignmentDetailsRepository = serviceAssignmentDetailsRepository;
         }
 
         public async Task<bool> DeleteVehicle(Vehicle vehicle)
@@ -79,6 +81,40 @@ namespace HaloBiz.Repository.Impl
                                       .ToListAsync();
         }
 
+        //public IEnumerable<VehicleSMORoutesResourceTie> GetAllVehiclesOnRouteByResourceAndRouteId(long? regRessourceId, long? RouteId)
+        //{
+        //    return _context.VehicleSMORoutesResourceTies.Where
+        //                  (ct => ct.ResourceId == regRessourceId && ct.SMORouteId == RouteId && ct.IsDeleted == false).ToList();
+        //} 
+        public IEnumerable<VehicleSMORoutesResourceTie> GetAllVehiclesOnRouteByResourceAndRouteId( long? RouteId)
+        {
+            var services = new List<VehicleSMORoutesResourceTie>();
+            var services_ = new List<VehicleSMORoutesResourceTie>();
+            var query = _context.VehicleSMORoutesResourceTies.Where
+                          (ct =>  ct.SMORouteId == RouteId && ct.IsDeleted == false);
+            //var getVehicleDetailNoneHeld =  _serviceAssignmentDetailsRepository.FindAllNoneHeldVehicleServiceAssignmentDetails2();
+            var getResources = _context.Vehicles.Where(r => r.IsDeleted == false)
+              .Include(s => s.SupplierService).Include(t => t.VehicleType)
+              .Include(office => office.AttachedOffice).Include(br => br.AttachedBranch)
+                                    .ToList();
+            //var confirmResourceDetailHeld = _context.VehicleServiceAssignmentDetails.Where(aer => aer.IsDeleted == false && aer.IsTemporarilyHeld == true)
+            //   .Include(ct => ct.VehicleResource).Include(t => t.ActionReleaseType).Include(t => t.TempReleaseType).Include(t => t.ServiceAssignment)
+            // .Include(t => t.TempReleaseType).Include(t => t.CreatedBy).Include(t => t.VehicleResource.SupplierService).Include(t => t.VehicleResource.VehicleType)
+            //   .ToList();
+            //foreach (var items in confirmResourceDetailHeld)
+            //{
+            //    getResources.Remove(getResources.Where(x => x.Id == items.VehicleResourceId));
+            //}
+            foreach (var items in getResources)
+            {
+                //quuery.Where(x => x.ServiceCode.Contains(items));
+                services.AddRange(query.Where(x => x.ResourceId == items.Id));
+            }
+            return services.ToList();
+
+
+        }
+
         //public async Task<VehicleSMORoutesResourceTie> FindVehicleTieByResourceId(long resourceId)
         //{
         //    return await _context.VehicleSMORoutesResourceTies.Include(s => s.Resource).Include(t => t.SMORoute)
@@ -90,6 +126,12 @@ namespace HaloBiz.Repository.Impl
         {
             return _context.VehicleSMORoutesResourceTies.Where
                (ct => ct.ResourceId == regRessourceId && ct.SMORouteId == RouteId  && ct.IsDeleted == false).FirstOrDefault();
+        }
+
+        public  VehicleSMORoutesResourceTie GetResourceRegIdRegionAndRouteId2(long? regRessourceId, long? RouteId)
+        {
+            return _context.VehicleSMORoutesResourceTies.Where
+                          (ct => ct.ResourceId == regRessourceId && ct.SMORouteId == RouteId && ct.IsDeleted == false).FirstOrDefault();
         }
 
         public async Task<Vehicle> SaveVehicle(Vehicle vehicle)

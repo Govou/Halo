@@ -441,6 +441,7 @@ namespace HaloBiz.Helpers
 
             //ServiceAssignment
             CreateMap<MasterServiceAssignmentReceivingDTO, MasterServiceAssignment>();
+            CreateMap<MasterServiceAssignmentForAutoReceivingDTO, MasterServiceAssignment>();
             CreateMap<MasterServiceAssignment, MasterServiceAssignmentTransferDTO>();
             CreateMap<SecondaryServiceAssignmentReceivingDTO, SecondaryServiceAssignment>();
             CreateMap<SecondaryServiceAssignment, SecondaryServiceAssignmentTransferDTO>();
