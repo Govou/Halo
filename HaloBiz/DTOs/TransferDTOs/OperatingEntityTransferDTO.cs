@@ -1,4 +1,5 @@
-﻿using HalobizMigrations.Models;
+﻿using Halobiz.Common.DTOs.TransferDTOs;
+using HalobizMigrations.Models;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;

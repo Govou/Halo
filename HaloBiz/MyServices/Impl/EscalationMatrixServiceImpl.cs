@@ -14,6 +14,7 @@ using System.Threading.Tasks;
 using HalobizMigrations.Models.Complaints;
 using HalobizMigrations.Data;
 using Microsoft.EntityFrameworkCore;
+using Halobiz.Common.DTOs.TransferDTOs;
 
 namespace HaloBiz.MyServices.Impl
 {

@@ -1,3 +1,5 @@
+using Halobiz.Common.DTOs.TransferDTOs;
+
 namespace HaloBiz.DTOs.TransferDTOs
 {
     public class StandardSlaforOperatingEntityTransferDTO : BaseSetupTransferDTO

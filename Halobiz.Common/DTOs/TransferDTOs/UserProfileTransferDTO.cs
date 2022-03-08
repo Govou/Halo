@@ -2,7 +2,7 @@ using HalobizMigrations.Models;
 using System;
 using Halobiz.Common.DTOs.TransferDTOs.RoleManagement;
 
-namespace HaloBiz.DTOs.TransferDTOs
+namespace Halobiz.Common.DTOs.TransferDTOs
 {
     public class UserProfileTransferDTO
     {

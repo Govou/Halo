@@ -75,8 +75,8 @@ namespace Halobiz.Common.MyServices.RoleManagement
                     return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
                 }
 
-                var roleTransferDto = _mapper.Map<RoleTransferDTO>(role);
-                return CommonResponse.Send(ResponseCodes.SUCCESS, roleTransferDto);
+                //var roleTransferDto = _mapper.Map<RoleTransferDTO>(role);
+                return CommonResponse.Send(ResponseCodes.SUCCESS, role);
             }
             catch (Exception ex)
             {
@@ -87,9 +87,8 @@ namespace Halobiz.Common.MyServices.RoleManagement
         public async Task<ApiCommonResponse> FindRolesByUser(long userId)
         {
             var roles = await _roleRepo.FindRolesByUser(userId);
-            var roleTransferDto = _mapper.Map<IEnumerable<RoleTransferDTO>>(roles);
-
-            return CommonResponse.Send(ResponseCodes.SUCCESS, roleTransferDto);
+            //var roleTransferDto = _mapper.Map<IEnumerable<RoleTransferDTO>>(roles);
+            return CommonResponse.Send(ResponseCodes.SUCCESS, roles);
         }
 
         public async Task<IEnumerable<Permissions>> GetPermissionEnumsOnUser(long userId)
@@ -179,8 +178,8 @@ namespace Halobiz.Common.MyServices.RoleManagement
 
                 await _context.SaveChangesAsync();
 
-                var roleTransferDto = _mapper.Map<RoleTransferDTO>(role);
-                return CommonResponse.Send(ResponseCodes.SUCCESS, roleTransferDto);
+                //var roleTransferDto = _mapper.Map<RoleTransferDTO>(role);
+                return CommonResponse.Send(ResponseCodes.SUCCESS, role);
             }
             catch (Exception ex)
             {
@@ -196,8 +195,8 @@ namespace Halobiz.Common.MyServices.RoleManagement
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE); ;
             }
 
-            var roleTransfer = _mapper.Map<IEnumerable<RoleTransferDTO>>(roles);
-            return CommonResponse.Send(ResponseCodes.SUCCESS, roleTransfer);
+            //var roleTransfer = _mapper.Map<IEnumerable<RoleTransferDTO>>(roles);
+            return CommonResponse.Send(ResponseCodes.SUCCESS, roles);
         }
 
 
@@ -249,8 +248,8 @@ namespace Halobiz.Common.MyServices.RoleManagement
             {
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE); ;
             }
-            var roleTransferDtOs = _mapper.Map<RoleTransferDTO>(role);
-            return CommonResponse.Send(ResponseCodes.SUCCESS, roleTransferDtOs);
+           // var roleTransferDtOs = _mapper.Map<RoleTransferDTO>(role);
+            return CommonResponse.Send(ResponseCodes.SUCCESS, role);
         }
 
 
@@ -261,8 +260,8 @@ namespace Halobiz.Common.MyServices.RoleManagement
             {
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE); ;
             }
-            var roleTransferDtOs = Mapping.Mapper.Map<RoleTransferDTO>(role);
-            return CommonResponse.Send(ResponseCodes.SUCCESS, roleTransferDtOs);
+           // var roleTransferDtOs = Mapping.Mapper.Map<RoleTransferDTO>(role);
+            return CommonResponse.Send(ResponseCodes.SUCCESS, role);
         }
 
 
