@@ -28,7 +28,7 @@ using HaloBiz.Data;
 using HaloBiz.MyServices;
 using HaloBiz.MyServices.Impl;
 using System.Reflection;
-using Halobiz.Common.MyServices.RoleManagement;
+//using Halobiz.Common.MyServices.RoleManagement;
 using Halobiz.Repository.RoleManagement;
 using Halobiz.Common.MyServices;
 using Halobiz.Common.Repository;
@@ -117,7 +117,7 @@ namespace HaloBiz
             services.RegisterServiceLayerDi();
             services.AddSingleton<JwtHelper>();
 
-            services.AddTransient<IRoleService, RoleServiceImpl>();
+            //services.AddTransient<IRoleService, RoleServiceImpl>();
             services.AddTransient<IRoleRepository, RoleRepositoryImpl>();
             services.AddTransient<IUserProfileService, UserProfileServiceImpl>();
             services.AddTransient<IUserProfileRepository, UserProfileRepositoryImpl>();

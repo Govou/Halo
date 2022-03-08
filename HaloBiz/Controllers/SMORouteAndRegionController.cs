@@ -130,10 +130,10 @@ namespace HaloBiz.Controllers
         }
 
         [HttpPost("AddNewRouteMap")]
-        //public async Task<ApiCommonResponse> AddNewRouteMap(SMORouteMapReceivingDTO ReceivingDTO)
-        //{
-        //    return await _sMORoutesAndRegionServices.AddSMORouteMap(HttpContext, ReceivingDTO);
-        //}
+        public async Task<ApiCommonResponse> AddNewRouteMap(SMORouteMapReceivingDTO ReceivingDTO)
+        {
+            return await _sMORoutesAndRegionServices.AddSMORouteMap(HttpContext, ReceivingDTO);
+        }
 
         [HttpPut("UpdateRegionById/{id}")]
         public async Task<ApiCommonResponse> UpdateRegionById(long id, SMORegionReceivingDTO Receiving)
