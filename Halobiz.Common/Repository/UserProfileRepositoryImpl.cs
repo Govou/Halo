@@ -60,6 +60,7 @@ namespace Halobiz.Common.Repository
         {
             return await _context.UserProfiles
                 .Include(x => x.Sbu)
+                .Include(x => x.Role)
                 .FirstOrDefaultAsync( user => user.Id == Id && user.IsDeleted == false);
         }
 
@@ -67,6 +68,7 @@ namespace Halobiz.Common.Repository
         {
             return await _context.UserProfiles
                 .Include(x => x.Sbu)
+                .Include(x => x.Role)
                 .FirstOrDefaultAsync( user => user.Email == email && user.IsDeleted == false);
         }
 
@@ -74,6 +76,7 @@ namespace Halobiz.Common.Repository
         {
             return await _context.UserProfiles.AsNoTracking()
                 .Include(x => x.Sbu)
+                .Include(x => x.Role)
                 .Where(user => user.IsDeleted == false)
                 .OrderBy(user => user.Email)
                 .ToListAsync();

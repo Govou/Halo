@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Halobiz.Common.DTOs.TransferDTOs;
 using Halobiz.Common.DTOs.TransferDTOs.RoleManagement;
 using HalobizMigrations.Models;
 using System;
@@ -31,7 +32,7 @@ namespace Halobiz.Common.Helpers
         {
             //CreateMap<Source, Destination>();
             CreateMap<Role, RoleTransferDTO>();
-            // Additional mappings here...
+            CreateMap<UserProfile, UserProfileTransferDTO>();
         }
     }
 }

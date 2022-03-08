@@ -2,6 +2,7 @@ using AutoMapper;
 using Google.Apis.Auth;
 using Halobiz.Common.DTOs.ApiDTOs;
 using Halobiz.Common.DTOs.ReceivingDTOs;
+using Halobiz.Common.DTOs.TransferDTOs;
 using Halobiz.Common.MyServices;
 using Halobiz.Common.MyServices.RoleManagement;
 using HaloBiz.DTOs.ReceivingDTOs;

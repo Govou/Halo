@@ -19,6 +19,7 @@ using HaloBiz.DTOs.ContactDTO;
 using Halobiz.Common.DTOs.ReceivingDTOs.RoleManagement;
 using Halobiz.Common.DTOs.TransferDTOs.RoleManagement;
 using Halobiz.Common.DTOs.ReceivingDTO;
+using Halobiz.Common.DTOs.TransferDTOs;
 
 namespace HaloBiz.Helpers
 {

@@ -13,6 +13,8 @@ using Halobiz.Common.DTOs.ReceivingDTO;
 using Halobiz.Common.Repository;
 using Newtonsoft.Json;
 using System.Security.Claims;
+using Halobiz.Common.DTOs.TransferDTOs;
+using Halobiz.Common.Helpers;
 
 namespace Halobiz.Common.MyServices
 {
@@ -33,18 +35,15 @@ namespace Halobiz.Common.MyServices
     public class UserProfileServiceImpl : IUserProfileService
     {
         private readonly IUserProfileRepository _userRepo;
-        private readonly IMapper _mapper;
        // private readonly IMailAdapter _mailAdpater;
        // private readonly IModificationHistoryRepository _historyRepo ;
         private readonly HalobizContext _context;
         public UserProfileServiceImpl(IUserProfileRepository userRepo, 
-            IMapper mapper, 
            // IMailAdapter mailAdapter,
             HalobizContext context
           //  IModificationHistoryRepository historyRepo
           )
         {
-            _mapper = mapper;
             _userRepo = userRepo;
             //_mailAdpater = mailAdapter;
            // _historyRepo = historyRepo;
@@ -72,14 +71,18 @@ namespace Halobiz.Common.MyServices
                 userProfileReceivingDTO.ImageUrl = userProfileReceivingDTO.ImageUrl.Substring(0, 255);
             }
 
-            var userProfile = _mapper.Map<UserProfile>(userProfileReceivingDTO);
-            var savedUserProfile = await _userRepo.SaveUserProfile(userProfile);
-            if(savedUserProfile == null)
-            {
-                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
-            }
-           // var userProfileTransferDto = _mapper.Map<UserProfileTransferDTO>(userProfile);
-            return CommonResponse.Send(ResponseCodes.SUCCESS, userProfile);
+            //todo fix mapping
+            // var userProfile = Mapping.Mapper.Map<UserProfile>(userProfileReceivingDTO);
+            //var userProfile = (UserProfile) userProfileReceivingDTO;
+            //var savedUserProfile = await _userRepo.SaveUserProfile(userProfile);
+            //if(savedUserProfile == null)
+            //{
+            //    return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+            //}
+            // var userProfileTransferDto = Mapping.Mapper.Map<UserProfileTransferDTO>(userProfile);
+            //return CommonResponse.Send(ResponseCodes.SUCCESS, userProfile);
+            return CommonResponse.Send(ResponseCodes.SUCCESS);
+
         }
 
         public async Task<ApiCommonResponse> FindUserById(long id)
@@ -116,7 +119,7 @@ namespace Halobiz.Common.MyServices
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
 
-            //var userProfilesTransferDto = _mapper.Map<IEnumerable<UserProfileTransferDTO>>(userProfiles);
+            //var userProfilesTransferDto = Mapping.Mapper.Map<IEnumerable<UserProfileTransferDTO>>(userProfiles);
             return CommonResponse.Send(ResponseCodes.SUCCESS, userProfiles);
         }
 
