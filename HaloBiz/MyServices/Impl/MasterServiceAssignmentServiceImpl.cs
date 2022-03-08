@@ -147,12 +147,12 @@ namespace HaloBiz.MyServices.Impl
                     var getResourceTypePerServiceForVehicle = await _serviceRegistrationRepository.FindVehicleResourceByServiceRegId(masterReceivingDTO.ServiceRegistrationId);
                     //var getResourceTypePerServiceForVehicle = await _serviceRegistrationRepository.FindAllVehicleResourceByServiceRegId(masterReceivingDTO.ServiceRegistrationId);
                     //var getAllResourceSchedule = await _dTSMastersRepository.FindAllVehicleMastersForAutoAssignment();
-                    var getAllResourceSchedule = await _dTSMastersRepository.FindAllVehicleMastersForAutoAssignmentByPickupDate(masterReceivingDTO.PickupDate, masterReceivingDTO.PickoffTime);
+                    var getAllResourceSchedule = await _dTSMastersRepository.FindAllVehicleMastersForAutoAssignmentByPickupDate(masterReceivingDTO.SMORouteId,masterReceivingDTO.PickupDate, masterReceivingDTO.PickoffTime);
                     var RouteExistsForVehicle = _vehicleRegistrationRepository.GetAllVehiclesOnRouteByResourceAndRouteId(masterReceivingDTO.SMORouteId);
 
                     if (getVehicleServiceRegistration.RequiresVehicle == true)
                     {
-                        if (RouteExistsForVehicle.Count() >= getVehicleServiceRegistration.VehicleQuantityRequired && getAllResourceSchedule.Count() >= getVehicleServiceRegistration.VehicleQuantityRequired)
+                        if ( getAllResourceSchedule.Count() >= getVehicleServiceRegistration.VehicleQuantityRequired)
                         {
                             int countSchedule = 0;
                             int resourceCount = 0;
@@ -165,17 +165,20 @@ namespace HaloBiz.MyServices.Impl
                                 foreach (var schedule in getAllResourceSchedule)
                                 {
                                   var breakOut = false;
-                                  //var innerLoopBreak = false;
+                                //var innerLoopBreak = false;
+                                  countBalance = countResource - 1;
                                   getVehicleResourceId = schedule.VehicleResourceId;
                                   getTypeId = schedule.VehicleResource.VehicleTypeId;
                                     var getVehicleDetail = await _serviceAssignmentDetailsRepository.FindVehicleServiceAssignmentDetailByResourceId2(getVehicleResourceId);
                                     if (getVehicleDetail != null)
                                     {
-                                    if (schedule.Equals(_lastItem)) { transaction.Rollback(); return CommonResponse.Send(ResponseCodes.FAILURE, null, ResponseMessage.ResourceNotAvailble450); }
+                                        countFailed += 1;
+                                        if (schedule.Equals(_lastItem)) { transaction.Rollback(); return CommonResponse.Send(ResponseCodes.FAILURE, null, ResponseMessage.ResourceNotAvailble450); }
 
-                                    else { continue; }
+                                        else { continue; }
                                           
                                     }
+                                    
                                     var getResourceSchedule = await _dTSMastersRepository.FindVehicleMasterByResourceId2(getVehicleResourceId);
                                     if (masterReceivingDTO.PickupDate >= schedule.AvailabilityStart && masterReceivingDTO.PickupDate <= schedule.AvailablilityEnd)
                                     {
@@ -341,12 +344,12 @@ namespace HaloBiz.MyServices.Impl
                     var getResourceTypePerServiceForVehicle = await _serviceRegistrationRepository.FindPilotResourceByServiceRegId(masterReceivingDTO.ServiceRegistrationId);
                     //var getResourceTypePerServiceForVehicle = await _serviceRegistrationRepository.FindAllVehicleResourceByServiceRegId(masterReceivingDTO.ServiceRegistrationId);
                     //var getAllResourceSchedule = await _dTSMastersRepository.FindAllVehicleMastersForAutoAssignment();
-                    var getAllResourceSchedule = await _dTSMastersRepository.FindAllPilotMastersForAutoAssignmentByPickupDate(masterReceivingDTO.PickupDate, masterReceivingDTO.PickoffTime);
+                    var getAllResourceSchedule = await _dTSMastersRepository.FindAllPilotMastersForAutoAssignmentByPickupDate(masterReceivingDTO.SMORouteId,masterReceivingDTO.PickupDate, masterReceivingDTO.PickoffTime);
                     var RouteExists = _pilotRegistrationRepository.GetAllPilotsOnRouteByResourceAndRouteId(masterReceivingDTO.SMORouteId);
 
                     if (getVehicleServiceRegistration.RequiresPilot == true)
                     {
-                        if (RouteExists.Count() >= getVehicleServiceRegistration.PilotQuantityRequired && getAllResourceSchedule.Count() >= getVehicleServiceRegistration.PilotQuantityRequired)
+                        if ( getAllResourceSchedule.Count() >= getVehicleServiceRegistration.PilotQuantityRequired)
                         {
                             int countSchedule = 0;
                             int resourceCount = 0;

@@ -47,7 +47,8 @@ namespace HaloBiz.Repository
         Task<PilotDTSMaster> FindPilotMasterById(long Id);
         Task<PilotDTSMaster> FindPilotMasterByResourceId(long resourceId);
         Task<PilotDTSMaster> FindPilotMasterByResourceId2(long? resourceId);
-        Task<IEnumerable<PilotDTSMaster>> FindAllPilotMastersForAutoAssignmentByPickupDate(DateTime pickupDate, DateTime pickUpTime);
+        Task<IEnumerable<PilotDTSMaster>> FindAllPilotMastersForAutoAssignmentByPickupDate(long RouteId, DateTime pickupDate, DateTime pickUpTime);
+        //Task<IEnumerable<PilotDTSMaster>> FindAllPilotMastersForAutoAssignmentByPickupDate(DateTime pickupDate, DateTime pickUpTime);
         Task<IEnumerable<PilotDTSMaster>> FindAllPilotMasters();
 
         PilotDTSMaster GetPilotname(string Name);
@@ -66,7 +67,8 @@ namespace HaloBiz.Repository
 
         Task<IEnumerable<VehicleDTSMaster>> FindAllVehicleMasters();
         Task<IEnumerable<VehicleDTSMaster>> FindAllVehicleMastersForAutoAssignment();
-        Task<IEnumerable<VehicleDTSMaster>> FindAllVehicleMastersForAutoAssignmentByPickupDate(DateTime pickupDate, DateTime pickUpTime);
+        //Task<IEnumerable<VehicleDTSMaster>> FindAllVehicleMastersForAutoAssignmentByPickupDate(DateTime pickupDate, DateTime pickUpTime);
+        Task<IEnumerable<VehicleDTSMaster>> FindAllVehicleMastersForAutoAssignmentByPickupDate(long RouteId, DateTime pickupDate, DateTime pickUpTime);
 
         VehicleDTSMaster GetVehiclename(string Name);
         VehicleDTSMaster GetVehicleProfileId(long? profileId);
