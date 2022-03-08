@@ -76,7 +76,7 @@ namespace HaloBiz.Controllers
                 var userProfile = (UserProfile)user;  
 
                 //get the permissions of the user
-                //var permissions = await _roleService.GetPermissionEnumsOnUser(userProfile.Id);
+                 var permissions = await _roleService.GetPermissionEnumsOnUser(userProfile.Id);
 
                  var jwtToken =   _jwttHelper.GenerateToken(userProfile, permissions);
                  
@@ -131,7 +131,7 @@ namespace HaloBiz.Controllers
                 var user = response.responseData;
                 var userProfile = (UserProfile)user;
 
-                //var permissions = await _roleService.GetPermissionEnumsOnUser(userProfile.Id);
+                var permissions = await _roleService.GetPermissionEnumsOnUser(userProfile.Id);
 
                 var jwtToken =  _jwttHelper.GenerateToken(userProfile, permissions);
                 return CommonResponse.Send(ResponseCodes.SUCCESS, new UserAuthTransferDTO { Token = jwtToken,
@@ -186,7 +186,7 @@ namespace HaloBiz.Controllers
                 var user = response.responseData;
                 var userProfile = (UserProfile)user;
 
-               // var permissions = await _roleService.GetPermissionEnumsOnUser(userProfile.Id);
+                var permissions = await _roleService.GetPermissionEnumsOnUser(userProfile.Id);
 
                 var token =  _jwttHelper.GenerateToken(userProfile, permissions);
 
