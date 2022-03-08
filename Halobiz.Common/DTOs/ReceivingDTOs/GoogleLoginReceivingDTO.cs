@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace HaloBiz.DTOs.ReceivingDTOs
+namespace Halobiz.Common.DTOs.ReceivingDTOs
 {
     public class GoogleLoginReceivingDTO
     {

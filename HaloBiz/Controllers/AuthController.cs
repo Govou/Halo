@@ -1,10 +1,13 @@
+using AutoMapper;
 using Google.Apis.Auth;
 using Halobiz.Common.DTOs.ApiDTOs;
-//using Halobiz.Common.MyServices.RoleManagement;
+using Halobiz.Common.DTOs.ReceivingDTOs;
+using Halobiz.Common.MyServices;
+using Halobiz.Common.MyServices.RoleManagement;
 using HaloBiz.DTOs.ReceivingDTOs;
 using HaloBiz.DTOs.TransferDTOs;
 using HaloBiz.Helpers;
-using HaloBiz.MyServices;
+using HalobizMigrations.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
@@ -30,19 +33,22 @@ namespace HaloBiz.Controllers
         private readonly IConfiguration _config;
         private readonly ILogger<AuthController> _logger;
         private readonly JwtHelper _jwttHelper;
-        //private readonly IRoleService _roleService;
+        private readonly IRoleService _roleService;
+        private readonly IMapper _mapper;
         public AuthController(
             IUserProfileService userProfileService,
             IConfiguration config,
             JwtHelper jwtHelper,
-            //IRoleService roleService,
+            IMapper mapper,
+            IRoleService roleService,
             ILogger<AuthController> logger)
         {
             this._config = config;
             this.userProfileService = userProfileService;
             _logger = logger;
             _jwttHelper = jwtHelper;
-            //_roleService = roleService;
+            _mapper = mapper;
+            _roleService = roleService;
         }
 
         [AllowAnonymous]
@@ -67,13 +73,16 @@ namespace HaloBiz.Controllers
                 }
 
                 var user = response.responseData;
-                var userProfile = (UserProfileTransferDTO)user;
+                var userProfile = (UserProfile)user;  
 
                 //get the permissions of the user
-                //var permissions = await _roleService.GetPermissionEnumsOnUser(userProfile.Id);
+                 var permissions = await _roleService.GetPermissionEnumsOnUser(userProfile.Id);
 
-                var jwtToken =   _jwttHelper.GenerateToken(userProfile, null);
-                return CommonResponse.Send(ResponseCodes.SUCCESS,  new UserAuthTransferDTO { Token = jwtToken, UserProfile = userProfile });
+                 var jwtToken =   _jwttHelper.GenerateToken(userProfile, permissions);
+                 
+                 return CommonResponse.Send(ResponseCodes.SUCCESS,  new UserAuthTransferDTO { Token = jwtToken,
+                     UserProfile = _mapper.Map<UserProfileTransferDTO>(userProfile)
+                 });
             }
             catch (Exception ex)
             {
@@ -120,12 +129,14 @@ namespace HaloBiz.Controllers
                 }
 
                 var user = response.responseData;
-                var userProfile = (UserProfileTransferDTO)user;
+                var userProfile = (UserProfile)user;
 
-                //var permissions = await _roleService.GetPermissionEnumsOnUser(userProfile.Id);
+                var permissions = await _roleService.GetPermissionEnumsOnUser(userProfile.Id);
 
-                var jwtToken =  _jwttHelper.GenerateToken(userProfile, null);
-                return CommonResponse.Send(ResponseCodes.SUCCESS, new UserAuthTransferDTO { Token = jwtToken, UserProfile = userProfile });
+                var jwtToken =  _jwttHelper.GenerateToken(userProfile, permissions);
+                return CommonResponse.Send(ResponseCodes.SUCCESS, new UserAuthTransferDTO { Token = jwtToken,
+                    UserProfile = _mapper.Map<UserProfileTransferDTO>(userProfile)
+                });
             }
             catch (Exception ex)
             {
@@ -173,15 +184,17 @@ namespace HaloBiz.Controllers
                 }
 
                 var user = response.responseData;
-                var userProfile = (UserProfileTransferDTO)user;
+                var userProfile = (UserProfile)user;
 
-               // var permissions = await _roleService.GetPermissionEnumsOnUser(userProfile.Id);
+                var permissions = await _roleService.GetPermissionEnumsOnUser(userProfile.Id);
 
-                var token =  _jwttHelper.GenerateToken(userProfile, null);
+                var token =  _jwttHelper.GenerateToken(userProfile, permissions);
+
+                
                 UserAuthTransferDTO userAuthTransferDTO = new UserAuthTransferDTO()
                 {
                     Token = token,
-                    UserProfile = userProfile
+                    UserProfile = _mapper.Map<UserProfileTransferDTO>(userProfile)
                 };
 
                 return CommonResponse.Send(ResponseCodes.SUCCESS, userAuthTransferDTO);

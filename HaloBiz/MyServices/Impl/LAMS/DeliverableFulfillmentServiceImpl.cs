@@ -22,6 +22,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using Halobiz.Common.Repository;
 
 namespace HaloBiz.MyServices.Impl.LAMS
 {
