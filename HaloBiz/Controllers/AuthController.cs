@@ -1,6 +1,6 @@
 using Google.Apis.Auth;
 using Halobiz.Common.DTOs.ApiDTOs;
-using Halobiz.Common.MyServices.RoleManagement;
+//using Halobiz.Common.MyServices.RoleManagement;
 using HaloBiz.DTOs.ReceivingDTOs;
 using HaloBiz.DTOs.TransferDTOs;
 using HaloBiz.Helpers;
@@ -30,19 +30,19 @@ namespace HaloBiz.Controllers
         private readonly IConfiguration _config;
         private readonly ILogger<AuthController> _logger;
         private readonly JwtHelper _jwttHelper;
-        private readonly IRoleService _roleService;
+        //private readonly IRoleService _roleService;
         public AuthController(
             IUserProfileService userProfileService,
             IConfiguration config,
             JwtHelper jwtHelper,
-            IRoleService roleService,
+            //IRoleService roleService,
             ILogger<AuthController> logger)
         {
             this._config = config;
             this.userProfileService = userProfileService;
             _logger = logger;
             _jwttHelper = jwtHelper;
-            _roleService = roleService;
+            //_roleService = roleService;
         }
 
         [AllowAnonymous]
@@ -70,9 +70,9 @@ namespace HaloBiz.Controllers
                 var userProfile = (UserProfileTransferDTO)user;
 
                 //get the permissions of the user
-                var permissions = await _roleService.GetPermissionEnumsOnUser(userProfile.Id);
+                //var permissions = await _roleService.GetPermissionEnumsOnUser(userProfile.Id);
 
-                var jwtToken =   _jwttHelper.GenerateToken(userProfile, permissions);
+                var jwtToken =   _jwttHelper.GenerateToken(userProfile, null);
                 return CommonResponse.Send(ResponseCodes.SUCCESS,  new UserAuthTransferDTO { Token = jwtToken, UserProfile = userProfile });
             }
             catch (Exception ex)
@@ -122,9 +122,9 @@ namespace HaloBiz.Controllers
                 var user = response.responseData;
                 var userProfile = (UserProfileTransferDTO)user;
 
-                var permissions = await _roleService.GetPermissionEnumsOnUser(userProfile.Id);
+                //var permissions = await _roleService.GetPermissionEnumsOnUser(userProfile.Id);
 
-                var jwtToken =  _jwttHelper.GenerateToken(userProfile, permissions);
+                var jwtToken =  _jwttHelper.GenerateToken(userProfile, null);
                 return CommonResponse.Send(ResponseCodes.SUCCESS, new UserAuthTransferDTO { Token = jwtToken, UserProfile = userProfile });
             }
             catch (Exception ex)
@@ -175,9 +175,9 @@ namespace HaloBiz.Controllers
                 var user = response.responseData;
                 var userProfile = (UserProfileTransferDTO)user;
 
-                var permissions = await _roleService.GetPermissionEnumsOnUser(userProfile.Id);
+               // var permissions = await _roleService.GetPermissionEnumsOnUser(userProfile.Id);
 
-                var token =  _jwttHelper.GenerateToken(userProfile, permissions);
+                var token =  _jwttHelper.GenerateToken(userProfile, null);
                 UserAuthTransferDTO userAuthTransferDTO = new UserAuthTransferDTO()
                 {
                     Token = token,

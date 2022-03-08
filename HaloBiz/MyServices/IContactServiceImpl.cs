@@ -39,10 +39,7 @@ namespace HaloBiz.MyServices
         Task<ApiCommonResponse> changeTodoStatus(HttpContext httpContext, long todoId);
         Task<ApiCommonResponse> getDashBoardForSuspect(HttpContext httpContext, long suspectId);
         Task<ApiCommonResponse> GetLeadClassificationsData(HttpContext httpContext);
-        Task<ApiCommonResponse> GetLeadClassificationsDataByDates(HttpContext httpContext, DateTime startDate, DateTime endDate);
-        Task<ApiCommonResponse> GetLeadClassificationsDataById(HttpContext httpContext, long CreatedById);
         Task<ApiCommonResponse> GetLeadsOpportunityData(HttpContext httpContext);
-        Task<ApiCommonResponse> GetLeadsOpportunityDataByCreatedId(HttpContext httpContext, long createdById);
         Task<ApiCommonResponse> getContractByLeadId(long Id);
         Task<ApiCommonResponse> getDeliverableDashboard(HttpContext httpContext);
 

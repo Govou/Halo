@@ -40,7 +40,7 @@ namespace HaloBiz.Repository.Impl
         {
             return await _context.UserProfiles
                 .Include(x => x.Sbu)
-                .Include(x => x.Role).ThenInclude(x => x.RoleClaims.Where(x => x.IsDeleted == false))
+                //.Include(x => x.Role).ThenInclude(x => x.RoleClaims.Where(x => x.IsDeleted == false))
                 .FirstOrDefaultAsync( user => user.Id == Id && user.IsDeleted == false);
         }
 
@@ -48,7 +48,7 @@ namespace HaloBiz.Repository.Impl
         {
             return await _context.UserProfiles
                 .Include(x => x.Sbu)
-                .Include(x => x.Role).ThenInclude(x => x.RoleClaims.Where(x => x.IsDeleted == false))
+                //.Include(x => x.Role).ThenInclude(x => x.RoleClaims.Where(x => x.IsDeleted == false))
                 .FirstOrDefaultAsync( user => user.Email == email && user.IsDeleted == false);
         }
 
@@ -56,7 +56,7 @@ namespace HaloBiz.Repository.Impl
         {
             return await _context.UserProfiles.AsNoTracking()
                 .Include(x => x.Sbu)
-                .Include(x => x.Role).ThenInclude(x => x.RoleClaims.Where(x => x.IsDeleted == false))
+                //.Include(x => x.Role).ThenInclude(x => x.RoleClaims.Where(x => x.IsDeleted == false))
                 .Where(user => user.IsDeleted == false)
                 .OrderBy(user => user.Email)
                 .ToListAsync();
