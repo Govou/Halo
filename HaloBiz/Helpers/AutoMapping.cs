@@ -87,7 +87,7 @@ namespace HaloBiz.Helpers
                  .ForMember(dest => dest.QuoteServiceId, opt =>
                 opt.MapFrom(src => src.Id));
 
-
+            CreateMap<UserProfileTransferDTO, UserProfile>();
             CreateMap<StrategicBusinessUnit, SBUWithoutOperatingEntityTransferDTO>();
             CreateMap<StrategicBusinessUnitReceivingDTO, StrategicBusinessUnit>();
             CreateMap<ServiceGroup, ServiceGroupTransferDTO>();
@@ -331,8 +331,8 @@ namespace HaloBiz.Helpers
             CreateMap<SMORegion, SMORouteRegionTransferDTO>();
             CreateMap<SMORoute, SMORouteRegionTransferDTO>();
 
-            CreateMap<SMORouteMapReceivingDTO, SMORouteAndStateMap>();
-            CreateMap<SMORouteAndStateMap, SMORouteMapTransferDTO>();
+            //CreateMap<SMORouteMapReceivingDTO, SMORouteAndStateMap>();
+            //CreateMap<SMORouteAndStateMap, SMORouteMapTransferDTO>();
 
             CreateMap<CommanderTypeAndRankReceivingDTO, CommanderType>(); //for type
             CreateMap<CommanderRankReceivingDTO, CommanderRank>();

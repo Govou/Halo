@@ -22,7 +22,7 @@ namespace HaloBiz.MyServices
         Task<ApiCommonResponse> GetAllSMORoutesByName(string routeName);
 
         //Task<ApiCommonResponse> GetAllSMORouteAndRegions();
-        Task<ApiCommonResponse> GetAllSMORoutesWithReturnRoute();
+      //  Task<ApiCommonResponse> GetAllSMORoutesWithReturnRoute();
         Task<ApiCommonResponse> DeleteSMORoute(long id);
 
         ////Region
@@ -42,11 +42,11 @@ namespace HaloBiz.MyServices
         Task<ApiCommonResponse> DeleteSMOReturnRoute(long id);
 
         //Routemap
-        Task<ApiCommonResponse> AddSMORouteMap(HttpContext context, SMORouteMapReceivingDTO sMORouteMapReceivingDTO);
+       // Task<ApiCommonResponse> AddSMORouteMap(HttpContext context, SMORouteMapReceivingDTO sMORouteMapReceivingDTO);
         //Task<ApiCommonResponse> UpdateSMOReturnRoute(HttpContext context, long id, SMOReturnRouteReceivingDTO sMOReturnRouteReceivingDTO);
-        Task<ApiCommonResponse> GetSMORouteMapById(long id);
-        Task<ApiCommonResponse> GetAllRouteMapsByRouteId(long routeId);
-        Task<ApiCommonResponse> GetAllSMORouteMaps();
+      //  Task<ApiCommonResponse> GetSMORouteMapById(long id);
+       // Task<ApiCommonResponse> GetAllRouteMapsByRouteId(long routeId);
+      //  Task<ApiCommonResponse> GetAllSMORouteMaps();
         Task<ApiCommonResponse> DeleteSMORouteMap(long id);
     }
 }

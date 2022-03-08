@@ -1104,7 +1104,6 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.FAILURE, null, "No Suspect was found");
             }
 
-
             return CommonResponse.Send(ResponseCodes.SUCCESS, getAllLeads, "Suspect was successfully retrieved");
 
         }
