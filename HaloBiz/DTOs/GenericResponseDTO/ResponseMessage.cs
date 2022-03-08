@@ -28,6 +28,7 @@ namespace HaloBiz.DTOs.GenericResponseDTO
         public const string NoSchedule447 = "Sorry, this resource has no schedule";
         public const string ScheduleTimeMismatch448 = "Sorry, scheduling Date/time and assignment date/time mismatch";
         public const string NoGenericDay449 = "Sorry, resource is not scheduled or available for this day and time ";
+        public const string ResourceNotAvailble450 = "Sorry, Resource not available to complete this transaction, try again later)";
 
 
     }

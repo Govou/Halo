@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
-using HaloBiz.DTOs.ReceivingDTO;
+using Halobiz.Common.DTOs.ReceivingDTO;
 using HaloBiz.DTOs.TransferDTOs;
 using HalobizMigrations.Models;
 using Microsoft.AspNetCore.Http;

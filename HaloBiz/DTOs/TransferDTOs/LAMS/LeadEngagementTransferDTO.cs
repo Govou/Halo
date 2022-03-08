@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Halobiz.Common.DTOs.TransferDTOs;
 using HalobizMigrations.Models;
 
 namespace HaloBiz.DTOs.TransferDTOs.LAMS

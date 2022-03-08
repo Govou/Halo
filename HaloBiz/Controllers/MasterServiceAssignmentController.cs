@@ -73,6 +73,16 @@ namespace HaloBiz.Controllers
             //var rank = ((ApiOkResponse)response).Result;
             //return Ok(rank);
         }
+        [HttpPost("AddNewAutoServiceAssignmentMaster")]
+        public async Task<ApiCommonResponse> AddNewAutoServiceAssignmentMaster(MasterServiceAssignmentReceivingDTO ReceivingDTO)
+        {
+             return await _masterServiceAssignmentService.AddMasterAutoServiceAssignment(HttpContext, ReceivingDTO);
+
+            //if (response.StatusCode >= 400)
+            //    return StatusCode(response.StatusCode, response);
+            //var rank = ((ApiOkResponse)response).Result;
+            //return Ok(rank);
+        }
 
         [HttpPost("AddNewSecondaryServiceAssignment")]
         public async Task<ApiCommonResponse> AddNewSecondaryServiceAssignment(SecondaryServiceAssignmentReceivingDTO ReceivingDTO)

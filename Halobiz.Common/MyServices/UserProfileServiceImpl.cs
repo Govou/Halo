@@ -3,27 +3,39 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
-using HaloBiz.Adapters;
 using Halobiz.Common.DTOs.ApiDTOs;
-using HaloBiz.DTOs.MailDTOs;
-using HaloBiz.DTOs.ReceivingDTO;
-using HaloBiz.DTOs.TransferDTOs;
-using HaloBiz.Helpers;
 using HalobizMigrations.Models;
-using HaloBiz.Repository;
-using Newtonsoft.Json;
-using HaloBiz.Model.RoleManagement;
-using HaloBiz.DTOs.ReceivingDTOs.RoleManagement;
 using HalobizMigrations.Models.Halobiz;
 using HalobizMigrations.Data;
 using Microsoft.AspNetCore.Http;
 using Halobiz.Common.DTOs.ReceivingDTOs.RoleManagement;
+using Halobiz.Common.DTOs.ReceivingDTO;
+using Halobiz.Common.Repository;
+using Newtonsoft.Json;
+using System.Security.Claims;
+using Halobiz.Common.DTOs.TransferDTOs;
+using Halobiz.Common.Helpers;
 
-namespace HaloBiz.MyServices.Impl
+namespace Halobiz.Common.MyServices
 {
+    public interface IUserProfileService
+    {
+        Task<ApiCommonResponse> AddUserProfile(UserProfileReceivingDTO userProfileReceivingDTO);
+        Task<ApiCommonResponse> FindUserById(long id);
+        Task<ApiCommonResponse> FindUserByEmail(string email);
+        Task<ApiCommonResponse> FindAllUsers();
+        Task<ApiCommonResponse> FindAllUsersNotInAnSBU(long sbuId);
+        Task<ApiCommonResponse> UpdateUserProfile(long userId, UserProfileReceivingDTO userProfileReceivingDTO);
+        Task<ApiCommonResponse> DeleteUserProfile(long userId);
+        Task<ApiCommonResponse> UpdateUserRole(HttpContext context, long userId, List<RoleReceivingDTO> roles);
+        Task<ApiCommonResponse> AssignUserToSBU(long userId, long SBUId);
+        Task<ApiCommonResponse> DetachUserFromSBU(long id);
+        Task<ApiCommonResponse> FetchAllUserProfilesWithEscalationLevelConfiguration();
+    }
     public class UserProfileServiceImpl : IUserProfileService
     {
         private readonly IUserProfileRepository _userRepo;
+<<<<<<< HEAD:HaloBiz/MyServices/Impl/UserProfileServiceImpl.cs
         private readonly IMapper _mapper;
         private readonly IMailAdapter _mailAdpater;
         private readonly IModificationHistoryRepository _historyRepo;
@@ -33,11 +45,20 @@ namespace HaloBiz.MyServices.Impl
             IMailAdapter mailAdapter,
             HalobizContext context,
             IModificationHistoryRepository historyRepo)
+=======
+       // private readonly IMailAdapter _mailAdpater;
+       // private readonly IModificationHistoryRepository _historyRepo ;
+        private readonly HalobizContext _context;
+        public UserProfileServiceImpl(IUserProfileRepository userRepo, 
+           // IMailAdapter mailAdapter,
+            HalobizContext context
+          //  IModificationHistoryRepository historyRepo
+          )
+>>>>>>> 0ace32736dad459e3aead161e64e76c4afe00bbb:Halobiz.Common/MyServices/UserProfileServiceImpl.cs
         {
-            _mapper = mapper;
             _userRepo = userRepo;
-            _mailAdpater = mailAdapter;
-            _historyRepo = historyRepo;
+            //_mailAdpater = mailAdapter;
+           // _historyRepo = historyRepo;
             _context = context;
 
         }
@@ -62,6 +83,7 @@ namespace HaloBiz.MyServices.Impl
                 userProfileReceivingDTO.ImageUrl = userProfileReceivingDTO.ImageUrl.Substring(0, 255);
             }
 
+<<<<<<< HEAD:HaloBiz/MyServices/Impl/UserProfileServiceImpl.cs
             var userProfile = _mapper.Map<UserProfile>(userProfileReceivingDTO);
             var savedUserProfile = await _userRepo.SaveUserProfile(userProfile);
             if (savedUserProfile == null)
@@ -70,6 +92,20 @@ namespace HaloBiz.MyServices.Impl
             }
             var userProfileTransferDto = _mapper.Map<UserProfileTransferDTO>(userProfile);
             return CommonResponse.Send(ResponseCodes.SUCCESS, userProfileTransferDto);
+=======
+            //todo fix mapping
+            // var userProfile = Mapping.Mapper.Map<UserProfile>(userProfileReceivingDTO);
+            //var userProfile = (UserProfile) userProfileReceivingDTO;
+            //var savedUserProfile = await _userRepo.SaveUserProfile(userProfile);
+            //if(savedUserProfile == null)
+            //{
+            //    return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+            //}
+            // var userProfileTransferDto = Mapping.Mapper.Map<UserProfileTransferDTO>(userProfile);
+            //return CommonResponse.Send(ResponseCodes.SUCCESS, userProfile);
+            return CommonResponse.Send(ResponseCodes.SUCCESS);
+
+>>>>>>> 0ace32736dad459e3aead161e64e76c4afe00bbb:Halobiz.Common/MyServices/UserProfileServiceImpl.cs
         }
 
         public async Task<ApiCommonResponse> FindUserById(long id)
@@ -79,8 +115,13 @@ namespace HaloBiz.MyServices.Impl
             {
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE); ;
             }
+<<<<<<< HEAD:HaloBiz/MyServices/Impl/UserProfileServiceImpl.cs
             var userProfileTransferDto = _mapper.Map<UserProfileTransferDTO>(userProfile);
             return CommonResponse.Send(ResponseCodes.SUCCESS, userProfileTransferDto);
+=======
+            //var userProfileTransferDto = _mapper.Map<UserProfileTransferDTO>(userProfile);
+            return CommonResponse.Send(ResponseCodes.SUCCESS, userProfile);
+>>>>>>> 0ace32736dad459e3aead161e64e76c4afe00bbb:Halobiz.Common/MyServices/UserProfileServiceImpl.cs
         }
 
         public async Task<ApiCommonResponse> FindUserByEmail(string email)
@@ -91,6 +132,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE); ;
             }
 
+<<<<<<< HEAD:HaloBiz/MyServices/Impl/UserProfileServiceImpl.cs
             // Super Admin
             if (userProfile.Role.Name == ClaimConstants.SuperAdmin)
             {
@@ -114,6 +156,12 @@ namespace HaloBiz.MyServices.Impl
 
             var userProfileTransferDto = _mapper.Map<UserProfileTransferDTO>(userProfile);
             return CommonResponse.Send(ResponseCodes.SUCCESS, userProfileTransferDto);
+=======
+          
+
+           // var userProfileTransferDto = _mapper.Map<UserProfileTransferDTO>(userProfile);
+            return CommonResponse.Send(ResponseCodes.SUCCESS, userProfile);
+>>>>>>> 0ace32736dad459e3aead161e64e76c4afe00bbb:Halobiz.Common/MyServices/UserProfileServiceImpl.cs
         }
 
 
@@ -124,8 +172,14 @@ namespace HaloBiz.MyServices.Impl
             {
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE); ;
             }
+<<<<<<< HEAD:HaloBiz/MyServices/Impl/UserProfileServiceImpl.cs
             var userProfilesTransferDto = _mapper.Map<IEnumerable<UserProfileTransferDTO>>(userProfiles);
             return CommonResponse.Send(ResponseCodes.SUCCESS, userProfilesTransferDto);
+=======
+
+            //var userProfilesTransferDto = Mapping.Mapper.Map<IEnumerable<UserProfileTransferDTO>>(userProfiles);
+            return CommonResponse.Send(ResponseCodes.SUCCESS, userProfiles);
+>>>>>>> 0ace32736dad459e3aead161e64e76c4afe00bbb:Halobiz.Common/MyServices/UserProfileServiceImpl.cs
         }
 
         public async Task<ApiCommonResponse> FindAllUsersNotInAnSBU(long sbuId)
@@ -182,6 +236,7 @@ namespace HaloBiz.MyServices.Impl
                         ReferenceLoopHandling = ReferenceLoopHandling.Ignore
                     });
 
+<<<<<<< HEAD:HaloBiz/MyServices/Impl/UserProfileServiceImpl.cs
                     RunTask(async () => {
                         await _mailAdpater.SendNewUserSignup(serializedUser);
                     });
@@ -191,13 +246,18 @@ namespace HaloBiz.MyServices.Impl
                     {
                         return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
                     }
+=======
+                    //RunTask(async () => {
+                    //    await _mailAdpater.SendNewUserSignup(serializedUser);
+                    //});
 
-                    var superAdminEmails = superAdmins.Select(x => x.Email).ToArray();
-                    var serializedAdminEmails = JsonConvert.SerializeObject(superAdminEmails);
+                    //var superAdminEmails = superAdmins.Select(x => x.Email).ToArray();
+                    //var serializedAdminEmails = JsonConvert.SerializeObject(superAdminEmails);
+>>>>>>> 0ace32736dad459e3aead161e64e76c4afe00bbb:Halobiz.Common/MyServices/UserProfileServiceImpl.cs
 
-                    RunTask(async () => {
-                        await _mailAdpater.AssignRoleToNewUser(serializedUser, serializedAdminEmails);
-                    });
+                    //RunTask(async () => {
+                    //    await _mailAdpater.AssignRoleToNewUser(serializedUser, serializedAdminEmails);
+                    //});
 
                     updatedUser.SignUpMailSent = true;
                     updatedUser = await _userRepo.UpdateUserProfile(updatedUser);
@@ -209,6 +269,7 @@ namespace HaloBiz.MyServices.Impl
             }
 
 
+<<<<<<< HEAD:HaloBiz/MyServices/Impl/UserProfileServiceImpl.cs
             ModificationHistory history = new ModificationHistory()
             {
                 ModelChanged = "UserProfile",
@@ -216,11 +277,24 @@ namespace HaloBiz.MyServices.Impl
                 ChangedBy = updatedUser,
                 ModifiedModelId = updatedUser.Id
             };
+=======
+            //ModificationHistory history = new ModificationHistory(){
+            //    ModelChanged = "UserProfile",
+            //    ChangeSummary = summary,
+            //    ChangedBy = updatedUser,
+            //    ModifiedModelId = updatedUser.Id
+            //};
+>>>>>>> 0ace32736dad459e3aead161e64e76c4afe00bbb:Halobiz.Common/MyServices/UserProfileServiceImpl.cs
 
-            await _historyRepo.SaveHistory(history);
+            //await _historyRepo.SaveHistory(history);
 
+<<<<<<< HEAD:HaloBiz/MyServices/Impl/UserProfileServiceImpl.cs
             var userProfileTransferDto = _mapper.Map<UserProfileTransferDTO>(updatedUser);
             return CommonResponse.Send(ResponseCodes.SUCCESS, userProfileTransferDto);
+=======
+            //var userProfileTransferDto = _mapper.Map<UserProfileTransferDTO>(updatedUser);
+            return CommonResponse.Send(ResponseCodes.SUCCESS, updatedUser);
+>>>>>>> 0ace32736dad459e3aead161e64e76c4afe00bbb:Halobiz.Common/MyServices/UserProfileServiceImpl.cs
 
         }
         public async Task<ApiCommonResponse> AssignUserToSBU(long userId, long SBUId)
@@ -240,6 +314,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
 
+<<<<<<< HEAD:HaloBiz/MyServices/Impl/UserProfileServiceImpl.cs
             ModificationHistory history = new ModificationHistory()
             {
                 ModelChanged = "UserProfile",
@@ -247,11 +322,24 @@ namespace HaloBiz.MyServices.Impl
                 ChangedBy = updatedUser,
                 ModifiedModelId = updatedUser.Id
             };
+=======
+            //ModificationHistory history = new ModificationHistory(){
+            //    ModelChanged = "UserProfile",
+            //    ChangeSummary = "Assigned user to an SBU",
+            //    ChangedBy = updatedUser,
+            //    ModifiedModelId = updatedUser.Id
+            //};
+>>>>>>> 0ace32736dad459e3aead161e64e76c4afe00bbb:Halobiz.Common/MyServices/UserProfileServiceImpl.cs
 
-            await _historyRepo.SaveHistory(history);
+            //await _historyRepo.SaveHistory(history);
 
+<<<<<<< HEAD:HaloBiz/MyServices/Impl/UserProfileServiceImpl.cs
             var userProfileTransferDto = _mapper.Map<UserProfileTransferDTO>(updatedUser);
             return CommonResponse.Send(ResponseCodes.SUCCESS, userProfileTransferDto);
+=======
+            //var userProfileTransferDto = _mapper.Map<UserProfileTransferDTO>(updatedUser);
+            return CommonResponse.Send(ResponseCodes.SUCCESS, updatedUser);
+>>>>>>> 0ace32736dad459e3aead161e64e76c4afe00bbb:Halobiz.Common/MyServices/UserProfileServiceImpl.cs
 
         }
 
@@ -272,18 +360,23 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
 
-            ModificationHistory history = new ModificationHistory()
-            {
-                ModelChanged = "UserProfile",
-                ChangeSummary = "Detached user from an SBU",
-                ChangedBy = updatedUser,
-                ModifiedModelId = updatedUser.Id
-            };
+            //ModificationHistory history = new ModificationHistory()
+            //{
+            //    ModelChanged = "UserProfile",
+            //    ChangeSummary = "Detached user from an SBU",
+            //    ChangedBy = updatedUser,
+            //    ModifiedModelId = updatedUser.Id
+            //};
 
-            await _historyRepo.SaveHistory(history);
+            //await _historyRepo.SaveHistory(history);
 
+<<<<<<< HEAD:HaloBiz/MyServices/Impl/UserProfileServiceImpl.cs
             var userProfileTransferDto = _mapper.Map<UserProfileTransferDTO>(updatedUser);
             return CommonResponse.Send(ResponseCodes.SUCCESS, userProfileTransferDto);
+=======
+            //var userProfileTransferDto = _mapper.Map<UserProfileTransferDTO>(updatedUser);
+            return CommonResponse.Send(ResponseCodes.SUCCESS, updatedUser);
+>>>>>>> 0ace32736dad459e3aead161e64e76c4afe00bbb:Halobiz.Common/MyServices/UserProfileServiceImpl.cs
 
         }
 
@@ -297,7 +390,8 @@ namespace HaloBiz.MyServices.Impl
                     return CommonResponse.Send(ResponseCodes.FAILURE, null, "User not found");
                 }
 
-                var thisUserId = context.GetLoggedInUserId();
+                var thisUserId = long.TryParse(context.User.FindFirstValue(ClaimTypes.NameIdentifier), out long userIdClaim) ?
+                userIdClaim : 31;
                 if (thisUserId == userId)
                 {
                     return CommonResponse.Send(ResponseCodes.FAILURE, null, "You cannot add/update role for yourself");

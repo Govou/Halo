@@ -1,3 +1,4 @@
+using Halobiz.Common.DTOs.TransferDTOs;
 using HalobizMigrations.Models;
 using System;
 using System.Collections.Generic;

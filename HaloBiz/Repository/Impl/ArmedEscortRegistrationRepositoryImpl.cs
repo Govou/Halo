@@ -72,6 +72,25 @@ namespace HaloBiz.Repository.Impl
                         .ToListAsync();
         }
 
+        public IEnumerable<ArmedEscortSMORoutesResourceTie> GetAllArmedEscortsOnRouteByResourceAndRouteId(long? RouteId)
+        {
+            var services = new List<ArmedEscortSMORoutesResourceTie>();
+            var query = _context.ArmedEscortSMORoutesResourceTies.Where
+                          (ct => ct.SMORouteId == RouteId && ct.IsDeleted == false);
+            //var getVehicleDetailNoneHeld =  _serviceAssignmentDetailsRepository.FindAllNoneHeldVehicleServiceAssignmentDetails2();
+            var getResources = _context.ArmedEscortProfiles.Where(r => r.IsDeleted == false)
+              .Include(s => s.SupplierService).Include(t => t.ArmedEscortType)
+              .Include(office => office.ServiceAssignment)
+                                    .ToList();
+
+            foreach (var items in getResources)
+            {
+                //quuery.Where(x => x.ServiceCode.Contains(items));
+                services.AddRange(query.Where(x => x.ResourceId == items.Id));
+            }
+            return services.ToList();
+        }
+
         //public async Task<ArmedEscortSMORoutesResourceTie> FindArmedEscortTieByResourceId(long resourceId)
         //{
         //    return await _context.ArmedEscortSMORoutesResourceTies.Include(ae => ae.SMORegion).Include(ae => ae.CreatedBy)
@@ -83,6 +102,12 @@ namespace HaloBiz.Repository.Impl
         {
             return _context.ArmedEscortSMORoutesResourceTies.Where
                 (ct => ct.ResourceId == regRessourceId && ct.SMORouteId == RouteId  && ct.IsDeleted == false).FirstOrDefault();
+        }
+
+        public ArmedEscortSMORoutesResourceTie GetServiceRegIdRegionAndRoute2(long? regRessourceId, long? RouteId)
+        {
+            return _context.ArmedEscortSMORoutesResourceTies.Where
+               (ct => ct.ResourceId == regRessourceId && ct.SMORouteId == RouteId && ct.IsDeleted == false).FirstOrDefault();
         }
 
         public async Task<ArmedEscortProfile> SaveArmedEscort(ArmedEscortProfile armedEscortProfile)

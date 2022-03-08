@@ -12,5 +12,7 @@ namespace HaloBiz.DTOs.ContactDTO
         public List<Goal> Goal { get; set; }
         public ToDo[] TodoDueToday { get; set; }
         public List<SuspectContact> Suspects { get; set; }
+
+       
     }
 }

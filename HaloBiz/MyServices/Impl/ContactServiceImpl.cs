@@ -19,7 +19,7 @@ using System.Collections.Generic;
 
 namespace HaloBiz.MyServices.Impl
 {
-    public class ContactServiceImpl:IContactServiceImpl
+    public class ContactServiceImpl : IContactServiceImpl
     {
         private readonly HalobizContext _context;
         private readonly ILogger<ContactServiceImpl> _logger;
@@ -27,12 +27,12 @@ namespace HaloBiz.MyServices.Impl
 
         public ContactServiceImpl(HalobizContext context, ILogger<ContactServiceImpl> logger, IMapper mapper)
         {
-         
-        this._mapper = mapper;
-        this._logger = logger;
-        this._context = context;
-        
-       }
+
+            this._mapper = mapper;
+            this._logger = logger;
+            this._context = context;
+
+        }
 
 
         public async Task<ApiCommonResponse> AddNewContact(HttpContext context, Contactdto contactDTO)
@@ -986,9 +986,9 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.FAILURE, null, "No Suspect was found");
             }
 
-            foreach(var i in suspectsInConcern)
+            foreach (var i in suspectsInConcern)
             {
-                if(i.GroupType.Caption == "Individual")
+                if (i.GroupType.Caption == "Individual")
                 {
                     i.BusinessName = $"{i.FirstName} {i.LastName}";
                 }
@@ -1050,7 +1050,7 @@ namespace HaloBiz.MyServices.Impl
 
         }
 
-      
+
 
         public async Task<ApiCommonResponse> GetLeadsOpportunityData(HttpContext httpContext)
         {
@@ -1080,7 +1080,7 @@ namespace HaloBiz.MyServices.Impl
 
         }
 
-     
+
 
 
         public async Task<ApiCommonResponse> getContractByLeadId(long Id)

@@ -25,6 +25,7 @@ namespace HaloBiz.Repository
         Task<VehicleResourceRequiredPerService> SaveResourceVehicle(VehicleResourceRequiredPerService vehicle);
         Task<VehicleResourceRequiredPerService> FindVehicleResourceById(long Id);
         Task<VehicleResourceRequiredPerService> FindVehicleResourceByServiceRegId(long seviceRegId);
+        Task<IEnumerable<VehicleResourceRequiredPerService>> FindAllVehicleResourceByServiceRegId(long seviceRegId);
         VehicleResourceRequiredPerService GetVehicleResourceApplicableTypeReqById(long serviceRegId, long? applicableTypeId);
         Task<IEnumerable<VehicleResourceRequiredPerService>> FindAllVehicleResources();
         Task<bool> DeleteVehicleResource(VehicleResourceRequiredPerService vehicle);
