@@ -1023,8 +1023,8 @@ namespace HaloBiz.MyServices.Impl.LAMS
                                     QuoteService quoteService,
                                     long loggedInUserId,
                                     bool isReversal,
-                                    Invoice invoice
-                                    )
+                                    Invoice invoice,
+                                    bool setIntegrationFlag = false)
         {
             //check that we define the type of customer
             //if(isRetail == null)
