@@ -16,14 +16,11 @@ using HalobizMigrations.Models.Armada;
 using HalobizMigrations.Models.Shared;
 using HaloBiz.Controllers;
 using HaloBiz.DTOs.ContactDTO;
-using Halobiz.Common.DTOs.ReceivingDTOs.RoleManagement;
-using Halobiz.Common.DTOs.TransferDTOs.RoleManagement;
-using Halobiz.Common.DTOs.ReceivingDTO;
-using Halobiz.Common.DTOs.TransferDTOs;
+using Halobiz.Common.Helpers;
 
 namespace HaloBiz.Helpers
 {
-    public class AutoMapping : Profile
+    public class AutoMapping : AutoMappingCommon
     {
         public GroupContractCategory CategoryConversion_QuoteContract(GroupQuoteCategory groupQuote)
         {
@@ -42,35 +39,25 @@ namespace HaloBiz.Helpers
             }
         }
 
-        public AutoMapping()
+        public AutoMapping() : base()
         {
             CreateMap<ServiceRelationship, ServiceRelationshipDTO>();
             CreateMap<Service, ServicesLeanformatDTO>();
             CreateMap<State, StateTransferDTO>();    
             CreateMap<Lga, LGATransferDTO>();
-            CreateMap<UserProfileReceivingDTO, UserProfile>()
-                .ForMember(member => member.DateOfBirth, 
-                    opt =>  opt.MapFrom(src => DateTime.Parse(src.DateOfBirth)));
-            CreateMap<UserProfile, UserProfileTransferDTO>()
-                .ForMember(member => member.DateOfBirth,
-                    opt => opt.MapFrom(src => src.DateOfBirth.ToShortDateString()));
+           
             CreateMap<Branch, BranchTransferDTO>();
             CreateMap<Branch, BranchWithoutOfficeTransferDTO>();
             CreateMap<BranchReceivingDTO, Branch>();
             CreateMap<Division, DivisionTransferDTO>();
             CreateMap<DivisionReceivingDTO, Division>();
             CreateMap<OperatingEntity, OperatingEntityTransferDTO>();
-            CreateMap<OperatingEntity, OperatingEntityWithoutServiceGroupDTO>();
             CreateMap<OperatingEntityReceivingDTO, OperatingEntity>();
             CreateMap<Division,DivisionWithoutOperatingEntityDTO>();
             CreateMap<State, StateWithoutLGATransferDto>();
             CreateMap<OfficeReceivingDTO, Office>();
             CreateMap<Office, OfficeTransferDTO>();
-            CreateMap<StrategicBusinessUnit, StrategicBusinessUnitTransferDTO>().AfterMap((x, y) => 
-            {
-                y.Members = x.UserProfiles;
-            });
-
+           
             CreateMap<Quote, Contract>().AfterMap((s, d) => 
             {
                 d.Id = 0;
@@ -88,7 +75,6 @@ namespace HaloBiz.Helpers
                  .ForMember(dest => dest.QuoteServiceId, opt =>
                 opt.MapFrom(src => src.Id));
 
-            CreateMap<UserProfileTransferDTO, UserProfile>();
             CreateMap<StrategicBusinessUnit, SBUWithoutOperatingEntityTransferDTO>();
             CreateMap<StrategicBusinessUnitReceivingDTO, StrategicBusinessUnit>();
             CreateMap<ServiceGroup, ServiceGroupTransferDTO>();
@@ -127,9 +113,7 @@ namespace HaloBiz.Helpers
             CreateMap<StandardSlaforOperatingEntityReceivingDTO, StandardSlaforOperatingEntity>();
             CreateMap<StandardSlaforOperatingEntity, StandardSlaforOperatingEntityTransferDTO>();
             CreateMap<TargetReceivingDTO, Target>();
-            CreateMap<Target, TargetTransferDTO>();
-            CreateMap<RoleReceivingDTO, Role>();
-            CreateMap<Role, RoleTransferDTO>();
+            CreateMap<Target, TargetTransferDTO>();           
             CreateMap<Target, BaseSetupTransferDTO>();
             CreateMap<MeansOfIdentificationReceivingDTO, MeansOfIdentification>();
             CreateMap<MeansOfIdentification, MeansOfIdentificationTransferDTO>();

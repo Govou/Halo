@@ -460,7 +460,6 @@ namespace HaloBiz.Controllers
                                 }
                             }
                         }
-
                         mergedAdminCasesSorted.Add(service);
                     }
 
@@ -537,9 +536,8 @@ namespace HaloBiz.Controllers
             service.OfficeId = defaultOffice.Id;
             service.CreatedById = userIdToUse;
             service.InvoicingInterval = cycle;
-            service.FirstInvoiceSendDate = invoiceSendDate;            
+            service.FirstInvoiceSendDate = invoiceSendDate;
 
-           
             var saveContractEntity = _context.ContractServices.Add(service);
 
             System.Threading.Thread.Sleep(3000);
@@ -553,6 +551,7 @@ namespace HaloBiz.Controllers
                         .Include(x=>x.Contract)
                         .Where(x => x.Id == contractServiceCreated.Id)
                         .FirstOrDefault();
+
                 _logger.LogInformation($"Saved for contract with ID:{_contractService.ContractId}, Service: {JsonConvert.SerializeObject(contractService)}");
                
                 await _leadConversionService.onMigrationAccountsForContracts(_contractService,
@@ -582,7 +581,7 @@ namespace HaloBiz.Controllers
                                             null,
                                             loggedInUserId,
                                             true,
-                                            null);
+                                            null, true);
 
             return true;
         }
