@@ -19,6 +19,7 @@ variables:
   tag: '$(Build.BuildId)'
   isDev: $[eq(variables['Build.SourceBranchName'], 'develop')]
   isStg: $[eq(variables['Build.SourceBranchName'], 'staging')]
+  isCi: $[eq(variables['Build.SourceBranchName'], 'Ci-dev/ft')]
   isProd: $[eq(variables['Build.SourceBranchName'], 'production')]
   vmImageName: 'ubuntu-18.04'
   BuildConfiguration: 'Release'
@@ -31,7 +32,7 @@ stages:
 
 - stage: BuildAndDeployHalobizBackendMicroservice
   displayName: Build and Deploy Halobiz Microservice to Dev
-  condition: eq(variables.isDev, true)
+  condition: eq(variables.isCi, true)
 
   jobs:
     - job: halobiz_backend_microservice_file_change
