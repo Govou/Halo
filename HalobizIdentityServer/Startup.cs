@@ -23,6 +23,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
+using HalobizIdentityServer.MyServices;
 
 namespace HalobizIdentityServer
 {
@@ -47,6 +48,9 @@ namespace HalobizIdentityServer
             services.AddScoped<IUserProfileRepository, UserProfileRepositoryImpl>();
             services.AddTransient<IRoleService, RoleServiceImpl>();
             services.AddTransient<IRoleRepository, RoleRepositoryImpl>();
+            services.AddScoped<IMailService, MailService>();
+            services.AddScoped<IOnlineAccounts, OnlineAccounts>();
+
             services.AddAutoMapper(typeof(Startup));
             services.AddControllersWithViews()
                .AddNewtonsoftJson(options =>

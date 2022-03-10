@@ -33,8 +33,12 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Halobiz.Common\Halobiz.Common.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Reference Include="HalobizMigrations">
-      <HintPath>HalobizMigrations.dll</HintPath>
+      <HintPath>..\Halobiz.Common\HalobizMigrations.dll</HintPath>
     </Reference>
   </ItemGroup>
 
