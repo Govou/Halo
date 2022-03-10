@@ -991,6 +991,7 @@ namespace HaloBiz.MyServices.Impl
             var projectQuery = await _context.Watchers.Where(x => x.IsActive == true && x.ProjectWatcherId == httpContext.GetLoggedInUserId())
                                                       .Include(x => x.Project)
                                                       .ThenInclude(x => x.Tasks)
+                                                         .ThenInclude(x=>x.Deliverables)
                                                       .ToListAsync();
             var projectArray = new List<Project>();
             foreach(var watcher in projectQuery)
