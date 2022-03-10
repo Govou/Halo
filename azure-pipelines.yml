@@ -4,12 +4,14 @@ trigger:
       - develop
       - staging
       - production
+      - Ci-dev/ft
 
 
 pr:
   - develop
   - staging
   - production
+  - Ci-dev/ft
 
 resources:
 - repo: self
@@ -18,6 +20,7 @@ variables:
   tag: '$(Build.BuildId)'
   isDev: $[eq(variables['Build.SourceBranchName'], 'develop')]
   isStg: $[eq(variables['Build.SourceBranchName'], 'staging')]
+  isCi: $[eq(variables['Build.SourceBranchName'], 'Ci-dev/ft')]
   isProd: $[eq(variables['Build.SourceBranchName'], 'production')]
   vmImageName: 'ubuntu-18.04'
   BuildConfiguration: 'Release'
@@ -28,7 +31,7 @@ variables:
 
 stages:
 
-- stage: Build_and_Deploy_Halobiz-backend_Microservice
+- stage: BuildAndDeployHalobizBackendMicroservice
   displayName: Build and Deploy Halobiz Microservice to Dev
   condition: eq(variables.isDev, true)
 
@@ -49,7 +52,7 @@ stages:
     - job: Build_and_deploy_Halobiz_backend_Microservice
       displayName: 'Build and deploy Halobiz-Backend Microservice'
       dependsOn:  halobiz_backend_microservice_file_change
-        condition: eq(dependencies.halobiz_backend_microservice_file_change.outputs['halobiz_backend_microservice_file_change.SOURCE_CODE_CHANGED'], 'true')
+      condition: eq(dependencies.halobiz_backend_microservice_file_change.outputs['halobiz_backend_microservice_file_change.SOURCE_CODE_CHANGED'], 'true')
       pool:
         vmImage: $(vmImageName)
       steps:
@@ -96,7 +99,7 @@ stages:
           containers: 'halobiz.azurecr.io/halobiz-backend:$(tag)'
 
 
-- stage: Build_and_Deploy_Online_portal_backend_Microservice
+- stage: BuildAndDeployOnlinePortalBackendMicroservice
   displayName: Build and deploy Online Portal backend Microservice to Dev
   condition: eq(variables.isDev, true)
 
@@ -117,7 +120,7 @@ stages:
     - job: Build_and_deploy_online_portal_Microservice
       displayName: 'Build and deploy online_portal Microservice'
       dependsOn:  online_portal_microservice_file_change
-        condition: eq(dependencies.online_portal_microservice_file_change.outputs['online_portal_microservice_file_change.SOURCE_CODE_CHANGED'], 'true')
+      condition: eq(dependencies.online_portal_microservice_file_change.outputs['online_portal_microservice_file_change.SOURCE_CODE_CHANGED'], 'true')
       pool:
         vmImage: $(vmImageName)
       steps:
@@ -166,7 +169,7 @@ stages:
 
 
 
-- stage: Build_and_Deploy_Halobiz_identity_server_Microservice
+- stage: BuildAndDeployHalobizIdentityServerMicroservice
   displayName: Build and deploy Online Halobiz Identity-server Microservice to Dev
   condition: eq(variables.isDev, true)
 
@@ -187,7 +190,7 @@ stages:
     - job: Build_and_deploy_halobiz_identity_server_Microservice
       displayName: 'Build and deploy halobiz_identity_server Microservice'
       dependsOn:  halobiz_identity_server_microservice_file_change
-        condition: eq(dependencies.halobiz_identity_server_microservice_file_change.outputs['halobiz_identity_server_microservice_file_change.SOURCE_CODE_CHANGED'], 'true')
+      condition: eq(dependencies.halobiz_identity_server_microservice_file_change.outputs['halobiz_identity_server_microservice_file_change.SOURCE_CODE_CHANGED'], 'true')
       pool:
         vmImage: $(vmImageName)
       steps:
