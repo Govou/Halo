@@ -37,5 +37,15 @@ namespace Halobiz.Common.DTOs.ReceivingDTO
         public string InstagramHandle { get; set; }
         public long StaffId { get; set; }
         public long RoleId { get; set; }
+        public string UserName { get; set; }
+        public string NormalizedUserName { get; set; }
+        public string NormalizedEmail { get; set; }
+        public bool EmailConfirmed { get; set; } = false;
+        public string PasswordHash { get; set; }
+        public string SecurityStamp { get; set; }
+        public DateTime? LockoutEnd { get; set; }
+        public bool LockoutEnabled { get; set; } = false;
+        public int AccessFailedCount { get; set; } = 0;
+        public string Password { get; set; }
     }
 }

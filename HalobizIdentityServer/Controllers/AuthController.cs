@@ -1,11 +1,13 @@
 ﻿using AutoMapper;
 using Google.Apis.Auth;
 using Halobiz.Common.DTOs.ApiDTOs;
+using Halobiz.Common.DTOs.ReceivingDTO;
 using Halobiz.Common.DTOs.ReceivingDTOs;
 using Halobiz.Common.DTOs.TransferDTOs;
 using Halobiz.Common.MyServices;
 using Halobiz.Common.MyServices.RoleManagement;
 using HalobizIdentityServer.Helpers;
+using HalobizIdentityServer.MyServices;
 using HalobizMigrations.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -31,11 +33,13 @@ namespace HalobizIdentityServer.Controllers
         private readonly JwtHelper _jwttHelper;
         private readonly IRoleService _roleService;
         private readonly IMapper _mapper;
+        private readonly IOnlineAccounts _onlineAccounts;
         public AuthController(
             IUserProfileService userProfileService,
             IConfiguration config,
             JwtHelper jwtHelper,
             IMapper mapper,
+            IOnlineAccounts onlineAccounts,
             IRoleService roleService,
             ILogger<AuthController> logger)
         {
@@ -45,99 +49,35 @@ namespace HalobizIdentityServer.Controllers
             _jwttHelper = jwtHelper;
             _mapper = mapper;
             _roleService = roleService;
+            _onlineAccounts = onlineAccounts;
         }
 
         [AllowAnonymous]
-        [HttpPost("OtherLogin")]
-        public async Task<ApiCommonResponse> OtherLogin(LoginDTO login)
+        [HttpGet("SendCode")]
+        public async Task<ApiCommonResponse> SendCode(string email)
         {
-            try
-            {
-                var response = await userProfileService.FindUserByEmail(login.Email);
-
-                if (!response.responseCode.Contains("00"))
-                {
-                    _logger.LogWarning($"Could not find user [{login.Email}] => {response.responseMsg}");
-                    return CommonResponse.Send(ResponseCodes.FAILURE, null, "Could not find the user");
-
-
-                }
-
-                if (login.Password != "12345")
-                {
-                    return CommonResponse.Send(ResponseCodes.FAILURE, null, "Username or password incorrect");
-                }
-
-                var user = response.responseData;
-                var userProfile = (UserProfile)user;
-
-                //get the permissions of the user
-                var permissions = await _roleService.GetPermissionEnumsOnUser(userProfile.Id);
-
-                var jwtToken = _jwttHelper.GenerateToken(userProfile, permissions);
-
-                var profile = _mapper.Map<UserProfileTransferDTO>(userProfile);
-                return CommonResponse.Send(ResponseCodes.SUCCESS, new UserAuthTransferDTO
-                {
-                    Token = jwtToken,
-                    UserProfile = profile
-                });
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex.Message);
-                _logger.LogError(ex.StackTrace);
-                return CommonResponse.Send(ResponseCodes.FAILURE, null, "System error");
-            }
+            return await _onlineAccounts.SendConfirmCodeToClient(email);
         }
 
         [AllowAnonymous]
-        [HttpPost("AllowAccountCreation")]
-        public async Task<ApiCommonResponse> AllowAccountCreation(string email)
+        [HttpPost("OnlineAccountCreation")]
+        public async Task<ApiCommonResponse> AllowAccountCreation(UserProfileReceivingDTO user)
         {
-            try
-            {
-                var response = await userProfileService.FindUserByEmail(email);
-
-                if (!response.responseCode.Contains("00"))
-                {
-                    return CommonResponse.Send(ResponseCodes.FAILURE, null, "You have a profile created already");
-                }
-
-                //check that his emails exist
-
-
-                if (login.Password != "12345")
-                {
-                    return CommonResponse.Send(ResponseCodes.FAILURE, null, "Username or password incorrect");
-                }
-
-                var user = response.responseData;
-                var userProfile = (UserProfile)user;
-
-                //get the permissions of the user
-                var permissions = await _roleService.GetPermissionEnumsOnUser(userProfile.Id);
-
-                var jwtToken = _jwttHelper.GenerateToken(userProfile, permissions);
-
-                var profile = _mapper.Map<UserProfileTransferDTO>(userProfile);
-                return CommonResponse.Send(ResponseCodes.SUCCESS, new UserAuthTransferDTO
-                {
-                    Token = jwtToken,
-                    UserProfile = profile
-                });
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex.Message);
-                _logger.LogError(ex.StackTrace);
-                return CommonResponse.Send(ResponseCodes.FAILURE, null, "System error");
-            }
+            return await _onlineAccounts.CreateAccount(user);
         }
 
         [AllowAnonymous]
         [HttpPost("Login")]
-        public async Task<ApiCommonResponse> Login(GoogleLoginReceivingDTO loginReceiving)
+        public async Task<ApiCommonResponse> Login(LoginDTO login)
+        {
+            return await _onlineAccounts.Login(login);
+        }
+
+       
+
+        [AllowAnonymous]
+        [HttpPost("GoogleLogin")]
+        public async Task<ApiCommonResponse> GoogleLogin(GoogleLoginReceivingDTO loginReceiving)
         {
             try
             {
@@ -191,67 +131,67 @@ namespace HalobizIdentityServer.Controllers
             }
         }
 
-        [AllowAnonymous]
-        [HttpPost("CreateUser")]
-        public async Task<ApiCommonResponse> CreateProfile(AuthUserProfileReceivingDTO authUserProfileReceivingDTO)
-        {
-            try
-            {
-                GoogleJsonWebSignature.Payload payload;
+        //[AllowAnonymous]
+        //[HttpPost("CreateUser")]
+        //public async Task<ApiCommonResponse> CreateProfile(AuthUserProfileReceivingDTO authUserProfileReceivingDTO)
+        //{
+        //    try
+        //    {
+        //        GoogleJsonWebSignature.Payload payload;
 
-                try
-                {
-                    payload = await GoogleJsonWebSignature.ValidateAsync(authUserProfileReceivingDTO.IdToken);
-                }
-                catch (InvalidJwtException invalidJwtException)
-                {
-                    _logger.LogWarning(JsonConvert.SerializeObject(authUserProfileReceivingDTO));
-                    _logger.LogWarning($"Could not validate Google Id Token [{authUserProfileReceivingDTO.IdToken}] => {invalidJwtException.Message}");
-                    return CommonResponse.Send(ResponseCodes.FAILURE, null, invalidJwtException.Message);
-                }
+        //        try
+        //        {
+        //            payload = await GoogleJsonWebSignature.ValidateAsync(authUserProfileReceivingDTO.IdToken);
+        //        }
+        //        catch (InvalidJwtException invalidJwtException)
+        //        {
+        //            _logger.LogWarning(JsonConvert.SerializeObject(authUserProfileReceivingDTO));
+        //            _logger.LogWarning($"Could not validate Google Id Token [{authUserProfileReceivingDTO.IdToken}] => {invalidJwtException.Message}");
+        //            return CommonResponse.Send(ResponseCodes.FAILURE, null, invalidJwtException.Message);
+        //        }
 
-                if (!payload.EmailVerified)
-                {
-                    _logger.LogWarning($"Email verification failed. Payload => {JsonConvert.SerializeObject(payload)}");
-                    return CommonResponse.Send(ResponseCodes.FAILURE, null, "Email verification failed.");
-                }
+        //        if (!payload.EmailVerified)
+        //        {
+        //            _logger.LogWarning($"Email verification failed. Payload => {JsonConvert.SerializeObject(payload)}");
+        //            return CommonResponse.Send(ResponseCodes.FAILURE, null, "Email verification failed.");
+        //        }
 
-                var userProfileDTO = authUserProfileReceivingDTO.UserProfile;
-
-
-                var response = await userProfileService.AddUserProfile(userProfileDTO);
-
-                if (!response.responseCode.Contains("00"))
-                {
-                    _logger.LogWarning($"Could not create user [{userProfileDTO.Email}] => {response.responseMsg}");
-
-                }
-
-                var user = response.responseData;
-                var userProfile = (UserProfile)user;
-
-                var permissions = await _roleService.GetPermissionEnumsOnUser(userProfile.Id);
-
-                var token = _jwttHelper.GenerateToken(userProfile, permissions);
+        //        var userProfileDTO = authUserProfileReceivingDTO.UserProfile;
 
 
-                UserAuthTransferDTO userAuthTransferDTO = new UserAuthTransferDTO()
-                {
-                    Token = token,
-                    UserProfile = _mapper.Map<UserProfileTransferDTO>(userProfile)
-                };
+        //        var response = await userProfileService.AddUserProfile(userProfileDTO);
 
-                return CommonResponse.Send(ResponseCodes.SUCCESS, userAuthTransferDTO);
+        //        if (!response.responseCode.Contains("00"))
+        //        {
+        //            _logger.LogWarning($"Could not create user [{userProfileDTO.Email}] => {response.responseMsg}");
 
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex.Message);
-                _logger.LogError(ex.StackTrace);
-                return CommonResponse.Send(ResponseCodes.FAILURE, null, ex.Message);
+        //        }
 
-            }
-        }
+        //        var user = response.responseData;
+        //        var userProfile = (UserProfile)user;
+
+        //        var permissions = await _roleService.GetPermissionEnumsOnUser(userProfile.Id);
+
+        //        var token = _jwttHelper.GenerateToken(userProfile, permissions);
+
+
+        //        UserAuthTransferDTO userAuthTransferDTO = new UserAuthTransferDTO()
+        //        {
+        //            Token = token,
+        //            UserProfile = _mapper.Map<UserProfileTransferDTO>(userProfile)
+        //        };
+
+        //        return CommonResponse.Send(ResponseCodes.SUCCESS, userAuthTransferDTO);
+
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        _logger.LogError(ex.Message);
+        //        _logger.LogError(ex.StackTrace);
+        //        return CommonResponse.Send(ResponseCodes.FAILURE, null, ex.Message);
+
+        //    }
+        //}
 
     }
 }
