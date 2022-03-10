@@ -78,14 +78,14 @@ stages:
         displayName: 'Copy Dockerfile.Development to system directory'
         inputs:
           script: |
-            cp $(DockerDevelopment.secureFilePath) '$(System.DefaultWorkingDirectory)/HaloBiz/'
+            cp $(DockerDevelopment.secureFilePath) '$(System.DefaultWorkingDirectory)/'
 
       - task: Docker@2
         inputs:
           containerRegistry: 'Halobiz-Registry'
           repository: 'halobiz-backend'
           command: 'buildAndPush'
-          Dockerfile: '**/HaloBiz/Dockerfile.development'
+          Dockerfile: '**/Dockerfile.development'
           tags: $(tag)
 
       - task: AzureWebAppContainer@1
@@ -141,20 +141,20 @@ stages:
         name: DockerDevelopment
         displayName: 'Copy Docker development file to online_portal directory'
         inputs:
-          secureFile: 'Dockerfile.development'
+          secureFile: 'Dockerfile-online-backend-development'
 
       - task: CmdLine@2
         displayName: 'Copy Dockerfile.Development to system directory'
         inputs:
           script: |
-            cp $(DockerDevelopment.secureFilePath) '$(System.DefaultWorkingDirectory)/OnlinePortalBackend/'
+            cp $(DockerDevelopment.secureFilePath) '$(System.DefaultWorkingDirectory)/'
 
       - task: Docker@2
         inputs:
           containerRegistry: 'Halobiz-Registry'
           repository: 'online-portal-backend'
           command: 'buildAndPush'
-          Dockerfile: '**/OnlinePortalBackend/Dockerfile-online-backend-development'
+          Dockerfile: '**/Dockerfile-online-backend-development'
           tags: $(tag)
 
       - task: AzureWebAppContainer@1
@@ -211,20 +211,20 @@ stages:
         name: DockerDevelopment
         displayName: 'Copy Docker development file to halobiz_identity_server directory'
         inputs:
-          secureFile: 'Dockerfile.development'
+          secureFile: 'Dockerfile-identity-server-development'
 
       - task: CmdLine@2
         displayName: 'Copy Dockerfile.Development to system directory'
         inputs:
           script: |
-            cp $(DockerDevelopment.secureFilePath) '$(System.DefaultWorkingDirectory)/HalobizIdentityServer/'
+            cp $(DockerDevelopment.secureFilePath) '$(System.DefaultWorkingDirectory)/'
 
       - task: Docker@2
         inputs:
           containerRegistry: 'Halobiz-Registry'
           repository: 'halobiz-identity'
           command: 'buildAndPush'
-          Dockerfile: '**/HalobizIdentityServer/Dockerfile-identity-server-development'
+          Dockerfile: '**/Dockerfile-identity-server-development'
           tags: $(tag)
 
       - task: AzureWebAppContainer@1
