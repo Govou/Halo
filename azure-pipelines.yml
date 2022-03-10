@@ -4,6 +4,7 @@ trigger:
       - develop
       - staging
       - production
+      - Ci-dev/ft
 
 
 pr:
