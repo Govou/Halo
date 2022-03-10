@@ -11,6 +11,7 @@ pr:
   - develop
   - staging
   - production
+  - Ci-dev/ft
 
 resources:
 - repo: self
