@@ -105,12 +105,7 @@ namespace HalobizIdentityServer.Controllers
                 }
 
                 //check that his emails exist
-
-
-                if (login.Password != "12345")
-                {
-                    return CommonResponse.Send(ResponseCodes.FAILURE, null, "Username or password incorrect");
-                }
+              
 
                 var user = response.responseData;
                 var userProfile = (UserProfile)user;

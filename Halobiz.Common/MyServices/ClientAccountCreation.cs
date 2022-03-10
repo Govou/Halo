@@ -8,6 +8,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Security.Cryptography;
+using Microsoft.AspNetCore.Cryptography.KeyDerivation;
 
 namespace Halobiz.Common.MyServices
 {
@@ -23,7 +25,7 @@ namespace Halobiz.Common.MyServices
             _logger = logger;
         }
 
-        public async Task<ApiCommonResponse> CreateAccount(LoginDTO user)
+        public async Task<ApiCommonResponse> CreateAccount(UserProfileReceivingDTO user)
         {
             try
             {
@@ -40,14 +42,25 @@ namespace Halobiz.Common.MyServices
                     return CommonResponse.Send(ResponseCodes.FAILURE, null, $"This email {user.Email} does not exist for a customer");
                 }
 
-                //hash password for this guy
+                //check if the security code for this guy has been used
+
+
+                //hash password for this guy and create profile
                 await _userProfileService.AddUserProfile(new UserProfileReceivingDTO
                 {
-
+                    Email = user.Email,
+                    EmailConfirmed = true,
+                    NormalizedEmail = user.Email.ToUpper(),
+                    PasswordHash = HashPassword(user.Password),
+                    FirstName = user.FirstName,
+                    LastName = user.LastName,
+                    ImageUrl = "",
+                    StaffId = 0,
+                    DateOfBirth = DateTime.Now.ToString("yyyy-MM-dd"),
                 });
 
                 //send code to the client
-                return CommonResponse.Send(ResponseCodes.SUCCESS, null, $"A confirmation code has been send to {email}");
+                return CommonResponse.Send(ResponseCodes.SUCCESS, null, $"A confirmation code has been send to {user.Email}");
             }
             catch (Exception ex)
             {
@@ -55,5 +68,27 @@ namespace Halobiz.Common.MyServices
                 return CommonResponse.Send(ResponseCodes.FAILURE, null, "System error");
             }
         }
+
+        private string HashPassword(string password)
+        {
+            // generate a 128-bit salt using a cryptographically strong random sequence of nonzero values
+            byte[] salt = new byte[128 / 8];
+            using (var rngCsp = new RNGCryptoServiceProvider())
+            {
+                rngCsp.GetNonZeroBytes(salt);
+            }
+
+            // derive a 256-bit subkey (use HMACSHA256 with 100,000 iterations)
+            string hashed = Convert.ToBase64String(KeyDerivation.Pbkdf2(
+                password: password,
+                salt: salt,
+                prf: KeyDerivationPrf.HMACSHA256,
+                iterationCount: 100000,
+                numBytesRequested: 256 / 8));
+
+            return hashed;
+        }
+
+        
     }
 }
