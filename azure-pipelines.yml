@@ -33,7 +33,7 @@ stages:
 
 - stage: BuildAndDeployHalobizBackendMicroservice
   displayName: Build and Deploy Halobiz Microservice to Dev
-  condition: eq(variables.isCi, true)
+  #condition: eq(variables.isCi, true)
 
   jobs:
     - job: halobiz_backend_microservice_file_change
