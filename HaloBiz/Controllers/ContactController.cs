@@ -228,5 +228,17 @@ namespace HaloBiz.Controllers
         {
             return await _contactServiceImpl.getDeliverableDashboard(HttpContext);
         }
+
+        [HttpGet("GetAllQuotesWithDivisions")]
+        public async Task<ApiCommonResponse> GetAllQuotesWithDivisions()
+        {
+            return await _contactServiceImpl.getAllQuotes(HttpContext);
+        }
+
+        [HttpGet("GetQuotes/{leadId}")]
+        public async Task<ApiCommonResponse> GetQuotes(long leadId)
+        {
+            return await _contactServiceImpl.getQuoteServices(HttpContext,leadId);
+        }
     }
 }

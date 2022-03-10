@@ -1055,9 +1055,6 @@ namespace HaloBiz.MyServices.Impl
         public async Task<ApiCommonResponse> GetLeadsOpportunityData(HttpContext httpContext)
         {
 
-
-
-
             var getAllLeads = await _context.Leads.AsNoTracking()
                            .Where(x => x.IsDeleted == false)
                            .Include(x => x.CreatedBy)
@@ -1093,16 +1090,10 @@ namespace HaloBiz.MyServices.Impl
                                             .Include(x => x.ContractServices)
                                             .ToListAsync();
 
-
-
             if (contract == null)
             {
                 return CommonResponse.Send(ResponseCodes.FAILURE, null, "No Contract was found");
             }
-
-
-
-
             return CommonResponse.Send(ResponseCodes.SUCCESS, contract, "Contract was successfully retrieved");
 
         }
@@ -1121,8 +1112,7 @@ namespace HaloBiz.MyServices.Impl
                                                   .ToListAsync();
 
 
-
-            if (projects == null)
+            if (projects.Count == 0)
             {
                 return CommonResponse.Send(ResponseCodes.FAILURE, null, "No Project was found");
             }
@@ -1136,6 +1126,87 @@ namespace HaloBiz.MyServices.Impl
 
         }
 
+        public async Task<ApiCommonResponse> getAllQuotes(HttpContext httpContext)
+        {
+            var leads = await _context.Leads.AsNoTracking()
+                                           .Where(x => x.IsDeleted == false)
+                                           .Include(x => x.LeadDivisions.Where(x => x.IsDeleted == false))
+                                           .ToListAsync();
+
+            var quotes = await _context.Quotes.AsNoTracking()
+                                             .Where(x => x.IsDeleted == false)
+                                             .Include(x => x.QuoteServices.Where(x => x.IsDeleted == false))
+                                             .ToListAsync();
+
+            if (leads.Count == 0 || quotes.Count == 0)
+            {
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "No division was found");
+            }
+
+            var leadQuoteList = new List<LeadQuoteClass>();
+            foreach (var lead in  leads)
+            {
+                
+
+                foreach (var quote in quotes)
+                {
+                    if(lead.LeadDivisions.Any() || quote != null)
+                    {
+
+                        if (lead.LeadDivisions.Any(x => x.Id == quote.LeadDivisionId))
+                        {
+                            var leadQuote = new LeadQuoteClass
+                            {
+                                CreatedAt = lead.CreatedAt,
+                                IsDeleted = false,
+                                SuspectId = lead.SuspectId,
+                                ReferenceNo = lead.ReferenceNo,
+                                LogoUrl = lead.LogoUrl,
+                                Rcnumber = lead.Rcnumber,
+                                CustomerId = lead.CustomerId,
+                                LeadId = lead.Id,
+                                Quote = quote,
+                            };
+
+                            leadQuoteList.Add(leadQuote);
+                        }
+                    }
+                    
+                }
+
+            }
+
+            
+
+            return CommonResponse.Send(ResponseCodes.SUCCESS, leadQuoteList, "Division was successfully retrieved");
+
+        }
+
+
+        public async Task<ApiCommonResponse> getQuoteServices(HttpContext httpContext,long Id)
+        {
+            var getQuote = await _context.LeadDivisions.AsNoTracking()
+                                                .Include(x=>x.CreatedBy)
+                                                .Include(x => x.Quote)
+                                                           .ThenInclude(x => x.QuoteServices.Where(x => x.IsDeleted == false))
+                                                .Where(x=>x.IsDeleted == false && x.LeadId == Id)
+                                                .ToListAsync();
+
+
+            if (getQuote.Count == 0)
+            {
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "No quote was found");
+            }
+
+            var quoteArray = new List<Quote>();
+
+            foreach(var i in getQuote)
+            {
+                quoteArray.Add(i.Quote);
+            }
+
+            return CommonResponse.Send(ResponseCodes.SUCCESS, quoteArray, "No quote was found");
+        }
 
 
     }

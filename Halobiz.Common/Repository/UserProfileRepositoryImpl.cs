@@ -60,26 +60,16 @@ namespace Halobiz.Common.Repository
         {
             return await _context.UserProfiles
                 .Include(x => x.Sbu)
-<<<<<<< HEAD:HaloBiz/Repository/Impl/UserProfileRepositoryImpl.cs
-                //.Include(x => x.Role).ThenInclude(x => x.RoleClaims.Where(x => x.IsDeleted == false))
-                .FirstOrDefaultAsync(user => user.Id == Id && user.IsDeleted == false);
-=======
                 .Include(x => x.Role)
                 .FirstOrDefaultAsync( user => user.Id == Id && user.IsDeleted == false);
->>>>>>> 0ace32736dad459e3aead161e64e76c4afe00bbb:Halobiz.Common/Repository/UserProfileRepositoryImpl.cs
         }
 
         public async Task<UserProfile> FindUserByEmail(string email)
         {
             return await _context.UserProfiles
                 .Include(x => x.Sbu)
-<<<<<<< HEAD:HaloBiz/Repository/Impl/UserProfileRepositoryImpl.cs
-                //.Include(x => x.Role).ThenInclude(x => x.RoleClaims.Where(x => x.IsDeleted == false))
-                .FirstOrDefaultAsync(user => user.Email == email && user.IsDeleted == false);
-=======
                 .Include(x => x.Role)
                 .FirstOrDefaultAsync( user => user.Email == email && user.IsDeleted == false);
->>>>>>> 0ace32736dad459e3aead161e64e76c4afe00bbb:Halobiz.Common/Repository/UserProfileRepositoryImpl.cs
         }
 
         public async Task<IEnumerable<UserProfile>> FindAllUserProfile()

@@ -42,6 +42,8 @@ namespace HaloBiz.MyServices
         Task<ApiCommonResponse> GetLeadsOpportunityData(HttpContext httpContext);
         Task<ApiCommonResponse> getContractByLeadId(long Id);
         Task<ApiCommonResponse> getDeliverableDashboard(HttpContext httpContext);
+        Task<ApiCommonResponse> getAllQuotes(HttpContext httpContext);
+        Task<ApiCommonResponse> getQuoteServices(HttpContext httpContext, long Id);
 
 
     }
