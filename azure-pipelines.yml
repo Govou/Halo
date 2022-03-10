@@ -29,7 +29,7 @@ variables:
 
 stages:
 
-- stage: Build_and_Deploy_Halobiz-backend_Microservice
+- stage: BuildAndDeployHalobizBackendMicroservice
   displayName: Build and Deploy Halobiz Microservice to Dev
   condition: eq(variables.isDev, true)
 
@@ -97,7 +97,7 @@ stages:
           containers: 'halobiz.azurecr.io/halobiz-backend:$(tag)'
 
 
-- stage: Build_and_Deploy_Online_portal_backend_Microservice
+- stage: BuildAndDeployOnlinePortalBackendMicroservice
   displayName: Build and deploy Online Portal backend Microservice to Dev
   condition: eq(variables.isDev, true)
 
@@ -167,7 +167,7 @@ stages:
 
 
 
-- stage: Build_and_Deploy_Halobiz_identity_server_Microservice
+- stage: BuildAndDeployHalobizIdentityServerMicroservice
   displayName: Build and deploy Online Halobiz Identity-server Microservice to Dev
   condition: eq(variables.isDev, true)
 
