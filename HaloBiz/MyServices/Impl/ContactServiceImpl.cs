@@ -19,7 +19,7 @@ using System.Collections.Generic;
 
 namespace HaloBiz.MyServices.Impl
 {
-    public class ContactServiceImpl:IContactServiceImpl
+    public class ContactServiceImpl : IContactServiceImpl
     {
         private readonly HalobizContext _context;
         private readonly ILogger<ContactServiceImpl> _logger;
@@ -27,28 +27,29 @@ namespace HaloBiz.MyServices.Impl
 
         public ContactServiceImpl(HalobizContext context, ILogger<ContactServiceImpl> logger, IMapper mapper)
         {
-         
-        this._mapper = mapper;
-        this._logger = logger;
-        this._context = context;
-        
-       }
 
-        public async Task<ApiCommonResponse> AddNewContact(HttpContext context,Contactdto contactDTO)
+            this._mapper = mapper;
+            this._logger = logger;
+            this._context = context;
+
+        }
+
+
+        public async Task<ApiCommonResponse> AddNewContact(HttpContext context, Contactdto contactDTO)
         {
 
 
             using (var transaction = _context.Database.BeginTransaction())
             {
                 try
-                    {
+                {
                     //Check if the user with the same lastname,email or phonenumber already exist
-                    var contactInstance = await _context.Contacts.FirstOrDefaultAsync(x => x.Email  == contactDTO.Email && x.IsDeleted == false
+                    var contactInstance = await _context.Contacts.FirstOrDefaultAsync(x => x.Email == contactDTO.Email && x.IsDeleted == false
                                                                                       || x.LastName == contactDTO.LastName && x.IsDeleted == false
                                                                                       || x.Mobile == contactDTO.Mobile && x.IsDeleted == false);
                     if (contactInstance != null)
                     {
-                        return CommonResponse.Send(ResponseCodes.FAILURE,null,"A user with the same Email,LastName or Mobile number already exists"); ;
+                        return CommonResponse.Send(ResponseCodes.FAILURE, null, "A user with the same Email,LastName or Mobile number already exists"); ;
                     }
 
                     //Map Dto to constact, add the logged in user info and save the contact
@@ -64,7 +65,7 @@ namespace HaloBiz.MyServices.Impl
                     await _context.SaveChangesAsync();
                     var savedContact = contactEntity.Entity;
                     await transaction.CommitAsync();
-                    
+
                     return CommonResponse.Send(ResponseCodes.SUCCESS, savedContact);
                 }
                 catch (Exception e)
@@ -77,12 +78,12 @@ namespace HaloBiz.MyServices.Impl
         }
 
 
-        public async Task<ApiCommonResponse> disableContact(HttpContext httpContext,long contactId)
+        public async Task<ApiCommonResponse> disableContact(HttpContext httpContext, long contactId)
         {
             var contact = await _context.Contacts.Where(x => x.IsDeleted == false && x.Id == contactId).FirstOrDefaultAsync();
-            if(contact == null)
+            if (contact == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE); 
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);
             }
             else
             {
@@ -104,7 +105,7 @@ namespace HaloBiz.MyServices.Impl
             if (contactToUpdate == null)
             {
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);
-               
+
             }
             else
             {
@@ -146,21 +147,21 @@ namespace HaloBiz.MyServices.Impl
             }
         }
 
-        
+
 
         public async Task<ApiCommonResponse> GetAllContact(HttpContext httpContext)
         {
-            
+
             var contact = await _context.Contacts.Where(x => x.IsDeleted == false && x.CreatedById == httpContext.GetLoggedInUserId()).ToListAsync();
             if (contact == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE); 
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);
             }
             else
             {
                 return CommonResponse.Send(ResponseCodes.SUCCESS, contact);
             }
-            
+
         }
 
         public async Task<ApiCommonResponse> GetAllSuspect()
@@ -179,7 +180,7 @@ namespace HaloBiz.MyServices.Impl
         }
 
 
-        public async Task<ApiCommonResponse> AttachToSuspect(HttpContext httpContext,SuspectContactDTO suspectContactDTO)
+        public async Task<ApiCommonResponse> AttachToSuspect(HttpContext httpContext, SuspectContactDTO suspectContactDTO)
         {
 
             using (var transaction = _context.Database.BeginTransaction())
@@ -187,7 +188,7 @@ namespace HaloBiz.MyServices.Impl
                 try
                 {
 
-                    
+
                     //Check if the user with the same lastname,email or phonenumber already exist
                     var checkIfCntactExist = await _context.SuspectContacts.Where(x => x.IsDeleted == false
                                                              && x.SuspectId == suspectContactDTO.SuspectId
@@ -196,7 +197,7 @@ namespace HaloBiz.MyServices.Impl
 
                     if (checkIfCntactExist != null)
                     {
-                        return CommonResponse.Send(ResponseCodes.FAILURE,null,"This contact has already been attached to this suspect");
+                        return CommonResponse.Send(ResponseCodes.FAILURE, null, "This contact has already been attached to this suspect");
                     }
 
                     //Map Dto to constact, add the logged in user info and save the contact
@@ -225,8 +226,8 @@ namespace HaloBiz.MyServices.Impl
         {
 
             var suspect = await _context.SuspectContacts.Where(x => x.IsDeleted == false && x.SuspectId == suspectId)
-                                                              .Include(x=>x.Contact)
-                                                              .Include(x=>x.Suspect)
+                                                              .Include(x => x.Contact)
+                                                              .Include(x => x.Suspect)
                                                               .ToListAsync();
             if (suspect == null)
             {
@@ -261,10 +262,10 @@ namespace HaloBiz.MyServices.Impl
         {
 
             var meetings = await _context.Meetings.Where(x => x.IsActive == true && x.SuspectId == suspectId)
-                                                              .Include(x => x.ContactsInvolved.Where(x=>x.IsActive == true))
-                                                              .Include(x => x.StaffsInvolved.Where(x=>x.IsActive == true))
+                                                              .Include(x => x.ContactsInvolved.Where(x => x.IsActive == true))
+                                                              .Include(x => x.StaffsInvolved.Where(x => x.IsActive == true))
                                                               .ToListAsync();
-            
+
 
             if (meetings == null)
             {
@@ -291,7 +292,7 @@ namespace HaloBiz.MyServices.Impl
         }
 
 
-        public async Task<ApiCommonResponse> createMeeting(HttpContext httpContext,MeetingDTO meetingDTO)
+        public async Task<ApiCommonResponse> createMeeting(HttpContext httpContext, MeetingDTO meetingDTO)
         {
             using (var transaction = _context.Database.BeginTransaction())
             {
@@ -306,9 +307,9 @@ namespace HaloBiz.MyServices.Impl
 
                     var checkIfNameExist = await _context.Meetings.FirstOrDefaultAsync(x => x.IsActive == true && x.Caption.Trim() == meetingDTO.Caption.Trim());
 
-                    if(checkIfNameExist != null)
+                    if (checkIfNameExist != null)
                     {
-                        return CommonResponse.Send(ResponseCodes.FAILURE,null,"Please use another meeting caption,the current one already exist");
+                        return CommonResponse.Send(ResponseCodes.FAILURE, null, "Please use another meeting caption,the current one already exist");
                     }
 
                     var meetingInstance = new Meeting();
@@ -327,7 +328,7 @@ namespace HaloBiz.MyServices.Impl
                     await _context.SaveChangesAsync();
                     var savedMeeting = contactEntity.Entity;
 
-                    if(meetingDTO.ContactsInvolved != null)
+                    if (meetingDTO.ContactsInvolved != null)
                     {
                         var contactList = new List<MeetingContact>();
                         foreach (var contact in meetingDTO.ContactsInvolved)
@@ -344,7 +345,7 @@ namespace HaloBiz.MyServices.Impl
                         await _context.MeetingContacts.AddRangeAsync(contactList);
                         await _context.SaveChangesAsync();
                     }
-                   
+
 
 
                     if (meetingDTO.StaffsInvolved != null)
@@ -364,7 +365,7 @@ namespace HaloBiz.MyServices.Impl
                         await _context.MeetingStaffs.AddRangeAsync(staffList);
                         await _context.SaveChangesAsync();
                     }
-                   
+
                     await transaction.CommitAsync();
                     return CommonResponse.Send(ResponseCodes.SUCCESS, savedMeeting);
 
@@ -380,7 +381,7 @@ namespace HaloBiz.MyServices.Impl
         }
 
 
-        public async Task<ApiCommonResponse> updateMeeting(HttpContext httpContext, long meetingId,MeetingDTO meetingDTO)
+        public async Task<ApiCommonResponse> updateMeeting(HttpContext httpContext, long meetingId, MeetingDTO meetingDTO)
         {
             using (var transaction = _context.Database.BeginTransaction())
             {
@@ -422,7 +423,7 @@ namespace HaloBiz.MyServices.Impl
 
             var getStaffsById = await _context.MeetingStaffs.Where(x => x.IsActive == true && x.MeetingId == meetingId).ToListAsync();
 
-            if(getStaffsById != null)
+            if (getStaffsById != null)
             {
                 var staffArray = new List<MeetingStaff>();
                 foreach (var user in meetingDTO)
@@ -454,7 +455,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.SUCCESS, groupedResult, "Successffully saved");
             }
 
-           
+
 
             return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
 
@@ -496,7 +497,7 @@ namespace HaloBiz.MyServices.Impl
                          .Select(result => result.First())
                          .ToArray();
                 return CommonResponse.Send(ResponseCodes.SUCCESS, groupedResult, "Successfully saved Contact");
-               
+
             }
 
             return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
@@ -536,7 +537,7 @@ namespace HaloBiz.MyServices.Impl
 
 
 
-        public async Task<ApiCommonResponse> removeContact(HttpContext httpContext, long meetingId,long contactId)
+        public async Task<ApiCommonResponse> removeContact(HttpContext httpContext, long meetingId, long contactId)
         {
 
             using (var transaction = _context.Database.BeginTransaction())
@@ -591,7 +592,7 @@ namespace HaloBiz.MyServices.Impl
                     await _context.SaveChangesAsync();
                     await transaction.CommitAsync();
                     var remainResponsible = await _context.PMResponsibles.Where(x => x.IsActive == true && x.ToDoId == todoId).ToListAsync();
-                    return CommonResponse.Send(ResponseCodes.SUCCESS, remainResponsible,"Successfully removed user");
+                    return CommonResponse.Send(ResponseCodes.SUCCESS, remainResponsible, "Successfully removed user");
 
                     //_context.Meetings
                 }
@@ -616,7 +617,7 @@ namespace HaloBiz.MyServices.Impl
                     var checkIfStaffExist = await _context.MeetingStaffs.Where(x => x.IsActive == true && x.MeetingId == meetingId && x.StaffId == staffId).FirstOrDefaultAsync();
                     if (checkIfStaffExist == null)
                     {
-                        return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE,null,"This user ws not found");
+                        return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE, null, "This user ws not found");
                     }
 
                     checkIfStaffExist.IsActive = false;
@@ -627,7 +628,7 @@ namespace HaloBiz.MyServices.Impl
                     var groupedResult = remainStaff.GroupBy(p => p.StaffId)
                        .Select(result => result.First())
                        .ToArray();
-                    return CommonResponse.Send(ResponseCodes.SUCCESS,groupedResult,"Successfully removed staff");
+                    return CommonResponse.Send(ResponseCodes.SUCCESS, groupedResult, "Successfully removed staff");
 
                     //_context.Meetings
                 }
@@ -676,7 +677,7 @@ namespace HaloBiz.MyServices.Impl
 
 
 
-        public async Task<ApiCommonResponse> detachContact(HttpContext httpContext,long suspectid,long contactId)
+        public async Task<ApiCommonResponse> detachContact(HttpContext httpContext, long suspectid, long contactId)
         {
 
             using (var transaction = _context.Database.BeginTransaction())
@@ -765,11 +766,11 @@ namespace HaloBiz.MyServices.Impl
                                                    .ToListAsync();
 
             var contacts = new List<Contact>();
-            if(getContactsById != null)
+            if (getContactsById != null)
             {
-                foreach(var contact in getContactsById)
+                foreach (var contact in getContactsById)
                 {
-                   if(contact.Contact.IsDeleted == false)
+                    if (contact.Contact.IsDeleted == false)
                     {
                         contacts.Add(contact.Contact);
                     }
@@ -779,7 +780,7 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.SUCCESS, contacts);
             }
 
-            return CommonResponse.Send(ResponseCodes.FAILURE, null,"No value was found");
+            return CommonResponse.Send(ResponseCodes.FAILURE, null, "No value was found");
         }
 
 
@@ -802,7 +803,7 @@ namespace HaloBiz.MyServices.Impl
                                                     .Include(x => x.ToDos.Where(x => x.IsActive == true))
                                                     .ToListAsync();
 
-            if(goalTobeFound == null)
+            if (goalTobeFound == null)
             {
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);
             }
@@ -810,7 +811,7 @@ namespace HaloBiz.MyServices.Impl
             {
                 return CommonResponse.Send(ResponseCodes.SUCCESS, goalTobeFound);
             }
-            
+
         }
 
         public async Task<ApiCommonResponse> CreateTodo(HttpContext httpContext, long goalId, TodoDTO todoDTO)
@@ -829,7 +830,7 @@ namespace HaloBiz.MyServices.Impl
             if (todoDTO.Responsible != null)
             {
                 var responsibleArray = new List<PMResponsible>();
-                foreach(var responsible in todoDTO.Responsible)
+                foreach (var responsible in todoDTO.Responsible)
                 {
                     var responsibleInstance = new PMResponsible();
                     responsibleInstance.CreatedAt = DateTime.Now;
@@ -846,7 +847,7 @@ namespace HaloBiz.MyServices.Impl
 
             }
 
-            
+
             var savedTodo = todoEntity.Entity;
 
             return CommonResponse.Send(ResponseCodes.SUCCESS, savedTodo, "Successfully saved Todo");
@@ -856,7 +857,7 @@ namespace HaloBiz.MyServices.Impl
         {
             var todoToBeUpdated = await _context.ToDos.FirstOrDefaultAsync(x => x.IsActive == true && x.Id == todoId);
 
-            if(todoToBeUpdated == null)
+            if (todoToBeUpdated == null)
             {
                 return CommonResponse.Send(ResponseCodes.FAILURE, null, "Could not find Todo");
             }
@@ -888,7 +889,7 @@ namespace HaloBiz.MyServices.Impl
         {
 
             var todoToBeFound = await _context.ToDos.Where(x => x.IsActive == true && x.GoalId == goalId)
-                                                    .Include(x=>x.Responsibles.Where(x=>x.IsActive == true))
+                                                    .Include(x => x.Responsibles.Where(x => x.IsActive == true))
                                                      .ToListAsync();
 
             if (todoToBeFound == null)
@@ -936,7 +937,7 @@ namespace HaloBiz.MyServices.Impl
 
 
             var todoList = new List<ToDo>();
-            if(getGoalAndTodo != null)
+            if (getGoalAndTodo != null)
             {
                 foreach (var goal in getGoalAndTodo)
                 {
@@ -961,7 +962,7 @@ namespace HaloBiz.MyServices.Impl
 
             };
 
-            return CommonResponse.Send(ResponseCodes.SUCCESS,null,"This value was successfully processed");
+            return CommonResponse.Send(ResponseCodes.SUCCESS, valueToBeExposed, "This value was successfully processed");
 
 
         }
@@ -975,12 +976,6 @@ namespace HaloBiz.MyServices.Impl
                 .Include(x => x.LeadOrigin)
                 .Include(x => x.CreatedBy)
                 .Include(x => x.GroupType)
-                //.Include(x => x.Branch)
-                //.Include(x => x.Office)
-                //.Include(x => x.State)
-                //.Include(x => x.Lga)
-                //.Include(x => x.Industry)
-                //.Include(x => x.LeadType)
                 .Include(x => x.SuspectQualifications.Where(x => !x.IsDeleted && x.IsActive))
                 .ThenInclude(x => x.ServiceQualifications)
                 .ThenInclude(x => x.Service)
@@ -989,6 +984,18 @@ namespace HaloBiz.MyServices.Impl
             if (suspectsInConcern == null)
             {
                 return CommonResponse.Send(ResponseCodes.FAILURE, null, "No Suspect was found");
+            }
+
+            foreach (var i in suspectsInConcern)
+            {
+                if (i.GroupType.Caption == "Individual")
+                {
+                    i.BusinessName = $"{i.FirstName} {i.LastName}";
+                }
+                else
+                {
+                    continue;
+                }
             }
 
             var leadInstance = new LeadsClassificationData();
@@ -1043,49 +1050,10 @@ namespace HaloBiz.MyServices.Impl
 
         }
 
-        public async Task<ApiCommonResponse> GetLeadClassificationsDataByDates(HttpContext httpContext, DateTime startDate, DateTime endDate)
-        {
 
-
-            var suspectsInConcern = await _context.Suspects.AsNoTracking()
-                .Where(x => x.IsDeleted == false && x.CreatedAt.Date <= startDate.Date && x.CreatedAt.Date >= endDate.Date)
-                .Include(x => x.LeadOrigin)
-                .Include(x => x.CreatedBy)
-                .Include(x => x.GroupType)
-                .Include(x => x.Branch)
-                .Include(x => x.Office)
-                .Include(x => x.State)
-                .Include(x => x.Lga)
-                .Include(x => x.Industry)
-                .Include(x => x.LeadType)
-                .Include(x => x.SuspectQualifications.Where(x => !x.IsDeleted && x.IsActive))
-                .ThenInclude(x => x.ServiceQualifications)
-                .ThenInclude(x => x.Service)
-                .ToListAsync();
-
-            if (suspectsInConcern == null)
-            {
-                return CommonResponse.Send(ResponseCodes.FAILURE, null, "No Suspect was found");
-            }
-
-            var leadInstance = new LeadsClassificationData();
-
-            leadInstance.UnqualifiedLeads = suspectsInConcern.Where(x => x.SuspectQualifications.Count == 0).ToList();
-
-            leadInstance.LeadsInQualification = suspectsInConcern.Where(x => x.SuspectQualifications.Count > 0 && x.SuspectQualifications.Any(x => x.AuthorityCompleted == false)).ToList();
-
-            leadInstance.QualifiedLeads = suspectsInConcern.Where(x => x.SuspectQualifications.Count > 0 && x.SuspectQualifications.Any(x => x.AuthorityCompleted == true)).ToList();
-
-
-            return CommonResponse.Send(ResponseCodes.SUCCESS, leadInstance, "Suspect was successfully retrieved");
-
-        }
 
         public async Task<ApiCommonResponse> GetLeadsOpportunityData(HttpContext httpContext)
         {
-
-
-
 
             var getAllLeads = await _context.Leads.AsNoTracking()
                            .Where(x => x.IsDeleted == false)
@@ -1104,71 +1072,142 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.FAILURE, null, "No Suspect was found");
             }
 
+
             return CommonResponse.Send(ResponseCodes.SUCCESS, getAllLeads, "Suspect was successfully retrieved");
 
         }
 
-    public async Task<ApiCommonResponse> GetLeadsOpportunityDataByCreatedId(HttpContext httpContext, long createdById)
-    {
 
 
 
-
-        var getAllLeads = await _context.Leads
-                       .Where(x => x.IsDeleted == false && x.CreatedById == createdById)
-                       .Include(x => x.GroupType)
-                       .Include(x => x.Suspect)
-                         .ThenInclude(x => x.SuspectQualifications)
-                               .ThenInclude(x => x.ServiceQualifications)
-                                 .ThenInclude(x => x.Service)
-                       .ToListAsync();
-
-
-
-        if (getAllLeads == null)
-        {
-            return CommonResponse.Send(ResponseCodes.FAILURE, null, "No Suspect was found");
-        }
-
-        var leadInstance = new LeadsOpportunityData();
-
-        leadInstance.Initiate = getAllLeads.Where(x => x.LeadCaptureStatus == false).ToList();
-        leadInstance.DealCapture = getAllLeads.Where(x => x.LeadCaptureStatus == true).ToList();
-        leadInstance.Closed = getAllLeads.Where(x => x.LeadClosureStatus == true).ToList();
-        leadInstance.Negotiations = getAllLeads.Where(x => x.LeadCaptureDocumentUrl != null && x.LeadCaptureStatus == true).ToList();
-        leadInstance.Dropped = getAllLeads.Where(x => x.IsLeadDropped == true).ToList();
-        leadInstance.Conversion = getAllLeads.Where(x => x.LeadConversionStatus == true).ToList();
-        leadInstance.ConversionRatio = (long)Math.Round((double)(100 * leadInstance.Conversion.Count) / getAllLeads.Count);
-
-        return CommonResponse.Send(ResponseCodes.SUCCESS, leadInstance, "Suspect was successfully retrieved");
-
-    }
-
-
-    public async Task<ApiCommonResponse> getContractByLeadId(long Id)
+        public async Task<ApiCommonResponse> getContractByLeadId(long Id)
         {
 
 
             var contract = await _context.Contracts
                                            .Where(x => x.IsDeleted == false && x.CustomerDivisionId == Id)
-                                           .Include(x=>x.CreatedBy)
+                                           .Include(x => x.CreatedBy)
                                             .Include(x => x.ContractServices)
                                             .ToListAsync();
-
-
 
             if (contract == null)
             {
                 return CommonResponse.Send(ResponseCodes.FAILURE, null, "No Contract was found");
             }
-
-            
-           
-
             return CommonResponse.Send(ResponseCodes.SUCCESS, contract, "Contract was successfully retrieved");
 
         }
 
-       
+
+        public async Task<ApiCommonResponse> getDeliverableDashboard(HttpContext httpContext)
+        {
+
+
+            var projects = await _context.Projects.Where(x => x.IsActive == true && x.Watchers.Any(x => x.IsActive == true && x.ProjectWatcherId == httpContext.GetLoggedInUserId()))
+                                                  .Include(x => x.Workspace)
+                                                       .ThenInclude(x => x.StatusFlows.Where(x => x.IsDeleted == false))
+                                                  .Include(x => x.Tasks.Where(x => x.IsActive == true))
+                                                          .ThenInclude(x => x.Deliverables.Where(x => x.IsActive == true))
+                                                                .ThenInclude(x => x.CreatedBy)
+                                                  .ToListAsync();
+
+
+            if (projects.Count == 0)
+            {
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "No Project was found");
+            }
+
+            var getProjectResultResult = projects.GroupBy(p => p.Id)
+                              .Select(result => result.First())
+                              .ToArray();
+
+
+            return CommonResponse.Send(ResponseCodes.SUCCESS, getProjectResultResult, "Project was successfully retrieved");
+
+        }
+
+        public async Task<ApiCommonResponse> getAllQuotes(HttpContext httpContext)
+        {
+            var leads = await _context.Leads.AsNoTracking()
+                                           .Where(x => x.IsDeleted == false)
+                                           .Include(x => x.LeadDivisions.Where(x => x.IsDeleted == false))
+                                           .ToListAsync();
+
+            var quotes = await _context.Quotes.AsNoTracking()
+                                             .Where(x => x.IsDeleted == false)
+                                             .Include(x => x.QuoteServices.Where(x => x.IsDeleted == false))
+                                             .ToListAsync();
+
+            if (leads.Count == 0 || quotes.Count == 0)
+            {
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "No division was found");
+            }
+
+            var leadQuoteList = new List<LeadQuoteClass>();
+            foreach (var lead in  leads)
+            {
+                
+
+                foreach (var quote in quotes)
+                {
+                    if(lead.LeadDivisions.Any() || quote != null)
+                    {
+
+                        if (lead.LeadDivisions.Any(x => x.Id == quote.LeadDivisionId))
+                        {
+                            var leadQuote = new LeadQuoteClass
+                            {
+                                CreatedAt = lead.CreatedAt,
+                                IsDeleted = false,
+                                SuspectId = lead.SuspectId,
+                                ReferenceNo = lead.ReferenceNo,
+                                LogoUrl = lead.LogoUrl,
+                                Rcnumber = lead.Rcnumber,
+                                CustomerId = lead.CustomerId,
+                                LeadId = lead.Id,
+                                Quote = quote,
+                            };
+
+                            leadQuoteList.Add(leadQuote);
+                        }
+                    }
+                    
+                }
+
+            }
+
+            
+
+            return CommonResponse.Send(ResponseCodes.SUCCESS, leadQuoteList, "Division was successfully retrieved");
+
+        }
+
+
+        public async Task<ApiCommonResponse> getQuoteServices(HttpContext httpContext,long Id)
+        {
+            var getQuote = await _context.LeadDivisions.AsNoTracking()
+                                                .Include(x=>x.CreatedBy)
+                                                .Include(x => x.Quote)
+                                                           .ThenInclude(x => x.QuoteServices.Where(x => x.IsDeleted == false))
+                                                .Where(x=>x.IsDeleted == false && x.LeadId == Id)
+                                                .ToListAsync();
+
+
+            if (getQuote.Count == 0)
+            {
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "No quote was found");
+            }
+
+            var quoteArray = new List<Quote>();
+
+            foreach(var i in getQuote)
+            {
+                quoteArray.Add(i.Quote);
+            }
+
+            return CommonResponse.Send(ResponseCodes.SUCCESS, quoteArray, "No quote was found");
+        }
+
+
     }
 }
