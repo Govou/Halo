@@ -1,6 +1,7 @@
 #! /bin/bash
 # shellcheck disable=SC2125
 PATH_FILTER=OnlinePortalBackend/*
+PATH_COMMON=Halobiz.Common/*
 CHANGED_FILES=$(git diff HEAD HEAD~ --name-only)
 MATCH_COUNT=0
 
@@ -8,7 +9,7 @@ echo "Checking for file changes in Halobiz-backend..."
 for FILE in $CHANGED_FILES
 do
 
-  if [[ $FILE ==  $PATH_FILTER ]];
+  if [[ $FILE ==  $PATH_FILTER ]] || [[ $FILE ==  $PATH_COMMON ]] ;
   then
     # shellcheck disable=SC2016
     echo "MATCH:  ${FILE} changed"
