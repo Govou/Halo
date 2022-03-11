@@ -5,7 +5,7 @@ PATH_COMMON=Halobiz.Common/*
 CHANGED_FILES=$(git diff HEAD HEAD~ --name-only)
 MATCH_COUNT=0
 
-echo "Checking for file changes in Halobiz-backend..."
+echo "Checking for file changes in Halobiz-backend...."
 for FILE in $CHANGED_FILES
 do
 
