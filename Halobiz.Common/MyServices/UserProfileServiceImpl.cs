@@ -102,9 +102,7 @@ namespace Halobiz.Common.MyServices
             if (userProfile == null)
             {
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE); ;
-            }
-
-          
+            }          
 
            // var userProfileTransferDto = _mapper.Map<UserProfileTransferDTO>(userProfile);
             return CommonResponse.Send(ResponseCodes.SUCCESS, userProfile);

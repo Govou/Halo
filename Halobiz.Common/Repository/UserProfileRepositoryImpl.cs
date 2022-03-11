@@ -67,9 +67,10 @@ namespace Halobiz.Common.Repository
         public async Task<UserProfile> FindUserByEmail(string email)
         {
             return await _context.UserProfiles
+                .Where(user => user.Email == email && user.IsDeleted == false)
                 .Include(x => x.Sbu)
                 .Include(x => x.Role)
-                .FirstOrDefaultAsync( user => user.Email == email && user.IsDeleted == false);
+                .FirstOrDefaultAsync();
         }
 
         public async Task<IEnumerable<UserProfile>> FindAllUserProfile()
