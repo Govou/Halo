@@ -54,7 +54,7 @@ namespace HaloBiz.Helpers
                 return;
             }
             
-            bool isExempted = (controllerName.ToLower() == "auth" && (actionName.ToLower() == "login" || actionName.ToLower() == "otherlogin"));
+            bool isExempted = (controllerName.ToLower() == "auth" && (actionName.ToLower() == "login" || actionName.ToLower() == "otherlogin") || actionName.ToLower()== "createuser");
 
             if (!isExempted)
             {

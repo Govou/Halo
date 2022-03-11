@@ -60,8 +60,8 @@ namespace HalobizIdentityServer.Controllers
         }
 
         [AllowAnonymous]
-        [HttpPost("OnlineAccountCreation")]
-        public async Task<ApiCommonResponse> AllowAccountCreation(UserProfileReceivingDTO user)
+        [HttpPost("CreatePassword")]
+        public async Task<ApiCommonResponse> AllowAccountCreation(CreatePasswordDTO user)
         {
             return await _onlineAccounts.CreateAccount(user);
         }

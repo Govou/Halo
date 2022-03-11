@@ -25,7 +25,7 @@ namespace HalobizIdentityServer.MyServices
     public interface IOnlineAccounts
     {
         Task<ApiCommonResponse> SendConfirmCodeToClient(string Email);
-        Task<ApiCommonResponse> CreateAccount(UserProfileReceivingDTO user);
+        Task<ApiCommonResponse> CreateAccount(CreatePasswordDTO user);
         Task<ApiCommonResponse> Login(LoginDTO user);
         Task<ApiCommonResponse> VerifyCode(CodeVerifyModel model);
     }
@@ -77,7 +77,7 @@ namespace HalobizIdentityServer.MyServices
                     return CommonResponse.Send(ResponseCodes.FAILURE, null, $"This email {Email} does not exist for a customer");
                 }
 
-                if (!_context.UsersCodeVerifications.Any(x => x.Email == Email && x.CodeExpiryTime >= DateTime.Now && x.CodeUsedTime == null))
+                if (_context.UsersCodeVerifications.Any(x => x.Email == Email && x.CodeExpiryTime >= DateTime.Now && x.CodeUsedTime == null))
                 {
                     return CommonResponse.Send(ResponseCodes.FAILURE, null, $"The code for {Email} has not been used");
                 }
@@ -164,7 +164,7 @@ namespace HalobizIdentityServer.MyServices
             return code;
         }
 
-        public async Task<ApiCommonResponse> CreateAccount(UserProfileReceivingDTO user)
+        public async Task<ApiCommonResponse> CreateAccount(CreatePasswordDTO user)
         {
             try
             {
@@ -175,8 +175,10 @@ namespace HalobizIdentityServer.MyServices
                     return CommonResponse.Send(ResponseCodes.FAILURE, null, $"This email {user.Email} already has a profile");
                 }
 
+                var customer = await _context.CustomerDivisions.Where(x => x.Email == user.Email).FirstOrDefaultAsync();
+
                 //check if this customer division has an email
-                if (!_context.CustomerDivisions.Any(x => x.Email == user.Email))
+                if (customer == null)
                 {
                     return CommonResponse.Send(ResponseCodes.FAILURE, null, $"This email {user.Email} does not exist for a customer");
                 }
@@ -186,23 +188,25 @@ namespace HalobizIdentityServer.MyServices
                 if (code == null)
                 {
                     return CommonResponse.Send(ResponseCodes.FAILURE, null, $"The email {user.Email} does not have verified code");
-                }
+                }                
 
-                var (salt, hashed) = HashPassword(new byte[] { }, user.Password);
-                //hash password for this guy and create profile
-               var profileResult = await _userProfileService.AddUserProfile(new UserProfileReceivingDTO
+               var (salt, hashed) = HashPassword(new byte[] { }, user.Password);
+                var userpro = new UserProfileReceivingDTO
                 {
                     Email = user.Email,
                     EmailConfirmed = true,
                     NormalizedEmail = user.Email.ToUpper(),
                     PasswordHash = hashed,
-                    SecurityStamp = Convert.ToBase64String(salt),
-                    FirstName = user.FirstName,
-                    LastName = user.LastName,
+                    SecurityStamp = Convert.ToBase64String(salt),                   
                     ImageUrl = "",
                     StaffId = 0,
+                    FirstName = customer.DivisionName,
+                    LastName = "",
                     DateOfBirth = DateTime.Now.ToString("yyyy-MM-dd"),
-                }, true);
+                };
+
+                //hash password for this guy and create profile
+                var profileResult = await _userProfileService.AddUserProfile(userpro, true);
 
                 //send code to the client
                 return profileResult;
