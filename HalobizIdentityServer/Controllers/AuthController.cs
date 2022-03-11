@@ -73,7 +73,12 @@ namespace HalobizIdentityServer.Controllers
             return await _onlineAccounts.Login(login);
         }
 
-       
+        [AllowAnonymous]
+        [HttpPost("VerifyCode")]
+        public async Task<ApiCommonResponse> VerifyCode(CodeVerifyModel model)
+        {
+            return await _onlineAccounts.VerifyCode(model);
+        }
 
         [AllowAnonymous]
         [HttpPost("GoogleLogin")]

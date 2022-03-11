@@ -27,6 +27,7 @@ namespace HalobizIdentityServer.MyServices
         Task<ApiCommonResponse> SendConfirmCodeToClient(string Email);
         Task<ApiCommonResponse> CreateAccount(UserProfileReceivingDTO user);
         Task<ApiCommonResponse> Login(LoginDTO user);
+        Task<ApiCommonResponse> VerifyCode(CodeVerifyModel model);
     }
 
     public class OnlineAccounts : IOnlineAccounts
@@ -65,7 +66,7 @@ namespace HalobizIdentityServer.MyServices
             {
                 var response = await _userProfileService.FindUserByEmail(Email);
 
-                if (!response.responseCode.Contains("00"))
+                if (response.responseCode.Contains("00"))
                 {
                     return CommonResponse.Send(ResponseCodes.FAILURE, null, "You already have a profile");
                 }
@@ -74,6 +75,11 @@ namespace HalobizIdentityServer.MyServices
                 if (!_context.CustomerDivisions.Any(x => x.Email == Email))
                 {
                     return CommonResponse.Send(ResponseCodes.FAILURE, null, $"This email {Email} does not exist for a customer");
+                }
+
+                if (!_context.UsersCodeVerifications.Any(x => x.Email == Email && x.CodeExpiryTime >= DateTime.Now && x.CodeUsedTime == null))
+                {
+                    return CommonResponse.Send(ResponseCodes.FAILURE, null, $"The code for {Email} has not been used");
                 }
 
                 //save security code for this guy
@@ -104,6 +110,7 @@ namespace HalobizIdentityServer.MyServices
                 };
 
                 var mailresponse = await _mailService.ConfirmCodeSending(request);
+                mailresponse.responseData = $"Code for {Email} is: {code}";
                 return mailresponse;
             }
             catch (Exception ex)
@@ -113,6 +120,27 @@ namespace HalobizIdentityServer.MyServices
             }          
         }
 
+        public async Task<ApiCommonResponse> VerifyCode(CodeVerifyModel model)
+        {
+            try
+            {
+                var codModel = _context.UsersCodeVerifications.Where(x => x.Email == model.Email && x.CodeExpiryTime >= DateTime.Now && x.Code == model.Code && x.Purpose==CodePurpose.Onboarding).FirstOrDefault();
+                if (codModel == null)
+                {
+                    return CommonResponse.Send(ResponseCodes.FAILURE, null, $"The code for {model.Email} is invalid or expired");
+                }
+
+                codModel.CodeUsedTime = DateTime.Now;
+                await _context.SaveChangesAsync();
+
+                return CommonResponse.Send(ResponseCodes.SUCCESS, null, $"You have successfully used code for {model.Email}");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.StackTrace);
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, ex.Message);
+            }
+        }
         private async Task<string> GenerateCode()
         {
             string code = string.Empty;
@@ -142,7 +170,7 @@ namespace HalobizIdentityServer.MyServices
             {
                 var response = await _userProfileService.FindUserByEmail(user.Email);
 
-                if (!response.responseCode.Contains("00"))
+                if (response.responseCode.Contains("00"))
                 {
                     return CommonResponse.Send(ResponseCodes.FAILURE, null, "You already have a profile");
                 }
@@ -167,7 +195,7 @@ namespace HalobizIdentityServer.MyServices
                     EmailConfirmed = true,
                     NormalizedEmail = user.Email.ToUpper(),
                     PasswordHash = hashed,
-                    SecurityStamp = GetString(salt),
+                    SecurityStamp = Convert.ToBase64String(salt),
                     FirstName = user.FirstName,
                     LastName = user.LastName,
                     ImageUrl = "",
@@ -195,7 +223,7 @@ namespace HalobizIdentityServer.MyServices
                     return CommonResponse.Send(ResponseCodes.FAILURE, null, "User has not been created");
                 }
 
-                var byteSalt = GetBytes(profile.SecurityStamp);
+                var byteSalt = Convert.FromBase64String(profile.SecurityStamp);
                 var (salt, hashed) = HashPassword(byteSalt, user.Password);
                 if (!_context.UserProfiles.Any(x => x.Email == user.Email && x.PasswordHash == hashed))
                 {
@@ -221,20 +249,7 @@ namespace HalobizIdentityServer.MyServices
             }
         }
 
-        static byte[] GetBytes(string str)
-        {
-            byte[] bytes = new byte[str.Length * sizeof(char)];
-            System.Buffer.BlockCopy(str.ToCharArray(), 0, bytes, 0, bytes.Length);
-            return bytes;
-        }
-
-        // Do NOT use on arbitrary bytes; only use on GetBytes's output on the SAME system
-        static string GetString(byte[] bytes)
-        {
-            char[] chars = new char[bytes.Length / sizeof(char)];
-            System.Buffer.BlockCopy(bytes, 0, chars, 0, bytes.Length);
-            return new string(chars);
-        }
+       
         private static (byte[], string) HashPassword(byte[] salt, string password)
         {
             // generate a 128-bit salt using a cryptographically strong random sequence of nonzero values
