@@ -10,20 +10,21 @@ using System.Threading.Tasks;
 
 namespace Halobiz.Common.Helpers
 {
-    public static class Mapping
+    public class Mapping
     {
-        private static readonly Lazy<IMapper> Lazy = new Lazy<IMapper>(() =>
-        {
-            var config = new MapperConfiguration(cfg => {
-                // This line ensures that internal properties are also mapped over.
-                cfg.ShouldMapProperty = p => p.GetMethod.IsPublic || p.GetMethod.IsAssembly;
-                cfg.AddProfile<MappingProfile>();
-            });
-            var mapper = config.CreateMapper();
-            return mapper;
-        });
+        private IMapper _iMapper;
 
-        public static IMapper Mapper => Lazy.Value;
+        public Mapping()
+        {
+            var config = new MapperConfiguration(cfg =>
+            {
+                cfg.CreateMap<UserProfileTransferDTO, UserProfile>();
+
+            });
+
+            _iMapper = config.CreateMapper();
+        }
+
     }
 
     public class MappingProfile : Profile
@@ -31,8 +32,8 @@ namespace Halobiz.Common.Helpers
         public MappingProfile()
         {
             //CreateMap<Source, Destination>();
-            CreateMap<Role, RoleTransferDTO>();
-            CreateMap<UserProfile, UserProfileTransferDTO>();
+            CreateMap<RoleTransferDTO, Role>();
+            CreateMap<UserProfileTransferDTO, UserProfile>();
         }
     }
 }

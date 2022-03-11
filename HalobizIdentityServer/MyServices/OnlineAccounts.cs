@@ -172,7 +172,7 @@ namespace HalobizIdentityServer.MyServices
 
                 if (response.responseCode.Contains("00"))
                 {
-                    return CommonResponse.Send(ResponseCodes.FAILURE, null, "You already have a profile");
+                    return CommonResponse.Send(ResponseCodes.FAILURE, null, $"This email {user.Email} already has a profile");
                 }
 
                 //check if this customer division has an email
@@ -182,14 +182,15 @@ namespace HalobizIdentityServer.MyServices
                 }
 
                 //check if the security code for this guy has been used
-                if (!_context.UsersCodeVerifications.Any(x => x.Email == user.Email && x.CodeExpiryTime <= DateTime.Now && x.CodeUsedTime == null))
+                var code = await _context.UsersCodeVerifications.Where(x => x.Email == user.Email && x.CodeUsedTime != null).OrderByDescending(x=>x.Id).FirstOrDefaultAsync();
+                if (code == null)
                 {
-                    return CommonResponse.Send(ResponseCodes.FAILURE, null, $"The code for {user.Email} has not been used");
+                    return CommonResponse.Send(ResponseCodes.FAILURE, null, $"The email {user.Email} does not have verified code");
                 }
 
                 var (salt, hashed) = HashPassword(new byte[] { }, user.Password);
                 //hash password for this guy and create profile
-                await _userProfileService.AddUserProfile(new UserProfileReceivingDTO
+               var profileResult = await _userProfileService.AddUserProfile(new UserProfileReceivingDTO
                 {
                     Email = user.Email,
                     EmailConfirmed = true,
@@ -201,10 +202,10 @@ namespace HalobizIdentityServer.MyServices
                     ImageUrl = "",
                     StaffId = 0,
                     DateOfBirth = DateTime.Now.ToString("yyyy-MM-dd"),
-                });
+                }, true);
 
                 //send code to the client
-                return CommonResponse.Send(ResponseCodes.SUCCESS, null, $"A profile has been created for {user.Email}");
+                return profileResult;
             }
             catch (Exception ex)
             {

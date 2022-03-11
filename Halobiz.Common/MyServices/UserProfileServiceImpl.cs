@@ -20,7 +20,7 @@ namespace Halobiz.Common.MyServices
 {
     public interface IUserProfileService
     {
-        Task<ApiCommonResponse> AddUserProfile(UserProfileReceivingDTO userProfileReceivingDTO);
+        Task<ApiCommonResponse> AddUserProfile(UserProfileReceivingDTO userProfileReceivingDTO, bool isExternal = false);
         Task<ApiCommonResponse> FindUserById(long id);
         Task<ApiCommonResponse> FindUserByEmail(string email);
         Task<ApiCommonResponse> FindAllUsers();
@@ -38,6 +38,8 @@ namespace Halobiz.Common.MyServices
        // private readonly IMailAdapter _mailAdpater;
        // private readonly IModificationHistoryRepository _historyRepo ;
         private readonly HalobizContext _context;
+        private IMapper _iMapper;
+
         public UserProfileServiceImpl(IUserProfileRepository userRepo, 
            // IMailAdapter mailAdapter,
             HalobizContext context
@@ -48,42 +50,55 @@ namespace Halobiz.Common.MyServices
             //_mailAdpater = mailAdapter;
            // _historyRepo = historyRepo;
             _context = context;
+            var config = new MapperConfiguration(cfg =>
+            {
+                cfg.CreateMap<UserProfileTransferDTO, UserProfile>();
+
+            });
+
+            _iMapper = config.CreateMapper();
 
         }
 
-        public async Task<ApiCommonResponse> AddUserProfile(UserProfileReceivingDTO userProfileReceivingDTO)
+        public async Task<ApiCommonResponse> AddUserProfile(UserProfileReceivingDTO userProfileReceivingDTO, bool isExternal = false)
         {
-            if (
-                !(userProfileReceivingDTO.Email.Trim().EndsWith("halogen-group.com") ||
-                userProfileReceivingDTO.Email.Trim().EndsWith("avanthalogen.com") ||
-                userProfileReceivingDTO.Email.Trim().EndsWith("averthalogen.com") ||
-                userProfileReceivingDTO.Email.Trim().EndsWith("armourxhalogen.com") ||
-                userProfileReceivingDTO.Email.Trim().EndsWith("pshalogen.com") ||
-                userProfileReceivingDTO.Email.Trim().EndsWith("academyhalogen.com") ||
-                userProfileReceivingDTO.Email.Trim().EndsWith("armadahalogen.com"))
-                )
+            if (!isExternal)
             {
-                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Invalid email address");
-            }
+                if (
+                    !(userProfileReceivingDTO.Email.Trim().EndsWith("halogen-group.com") ||
+                    userProfileReceivingDTO.Email.Trim().EndsWith("avanthalogen.com") ||
+                    userProfileReceivingDTO.Email.Trim().EndsWith("averthalogen.com") ||
+                    userProfileReceivingDTO.Email.Trim().EndsWith("armourxhalogen.com") ||
+                    userProfileReceivingDTO.Email.Trim().EndsWith("pshalogen.com") ||
+                    userProfileReceivingDTO.Email.Trim().EndsWith("academyhalogen.com") ||
+                    userProfileReceivingDTO.Email.Trim().EndsWith("armadahalogen.com"))
+                    )
+                {
+                    return CommonResponse.Send(ResponseCodes.FAILURE, null, "Invalid email address");
+                }
+        }
 
             if (userProfileReceivingDTO.ImageUrl.Length > 255)
             {
                 userProfileReceivingDTO.ImageUrl = userProfileReceivingDTO.ImageUrl.Substring(0, 255);
             }
 
-            //todo fix mapping
-            // var userProfile = Mapping.Mapper.Map<UserProfile>(userProfileReceivingDTO);
-            //var userProfile = (UserProfile) userProfileReceivingDTO;
-            //var savedUserProfile = await _userRepo.SaveUserProfile(userProfile);
-            //if(savedUserProfile == null)
-            //{
-            //    return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
-            //}
-            // var userProfileTransferDto = Mapping.Mapper.Map<UserProfileTransferDTO>(userProfile);
-            //return CommonResponse.Send(ResponseCodes.SUCCESS, userProfile);
-            return CommonResponse.Send(ResponseCodes.SUCCESS);
+            var userProfile = JsonConvert.DeserializeObject<UserProfile>(JsonConvert.SerializeObject(userProfileReceivingDTO));
+
+            var savedUserProfile = await _userRepo.SaveUserProfile(userProfile);
+            if (savedUserProfile == null)
+            {
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+            }
+
+            //var userProfileTransferDto = Mapping.Mapper.Map<UserProfileTransferDTO>(userProfile);
+            var userProfileTransferDto = JsonConvert.DeserializeObject<UserProfileTransferDTO>(JsonConvert.SerializeObject(userProfile));
+
+            return CommonResponse.Send(ResponseCodes.SUCCESS, userProfileTransferDto);
+
 
         }
+
 
         public async Task<ApiCommonResponse> FindUserById(long id)
         {

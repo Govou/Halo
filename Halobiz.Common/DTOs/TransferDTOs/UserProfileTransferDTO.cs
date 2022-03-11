@@ -24,9 +24,9 @@ namespace Halobiz.Common.DTOs.TransferDTOs
         public string InstagramHandle { get; set; }
         public long StaffId { get; set; }
         public StrategicBusinessUnitTransferDTO SBU { get; set; }
-        public long SBUId { get; set; }
+        public long? SBUId { get; set; }
         public bool ProfileStatus { get; set; }
-        public long RoleId { get; set; }
+        public long? RoleId { get; set; }
         public RoleTransferDTO Role { get; set; }
 
         public override string ToString()
