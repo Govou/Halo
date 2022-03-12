@@ -59,20 +59,7 @@ namespace HaloBiz.DTOs.ReceivingDTOs
         public string DropOffLocationGeometry { get; set; }
         public double DistanceInKM { get; set; }
         public long?[] SecondaryServiceRegistrationId { get; set; }
-        //For AEscort
-        //public long ArmedEscortResourceId { get; set; }
-        //public long ServiceAssignmentId { get; set; }
-        //For Vehicle
-        //public long VehicleServiceAssignmentId { get; set; }
-        //public long VehicleResourceId { get; set; }
-        //For Commander
-        //public long CommanderServiceAssignmentId { get; set; }
-        //public long CommanderResourceId { get; set; }
-        //public long CommanderTiedVehicleResourceId { get; set; }
-        //For Pilot
-        //public long PilotServiceAssignmentId { get; set; }
-        //public long PilotResourceId { get; set; }
-        //public long PilotTiedVehicleResourceId { get; set; }
+      
     }
 
     public class SecondaryServiceAssignmentReceivingDTO
