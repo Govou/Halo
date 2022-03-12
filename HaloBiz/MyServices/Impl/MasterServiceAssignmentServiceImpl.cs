@@ -72,7 +72,7 @@ namespace HaloBiz.MyServices.Impl
             pickofftime = pickofftime.AddMilliseconds(-1 * pickofftime.Millisecond);
             var getRegService = await _serviceRegistrationRepository.FindServiceById(masterReceivingDTO.ServiceRegistrationId);
             long getId = 0;
-            long TiedVehicleId = 0;
+            long? TiedVehicleId = 0;
             //var RouteExistsForVehicle = _vehicleRegistrationRepository.GetAllVehiclesOnRouteByResourceAndRouteId(masterReceivingDTO.SMORouteId);
 
             try
@@ -135,20 +135,17 @@ namespace HaloBiz.MyServices.Impl
 
                 }
                 //For Vehicles
-                if (getId != 0)
+                if (getId > 0)
                 {
                     var getVehicleServiceRegistration = await _serviceRegistrationRepository.FindServiceById(masterReceivingDTO.ServiceRegistrationId);
-                    //var getVehicleDetail = await _serviceAssignmentDetailsRepository.FindAllVehicleServiceAssignmentDetails();
                     var getVehicleDetailNoneHeld = await _serviceAssignmentDetailsRepository.FindAllNoneHeldVehicleServiceAssignmentDetails();
-                    var getVehicleDetailListById = await _serviceAssignmentDetailsRepository.FindAllVehicleServiceAssignmentDetailsByAssignmentId(getId);
+                    //var getVehicleDetailListById = await _serviceAssignmentDetailsRepository.FindAllVehicleServiceAssignmentDetailsByAssignmentId(getId);
                     long? getVehicleResourceId = 0;
                     long? getTypeId = 0;
                     long count = 0;
                     var getResourceTypePerServiceForVehicle = await _serviceRegistrationRepository.FindVehicleResourceByServiceRegId(masterReceivingDTO.ServiceRegistrationId);
-                    //var getResourceTypePerServiceForVehicle = await _serviceRegistrationRepository.FindAllVehicleResourceByServiceRegId(masterReceivingDTO.ServiceRegistrationId);
-                    //var getAllResourceSchedule = await _dTSMastersRepository.FindAllVehicleMastersForAutoAssignment();
-                    var getAllResourceSchedule = await _dTSMastersRepository.FindAllVehicleMastersForAutoAssignmentByPickupDate(masterReceivingDTO.SMORouteId,masterReceivingDTO.PickupDate, masterReceivingDTO.PickoffTime);
                     var RouteExistsForVehicle = _vehicleRegistrationRepository.GetAllVehiclesOnRouteByResourceAndRouteId(masterReceivingDTO.SMORouteId);
+                    var getAllResourceSchedule = await _dTSMastersRepository.FindAllVehicleMastersForAutoAssignmentByPickupDate(masterReceivingDTO.ServiceRegistrationId,masterReceivingDTO.SMORouteId,masterReceivingDTO.PickupDate, masterReceivingDTO.PickoffTime);
 
                     if (getVehicleServiceRegistration.RequiresVehicle == true)
                     {
@@ -156,171 +153,47 @@ namespace HaloBiz.MyServices.Impl
                         {
                             int countSchedule = 0;
                             int resourceCount = 0;
-                            int countResource = getAllResourceSchedule.Count();
-                            int countBalance = 0;
-                            int countPassed = 0;
-                            int countFailed = 0;
+                           
                             
                             var _lastItem = getAllResourceSchedule.Last();
                                 foreach (var schedule in getAllResourceSchedule)
                                 {
-                                  var breakOut = false;
+                                  //var breakOut = false;
                                 //var innerLoopBreak = false;
-                                  countBalance = countResource - 1;
-                                  getVehicleResourceId = schedule.VehicleResourceId;
-                                  getTypeId = schedule.VehicleResource.VehicleTypeId;
-                                    var getVehicleDetail = await _serviceAssignmentDetailsRepository.FindVehicleServiceAssignmentDetailByResourceId2(getVehicleResourceId);
-                                    if (getVehicleDetail != null)
-                                    {
-                                        countFailed += 1;
-                                        if (schedule.Equals(_lastItem)) { transaction.Rollback(); return CommonResponse.Send(ResponseCodes.FAILURE, null, ResponseMessage.ResourceNotAvailble450); }
-
-                                        else { continue; }
-                                          
-                                    }
-                                    
-                                    var getResourceSchedule = await _dTSMastersRepository.FindVehicleMasterByResourceId2(getVehicleResourceId);
-                                    if (masterReceivingDTO.PickupDate >= schedule.AvailabilityStart && masterReceivingDTO.PickupDate <= schedule.AvailablilityEnd)
-                                    {
-                                            var genericVLastItem = schedule.GenericDays.Last();
-                                            var lastItem_ = schedule.GenericDays.Last();
-
-                                            foreach (var item in schedule.GenericDays)
-                                            {
-                                               
-                                                if (masterReceivingDTO.PickoffTime.TimeOfDay >= item.OpeningTime.TimeOfDay && masterReceivingDTO.PickoffTime.TimeOfDay <= item.ClosingTime.TimeOfDay)
-                                                {
-                                                    if (masterReceivingDTO.PickupDate.DayOfWeek.ToString() == "Monday" && item.Monday == true)
-                                                    {
-                                                        breakOut = true;
-                                                        //break;
-                                                    }
-                                                    else if (masterReceivingDTO.PickupDate.DayOfWeek.ToString() == "Tuesday" && item.Tuesday == true)
-                                                    {
-                                                    breakOut = true;
-                                                    //break;
-                                                    }
-                                                    else if (masterReceivingDTO.PickupDate.DayOfWeek.ToString() == "Wednesday" && item.Wednesday == true)
-                                                    {
-                                                    breakOut = true;
-                                                    //break;
-                                                    }
-                                                    else if (masterReceivingDTO.PickupDate.DayOfWeek.ToString() == "Thursday" && item.Thursday == true)
-                                                    {
-                                                    breakOut = true;
-                                                    //break;
-                                                    }
-                                                    else if (masterReceivingDTO.PickupDate.DayOfWeek.ToString() == "Friday" && item.Friday == true)
-                                                    {
-                                                    breakOut = true;
-                                                    //break;
-                                                    }
-                                                    else if (masterReceivingDTO.PickupDate.DayOfWeek.ToString() == "Saturday" && item.Saturday == true)
-                                                    {
-                                                    breakOut = true;
-                                                    //break;
-                                                    }
-                                                    else if (masterReceivingDTO.PickupDate.DayOfWeek.ToString() == "Sunday" && item.Sunday == true)
-                                                    {
-                                                    breakOut = true;
-                                                    //break;
-                                                    }
-                                                }
-                                                //else
-                                                //{
-                                                ////transaction.Rollback();
-                                                //    return CommonResponse.Send(ResponseCodes.FAILURE, null, ResponseMessage.ScheduleTimeMismatch448);
-                                                //}
-                                                if (breakOut)
-                                                {
-
-                                                    break;
-                                                }
-                                                
-
-                                            }
-                                            if (!breakOut)
-                                            {
-                                            if (schedule.Equals(_lastItem))
-                                            {
-                                                transaction.Rollback();
-                                                return CommonResponse.Send(ResponseCodes.FAILURE, null, ResponseMessage.ResourceNotAvailble450);
-                                            }
-                                            else
-                                                continue;
-                                            }
-                                       
-                                    }
-                                    else
-                                    {
-                                        if (schedule.Equals(_lastItem)) 
-                                        {
-                                        transaction.Rollback();
-                                        return CommonResponse.Send(ResponseCodes.FAILURE, null, ResponseMessage.ResourceNotAvailble450);
-                                        }
-                                        else
-                                        {
-                                        continue;
-                                        }
-
-                                    }
-
-                                    //Add
-                                    if (getResourceTypePerServiceForVehicle != null)
-                                    {
-                                        var typeExists = _serviceRegistrationRepository.GetVehicleResourceApplicableTypeReqById(getVehicleServiceRegistration.Id, getTypeId);
-                                        if (typeExists == null)
-                                        {
-                                                if ( schedule.Equals(_lastItem))
-                                                {
-                                                    //transaction.Rollback();
-                                                    return CommonResponse.Send(ResponseCodes.FAILURE, null, ResponseMessage.NoApplicableType446);
-                                                }
-                                                else
-                                                {
-                                                continue;
-                                                }
-                                        }
-                                         
-                                    }
-                                    else
-                                    {
-                                        //transaction.Rollback();
-                                        return CommonResponse.Send(ResponseCodes.FAILURE, null, ResponseMessage.NoApplicableType446);
-                                    }
+                                 
+                                     getVehicleResourceId = schedule.VehicleResourceId;
 
                                     vehicle.Id = 0;
                                     vehicle.IsTemporarilyHeld = true;
                                     vehicle.DateTemporarilyHeld = DateTime.UtcNow;
                                     vehicle.VehicleResourceId = getVehicleResourceId;
-                                    vehicle.RequiredCount = resourceCount + 1;
+                                    vehicle.RequiredCount = resourceCount += 1;
                                     vehicle.CreatedById = context.GetLoggedInUserId();
                                     vehicle.CreatedAt = DateTime.UtcNow;
                                     vehicle.ServiceAssignmentId = getId;
                                     var savedItem = await _serviceAssignmentDetailsRepository.SaveVehicleServiceAssignmentdetail(vehicle);
                                     if (savedItem == null)
                                     {
-                                       // transaction.Rollback();
+                                        transaction.Rollback();
                                         return CommonResponse.Send(ResponseCodes.FAILURE, null, ResponseMessage.InternalServer500);
                                     }
                                     else
                                     {
-                                        TiedVehicleId = savedItem.Id;
+                                       
                                         countSchedule++;
                                         if(countSchedule == getVehicleServiceRegistration.VehicleQuantityRequired)
                                         {
+                                            TiedVehicleId = getVehicleResourceId;
                                             break;
                                         }
                                         else
                                         {
-                                        continue;
+                                            continue;
                                         }
 
                                     }
                                 
                                 }
-
-
                         }
                         else
                         {
@@ -332,7 +205,7 @@ namespace HaloBiz.MyServices.Impl
                 }
 
                 //For Pilot
-                if (getId != 0)
+                if (getId > 0)
                 {
                     var getVehicleServiceRegistration = await _serviceRegistrationRepository.FindServiceById(masterReceivingDTO.ServiceRegistrationId);
                     //var getVehicleDetail = await _serviceAssignmentDetailsRepository.FindAllVehicleServiceAssignmentDetails();
@@ -344,8 +217,9 @@ namespace HaloBiz.MyServices.Impl
                     var getResourceTypePerServiceForVehicle = await _serviceRegistrationRepository.FindPilotResourceByServiceRegId(masterReceivingDTO.ServiceRegistrationId);
                     //var getResourceTypePerServiceForVehicle = await _serviceRegistrationRepository.FindAllVehicleResourceByServiceRegId(masterReceivingDTO.ServiceRegistrationId);
                     //var getAllResourceSchedule = await _dTSMastersRepository.FindAllVehicleMastersForAutoAssignment();
-                    var getAllResourceSchedule = await _dTSMastersRepository.FindAllPilotMastersForAutoAssignmentByPickupDate(masterReceivingDTO.SMORouteId,masterReceivingDTO.PickupDate, masterReceivingDTO.PickoffTime);
                     var RouteExists = _pilotRegistrationRepository.GetAllPilotsOnRouteByResourceAndRouteId(masterReceivingDTO.SMORouteId);
+                    var getAllResourceSchedule = await _dTSMastersRepository.FindAllPilotMastersForAutoAssignmentByPickupDate(masterReceivingDTO.ServiceRegistrationId, masterReceivingDTO.SMORouteId,masterReceivingDTO.PickupDate, masterReceivingDTO.PickoffTime);
+                    
 
                     if (getVehicleServiceRegistration.RequiresPilot == true)
                     {
@@ -357,130 +231,12 @@ namespace HaloBiz.MyServices.Impl
                             var _lastItem = getAllResourceSchedule.Last();
                             foreach (var schedule in getAllResourceSchedule)
                             {
-                                var breakOut = false;
+                               
                                 getResourceId = schedule.PilotResourceId;
-                                getTypeId = schedule.PilotResource.PilotTypeId;
-                                var getVehicleDetail = await _serviceAssignmentDetailsRepository.FindPilotServiceAssignmentDetailByResourceId2(getResourceId);
-                                if (getVehicleDetail != null)
-                                {
-                                    if (schedule.Equals(_lastItem))
-                                    {
-                                        transaction.Rollback();
-                                        return CommonResponse.Send(ResponseCodes.FAILURE, null, ResponseMessage.ResourceNotAvailble450);
-                                    }
-
-                                    else { continue; }
-                                       
-                                }
-                                var getResourceSchedule = await _dTSMastersRepository.FindPilotMasterByResourceId2(getResourceId);
-                                if (masterReceivingDTO.PickupDate >= schedule.AvailabilityStart && masterReceivingDTO.PickupDate <= schedule.AvailablilityEnd)
-                                {
-                                    var genericVLastItem = schedule.GenericDays.Last();
-                                    var lastItem_ = schedule.GenericDays.Last();
-
-                                    foreach (var item in schedule.GenericDays)
-                                    {
-
-                                        if (masterReceivingDTO.PickoffTime.TimeOfDay >= item.OpeningTime.TimeOfDay && masterReceivingDTO.PickoffTime.TimeOfDay <= item.ClosingTime.TimeOfDay)
-                                        {
-                                            if (masterReceivingDTO.PickupDate.DayOfWeek.ToString() == "Monday" && item.Monday == true)
-                                            {
-                                                breakOut = true;
-                                                //break;
-                                            }
-                                            else if (masterReceivingDTO.PickupDate.DayOfWeek.ToString() == "Tuesday" && item.Tuesday == true)
-                                            {
-                                                breakOut = true;
-                                                //break;
-                                            }
-                                            else if (masterReceivingDTO.PickupDate.DayOfWeek.ToString() == "Wednesday" && item.Wednesday == true)
-                                            {
-                                                breakOut = true;
-                                                //break;
-                                            }
-                                            else if (masterReceivingDTO.PickupDate.DayOfWeek.ToString() == "Thursday" && item.Thursday == true)
-                                            {
-                                                breakOut = true;
-                                                //break;
-                                            }
-                                            else if (masterReceivingDTO.PickupDate.DayOfWeek.ToString() == "Friday" && item.Friday == true)
-                                            {
-                                                breakOut = true;
-                                                //break;
-                                            }
-                                            else if (masterReceivingDTO.PickupDate.DayOfWeek.ToString() == "Saturday" && item.Saturday == true)
-                                            {
-                                                breakOut = true;
-                                                //break;
-                                            }
-                                            else if (masterReceivingDTO.PickupDate.DayOfWeek.ToString() == "Sunday" && item.Sunday == true)
-                                            {
-                                                breakOut = true;
-                                                //break;
-                                            }
-                                        }
-                                        //else
-                                        //{
-                                        //    //transaction.Rollback();
-                                        //    return CommonResponse.Send(ResponseCodes.FAILURE, null, ResponseMessage.ScheduleTimeMismatch448);
-                                        //}
-                                        if (breakOut)
-                                        {
-                                            break;
-                                        }
-
-
-                                    }
-                                    if (!breakOut)
-                                    {
-                                        if (schedule.Equals(_lastItem))
-                                        {
-                                            transaction.Rollback();
-                                            return CommonResponse.Send(ResponseCodes.FAILURE, null, ResponseMessage.ResourceNotAvailble450);
-                                        }
-                                        else
-                                            continue;
-                                    }
-
-                                }
-                                else
-                                {
-                                    if (schedule.Equals(_lastItem))
-                                    {
-                                        transaction.Rollback();
-                                        return CommonResponse.Send(ResponseCodes.FAILURE, null, ResponseMessage.ResourceNotAvailble450);
-                                    }
-                                    else
-                                    {
-                                        continue;
-                                    }
-
-                                }
+                             
 
                                 //Add
-                                if (getResourceTypePerServiceForVehicle != null)
-                                {
-                                    var typeExists = _serviceRegistrationRepository.GetPilotResourceApplicableTypeReqById(getVehicleServiceRegistration.Id, getTypeId);
-                                    if (typeExists == null)
-                                    {
-                                        if (schedule.Equals(_lastItem))
-                                        {
-                                            transaction.Rollback();
-                                            return CommonResponse.Send(ResponseCodes.FAILURE, null, ResponseMessage.ResourceNotAvailble450);
-                                        }
-                                        else
-                                        {
-                                            continue;
-                                        }
-                                    }
-
-                                }
-                                else
-                                {
-                                    transaction.Rollback();
-                                    return CommonResponse.Send(ResponseCodes.FAILURE, null, ResponseMessage.ResourceNotAvailble450);
-                                }
-
+                               
                                 pilot.Id = 0;
                                 pilot.IsTemporarilyHeld = true;
                                 pilot.DateTemporarilyHeld = DateTime.UtcNow;
@@ -493,7 +249,7 @@ namespace HaloBiz.MyServices.Impl
                                 var savedItem = await _serviceAssignmentDetailsRepository.SavePilotServiceAssignmentdetail(pilot);
                                 if (savedItem == null)
                                 {
-                                    // transaction.Rollback();
+                                    transaction.Rollback();
                                     return CommonResponse.Send(ResponseCodes.FAILURE, null, ResponseMessage.InternalServer500);
                                 }
                                 else
@@ -525,7 +281,7 @@ namespace HaloBiz.MyServices.Impl
                 }
 
                 //For Commander
-                if (getId != 0)
+                if (getId > 0)
                 {
                     var getVehicleServiceRegistration = await _serviceRegistrationRepository.FindServiceById(masterReceivingDTO.ServiceRegistrationId);
                     //var getVehicleDetail = await _serviceAssignmentDetailsRepository.FindAllVehicleServiceAssignmentDetails();
@@ -537,12 +293,13 @@ namespace HaloBiz.MyServices.Impl
                     var getResourceTypePerServiceForVehicle = await _serviceRegistrationRepository.FindCommanderResourceByServiceRegId(masterReceivingDTO.ServiceRegistrationId);
                     //var getResourceTypePerServiceForVehicle = await _serviceRegistrationRepository.FindAllVehicleResourceByServiceRegId(masterReceivingDTO.ServiceRegistrationId);
                     //var getAllResourceSchedule = await _dTSMastersRepository.FindAllVehicleMastersForAutoAssignment();
-                    var getAllResourceSchedule = await _dTSMastersRepository.FindAllCommanderMastersForAutoAssignmentByPickupDate(masterReceivingDTO.PickupDate, masterReceivingDTO.PickoffTime);
                     var RouteExists = _commanderRegistrationRepository.GetAllCommanderssOnRouteByResourceAndRouteId(masterReceivingDTO.SMORouteId);
+                    var getAllResourceSchedule = await _dTSMastersRepository.FindAllCommanderMastersForAutoAssignmentByPickupDate(masterReceivingDTO.ServiceRegistrationId, masterReceivingDTO.SMORouteId, masterReceivingDTO.PickupDate, masterReceivingDTO.PickoffTime);
+                   
 
                     if (getVehicleServiceRegistration.RequiresCommander == true)
                     {
-                        if (RouteExists.Count() >= getVehicleServiceRegistration.CommanderQuantityRequired && getAllResourceSchedule.Count() >= getVehicleServiceRegistration.CommanderQuantityRequired)
+                        if ( getAllResourceSchedule.Count() >= getVehicleServiceRegistration.CommanderQuantityRequired)
                         {
                             int countSchedule = 0;
                             int resourceCount = 0;
@@ -552,129 +309,8 @@ namespace HaloBiz.MyServices.Impl
                             {
                                 var breakOut = false;
                                 getResourceId = schedule.CommanderResourceId;
-                                getTypeId = schedule.CommanderResource.CommanderTypeId;
-                                //double check if resource is temp held
-                                var getVehicleDetail = await _serviceAssignmentDetailsRepository.FindCommanderServiceAssignmentDetailByResourceId2(getResourceId);
-                                if (getVehicleDetail != null)
-                                {
-                                    if (schedule.Equals(_lastItem))
-                                    {
-                                        transaction.Rollback();
-                                        return CommonResponse.Send(ResponseCodes.FAILURE, null, ResponseMessage.ResourceNotAvailble450);
-                                    }
-
-                                    else { continue; }
-
-                                }
-                                var getResourceSchedule = await _dTSMastersRepository.FindCommanderMasterByResourceId2(getResourceId);
-                                if (masterReceivingDTO.PickupDate >= schedule.AvailabilityStart && masterReceivingDTO.PickupDate <= schedule.AvailablilityEnd)
-                                {
-                                    var genericVLastItem = schedule.GenericDays.Last();
-                                    var lastItem_ = schedule.GenericDays.Last();
-
-                                    foreach (var item in schedule.GenericDays)
-                                    {
-
-                                        if (masterReceivingDTO.PickoffTime.TimeOfDay >= item.OpeningTime.TimeOfDay && masterReceivingDTO.PickoffTime.TimeOfDay <= item.ClosingTime.TimeOfDay)
-                                        {
-                                            if (masterReceivingDTO.PickupDate.DayOfWeek.ToString() == "Monday" && item.Monday == true)
-                                            {
-                                                breakOut = true;
-                                                //break;
-                                            }
-                                            else if (masterReceivingDTO.PickupDate.DayOfWeek.ToString() == "Tuesday" && item.Tuesday == true)
-                                            {
-                                                breakOut = true;
-                                                //break;
-                                            }
-                                            else if (masterReceivingDTO.PickupDate.DayOfWeek.ToString() == "Wednesday" && item.Wednesday == true)
-                                            {
-                                                breakOut = true;
-                                                //break;
-                                            }
-                                            else if (masterReceivingDTO.PickupDate.DayOfWeek.ToString() == "Thursday" && item.Thursday == true)
-                                            {
-                                                breakOut = true;
-                                                //break;
-                                            }
-                                            else if (masterReceivingDTO.PickupDate.DayOfWeek.ToString() == "Friday" && item.Friday == true)
-                                            {
-                                                breakOut = true;
-                                                //break;
-                                            }
-                                            else if (masterReceivingDTO.PickupDate.DayOfWeek.ToString() == "Saturday" && item.Saturday == true)
-                                            {
-                                                breakOut = true;
-                                                //break;
-                                            }
-                                            else if (masterReceivingDTO.PickupDate.DayOfWeek.ToString() == "Sunday" && item.Sunday == true)
-                                            {
-                                                breakOut = true;
-                                                //break;
-                                            }
-                                        }
-                                        //else
-                                        //{
-                                        //    //transaction.Rollback();
-                                        //    return CommonResponse.Send(ResponseCodes.FAILURE, null, ResponseMessage.ScheduleTimeMismatch448);
-                                        //}
-                                        if (breakOut)
-                                        {
-                                            break;
-                                        }
-
-
-                                    }
-                                    if (!breakOut)
-                                    {
-                                        if (schedule.Equals(_lastItem))
-                                        {
-                                            transaction.Rollback();
-                                            return CommonResponse.Send(ResponseCodes.FAILURE, null, ResponseMessage.ResourceNotAvailble450);
-                                        }
-                                        else
-                                            continue;
-                                    }
-
-                                }
-                                else
-                                {
-                                    if (schedule.Equals(_lastItem))
-                                    {
-                                        transaction.Rollback();
-                                        return CommonResponse.Send(ResponseCodes.FAILURE, null, ResponseMessage.ResourceNotAvailble450);
-                                    }
-                                    else
-                                    {
-                                        continue;
-                                    }
-
-                                }
-
                                 //Add
-                                if (getResourceTypePerServiceForVehicle != null)
-                                {
-                                    var typeExists = _serviceRegistrationRepository.GetCommanderResourceApplicableTypeReqById(getVehicleServiceRegistration.Id, getTypeId);
-                                    if (typeExists == null)
-                                    {
-                                        if (schedule.Equals(_lastItem))
-                                        {
-                                            transaction.Rollback();
-                                            return CommonResponse.Send(ResponseCodes.FAILURE, null, ResponseMessage.ResourceNotAvailble450);
-                                        }
-                                        else
-                                        {
-                                            continue;
-                                        }
-                                    }
-
-                                }
-                                else
-                                {
-                                    transaction.Rollback();
-                                    return CommonResponse.Send(ResponseCodes.FAILURE, null, ResponseMessage.ResourceNotAvailble450);
-                                }
-
+                              
                                 commander.Id = 0;
                                 commander.IsTemporarilyHeld = true;
                                 commander.DateTemporarilyHeld = DateTime.UtcNow;
@@ -716,24 +352,22 @@ namespace HaloBiz.MyServices.Impl
                 }
 
                 //For ArmedEscort
-                if (getId != 0)
+                if (getId > 0)
                 {
                     var getVehicleServiceRegistration = await _serviceRegistrationRepository.FindServiceById(masterReceivingDTO.ServiceRegistrationId);
-                    //var getVehicleDetail = await _serviceAssignmentDetailsRepository.FindAllVehicleServiceAssignmentDetails();
-                    //var getVehicleDetailNoneHeld = await _serviceAssignmentDetailsRepository.FindAllNoneHeldVehicleServiceAssignmentDetails();
+                  
                     var getVehicleDetailListById = await _serviceAssignmentDetailsRepository.FindAllVehicleServiceAssignmentDetailsByAssignmentId(getId);
                     long? getResourceId = 0;
                     long? getTypeId = 0;
                     long count = 0;
-                    var getResourceTypePerServiceForVehicle = await _serviceRegistrationRepository.FindCommanderResourceByServiceRegId(masterReceivingDTO.ServiceRegistrationId);
-                    //var getResourceTypePerServiceForVehicle = await _serviceRegistrationRepository.FindAllVehicleResourceByServiceRegId(masterReceivingDTO.ServiceRegistrationId);
-                    //var getAllResourceSchedule = await _dTSMastersRepository.FindAllVehicleMastersForAutoAssignment();
-                    var getAllResourceSchedule = await _dTSMastersRepository.FindAllArmedEscortMastersForAutoAssignmentByPickupDate(masterReceivingDTO.PickupDate, masterReceivingDTO.PickoffTime);
+                    //var getResourceTypePerServiceForVehicle = await _serviceRegistrationRepository.FindCommanderResourceByServiceRegId(masterReceivingDTO.ServiceRegistrationId);
+                 
                     var RouteExists = _commanderRegistrationRepository.GetAllCommanderssOnRouteByResourceAndRouteId(masterReceivingDTO.SMORouteId);
+                    var getAllResourceSchedule = await _dTSMastersRepository.FindAllArmedEscortMastersForAutoAssignmentByPickupDate(masterReceivingDTO.ServiceRegistrationId, masterReceivingDTO.SMORouteId,masterReceivingDTO.PickupDate, masterReceivingDTO.PickoffTime);
 
                     if (getVehicleServiceRegistration.RequiresArmedEscort == true)
                     {
-                        if (RouteExists.Count() >= getVehicleServiceRegistration.ArmedEscortQuantityRequired && getAllResourceSchedule.Count() >= getVehicleServiceRegistration.ArmedEscortQuantityRequired)
+                        if ( getAllResourceSchedule.Count() >= getVehicleServiceRegistration.ArmedEscortQuantityRequired)
                         {
                             int countSchedule = 0;
                             int resourceCount = 0;
@@ -743,129 +377,8 @@ namespace HaloBiz.MyServices.Impl
                             {
                                 var breakOut = false;
                                 getResourceId = schedule.ArmedEscortResourceId;
-                                getTypeId = schedule.ArmedEscortResource.ArmedEscortTypeId;
-                                //double check if resource is temp held
-                                var getVehicleDetail = await _serviceAssignmentDetailsRepository.FindEscortServiceAssignmentDetailByResourceId2(getResourceId);
-                                if (getVehicleDetail != null)
-                                {
-                                    if (schedule.Equals(_lastItem))
-                                    {
-                                        transaction.Rollback();
-                                        return CommonResponse.Send(ResponseCodes.FAILURE, null, ResponseMessage.ResourceNotAvailble450);
-                                    }
-
-                                    else { continue; }
-
-                                }
-                                var getResourceSchedule = await _dTSMastersRepository.FindArmedEscortMasterByResourceId2(getResourceId);
-                                if (masterReceivingDTO.PickupDate >= schedule.AvailabilityStart && masterReceivingDTO.PickupDate <= schedule.AvailablilityEnd)
-                                {
-                                    var genericVLastItem = schedule.GenericDays.Last();
-                                    var lastItem_ = schedule.GenericDays.Last();
-
-                                    foreach (var item in schedule.GenericDays)
-                                    {
-
-                                        if (masterReceivingDTO.PickoffTime.TimeOfDay >= item.OpeningTime.TimeOfDay && masterReceivingDTO.PickoffTime.TimeOfDay <= item.ClosingTime.TimeOfDay)
-                                        {
-                                            if (masterReceivingDTO.PickupDate.DayOfWeek.ToString() == "Monday" && item.Monday == true)
-                                            {
-                                                breakOut = true;
-                                                //break;
-                                            }
-                                            else if (masterReceivingDTO.PickupDate.DayOfWeek.ToString() == "Tuesday" && item.Tuesday == true)
-                                            {
-                                                breakOut = true;
-                                                //break;
-                                            }
-                                            else if (masterReceivingDTO.PickupDate.DayOfWeek.ToString() == "Wednesday" && item.Wednesday == true)
-                                            {
-                                                breakOut = true;
-                                                //break;
-                                            }
-                                            else if (masterReceivingDTO.PickupDate.DayOfWeek.ToString() == "Thursday" && item.Thursday == true)
-                                            {
-                                                breakOut = true;
-                                                //break;
-                                            }
-                                            else if (masterReceivingDTO.PickupDate.DayOfWeek.ToString() == "Friday" && item.Friday == true)
-                                            {
-                                                breakOut = true;
-                                                //break;
-                                            }
-                                            else if (masterReceivingDTO.PickupDate.DayOfWeek.ToString() == "Saturday" && item.Saturday == true)
-                                            {
-                                                breakOut = true;
-                                                //break;
-                                            }
-                                            else if (masterReceivingDTO.PickupDate.DayOfWeek.ToString() == "Sunday" && item.Sunday == true)
-                                            {
-                                                breakOut = true;
-                                                //break;
-                                            }
-                                        }
-                                        //else
-                                        //{
-                                        //    //transaction.Rollback();
-                                        //    return CommonResponse.Send(ResponseCodes.FAILURE, null, ResponseMessage.ScheduleTimeMismatch448);
-                                        //}
-                                        if (breakOut)
-                                        {
-                                            break;
-                                        }
-
-
-                                    }
-                                    if (!breakOut)
-                                    {
-                                        if (schedule.Equals(_lastItem))
-                                        {
-                                            transaction.Rollback();
-                                            return CommonResponse.Send(ResponseCodes.FAILURE, null, ResponseMessage.ResourceNotAvailble450);
-                                        }
-                                        else
-                                            continue;
-                                    }
-
-                                }
-                                else
-                                {
-                                    if (schedule.Equals(_lastItem))
-                                    {
-                                        transaction.Rollback();
-                                        return CommonResponse.Send(ResponseCodes.FAILURE, null, ResponseMessage.ResourceNotAvailble450);
-                                    }
-                                    else
-                                    {
-                                        continue;
-                                    }
-
-                                }
-
+                               
                                 //Add
-                                if (getResourceTypePerServiceForVehicle != null)
-                                {
-                                    var typeExists = _serviceRegistrationRepository.GetArmedEscortResourceApplicableTypeReqById(getVehicleServiceRegistration.Id, getTypeId);
-                                    if (typeExists == null)
-                                    {
-                                        if (schedule.Equals(_lastItem))
-                                        {
-                                            transaction.Rollback();
-                                            return CommonResponse.Send(ResponseCodes.FAILURE, null, ResponseMessage.ResourceNotAvailble450);
-                                        }
-                                        else
-                                        {
-                                            continue;
-                                        }
-                                    }
-
-                                }
-                                else
-                                {
-                                    transaction.Rollback();
-                                    return CommonResponse.Send(ResponseCodes.FAILURE, null, ResponseMessage.ResourceNotAvailble450);
-                                }
-
                                 armedEscort.Id = 0;
                                 armedEscort.IsTemporarilyHeld = true;
                                 armedEscort.DateTemporarilyHeld = DateTime.UtcNow;
@@ -936,13 +449,7 @@ namespace HaloBiz.MyServices.Impl
             var getRegService = await _serviceRegistrationRepository.FindServiceById(masterReceivingDTO.ServiceRegistrationId);
             long getId = 0;
 
-            //var NameExist = _armedEscortsRepository.GetTypename(armedEscortTypeReceivingDTO.Name);
-            //if (NameExist != null)
-            //{
-            //    return CommonResponse.Send(ResponseCodes.FAILURE, null, ResponseMessage.RecordExists409);
-            //}
-
-            //master.CreatedBy = context.User.Claims();
+            
             master.CreatedById = context.GetLoggedInUserId();
             master.PickoffTime = pickofftime;
             master.CreatedAt = DateTime.UtcNow;
