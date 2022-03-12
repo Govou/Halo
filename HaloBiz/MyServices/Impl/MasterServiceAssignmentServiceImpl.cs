@@ -167,7 +167,7 @@ namespace HaloBiz.MyServices.Impl
                                     vehicle.IsTemporarilyHeld = true;
                                     vehicle.DateTemporarilyHeld = DateTime.UtcNow;
                                     vehicle.VehicleResourceId = getVehicleResourceId;
-                                    vehicle.RequiredCount = resourceCount += 1;
+                                    vehicle.RequiredCount = resourceCount + 1;
                                     vehicle.CreatedById = context.GetLoggedInUserId();
                                     vehicle.CreatedAt = DateTime.UtcNow;
                                     vehicle.ServiceAssignmentId = getId;
