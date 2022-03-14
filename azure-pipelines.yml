@@ -377,7 +377,73 @@ stages:
           containers: 'halobiz.azurecr.io/halobiz-identity-staging:$(tag)'
 
 
+- stage: BuildAndDeployOnlinePortalBackendMicroservice
+  displayName: Build and deploy Online Portal backend Microservice to Stg
+  condition: eq(variables.isStg, true)
 
+  jobs:
+    - job: online_portal_microservice_file_change_stg
+      displayName: Check_online_portal_microservice_for_file_change
+      pool:
+        vmImage: $(vmImageName)
+      steps:
+      - task: CmdLine@2
+        displayName: 'Check online_portal microservice build'
+        inputs:
+          script: |
+            chmod +x Scripts/online-portal-script.sh
+            ./Scripts/online-portal-script.sh
+        name: online_portal_microservice_file_change_stg
+
+    - job: Build_and_deploy_online_portal_Microservice
+      displayName: 'Build and deploy online_portal Microservice'
+      dependsOn:  online_portal_microservice_file_change
+      condition: eq(dependencies.online_portal_microservice_file_change_stg.outputs['online_portal_microservice_file_change_stg.SOURCE_CODE_CHANGED'], 'true')
+      pool:
+        vmImage: $(vmImageName)
+      steps:
+      - task: DownloadSecureFile@1
+        name: StgEnv
+        displayName: 'Download online_portal appsettings.json to Dev environment'
+        inputs:
+          secureFile: 'appsettings-identity-server-staging.json'
+
+      - task: CmdLine@2
+        displayName: 'Copy online_portal appsettings.json env to default directory'
+        inputs:
+          script: |
+            cp $(StgEnv.secureFilePath) '$(System.DefaultWorkingDirectory)/OnlinePortalBackend/'
+            mv $(System.DefaultWorkingDirectory)/OnlinePortalBackend/appsettings-identity-server-staging.json  $(System.DefaultWorkingDirectory)/OnlinePortalBackend/appsettings.json
+
+      - task: DownloadSecureFile@1
+        name: DockerStaging
+        displayName: 'Copy Docker staging file to online_portal directory'
+        inputs:
+          secureFile: 'Dockerfile-online-backend-staging'
+
+      - task: CmdLine@2
+        displayName: 'Copy Dockerfile.staging to system directory'
+        inputs:
+          script: |
+            cp $(DockerStaging.secureFilePath) '$(System.DefaultWorkingDirectory)/'
+
+      - task: Docker@2
+        inputs:
+          containerRegistry: 'Halobiz-Registry'
+          repository: 'online-portal-backend-staging'
+          command: 'buildAndPush'
+          Dockerfile: '**/Dockerfile-online-backend-staging'
+          tags: $(tag)
+
+      - task: AzureWebAppContainer@1
+        displayName: 'Deploy online-portal-backend staging to Azure Container'
+        inputs:
+          azureSubscription: 'Halogen-IT(d041e96e-4105-4b10-81d2-7b8bcbf6c52b)'
+          appName: 'stg-online-backend'
+          deployToSlotOrASE: true
+          resourceGroupName: 'Halogen-Stg-Application'
+          slotName: 'production'
+          containers: 'halobiz.azurecr.io/online-portal-backend-staging:$(tag)'
 
 
 
