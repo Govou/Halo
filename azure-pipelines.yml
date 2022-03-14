@@ -301,7 +301,7 @@ stages:
         displayName: 'Halobiz-backend Staging deployment to Azure Container'
         inputs:
           azureSubscription: 'Halogen-IT(d041e96e-4105-4b10-81d2-7b8bcbf6c52b)'
-          appName: ''
+          appName: 'stg-halobiz-backend'
           deployToSlotOrASE: true
           resourceGroupName: 'Halogen-Stg-Application'
           slotName: 'production'
@@ -370,7 +370,7 @@ stages:
         displayName: 'Deploy halobiz-identity staging to Azure Container'
         inputs:
           azureSubscription: 'Halogen-IT(d041e96e-4105-4b10-81d2-7b8bcbf6c52b)'
-          appName: ''
+          appName: 'stg-identity-server'
           deployToSlotOrASE: true
           resourceGroupName: 'Halogen-Stg-Application'
           slotName: 'production'
