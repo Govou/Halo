@@ -4,14 +4,14 @@ trigger:
       - develop
       - staging
       - production
-      - Ci-dev/ft
+      #- Ci-dev/ft
 
 
 pr:
   - develop
   - staging
   - production
-  - Ci-dev/ft
+  #- Ci-dev/ft
 
 resources:
 - repo: self
