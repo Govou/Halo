@@ -17,7 +17,7 @@ using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace HaloBiz.Helpers
+namespace OnlinePortalBackend.Helpers
 {
 
     public class AuthenticationHandler
@@ -45,20 +45,18 @@ namespace HaloBiz.Helpers
 
             var controllerName = controllerActionDescriptor?.ControllerName;
             var actionName = controllerActionDescriptor?.ActionName;
-            var actionVerb = context.Request.Method;
+            //var actionVerb = context.Request.Method;
 
 
             if (string.IsNullOrEmpty(controllerName) || string.IsNullOrEmpty(actionName))
             {
                 context.Response.StatusCode = StatusCodes.Status404NotFound;
-                await context.Response.WriteAsync("Path not found");
+                await context.Response.WriteAsJsonAsync(CommonResponse.Send(ResponseCodes.FAILURE, null, "Path not found"));
 
                 return;
-            }
-            
-            bool isExempted = (controllerName.ToLower() == "auth" && (actionName.ToLower() == "login" || actionName.ToLower() == "otherlogin") || actionName.ToLower()== "createuser");
+            }            
 
-            if (!isExempted)
+            if (controllerName.ToLower() != "onlineauth")
             {
                 var token = context.Request?.Headers["Authorization"].FirstOrDefault()?.Split(" ")?.Last();
                 if (token != null)
@@ -66,65 +64,31 @@ namespace HaloBiz.Helpers
                     //validate the token
                     if (token.ToLower() != "null")
                     {
-                        var (isValid, permissionsList) =  _jwtHelper.IsValidToken(token);
+                        var isValid =  _jwtHelper.IsValidToken(token);
                         if (!isValid)
                         {
                             context.Response.StatusCode = StatusCodes.Status401Unauthorized;
-                            await context.Response.WriteAsync("Token is invalid or expired");
+                            await context.Response.WriteAsJsonAsync(CommonResponse.Send(ResponseCodes.UNAUTHORIZED, null, "Token is invalid or expired"));
                             return;
-                        }
-                        else
-                        {
-                            //test for the authorization
-                            //exempt users get
-                            if(!(controllerName.ToLower() == "user" && (actionVerb.ToLower() == "get")))
-                            {
-                                if (!CheckAuthorization(context, controllerName, permissionsList))
-                                {
-                                    //use 200 ok here so that the user can know what he has access to
-                                    context.Response.StatusCode = StatusCodes.Status200OK;
-                                    await context.Response.WriteAsJsonAsync(CommonResponse.Send(ResponseCodes.UNAUTHORIZED, null, "You do not have permission to access this endpoint"));
-                                    return;
-                                }
-                            }
                         }
                     }
                     else
                     {
                         context.Response.StatusCode = StatusCodes.Status401Unauthorized;
-                        await context.Response.WriteAsync("Unauthorized user");
+                        await context.Response.WriteAsJsonAsync(CommonResponse.Send(ResponseCodes.UNAUTHORIZED, null, "Unathorized user"));
                         return;
                     }
                 }
                 else
                 {
                     context.Response.StatusCode = StatusCodes.Status401Unauthorized;
-                    await context.Response.WriteAsync("Unauthorized user");
+                    await context.Response.WriteAsJsonAsync(CommonResponse.Send(ResponseCodes.UNAUTHORIZED, null, "Unathorized user"));
                     return;
                 }
             } 
 
             await _next(context);
-        }
-
-       
-
-        private bool CheckAuthorization(HttpContext context, string controller, List<short> permisssions)
-        {
-            var actionVerb = context.Request.Method;
-
-            var permissionEnum = $"{controller}_{actionVerb}";
-
-            if (!Enum.TryParse(typeof(Permissions), permissionEnum, true, out var permission))
-            {
-                _logger.LogError($"No permission has be defined for {permissionEnum}");
-                //this would ensure all devs have the endpoints written in the rightful place
-                throw new Exception("This endpoint controller and action has not been added to this system");
-            }
-
-            var permissionInt = (short)permission;
-            return permisssions.Contains(permissionInt);
-        }
+        }       
     }    
 }
 
