@@ -24,24 +24,24 @@ namespace HalobizIdentityServer.Controllers
 {
     [Route("api/v1/[controller]")]
     [ApiController]
-    public class AuthController : ControllerBase
+    public class OnlineAuthController : ControllerBase
     {
 
         private readonly IUserProfileService userProfileService;
         private readonly IConfiguration _config;
-        private readonly ILogger<AuthController> _logger;
+        private readonly ILogger<OnlineAuthController> _logger;
         private readonly JwtHelper _jwttHelper;
         private readonly IRoleService _roleService;
         private readonly IMapper _mapper;
         private readonly IOnlineAccounts _onlineAccounts;
-        public AuthController(
+        public OnlineAuthController(
             IUserProfileService userProfileService,
             IConfiguration config,
             JwtHelper jwtHelper,
             IMapper mapper,
             IOnlineAccounts onlineAccounts,
             IRoleService roleService,
-            ILogger<AuthController> logger)
+            ILogger<OnlineAuthController> logger)
         {
             this._config = config;
             this.userProfileService = userProfileService;

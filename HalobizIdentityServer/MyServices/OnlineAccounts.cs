@@ -191,25 +191,24 @@ namespace HalobizIdentityServer.MyServices
                 }                
 
                var (salt, hashed) = HashPassword(new byte[] { }, user.Password);
-                var userpro = new UserProfileReceivingDTO
+                var userpro = new OnlineProfile
                 {
                     Email = user.Email,
                     EmailConfirmed = true,
                     NormalizedEmail = user.Email.ToUpper(),
                     PasswordHash = hashed,
                     SecurityStamp = Convert.ToBase64String(salt),                   
-                    ImageUrl = "",
-                    StaffId = 0,
-                    FirstName = customer.DivisionName,
-                    LastName = "",
-                    DateOfBirth = DateTime.Now.ToString("yyyy-MM-dd"),
+                    Name = customer.DivisionName,
                 };
 
                 //hash password for this guy and create profile
-                var profileResult = await _userProfileService.AddUserProfile(userpro, true);
+                var profileResult = await _context.OnlineProfiles.AddAsync(userpro);
+                await _context.SaveChangesAsync();
 
                 //send code to the client
-                return profileResult;
+               // var userprofile = profileResult.Entity;
+                return CommonResponse.Send(ResponseCodes.SUCCESS, null, $"Account successfully created");
+
             }
             catch (Exception ex)
             {
@@ -222,7 +221,7 @@ namespace HalobizIdentityServer.MyServices
         {
             try
             {
-                var profile = _context.UserProfiles.Where(x => x.Email == user.Email).FirstOrDefault();
+                var profile = _context.OnlineProfiles.Where(x => x.NormalizedEmail == user.Email).FirstOrDefault();
                 if (profile == null)
                 {
                     return CommonResponse.Send(ResponseCodes.FAILURE, null, "User has not been created");
@@ -238,7 +237,7 @@ namespace HalobizIdentityServer.MyServices
                 //get the permissions of the user
                 var permissions = await _roleService.GetPermissionEnumsOnUser(profile.Id);
 
-                var jwtToken = _jwttHelper.GenerateToken(profile, permissions);
+                var jwtToken = _jwttHelper.GenerateToken(p rofile, permissions);
 
                 var mappedProfile = _mapper.Map<UserProfileTransferDTO>(profile);
                 return CommonResponse.Send(ResponseCodes.SUCCESS, new UserAuthTransferDTO
