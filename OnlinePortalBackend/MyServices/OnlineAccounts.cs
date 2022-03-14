@@ -5,7 +5,7 @@ using Halobiz.Common.DTOs.ReceivingDTOs;
 using Halobiz.Common.DTOs.TransferDTOs;
 using Halobiz.Common.MyServices;
 using Halobiz.Common.MyServices.RoleManagement;
-using HalobizIdentityServer.Helpers;
+using OnlinePortalBackend.Helpers;
 using HalobizMigrations.Data;
 using HalobizMigrations.Models;
 using HalobizMigrations.Models.OnlinePortal;
@@ -19,8 +19,10 @@ using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
+using System.Text.RegularExpressions;
+using OnlinePortalBackend.DTOs.TransferDTOs;
 
-namespace HalobizIdentityServer.MyServices
+namespace OnlinePortalBackend.MyServices
 {
     public interface IOnlineAccounts
     {
@@ -33,28 +35,22 @@ namespace HalobizIdentityServer.MyServices
     public class OnlineAccounts : IOnlineAccounts
     {
         private readonly IMailService _mailService;
-        private IUserProfileService _userProfileService;
         private readonly HalobizContext _context;
         private readonly ILogger<OnlineAccounts> _logger;
         private readonly JwtHelper _jwttHelper;
         private readonly IMapper _mapper;
-        private readonly IRoleService _roleService;
 
 
         public OnlineAccounts(IMailService mailService,
-              IUserProfileService userProfileService,
             JwtHelper jwtHelper,
             IMapper mapper,
-            IRoleService roleService,
             ILogger<OnlineAccounts> logger,
             HalobizContext context
          )
         {
             _mailService = mailService;
-            _userProfileService = userProfileService;
             _logger = logger;
             _mapper = mapper;
-            _roleService = roleService;
             _jwttHelper = jwtHelper;
             _context = context;
 
@@ -64,9 +60,9 @@ namespace HalobizIdentityServer.MyServices
         {
             try
             {
-                var response = await _userProfileService.FindUserByEmail(Email);
+                var response = await _context.OnlineProfiles.Where(x=>x.Email==Email).FirstOrDefaultAsync();
 
-                if (response.responseCode.Contains("00"))
+                if (response != null)
                 {
                     return CommonResponse.Send(ResponseCodes.FAILURE, null, "You already have a profile");
                 }
@@ -95,7 +91,6 @@ namespace HalobizIdentityServer.MyServices
                 var entity = await _context.UsersCodeVerifications.AddAsync(codeModel);
                 await _context.SaveChangesAsync();
 
-                var codeBody = (UsersCodeVerification)response.responseData;
                 List<string> detail = new List<string>();
                 detail.Add($"Your verification code for the online portal is <strong>{code}</strong>. Please note that it expires it 10 minutes");
 
@@ -168,9 +163,9 @@ namespace HalobizIdentityServer.MyServices
         {
             try
             {
-                var response = await _userProfileService.FindUserByEmail(user.Email);
+                var response = await _context.OnlineProfiles.Where(x => x.Email == user.Email).FirstOrDefaultAsync();
 
-                if (response.responseCode.Contains("00"))
+                if (response != null)
                 {
                     return CommonResponse.Send(ResponseCodes.FAILURE, null, $"This email {user.Email} already has a profile");
                 }
@@ -188,9 +183,17 @@ namespace HalobizIdentityServer.MyServices
                 if (code == null)
                 {
                     return CommonResponse.Send(ResponseCodes.FAILURE, null, $"The email {user.Email} does not have verified code");
-                }                
+                }
 
-               var (salt, hashed) = HashPassword(new byte[] { }, user.Password);
+                //check password complextity
+                //at least 1 lower, at least 1 upper, at least 1 number, atleast 1 special char, at least 6 characters length
+                var strongRegex = new Regex(@"^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#\$%\^&\*])(?=.{6,})");
+                if (!strongRegex.IsMatch(user.Password))
+                {
+                    return CommonResponse.Send(ResponseCodes.FAILURE, null, $"Weak password. Pasword rule is: at least 1 lower, at least 1 upper, at least 1 number, at least 1 special character, at least 6 characters length");
+                }
+
+                var (salt, hashed) = HashPassword(new byte[] { }, user.Password);
                 var userpro = new OnlineProfile
                 {
                     Email = user.Email,
@@ -199,16 +202,16 @@ namespace HalobizIdentityServer.MyServices
                     PasswordHash = hashed,
                     SecurityStamp = Convert.ToBase64String(salt),                   
                     Name = customer.DivisionName,
+                    Origin = user.Origin,
+                    CustomerDivisionId = customer.Id,
+                    CreatedAt = DateTime.Now
                 };
 
                 //hash password for this guy and create profile
                 var profileResult = await _context.OnlineProfiles.AddAsync(userpro);
                 await _context.SaveChangesAsync();
 
-                //send code to the client
-               // var userprofile = profileResult.Entity;
                 return CommonResponse.Send(ResponseCodes.SUCCESS, null, $"Account successfully created");
-
             }
             catch (Exception ex)
             {
@@ -221,26 +224,23 @@ namespace HalobizIdentityServer.MyServices
         {
             try
             {
-                var profile = _context.OnlineProfiles.Where(x => x.Email == user.Email).FirstOrDefault();
+                var profile = await _context.OnlineProfiles.Where(x => x.Email == user.Email).FirstOrDefaultAsync();
                 if (profile == null)
                 {
-                    return CommonResponse.Send(ResponseCodes.FAILURE, null, "User has not been created");
+                    return CommonResponse.Send(ResponseCodes.FAILURE, null, "No user with this email");
                 }
 
                 var byteSalt = Convert.FromBase64String(profile.SecurityStamp);
                 var (salt, hashed) = HashPassword(byteSalt, user.Password);
-                if (!_context.UserProfiles.Any(x => x.Email == user.Email && x.PasswordHash == hashed))
+                if (!_context.OnlineProfiles.Any(x => x.Email == user.Email && x.PasswordHash == hashed))
                 {
-                    return CommonResponse.Send(ResponseCodes.FAILURE, null, "Invalid username or password");
-                }
-                
-                //get the permissions of the user
-                var permissions = await _roleService.GetPermissionEnumsOnUser(profile.Id);
+                    return CommonResponse.Send(ResponseCodes.FAILURE, null, "Username or password is incorrect");
+                }                
 
-                var jwtToken = _jwttHelper.GenerateToken(null, permissions);
+                var jwtToken = _jwttHelper.GenerateToken(profile);
 
-                var mappedProfile = _mapper.Map<UserProfileTransferDTO>(profile);
-                return CommonResponse.Send(ResponseCodes.SUCCESS, new UserAuthTransferDTO
+                var mappedProfile = _mapper.Map<OnlineProfileTransferDTO>(profile);
+                return CommonResponse.Send(ResponseCodes.SUCCESS, new
                 {
                     Token = jwtToken,
                     UserProfile = mappedProfile

@@ -25,6 +25,8 @@ using OnlinePortalBackend.Repository.Impl;
 using HalobizMigrations.Data;
 using OnlinePortalBackend.Adapters;
 using OnlinePortalBackend.Adapters.Impl;
+using Halobiz.Common.MyServices;
+using Halobiz.Common.Repository;
 
 namespace OnlinePortalBackend
 {
@@ -45,47 +47,8 @@ namespace OnlinePortalBackend
             services.AddDbContext<HalobizContext>(options =>
                     options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
 
-            //if (env.IsDevelopment())
-            //{
-            //    services.AddDbContext<HalobizContext>(options =>
-            //        options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
-
-            //}
-            //else
-            //{
-            //    var server = Configuration["DbServer"];
-            //    var port = Configuration["DbPort"];
-            //    var user = Configuration["DbUser"];
-            //    var password = Configuration["DbPassword"];
-            //    var database = Configuration["Database"];
-            //    services.AddDbContext<HalobizContext>(options =>
-            //        options.UseSqlServer($"Server={server},{port};Database={database};User Id={user};Password={password};"));
-
-            //}
-
-            //Authentication with JWT Setup
-            services
-                .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-                .AddJwtBearer(options =>
-                {
-                    options.TokenValidationParameters = new TokenValidationParameters
-                    {
-                        ValidateIssuerSigningKey = true,
-                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(Configuration["JWTSecretKey"] ?? Configuration.GetSection("AppSettings:JWTSecretKey").Value)),
-                        ValidateIssuer = false,
-                        ValidateAudience = false
-                    };
-                });
-
-            /*if (env.IsProduction())
-            {
-                services.AddAuthorization(options =>
-                {
-                    options.FallbackPolicy = new AuthorizationPolicyBuilder()
-                        .RequireAuthenticatedUser()
-                        .Build();
-                });
-            }*/
+          
+          
 
             //services
             services.AddScoped<ISecurityQuestionService, SecurityQuestionServiceImpl>();
@@ -110,6 +73,13 @@ namespace OnlinePortalBackend
             services.AddScoped<IServiceWishlistRepository, ServiceWishlistRepositoryImpl>();
 
             services.AddScoped<IPaymentAdapter, PaymentAdapter>();
+
+            //services and repositories
+            services.AddScoped<IMailService, MailService>();
+            services.AddScoped<IOnlineAccounts, OnlineAccounts>();
+            services.AddSingleton<JwtHelper>();
+            services.AddScoped<IUserProfileService, UserProfileServiceImpl>();
+            services.AddScoped<IUserProfileRepository, UserProfileRepositoryImpl>();
 
             services.AddAutoMapper(typeof(Startup));
 
@@ -161,6 +131,7 @@ namespace OnlinePortalBackend
             app.UseAuthentication();
 
             app.UseAuthorization();
+            app.UseMiddleware<AuthenticationHandler>();
 
             app.UseEndpoints(endpoints =>
             {
