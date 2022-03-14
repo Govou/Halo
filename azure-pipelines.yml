@@ -328,7 +328,7 @@ stages:
 
     - job: Build_and_deploy_halobiz_identity_server_MicroserviceStaging
       displayName: 'Build and deploy halobiz_identity_server Microservice to staging'
-      dependsOn:  halobiz_identity_server_microservice_file_change
+      dependsOn:  halobiz_identity_server_microservice_file_change_stg
       condition: eq(dependencies.halobiz_identity_server_microservice_file_change_stg.outputs['halobiz_identity_server_microservice_file_change_stg.SOURCE_CODE_CHANGED'], 'true')
       pool:
         vmImage: $(vmImageName)
@@ -377,7 +377,7 @@ stages:
           containers: 'halobiz.azurecr.io/halobiz-identity-staging:$(tag)'
 
 
-- stage: BuildAndDeployOnlinePortalBackendMicroservice
+- stage: BuildAndDeployOnlinePortalBackendMicroserviceStaging
   displayName: Build and deploy Online Portal backend Microservice to Stg
   condition: eq(variables.isStg, true)
 
@@ -397,7 +397,7 @@ stages:
 
     - job: Build_and_deploy_online_portal_Microservice
       displayName: 'Build and deploy online_portal Microservice'
-      dependsOn:  online_portal_microservice_file_change
+      dependsOn:  online_portal_microservice_file_change_stg
       condition: eq(dependencies.online_portal_microservice_file_change_stg.outputs['online_portal_microservice_file_change_stg.SOURCE_CODE_CHANGED'], 'true')
       pool:
         vmImage: $(vmImageName)
