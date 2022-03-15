@@ -21,6 +21,8 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Text.RegularExpressions;
 using OnlinePortalBackend.DTOs.TransferDTOs;
+using Microsoft.Extensions.Caching.Memory;
+using OnlinePortalBackend.Model;
 
 namespace OnlinePortalBackend.MyServices
 {
@@ -39,9 +41,11 @@ namespace OnlinePortalBackend.MyServices
         private readonly ILogger<OnlineAccounts> _logger;
         private readonly JwtHelper _jwttHelper;
         private readonly IMapper _mapper;
+        private readonly IMemoryCache _memoryCache;
 
 
-        public OnlineAccounts(IMailService mailService,
+        public OnlineAccounts(IMailService mailService, 
+            IMemoryCache memoryCache,
             JwtHelper jwtHelper,
             IMapper mapper,
             ILogger<OnlineAccounts> logger,
@@ -157,6 +161,33 @@ namespace OnlinePortalBackend.MyServices
             }
 
             return code;
+        }
+
+        private bool IsAccountLocked(string email)
+        {
+            if (!_memoryCache.TryGetValue<LoginFailureTracker>(email, out LoginFailureTracker tracker))
+            {
+                tracker = new LoginFailureTracker {
+                    Email = email,
+                    Count = 1
+                };
+                var cacheEntryOptions = new MemoryCacheEntryOptions()
+                            .SetAbsoluteExpiration(TimeSpan.FromSeconds(5));
+
+                _memoryCache.Set(email, tracker, cacheEntryOptions);
+            }
+            else
+            {
+                tracker.Count = tracker.Count + 1;
+                _memoryCache.CreateEntry
+
+            }
+
+            return false;
+        }
+        private bool ShouldLockAccount(string email)
+        {
+            return false;
         }
 
         public async Task<ApiCommonResponse> CreateAccount(CreatePasswordDTO user)
