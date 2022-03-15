@@ -51,21 +51,8 @@ namespace HaloBiz
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            if (env.IsDevelopment())
-            {
-                services.AddDbContext<HalobizContext>(options =>
+            services.AddDbContext<HalobizContext>(options =>
                     options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")), ServiceLifetime.Scoped);
-            }
-            else
-            {
-                var server = Configuration["DbServer"];
-                var port = Configuration["DbPort"];
-                var user = Configuration["DbUser"];
-                var password = Configuration["DbPassword"];
-                var database = Configuration["Database"];
-                services.AddDbContext<HalobizContext>(options =>
-                    options.UseSqlServer($"Server={server},{port};Database={database};User Id={user};Password={password};"));
-            }
 
             //Authentication with JWT Setup
             services
@@ -216,7 +203,7 @@ namespace HaloBiz
 
             app.UseRouting();
 
-            app.UseMiddleware<AuthenticationHandler>();           
+           // app.UseMiddleware<AuthenticationHandler>();           
 
             app.UseAuthentication();
 
