@@ -169,11 +169,10 @@ namespace OnlinePortalBackend.MyServices
             {
                 tracker = new LoginFailureTracker {
                     Email = email,
-                    Count = 1
-                };
+                    Count = 1 };
+
                 var cacheEntryOptions = new MemoryCacheEntryOptions()
                             .SetAbsoluteExpiration(TimeSpan.FromSeconds(5));
-
                 _memoryCache.Set(email, tracker, cacheEntryOptions);
             }
             else
@@ -185,11 +184,7 @@ namespace OnlinePortalBackend.MyServices
 
             return false;
         }
-        private bool ShouldLockAccount(string email)
-        {
-            return false;
-        }
-
+      
         public async Task<ApiCommonResponse> CreateAccount(CreatePasswordDTO user)
         {
             try

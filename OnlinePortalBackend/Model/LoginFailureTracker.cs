@@ -9,5 +9,6 @@ namespace OnlinePortalBackend.Model
     {
         public string Email { get; set; }
         public int Count { get; set; }
+        public DateTime LockedTime { get; set; }
     }
 }
