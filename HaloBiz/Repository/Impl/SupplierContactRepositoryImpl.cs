@@ -30,6 +30,19 @@ namespace HaloBiz.Repository.Impl
             return null;
         }
 
+        public async Task<IEnumerable<SupplierContactMapping>> GetContactsBySupplier(long SupplierId)
+        {
+            return await _context.SupplierContactMappings
+                 .Where(x => !x.IsDeleted && x.SupplierId == SupplierId)
+                 .ToListAsync();
+        }
+
+        public async Task<bool> DeleteSupplierContact(long SupplierId)
+        {
+            _context.SupplierContactMappings.RemoveRange(_context.SupplierContactMappings.Where(x => x.SupplierId == SupplierId));
+            return await SaveChanges();
+        }
+
         private async Task<bool> SaveChanges()
         {
             try

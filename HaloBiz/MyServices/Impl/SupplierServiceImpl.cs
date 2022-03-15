@@ -55,7 +55,7 @@ namespace HaloBiz.MyServices.Impl
                     //Insert contacts into mapping tables
                     var contacts = supplierCategoryReceivingDTO.Contacts;
                     var contactsArr = contacts.Split(',').ToList();
-                    contactsArr.ForEach(async contact =>
+                    foreach(var contact in contactsArr)
                     {
 
                         SupplierContactMapping contactMappingObj = new()
@@ -65,15 +65,8 @@ namespace HaloBiz.MyServices.Impl
                             SupplierId = savedSupplier.Id
                         };
                         var savedContactMapping = await _supplierContactRepo.SaveSupplierContact(contactMappingObj);
-                    });
-                    //SupplierContactMapping contactMappingObj = new()
-                    //    {
-                    //        ContactId = Convert.ToInt64(Convert.ToDecimal(contactsArr[0])),
-                    //        CreatedById = context.GetLoggedInUserId(),
-                    //        SupplierId = savedSupplier.Id
-                    //    };
-                    //var savedContactMapping = await _supplierContactRepo.SaveSupplierContact(contactMappingObj);
-
+                    }
+                  
                     return CommonResponse.Send(ResponseCodes.SUCCESS, supplierCategoryTransferDTO);
                 }
 
@@ -101,6 +94,25 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);
             }
             var SupplierTransferDTOs = _mapper.Map<SupplierTransferDTO>(Supplier);
+            
+            //fetch suppliermappings
+            var supplierMappings = await _supplierContactRepo.GetContactsBySupplier(SupplierTransferDTOs.Id);
+            if (supplierMappings != null)
+            {
+                //map to response format
+                List<string> contact = new List<string>();
+                foreach (var contactMapping in supplierMappings)
+                {
+                    contact.Add(contactMapping.ContactId.ToString());
+                }
+                var con = string.Join(',', contact.ToArray());
+
+                SupplierTransferDTOs.Contacts = con;
+            }
+
+
+
+            
             return CommonResponse.Send(ResponseCodes.SUCCESS,SupplierTransferDTOs);
         }
 
@@ -113,6 +125,7 @@ namespace HaloBiz.MyServices.Impl
             }
             if (!await _supplierCategoryRepo.DeleteSupplier(supplierCategoryToDelete))
             {
+                await _supplierContactRepo.DeleteSupplierContact(id);
                 return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
 
@@ -126,7 +139,30 @@ namespace HaloBiz.MyServices.Impl
             {
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
+
             var supplierCategoryTransferDTO = _mapper.Map<IEnumerable<SupplierTransferDTO>>(supplierCategory);
+
+            foreach (var supplier in supplierCategoryTransferDTO)
+            {
+                //fetch suppliermappings
+                var supplierMappings = await _supplierContactRepo.GetContactsBySupplier(supplier.Id);
+                if (supplierMappings != null)
+                {
+                    //map to response format
+                    List<string> contact = new List<string>();
+                    foreach (var contactMapping in supplierMappings)
+                    {
+                        contact.Add(contactMapping.ContactId.ToString());
+                    }
+                    var con = string.Join(',', contact.ToArray());
+
+                    supplier.Contacts = con;
+                }
+
+               
+
+            }
+
             return CommonResponse.Send(ResponseCodes.SUCCESS,supplierCategoryTransferDTO);
         }
 
@@ -151,11 +187,24 @@ namespace HaloBiz.MyServices.Impl
                 supplierCategoryToUpdate.Street = supplierCategoryReceivingDTO.Street;
                 supplierCategoryToUpdate.Address = supplierCategoryReceivingDTO.Address;
                 supplierCategoryToUpdate.ImageUrl = System.String.IsNullOrWhiteSpace(supplierCategoryReceivingDTO.Description) ? supplierCategoryToUpdate.ImageUrl : supplierCategoryReceivingDTO.ImageUrl;
-                //supplierCategoryToUpdate.PrimaryContactName = supplierCategoryReceivingDTO.PrimaryContactName;
-                //supplierCategoryToUpdate.PrimaryContactEmail = supplierCategoryReceivingDTO.PrimaryContactEmail;
-                //supplierCategoryToUpdate.PrimaryContactMobile = supplierCategoryReceivingDTO.PrimaryContactMobile;
-                //supplierCategoryToUpdate.PrimaryContactGender = supplierCategoryReceivingDTO.PrimaryContactGender;
+
                 var updatedSupplier = await _supplierCategoryRepo.UpdateSupplier(supplierCategoryToUpdate);
+
+                await _supplierContactRepo.DeleteSupplierContact(id);
+                //var supplierMappedDTO = _mapper.Map<SupplierTransferDTO>(supplierCategoryToUpdate);
+                var contacts = supplierCategoryReceivingDTO.Contacts;
+                var contactsArr = contacts.Split(',').ToList();
+                foreach (var contact in contactsArr)
+                {
+
+                    SupplierContactMapping contactMappingObj = new()
+                    {
+                        ContactId = Convert.ToInt64(Convert.ToDecimal(contact)),
+                        CreatedById = context.GetLoggedInUserId(),
+                        SupplierId = id
+                    };
+                    var savedContactMapping = await _supplierContactRepo.SaveSupplierContact(contactMappingObj);
+                }
 
                 summary += $"Details after change, \n {updatedSupplier.ToString()} \n";
 

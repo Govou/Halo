@@ -1,4 +1,5 @@
 using HalobizMigrations.Models;
+using System.Collections.Generic;
 
 namespace HaloBiz.DTOs.TransferDTOs
 {

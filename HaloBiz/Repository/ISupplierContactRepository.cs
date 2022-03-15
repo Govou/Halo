@@ -8,9 +8,9 @@ namespace HaloBiz.Repository
     public interface ISupplierContactRepository
     {
         Task<SupplierContactMapping> SaveSupplierContact(SupplierContactMapping supplierContact);
-        //Task<IEnumerable<SupplierContactMapping>> GetSupplierContacts();
+        Task<IEnumerable<SupplierContactMapping>> GetContactsBySupplier(long SupplierId);
         //Task<Supplier> UpdateSupplier(Supplier supplier);
-        //Task<bool> DeleteSupplierContact(SupplierContactMapping supplierContact);
+        Task<bool> DeleteSupplierContact(long SupplierId);
         //Task<SupplierContactMapping> FindSupplierContactById(long Id);
     }
 }
