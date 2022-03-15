@@ -178,7 +178,7 @@ namespace HaloBiz.MyServices.Impl
                                 customerNumber = customerDivision.DTrackCustomerNumber;
                             }
 
-                            var sector = Extensions.GetIndustryShortName(customerDivision?.Industry);
+                            var sector = "SERVICE INDUSTRY"; // Extensions.GetIndustryShortName(customerDivision?.Industry);
                             requestBody = new
                             {
                                 CustomerNumber = customerNumber,
@@ -204,7 +204,7 @@ namespace HaloBiz.MyServices.Impl
                             .WithHeader("Authorization", $"Bearer {token}")
                             .PostJsonAsync(requestBody);
 
-
+                        _logger.LogInformation($"Token received from Dtrack: {token}");
 
                         var responseMessage = await response.GetStringAsync();
                         _logger.LogInformation($"Response | [{response.StatusCode}] | {responseMessage}");
