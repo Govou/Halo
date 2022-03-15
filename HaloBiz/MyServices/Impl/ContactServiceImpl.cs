@@ -164,6 +164,21 @@ namespace HaloBiz.MyServices.Impl
 
         }
 
+        public async Task<ApiCommonResponse> GetEntireContact(HttpContext httpContext)
+        {
+
+            var contact = await _context.Contacts.Where(x => x.IsDeleted == false).ToListAsync();
+            if (contact == null)
+            {
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);
+            }
+            else
+            {
+                return CommonResponse.Send(ResponseCodes.SUCCESS, contact);
+            }
+
+        }
+
         public async Task<ApiCommonResponse> GetAllSuspect()
         {
 

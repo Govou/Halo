@@ -34,6 +34,7 @@
 
   <ItemGroup>
     <Compile Include="Model\ContactDTO.cs" />
+    <Compile Include="Model\IValidation.cs" />
     <Compile Include="Model\LAMS\LeadContact.cs" />
     <Compile Include="Model\MonthsAndYears.cs" />
     <Compile Include="Model\RoleManagement\Claim.cs" />

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using HaloBiz.Model;
 using HalobizMigrations.Data;
 using HalobizMigrations.Models;
 using Microsoft.EntityFrameworkCore;
@@ -55,6 +56,24 @@ namespace HaloBiz.Repository.Impl
         {
            return await _context.SupplierServices
             .FirstOrDefaultAsync(x => x.Id == Id && x.IsDeleted == false);
+        }
+
+        public async Task<List<IValidation>> ValidateSupplierService(string supplierServiceName, long supplierID)
+        {
+            List<SupplierService> validateName = await _context.SupplierServices
+                .Where(x => !x.IsDeleted && x.ServiceName == supplierServiceName && x.SupplierId == supplierID)
+                .OrderBy(x => x.ServiceName)
+                .ToListAsync();
+
+            List<IValidation> res = new List<IValidation>();
+
+            if (validateName.Count > 0)
+            {
+                res.Add(new IValidation { Message = "Supplier Service With This Name Already In Use", Field = "Name" });
+            }
+
+            return res;
+
         }
 
         private async Task<bool> SaveChanges()
