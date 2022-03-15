@@ -2,12 +2,13 @@ using AutoMapper;
 using OnlinePortalBackend.DTOs.ReceivingDTOs;
 using OnlinePortalBackend.DTOs.TransferDTOs;
 using HalobizMigrations.Models.OnlinePortal;
+using Halobiz.Common.Helpers;
 
 namespace OnlinePortalBackend.Helpers
 {
     public class AutoMapping : Profile
     {
-        public AutoMapping()
+        public AutoMapping() 
         {            
             CreateMap<ServiceRatingReceivingDTO, ServiceRating>();
             CreateMap<ServiceRating, ServiceRatingTransferDTO>();
@@ -21,6 +22,7 @@ namespace OnlinePortalBackend.Helpers
             CreateMap<PortalComplaint, PortalComplaintTransferDTO>();
             CreateMap<ServiceWishlistReceivingDTO, ServiceWishlist>();
             CreateMap<ServiceWishlist, ServiceWishlistTransferDTO>();
+            CreateMap<OnlineProfile,OnlineProfileTransferDTO>();
         }
     }
 }

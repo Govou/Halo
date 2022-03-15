@@ -42,6 +42,8 @@ namespace HalobizIdentityServer
             services.AddDbContext<HalobizContext>(options =>
                     options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")), ServiceLifetime.Scoped);
 
+            services.AddAutoMapper(typeof(Startup));
+
             services.AddControllers();
             services.AddSingleton<JwtHelper>();
             services.AddScoped<IUserProfileService, UserProfileServiceImpl>();
@@ -51,7 +53,6 @@ namespace HalobizIdentityServer
             services.AddScoped<IMailService, MailService>();
             services.AddScoped<IOnlineAccounts, OnlineAccounts>();
 
-            services.AddAutoMapper(typeof(Startup));
             services.AddControllersWithViews()
                .AddNewtonsoftJson(options =>
                options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore

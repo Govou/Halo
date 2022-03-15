@@ -1,3 +1,4 @@
+using HalobizMigrations.Models.Shared;
 using System;
 using System.ComponentModel.DataAnnotations;
 
@@ -51,5 +52,6 @@ namespace Halobiz.Common.DTOs.ReceivingDTO
     {
         public string Password { get; set; }
         public string Email { get; set; }
+        public Origin Origin { get; set; } = Origin.Web;
     }
 }
