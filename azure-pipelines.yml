@@ -165,17 +165,17 @@ stages:
 
       - publish: '$(Build.ArtifactStagingDirectory)'
         displayName: 'Publish OnlinePortal and drop artifact for deployment'
-        artifact: identity-drop
+        artifact: portal-drop
 
       - download: current
-        artifact: identity-drop
+        artifact: portal-drop
 
       - task: AzureWebApp@1
         inputs:
           azureSubscription: 'Halogen-IT(d041e96e-4105-4b10-81d2-7b8bcbf6c52b)'
           appType: 'webApp'
-          appName: 'dev-online-portal'
-          package: '/home/vsts/work/1/identity-drop/**/*.zip'
+          appName: 'dev-online-backend'
+          package: '/home/vsts/work/1/portal-drop/**/*.zip'
 
 
 - stage: BuildAndDeployHalobizIdentityServerMicroservice
