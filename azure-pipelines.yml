@@ -68,35 +68,34 @@ stages:
           script: |
             cp $(DevEnv.secureFilePath) '$(System.DefaultWorkingDirectory)/HaloBiz/'
 
-      - task: DownloadSecureFile@1
-        name: DockerDevelopment
-        displayName: 'Copy Docker development file to system default directory'
+      - task: DotNetCoreCLI@2
+        displayName: 'Build .NET Halobiz for deployment'
         inputs:
-          secureFile: 'Dockerfile.development'
+          command: 'build'
+          projects: $(HaloBiz)
 
-      - task: CmdLine@2
-        displayName: 'Copy Dockerfile.Development to system directory'
+      - task: DotNetCoreCLI@2
+        displayName: 'Publish Halobiz app and zip'
         inputs:
-          script: |
-            cp $(DockerDevelopment.secureFilePath) '$(System.DefaultWorkingDirectory)/'
+          command: publish
+          publishWebProjects: False
+          projects: $(HaloBiz)
+          arguments: '--configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory)'
+          zipAfterPublish: True
 
-      - task: Docker@2
-        inputs:
-          containerRegistry: 'Halobiz-Registry'
-          repository: 'halobiz-backend'
-          command: 'buildAndPush'
-          Dockerfile: '**/Dockerfile.development'
-          tags: $(tag)
+      - publish: '$(Build.ArtifactStagingDirectory)'
+        displayName: 'Publish Halobiz-backend and drop artifact for deployment'
+        artifact: halobiz-drop
 
-      - task: AzureWebAppContainer@1
-        displayName: 'Halobiz-backend deployment to Azure Container'
+      - download: current
+        artifact: staging-drop
+
+      - task: AzureWebApp@1
         inputs:
           azureSubscription: 'Halogen-IT(d041e96e-4105-4b10-81d2-7b8bcbf6c52b)'
+          appType: 'webApp'
           appName: 'dev-halobiz-backend'
-          deployToSlotOrASE: true
-          resourceGroupName: 'Halogen-Dev-Application'
-          slotName: 'production'
-          containers: 'halobiz.azurecr.io/halobiz-backend:$(tag)'
+          package: '/home/vsts/work/1/halobiz-drop/**/*.zip'
 
 
 - stage: BuildAndDeployOnlinePortalBackendMicroservice
@@ -136,37 +135,35 @@ stages:
           script: |
             cp $(DevEnv.secureFilePath) '$(System.DefaultWorkingDirectory)/OnlinePortalBackend/'
             mv $(System.DefaultWorkingDirectory)/OnlinePortalBackend/appsettings-identity-server.json  $(System.DefaultWorkingDirectory)/OnlinePortalBackend/appsettings.json
-
-      - task: DownloadSecureFile@1
-        name: DockerDevelopment
-        displayName: 'Copy Docker development file to online_portal directory'
+      
+      - task: DotNetCoreCLI@2
+        displayName: 'Build .NET OnlinePortal for deployment'
         inputs:
-          secureFile: 'Dockerfile-online-backend-development'
+          command: 'build'
+          projects: $(OnlinePortal)
 
-      - task: CmdLine@2
-        displayName: 'Copy Dockerfile.Development to system directory'
+      - task: DotNetCoreCLI@2
+        displayName: 'Publish OnlinePortal app and zip'
         inputs:
-          script: |
-            cp $(DockerDevelopment.secureFilePath) '$(System.DefaultWorkingDirectory)/'
+          command: publish
+          publishWebProjects: False
+          projects: $(OnlinePortal)
+          arguments: '--configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory)'
+          zipAfterPublish: True
 
-      - task: Docker@2
-        inputs:
-          containerRegistry: 'Halobiz-Registry'
-          repository: 'online-portal-backend'
-          command: 'buildAndPush'
-          Dockerfile: '**/Dockerfile-online-backend-development'
-          tags: $(tag)
+      - publish: '$(Build.ArtifactStagingDirectory)'
+        displayName: 'Publish OnlinePortal and drop artifact for deployment'
+        artifact: identity-drop
 
-      - task: AzureWebAppContainer@1
-        displayName: 'Deploy online-portal-backend to Azure Container'
+      - download: current
+        artifact: identity-drop
+
+      - task: AzureWebApp@1
         inputs:
           azureSubscription: 'Halogen-IT(d041e96e-4105-4b10-81d2-7b8bcbf6c52b)'
-          appName: 'dev-online-backend'
-          deployToSlotOrASE: true
-          resourceGroupName: 'Halogen-Dev-Application'
-          slotName: 'production'
-          containers: 'halobiz.azurecr.io/online-portal-backend:$(tag)'
-
+          appType: 'webApp'
+          appName: 'dev-halobiz-identity'
+          package: '/home/vsts/work/1/identity-drop/**/*.zip'
 
 
 - stage: BuildAndDeployHalobizIdentityServerMicroservice
@@ -207,37 +204,37 @@ stages:
             cp $(DevEnv.secureFilePath) '$(System.DefaultWorkingDirectory)/HalobizIdentityServer/'
             mv $(System.DefaultWorkingDirectory)/HalobizIdentityServer/appsettings-identity-server.json  $(System.DefaultWorkingDirectory)/HalobizIdentityServer/appsettings.json
 
-      - task: DownloadSecureFile@1
-        name: DockerDevelopment
-        displayName: 'Copy Docker development file to halobiz_identity_server directory'
+      - task: DotNetCoreCLI@2
+        displayName: 'Build .NET IdnentityServer for deployment'
         inputs:
-          secureFile: 'Dockerfile-identity-server-development'
+          command: 'build'
+          projects: $(IdentityServer)
 
-      - task: CmdLine@2
-        displayName: 'Copy Dockerfile.Development to system directory'
+      - task: DotNetCoreCLI@2
+        displayName: 'Publish IdentityServer app and zip'
         inputs:
-          script: |
-            cp $(DockerDevelopment.secureFilePath) '$(System.DefaultWorkingDirectory)/'
+          command: publish
+          publishWebProjects: False
+          projects: $(IdentityServer)
+          arguments: '--configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory)'
+          zipAfterPublish: True
 
-      - task: Docker@2
-        inputs:
-          containerRegistry: 'Halobiz-Registry'
-          repository: 'halobiz-identity'
-          command: 'buildAndPush'
-          Dockerfile: '**/Dockerfile-identity-server-development'
-          tags: $(tag)
+      - publish: '$(Build.ArtifactStagingDirectory)'
+        displayName: 'Publish IdentityServer and drop artifact for deployment'
+        artifact: identity-drop
 
-      - task: AzureWebAppContainer@1
-        displayName: 'Deploy halobiz-identity to Azure Container'
+      - download: current
+        artifact: identity-drop
+
+      - task: AzureWebApp@1
         inputs:
           azureSubscription: 'Halogen-IT(d041e96e-4105-4b10-81d2-7b8bcbf6c52b)'
+          appType: 'webApp'
           appName: 'dev-halobiz-identity'
-          deployToSlotOrASE: true
-          resourceGroupName: 'Halogen-Dev-Application'
-          slotName: 'production'
-          containers: 'halobiz.azurecr.io/halobiz-identity:$(tag)'
+          package: '/home/vsts/work/1/identity-drop/**/*.zip'
 
-#################################################################################################
+
+  #################################################################################################
 
 - stage: BuildAndDeployHalobizBackendMicroserviceStaging
   displayName: Build and Deploy Halobiz Microservice to Stg
