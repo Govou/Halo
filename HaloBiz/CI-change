@@ -1,4 +1,4 @@
-deploy halobiz goneer
+deploy halobiz gone
 
 
 - stage: BuildAndDeployHalobizBackendMicroserviceStaging
