@@ -57,6 +57,7 @@ namespace OnlinePortalBackend.MyServices
             _mapper = mapper;
             _jwttHelper = jwtHelper;
             _context = context;
+            _memoryCache = memoryCache;
 
         }
 
@@ -163,26 +164,26 @@ namespace OnlinePortalBackend.MyServices
             return code;
         }
 
-        private bool IsAccountLocked(string email)
+        private bool LockAccount(string email)
         {
             if (!_memoryCache.TryGetValue<LoginFailureTracker>(email, out LoginFailureTracker tracker))
             {
                 tracker = new LoginFailureTracker {
                     Email = email,
-                    Count = 1 };
+                    LockedExpiration = DateTime.Now.AddMinutes(5) };
 
                 var cacheEntryOptions = new MemoryCacheEntryOptions()
-                            .SetAbsoluteExpiration(TimeSpan.FromSeconds(5));
+                            .SetAbsoluteExpiration(TimeSpan.FromMinutes(5));
                 _memoryCache.Set(email, tracker, cacheEntryOptions);
             }
-            else
-            {
-                tracker.Count = tracker.Count + 1;
-                _memoryCache.CreateEntry
 
-            }
+            return true;
+        }
 
-            return false;
+        private (bool, double) IsAccountLocked(string email)
+        {
+            var lockedRecord = _memoryCache.Get<LoginFailureTracker>(email);
+            return lockedRecord == null ? (false, 0) : (true, (lockedRecord.LockedExpiration - DateTime.Now).TotalMinutes);
         }
       
         public async Task<ApiCommonResponse> CreateAccount(CreatePasswordDTO user)
@@ -256,16 +257,36 @@ namespace OnlinePortalBackend.MyServices
                     return CommonResponse.Send(ResponseCodes.FAILURE, null, "No user with this email");
                 }
 
+                //check if this account is locked
+                var (isLocked, timeLeft) = IsAccountLocked(user.Email);
+                if (isLocked)
+                {
+                    return CommonResponse.Send(ResponseCodes.FAILURE, null, $"Account locked. Please try again in {timeLeft.ToString("#.##")} minutes");
+                }
+
                 var byteSalt = Convert.FromBase64String(profile.SecurityStamp);
                 var (salt, hashed) = HashPassword(byteSalt, user.Password);
                 if (!_context.OnlineProfiles.Any(x => x.Email == user.Email && x.PasswordHash == hashed))
                 {
+                    profile.AccessFailedCount = ++profile.AccessFailedCount;
+                    if(profile.AccessFailedCount >= 3)
+                    {
+                        LockAccount(user.Email);
+                    }
+
+                    await _context.SaveChangesAsync();
+
                     return CommonResponse.Send(ResponseCodes.FAILURE, null, "Username or password is incorrect");
                 }                
 
                 var jwtToken = _jwttHelper.GenerateToken(profile);
 
                 var mappedProfile = _mapper.Map<OnlineProfileTransferDTO>(profile);
+
+                //reset the access failed count
+                profile.AccessFailedCount = 0;
+                await _context.SaveChangesAsync();
+
                 return CommonResponse.Send(ResponseCodes.SUCCESS, new
                 {
                     Token = jwtToken,

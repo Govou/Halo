@@ -2,6 +2,7 @@
 using Flurl.Http;
 using Flurl.Http.Configuration;
 using Halobiz.Common.DTOs.ApiDTOs;
+using HaloBiz.DTOs.TransferDTOs;
 using HaloBiz.Helpers;
 using HaloBiz.MyServices.LAMS;
 using HalobizMigrations.Data;
@@ -76,7 +77,7 @@ namespace HaloBiz.MyServices.Impl
 
                 foreach (var account in customerAccountsThatHaveNotBeenIntegrated)
                 {
-                    object requestBody =  null;
+                    DTrackCustomerCreate requestBody =  null;
 
                     try
                     {
@@ -90,7 +91,7 @@ namespace HaloBiz.MyServices.Impl
 
                         if (account.Name == "RETAIL RECEIVABLE ACCOUNT")
                         {
-                            requestBody = new
+                            requestBody = new DTrackCustomerCreate
                             {
                                 CustomerNumber = account.Alias,
                                 Name = "Retail",
@@ -112,7 +113,7 @@ namespace HaloBiz.MyServices.Impl
                             var customerDivision = await _context.CustomerDivisions.SingleOrDefaultAsync(x => x.ReceivableAccountId == account.Id);
                             if (customerDivision == null)
                             {
-                                _logger.LogInformation($"Customer account {account.Name} does not have customer division");
+                                _logger.LogInformation($"Customer account {account.Name} does not have customer division. Skipping...");
                                 continue;
                             }
 
@@ -120,33 +121,16 @@ namespace HaloBiz.MyServices.Impl
 
                             if (state == null)
                             {
-                                _logger.LogInformation($"Customer division {customerDivision.DivisionName} does not have state");
+                                _logger.LogInformation($"Customer division {customerDivision.DivisionName} does not have state. Skipping...");
                                 continue;
                             }
                             else customerDivision.State = state;
 
-                          
-                            //todo Contact adjustment
-
-                            //if (!customerDivision.PrimaryContactId.HasValue)
-                            //{
-                            //    _logger.LogInformation($"Customer division {customerDivision.DivisionName} does not have primary contact");
-                            //    continue;
-                            //};
-
-                            //todo Contact adjustment
-
-                            //var primaryContact = await _context.LeadDivisionContacts.FindAsync(customerDivision.PrimaryContactId.Value);
-                            //if (primaryContact == null)
-                            //{
-                            //    _logger.LogInformation($"Customer division {customerDivision.DivisionName} does not have primary contact");
-                            //    continue;
-                            //};
 
                             var customer = await _context.Customers.FindAsync(customerDivision.CustomerId);
                             if (customer == null)
                             {
-                                _logger.LogInformation($"Customer division {customerDivision.DivisionName} does not have customer");
+                                _logger.LogInformation($"Customer division {customerDivision.DivisionName} does not have customer. Skipping...");
                                 continue;
                             };
                             //check that there is a primary contact for this customer
@@ -154,9 +138,10 @@ namespace HaloBiz.MyServices.Impl
                                     .Where(x => x.CustomerId == customerDivision.CustomerId && x.ContactPriority == HalobizMigrations.Models.Shared.ContactPriority.PrimaryContact)
                                     .Include(x=>x.Contact)
                                     .FirstOrDefault();
+                            
                             if (contactPerson == null)
                             {
-                                _logger.LogInformation($"There is no primary contact for {customerDivision.DivisionName}");
+                                _logger.LogInformation($"There is no primary contact for {customerDivision.DivisionName}. Skipping...");
                                 continue;
                             }
 
@@ -178,21 +163,20 @@ namespace HaloBiz.MyServices.Impl
                                 customerNumber = customerDivision.DTrackCustomerNumber;
                             }
 
-                            var sector = "SERVICE INDUSTRY"; // Extensions.GetIndustryShortName(customerDivision?.Industry);
-                            requestBody = new
-                            {
-                                CustomerNumber = customerNumber,
-                                Name = customerDivision?.DivisionName,
-                                GLAccount = controlAccount.Alias, // "180101",
-                                ShortName = $"{customerDivision?.DivisionName?.Substring(0, 3)}{customerDivision?.DivisionName?.Substring(customerDivision.DivisionName.Length - 4, 3)}{customerDivision.Rcnumber.Substring(customerDivision.Rcnumber.Length - 4, 3)}",
-                                AddressLine1 = customerDivision.Address.Length > 30 ? customerDivision?.Address?.Substring(0, 30) : customerDivision.Address,
-                                EmailAddress = customerDivision.Email,
-                                TelephoneNumber = customerDivision.PhoneNumber,
-                                Location = $"{Extensions.GetStateShortName(customerDivision?.State?.Capital)}",
-                                BusinessSector = sector,
-                                OtherInfo = $"{customerDivision?.DivisionName}-{customer?.Rcnumber}-{customer?.CreatedAt}",
-                                 Contact = $"{contactPerson.Contact?.FirstName} {contactPerson.Contact?.LastName}"
-                            };
+                            var sector = Extensions.GetIndustryShortName(customerDivision?.Industry);
+                            requestBody = new DTrackCustomerCreate();
+                            requestBody.CustomerNumber = customerNumber;
+                            requestBody.Name = customerDivision?.DivisionName;
+                            requestBody.GLAccount = controlAccount.Alias; // "180101";
+                            requestBody.ShortName = customerNumber; //$"{customerDivision?.DivisionName?.Substring(0, 3)}{customerDivision?.DivisionName?.Substring(customerDivision.DivisionName.Length - 4, 3)}{customerDivision.Rcnumber?.Substring(customerDivision.Rcnumber.Length - 4, 3)}";
+                            requestBody.AddressLine1 = customerDivision.Address.Length > 30 ? customerDivision?.Address?.Substring(0, 30) : customerDivision.Address;
+                            requestBody.EmailAddress = customerDivision.Email;
+                            requestBody.TelephoneNumber = customerDivision.PhoneNumber;
+                            requestBody.Location = $"{Extensions.GetStateShortName(customerDivision?.State?.Capital)}";
+                            requestBody.BusinessSector = sector;
+                            requestBody.OtherInfo = $"{customerDivision?.DivisionName}-{customer?.Rcnumber}-{customer?.CreatedAt}";
+                            requestBody.Contact = $"{contactPerson.Contact?.FirstName} {contactPerson.Contact?.LastName}";
+                            
                         }
 
                         _logger.LogInformation($"Customer to create: {JsonConvert.SerializeObject(requestBody)}");
@@ -264,7 +248,7 @@ namespace HaloBiz.MyServices.Impl
                     .Where(x => x.IntegrationFlag == true && x.ControlAccount.Caption == ReceivableControlAccount)
                     .ToListAsync();
 
-                _logger.LogInformation($"Integrated Customer Accounts Count => {integratedCustomerAcccounts.Count()}");
+                _logger.LogInformation($"Integrated Customer Accounts fetched => {integratedCustomerAcccounts.Count()}");
 
 
                 foreach (var account in integratedCustomerAcccounts)

@@ -3,6 +3,7 @@ using OnlinePortalBackend.DTOs.ReceivingDTOs;
 using OnlinePortalBackend.DTOs.TransferDTOs;
 using HalobizMigrations.Models.OnlinePortal;
 using Halobiz.Common.Helpers;
+using HalobizMigrations.Models;
 
 namespace OnlinePortalBackend.Helpers
 {
@@ -23,6 +24,10 @@ namespace OnlinePortalBackend.Helpers
             CreateMap<ServiceWishlistReceivingDTO, ServiceWishlist>();
             CreateMap<ServiceWishlist, ServiceWishlistTransferDTO>();
             CreateMap<OnlineProfile,OnlineProfileTransferDTO>();
+            CreateMap<CustomerDivision, CustomerInfoTransferDTO>();
+            CreateMap<Contract, ContractTransferDTO>();
+            CreateMap<ContractService, ContractServiceTransferDTO>();
+            CreateMap<Invoice, InvoiceTransferDTO>();
         }
     }
 }

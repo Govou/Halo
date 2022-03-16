@@ -80,12 +80,15 @@ namespace OnlinePortalBackend
             services.AddSingleton<JwtHelper>();
             services.AddScoped<IUserProfileService, UserProfileServiceImpl>();
             services.AddScoped<IUserProfileRepository, UserProfileRepositoryImpl>();
+            services.AddScoped<ICustomer, Customer>();
 
             services.AddAutoMapper(typeof(Startup));
 
             services.AddControllers()
                 .AddNewtonsoftJson(option => option.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore);
             services.AddHttpClient();
+            services.AddMemoryCache();
+
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "OnlinePortalBackend", Version = "v1" });
@@ -131,7 +134,7 @@ namespace OnlinePortalBackend
             app.UseAuthentication();
 
             app.UseAuthorization();
-            app.UseMiddleware<AuthenticationHandler>();
+           // app.UseMiddleware<AuthenticationHandler>();
 
             app.UseEndpoints(endpoints =>
             {
