@@ -4,14 +4,14 @@ trigger:
       - develop
       - staging
       - production
-      #- Ci-dev/ft
+      - Ci-dev/ft
 
 
 pr:
   - develop
   - staging
   - production
-  #- Ci-dev/ft
+  - Ci-dev/ft
 
 resources:
 - repo: self
@@ -78,7 +78,7 @@ stages:
         displayName: 'Build .NET Halobiz for deployment'
         inputs:
           command: 'build'
-          projects: $(HaloBiz)
+          projects: '$(System.DefaultWorkingDirectory)HaloBiz/HaloBiz.csproj'
 
       - task: DotNetCoreCLI@2
         displayName: 'Publish Halobiz app and zip'
@@ -141,7 +141,13 @@ stages:
           script: |
             cp $(DevEnv.secureFilePath) '$(System.DefaultWorkingDirectory)/OnlinePortalBackend/'
             mv $(System.DefaultWorkingDirectory)/OnlinePortalBackend/appsettings-identity-server.json  $(System.DefaultWorkingDirectory)/OnlinePortalBackend/appsettings.json
-      
+
+      - task: UseDotNet@2
+        displayName: 'Use .NET Core sdk'
+        inputs:
+          packageType: 'sdk'
+          version: '6.x'
+
       - task: DotNetCoreCLI@2
         displayName: 'Build .NET OnlinePortal for deployment'
         inputs:
@@ -209,6 +215,12 @@ stages:
           script: |
             cp $(DevEnv.secureFilePath) '$(System.DefaultWorkingDirectory)/HalobizIdentityServer/'
             mv $(System.DefaultWorkingDirectory)/HalobizIdentityServer/appsettings-identity-server.json  $(System.DefaultWorkingDirectory)/HalobizIdentityServer/appsettings.json
+
+      - task: UseDotNet@2
+        displayName: 'Use .NET Core sdk'
+        inputs:
+          packageType: 'sdk'
+          version: '6.x'
 
       - task: DotNetCoreCLI@2
         displayName: 'Build .NET IdnentityServer for deployment'
