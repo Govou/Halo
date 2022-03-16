@@ -8,7 +8,6 @@ namespace OnlinePortalBackend.Model
     public class LoginFailureTracker
     {
         public string Email { get; set; }
-        public int Count { get; set; }
-        public DateTime LockedTime { get; set; }
+        public DateTime LockedExpiration { get; set; }
     }
 }
