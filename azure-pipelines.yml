@@ -24,9 +24,9 @@ variables:
   isProd: $[eq(variables['Build.SourceBranchName'], 'production')]
   vmImageName: 'ubuntu-18.04'
   BuildConfiguration: 'Release'
-  HaloBiz: '$(System.DefaultWorkingDirectory)HaloBiz/HaloBiz.csproj'
-  IdentityServer: '$(System.DefaultWorkingDirectory)HalobizIdentityServer/HalobizIdentityServer.csproj'
-  OnlinePortal: '$(System.DefaultWorkingDirectory)OnlinePortalBackend/OnlinePortalBackend.csproj'
+  HaloBiz: '$(System.DefaultWorkingDirectory)/HaloBiz/HaloBiz.csproj'
+  IdentityServer: '$(System.DefaultWorkingDirectory)/HalobizIdentityServer/HalobizIdentityServer.csproj'
+  OnlinePortal: '$(System.DefaultWorkingDirectory)/OnlinePortalBackend/OnlinePortalBackend.csproj'
 
 
 stages:
@@ -94,7 +94,7 @@ stages:
         artifact: halobiz-drop
 
       - download: current
-        artifact: staging-drop
+        artifact: halobiz-drop
 
       - task: AzureWebApp@1
         inputs:
@@ -141,7 +141,13 @@ stages:
           script: |
             cp $(DevEnv.secureFilePath) '$(System.DefaultWorkingDirectory)/OnlinePortalBackend/'
             mv $(System.DefaultWorkingDirectory)/OnlinePortalBackend/appsettings-identity-server.json  $(System.DefaultWorkingDirectory)/OnlinePortalBackend/appsettings.json
-      
+
+      - task: UseDotNet@2
+        displayName: 'Use .NET Core sdk'
+        inputs:
+          packageType: 'sdk'
+          version: '6.x'
+
       - task: DotNetCoreCLI@2
         displayName: 'Build .NET OnlinePortal for deployment'
         inputs:
@@ -209,6 +215,12 @@ stages:
           script: |
             cp $(DevEnv.secureFilePath) '$(System.DefaultWorkingDirectory)/HalobizIdentityServer/'
             mv $(System.DefaultWorkingDirectory)/HalobizIdentityServer/appsettings-identity-server.json  $(System.DefaultWorkingDirectory)/HalobizIdentityServer/appsettings.json
+
+      - task: UseDotNet@2
+        displayName: 'Use .NET Core sdk'
+        inputs:
+          packageType: 'sdk'
+          version: '6.x'
 
       - task: DotNetCoreCLI@2
         displayName: 'Build .NET IdnentityServer for deployment'
