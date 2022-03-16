@@ -94,7 +94,7 @@ stages:
         artifact: halobiz-drop
 
       - download: current
-        artifact: staging-drop
+        artifact: halobiz-drop
 
       - task: AzureWebApp@1
         inputs:
