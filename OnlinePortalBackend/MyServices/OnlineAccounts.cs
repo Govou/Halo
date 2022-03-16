@@ -75,12 +75,12 @@ namespace OnlinePortalBackend.MyServices
                 //check if this customer division has an email
                 if (!_context.CustomerDivisions.Any(x => x.Email == Email))
                 {
-                    return CommonResponse.Send(ResponseCodes.FAILURE, null, $"This email {Email} does not exist for a customer");
+                    return CommonResponse.Send(ResponseCodes.EMAIL_NOT_EXIST, null, $"This email {Email} does not exist for a customer");
                 }
 
                 if (_context.UsersCodeVerifications.Any(x => x.Email == Email && x.CodeExpiryTime >= DateTime.Now && x.CodeUsedTime == null))
                 {
-                    return CommonResponse.Send(ResponseCodes.FAILURE, null, $"The code for {Email} has not been used");
+                    return CommonResponse.Send(ResponseCodes.DUPLICATE_REQUEST, null, $"The code for {Email} has not been used");
                 }
 
                 //save security code for this guy
