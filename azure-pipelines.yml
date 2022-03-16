@@ -4,14 +4,14 @@ trigger:
       - develop
       - staging
       - production
-      - Ci-dev/ft
+      #- Ci-dev/ft
 
 
 pr:
   - develop
   - staging
   - production
-  - Ci-dev/ft
+  #- Ci-dev/ft
 
 resources:
 - repo: self
@@ -33,7 +33,7 @@ stages:
 
 - stage: BuildAndDeployHalobizBackendMicroservice
   displayName: Build and Deploy Halobiz Microservice to Dev
-  #condition: eq(variables.isDev, true)
+  condition: eq(variables.isDev, true)
 
   jobs:
     - job: halobiz_backend_microservice_file_change
@@ -78,7 +78,7 @@ stages:
         displayName: 'Build .NET Halobiz for deployment'
         inputs:
           command: 'build'
-          projects: '$(System.DefaultWorkingDirectory)HaloBiz/HaloBiz.csproj'
+          projects: $(HaloBiz)
 
       - task: DotNetCoreCLI@2
         displayName: 'Publish Halobiz app and zip'
