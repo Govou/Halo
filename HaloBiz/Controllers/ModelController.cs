@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 namespace HaloBiz.Controllers
 {
     [Route("api/v1/[controller]")]
+    [ApiController]
     public class ModelController : Controller
     {
         private readonly IModelService _modelService;
@@ -27,6 +28,12 @@ namespace HaloBiz.Controllers
         public async Task<ApiCommonResponse> GetAllModelByMake(int makeId)
         {
             return await _modelService.GetAllModelByMake(makeId);
+        }
+
+        [HttpGet("")]
+        public async Task<ApiCommonResponse> GetAllModel()
+        {
+            return await _modelService.GetModel();
         }
 
         [HttpPut("{id}")]

@@ -99,6 +99,17 @@ namespace HaloBiz.MyServices.Impl
             return CommonResponse.Send(ResponseCodes.SUCCESS, modelTransferDTO);
         }
 
+        public async Task<ApiCommonResponse> GetModel()
+        {
+            var model = await _modelRepo.GetEntireModel();
+            if (model == null)
+            {
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE); ;
+            }
+            var modelTransferDTO = _mapper.Map<IEnumerable<ModelTransferDTO>>(model);
+            return CommonResponse.Send(ResponseCodes.SUCCESS, modelTransferDTO);
+        }
+
         public async Task<ApiCommonResponse> UpdateModel(HttpContext context, long id, ModelReceivingDTO modelReceivingDTO)
         {
             try

@@ -47,6 +47,14 @@ namespace HaloBiz.Repository.Impl
                 .ToListAsync();
         }
 
+        public async Task<IEnumerable<HalobizMigrations.Models.Model>> GetEntireModel()
+        {
+            return await _context.Models
+                .Where(x => !x.IsDeleted)
+                .OrderBy(x => x.Caption)
+                .ToListAsync();
+        }
+
         public async Task<bool> DeleteModel(HalobizMigrations.Models.Model model)
         {
             model.IsDeleted = true;

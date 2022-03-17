@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 namespace HaloBiz.Controllers
 {
     [Route("api/v1/[controller]")]
+    [ApiController]
     public class MakeController : Controller
     {
         private readonly IMakeService _makeService;

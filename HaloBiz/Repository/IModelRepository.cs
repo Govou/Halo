@@ -8,6 +8,7 @@ namespace HaloBiz.Repository
     {
         Task<HalobizMigrations.Models.Model> SaveModel(HalobizMigrations.Models.Model model);
         Task<IEnumerable<HalobizMigrations.Models.Model>> GetModel(int makeId);
+        Task<IEnumerable<HalobizMigrations.Models.Model>> GetEntireModel();
         Task<bool> DeleteModel(HalobizMigrations.Models.Model model);
         Task<HalobizMigrations.Models.Model> FindModelById(long Id);
         Task<List<IValidation>> ValidateModel(string modelCaption);
