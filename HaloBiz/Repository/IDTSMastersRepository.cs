@@ -1,4 +1,5 @@
-﻿using HalobizMigrations.Models.Armada;
+﻿using HaloBiz.DTOs.ReceivingDTOs;
+using HalobizMigrations.Models.Armada;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,7 +16,7 @@ namespace HaloBiz.Repository
 
         Task<ArmedEscortDTSMaster> FindArmedEscortMasterByResourceId(long resourceId);
         Task<ArmedEscortDTSMaster> FindArmedEscortMasterByResourceId2(long? resourceId);
-        Task<IEnumerable<ArmedEscortDTSMaster>> FindAllArmedEscortMastersForAutoAssignmentByPickupDate(long seviceRegId, long RouteId, DateTime pickupDate, DateTime pickUpTime);
+        Task<ArmedEscortDTSMasterExtended> FindAllArmedEscortMastersForAutoAssignmentByPickupDate(long seviceRegId, long RouteId, DateTime pickupDate, DateTime pickUpTime);
         //Task<IEnumerable<ArmedEscortDTSMaster>> FindAllArmedEscortMastersForAutoAssignmentByPickupDate(DateTime pickupDate, DateTime pickUpTime);
         Task<IEnumerable<ArmedEscortDTSMaster>> FindAllArmedEscortMasters();
 
@@ -32,7 +33,8 @@ namespace HaloBiz.Repository
         Task<CommanderDTSMaster> FindCommanderMasterById(long Id);
         Task<CommanderDTSMaster> FindCommanderMasterByResourceId(long resourceId);
         Task<CommanderDTSMaster> FindCommanderMasterByResourceId2(long? resourceId);
-        Task<IEnumerable<CommanderDTSMaster>> FindAllCommanderMastersForAutoAssignmentByPickupDate(long seviceRegId, long RouteId, DateTime pickupDate, DateTime pickUpTime);
+        Task<CommanderDTSMasterExtended> FindAllCommanderMastersForAutoAssignmentByPickupDate(long seviceRegId, long RouteId, DateTime pickupDate, DateTime pickUpTime);
+        //Task<IEnumerable<CommanderDTSMaster>> FindAllCommanderMastersForAutoAssignmentByPickupDate(long seviceRegId, long RouteId, DateTime pickupDate, DateTime pickUpTime);
         //Task<IEnumerable<CommanderDTSMaster>> FindAllCommanderMastersForAutoAssignmentByPickupDate(DateTime pickupDate, DateTime pickUpTime);
         Task<IEnumerable<CommanderDTSMaster>> FindAllCommanderMasters();
 
@@ -49,7 +51,8 @@ namespace HaloBiz.Repository
         Task<PilotDTSMaster> FindPilotMasterById(long Id);
         Task<PilotDTSMaster> FindPilotMasterByResourceId(long resourceId);
         Task<PilotDTSMaster> FindPilotMasterByResourceId2(long? resourceId);
-        Task<IEnumerable<PilotDTSMaster>> FindAllPilotMastersForAutoAssignmentByPickupDate(long seviceRegId, long RouteId, DateTime pickupDate, DateTime pickUpTime);
+        Task<PilotDTSMasterExtended> FindAllPilotMastersForAutoAssignmentByPickupDate(long seviceRegId, long RouteId, DateTime pickupDate, DateTime pickUpTime);
+        //Task<IEnumerable<PilotDTSMaster>> FindAllPilotMastersForAutoAssignmentByPickupDate_(long seviceRegId, long RouteId, DateTime pickupDate, DateTime pickUpTime);
         //Task<IEnumerable<PilotDTSMaster>> FindAllPilotMastersForAutoAssignmentByPickupDate(DateTime pickupDate, DateTime pickUpTime);
         Task<IEnumerable<PilotDTSMaster>> FindAllPilotMasters();
 
@@ -70,7 +73,8 @@ namespace HaloBiz.Repository
         Task<IEnumerable<VehicleDTSMaster>> FindAllVehicleMasters();
         Task<IEnumerable<VehicleDTSMaster>> FindAllVehicleMastersForAutoAssignment();
         //Task<IEnumerable<VehicleDTSMaster>> FindAllVehicleMastersForAutoAssignmentByPickupDate(DateTime pickupDate, DateTime pickUpTime);
-        Task<IEnumerable<VehicleDTSMaster>> FindAllVehicleMastersForAutoAssignmentByPickupDate(long seviceRegId, long RouteId, DateTime pickupDate, DateTime pickUpTime);
+        Task<VehicleDTSMasterExtended> FindAllVehicleMastersForAutoAssignmentByPickupDate(long seviceRegId, long RouteId, DateTime pickupDate, DateTime pickUpTime);
+        //Task<IEnumerable<VehicleDTSMaster>> FindAllVehicleMastersForAutoAssignmentByPickupDate_(long seviceRegId, long RouteId, DateTime pickupDate, DateTime pickUpTime);
 
         VehicleDTSMaster GetVehiclename(string Name);
         VehicleDTSMaster GetVehicleProfileId(long? profileId);

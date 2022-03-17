@@ -217,5 +217,11 @@ namespace HaloBiz.Helpers
                     return industry?.ToUpper()?.Substring(0, 4);
             }
         }
+
+        public static IEnumerable<TSource> DistinctBy<TSource, TKey>(this IEnumerable<TSource> source, Func<TSource, TKey> keySelector)
+        {
+            HashSet<TKey> seenKeys = new HashSet<TKey>();
+            return source.Where(element => seenKeys.Add(keySelector(element)));
+        }
     }
 }

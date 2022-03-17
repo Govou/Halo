@@ -1,4 +1,6 @@
-﻿using HalobizMigrations.Data;
+﻿using HaloBiz.DTOs.ReceivingDTOs;
+using HaloBiz.Helpers;
+using HalobizMigrations.Data;
 using HalobizMigrations.Models;
 using HalobizMigrations.Models.Armada;
 using Microsoft.EntityFrameworkCore;
@@ -60,7 +62,7 @@ namespace HaloBiz.Repository.Impl
              .ToListAsync();
         }
 
-        public async Task<IEnumerable<ArmedEscortDTSMaster>> FindAllArmedEscortMastersForAutoAssignmentByPickupDate(long seviceRegId, long RouteId, DateTime pickupDate, DateTime pickUpTime)
+        public async Task<ArmedEscortDTSMasterExtended> FindAllArmedEscortMastersForAutoAssignmentByPickupDate(long seviceRegId, long RouteId, DateTime pickupDate, DateTime pickUpTime)
         {
             var services = new List<ArmedEscortDTSMaster>();
             var services2 = new List<ArmedEscortDTSMaster>();
@@ -76,44 +78,27 @@ namespace HaloBiz.Repository.Impl
             .Include(s => s.ArmedEscortType).Include(t => t.SupplierService).Include(x=>x.ServiceAssignment)
             .Include(office => office.Rank)
                                   .ToList();
-            //Held
-            var resourceNotHeld = _context.ArmedEscortServiceAssignmentDetails.Where(type => type.IsDeleted == false && type.IsTemporarilyHeld != true)
-             .Include(ct => ct.ArmedEscortResource).Include(t => t.ActionReleaseType).Include(t => t.TempReleaseType).Include(t => t.ServiceAssignment)
-             .Include(t => t.TempReleaseType).Include(t => t.CreatedBy).Include(t => t.ArmedEscortResource.ArmedEscortType)
-             .OrderByDescending(x => x.CreatedAt);
-            //Check For Held
-            foreach (var items in getResources)
-            {
-                //checks if selected item is held in serviceDetail table
-                var getDetail = await _serviceAssignmentDetailsRepository.FindEscortServiceAssignmentDetailByResourceId2(items.Id);
-                if (getDetail == null)
-                {
-                    //add to list if not held
-                    resources.Add(items);
-                }
 
-            }
-            resources.OrderBy(x => x.CreatedAt).ToList();
-
+            var getAllResourceDetails = await _serviceAssignmentDetailsRepository.FindAllEscortServiceAssignmentDetails();
+            var AEscortAssignmentSorted = getAllResourceDetails.Where(x => x.IsTemporarilyHeld != true && x.DateTemporarilyHeld.Date != pickupDate.Date).OrderBy(x => x.DateTemporarilyHeld).DistinctBy(y => y.ArmedEscortResourceId);
+            var AEscortWithAssignment = getAllResourceDetails.Where(x => x.DateTemporarilyHeld.Date == pickupDate.Date && x.IsTemporarilyHeld == true);
+            var eligibleArmedEscorts = getResources.Where(x => !AEscortWithAssignment.Any(y => y.ArmedEscortResourceId == x.Id)).OrderBy(x => x.CreatedAt).ToList();
 
             //check for route
-            foreach (var items in resources)
-            {
-                services3_.AddRange(query.Where(x => x.ResourceId == items.Id));
-            }
-            services3_.ToList();
+            eligibleArmedEscorts = eligibleArmedEscorts.Where(x => query.Any(y => y.ResourceId == x.Id && y.SMORouteId == RouteId)).ToList();
 
-            //check for type
-            foreach (var items in services3_)
+
+            //type check
+            foreach (var items in eligibleArmedEscorts)
             {
-                var typeExists = _serviceRegistrationRepository.GetArmedEscortResourceApplicableTypeReqById(seviceRegId, items.Resource.ArmedEscortTypeId);
-                if (typeExists != null)
+                var typeExists = _serviceRegistrationRepository.GetArmedEscortResourceApplicableTypeReqById(seviceRegId, items.ArmedEscortTypeId);
+                if (typeExists == null)
                 {
-                    services_.Add(items);
+                    eligibleArmedEscorts.Remove(items);
+                    //services_.Add(items);
                 }
-                //servicesType_.AddRange(getTypesByServiceRegid.Where(x => x.VehicleTypeId == items.VehicleResource.VehicleTypeId));
+
             }
-            services_.ToList();
 
             var scheduleQuery = _context.ArmedEscortDTSMasters.Where(dts => dts.IsDeleted == false && (pickupDate >= dts.AvailabilityStart && pickupDate <= dts.AvailablilityEnd))
             .Include(dts => dts.CreatedBy).Include(dts => dts.ArmedEscortResource).
@@ -121,9 +106,9 @@ namespace HaloBiz.Repository.Impl
             .OrderByDescending(x => x.Id);
 
             //Check For active contrcat and Date 
-            foreach (var items in services_)
+            foreach (var items in eligibleArmedEscorts)
             {
-                services.AddRange(scheduleQuery.Where(x => x.ArmedEscortResourceId == items.ResourceId));
+                services.AddRange(scheduleQuery.Where(x => x.ArmedEscortResourceId == items.Id));
             }
 
             services.ToList();
@@ -184,8 +169,17 @@ namespace HaloBiz.Repository.Impl
                 // services2.AddRange(services.Where(x => x.VehicleResourceId == items.ResourceId));
             }
 
-            //Arrange based on released date 
-            return services2.ToList();
+            var eligibleArmedEscortsWithAssignment = services2.Where(x => AEscortAssignmentSorted.Any(y => y.ArmedEscortResourceId == x.Id));
+            var eligibleArmedEscortsWithoutAssignment = services2.Where(x => !AEscortAssignmentSorted.Any(y => y.ArmedEscortResourceId == x.Id));
+
+            var resultModel = new ArmedEscortDTSMasterExtended()
+            {
+                eligibleArmedEscortsWithAssignment = eligibleArmedEscortsWithAssignment,
+                eligibleArmedEscortsWithoutAssignment = eligibleArmedEscortsWithoutAssignment
+            };
+
+            return resultModel;
+            //return services2.ToList();
         }
 
         public async Task<IEnumerable<CommanderDTSMaster>> FindAllCommanderMasters()
@@ -196,7 +190,7 @@ namespace HaloBiz.Repository.Impl
             .ToListAsync();
         }
 
-        public async Task<IEnumerable<CommanderDTSMaster>> FindAllCommanderMastersForAutoAssignmentByPickupDate(long seviceRegId, long RouteId, DateTime pickupDate, DateTime pickUpTime)
+        public async Task<CommanderDTSMasterExtended> FindAllCommanderMastersForAutoAssignmentByPickupDate(long seviceRegId, long RouteId, DateTime pickupDate, DateTime pickUpTime)
         {
 
             var services = new List<CommanderDTSMaster>();
@@ -213,44 +207,27 @@ namespace HaloBiz.Repository.Impl
             .Include(s => s.Profile).Include(t => t.CommanderType)
             .Include(office => office.Rank)
                                   .ToList();
-            //Held
-            var resourceNotHeld = _context.CommanderServiceAssignmentDetails.Where(type => type.IsDeleted == false && type.IsTemporarilyHeld != true)
-             .Include(ct => ct.CommanderResource).Include(t => t.ActionReleaseType).Include(t => t.TempReleaseType).Include(t => t.ServiceAssignment)
-             .Include(t => t.TempReleaseType).Include(t => t.CreatedBy).Include(t => t.CommanderResource.CommanderType)
-             .OrderByDescending(x => x.CreatedAt);
-            //Check For Held
-            foreach (var items in getResources)
-            {
-                //checks if selected item is held in serviceDetail table
-                var getDetail = await _serviceAssignmentDetailsRepository.FindCommanderServiceAssignmentDetailByResourceId2(items.Id);
-                if (getDetail == null)
-                {
-                    //add to list if not held
-                    resources.Add(items);
-                }
-
-            }
-            resources.OrderBy(x => x.CreatedAt).ToList();
-
+            var getAllResourceDetails = await _serviceAssignmentDetailsRepository.FindAllCommanderServiceAssignmentDetails();
+            var commanderAssignmentSorted = getAllResourceDetails.Where(x => x.IsTemporarilyHeld != true && x.DateTemporarilyHeld.Date != pickupDate.Date).OrderBy(x => x.DateTemporarilyHeld).DistinctBy(y => y.CommanderResourceId);
+            var commanderWithAssignment = getAllResourceDetails.Where(x => x.DateTemporarilyHeld.Date == pickupDate.Date && x.IsTemporarilyHeld == true);
+            var eligibleCommanders = getResources.Where(x => !commanderWithAssignment.Any(y => y.CommanderResourceId == x.Id)).OrderBy(x => x.CreatedAt).ToList();
 
             //check for route
-            foreach (var items in resources)
-            {
-                services3_.AddRange(query.Where(x => x.ResourceId == items.Id));
-            }
-            services3_.ToList();
+            eligibleCommanders = eligibleCommanders.Where(x => query.Any(y => y.ResourceId == x.Id && y.SMORouteId == RouteId)).ToList();
 
-            //check for type
-            foreach (var items in services3_)
+
+            //type check
+            foreach (var items in eligibleCommanders)
             {
-                var typeExists = _serviceRegistrationRepository.GetCommanderResourceApplicableTypeReqById(seviceRegId, items.Resource.CommanderTypeId);
-                if (typeExists != null)
+                var typeExists = _serviceRegistrationRepository.GetCommanderResourceApplicableTypeReqById(seviceRegId, items.CommanderTypeId);
+                if (typeExists == null)
                 {
-                    services_.Add(items);
+                    eligibleCommanders.Remove(items);
+                    //services_.Add(items);
                 }
-                //servicesType_.AddRange(getTypesByServiceRegid.Where(x => x.VehicleTypeId == items.VehicleResource.VehicleTypeId));
+
             }
-            services_.ToList();
+            
 
             var scheduleQuery = _context.CommanderDTSMasters.Where(dts => dts.IsDeleted == false && (pickupDate >= dts.AvailabilityStart && pickupDate <= dts.AvailablilityEnd))
             .Include(dts => dts.CreatedBy).Include(dts => dts.CommanderResource).
@@ -258,9 +235,9 @@ namespace HaloBiz.Repository.Impl
             .OrderByDescending(x => x.Id);
 
             //Check For active contrcat and Date 
-            foreach (var items in services_)
+            foreach (var items in eligibleCommanders)
             {
-                services.AddRange(scheduleQuery.Where(x => x.CommanderResourceId == items.ResourceId));
+                services.AddRange(scheduleQuery.Where(x => x.CommanderResourceId == items.Id));
             }
 
             services.ToList();
@@ -320,8 +297,17 @@ namespace HaloBiz.Repository.Impl
                 // services2.AddRange(services.Where(x => x.VehicleResourceId == items.ResourceId));
             }
 
-            //Arrange based on released date 
-            return services2.ToList();
+            var eligibleCommandersWithAssignment = services2.Where(x => commanderAssignmentSorted.Any(y => y.CommanderResourceId == x.Id));
+            var eligibleCommandersWithoutAssignment = services2.Where(x => !commanderAssignmentSorted.Any(y => y.CommanderResourceId == x.Id));
+
+            var resultModel = new CommanderDTSMasterExtended()
+            {
+                eligibleCommandersWithAssignment = eligibleCommandersWithAssignment,
+                eligibleCommandersWithoutAssignment = eligibleCommandersWithoutAssignment
+            };
+
+            return resultModel;
+            //return services2.ToList();
         }
 
         public async Task<IEnumerable<PilotDTSMaster>> FindAllPilotMasters()
@@ -332,7 +318,7 @@ namespace HaloBiz.Repository.Impl
             .ToListAsync();
         }
 
-        public async Task<IEnumerable<PilotDTSMaster>> FindAllPilotMastersForAutoAssignmentByPickupDate(long seviceRegId, long RouteId, DateTime pickupDate, DateTime pickUpTime)
+        public async Task<PilotDTSMasterExtended> FindAllPilotMastersForAutoAssignmentByPickupDate(long seviceRegId, long RouteId, DateTime pickupDate, DateTime pickUpTime)
         {
             var services = new List<PilotDTSMaster>();
             var services2 = new List<PilotDTSMaster>();
@@ -348,54 +334,38 @@ namespace HaloBiz.Repository.Impl
             .Include(s => s.MeansOfIdentification).Include(t => t.PilotType)
             .Include(office => office.Rank)
                                   .ToList();
-            //Held
-            var resourceNotHeld = _context.PilotServiceAssignmentDetails.Where(type => type.IsDeleted == false && type.IsTemporarilyHeld != true)
-             .Include(ct => ct.PilotResource).Include(t => t.ActionReleaseType).Include(t => t.TempReleaseType).Include(t => t.ServiceAssignment)
-             .Include(t => t.TempReleaseType).Include(t => t.CreatedBy).Include(t => t.PilotResource.PilotType)
-             .OrderByDescending(x => x.CreatedAt);
-            //Check For Held
-            foreach (var items in getResources)
-            {
-                //checks if selected item is held in serviceDetail table
-                var getVehicleDetail = await _serviceAssignmentDetailsRepository.FindPilotServiceAssignmentDetailByResourceId2(items.Id);
-                if (getVehicleDetail == null)
-                {
-                    //add to list if not held
-                    resources.Add(items);
-                }
+            var getAllResourceDetails = await _serviceAssignmentDetailsRepository.FindAllPilotServiceAssignmentDetails();
+            var pilotAssignmentSorted = getAllResourceDetails.Where(x => x.IsTemporarilyHeld != true && x.DateTemporarilyHeld.Date != pickupDate.Date).OrderBy(x => x.DateTemporarilyHeld).DistinctBy(y => y.PilotResourceId);
+            var pilotWithAssignment = getAllResourceDetails.Where(x => x.DateTemporarilyHeld.Date == pickupDate.Date && x.IsTemporarilyHeld == true);
 
-            }
-            resources.OrderBy(x=>x.CreatedAt).ToList();
-
+            var eligiblePilots = getResources.Where(x => !pilotWithAssignment.Any(y => y.PilotResourceId == x.Id)).OrderBy(x => x.CreatedAt).ToList();
+            // resources.OrderBy(x=>x.CreatedAt).ToList();
 
             //check for route
-            foreach (var items in resources)
-            {
-                services3_.AddRange(query.Where(x => x.ResourceId == items.Id));
-            }
-            services3_.ToList();
+            eligiblePilots = eligiblePilots.Where(x => query.Any(y => y.ResourceId == x.Id && y.SMORouteId == RouteId)).ToList();
 
-            //check for type
-            foreach (var items in services3_)
+
+            //type check
+           
+            foreach (var items in eligiblePilots)
             {
-                var typeExists = _serviceRegistrationRepository.GetPilotResourceApplicableTypeReqById(seviceRegId, items.Resource.PilotTypeId);
-                if (typeExists != null)
+                var typeExists = _serviceRegistrationRepository.GetPilotResourceApplicableTypeReqById(seviceRegId, items.PilotTypeId);
+                if (typeExists == null)
                 {
-                    services_.Add(items);
+                    eligiblePilots.Remove(items);
                 }
-                //servicesType_.AddRange(getTypesByServiceRegid.Where(x => x.VehicleTypeId == items.VehicleResource.VehicleTypeId));
+
             }
-            services_.ToList();
+           
 
             var scheduleQuery = _context.PilotDTSMasters.Where(dts => dts.IsDeleted == false && (pickupDate >= dts.AvailabilityStart && pickupDate <= dts.AvailablilityEnd))
             .Include(dts => dts.CreatedBy).Include(dts => dts.PilotResource).
-            Include(dts => dts.GenericDays.Where(x => x.IsDeleted == false))
-            .OrderByDescending(x => x.Id);
+            Include(dts => dts.GenericDays.Where(x => x.IsDeleted == false));
 
             //Check For active Contract and Date
-            foreach (var items in services_)
+            foreach (var items in eligiblePilots)
             {
-                services.AddRange(scheduleQuery.Where(x => x.PilotResourceId == items.ResourceId));
+                services.AddRange(scheduleQuery.Where(x => x.PilotResourceId == items.Id));
             }
 
             services.ToList();
@@ -455,8 +425,18 @@ namespace HaloBiz.Repository.Impl
                 // services2.AddRange(services.Where(x => x.VehicleResourceId == items.ResourceId));
             }
 
+            var eligiblePilotsWithAssignment = services2.Where(x => pilotAssignmentSorted.Any(y => y.PilotResourceId == x.Id));
+            var eligiblePilotsWithoutAssignment = services2.Where(x => !pilotAssignmentSorted.Any(y => y.PilotResourceId == x.Id));
+
+            var resultModel = new PilotDTSMasterExtended()
+            {
+                eligiblePilotsWithAssignment = eligiblePilotsWithAssignment,
+                eligiblePilotsWithoutAssignment = eligiblePilotsWithoutAssignment
+            };
+
+            return resultModel;
             //Arrange based on released date 
-            return services2.ToList();
+            //return services2.ToList();
         }
 
         public async Task<IEnumerable<VehicleDTSMaster>> FindAllVehicleMasters()
@@ -475,7 +455,136 @@ namespace HaloBiz.Repository.Impl
            .ToListAsync();
         }
 
-        public async Task<IEnumerable<VehicleDTSMaster>> FindAllVehicleMastersForAutoAssignmentByPickupDate(long seviceRegId, long RouteId, DateTime pickupDate, DateTime pickUpTime)
+        //public async Task<IEnumerable<VehicleDTSMaster>> FindAllVehicleMastersForAutoAssignmentByPickupDate_(long seviceRegId, long RouteId, DateTime pickupDate, DateTime pickUpTime)
+        //{
+        //    var services = new List<VehicleDTSMaster>();
+        //    var services2 = new List<VehicleDTSMaster>();
+        //    var resources = new List<Vehicle>();
+        //    var services_ = new List<VehicleSMORoutesResourceTie>();
+        //    var services2_ = new List<VehicleSMORoutesResourceTie>();
+        //    var services3_ = new List<VehicleSMORoutesResourceTie>();
+        //    var servicesType_ = new List<VehicleResourceRequiredPerService>();
+        //    var servicesDetail_ = new List<VehicleServiceAssignmentDetail>();
+        //    var query = _context.VehicleSMORoutesResourceTies.Where
+        //                 (ct => ct.SMORouteId == RouteId && ct.IsDeleted == false);
+        //    //Getting all  registered resources
+        //    var getResources = _context.Vehicles.Where(r => r.IsDeleted == false)
+        //    .Include(s => s.SupplierService).Include(t => t.VehicleType)
+        //    .Include(office => office.AttachedOffice).Include(br => br.AttachedBranch)
+        //                          .ToList();
+        //    //Held
+        //    var resourceNotHeld = _context.VehicleServiceAssignmentDetails.Where(type => type.IsDeleted == false && type.IsTemporarilyHeld != true)
+        //     .Include(ct => ct.VehicleResource).Include(t => t.ActionReleaseType).Include(t => t.TempReleaseType).Include(t => t.ServiceAssignment)
+        //     .Include(t => t.TempReleaseType).Include(t => t.CreatedBy).Include(t => t.VehicleResource.SupplierService).Include(t => t.VehicleResource.VehicleType)
+        //     .OrderByDescending(x => x.CreatedAt);
+        //    //Check For Held
+        //    foreach (var items in getResources)
+        //    {
+        //        var getVehicleDetail = await _serviceAssignmentDetailsRepository.FindVehicleServiceAssignmentDetailByResourceId2(items.Id);
+        //        if (getVehicleDetail == null)
+        //        {
+        //            resources.Add(items);
+        //        }
+
+        //    }
+        //    resources.OrderBy(x => x.CreatedAt).ToList();
+
+
+        //    //check for route
+        //    foreach (var items in resources)
+        //    {
+        //        services3_.AddRange(query.Where(x => x.ResourceId == items.Id));
+        //    }
+        //    services3_.ToList();
+
+        //    //type check
+        //    foreach (var items in services3_)
+        //    {
+        //        var typeExists = _serviceRegistrationRepository.GetVehicleResourceApplicableTypeReqById(seviceRegId, items.Resource.VehicleTypeId);
+        //        if (typeExists != null)
+        //        {
+        //            services_.Add(items);
+        //        }
+        //        //servicesType_.AddRange(getTypesByServiceRegid.Where(x => x.VehicleTypeId == items.VehicleResource.VehicleTypeId));
+        //    }
+        //    services_.ToList();
+
+        //    var scheduleQuery = _context.VehicleDTSMasters.Where(dts => dts.IsDeleted == false)
+        //    .Include(dts => dts.CreatedBy).Include(dts => dts.VehicleResource).Include(dts => dts.VehicleResource.SupplierService).
+        //    Include(dts => dts.GenericDays.Where(x => x.IsDeleted == false))
+        //    .OrderByDescending(x => x.Id).ToList();
+
+        //    //Check For active contract and Date
+        //    foreach (var items in services_)
+        //    {
+        //        services.AddRange(scheduleQuery.Where(x => x.VehicleResourceId == items.ResourceId && pickupDate >= x.AvailabilityStart && pickupDate <= x.AvailablilityEnd));
+        //    }
+
+        //    services.ToList();
+        //    //Check For Days
+
+        //    //Check Time
+        //    foreach (var items in services)
+        //    {
+        //        foreach (var item in items.GenericDays)
+        //        {
+        //            if (pickUpTime.TimeOfDay >= item.OpeningTime.TimeOfDay && pickUpTime.TimeOfDay <= item.ClosingTime.TimeOfDay)
+        //            {
+        //                if (pickupDate.DayOfWeek.ToString() == "Monday" && item.Monday == true)
+        //                {
+        //                    //services2.AddRange(services.Where(x => x.VehicleResourceId == items.VehicleResourceId));
+        //                    services2.Add(items);
+        //                    break;
+        //                }
+        //                else if (pickupDate.DayOfWeek.ToString() == "Tuesday" && item.Tuesday == true)
+        //                {
+        //                    services2.Add(items);
+        //                    break;
+        //                }
+        //                else if (pickupDate.DayOfWeek.ToString() == "Wednesday" && item.Wednesday == true)
+        //                {
+        //                    services2.Add(items);
+        //                    break;
+        //                }
+        //                else if (pickupDate.DayOfWeek.ToString() == "Thursday" && item.Thursday == true)
+        //                {
+        //                    services2.Add(items);
+        //                    break;
+        //                }
+        //                else if (pickupDate.DayOfWeek.ToString() == "Friday" && item.Friday == true)
+        //                {
+        //                    services2.Add(items);
+        //                    break;
+        //                }
+        //                else if (pickupDate.DayOfWeek.ToString() == "Saturday" && item.Saturday == true)
+        //                {
+        //                    services2.Add(items);
+        //                    break;
+        //                }
+        //                else if (pickupDate.DayOfWeek.ToString() == "Sunday" && item.Sunday == true)
+        //                {
+        //                    services2.Add(items);
+        //                    break;
+        //                }
+
+        //            }
+        //            else
+        //            {
+        //                continue;
+        //            }
+
+
+        //        }
+        //        // services2.AddRange(services.Where(x => x.VehicleResourceId == items.ResourceId));
+        //    }
+
+
+
+
+        //    //Arrange based on released date 
+        //    return services2.ToList();
+        //}
+        public async Task<VehicleDTSMasterExtended> FindAllVehicleMastersForAutoAssignmentByPickupDate(long seviceRegId, long RouteId, DateTime pickupDate, DateTime pickUpTime)
         {
             var services = new List<VehicleDTSMaster>();
             var services2 = new List<VehicleDTSMaster>();
@@ -492,55 +601,47 @@ namespace HaloBiz.Repository.Impl
             .Include(s => s.SupplierService).Include(t => t.VehicleType)
             .Include(office => office.AttachedOffice).Include(br => br.AttachedBranch)
                                   .ToList();
-            //Held
-            var resourceNotHeld = _context.VehicleServiceAssignmentDetails.Where(type => type.IsDeleted == false && type.IsTemporarilyHeld != true)
-             .Include(ct => ct.VehicleResource).Include(t => t.ActionReleaseType).Include(t => t.TempReleaseType).Include(t => t.ServiceAssignment)
-             .Include(t => t.TempReleaseType).Include(t => t.CreatedBy).Include(t => t.VehicleResource.SupplierService).Include(t => t.VehicleResource.VehicleType)
-             .OrderByDescending(x => x.CreatedAt);
-            //Check For Held
-            foreach (var items in getResources)
-            {
-                var getVehicleDetail = await _serviceAssignmentDetailsRepository.FindVehicleServiceAssignmentDetailByResourceId2(items.Id);
-                if(getVehicleDetail == null)
-                {
-                    resources.Add(items);
-                }
-                
-            }
-            resources.OrderBy(x=>x.CreatedAt).ToList();
+          
+            var getAllResourceDetails = await _serviceAssignmentDetailsRepository.FindAllVehicleServiceAssignmentDetails();
+            //var vehicleAssignmentSorted = getAllResourceDetails.Where(x=>x.DateTemporarilyHeld > DateTime.Now).OrderBy(x=>x.DateTemporarilyHeld).ToList();
+            var vehicleAssignmentSorted = getAllResourceDetails.Where(x => x.IsTemporarilyHeld != true && x.DateTemporarilyHeld.Date != pickupDate.Date).OrderBy(x => x.DateTemporarilyHeld).DistinctBy(y => y.VehicleResourceId);
+            //var vehicleWithAssignment = getAllResourceDetails.Where(x => x.DateTemporarilyHeld.Date == pickupDate.Date);
+            var vehicleWithAssignment = getAllResourceDetails.Where(x => x.DateTemporarilyHeld.Date == pickupDate.Date && x.IsTemporarilyHeld == true);
 
+            //var vehiclesWithoutAssignment = getResources.Where(x => vehicleAssignmentSorted.Any(y => y.VehicleResourceId == x.Id)).ToList();
+            var eligibleVehicles = getResources.Where(x => !vehicleWithAssignment.Any(y => y.VehicleResourceId == x.Id)).OrderBy(x=>x.CreatedAt).ToList();
+            // resources.OrderBy(x=>x.CreatedAt).ToList();
 
             //check for route
-            foreach (var items in resources)
-            {
-                services3_.AddRange(query.Where(x => x.ResourceId == items.Id));
-            }
-            services3_.ToList();
+            eligibleVehicles = eligibleVehicles.Where(x => query.Any(y => y.ResourceId == x.Id && y.SMORouteId == RouteId)).ToList();
+          
 
             //type check
-            foreach (var items in services3_)
+            
+            foreach (var items in eligibleVehicles)
             {
-                var typeExists = _serviceRegistrationRepository.GetVehicleResourceApplicableTypeReqById(seviceRegId, items.Resource.VehicleTypeId);
-                if (typeExists != null)
+                var typeExists = _serviceRegistrationRepository.GetVehicleResourceApplicableTypeReqById(seviceRegId, items.VehicleTypeId);
+                if (typeExists == null)
                 {
-                    services_.Add(items);
+                    eligibleVehicles.Remove(items);
+                    //services_.Add(items);
                 }
-                //servicesType_.AddRange(getTypesByServiceRegid.Where(x => x.VehicleTypeId == items.VehicleResource.VehicleTypeId));
+
             }
-            services_.ToList();
+            //services_.ToList();
 
             var scheduleQuery = _context.VehicleDTSMasters.Where(dts => dts.IsDeleted == false)
             .Include(dts => dts.CreatedBy).Include(dts => dts.VehicleResource).Include(dts => dts.VehicleResource.SupplierService).
             Include(dts => dts.GenericDays.Where(x => x.IsDeleted == false))
             .OrderByDescending(x => x.Id).ToList();
-           
+
             //Check For active contract and Date
-            foreach (var items in services_)
+            foreach (var items in eligibleVehicles)
             {
-                services.AddRange(scheduleQuery.Where(x => x.VehicleResourceId == items.ResourceId && pickupDate>=x.AvailabilityStart && pickupDate<=x.AvailablilityEnd));
+                services.AddRange(scheduleQuery.Where(x => x.VehicleResourceId == items.Id && pickupDate >= x.AvailabilityStart && pickupDate <= x.AvailablilityEnd));
             }
 
-             services.ToList();
+            services.ToList();
             //Check For Days
 
             //Check Time
@@ -592,33 +693,26 @@ namespace HaloBiz.Repository.Impl
                     {
                         continue;
                     }
-                   
-                      
+
+
                 }
                 // services2.AddRange(services.Where(x => x.VehicleResourceId == items.ResourceId));
             }
+            var eligibleVehiclesWithAssignment = services2.Where(x => vehicleAssignmentSorted.Any(y => y.VehicleResourceId == x.VehicleResourceId));
+            var eligibleVehiclesWithoutAssignment = services2.Where(x => !vehicleAssignmentSorted.Any(y => y.VehicleResourceId == x.VehicleResourceId));
+            //var eligibleVehiclesWithAssignment = services2.Where(x => !vehicleAssignmentSorted.Any(y => y.VehicleResourceId == x.Id));
+            //var eligibleVehiclesWithoutAssignment = services2.Where(x => !vehicleWithAssignment.Any(y => y.VehicleResourceId == x.Id));
 
-           
+            var resultModel = new VehicleDTSMasterExtended()
+            {
+                eligibleVehiclesWithAssignment = eligibleVehiclesWithAssignment,
+                eligibleVehiclesWithoutAssignment = eligibleVehiclesWithoutAssignment
+            };
 
-
-            //Arrange based on released date 
-            return services2.ToList();
+            return resultModel;
         }
 
-        //public async Task<IEnumerable<VehicleDTSMaster>> FindAllVehicleMastersForAutoAssignmentByPickupDate(DateTime pickupDate, DateTime pickUpTime)
-        //{
-        //   
-        //    return await _context.VehicleDTSMasters.Where(dts => dts.IsDeleted == false && (pickupDate >= dts.AvailabilityStart && pickupDate <= dts.AvailablilityEnd))
-        //    .Include(dts => dts.CreatedBy).Include(dts => dts.VehicleResource).Include(dts => dts.VehicleResource.SupplierService).
-        //    Include(dts => dts.GenericDays.Where(x => x.IsDeleted == false ))
-        //    .OrderByDescending(x => x.Id)
-        //    .ToListAsync();
-        //    // var query = _context.VehicleDTSMasters.Where(dts => dts.IsDeleted == false && (pickupDate >= dts.AvailabilityStart && pickupDate <= dts.AvailablilityEnd))
-        //    //.Include(dts => dts.CreatedBy).Include(dts => dts.VehicleResource).Include(dts => dts.VehicleResource.SupplierService);
-        //    //return await query.Include(dts => dts.GenericDays.Where(x => x.IsDeleted == false && (pickUpTime.TimeOfDay >= x.OpeningTime.TimeOfDay && pickUpTime.TimeOfDay <= x.ClosingTime.TimeOfDay)))
-        //    //.OrderByDescending(x => x.Id)
-        //    //.ToListAsync();
-        //}
+
 
         public async Task<ArmedEscortDTSMaster> FindArmedEscortMasterById(long Id)
         {
