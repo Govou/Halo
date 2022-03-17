@@ -76,6 +76,7 @@ namespace HaloBiz.Repository
         Task<VehicleServiceAssignmentDetail> FindVehicleServiceAssignmentDetailById(long Id);
         Task<VehicleServiceAssignmentDetail> FindVehicleServiceAssignmentDetailByAssignmentId(long Id);
         Task<VehicleServiceAssignmentDetail> FindVehicleServiceAssignmentDetailByResourceId(long resourceId);
+        Task<VehicleServiceAssignmentDetail> FindVehicleServiceAssignmentDetailByResourceId_(long? resourceId);
         Task<VehicleServiceAssignmentDetail> FindVehicleServiceAssignmentDetailByResourceId2(long? resourceId);
 
         Task<IEnumerable<VehicleServiceAssignmentDetail>> FindAllVehicleServiceAssignmentDetails();

@@ -170,7 +170,10 @@ namespace HaloBiz.Repository.Impl
             }
 
             var eligibleArmedEscortsWithAssignment = services2.Where(x => AEscortAssignmentSorted.Any(y => y.ArmedEscortResourceId == x.ArmedEscortResourceId));
-            var eligibleArmedEscortsWithoutAssignment = services2.Where(x => !AEscortAssignmentSorted.Any(y => y.ArmedEscortResourceId == x.ArmedEscortResourceId));
+            //var eligibleArmedEscortsWithoutAssignment = services2.Where(x => !AEscortAssignmentSorted.Any(y => y.ArmedEscortResourceId == x.ArmedEscortResourceId));
+            var eligibleArmedEscortsWithoutAssignment = new List<ArmedEscortDTSMaster>();
+            var armedEscortAssignmentSortedDetails = getAllResourceDetails.DistinctBy(y => y.ArmedEscortResourceId).ToList();
+            eligibleArmedEscortsWithoutAssignment = services2.Where(x => !armedEscortAssignmentSortedDetails.Any(y => y.ArmedEscortResourceId == x.ArmedEscortResourceId)).ToList();
 
             var resultModel = new ArmedEscortDTSMasterExtended()
             {
@@ -298,7 +301,10 @@ namespace HaloBiz.Repository.Impl
             }
 
             var eligibleCommandersWithAssignment = services2.Where(x => commanderAssignmentSorted.Any(y => y.CommanderResourceId == x.CommanderResourceId));
-            var eligibleCommandersWithoutAssignment = services2.Where(x => !commanderAssignmentSorted.Any(y => y.CommanderResourceId == x.CommanderResourceId));
+            //var eligibleCommandersWithoutAssignment = services2.Where(x => !commanderAssignmentSorted.Any(y => y.CommanderResourceId == x.CommanderResourceId));
+            var eligibleCommandersWithoutAssignment = new List<CommanderDTSMaster>();
+            var commanderAssignmentSortedDetails = getAllResourceDetails.DistinctBy(y => y.CommanderResourceId).ToList();
+            eligibleCommandersWithoutAssignment = services2.Where(x => !commanderAssignmentSortedDetails.Any(y => y.CommanderResourceId == x.CommanderResourceId)).ToList();
 
             var resultModel = new CommanderDTSMasterExtended()
             {
@@ -426,7 +432,10 @@ namespace HaloBiz.Repository.Impl
             }
 
             var eligiblePilotsWithAssignment = services2.Where(x => pilotAssignmentSorted.Any(y => y.PilotResourceId == x.PilotResourceId));
-            var eligiblePilotsWithoutAssignment = services2.Where(x => !pilotAssignmentSorted.Any(y => y.PilotResourceId == x.PilotResourceId));
+            //var eligiblePilotsWithoutAssignment = services2.Where(x => !pilotAssignmentSorted.Any(y => y.PilotResourceId == x.PilotResourceId));
+            var eligiblePilotsWithoutAssignment = new List<PilotDTSMaster>();
+            var pilotAssignmentSortedDetails = getAllResourceDetails.DistinctBy(y => y.PilotResourceId).ToList();
+            eligiblePilotsWithoutAssignment = services2.Where(x => !pilotAssignmentSortedDetails.Any(y => y.PilotResourceId == x.PilotResourceId)).ToList();
 
             var resultModel = new PilotDTSMasterExtended()
             {
@@ -613,8 +622,8 @@ namespace HaloBiz.Repository.Impl
             // resources.OrderBy(x=>x.CreatedAt).ToList();
 
             //check for route
-            eligibleVehicles = eligibleVehicles.Where(x => query.Any(y => y.ResourceId == x.Id && y.SMORouteId == RouteId)).ToList();
-          
+            eligibleVehicles = eligibleVehicles.Where(x => query.Any(y => y.ResourceId == x.Id && y.SMORouteId == RouteId)).OrderBy(x=>x.CreatedAt).ToList();
+            var neverAssigned = eligibleVehicles.ToList();
 
             //type check
             
@@ -699,9 +708,18 @@ namespace HaloBiz.Repository.Impl
                 // services2.AddRange(services.Where(x => x.VehicleResourceId == items.ResourceId));
             }
             var eligibleVehiclesWithAssignment = services2.Where(x => vehicleAssignmentSorted.Any(y => y.VehicleResourceId == x.VehicleResourceId));
-            var eligibleVehiclesWithoutAssignment = services2.Where(x => !vehicleAssignmentSorted.Any(y => y.VehicleResourceId == x.VehicleResourceId));
-            //var eligibleVehiclesWithAssignment = services2.Where(x => !vehicleAssignmentSorted.Any(y => y.VehicleResourceId == x.Id));
-            //var eligibleVehiclesWithoutAssignment = services2.Where(x => !vehicleWithAssignment.Any(y => y.VehicleResourceId == x.Id));
+            //var eligibleVehiclesWithoutAssignment = services2.Where(x => !vehicleAssignmentSorted.Any(y => y.VehicleResourceId == x.VehicleResourceId));
+            var eligibleVehiclesWithoutAssignment = new List<VehicleDTSMaster>();
+            var vehicleAssignmentSortedDetails = getAllResourceDetails.DistinctBy(y => y.VehicleResourceId).ToList();
+             eligibleVehiclesWithoutAssignment = services2.Where(x => !vehicleAssignmentSortedDetails.Any(y => y.VehicleResourceId == x.VehicleResourceId)).ToList();
+            //foreach (var item in services2)
+            //{
+            //    var getAllResourceDetailsById = vehicleAssignmentSortedDetails.Where(x => x.VehicleResourceId == item.VehicleResourceId).FirstOrDefault();
+            //    if (getAllResourceDetailsById == null)
+            //    {
+            //        eligibleVehiclesWithoutAssignment.Add(item);
+            //    }
+            //}
 
             var resultModel = new VehicleDTSMasterExtended()
             {

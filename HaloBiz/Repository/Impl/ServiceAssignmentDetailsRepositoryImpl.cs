@@ -410,6 +410,14 @@ namespace HaloBiz.Repository.Impl
                .FirstOrDefaultAsync(aer => aer.VehicleResourceId == resourceId && aer.IsDeleted == false && aer.IsTemporarilyHeld == true);
         }
 
+        public async Task<VehicleServiceAssignmentDetail> FindVehicleServiceAssignmentDetailByResourceId_(long? resourceId)
+        {
+            return await _context.VehicleServiceAssignmentDetails
+              .Include(ct => ct.VehicleResource).Include(t => t.ActionReleaseType).Include(t => t.TempReleaseType).Include(t => t.ServiceAssignment)
+            .Include(t => t.TempReleaseType).Include(t => t.CreatedBy).Include(t => t.VehicleResource.SupplierService).Include(t => t.VehicleResource.VehicleType)
+              .FirstOrDefaultAsync(aer => aer.VehicleResourceId == resourceId && aer.IsDeleted == false);
+        }
+
         public async Task<CommanderServiceAssignmentDetail> SaveCommanderServiceAssignmentdetail(CommanderServiceAssignmentDetail serviceAssignmentDetail)
         {
             var savedEntity = await _context.CommanderServiceAssignmentDetails.AddAsync(serviceAssignmentDetail);

@@ -151,11 +151,9 @@ namespace HaloBiz.MyServices.Impl
                         
                         var getAllResourceSchedule = await _dTSMastersRepository.FindAllVehicleMastersForAutoAssignmentByPickupDate(masterReceivingDTO.ServiceRegistrationId, masterReceivingDTO.SMORouteId, masterReceivingDTO.PickupDate, masterReceivingDTO.PickoffTime);
 
-                        var result = getAllResourceSchedule.eligibleVehiclesWithAssignment.Concat(getAllResourceSchedule.eligibleVehiclesWithoutAssignment).ToList();
-                  
-                        //var res = getAllResourceSchedule.eligibleVehiclesWithoutAssignment.ToList();
-                        //var res2 = getAllResourceSchedule.eligibleVehiclesWithAssignment.ToList();
-                       
+                        var result = getAllResourceSchedule.eligibleVehiclesWithoutAssignment.Concat(getAllResourceSchedule.eligibleVehiclesWithAssignment).ToList();
+                      
+
                         if (result.Count() >= getVehicleServiceRegistration.VehicleQuantityRequired)
                         {
                             int countSchedule = 0;
