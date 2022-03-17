@@ -169,8 +169,8 @@ namespace HaloBiz.Repository.Impl
                 // services2.AddRange(services.Where(x => x.VehicleResourceId == items.ResourceId));
             }
 
-            var eligibleArmedEscortsWithAssignment = services2.Where(x => AEscortAssignmentSorted.Any(y => y.ArmedEscortResourceId == x.Id));
-            var eligibleArmedEscortsWithoutAssignment = services2.Where(x => !AEscortAssignmentSorted.Any(y => y.ArmedEscortResourceId == x.Id));
+            var eligibleArmedEscortsWithAssignment = services2.Where(x => AEscortAssignmentSorted.Any(y => y.ArmedEscortResourceId == x.ArmedEscortResourceId));
+            var eligibleArmedEscortsWithoutAssignment = services2.Where(x => !AEscortAssignmentSorted.Any(y => y.ArmedEscortResourceId == x.ArmedEscortResourceId));
 
             var resultModel = new ArmedEscortDTSMasterExtended()
             {
@@ -297,8 +297,8 @@ namespace HaloBiz.Repository.Impl
                 // services2.AddRange(services.Where(x => x.VehicleResourceId == items.ResourceId));
             }
 
-            var eligibleCommandersWithAssignment = services2.Where(x => commanderAssignmentSorted.Any(y => y.CommanderResourceId == x.Id));
-            var eligibleCommandersWithoutAssignment = services2.Where(x => !commanderAssignmentSorted.Any(y => y.CommanderResourceId == x.Id));
+            var eligibleCommandersWithAssignment = services2.Where(x => commanderAssignmentSorted.Any(y => y.CommanderResourceId == x.CommanderResourceId));
+            var eligibleCommandersWithoutAssignment = services2.Where(x => !commanderAssignmentSorted.Any(y => y.CommanderResourceId == x.CommanderResourceId));
 
             var resultModel = new CommanderDTSMasterExtended()
             {
@@ -425,8 +425,8 @@ namespace HaloBiz.Repository.Impl
                 // services2.AddRange(services.Where(x => x.VehicleResourceId == items.ResourceId));
             }
 
-            var eligiblePilotsWithAssignment = services2.Where(x => pilotAssignmentSorted.Any(y => y.PilotResourceId == x.Id));
-            var eligiblePilotsWithoutAssignment = services2.Where(x => !pilotAssignmentSorted.Any(y => y.PilotResourceId == x.Id));
+            var eligiblePilotsWithAssignment = services2.Where(x => pilotAssignmentSorted.Any(y => y.PilotResourceId == x.PilotResourceId));
+            var eligiblePilotsWithoutAssignment = services2.Where(x => !pilotAssignmentSorted.Any(y => y.PilotResourceId == x.PilotResourceId));
 
             var resultModel = new PilotDTSMasterExtended()
             {
