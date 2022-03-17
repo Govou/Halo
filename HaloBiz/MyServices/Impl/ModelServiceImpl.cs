@@ -99,6 +99,48 @@ namespace HaloBiz.MyServices.Impl
             return CommonResponse.Send(ResponseCodes.SUCCESS, modelTransferDTO);
         }
 
+        public async Task<ApiCommonResponse> UpdateModel(HttpContext context, long id, ModelReceivingDTO modelReceivingDTO)
+        {
+            try
+            {
+                var modelToUpdate = await _modelRepo.FindModelById(id);
+                if (modelToUpdate == null)
+                {
+                    return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE); ;
+                }
 
+                var summary = $"Initial details before change, \n {modelToUpdate.ToString()} \n";
+
+                modelToUpdate.Caption = modelReceivingDTO.Caption;
+                modelToUpdate.Description = modelReceivingDTO.Description;
+                modelToUpdate.MakeId = modelReceivingDTO.MakeId;
+
+                var updatedModel = await _modelRepo.UpdateModel(modelToUpdate);
+
+
+                summary += $"Details after change, \n {updatedModel.ToString()} \n";
+
+                if (updatedModel == null)
+                {
+                    return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+                }
+                ModificationHistory history = new ModificationHistory()
+                {
+                    ModelChanged = "Make",
+                    ChangeSummary = summary,
+                    ChangedById = context.GetLoggedInUserId(),
+                    ModifiedModelId = updatedModel.Id
+                };
+
+                await _historyRepo.SaveHistory(history);
+
+                var modelTransferDTOs = _mapper.Map<ModelTransferDTO>(updatedModel);
+                return CommonResponse.Send(ResponseCodes.SUCCESS, modelTransferDTOs);
+            }
+            catch (System.Exception error)
+            {
+                return CommonResponse.Send(ResponseCodes.FAILURE, error, "System errors");
+            }
+        }
     }
 }

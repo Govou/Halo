@@ -11,5 +11,6 @@ namespace HaloBiz.Repository
         Task<bool> DeleteModel(HalobizMigrations.Models.Model model);
         Task<HalobizMigrations.Models.Model> FindModelById(long Id);
         Task<List<IValidation>> ValidateModel(string modelCaption);
+        Task<HalobizMigrations.Models.Model> UpdateModel(HalobizMigrations.Models.Model model);
     }
 }

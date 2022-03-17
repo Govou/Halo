@@ -30,6 +30,15 @@ namespace HaloBiz.Repository.Impl
             return null;
         }
 
+        public async Task<HalobizMigrations.Models.Model> UpdateModel(HalobizMigrations.Models.Model model)
+        {
+            var modelEntity = _context.Models.Update(model);
+            if (await SaveChanges())
+            {
+                return modelEntity.Entity;
+            }
+            return null;
+        }
         public async Task<IEnumerable<HalobizMigrations.Models.Model>> GetModel(int makeId)
         {
             return await _context.Models

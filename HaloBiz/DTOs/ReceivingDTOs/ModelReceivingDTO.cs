@@ -8,6 +8,7 @@ namespace HaloBiz.DTOs.ReceivingDTOs
         [StringLength(50)]
         public string Caption { get; set; }
         public string Description { get; set; }
+        [Required]
         public long MakeId { get; set; }
     }
 }

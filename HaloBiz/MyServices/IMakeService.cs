@@ -11,5 +11,6 @@ namespace HaloBiz.MyServices
         Task<ApiCommonResponse> GetAllMake();
         Task<ApiCommonResponse> DeleteMake(long id);
         Task<ApiCommonResponse> GetMakeById(long id);
+        Task<ApiCommonResponse> UpdateMake(HttpContext context, long id, MakeReceivingDTO makeReceivingDTO);
     }
 }

@@ -99,6 +99,47 @@ namespace HaloBiz.MyServices.Impl
             return CommonResponse.Send(ResponseCodes.SUCCESS, makeTransferDTO);
         }
 
-        
+        public async Task<ApiCommonResponse> UpdateMake(HttpContext context, long id, MakeReceivingDTO makeReceivingDTO)
+        {
+            try
+            {
+                var makeToUpdate = await _makeRepo.FindMakeById(id);
+                if (makeToUpdate == null)
+                {
+                    return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE); ;
+                }
+
+                var summary = $"Initial details before change, \n {makeToUpdate.ToString()} \n";
+
+                makeToUpdate.Caption = makeReceivingDTO.Caption;
+                makeToUpdate.Description = makeReceivingDTO.Description;
+               
+                var updatedMake = await _makeRepo.UpdateMake(makeToUpdate);
+
+                
+                summary += $"Details after change, \n {updatedMake.ToString()} \n";
+
+                if (updatedMake == null)
+                {
+                    return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+                }
+                ModificationHistory history = new ModificationHistory()
+                {
+                    ModelChanged = "Make",
+                    ChangeSummary = summary,
+                    ChangedById = context.GetLoggedInUserId(),
+                    ModifiedModelId = updatedMake.Id
+                };
+
+                await _historyRepo.SaveHistory(history);
+
+                var makeTransferDTOs = _mapper.Map<MakeTransferDTO>(updatedMake);
+                return CommonResponse.Send(ResponseCodes.SUCCESS, makeTransferDTOs);
+            }
+            catch (System.Exception error)
+            {
+                return CommonResponse.Send(ResponseCodes.FAILURE, error, "System errors");
+            }
+        }
     }
 }

@@ -11,5 +11,6 @@ namespace HaloBiz.MyServices
         Task<ApiCommonResponse> GetAllModelByMake(int makeId);
         Task<ApiCommonResponse> DeleteModel(long id);
         Task<ApiCommonResponse> GetModelById(long id);
+        Task<ApiCommonResponse> UpdateModel(HttpContext context, long id, ModelReceivingDTO modelReceivingDTO);
     }
 }

@@ -29,6 +29,12 @@ namespace HaloBiz.Controllers
             return await _modelService.GetAllModelByMake(makeId);
         }
 
+        [HttpPut("{id}")]
+        public async Task<ApiCommonResponse> UpdateById(long id, ModelReceivingDTO modelReceiving)
+        {
+            return await _modelService.UpdateModel(HttpContext, id, modelReceiving);
+        }
+
         [HttpGet("{id}")]
         public async Task<ApiCommonResponse> GetModelById(long id)
         {

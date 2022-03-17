@@ -29,6 +29,16 @@ namespace HaloBiz.Repository.Impl
             }
             return null;
         }
+
+        public async Task<Make> UpdateMake(Make make)
+        {
+            var makeEntity = _context.Makes.Update(make);
+            if (await SaveChanges())
+            {
+                return makeEntity.Entity;
+            }
+            return null;
+        }
         public async Task<IEnumerable<Make>> GetMakes()
         {
             return await _context.Makes

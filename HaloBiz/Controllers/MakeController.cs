@@ -35,6 +35,12 @@ namespace HaloBiz.Controllers
             return await _makeService.GetMakeById(id);
         }
 
+        [HttpPut("{id}")]
+        public async Task<ApiCommonResponse> UpdateById(long id, MakeReceivingDTO makeReceiving)
+        {
+            return await _makeService.UpdateMake(HttpContext, id, makeReceiving);
+        }
+
         [HttpDelete("{id}")]
         public async Task<ApiCommonResponse> DeleteMake(long id)
         {
