@@ -14,8 +14,13 @@ using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 
-namespace OnlinePortalBackend.Adapters.Impl
+namespace OnlinePortalBackend.Adapters
 {
+    public interface IPaymentAdapter
+    {
+        public Task<VerifyPaymentResponse> VerifyPaymentAsync(PaymentGateway paymentType, string referenceCode);
+    }
+
     public class PaymentAdapter : IPaymentAdapter
     {
         private readonly ILogger<PaymentAdapter> _logger;
@@ -59,7 +64,7 @@ namespace OnlinePortalBackend.Adapters.Impl
                         
                         if (response.data.tx_ref != referenceCode) verifyPaymentResponse.Errors.Add("Verification reference does not match.");
                         if (response.data.status != "successful") verifyPaymentResponse.Errors.Add("Payment verification not successful.");
-                        if (response.data.currency != "NGN")  verifyPaymentResponse.Errors.Add("Payment currency not in naira.");
+                        if (response.data.currency != "NGN")  verifyPaymentResponse.Errors.Add("Payment currency not in Naira.");
 
                         if (verifyPaymentResponse.Errors.Any())
                         {
@@ -97,7 +102,7 @@ namespace OnlinePortalBackend.Adapters.Impl
 
                         if (response.data.reference != referenceCode) verifyPaymentResponse.Errors.Add("Verification reference does not match.");
                         if (response.data.status != "success") verifyPaymentResponse.Errors.Add("Payment verification not successful.");
-                        if (response.data.currency != "NGN") verifyPaymentResponse.Errors.Add("Payment currency not in naira.");
+                        if (response.data.currency != "NGN") verifyPaymentResponse.Errors.Add("Payment currency not in Naira.");
 
                         if (verifyPaymentResponse.Errors.Any())
                         {

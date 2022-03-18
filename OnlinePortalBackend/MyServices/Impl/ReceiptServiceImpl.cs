@@ -10,7 +10,12 @@ using System.Threading.Tasks;
 
 namespace OnlinePortalBackend.MyServices.Impl
 {
-    public class ReceiptServiceImpl : IReceiptService
+    public interface IReceiptService
+    {
+        public Task<bool> PostAccounts(long loggedInUserId, Receipt receipt, Invoice invoice, long bankAccountId);
+    }
+
+    public class ReceiptService : IReceiptService
     {
         private readonly HalobizContext _context;
 
@@ -20,7 +25,7 @@ namespace OnlinePortalBackend.MyServices.Impl
 
         private long LoggedInUserId;
 
-        public ReceiptServiceImpl(HalobizContext context)
+        public ReceiptService(HalobizContext context)
         {
             _context = context;
         }

@@ -31,11 +31,12 @@ namespace HaloBiz.Controllers
     {
 
         private readonly IUserProfileService userProfileService;
-        private readonly IConfiguration _config;
+      //  private readonly IConfiguration _config;
         private readonly ILogger<AuthController> _logger;
         private readonly JwtHelper _jwttHelper;
         private readonly IRoleService _roleService;
         private readonly IMapper _mapper;
+        private static DateTime _tokenExpiryTime;
         public AuthController(
             IUserProfileService userProfileService,
             IConfiguration config,
@@ -44,12 +45,16 @@ namespace HaloBiz.Controllers
             IRoleService roleService,
             ILogger<AuthController> logger)
         {
-            this._config = config;
+           // this._config = config;
             this.userProfileService = userProfileService;
             _logger = logger;
             _jwttHelper = jwtHelper;
             _mapper = mapper;
             _roleService = roleService;
+            //JWTExpiryInMinutes
+            var parameterExpiry = config["JWTExpiryInMinutes"] ?? config.GetSection("AppSettings:JWTExpiryInMinutes").Value;
+            double expiry = double.Parse(parameterExpiry ?? "20");
+            _tokenExpiryTime = DateTime.Now.AddMinutes(expiry);
         }
 
         [AllowAnonymous]
@@ -80,8 +85,11 @@ namespace HaloBiz.Controllers
                  var permissions = await _roleService.GetPermissionEnumsOnUser(userProfile.Id);
 
                  var jwtToken =   _jwttHelper.GenerateToken(userProfile, permissions);
-                 
-                 return CommonResponse.Send(ResponseCodes.SUCCESS,  new UserAuthTransferDTO { Token = jwtToken,
+
+                return CommonResponse.Send(ResponseCodes.SUCCESS,  new UserAuthTransferDTO 
+                 {
+                     Token = jwtToken,
+                     TokenExpiryTime = _tokenExpiryTime,
                      UserProfile = _mapper.Map<UserProfileTransferDTO>(userProfile)
                  });
             }
@@ -135,7 +143,10 @@ namespace HaloBiz.Controllers
                 var permissions = await _roleService.GetPermissionEnumsOnUser(userProfile.Id);
 
                 var jwtToken =  _jwttHelper.GenerateToken(userProfile, permissions);
-                return CommonResponse.Send(ResponseCodes.SUCCESS, new UserAuthTransferDTO { Token = jwtToken,
+                return CommonResponse.Send(ResponseCodes.SUCCESS, new UserAuthTransferDTO 
+                {
+                    Token = jwtToken,
+                    TokenExpiryTime = _tokenExpiryTime,
                     UserProfile = _mapper.Map<UserProfileTransferDTO>(userProfile)
                 });
             }
@@ -174,7 +185,7 @@ namespace HaloBiz.Controllers
 
                 var userProfileDTO = authUserProfileReceivingDTO.UserProfile;
 
-                userProfileDTO.RoleId = userProfileDTO.IsSuperAdmin() ? 1 : 2;
+                //userProfileDTO.RoleId = userProfileDTO.IsSuperAdmin() ? 1 : 2;
 
                 var response = await userProfileService.AddUserProfile(userProfileDTO);
 
@@ -195,6 +206,7 @@ namespace HaloBiz.Controllers
                 UserAuthTransferDTO userAuthTransferDTO = new UserAuthTransferDTO()
                 {
                     Token = token,
+                    TokenExpiryTime = _tokenExpiryTime,
                     UserProfile = _mapper.Map<UserProfileTransferDTO>(userProfile)
                 };
 
