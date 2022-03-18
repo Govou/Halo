@@ -219,5 +219,11 @@ namespace HaloBiz.Helpers
                     return "08"; //OTHERS
             }
         }
+
+        public static IEnumerable<TSource> DistinctBy<TSource, TKey>(this IEnumerable<TSource> source, Func<TSource, TKey> keySelector)
+        {
+            HashSet<TKey> seenKeys = new HashSet<TKey>();
+            return source.Where(element => seenKeys.Add(keySelector(element)));
+        }
     }
 }
