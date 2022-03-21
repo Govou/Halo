@@ -21,5 +21,11 @@ namespace HaloBiz.DTOs.ReceivingDTOs
         [StringLength(50)]
         public string ServiceName { get; set; }
         public string ReferenceNumber2 { get; set; }
+        public string FrontViewImage { get; set; }
+        public string LeftViewImage { get; set; }
+        public string RightViewImage { get; set; }
+        public string RearViewImage { get; set; }
+        public string InteriorViewImage { get; set; }
+        public string TopViewImage { get; set; }
     }
 }

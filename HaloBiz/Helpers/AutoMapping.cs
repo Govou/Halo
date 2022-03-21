@@ -242,12 +242,23 @@ namespace HaloBiz.Helpers
             CreateMap<ContractServiceForEndorsement, ContractService>();
             CreateMap<ModeOfTransportReceivingDTO, ModeOfTransport>();
             CreateMap<ModeOfTransport, ModeOfTransportTransferDTO>();
+            
+            //SUPPLIER
             CreateMap<SupplierReceivingDTO, Supplier>();
             CreateMap<Supplier, SupplierTransferDTO>();
             CreateMap<SupplierCategoryReceivingDTO, SupplierCategory>();
             CreateMap<SupplierCategory, SupplierCategoryTransferDTO>();
             CreateMap<SupplierServiceReceivingDTO, SupplierService>();
             CreateMap<SupplierService, SupplierServiceTransferDTO>();
+
+            //MAKE
+            CreateMap<MakeReceivingDTO, Make>();
+            CreateMap<Make, MakeTransferDTO>();
+
+            //MODEL
+            CreateMap<ModelReceivingDTO, HalobizMigrations.Models.Model>();
+            CreateMap<HalobizMigrations.Models.Model, ModelTransferDTO>();
+
             CreateMap<ClientEngagementReceivingDTO, ClientEngagement>();
             CreateMap<ClientEngagement, ClientEngagementTransferDTO>();
             CreateMap<LeadEngagementReceivingDTO, LeadEngagement>();
