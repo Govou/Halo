@@ -10,6 +10,7 @@ using HaloBiz.DTOs.TransferDTOs;
 using HaloBiz.Helpers;
 using HalobizMigrations.Data;
 using HalobizMigrations.Models;
+using HalobizMigrations.Models.Halobiz;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
@@ -19,7 +20,9 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
+using System.Linq;
 using System.Security.Claims;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -140,7 +143,6 @@ namespace HaloBiz.MyServices
                 var userProfile = (UserProfile)user;
 
                 var permissions = await _roleService.GetPermissionEnumsOnUser(userProfile.Id);
-
                 var jwtToken = _jwttHelper.GenerateToken(userProfile, permissions);
                 return CommonResponse.Send(ResponseCodes.SUCCESS, new UserAuthTransferDTO
                 {
@@ -181,9 +183,6 @@ namespace HaloBiz.MyServices
                 }
 
                 var userProfileDTO = authUserProfileReceivingDTO.UserProfile;
-
-                //userProfileDTO.RoleId = userProfileDTO.IsSuperAdmin() ? 1 : 2;
-
                 var response = await _userProfileService.AddUserProfile(userProfileDTO);
 
                 if (!response.responseCode.Contains("00"))
@@ -194,11 +193,8 @@ namespace HaloBiz.MyServices
 
                 var user = response.responseData;
                 var userProfile = (UserProfile)user;
-
                 var permissions = await _roleService.GetPermissionEnumsOnUser(userProfile.Id);
-
                 var token = _jwttHelper.GenerateToken(userProfile, permissions);
-
 
                 UserAuthTransferDTO userAuthTransferDTO = new UserAuthTransferDTO()
                 {
@@ -208,101 +204,98 @@ namespace HaloBiz.MyServices
                 };
 
                 return CommonResponse.Send(ResponseCodes.SUCCESS, userAuthTransferDTO);
-
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex.Message);
                 _logger.LogError(ex.StackTrace);
                 return CommonResponse.Send(ResponseCodes.FAILURE, null, ex.Message);
-
             }
         }
 
-        //public async Task<ApiCommonResponse> RefreshToken(RefreshTokenRequest model)
-        //{
-        //    try
-        //    {
-        //        var user = _context.Users.SingleOrDefault(u => u.RefreshTokens.Any(t => t.Token == model.Token));
+        public async Task<ApiCommonResponse> RefreshToken(RefreshTokenRequest model)
+        {
+            try
+            {
+                var tokenRecord = _context.RefreshTokens.SingleOrDefault(t => t.Token == model.Token);
 
-        //        // return if no user is found
-        //        if (user == null)
-        //            return ResponseGenerator<TokenAuthResponse>.GenerateResponse(ResponseCodes.TOKEN_INVALID, null, "Token is invalid");
+                if (tokenRecord == null)
+                    return CommonResponse.Send(ResponseCodes.FAILURE, null, "No user with token");
 
-        //        var refreshToken = user.RefreshTokens.Single(x => x.Token == model.Token);
+                // return  if token is no longer active
+                var mTokenRecord = _mapper.Map<RefreshTokenTransferDTO>(tokenRecord);
+                if (!mTokenRecord.IsActive)
+                    return CommonResponse.Send(ResponseCodes.TOKEN_INACTIVE);
 
-        //        // return  if token is no longer active
-        //        if (!refreshToken.IsActive)
-        //            return ResponseGenerator<TokenAuthResponse>.GenerateResponse(ResponseCodes.TOKEN_EXPIRED, null, "No user is found with token");
+                // replace old refresh token with a new one and save
+                var newRefreshToken = generateRefreshToken();
+                tokenRecord.Revoked = null;
+                _context.RefreshTokens.Update(tokenRecord);
+                await _context.SaveChangesAsync();
 
-        //        // replace old refresh token with a new one and save
-        //        var newRefreshToken = generateRefreshToken();
-        //        refreshToken.Revoked = DateTime.UtcNow;
-        //        refreshToken.ReplacedByToken = newRefreshToken.Token;
-        //        user.RefreshTokens.Add(newRefreshToken);
-        //        _context.Update(user);
-        //        await _context.SaveChangesAsync();
+                // generate new jwt
+                var userProfile = _context.UserProfiles.Where(x => x.Id == tokenRecord.AssignedTo).FirstOrDefault();
+                var permissions = await _roleService.GetPermissionEnumsOnUser(userProfile.Id);
+                var jwtToken = _jwttHelper.GenerateToken(userProfile, permissions);
 
-        //        // generate new jwt
-        //        var jwtToken = generateJwtToken(user);
+                UserAuthTransferDTO userAuthTransferDTO = new UserAuthTransferDTO()
+                {
+                    Token = jwtToken,
+                    TokenExpiryTime = _tokenExpiryTime,
+                    UserProfile = _mapper.Map<UserProfileTransferDTO>(userProfile)
+                };
 
-        //        return ResponseGenerator<TokenAuthResponse>
-        //                .GenerateResponse(ResponseCodes.SUCCESS, new List<TokenAuthResponse> { new TokenAuthResponse(user, jwtToken, newRefreshToken.Token) }, string.Empty);
+                return CommonResponse.Send(ResponseCodes.SUCCESS, userAuthTransferDTO);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "RefreshToken error");
+                return CommonResponse.Send(ResponseCodes.FAILURE);
+            }
+        }
 
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        _logger.LogError(ex, "RefreshToken error");
-        //        return ResponseGenerator<TokenAuthResponse>.GenerateResponse(ResponseCodes.FAILURE, null);
-        //    }
-        //}
+        public async Task<ApiCommonResponse> RevokeToken(string token)
+        {
+            try
+            {
+                var tokenRecord = _context.RefreshTokens.SingleOrDefault(t => t.Token == token);
 
-        //public async Task<ApiResponse<TokenRevokeResponse>> RevokeToken(string token)
-        //{
-        //    try
-        //    {
-        //        var user = _context.Users.SingleOrDefault(u => u.RefreshTokens.Any(t => t.Token == token));
+                // return  if no user found with token
+                if (tokenRecord == null)
+                    return CommonResponse.Send(ResponseCodes.FAILURE, null, "No user with token");
 
-        //        // return  if no user found with token
-        //        if (user == null)
-        //            return ResponseGenerator<TokenRevokeResponse>.GenerateResponse(ResponseCodes.FAILURE, null, "No user with token");
+                // return  if token is not active
+                var mTokenRecord = _mapper.Map<RefreshTokenTransferDTO>(tokenRecord);
+                if (!mTokenRecord.IsActive)
+                    return CommonResponse.Send(ResponseCodes.TOKEN_INACTIVE);
 
-        //        var refreshToken = user.RefreshTokens.Single(x => x.Token == token);
+                // revoke token and save
+                tokenRecord.Revoked = DateTime.Now;
+                _context.RefreshTokens.Update(tokenRecord);
+                await _context.SaveChangesAsync();
 
-        //        // return  if token is not active
-        //        if (!refreshToken.IsActive)
-        //            return ResponseGenerator<TokenRevokeResponse>.GenerateResponse(ResponseCodes.TOKEN_INACTIVE, null);
+                return CommonResponse.Send(ResponseCodes.SUCCESS);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error in Revoking Token");
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, ex.Message);
+            }
+        }
 
-        //        // revoke token and save
-        //        refreshToken.Revoked = DateTime.UtcNow;
-        //        refreshToken.RevokedByIp = null;
-        //        _context.Update(user);
-        //        await _context.SaveChangesAsync();
-
-        //        return ResponseGenerator<TokenRevokeResponse>.GenerateResponse(ResponseCodes.SUCCESS, null);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        _logger.LogError(ex, "Error in RevokeToken");
-        //        return ResponseGenerator<TokenRevokeResponse>.GenerateResponse(ResponseCodes.FAILURE, null);
-        //    }
-        //}
-
-
-        //private RefreshToken generateRefreshToken()
-        //{
-        //    using (var rngCryptoServiceProvider = new RNGCryptoServiceProvider())
-        //    {
-        //        var randomBytes = new byte[64];
-        //        rngCryptoServiceProvider.GetBytes(randomBytes);
-        //        return new RefreshToken
-        //        {
-        //            Token = Convert.ToBase64String(randomBytes),
-        //            Expires = DateTime.UtcNow.AddDays(7),
-        //            Created = DateTime.UtcNow,
-        //            CreatedByIp = null
-        //        };
-        //    }
-        //}
+        private RefreshToken generateRefreshToken()
+        {
+            using (var rngCryptoServiceProvider = new RNGCryptoServiceProvider())
+            {
+                var randomBytes = new byte[64];
+                rngCryptoServiceProvider.GetBytes(randomBytes);
+                return new RefreshToken
+                {
+                    Token = Convert.ToBase64String(randomBytes),
+                    Expires = DateTime.UtcNow.AddDays(7),
+                    CreatedAt = DateTime.UtcNow,
+                };
+            }
+        }
     }
 }

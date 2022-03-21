@@ -58,7 +58,7 @@ namespace HaloBiz.Helpers
             CreateMap<State, StateWithoutLGATransferDto>();
             CreateMap<OfficeReceivingDTO, Office>();
             CreateMap<Office, OfficeTransferDTO>();
-           
+            CreateMap<RefreshToken, RefreshTokenTransferDTO>();
             CreateMap<Quote, Contract>().AfterMap((s, d) => 
             {
                 d.Id = 0;
