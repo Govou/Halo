@@ -163,7 +163,7 @@ namespace HaloBiz.Helpers
                 case "SOKOTO":
                     return "SKT";
                 default:
-                    return stateName?.ToUpper()?.Substring(0, 4);
+                    return "LA"; //Lagos default to avoid errors //stateName?.ToUpper()?.Substring(0, 4);
             }
         }
 
