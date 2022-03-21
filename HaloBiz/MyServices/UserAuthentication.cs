@@ -219,90 +219,90 @@ namespace HaloBiz.MyServices
             }
         }
 
-        public async Task<ApiCommonResponse> RefreshToken(RefreshTokenRequest model)
-        {
-            try
-            {
-                var user = _context.Users.SingleOrDefault(u => u.RefreshTokens.Any(t => t.Token == model.Token));
+        //public async Task<ApiCommonResponse> RefreshToken(RefreshTokenRequest model)
+        //{
+        //    try
+        //    {
+        //        var user = _context.Users.SingleOrDefault(u => u.RefreshTokens.Any(t => t.Token == model.Token));
 
-                // return if no user is found
-                if (user == null)
-                    return ResponseGenerator<TokenAuthResponse>.GenerateResponse(ResponseCodes.TOKEN_INVALID, null, "Token is invalid");
+        //        // return if no user is found
+        //        if (user == null)
+        //            return ResponseGenerator<TokenAuthResponse>.GenerateResponse(ResponseCodes.TOKEN_INVALID, null, "Token is invalid");
 
-                var refreshToken = user.RefreshTokens.Single(x => x.Token == model.Token);
+        //        var refreshToken = user.RefreshTokens.Single(x => x.Token == model.Token);
 
-                // return  if token is no longer active
-                if (!refreshToken.IsActive)
-                    return ResponseGenerator<TokenAuthResponse>.GenerateResponse(ResponseCodes.TOKEN_EXPIRED, null, "No user is found with token");
+        //        // return  if token is no longer active
+        //        if (!refreshToken.IsActive)
+        //            return ResponseGenerator<TokenAuthResponse>.GenerateResponse(ResponseCodes.TOKEN_EXPIRED, null, "No user is found with token");
 
-                // replace old refresh token with a new one and save
-                var newRefreshToken = generateRefreshToken();
-                refreshToken.Revoked = DateTime.UtcNow;
-                refreshToken.ReplacedByToken = newRefreshToken.Token;
-                user.RefreshTokens.Add(newRefreshToken);
-                _context.Update(user);
-                await _context.SaveChangesAsync();
+        //        // replace old refresh token with a new one and save
+        //        var newRefreshToken = generateRefreshToken();
+        //        refreshToken.Revoked = DateTime.UtcNow;
+        //        refreshToken.ReplacedByToken = newRefreshToken.Token;
+        //        user.RefreshTokens.Add(newRefreshToken);
+        //        _context.Update(user);
+        //        await _context.SaveChangesAsync();
 
-                // generate new jwt
-                var jwtToken = generateJwtToken(user);
+        //        // generate new jwt
+        //        var jwtToken = generateJwtToken(user);
 
-                return ResponseGenerator<TokenAuthResponse>
-                        .GenerateResponse(ResponseCodes.SUCCESS, new List<TokenAuthResponse> { new TokenAuthResponse(user, jwtToken, newRefreshToken.Token) }, string.Empty);
+        //        return ResponseGenerator<TokenAuthResponse>
+        //                .GenerateResponse(ResponseCodes.SUCCESS, new List<TokenAuthResponse> { new TokenAuthResponse(user, jwtToken, newRefreshToken.Token) }, string.Empty);
 
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "RefreshToken error");
-                return ResponseGenerator<TokenAuthResponse>.GenerateResponse(ResponseCodes.FAILURE, null);
-            }
-        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        _logger.LogError(ex, "RefreshToken error");
+        //        return ResponseGenerator<TokenAuthResponse>.GenerateResponse(ResponseCodes.FAILURE, null);
+        //    }
+        //}
 
-        public async Task<ApiResponse<TokenRevokeResponse>> RevokeToken(string token)
-        {
-            try
-            {
-                var user = _context.Users.SingleOrDefault(u => u.RefreshTokens.Any(t => t.Token == token));
+        //public async Task<ApiResponse<TokenRevokeResponse>> RevokeToken(string token)
+        //{
+        //    try
+        //    {
+        //        var user = _context.Users.SingleOrDefault(u => u.RefreshTokens.Any(t => t.Token == token));
 
-                // return  if no user found with token
-                if (user == null)
-                    return ResponseGenerator<TokenRevokeResponse>.GenerateResponse(ResponseCodes.FAILURE, null, "No user with token");
+        //        // return  if no user found with token
+        //        if (user == null)
+        //            return ResponseGenerator<TokenRevokeResponse>.GenerateResponse(ResponseCodes.FAILURE, null, "No user with token");
 
-                var refreshToken = user.RefreshTokens.Single(x => x.Token == token);
+        //        var refreshToken = user.RefreshTokens.Single(x => x.Token == token);
 
-                // return  if token is not active
-                if (!refreshToken.IsActive)
-                    return ResponseGenerator<TokenRevokeResponse>.GenerateResponse(ResponseCodes.TOKEN_INACTIVE, null);
+        //        // return  if token is not active
+        //        if (!refreshToken.IsActive)
+        //            return ResponseGenerator<TokenRevokeResponse>.GenerateResponse(ResponseCodes.TOKEN_INACTIVE, null);
 
-                // revoke token and save
-                refreshToken.Revoked = DateTime.UtcNow;
-                refreshToken.RevokedByIp = null;
-                _context.Update(user);
-                await _context.SaveChangesAsync();
+        //        // revoke token and save
+        //        refreshToken.Revoked = DateTime.UtcNow;
+        //        refreshToken.RevokedByIp = null;
+        //        _context.Update(user);
+        //        await _context.SaveChangesAsync();
 
-                return ResponseGenerator<TokenRevokeResponse>.GenerateResponse(ResponseCodes.SUCCESS, null);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error in RevokeToken");
-                return ResponseGenerator<TokenRevokeResponse>.GenerateResponse(ResponseCodes.FAILURE, null);
-            }
-        }
+        //        return ResponseGenerator<TokenRevokeResponse>.GenerateResponse(ResponseCodes.SUCCESS, null);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        _logger.LogError(ex, "Error in RevokeToken");
+        //        return ResponseGenerator<TokenRevokeResponse>.GenerateResponse(ResponseCodes.FAILURE, null);
+        //    }
+        //}
 
 
-        private RefreshToken generateRefreshToken()
-        {
-            using (var rngCryptoServiceProvider = new RNGCryptoServiceProvider())
-            {
-                var randomBytes = new byte[64];
-                rngCryptoServiceProvider.GetBytes(randomBytes);
-                return new RefreshToken
-                {
-                    Token = Convert.ToBase64String(randomBytes),
-                    Expires = DateTime.UtcNow.AddDays(7),
-                    Created = DateTime.UtcNow,
-                    CreatedByIp = null
-                };
-            }
-        }
+        //private RefreshToken generateRefreshToken()
+        //{
+        //    using (var rngCryptoServiceProvider = new RNGCryptoServiceProvider())
+        //    {
+        //        var randomBytes = new byte[64];
+        //        rngCryptoServiceProvider.GetBytes(randomBytes);
+        //        return new RefreshToken
+        //        {
+        //            Token = Convert.ToBase64String(randomBytes),
+        //            Expires = DateTime.UtcNow.AddDays(7),
+        //            Created = DateTime.UtcNow,
+        //            CreatedByIp = null
+        //        };
+        //    }
+        //}
     }
 }
