@@ -107,7 +107,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 _logger.LogError(ex.Message);
                 _logger.LogError(ex.StackTrace);
                // await transaction.RollbackAsync();
-                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, ex.Message);
             }
         }       
 
