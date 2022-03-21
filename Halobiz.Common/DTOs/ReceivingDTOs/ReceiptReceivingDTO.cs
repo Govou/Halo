@@ -1,6 +1,6 @@
 using System;
 
-namespace HaloBiz.DTOs.ReceivingDTOs
+namespace Halobiz.Common.DTOs.ReceivingDTOs
 {
     public class ReceiptReceivingDTO
     {

@@ -23,7 +23,9 @@ namespace HaloBiz.Helpers
         public static long GetLoggedInUserId(this HttpContext context)
         {
             var id =  long.TryParse(context.User.FindFirstValue(ClaimTypes.NameIdentifier), out long userIdClaim) ?
-                userIdClaim : 31;
+                userIdClaim : 0;
+            if (id == 0)
+                throw new Exception("The user is not logged in");
 
             return id;
 
@@ -161,7 +163,7 @@ namespace HaloBiz.Helpers
                 case "SOKOTO":
                     return "SKT";
                 default:
-                    return stateName?.ToUpper()?.Substring(0, 4);
+                    return "LA"; //Lagos default to avoid errors //stateName?.ToUpper()?.Substring(0, 4);
             }
         }
 

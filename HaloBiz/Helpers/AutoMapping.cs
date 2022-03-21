@@ -17,6 +17,7 @@ using HalobizMigrations.Models.Shared;
 using HaloBiz.Controllers;
 using HaloBiz.DTOs.ContactDTO;
 using Halobiz.Common.Helpers;
+using Halobiz.Common.DTOs.ReceivingDTOs;
 
 namespace HaloBiz.Helpers
 {
@@ -209,12 +210,10 @@ namespace HaloBiz.Helpers
             CreateMap<Industry, IndustryTransferDTO>();
             CreateMap<IndustryReceivingDTO, Industry>();
             CreateMap<Receipt, ReceiptTransferDTO>();
-            CreateMap<ReceiptReceivingDTO, Receipt>();
             CreateMap<Designation, DesignationTransferDTO>();
             CreateMap<DesignationReceivingDTO, Designation>();
             CreateMap<Receipt, ReceiptTransferDTO>();
             CreateMap<Receipt, Receipt>();
-            CreateMap<ReceiptReceivingDTO, Receipt>();
             CreateMap<Invoice, InvoiceTransferDTO>().ForMember(dest => dest.TotalAmountReceipted, 
                 opt => opt.MapFrom(src => src.Receipts.Sum(x => x.ReceiptValue)));
             CreateMap<InvoiceReceivingDTO, Invoice>();

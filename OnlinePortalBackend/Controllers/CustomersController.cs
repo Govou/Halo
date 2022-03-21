@@ -19,10 +19,16 @@ namespace OnlinePortalBackend.Controllers
             _customer = customer;
         }
 
-        [HttpGet("GetCustomerInfo/{Id}")]
+        [HttpGet("GetCustomerById/{Id}")]
         public async Task<ApiCommonResponse> GetCustomer(long Id)
         {
             return await _customer.GetCustomerInfo(Id);
+        }
+
+        [HttpGet("GetCustomerByEmail/{email}")]
+        public async Task<ApiCommonResponse> GetCustomerByEmail(string email)
+        {
+            return await _customer.GetCustomerInfo(email);
         }
     }
 }
