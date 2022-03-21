@@ -105,10 +105,11 @@ namespace HaloBiz
             services.RegisterServiceLayerDi();
             services.AddSingleton<JwtHelper>();
 
-            services.AddTransient<IRoleService, RoleServiceImpl>();
-            services.AddTransient<IRoleRepository, RoleRepositoryImpl>();
-            services.AddTransient<IUserProfileService, UserProfileServiceImpl>();
-            services.AddTransient<IUserProfileRepository, UserProfileRepositoryImpl>();
+            services.AddScoped<IRoleService, RoleServiceImpl>();
+            services.AddScoped<IRoleRepository, RoleRepositoryImpl>();
+            services.AddScoped<IUserProfileService, UserProfileServiceImpl>();
+            services.AddScoped<IUserProfileRepository, UserProfileRepositoryImpl>();
+            services.AddScoped<IUserAuthentication, UserAuthentication>();
 
 
             services.AddAutoMapper(typeof(Startup));

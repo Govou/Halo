@@ -33,6 +33,7 @@ namespace Halobiz.Common.DTOs.ApiDTOs
         UNAUTHORIZED = 06,
         EMAIL_NOT_EXIST = 07,
         DUPLICATE_REQUEST = 08,
+        TOKEN_INACTIVE =09
     }
 
     public static class CommonResponse

@@ -26,9 +26,7 @@ namespace HaloBiz.Helpers
                 userIdClaim : 0;
             if (id == 0)
                 throw new Exception("The user is not logged in");
-
             return id;
-
         }
 
         public static IEnumerable<RequiredServiceDocumentTransferDTO> GetListOfRequiredDocuments(this IEnumerable<ServiceRequiredServiceDocument> docs)
