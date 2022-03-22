@@ -33,6 +33,7 @@ namespace HaloBiz.MyServices
         Task<ApiCommonResponse> OtherLogin(LoginDTO login);
         Task<ApiCommonResponse> Login(GoogleLoginReceivingDTO loginReceiving);
         Task<ApiCommonResponse> CreateProfile(AuthUserProfileReceivingDTO authUserProfileReceivingDTO);
+        Task<ApiCommonResponse> RevokeToken(string token);
     }
 
     public class UserAuthentication : IUserAuthentication
