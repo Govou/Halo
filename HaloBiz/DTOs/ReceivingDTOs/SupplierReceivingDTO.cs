@@ -14,9 +14,10 @@ namespace HaloBiz.DTOs.ReceivingDTOs
         public string Street { get; set; }
         public string Address { get; set; }
         public string ImageUrl { get; set; }
-        public string PrimaryContactName { get; set; }
-        public string PrimaryContactEmail { get; set; }
-        public string PrimaryContactMobile { get; set; }
-        public string PrimaryContactGender { get; set; }
+        public string Contacts { get; set; }
+        //public string PrimaryContactName { get; set; }
+        //public string PrimaryContactEmail { get; set; }
+        //public string PrimaryContactMobile { get; set; }
+        //public string PrimaryContactGender { get; set; }
     }
 }

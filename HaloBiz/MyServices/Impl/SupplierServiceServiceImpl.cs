@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using AutoMapper;
-using Halobiz.Common.DTOs.ApiDTOs;
 using HaloBiz.DTOs.ReceivingDTOs;
 using HaloBiz.DTOs.TransferDTOs;
 using HaloBiz.Helpers;
@@ -9,6 +8,8 @@ using HalobizMigrations.Models;
 using HaloBiz.Repository;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
+using HaloBiz.Model;
+using Halobiz.Common.DTOs.ApiDTOs;
 
 namespace HaloBiz.MyServices.Impl
 {
@@ -31,13 +32,33 @@ namespace HaloBiz.MyServices.Impl
             var supplierService = _mapper.Map<SupplierService>(supplierServiceReceivingDTO);
             supplierService.CreatedById = context.GetLoggedInUserId();
             supplierService.IsAvailable = true;
-            var savedSupplierService = await _supplierServiceRepo.SaveSupplierService(supplierService);
-            if (savedSupplierService == null)
+
+            //check for duplicates before saving
+            List<IValidation> duplicates = await _supplierServiceRepo.ValidateSupplierService(supplierService.ServiceName, supplierService.SupplierId);
+
+            if (duplicates.Count == 0)
             {
-                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+                var savedSupplierService = await _supplierServiceRepo.SaveSupplierService(supplierService);
+                if (savedSupplierService == null)
+                {
+                    return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+                }
+                var supplierServiceTransferDTO = _mapper.Map<SupplierServiceTransferDTO>(supplierService);
+                return CommonResponse.Send(ResponseCodes.SUCCESS, supplierServiceTransferDTO);
             }
-            var supplierServiceTransferDTO = _mapper.Map<SupplierServiceTransferDTO>(supplierService);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,supplierServiceTransferDTO);
+
+            string msg = "";
+
+            for (var a = 0; a < duplicates.Count; a++)
+            {
+                msg += $"{duplicates[a].Message}, ";
+            }
+            msg.TrimEnd(',');
+
+            return CommonResponse.Send(ResponseCodes.FAILURE, null, msg);
+
+
+            
         }
 
         public async Task<ApiCommonResponse> DeleteSupplierService(long id)
@@ -80,7 +101,7 @@ namespace HaloBiz.MyServices.Impl
             var supplierServiceToUpdate = await _supplierServiceRepo.FindSupplierServiceById(id);
             if (supplierServiceToUpdate == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);
             }
             
             var summary = $"Initial details before change, \n {supplierServiceToUpdate.ToString()} \n" ;
@@ -97,6 +118,13 @@ namespace HaloBiz.MyServices.Impl
             supplierServiceToUpdate.Make = supplierServiceReceivingDTO.Make;
             supplierServiceToUpdate.Description = supplierServiceReceivingDTO.Description;
             supplierServiceToUpdate.ServiceName = supplierServiceReceivingDTO.ServiceName;
+
+            supplierServiceToUpdate.InteriorViewImage = supplierServiceReceivingDTO.InteriorViewImage;
+            supplierServiceToUpdate.TopViewImage = supplierServiceReceivingDTO.TopViewImage;
+            supplierServiceToUpdate.LeftViewImage = supplierServiceReceivingDTO.LeftViewImage;
+            supplierServiceToUpdate.RearViewImage = supplierServiceReceivingDTO.RearViewImage;
+            supplierServiceToUpdate.RightViewImage = supplierServiceReceivingDTO.RightViewImage;
+            supplierServiceToUpdate.FrontViewImage = supplierServiceReceivingDTO.FrontViewImage;
             var updatedSupplierService = await _supplierServiceRepo.UpdateSupplierService(supplierServiceToUpdate);
 
             summary += $"Details after change, \n {updatedSupplierService.ToString()} \n";

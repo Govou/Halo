@@ -41,6 +41,13 @@ namespace HaloBiz.Controllers
             return await _contactServiceImpl.GetAllContact(HttpContext);
         }
 
+        [HttpGet("GetEntireContacts")]
+        public async Task<ApiCommonResponse> GetEntireContacts()
+        {
+            return await _contactServiceImpl.GetEntireContact(HttpContext);
+        }
+
+
         [HttpDelete("DisableContact/{contactId}")]
         public async Task<ApiCommonResponse> DisableContact(long contactId)
         {

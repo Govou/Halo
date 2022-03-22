@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using HaloBiz.Model;
 using HalobizMigrations.Models;
 
 namespace HaloBiz.Repository
@@ -11,5 +12,6 @@ namespace HaloBiz.Repository
         Task<Supplier> UpdateSupplier(Supplier supplier);
         Task<bool> DeleteSupplier(Supplier supplier);
         Task<Supplier> FindSupplierById(long Id);
+        Task<List<IValidation>> ValidateSupplier(string supplierName, string supplierEmail, string supplierPhone);
     }
 }
