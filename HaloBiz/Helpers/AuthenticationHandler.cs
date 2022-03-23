@@ -13,8 +13,6 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.IdentityModel.Tokens.Jwt;
 using System.IO;
 using System.Linq;
-using System.Net.Http;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace HaloBiz.Helpers
@@ -23,15 +21,13 @@ namespace HaloBiz.Helpers
     public class AuthenticationHandler
     {
         private readonly RequestDelegate _next;
-        private readonly IConfiguration _configuration;
-        private readonly JwtHelper _jwtHelper;
+        private readonly IJwtHelper _jwtHelper;
         private readonly ILogger<AuthenticationHandler> _logger;
 
 
-        public AuthenticationHandler(RequestDelegate next, IConfiguration configuration, JwtHelper jwtHelper, ILogger<AuthenticationHandler> logger)
+        public AuthenticationHandler(RequestDelegate next, IJwtHelper jwtHelper, ILogger<AuthenticationHandler> logger)
         {
             _next = next;
-            _configuration = configuration;
             _jwtHelper = jwtHelper;
             _logger = logger;
         }
@@ -47,17 +43,14 @@ namespace HaloBiz.Helpers
             var actionName = controllerActionDescriptor?.ActionName;
             var actionVerb = context.Request.Method;
 
-
             if (string.IsNullOrEmpty(controllerName) || string.IsNullOrEmpty(actionName))
             {
                 context.Response.StatusCode = StatusCodes.Status404NotFound;
                 await context.Response.WriteAsync("Path not found");
-
                 return;
             }
             
             bool isExempted = (controllerName.ToLower() == "auth" && (actionName.ToLower() == "login" || actionName.ToLower() == "otherlogin") || actionName.ToLower()== "createuser");
-
             if (!isExempted)
             {
                 var token = context.Request?.Headers["Authorization"].FirstOrDefault()?.Split(" ")?.Last();
@@ -66,7 +59,7 @@ namespace HaloBiz.Helpers
                     //validate the token
                     if (token.ToLower() != "null")
                     {
-                        var (isValid, permissionsList) =  _jwtHelper.IsValidToken(token);
+                        var (isValid, permissionsList) = _jwtHelper.IsValidToken(token);
                         if (!isValid)
                         {
                             context.Response.StatusCode = StatusCodes.Status401Unauthorized;
@@ -77,7 +70,7 @@ namespace HaloBiz.Helpers
                         {
                             //test for the authorization
                             //exempt users get
-                            if(!(controllerName.ToLower() == "user" && (actionVerb.ToLower() == "get")))
+                            if (!(controllerName.ToLower() == "user" && (actionVerb.ToLower() == "get")))
                             {
                                 if (!CheckAuthorization(context, controllerName, permissionsList))
                                 {
@@ -118,6 +111,7 @@ namespace HaloBiz.Helpers
             if (!Enum.TryParse(typeof(Permissions), permissionEnum, true, out var permission))
             {
                 _logger.LogError($"No permission has be defined for {permissionEnum}");
+
                 //this would ensure all devs have the endpoints written in the rightful place
                 throw new Exception("This endpoint controller and action has not been added to this system");
             }

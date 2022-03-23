@@ -24,7 +24,7 @@ using OnlinePortalBackend.Repository;
 using OnlinePortalBackend.Repository.Impl;
 using HalobizMigrations.Data;
 using OnlinePortalBackend.Adapters;
-using OnlinePortalBackend.Adapters.Impl;
+//using OnlinePortalBackend.Adapters.Impl;
 using Halobiz.Common.MyServices;
 using Halobiz.Common.Repository;
 
@@ -60,7 +60,7 @@ namespace OnlinePortalBackend
             services.AddScoped<IProspectService, ProspectServiceImpl>();
             services.AddScoped<IServiceWishlistService, ServiceWishlistServiceImpl>();
             services.AddScoped<ICronJobService, CronJobServiceImpl>();
-            services.AddScoped<IReceiptService, ReceiptServiceImpl>();
+            //services.AddScoped<IReceiptService, ReceiptServiceImpl>();
             services.AddScoped<IExistingCustomerService, ExistingCustomerServiceImpl>();
 
             //repositories

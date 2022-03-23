@@ -40,16 +40,14 @@ namespace HaloBiz.MyServices
     {
         private readonly IUserProfileService _userProfileService;
         private readonly ILogger<UserAuthentication> _logger;
-        private readonly JwtHelper _jwttHelper;
+        private readonly IJwtHelper _jwttHelper;
         private readonly IRoleService _roleService;
         private readonly IMapper _mapper;
-        private static DateTime _tokenExpiryTime;
         private readonly HalobizContext _context;
 
 
         public UserAuthentication(IUserProfileService userProfileService,
-            IConfiguration config,
-            JwtHelper jwtHelper,
+            IJwtHelper jwtHelper,
             IMapper mapper,
             IRoleService roleService,
             HalobizContext context,
@@ -59,10 +57,7 @@ namespace HaloBiz.MyServices
             _logger = logger;
             _jwttHelper = jwtHelper;
             _mapper = mapper;
-            _roleService = roleService;
-            var parameterExpiry = config["JWTExpiryInMinutes"] ?? config.GetSection("AppSettings:JWTExpiryInMinutes").Value;
-            double expiry = double.Parse(parameterExpiry ?? "20");
-            _tokenExpiryTime = DateTime.Now.AddMinutes(expiry);
+            _roleService = roleService;            
             _context = context;
         }
 
@@ -88,13 +83,13 @@ namespace HaloBiz.MyServices
 
                 //get the permissions of the user
                 var permissions = await _roleService.GetPermissionEnumsOnUser(userProfile.Id);
-
-                var jwtToken = _jwttHelper.GenerateToken(userProfile, permissions);
+                var(jwtToken, jwtLifespan, refreshToken)  = _jwttHelper.GenerateToken(userProfile, permissions);
 
                 return CommonResponse.Send(ResponseCodes.SUCCESS, new UserAuthTransferDTO
                 {
                     Token = jwtToken,
-                    TokenExpiryTime = _tokenExpiryTime,
+                    JwtLifespan = jwtLifespan,
+                    RefreshToken = refreshToken,
                     UserProfile = _mapper.Map<UserProfileTransferDTO>(userProfile)
                 });
             }
@@ -143,12 +138,15 @@ namespace HaloBiz.MyServices
                 var user = response.responseData;
                 var userProfile = (UserProfile)user;
 
+                //get the permissions of the user
                 var permissions = await _roleService.GetPermissionEnumsOnUser(userProfile.Id);
-                var jwtToken = _jwttHelper.GenerateToken(userProfile, permissions);
+                var (jwtToken, jwtLifespan, refreshToken) = _jwttHelper.GenerateToken(userProfile, permissions);
+
                 return CommonResponse.Send(ResponseCodes.SUCCESS, new UserAuthTransferDTO
                 {
                     Token = jwtToken,
-                    TokenExpiryTime = _tokenExpiryTime,
+                    JwtLifespan = jwtLifespan,
+                    RefreshToken = refreshToken,
                     UserProfile = _mapper.Map<UserProfileTransferDTO>(userProfile)
                 });
             }
@@ -189,22 +187,22 @@ namespace HaloBiz.MyServices
                 if (!response.responseCode.Contains("00"))
                 {
                     _logger.LogWarning($"Could not create user [{userProfileDTO.Email}] => {response.responseMsg}");
-
                 }
 
                 var user = response.responseData;
-                var userProfile = (UserProfile)user;
+                var userProfile = (UserProfile)user;               
+
+                //get the permissions of the user
                 var permissions = await _roleService.GetPermissionEnumsOnUser(userProfile.Id);
-                var token = _jwttHelper.GenerateToken(userProfile, permissions);
+                var (jwtToken, jwtLifespan, refreshToken) = _jwttHelper.GenerateToken(userProfile, permissions);
 
-                UserAuthTransferDTO userAuthTransferDTO = new UserAuthTransferDTO()
+                return CommonResponse.Send(ResponseCodes.SUCCESS, new UserAuthTransferDTO
                 {
-                    Token = token,
-                    TokenExpiryTime = _tokenExpiryTime,
+                    Token = jwtToken,
+                    JwtLifespan = jwtLifespan,
+                    RefreshToken = refreshToken,
                     UserProfile = _mapper.Map<UserProfileTransferDTO>(userProfile)
-                };
-
-                return CommonResponse.Send(ResponseCodes.SUCCESS, userAuthTransferDTO);
+                });
             }
             catch (Exception ex)
             {
@@ -229,24 +227,25 @@ namespace HaloBiz.MyServices
                     return CommonResponse.Send(ResponseCodes.TOKEN_INACTIVE);
 
                 // replace old refresh token with a new one and save
-                var newRefreshToken = generateRefreshToken();
-                tokenRecord.Revoked = null;
-                _context.RefreshTokens.Update(tokenRecord);
-                await _context.SaveChangesAsync();
+                //var newRefreshToken = generateRefreshToken();
+                //tokenRecord.Revoked = null;
+                //_context.RefreshTokens.Update(tokenRecord);
+                //await _context.SaveChangesAsync();
 
-                // generate new jwt
-                var userProfile = _context.UserProfiles.Where(x => x.Id == tokenRecord.AssignedTo).FirstOrDefault();
-                var permissions = await _roleService.GetPermissionEnumsOnUser(userProfile.Id);
-                var jwtToken = _jwttHelper.GenerateToken(userProfile, permissions);
+                //// generate new jwt
+                //var userProfile = _context.UserProfiles.Where(x => x.Id == tokenRecord.AssignedTo).FirstOrDefault();
+                //var permissions = await _roleService.GetPermissionEnumsOnUser(userProfile.Id);
+                //var jwtToken = _jwttHelper.GenerateToken(userProfile, permissions);
 
-                UserAuthTransferDTO userAuthTransferDTO = new UserAuthTransferDTO()
-                {
-                    Token = jwtToken,
-                    TokenExpiryTime = _tokenExpiryTime,
-                    UserProfile = _mapper.Map<UserProfileTransferDTO>(userProfile)
-                };
+                //UserAuthTransferDTO userAuthTransferDTO = new UserAuthTransferDTO()
+                //{
+                //    Token = jwtToken,
+                //    TokenExpiryTime = _tokenExpiryTime,
+                //    UserProfile = _mapper.Map<UserProfileTransferDTO>(userProfile)
+                //};
 
-                return CommonResponse.Send(ResponseCodes.SUCCESS, userAuthTransferDTO);
+                //return CommonResponse.Send(ResponseCodes.SUCCESS, userAuthTransferDTO);
+                return null;
             }
             catch (Exception ex)
             {
@@ -284,19 +283,6 @@ namespace HaloBiz.MyServices
             }
         }
 
-        private RefreshToken generateRefreshToken()
-        {
-            using (var rngCryptoServiceProvider = new RNGCryptoServiceProvider())
-            {
-                var randomBytes = new byte[64];
-                rngCryptoServiceProvider.GetBytes(randomBytes);
-                return new RefreshToken
-                {
-                    Token = Convert.ToBase64String(randomBytes),
-                    Expires = DateTime.UtcNow.AddDays(7),
-                    CreatedAt = DateTime.UtcNow,
-                };
-            }
-        }
+       
     }
 }

@@ -116,13 +116,13 @@ namespace HaloBiz
                 return await Task.FromResult(Microsoft.Extensions.Diagnostics.HealthChecks.HealthCheckResult.Healthy());
             });
             services.RegisterServiceLayerDi();
-            services.AddSingleton<JwtHelper>();
 
             services.AddScoped<IRoleService, RoleServiceImpl>();
             services.AddScoped<IRoleRepository, RoleRepositoryImpl>();
             services.AddScoped<IUserProfileService, UserProfileServiceImpl>();
             services.AddScoped<IUserProfileRepository, UserProfileRepositoryImpl>();
             services.AddScoped<IUserAuthentication, UserAuthentication>();
+            services.AddScoped<IJwtHelper, JwtHelper>();
 
 
             services.AddAutoMapper(typeof(Startup));
@@ -214,14 +214,10 @@ namespace HaloBiz
             app.UseCors(cors => cors.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
 
             app.UseHttpsRedirection();
-
             app.UseRouting();
-
-            //app.UseMiddleware<AuthenticationHandler>();           
-
             app.UseAuthentication();
-
             app.UseAuthorization();
+            app.UseMiddleware<AuthenticationHandler>();
 
             app.UseEndpoints(endpoints =>
             {
