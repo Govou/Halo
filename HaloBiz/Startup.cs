@@ -54,7 +54,7 @@ namespace HaloBiz
             if (env.IsDevelopment())
             {
                 services.AddDbContext<HalobizContext>(options =>
-                    options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")), ServiceLifetime.Scoped);
+                    options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")), ServiceLifetime.Singleton);
             }
             else
             {
