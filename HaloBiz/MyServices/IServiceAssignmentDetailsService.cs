@@ -17,7 +17,8 @@ namespace HaloBiz.MyServices
         Task<ApiCommonResponse> GetArmedEscortDetailById(long id);
         Task<ApiCommonResponse> UpdateArmedEscortDetail(HttpContext context, long id, ArmedEscortServiceAssignmentDetailsReceivingDTO armedEscortReceivingDTO);
         Task<ApiCommonResponse> DeleteArmedEscortDetail(long id);
-        //Task<ApiCommonResponse> DeleteArmedEscortDetailByAssignmentId(long id);
+        Task<ApiCommonResponse> UpdateArmedEscortDetailHeldForActionByAssignmentId(long id);
+        Task<ApiCommonResponse> UpdateServiceDetailsHeldForActionAndReadyStatusByAssignmentId(long id);
 
         //Commander
         Task<ApiCommonResponse> AddCommanderDetail(HttpContext context, CommanderServiceAssignmentDetailsReceivingDTO commanderReceivingDTO);
@@ -27,7 +28,7 @@ namespace HaloBiz.MyServices
         Task<ApiCommonResponse> GetCommanderDetailById(long id);
         Task<ApiCommonResponse> UpdateCommanderDetail(HttpContext context, long id, CommanderServiceAssignmentDetailsReceivingDTO commanderReceivingDTO);
         Task<ApiCommonResponse> DeleteCommanderDetail(long id);
-        //Task<ApiCommonResponse> DeleteCommanderDetailByAssignmentId(long id);
+        //Task<ApiCommonResponse> UpdateCommanderDetailHeldForActionByAssignmentId(long id);
 
         //Pilot
         Task<ApiCommonResponse> AddPilotDetail(HttpContext context, PilotServiceAssignmentDetailsReceivingDTO pilotReceivingDTO);
@@ -36,7 +37,7 @@ namespace HaloBiz.MyServices
         Task<ApiCommonResponse> GetPilotDetailById(long id);
         Task<ApiCommonResponse> UpdatePilotDetail(HttpContext context, long id, PilotServiceAssignmentDetailsReceivingDTO pilotReceivingDTO);
         Task<ApiCommonResponse> DeletePilotDetail(long id);
-        //Task<ApiCommonResponse> DeletePilotDetailByAssignmentId(long id);
+        //Task<ApiCommonResponse> UpdatePilotDetailHeldForActionByAssignmentId(long id);
 
         //Vehicle
         Task<ApiCommonResponse> AddVehicleDetail(HttpContext context, VehicleServiceAssignmentDetailsReceivingDTO vehicleReceivingDTO);
@@ -45,6 +46,7 @@ namespace HaloBiz.MyServices
         Task<ApiCommonResponse> GetVehicleDetailById(long id);
         Task<ApiCommonResponse> UpdateVehicleDetail(HttpContext context, long id, VehicleServiceAssignmentDetailsReceivingDTO vehicleReceivingDTO);
         Task<ApiCommonResponse> DeleteVehicleDetail(long id);
+        //Task<ApiCommonResponse> UpdateVehicleDetailHeldForActionByAssignmentId(long id);
 
 
         //Passenger

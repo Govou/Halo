@@ -25,10 +25,10 @@ namespace HaloBiz.Controllers
             _contractServiceService = contractServiceService;
         }
 
-      
+        
 
-        //ArmedEscort
-        [HttpGet("GetAllArmedEscortDetails")]
+          //ArmedEscort
+          [HttpGet("GetAllArmedEscortDetails")]
         public async Task<ApiCommonResponse> GetAllArmedEscortDetails()
         {
             return await _serviceAssignmentDetailsService.GetAllArmedEscortDetails();
@@ -268,7 +268,11 @@ namespace HaloBiz.Controllers
             return await _serviceAssignmentDetailsService.DeleteVehicleDetail(id);
             //return StatusCode(response.StatusCode);
         }
-
+        [HttpPut("UpdateServiceDetailsHeldForActionAndReadyStatusByAssignmentId/{id}")]
+        public async Task<ApiCommonResponse> UpdateServiceDetailsHeldForActionAndReadyStatusByAssignmentId(long id)
+        {
+            return await _serviceAssignmentDetailsService.UpdateServiceDetailsHeldForActionAndReadyStatusByAssignmentId( id);
+        }
         //Passenger
         [HttpGet("GetAllPassengers")]
         public async Task<ApiCommonResponse> GetAllPassengers()

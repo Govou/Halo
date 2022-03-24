@@ -68,6 +68,12 @@ namespace HaloBiz.DTOs.ReceivingDTOs
         public long?[] SecondaryServiceRegistrationId { get; set; }
         public long? SecondaryContractServiceId { get; set; }
     }
+    public class SecondaryServiceAssignmentMailReceivingDTO
+    {
+        public long? ServiceAssignmentId { get; set; }
+        public string SecondaryServiceRegistrationName { get; set; }
+        //public long? SecondaryContractServiceId { get; set; }
+    }
     public class MasterServiceAssignmentMailVMDTO
     {
 
@@ -79,19 +85,23 @@ namespace HaloBiz.DTOs.ReceivingDTOs
         public string DropoffLocation { get; set; }
         public string PickoffLocation { get; set; }
         public string[] Recepients { get; set; }
+        public string[] Recepients1 { get; set; }
         public DateTime PickupDate { get; set; }
         public string Subject { get; set; }
         public string CreatedBy { get; set; }
         public string CreatedByMobile { get; set; }
         public string CreatedByPic { get; set; }
+        public string ClientName { get; set; }
         public DateTime PickoffTime { get; set; }
         public ServiceMailDTO ServiceMailDTO { get; set; }
+        public ClientInfosMailDTO clientInfo { get; set; }
 
         public IEnumerable<CommandersMailDTO> Commanders { get; set; }
         public IEnumerable<ArmedEscortsMailDTO> armedEscorts { get; set; }
         public IEnumerable<PilotsMailDTO> pilots { get; set; }
         public IEnumerable<VehiclesMailDTO> vehicles { get; set; }
         public IEnumerable<PassengersMailDTO> passengers { get; set; }
+        public IEnumerable<SecondaryServiceAssignmentMailReceivingDTO> SecondaryServiceAssignmentServiceReg { get; set; }
 
     }
 
@@ -140,5 +150,14 @@ namespace HaloBiz.DTOs.ReceivingDTOs
     {
         public string Name { get; set; }
         public string Description { get; set; }
+    }
+
+    public class ClientInfosMailDTO
+    {
+        public string Name { get; set; }
+        public string Email { get; set; }
+        public string Street { get; set; }
+        public string LGA { get; set; }
+        public string State { get; set; }
     }
 }

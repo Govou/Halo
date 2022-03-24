@@ -468,6 +468,14 @@ namespace HaloBiz.Repository.Impl
             return null;
         }
 
+        public async Task<bool> UpdateArmedEscortServiceAssignmentDetailHeldByAssignmentId(ArmedEscortServiceAssignmentDetail serviceAssignmentDetail)
+        {
+            serviceAssignmentDetail.IsHeldForAction = true;
+            serviceAssignmentDetail.DateHeldForAction = DateTime.UtcNow;
+            _context.ArmedEscortServiceAssignmentDetails.Update(serviceAssignmentDetail);
+            return await SaveChanges();
+        }
+
         public async Task<CommanderServiceAssignmentDetail> UpdateCommanderServiceAssignmentDetail(CommanderServiceAssignmentDetail serviceAssignmentDetail)
         {
             var updatedEntity = _context.CommanderServiceAssignmentDetails.Update(serviceAssignmentDetail);
@@ -482,6 +490,14 @@ namespace HaloBiz.Repository.Impl
         {
             serviceAssignmentDetail.IsTemporarilyHeld = false;
             serviceAssignmentDetail.IsHeldForAction = false;
+            _context.CommanderServiceAssignmentDetails.Update(serviceAssignmentDetail);
+            return await SaveChanges();
+        }
+
+        public async Task<bool> UpdateCommanderServiceAssignmentDetailHeldByAssignmentId(CommanderServiceAssignmentDetail serviceAssignmentDetail)
+        {
+            serviceAssignmentDetail.IsHeldForAction = true;
+            serviceAssignmentDetail.DateHeldForAction = DateTime.UtcNow;
             _context.CommanderServiceAssignmentDetails.Update(serviceAssignmentDetail);
             return await SaveChanges();
         }
@@ -532,6 +548,14 @@ namespace HaloBiz.Repository.Impl
             return await SaveChanges();
         }
 
+        public async Task<bool> UpdatePilotServiceAssignmentDetailHeldByAssignmentId(PilotServiceAssignmentDetail serviceAssignmentDetail)
+        {
+            serviceAssignmentDetail.IsHeldForAction = true;
+            serviceAssignmentDetail.DateHeldForAction = DateTime.UtcNow;
+            _context.PilotServiceAssignmentDetails.Update(serviceAssignmentDetail);
+            return await SaveChanges();
+        }
+
         public async Task<VehicleServiceAssignmentDetail> UpdateVehicleServiceAssignmentDetail(VehicleServiceAssignmentDetail serviceAssignmentDetail)
         {
             var updatedEntity = _context.VehicleServiceAssignmentDetails.Update(serviceAssignmentDetail);
@@ -546,6 +570,14 @@ namespace HaloBiz.Repository.Impl
         {
             serviceAssignmentDetail.IsTemporarilyHeld = false;
             serviceAssignmentDetail.IsHeldForAction = false;
+            _context.VehicleServiceAssignmentDetails.Update(serviceAssignmentDetail);
+            return await SaveChanges();
+        }
+
+        public async Task<bool> UpdateVehicleServiceAssignmentDetailHeldByAssignmentId(VehicleServiceAssignmentDetail serviceAssignmentDetail)
+        {
+            serviceAssignmentDetail.IsHeldForAction = true;
+            serviceAssignmentDetail.DateHeldForAction = DateTime.UtcNow;
             _context.VehicleServiceAssignmentDetails.Update(serviceAssignmentDetail);
             return await SaveChanges();
         }
