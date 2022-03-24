@@ -1973,7 +1973,7 @@ namespace HaloBiz.MyServices.Impl
                 _logger.LogError($"An Error occured while trying to send confirmation with Id: {serviceAssignmentId}");
                 _logger.LogError($"Error: {ex.Message}");
                 _logger.LogError($"Error: {ex.StackTrace}");
-                return CommonResponse.Send(ResponseCodes.FAILURE, null, "JMP Not Sent");
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "confirmation Not Sent");
             }
         }
         public async Task<ApiCommonResponse> GetJMPDetails(long serviceAssignmentId)
