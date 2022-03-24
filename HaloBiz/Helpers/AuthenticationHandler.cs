@@ -45,8 +45,10 @@ namespace HaloBiz.Helpers
 
             var controllerName = controllerActionDescriptor?.ControllerName;
             var actionName = controllerActionDescriptor?.ActionName;
+            var actionVerb = context.Request.Method;
 
-            if(string.IsNullOrEmpty(controllerName) || string.IsNullOrEmpty(actionName))
+
+            if (string.IsNullOrEmpty(controllerName) || string.IsNullOrEmpty(actionName))
             {
                 context.Response.StatusCode = StatusCodes.Status404NotFound;
                 await context.Response.WriteAsync("Path not found");
@@ -54,7 +56,7 @@ namespace HaloBiz.Helpers
                 return;
             }
             
-            bool isExempted = (controllerName.ToLower() == "auth" && (actionName.ToLower() == "login" || actionName.ToLower() == "otherlogin"));
+            bool isExempted = (controllerName.ToLower() == "auth" && (actionName.ToLower() == "login" || actionName.ToLower() == "otherlogin") || actionName.ToLower()== "createuser");
 
             if (!isExempted)
             {
@@ -74,12 +76,16 @@ namespace HaloBiz.Helpers
                         else
                         {
                             //test for the authorization
-                            if(!CheckAuthorization(context, controllerName, permissionsList))
+                            //exempt users get
+                            if(!(controllerName.ToLower() == "user" && (actionVerb.ToLower() == "get")))
                             {
-                                //use 200 ok here so that the user can know what he has access to
-                                context.Response.StatusCode = StatusCodes.Status200OK;
-                                await context.Response.WriteAsJsonAsync(CommonResponse.Send(ResponseCodes.UNAUTHORIZED, null, "You do not have permission to access this endpoint"));
-                                return;
+                                if (!CheckAuthorization(context, controllerName, permissionsList))
+                                {
+                                    //use 200 ok here so that the user can know what he has access to
+                                    context.Response.StatusCode = StatusCodes.Status200OK;
+                                    await context.Response.WriteAsJsonAsync(CommonResponse.Send(ResponseCodes.UNAUTHORIZED, null, "You do not have permission to access this endpoint"));
+                                    return;
+                                }
                             }
                         }
                     }

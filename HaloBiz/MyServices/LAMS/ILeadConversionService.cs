@@ -29,7 +29,8 @@ namespace HaloBiz.MyServices.LAMS
                                     QuoteService quoteService,
                                     long loggedInUserId,
                                     bool isReversal,
-                                    Invoice invoice
+                                    Invoice invoice,
+                                    bool setIntegrationFlag = false
                                     );
         List<Invoice> GenerateListOfInvoiceCycle(
                                             ContractService contractService, 

@@ -41,6 +41,13 @@ namespace HaloBiz.Controllers
             return await _contactServiceImpl.GetAllContact(HttpContext);
         }
 
+        [HttpGet("GetEntireContacts")]
+        public async Task<ApiCommonResponse> GetEntireContacts()
+        {
+            return await _contactServiceImpl.GetEntireContact(HttpContext);
+        }
+
+
         [HttpDelete("DisableContact/{contactId}")]
         public async Task<ApiCommonResponse> DisableContact(long contactId)
         {
@@ -205,17 +212,9 @@ namespace HaloBiz.Controllers
             return await _contactServiceImpl.GetLeadClassificationsData(HttpContext);
         }
 
-        [HttpGet("GetLeadClassificationsDataById/{createdById}")]
-        public async Task<ApiCommonResponse> GetLeadClassificationsDataBySuspectId(long createdById)
-        {
-            return await _contactServiceImpl.GetLeadClassificationsDataById(HttpContext, createdById);
-        }
+        
 
-        [HttpGet("GetLeadClassificationsDataByDate/{startDate}/{endDate}")]
-        public async Task<ApiCommonResponse> GetLeadClassificationsDataBySuspectId(DateTime startDate,DateTime endDate)
-        {
-            return await _contactServiceImpl.GetLeadClassificationsDataByDates(HttpContext, startDate,endDate);
-        }
+        
 
         [HttpGet("GetLeadsOpportunity")]
         public async Task<ApiCommonResponse> GetLeadsOpportunity()
@@ -223,16 +222,30 @@ namespace HaloBiz.Controllers
             return await _contactServiceImpl.GetLeadsOpportunityData(HttpContext);
         }
 
-        [HttpGet("GetLeadsOpportunityById/{createdById}")]
-        public async Task<ApiCommonResponse> GetLeadsOpportunityById(long createdById)
-        {
-            return await _contactServiceImpl.GetLeadsOpportunityDataByCreatedId(HttpContext, createdById);
-        }
+        
 
         [HttpGet("GetContractByLead/{Id}")]
         public async Task<ApiCommonResponse> GetContractByLead(long Id)
         {
             return await _contactServiceImpl.getContractByLeadId(Id);
+        }
+
+        [HttpGet("GetDeliverableDashboard")]
+        public async Task<ApiCommonResponse> GetDeliverableDashboard()
+        {
+            return await _contactServiceImpl.getDeliverableDashboard(HttpContext);
+        }
+
+        [HttpGet("GetAllQuotesWithDivisions")]
+        public async Task<ApiCommonResponse> GetAllQuotesWithDivisions()
+        {
+            return await _contactServiceImpl.getAllQuotes(HttpContext);
+        }
+
+        [HttpGet("GetQuotes/{leadId}")]
+        public async Task<ApiCommonResponse> GetQuotes(long leadId)
+        {
+            return await _contactServiceImpl.getQuoteServices(HttpContext,leadId);
         }
     }
 }

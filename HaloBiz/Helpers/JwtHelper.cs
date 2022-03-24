@@ -51,7 +51,7 @@ namespace HaloBiz.Helpers
             var tokenDescriptor = new SecurityTokenDescriptor
             {
                 Subject = new ClaimsIdentity(claims),
-                Expires = DateTime.Now.AddMinutes(45),
+                Expires = DateTime.Now.AddMinutes(20),
                 SigningCredentials = credentials
             };
 

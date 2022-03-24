@@ -11,8 +11,5 @@ namespace halobiz_backend.DTOs.QueryParamsDTOs
         public List<int> Years { get; set; }
         public long? ClientId { get; set; }
         public List<long> VoucherTypeIds { get; set; }
-        
-        
-        
     }
 }

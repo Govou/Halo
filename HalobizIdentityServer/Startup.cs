@@ -1,9 +1,17 @@
+using AutoMapper;
+using Halobiz.Common.MyServices;
+using Halobiz.Common.MyServices.RoleManagement;
+using Halobiz.Common.Repository;
+using Halobiz.Repository.RoleManagement;
+using HalobizIdentityServer.Helpers;
+using HalobizMigrations.Data;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -14,6 +22,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
+using HalobizIdentityServer.MyServices;
 
 namespace HalobizIdentityServer
 {
@@ -29,10 +39,30 @@ namespace HalobizIdentityServer
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-                .AddMicrosoftIdentityWebApi(Configuration.GetSection("AzureAd"));
+            services.AddDbContext<HalobizContext>(options =>
+                    options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")), ServiceLifetime.Scoped);
+
+            services.AddAutoMapper(typeof(Startup));
 
             services.AddControllers();
+            services.AddSingleton<JwtHelper>();
+            services.AddScoped<IUserProfileService, UserProfileServiceImpl>();
+            services.AddScoped<IUserProfileRepository, UserProfileRepositoryImpl>();
+            services.AddTransient<IRoleService, RoleServiceImpl>();
+            services.AddTransient<IRoleRepository, RoleRepositoryImpl>();
+            services.AddScoped<IMailService, MailService>();
+            services.AddScoped<IOnlineAccounts, OnlineAccounts>();
+
+            services.AddControllersWithViews()
+               .AddNewtonsoftJson(options =>
+               options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore
+           );
+
+
+
+            services.AddControllers()
+                .AddNewtonsoftJson(option => option.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore);
+
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "HalobizIdentityServer", Version = "v1" });

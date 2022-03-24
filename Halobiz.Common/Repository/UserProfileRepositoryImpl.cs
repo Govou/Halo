@@ -43,7 +43,7 @@ namespace Halobiz.Common.Repository
         public async Task<UserProfile> SaveUserProfile(UserProfile userProfile)
         {
             var UserProfileEntity = await _context.UserProfiles.AddAsync(userProfile);
-            if(await SaveChanges())
+            if (await SaveChanges())
             {
                 return UserProfileEntity.Entity;
             }
@@ -60,20 +60,24 @@ namespace Halobiz.Common.Repository
         {
             return await _context.UserProfiles
                 .Include(x => x.Sbu)
+                .Include(x => x.Role)
                 .FirstOrDefaultAsync( user => user.Id == Id && user.IsDeleted == false);
         }
 
         public async Task<UserProfile> FindUserByEmail(string email)
         {
             return await _context.UserProfiles
+                .Where(user => user.Email == email && user.IsDeleted == false)
                 .Include(x => x.Sbu)
-                .FirstOrDefaultAsync( user => user.Email == email && user.IsDeleted == false);
+                .Include(x => x.Role)
+                .FirstOrDefaultAsync();
         }
 
         public async Task<IEnumerable<UserProfile>> FindAllUserProfile()
         {
             return await _context.UserProfiles.AsNoTracking()
                 .Include(x => x.Sbu)
+                .Include(x => x.Role)
                 .Where(user => user.IsDeleted == false)
                 .OrderBy(user => user.Email)
                 .ToListAsync();
@@ -89,10 +93,10 @@ namespace Halobiz.Common.Repository
         public async Task<IEnumerable<Object>> FindAllUsersNotInAnProfile(long sbuId)
         {
             var sbu = await _context.StrategicBusinessUnits.FirstOrDefaultAsync(x => x.Id == sbuId);
-            if(sbu == null) return  new List<Object>();
+            if (sbu == null) return new List<Object>();
             var operatingEntityId = sbu.OperatingEntityId;
 
-            var listOfSbuNotPartOfOperatingEntity = await  _context.StrategicBusinessUnits
+            var listOfSbuNotPartOfOperatingEntity = await _context.StrategicBusinessUnits
                         .Where(x => x.OperatingEntityId != operatingEntityId).Select(x => x.Id).ToListAsync();
 
             return await _context.UserProfiles
@@ -103,15 +107,15 @@ namespace Halobiz.Common.Repository
                     firstName = x.FirstName,
                     lastname = x.LastName,
                     id = x.Id
-                    })
+                })
                 .OrderBy(user => user.email)
                 .ToListAsync();
         }
 
         public async Task<UserProfile> UpdateUserProfile(UserProfile userProfile)
         {
-            var UserProfileEntity =  _context.UserProfiles.Update(userProfile);
-            if(await SaveChanges())
+            var UserProfileEntity = _context.UserProfiles.Update(userProfile);
+            if (await SaveChanges())
             {
                 return UserProfileEntity.Entity;
             }
@@ -127,9 +131,11 @@ namespace Halobiz.Common.Repository
 
         private async Task<bool> SaveChanges()
         {
-            try{
+            try
+            {
                 return await _context.SaveChangesAsync() > 0;
-            }catch(Exception ex)
+            }
+            catch (Exception ex)
             {
                 _logger.LogError(ex.Message);
                 return false;
@@ -145,5 +151,5 @@ namespace Halobiz.Common.Repository
                 .ToListAsync();
         }
     }
-    
+
 }

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using HaloBiz.Model;
 using HalobizMigrations.Data;
 using HalobizMigrations.Models;
 using Microsoft.EntityFrameworkCore;
@@ -14,6 +15,7 @@ namespace HaloBiz.Repository.Impl
     {
         private readonly HalobizContext _context;
         private readonly ILogger<SupplierRepositoryImpl> _logger;
+        
         public SupplierRepositoryImpl(HalobizContext context, ILogger<SupplierRepositoryImpl> logger)
         {
             this._logger = logger;
@@ -55,6 +57,44 @@ namespace HaloBiz.Repository.Impl
         {
            return await _context.Suppliers
             .FirstOrDefaultAsync(x => x.Id == Id && x.IsDeleted == false);
+        }
+
+        public async Task<List<IValidation>> ValidateSupplier(string supplierName, string supplierEmail, string supplierPhone)
+        {
+            List<Supplier> validateName = await _context.Suppliers
+                .Where(x => !x.IsDeleted && x.SupplierName == supplierName)
+                .OrderBy(x => x.SupplierName)
+                .ToListAsync();
+
+            List<Supplier> validateEmail = await _context.Suppliers
+                .Where(x => !x.IsDeleted && x.SupplierEmail == supplierEmail)
+                .OrderBy(x => x.SupplierName)
+                .ToListAsync();
+
+            List<Supplier> validatePhone = await _context.Suppliers
+                .Where(x => !x.IsDeleted && x.MobileNumber == supplierPhone)
+                .OrderBy(x => x.SupplierName)
+                .ToListAsync();
+
+            List<IValidation> res = new List<IValidation>();
+
+            if (validateName.Count > 0)
+            {
+                res.Add(new IValidation { Message="Supplier Name Already In Use",Field="Name"});
+            }
+
+            if (validateEmail.Count > 0)
+            {
+                res.Add(new IValidation { Message = "Supplier Email Already In Use", Field = "Email" });
+            }
+
+            if (validatePhone.Count > 0)
+            {
+                res.Add(new IValidation { Message = "Supplier Phone Already In Use", Field = "Phone" });
+            }
+
+            return res;
+
         }
 
         private async Task<bool> SaveChanges()

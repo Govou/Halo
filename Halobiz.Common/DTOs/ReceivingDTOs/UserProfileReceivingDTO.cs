@@ -1,3 +1,4 @@
+using HalobizMigrations.Models.Shared;
 using System;
 using System.ComponentModel.DataAnnotations;
 
@@ -14,14 +15,12 @@ namespace Halobiz.Common.DTOs.ReceivingDTO
         public string OtherName { get; set; }
         [StringLength(50, ErrorMessage="Codename can only be alphabets between 3 to 50 characters long")]
         public string CodeName { get; set; }
-        [Required]
         public string DateOfBirth { get; set; }
         [Required, RegularExpression("^[_A-Za-z0-9-\\+]+(\\.[_A-Za-z0-9-]+)*@[A-Za-z0-9-]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$", ErrorMessage="Invalid Email Address")]
         public string Email { get; set; }
         [RegularExpression("\\d{10,15}", ErrorMessage="Mobile number can only be digits between 10 to 15 characters long")]
         public string MobileNumber { get; set; }
-        [Required]
-        public string ImageUrl { get; set; }
+        public string ImageUrl { get; set; } = "";
         public string AltEmail { get; set; }
         [RegularExpression("\\d{10,15}", ErrorMessage="Mobile number can only be digits between 10 to 15 characters long")]
         public string AltMobileNumber { get; set; }
@@ -37,5 +36,22 @@ namespace Halobiz.Common.DTOs.ReceivingDTO
         public string InstagramHandle { get; set; }
         public long StaffId { get; set; }
         public long RoleId { get; set; }
+        public string UserName { get; set; }
+        public string NormalizedUserName { get; set; }
+        public string NormalizedEmail { get; set; }
+        public bool EmailConfirmed { get; set; } = false;
+        public string PasswordHash { get; set; }
+        public string SecurityStamp { get; set; }
+        public DateTime? LockoutEnd { get; set; }
+        public bool LockoutEnabled { get; set; } = false;
+        public int AccessFailedCount { get; set; } = 0;
+        public string Password { get; set; }
+    }
+
+    public class CreatePasswordDTO
+    {
+        public string Password { get; set; }
+        public string Email { get; set; }
+        public Origin Origin { get; set; } = Origin.Web;
     }
 }
