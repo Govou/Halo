@@ -28,6 +28,7 @@ namespace OnlinePortalBackend.Helpers
             CreateMap<Contract, ContractTransferDTO>();
             CreateMap<ContractService, ContractServiceTransferDTO>();
             CreateMap<Invoice, InvoiceTransferDTO>();
+            CreateMap<CartContract, CartContractDTO>();
         }
     }
 }

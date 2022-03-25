@@ -21,5 +21,6 @@ namespace OnlinePortalBackend.MyServices
         Task<ApiResponse> GetProformaInvoices(long prospectId, long quoteId);
         Task<ApiResponse> GetQuoteServices(HttpContext context, long prospectId);
         Task<ApiResponse> GetQuoteServicesPaymentStatus(HttpContext context, long prospectId);
+        Task<ApiResponse> ConfirmPayment(string transactionRef);
     }
 }
