@@ -6,6 +6,7 @@ using HaloBiz.DTOs.TransferDTOs;
 using HaloBiz.DTOs.TransferDTOs.LAMS;
 using HaloBiz.Helpers;
 using HaloBiz.Repository;
+using HalobizMigrations.Data;
 using HalobizMigrations.Models;
 using HalobizMigrations.Models.Armada;
 using Microsoft.AspNetCore.Http;
@@ -28,13 +29,15 @@ namespace HaloBiz.MyServices.Impl
         private readonly IServiceAssignmentMasterRepository _serviceAssignmentMasterRepository;
         private readonly IDTSMastersRepository _dTSMastersRepository;
         private readonly IDTSDetailGenericDaysRepository _dTSDetailGenericDaysRepository;
+        private readonly IInvoiceService _invoiceService;
         private readonly IMapper _mapper;
+        private readonly HalobizContext _context;
 
         public ServiceAssignmentDetailsServiceImpl(IMapper mapper, IServiceAssignmentDetailsRepository serviceAssignmentDetailsRepository,
             ICommanderRegistrationRepository commanderRegistrationRepository, IArmedEscortRegistrationRepository armedEscortRegistrationRepository,
             IPilotRegistrationRepository pilotRegistrationRepository, IVehicleRegistrationRepository vehicleRegistrationRepository,  
             IServiceRegistrationRepository serviceRegistrationRepository, IServiceAssignmentMasterRepository serviceAssignmentMasterRepository, IDTSMastersRepository dTSMastersRepository,
-            IDTSDetailGenericDaysRepository dTSDetailGenericDaysRepository)
+            IDTSDetailGenericDaysRepository dTSDetailGenericDaysRepository, HalobizContext context, IInvoiceService invoiceService)
         {
             _mapper = mapper;
             _serviceAssignmentDetailsRepository = serviceAssignmentDetailsRepository;
@@ -46,6 +49,8 @@ namespace HaloBiz.MyServices.Impl
             _serviceAssignmentMasterRepository = serviceAssignmentMasterRepository;
             _dTSMastersRepository = dTSMastersRepository;
             _dTSDetailGenericDaysRepository = dTSDetailGenericDaysRepository;
+            _context = context;
+            _invoiceService = invoiceService;
         }
 
         public async Task<ApiCommonResponse> AddArmedEscortDetail(HttpContext context, ArmedEscortServiceAssignmentDetailsReceivingDTO armedEscortReceivingDTO)
@@ -1790,8 +1795,127 @@ namespace HaloBiz.MyServices.Impl
             return CommonResponse.Send(ResponseCodes.SUCCESS, contractTransferDTOs);
         }
 
-       
+        public async Task<ApiCommonResponse> UpdateArmedEscortDetailHeldForActionByAssignmentId(long id)
+        {
+            var itemToUpdate = await _serviceAssignmentDetailsRepository.FindEscortServiceAssignmentDetailByAssignmentId(id);
 
-      
+            if (itemToUpdate == null)
+            {
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);
+            }
+
+            if (!await _serviceAssignmentDetailsRepository.UpdateArmedEscortServiceAssignmentDetailHeldByAssignmentId(itemToUpdate))
+            {
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, ResponseMessage.InternalServer500);
+            }
+
+            //return new ApiOkResponse(true);
+            return CommonResponse.Send(ResponseCodes.SUCCESS, null, ResponseMessage.Success200);
+        }
+
+        public async Task<ApiCommonResponse> UpdateServiceDetailsHeldForActionAndReadyStatusByAssignmentId(long id)
+        {
+            var transaction = _context.Database.BeginTransaction();
+            var escortToUpdate = await _serviceAssignmentDetailsRepository.FindAllEscortServiceAssignmentDetailsByAssignmentId(id);
+            var commanderToUpdate = await _serviceAssignmentDetailsRepository.FindAllCommanderServiceAssignmentDetailsByAssignmentId(id);
+            var pilotToUpdate = await _serviceAssignmentDetailsRepository.FindAllPilotServiceAssignmentDetailsByAssignmentId(id);
+            var vehicleToUpdate = await _serviceAssignmentDetailsRepository.FindAllVehicleServiceAssignmentDetailsByAssignmentId(id);
+            var itemToUpdate = await _serviceAssignmentMasterRepository.FindServiceAssignmentById(id);
+            if (itemToUpdate == null)
+            {
+                transaction.Rollback();
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);
+            }
+
+            try {
+
+                if (escortToUpdate.Count() > 0)
+                {
+                    foreach (var item in escortToUpdate)
+                    {
+                        //await _serviceAssignmentDetailsRepository.UpdateArmedEscortServiceAssignmentDetailHeldByAssignmentId(item);
+                        if (!await _serviceAssignmentDetailsRepository.UpdateArmedEscortServiceAssignmentDetailHeldByAssignmentId(item))
+                        {
+                            transaction.Rollback();
+                            return CommonResponse.Send(ResponseCodes.FAILURE, null, ResponseMessage.InternalServer500);
+                        }
+                    }
+
+                }
+                if (commanderToUpdate.Count() > 0)
+                {
+                    foreach (var item in commanderToUpdate)
+                    {
+                        //await _serviceAssignmentDetailsRepository.UpdateCommanderServiceAssignmentDetailHeldByAssignmentId(item);
+                        if (!await _serviceAssignmentDetailsRepository.UpdateCommanderServiceAssignmentDetailHeldByAssignmentId(item))
+                        {
+                            transaction.Rollback();
+                            return CommonResponse.Send(ResponseCodes.FAILURE, null, ResponseMessage.InternalServer500);
+                        }
+                    }
+                }
+                if (pilotToUpdate.Count() > 0)
+                {
+                    foreach (var item in pilotToUpdate)
+                    {
+                        //await _serviceAssignmentDetailsRepository.UpdatePilotServiceAssignmentDetailHeldByAssignmentId(item);
+                        if (!await _serviceAssignmentDetailsRepository.UpdatePilotServiceAssignmentDetailHeldByAssignmentId(item))
+                        {
+                            transaction.Rollback();
+                            return CommonResponse.Send(ResponseCodes.FAILURE, null, ResponseMessage.InternalServer500);
+                        }
+                    }
+                }
+                if (vehicleToUpdate.Count() > 0)
+                {
+                    foreach (var item in vehicleToUpdate)
+                    {
+                       
+                        if (!await _serviceAssignmentDetailsRepository.UpdateVehicleServiceAssignmentDetailHeldByAssignmentId(item))
+                        {
+                            transaction.Rollback();
+                            return CommonResponse.Send(ResponseCodes.FAILURE, null, ResponseMessage.InternalServer500);
+                        }
+                    }
+                }
+
+               
+
+                if (!await _serviceAssignmentMasterRepository.UpdateReadyStatus(itemToUpdate))
+                {
+                    transaction.Rollback();
+                    return CommonResponse.Send(ResponseCodes.FAILURE, null, ResponseMessage.InternalServer500);
+                }
+
+
+                await _invoiceService.SendJourneyManagementPlan(id);
+                await _invoiceService.SendJourneyConfirmation(id);
+
+            }//end try
+            catch (Exception ex)
+            {
+                transaction.Rollback();
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, ex.Message);
+            }
+
+
+            transaction.Commit();
+            return CommonResponse.Send(ResponseCodes.SUCCESS, null, ResponseMessage.Success200);
+        }
+
+        //public Task<ApiCommonResponse> UpdateCommanderDetailHeldForActionByAssignmentId(long id)
+        //{
+        //    throw new NotImplementedException();
+        //}
+
+        //public Task<ApiCommonResponse> UpdatePilotDetailHeldForActionByAssignmentId(long id)
+        //{
+        //    throw new NotImplementedException();
+        //}
+
+        //public Task<ApiCommonResponse> UpdateVehicleDetailHeldForActionByAssignmentId(long id)
+        //{
+        //    throw new NotImplementedException();
+        //}
     }
 }

@@ -126,5 +126,10 @@ namespace HaloBiz.Controllers
         {
             return await _invoiceService.SendJourneyManagementPlan(id);
         }
+        [HttpGet("SendPaidConfirmation/{id}")]
+        public async Task<ApiCommonResponse> SendPaidConfirmation(long id)
+        {
+            return await _invoiceService.SendJourneyConfirmation(id);
+        }
     }
 }

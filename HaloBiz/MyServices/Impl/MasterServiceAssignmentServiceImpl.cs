@@ -73,6 +73,8 @@ namespace HaloBiz.MyServices.Impl
             var getRegService = await _serviceRegistrationRepository.FindServiceById(masterReceivingDTO.ServiceRegistrationId);
             long getId = 0;
             long? TiedVehicleId = 0;
+            List<long?> VehicleResourceIdsToTie = new List<long?>();
+            List<long?> VehicleResourceIdsToTieComm = new List<long?>();
             //var RouteExistsForVehicle = _vehicleRegistrationRepository.GetAllVehiclesOnRouteByResourceAndRouteId(masterReceivingDTO.SMORouteId);
 
             try
@@ -184,11 +186,11 @@ namespace HaloBiz.MyServices.Impl
                                     }
                                     else
                                     {
-                                       
+                                        VehicleResourceIdsToTie.Add(getVehicleResourceId);
                                         countSchedule++;
                                         if(countSchedule == getVehicleServiceRegistration.VehicleQuantityRequired)
                                         {
-                                            TiedVehicleId = getVehicleResourceId;
+                                            //TiedVehicleId = getVehicleResourceId;
                                             break;
                                         }
                                         else
@@ -235,6 +237,7 @@ namespace HaloBiz.MyServices.Impl
                             int resourceCount = 0;
 
                             var _lastItem = result.Last();
+                            var _lastItemTie = VehicleResourceIdsToTie.Last();
                             foreach (var schedule in result)
                             {
                                
@@ -247,7 +250,21 @@ namespace HaloBiz.MyServices.Impl
                                 pilot.IsTemporarilyHeld = true;
                                 pilot.DateTemporarilyHeld = DateTime.UtcNow;
                                 pilot.PilotResourceId = getResourceId;
-                                pilot.TiedVehicleResourceId = TiedVehicleId;
+                                foreach (var item in VehicleResourceIdsToTie)
+                                {
+                                    if (_lastItemTie.Equals(item))
+                                    {
+                                        pilot.TiedVehicleResourceId = item;
+                                        break;
+                                    }
+                                    else 
+                                    {
+                                        pilot.TiedVehicleResourceId = item;
+                                        VehicleResourceIdsToTie.Remove(item);
+                                        break;
+                                    }
+                                }
+                                //pilot.TiedVehicleResourceId = TiedVehicleId;
                                 pilot.RequiredCount = resourceCount++;
                                 pilot.CreatedById = context.GetLoggedInUserId();
                                 pilot.CreatedAt = DateTime.UtcNow;
@@ -436,18 +453,11 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.FAILURE, null, ex.Message);
             }
 
-
-
-
-
-
-
-
-
             // var typeTransferDTO = _mapper.Map<MasterServiceAssignmentTransferDTO>(master);
             transaction.Commit();
             return CommonResponse.Send(ResponseCodes.SUCCESS, null, "Auto Assignment Successful");
         }
+
 
         public async Task<ApiCommonResponse> AddMasterServiceAssignment(HttpContext context, MasterServiceAssignmentReceivingDTO masterReceivingDTO)
         {
