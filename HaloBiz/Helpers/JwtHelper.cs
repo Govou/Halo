@@ -14,45 +14,52 @@ using Claim = System.Security.Claims.Claim;
 using HalobizMigrations.Models.Halobiz;
 using System.Security.Cryptography;
 using HalobizMigrations.Data;
+using HaloBiz.Models;
 
 namespace HaloBiz.Helpers
 {
     public interface IJwtHelper
     {
-        (string, double, string) GenerateToken(UserProfile userProfile, IEnumerable<Permissions> permissions);
-        string GetUserRefreshToken(long UserId);
-        (bool, List<short>) IsValidToken(string token);
+        (string, double) GenerateToken(UserProfile userProfile, IEnumerable<Permissions> permissions);
+        (bool, bool, AuthUser) ValidateToken(string token);
+        (string, double) GenerateToken(string email, string id, string permissionsString);
     }
     public class JwtHelper : IJwtHelper
     {
         private readonly ILogger<JwtHelper> _logger;
         private readonly string _secret;
         private readonly IConfiguration _config;
-        private readonly HalobizContext _context;
 
 
         public JwtHelper(
             IConfiguration config,
-            HalobizContext context,
             ILogger<JwtHelper> logger)
         {
             _logger = logger;
             _config = config;
-            _context = context;
             _secret = config["JWTSecretKey"] ?? config.GetSection("AppSettings:JWTSecretKey").Value;
         }
 
-        public (string, double, string) GenerateToken(UserProfile userProfile, IEnumerable<Permissions> permissions)
+        public (string, double) GenerateToken(UserProfile userProfile, IEnumerable<Permissions> permissions)
         {
             //get the permissions for this guy
             var permissionStr = JsonConvert.SerializeObject(permissions);
+            return GeneratTokenInternal(userProfile.Email, userProfile.Id.ToString(), permissionStr);
+        }
 
+        public (string, double) GenerateToken(string email, string id, string permissionsString)
+        {
+            //get the permissions for this guy
+            var permissionStr = JsonConvert.SerializeObject(permissionsString);
+            return GeneratTokenInternal(email, id, permissionStr);
+        }
+
+        private (string, double) GeneratTokenInternal(string email, string id, string permissionStr)
+        {
             List<Claim> claims = new List<Claim>()
             {
-                new Claim(ClaimTypes.NameIdentifier, userProfile.Id.ToString()),
-                new Claim(ClaimTypes.Email, userProfile.Email),
-                new Claim(ClaimTypes.Role, userProfile.Role?.Name ?? string.Empty),
-                new Claim("RoleId", userProfile.RoleId.ToString()),
+                new Claim(ClaimTypes.NameIdentifier, id),
+                new Claim(ClaimTypes.Email, email),
                 new Claim("Permissions", permissionStr)
             };
 
@@ -62,77 +69,30 @@ namespace HaloBiz.Helpers
 
             var parameterExpiry = _config["JWTExpiryInMinutes"] ?? _config.GetSection("AppSettings:JWTExpiryInMinutes").Value;
             double jwtExpiryLifespan = double.Parse(parameterExpiry ?? "20");
-           
+
             //get the refreshToken for this guy
             var tokenDescriptor = new SecurityTokenDescriptor
             {
                 Subject = new ClaimsIdentity(claims),
-                Expires = DateTime.Now.AddMinutes(jwtExpiryLifespan),
+                Expires = DateTime.UtcNow.AddMinutes(jwtExpiryLifespan),
                 SigningCredentials = credentials
             };
 
-            var refreshToken = GetUserRefreshToken(userProfile.Id);
+            Console.WriteLine($"Expiry given {tokenDescriptor.Expires}");
             var tokenHandler = new JwtSecurityTokenHandler();
             var token = tokenHandler.CreateToken(tokenDescriptor);
-            return (tokenHandler.WriteToken(token), jwtExpiryLifespan, refreshToken);
+            return (tokenHandler.WriteToken(token), jwtExpiryLifespan);
         }
 
-        public string GetUserRefreshToken(long UserId)
+        /// <summary>
+        /// (isValid, isEXpired, permissions)
+        /// </summary>
+        /// <param name="token"></param>
+        /// <returns></returns>
+
+        public (bool, bool, AuthUser) ValidateToken(string token)
         {
-            var tokenRecord = _context.RefreshTokens.Where(x => x.AssignedTo == UserId).FirstOrDefault();
-            if(tokenRecord == null)
-            {
-                return GenerateRefreshToken(UserId)?.Token;
-            }
-            else
-            {
-                //re-generate if is expired or less than/= two days to expiry
-                if (tokenRecord.Expires < DateTime.Now || (tokenRecord.Expires.Date - DateTime.Today.Date).TotalDays <= 2)
-                {
-                    //gnerate new token
-                    return GenerateRefreshToken(UserId)?.Token;
-                }
-            }
-
-            return tokenRecord.Token;
-        }
-
-        private RefreshToken GenerateRefreshToken(long UserId)
-        {
-            using (var rngCryptoServiceProvider = new RNGCryptoServiceProvider())
-            {
-                var randomBytes = new byte[64];
-                rngCryptoServiceProvider.GetBytes(randomBytes);
-                var token = new RefreshToken
-                {
-                    Token = Convert.ToBase64String(randomBytes),
-                    Expires = DateTime.Now.AddDays(7),
-                    CreatedAt = DateTime.Now,
-                    AssignedTo = UserId
-                };
-
-                //check if the user has token, otherwise create new
-                var tokenRecord = _context.RefreshTokens.Where(x => x.AssignedTo == UserId).FirstOrDefault();
-                if(tokenRecord == null)
-                {
-                    _context.RefreshTokens.Add(token);
-                }
-                else
-                {
-                    tokenRecord.AssignedTo = UserId;
-                    tokenRecord.UpdatedAt = DateTime.Now;
-                    tokenRecord.Token = token.Token;
-                    tokenRecord.Expires = token.Expires;
-                    _context.RefreshTokens.Update(tokenRecord);
-                }
-
-                _context.SaveChanges();
-                return token;
-            }
-        }
-
-        public (bool, List<short>) IsValidToken(string token)
-        {
+            var emptyPermissions = new List<short>();
             try
             {
                 var tokenHandler = new JwtSecurityTokenHandler();
@@ -145,6 +105,7 @@ namespace HaloBiz.Helpers
                     IssuerSigningKey = new SymmetricSecurityKey(key),
                     ValidateIssuer = false,
                     ValidateAudience = false,
+                    ValidateLifetime = false, //would check for lifetime myself
                     // set clockskew to zero so tokens expire exactly at token expiration time (instead of 5 minutes later)
                     ClockSkew = TimeSpan.Zero
                 }, out SecurityToken validatedToken);
@@ -152,13 +113,23 @@ namespace HaloBiz.Helpers
                 var jwtToken = (JwtSecurityToken)validatedToken;
 
                 var permssionsStr = jwtToken.Claims.First(x => x.Type == "Permissions").Value;
-                var permissions = JsonConvert.DeserializeObject<List<short>>(permssionsStr);
-                return (true, permissions);
+                var email = jwtToken.Claims.First(x => x.Type == "email").Value;
+                var id = jwtToken.Claims.First(x => x.Type == "nameid").Value;
+
+                var tokenExpiry = validatedToken.ValidTo;
+                Console.WriteLine($"Valid to {validatedToken.ValidTo}");
+                var authUser = new AuthUser { Id = id, Email = email, permissionString = permssionsStr };
+                if (tokenExpiry < DateTime.UtcNow)
+                {
+                    return (true, true, authUser); //(isValid, isEXpired, permissions)
+                }
+                
+                return (true, false, authUser); //(isValid, isEXpired, permissions)
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex.StackTrace);
-                return (false, new List<short>());
+                return (false, false, null); //(isValid, isEXpired, permissions)
             }
         }
     }

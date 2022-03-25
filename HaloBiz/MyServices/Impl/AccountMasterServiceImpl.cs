@@ -263,6 +263,7 @@ namespace HaloBiz.MyServices.Impl
 
 
                             invoice.IsAccountPosted = true;
+                            invoice.UpdatedAt = DateTime.Now;
                             _context.Invoices.Update(invoice);
                             await _context.SaveChangesAsync();
                             await transaction.CommitAsync();

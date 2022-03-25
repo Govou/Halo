@@ -18,6 +18,7 @@ using HaloBiz.Controllers;
 using HaloBiz.DTOs.ContactDTO;
 using Halobiz.Common.Helpers;
 using Halobiz.Common.DTOs.ReceivingDTOs;
+using HaloBiz.Models;
 
 namespace HaloBiz.Helpers
 {
@@ -58,7 +59,7 @@ namespace HaloBiz.Helpers
             CreateMap<State, StateWithoutLGATransferDto>();
             CreateMap<OfficeReceivingDTO, Office>();
             CreateMap<Office, OfficeTransferDTO>();
-            CreateMap<RefreshToken, RefreshTokenTransferDTO>();
+            CreateMap<RefreshToken, mRefreshToken>();
             CreateMap<Quote, Contract>().AfterMap((s, d) => 
             {
                 d.Id = 0;

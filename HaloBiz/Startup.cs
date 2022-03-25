@@ -54,7 +54,7 @@ namespace HaloBiz
             if (env.IsDevelopment())
             {
                 services.AddDbContext<HalobizContext>(options =>
-                    options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")), ServiceLifetime.Singleton);
+                    options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")), ServiceLifetime.Scoped);
             }
             else
             {
@@ -122,9 +122,10 @@ namespace HaloBiz
             services.AddScoped<IUserProfileService, UserProfileServiceImpl>();
             services.AddScoped<IUserProfileRepository, UserProfileRepositoryImpl>();
             services.AddScoped<IUserAuthentication, UserAuthentication>();
-            services.AddScoped<IJwtHelper, JwtHelper>();
 
-
+            //leave as singleton along with the dbcontext with lifespan as singleton
+            services.AddSingleton<IJwtHelper, JwtHelper>();
+            services.AddMemoryCache();
             services.AddAutoMapper(typeof(Startup));
             services.AddControllersWithViews()
                 .AddNewtonsoftJson(options =>
@@ -215,9 +216,11 @@ namespace HaloBiz
 
             app.UseHttpsRedirection();
             app.UseRouting();
+
+            app.UseMiddleware<AuthenticationHandler>();
+
             app.UseAuthentication();
             app.UseAuthorization();
-            app.UseMiddleware<AuthenticationHandler>();
 
             app.UseEndpoints(endpoints =>
             {

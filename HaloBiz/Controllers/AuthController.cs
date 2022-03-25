@@ -58,10 +58,10 @@ namespace HaloBiz.Controllers
             return await _userAuthentication.CreateProfile(authUserProfileReceivingDTO);
         }
 
-        [HttpGet("RevokeToken")]
-        public async Task<ApiCommonResponse> RevokeToken(string token)
+        [HttpPost("RevokeToken")]
+        public async Task<ApiCommonResponse> RevokeToken(RefreshTokenDTO model)
         {
-            return await _userAuthentication.RevokeToken(token);
+            return await _userAuthentication.RevokeToken(model);
         }
     }
 }

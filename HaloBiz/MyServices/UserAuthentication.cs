@@ -8,6 +8,7 @@ using Halobiz.Common.MyServices.RoleManagement;
 using HaloBiz.DTOs.ReceivingDTOs;
 using HaloBiz.DTOs.TransferDTOs;
 using HaloBiz.Helpers;
+using HaloBiz.Models;
 using HalobizMigrations.Data;
 using HalobizMigrations.Models;
 using HalobizMigrations.Models.Halobiz;
@@ -33,7 +34,7 @@ namespace HaloBiz.MyServices
         Task<ApiCommonResponse> OtherLogin(LoginDTO login);
         Task<ApiCommonResponse> Login(GoogleLoginReceivingDTO loginReceiving);
         Task<ApiCommonResponse> CreateProfile(AuthUserProfileReceivingDTO authUserProfileReceivingDTO);
-        Task<ApiCommonResponse> RevokeToken(string token);
+        Task<ApiCommonResponse> RevokeToken(RefreshTokenDTO token);
     }
 
     public class UserAuthentication : IUserAuthentication
@@ -83,7 +84,10 @@ namespace HaloBiz.MyServices
 
                 //get the permissions of the user
                 var permissions = await _roleService.GetPermissionEnumsOnUser(userProfile.Id);
-                var(jwtToken, jwtLifespan, refreshToken)  = _jwttHelper.GenerateToken(userProfile, permissions);
+                var(jwtToken, jwtLifespan)  = _jwttHelper.GenerateToken(userProfile, permissions);
+
+                //get a refresh token for this user
+                var refreshToken = GenerateRefreshToken(userProfile.Id);
 
                 return CommonResponse.Send(ResponseCodes.SUCCESS, new UserAuthTransferDTO
                 {
@@ -140,8 +144,10 @@ namespace HaloBiz.MyServices
 
                 //get the permissions of the user
                 var permissions = await _roleService.GetPermissionEnumsOnUser(userProfile.Id);
-                var (jwtToken, jwtLifespan, refreshToken) = _jwttHelper.GenerateToken(userProfile, permissions);
-
+                var (jwtToken, jwtLifespan) = _jwttHelper.GenerateToken(userProfile, permissions);
+               
+                //get a refresh token for this user
+                var refreshToken = GenerateRefreshToken(userProfile.Id);
                 return CommonResponse.Send(ResponseCodes.SUCCESS, new UserAuthTransferDTO
                 {
                     Token = jwtToken,
@@ -194,8 +200,10 @@ namespace HaloBiz.MyServices
 
                 //get the permissions of the user
                 var permissions = await _roleService.GetPermissionEnumsOnUser(userProfile.Id);
-                var (jwtToken, jwtLifespan, refreshToken) = _jwttHelper.GenerateToken(userProfile, permissions);
+                var (jwtToken, jwtLifespan) = _jwttHelper.GenerateToken(userProfile, permissions);
 
+                //get a refresh token for this user
+                var refreshToken = GenerateRefreshToken(userProfile.Id);
                 return CommonResponse.Send(ResponseCodes.SUCCESS, new UserAuthTransferDTO
                 {
                     Token = jwtToken,
@@ -212,7 +220,7 @@ namespace HaloBiz.MyServices
             }
         }
 
-        public async Task<ApiCommonResponse> RefreshToken(RefreshTokenRequest model)
+        public async Task<ApiCommonResponse> RefreshToken(RefreshTokenDTO model)
         {
             try
             {
@@ -222,7 +230,7 @@ namespace HaloBiz.MyServices
                     return CommonResponse.Send(ResponseCodes.FAILURE, null, "No user with token");
 
                 // return  if token is no longer active
-                var mTokenRecord = _mapper.Map<RefreshTokenTransferDTO>(tokenRecord);
+                var mTokenRecord = _mapper.Map<mRefreshToken>(tokenRecord);
                 if (!mTokenRecord.IsActive)
                     return CommonResponse.Send(ResponseCodes.TOKEN_INACTIVE);
 
@@ -252,20 +260,40 @@ namespace HaloBiz.MyServices
                 _logger.LogError(ex, "RefreshToken error");
                 return CommonResponse.Send(ResponseCodes.FAILURE);
             }
+        }      
+
+        private string GenerateRefreshToken(long UserId)
+        {
+            using (var rngCryptoServiceProvider = new RNGCryptoServiceProvider())
+            {
+                var randomBytes = new byte[64];
+                rngCryptoServiceProvider.GetBytes(randomBytes);
+                var token = new HalobizMigrations.Models.Halobiz.RefreshToken
+                {
+                    Token = Convert.ToBase64String(randomBytes),
+                    Expires = DateTime.Now.AddDays(7),
+                    CreatedAt = DateTime.Now,
+                    AssignedTo = UserId
+                };
+
+                _context.RefreshTokens.Add(token);
+                _context.SaveChanges();
+                return token.Token;
+            }
         }
 
-        public async Task<ApiCommonResponse> RevokeToken(string token)
+        public async Task<ApiCommonResponse> RevokeToken(RefreshTokenDTO token)
         {
             try
             {
-                var tokenRecord = _context.RefreshTokens.SingleOrDefault(t => t.Token == token);
+                var tokenRecord = _context.RefreshTokens.SingleOrDefault(t => t.Token == token.Token);
 
                 // return  if no user found with token
                 if (tokenRecord == null)
                     return CommonResponse.Send(ResponseCodes.FAILURE, null, "No user with token");
 
                 // return  if token is not active
-                var mTokenRecord = _mapper.Map<RefreshTokenTransferDTO>(tokenRecord);
+                var mTokenRecord = _mapper.Map<mRefreshToken>(tokenRecord);
                 if (!mTokenRecord.IsActive)
                     return CommonResponse.Send(ResponseCodes.TOKEN_INACTIVE);
 
@@ -281,8 +309,6 @@ namespace HaloBiz.MyServices
                 _logger.LogError(ex, "Error in Revoking Token");
                 return CommonResponse.Send(ResponseCodes.FAILURE, null, ex.Message);
             }
-        }
-
-       
+        }       
     }
 }
