@@ -7,13 +7,11 @@ namespace OnlinePortalBackend.DTOs.TransferDTOs
     public class CartContractDetailDTO
     {
         public long Id { get; set; }
-        public double? UnitPrice { get; set; }
+        public double UnitPrice { get; set; }
         public long? InvoiceCycleInDays { get; set; }
         public long? BranchId { get; set; }
         public long? OfficeId { get; set; }
         public double AdHocInvoicedAmount { get; set; }
-        public virtual CartContract CartContract { get; set; }
-        public virtual Service Service { get; set; }
         public string UniqueTag { get; set; }
         public string AdminDirectTie { get; set; }
         public long Quantity { get; set; }

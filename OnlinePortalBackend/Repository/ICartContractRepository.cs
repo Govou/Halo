@@ -8,7 +8,8 @@ namespace OnlinePortalBackend.Repository
 {
     public interface ICartContractRepository
     {
-        Task<CartContract> SaveCartContract(long userId, CartContractDTO cartContractDTO);
+        Task<CartContract> SaveCartContract(CartContract cartContract);
+        Task<bool> SaveCartContractServiceRange(IEnumerable<CartContractService> cartContractServices);
         Task<CartContract> FindCartContractById(long userId, long Id);
         Task<IEnumerable<CartContract>> FindAllCartContract();
         Task<CartContract> FindCartContractByReferenceNumber(string refNo);

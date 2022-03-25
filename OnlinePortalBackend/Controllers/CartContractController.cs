@@ -13,18 +13,17 @@ namespace OnlinePortalBackend.Controllers
     public class CartContractController : ControllerBase
     {
         private readonly ICartContractService _cartContractService;
-      //  private readonly ICartContractDetailService _cartContractDetailService;
 
         public CartContractController(ICartContractService cartContractService)
         {
             _cartContractService = cartContractService;
         }
 
-        [HttpPost]
-        public async Task<ApiCommonResponse> CreateCartContract(CartContractDTO request)
-        {
-            return await _cartContractService.CreateCartContract(HttpContext, request);
-        }
+        //[HttpPost]
+        //public async Task<ApiCommonResponse> CreateCartContract(CartContractDTO request)
+        //{
+        //    return await _cartContractService.CreateCartContract(HttpContext, request);
+        //}
 
 
         [HttpGet("{id}")]

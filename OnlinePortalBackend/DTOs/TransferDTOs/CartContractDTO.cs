@@ -14,7 +14,7 @@ namespace OnlinePortalBackend.DTOs.TransferDTOs
         public DateTime CreatedAt { get; set; }
         public long CreatedById { get; set; }
 
-        public IEnumerable<CartContractDetailDTO> CartContractDetails { get; set; }
+        public List<CartContractDetailDTO> CartContractServices { get; set; }
 
     }
 }

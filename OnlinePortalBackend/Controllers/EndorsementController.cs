@@ -1,4 +1,8 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Halobiz.Common.DTOs.ApiDTOs;
+using Microsoft.AspNetCore.Mvc;
+using OnlinePortalBackend.DTOs.TransferDTOs;
+using OnlinePortalBackend.MyServices;
+using System.Threading.Tasks;
 
 namespace OnlinePortalBackend.Controllers
 {
@@ -6,26 +10,25 @@ namespace OnlinePortalBackend.Controllers
     [ApiController]
     public class EndorsementController : ControllerBase
     {
-        private readonly IEndorsementService _cartContractService;
+        private readonly IEndorsementService _endorsementService;
         //  private readonly ICartContractDetailService _cartContractDetailService;
 
-        public EndorsementController(IEndorsementService cartContractService)
+        public EndorsementController(IEndorsementService endorsementService)
         {
-            _cartContractService = cartContractService;
+            _endorsementService = endorsementService;
         }
 
-        [HttpPost]
-        public async Task<ApiCommonResponse> CreateCartContract(CartContractDTO request)
+        [HttpGet("FetchEndorsements")]
+        public async Task<ApiCommonResponse> FetchEndorsements(int limit = 10)
         {
-            return await _cartContractService.CreateCartContract(HttpContext, request);
+            return await _endorsementService.FetchEndorsements(HttpContext, limit);
         }
 
 
-        [HttpGet("{id}")]
-        public async Task<ApiCommonResponse> GetById(long id)
+        [HttpGet("TrackEndorsement/{id}")]
+        public async Task<ApiCommonResponse> TrackEndorsement(long id)
         {
-
-            return await _cartContractService.GetCartContractServiceById(HttpContext, id);
+            return await _endorsementService.TrackEndorsement(HttpContext, id);
         }
     }
 }

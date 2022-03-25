@@ -1,11 +1,12 @@
-﻿using System.Collections.Generic;
+﻿using HalobizMigrations.Models;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace OnlinePortalBackend.Repository
 {
     public interface IEndorsementRepository
     {
-        Task<Endorsement> FindCartContractById(long userId, long Id);
-        Task<IEnumerable<CartContract>> FindAllCartContract(l);
+        Task<ContractServiceForEndorsement> FindEndorsementById(long userId, long Id);
+        Task<IEnumerable<ContractServiceForEndorsement>> FindEndorsements(long userId, int limit);
     }
 }

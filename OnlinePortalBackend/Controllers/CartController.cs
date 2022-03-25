@@ -112,7 +112,7 @@ namespace OnlinePortalBackend.Controllers
             return Ok(theResponse);
         }
 
-        [HttpGet("GetQuotesPaymentStatus/{paymentRef}")]
+        [HttpGet("GetPaymentConfirmation/{paymentRef}")]
         public async Task<ActionResult> GetPaymentConfirmation(string paymentRef)
         {
             var response = await _cartService.ConfirmPayment(paymentRef);

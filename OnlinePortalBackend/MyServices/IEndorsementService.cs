@@ -1,11 +1,13 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Halobiz.Common.DTOs.ApiDTOs;
+using Microsoft.AspNetCore.Http;
+using OnlinePortalBackend.DTOs.ApiDTOs;
 using System.Threading.Tasks;
 
 namespace OnlinePortalBackend.MyServices
 {
     public interface IEndorsementService
     {
-        Task<string> FetchEndorsements(HttpContext context, int limit = 10);
-        Task<string> TrackEndorsement(HttpContext context, string endorsementId);
+        Task<ApiCommonResponse> FetchEndorsements(HttpContext context, int limit = 10);
+        Task<ApiCommonResponse> TrackEndorsement(HttpContext context, long endorsementId);
     }
 }

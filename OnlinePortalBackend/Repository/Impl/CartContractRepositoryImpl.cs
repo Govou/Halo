@@ -29,77 +29,20 @@ namespace OnlinePortalBackend.Repository.Impl
             _mapper = mapper;
         }
 
-        public async Task<CartContract> SaveCartContract(long userId, CartContractDTO cartContractDTO)
+        public async Task<CartContract> SaveCartContract(CartContract cartContract)
         {
-            //var cartContract = new CartContract
-            //{
-            //    Id = entity.Id,
-            //    CreatedAt = DateTime.Now,
-            //    CreatedById = entity.CreatedById,
-            //    GroupContractCategory = (GroupContractCategory)entity.GroupContractCategory,
-            //    GroupInvoiceNumber = entity.GroupInvoiceNumber,
-            //    CustomerDivisionId = entity.CustomerDivisionId
-            //};
-
-
-
-            //var cartContractEntity = await _context.CartContracts.AddAsync(cartContract);
-
-            //if (await SaveChanges())
-            //{
-            //    return cartContractEntity.Entity;
-            //}
-            //return null;
-
-            CartContract savedcartContract = null;
-
-            using (var transaction = await _context.Database.BeginTransactionAsync())
+            var cartContractEntity = await _context.CartContracts.AddAsync(cartContract);
+            if (await SaveChanges())
             {
-                try
-                {
-                   
-                    var cartContract = _mapper.Map<CartContract>(cartContractDTO);
-                   // var cartContractService = cartContract.CartContractServices;
-
-                 //   quote.QuoteServices = null;
-                    cartContract.CreatedById = userId;
-                     await _context.CartContracts.AddAsync(cartContract);
-                     await _context.SaveChangesAsync();
-
-                    savedcartContract = cartContract;
-
-                    if (savedcartContract == null)
-                    {
-                        return savedcartContract;
-                    }
-
-                    //foreach (var item in quoteService)
-                    //{
-                    //    item.QuoteId = savedQuote.Id;
-                    //    item.CreatedById = createdById;
-                    //}
-
-                  //  var savedSuccessfully = await _quoteServiceRepo.SaveQuoteServiceRange(quoteService);
-                    //if (!savedSuccessfully)
-                    //{
-                    //    return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
-                    //}
-
-                    await transaction.CommitAsync();
-                }
-                catch (Exception e)
-                {
-                    _logger.LogError(e.Message);
-                    await transaction.RollbackAsync();
-                    return savedcartContract;
-                }
+                return cartContractEntity.Entity;
             }
+            return null;
+        }
 
-         //   var cartContractDB = await _cartContractRepository.FindCartContractById(userId, savedcartContract.Id);
-            
-         //   var newCartContractDTO = _mapper.Map<CartContractDTO>(cartContractDB);
-            return savedcartContract;
-
+        public async Task<bool> SaveCartContractServiceRange(IEnumerable<CartContractService> cartContractServices)
+        {
+            await _context.CartContractServices.AddRangeAsync(cartContractServices);
+            return await SaveChanges();
         }
 
         public async Task<CartContract> FindCartContractById(long userId, long Id)
