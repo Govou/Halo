@@ -28,21 +28,16 @@ namespace HaloBiz.Helpers
         private readonly RequestDelegate _next;
         private readonly IJwtHelper _jwtHelper;
         private readonly ILogger<AuthenticationHandler> _logger;
-        private IMemoryCache _memoryCache;
-        private IMapper _mapper;
+       
 
 
         public AuthenticationHandler(RequestDelegate next, IJwtHelper jwtHelper,
-            ILogger<AuthenticationHandler> logger,
-            IMemoryCache memory,
-            IMapper mapper
+            ILogger<AuthenticationHandler> logger           
             )
         {
             _next = next;
             _jwtHelper = jwtHelper;
             _logger = logger;
-            _memoryCache = memory;
-            _mapper = mapper;
         }
 
         public async Task Invoke(HttpContext context)
@@ -95,43 +90,40 @@ namespace HaloBiz.Helpers
                             }
 
                             //get memory refreshtoken
-                            var rToken = GetMemoryRefreshToken(refreshToken, authUser.Id);
-                            if(!string.IsNullOrEmpty(rToken) && rToken != refreshToken)
+                            if(!_jwtHelper.GrantToGetNewToken(refreshToken, authUser.Id))
                             {
                                 context.Response.StatusCode = (int) AppDefinedHttpStatusCodes.LOGIN_AGAIN;
-                                await context.Response.WriteAsync("Refresh token invalid or expired");
+                                await context.Response.WriteAsync("Access token given previously. Use it please");
                                 return;
-                            }else if (string.IsNullOrEmpty(rToken))
+                            }
+                            if (!_jwtHelper.IsDbRefreshTokenActive(authUser.Id, refreshToken))
                             {
-                                //get refresh token from db
-                                var id = long.Parse(authUser.Id);
-                                var isDbTokenValid = IsDbbRefreshTokenActive(id, refreshToken);
-                                if(!isDbTokenValid)
+                                context.Response.StatusCode = (int)AppDefinedHttpStatusCodes.LOGIN_AGAIN;
+                                await context.Response.WriteAsync("Refresh token revoked or expired");
+                                return;
+                            }
+
+                            //get a replacement token for this guy
+                            var (newToken, lifeSPan) = _jwtHelper.GenerateToken(authUser.Email, authUser.Id, authUser.permissionString);
+                            //indicate that this guy has received access token
+                            var saved = _jwtHelper.AddRefreshTokenToTracker(authUser.Id, refreshToken);
+                            if (!saved)
+                                Console.WriteLine($"This guy existed previously {refreshToken}");
+
+                            //check the refresh token and use it to refresh the jwt at this point
+                            context.Response.Headers.Add("Access-Control-Expose-Headers", "x-Token");
+                            context.Response.Headers.Add("x-Token", newToken);
+
+                            if (!(controllerName.ToLower() == "user" && (actionVerb.ToLower() == "get")))
+                            {
+                                if (!CheckAuthorization(context, controllerName, permissionsList))
                                 {
-                                    context.Response.StatusCode = (int)AppDefinedHttpStatusCodes.LOGIN_AGAIN;
-                                    await context.Response.WriteAsync("Refresh token invalid or expired");
+                                    //use 200 ok here so that the user can know that he does not have access to
+                                    context.Response.StatusCode = StatusCodes.Status200OK;
+                                    await context.Response.WriteAsJsonAsync(CommonResponse.Send(ResponseCodes.UNAUTHORIZED, null, $"You do not have permission for {actionVerb} in {controllerName}"));
                                     return;
                                 }
                             }
-                            else
-                            {
-                                //get a replacement token for this guy
-                                var (newToken, lifeSPan) = _jwtHelper.GenerateToken(authUser.Email, authUser.Id, authUser.permissionString);
-
-                                //check the refresh token and use it to refresh the jwt at this point
-                                context.Response.Headers.Add("x-Token", newToken);
-
-                                if (!(controllerName.ToLower() == "user" && (actionVerb.ToLower() == "get")))
-                                {
-                                    if (!CheckAuthorization(context, controllerName, permissionsList))
-                                    {
-                                        //use 200 ok here so that the user can know that he does not have access to
-                                        context.Response.StatusCode = StatusCodes.Status200OK;
-                                        await context.Response.WriteAsJsonAsync(CommonResponse.Send(ResponseCodes.UNAUTHORIZED, null, $"You do not have permission for {actionVerb} in {controllerName}"));
-                                        return;
-                                    }
-                                }
-                            }                           
                         }
                         else if(isValid && !isExpired)
                         {
@@ -193,50 +185,7 @@ namespace HaloBiz.Helpers
             return permisssions.Contains(permissionInt);
         }
 
-        private bool AddRefreshTokenToTracker(string id, string token)
-        {
-            if (!_memoryCache.TryGetValue(token, out RefreshTokenTracker tracker))
-            {
-                tracker = new RefreshTokenTracker
-                {
-                    Id = id,
-                    Token = token
-                };
-
-                var cacheEntryOptions = new MemoryCacheEntryOptions()
-                            .SetAbsoluteExpiration(TimeSpan.FromMinutes(30));
-                _memoryCache.Set(token, tracker, cacheEntryOptions);
-            }
-            return true;
-        }
-
-
-        /// <summary>
-        /// (refreshToken, isUseable)
-        /// </summary>
-        /// <param name="email"></param>
-        /// <returns></returns>
-        private string GetMemoryRefreshToken(string token, string id)
-        {
-            var record = _memoryCache.Get<RefreshTokenTracker>(token);
-            if(record != null)
-            {
-                if(record.Id==id)
-                    return (record.Token);
-            }
-
-            return string.Empty;
-        }
-
-        private bool IsDbbRefreshTokenActive(long Id, string token)
-        {
-            var context = new HalobizContext();
-            var tokenRecord = context.RefreshTokens.Where(x => x.AssignedTo == Id && x.Token == token).FirstOrDefault();
-            if (tokenRecord == null) return false;
-            var mappedTokenRecord = _mapper.Map<mRefreshToken>(tokenRecord);
-            if (mappedTokenRecord.IsActive) { AddRefreshTokenToTracker(Id.ToString(), token); return true; }
-            else return false;
-        }
+       
     }    
 }
 

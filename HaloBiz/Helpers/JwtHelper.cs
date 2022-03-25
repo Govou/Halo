@@ -15,6 +15,8 @@ using HalobizMigrations.Models.Halobiz;
 using System.Security.Cryptography;
 using HalobizMigrations.Data;
 using HaloBiz.Models;
+using Microsoft.Extensions.Caching.Memory;
+using AutoMapper;
 
 namespace HaloBiz.Helpers
 {
@@ -23,21 +25,33 @@ namespace HaloBiz.Helpers
         (string, double) GenerateToken(UserProfile userProfile, IEnumerable<Permissions> permissions);
         (bool, bool, AuthUser) ValidateToken(string token);
         (string, double) GenerateToken(string email, string id, string permissionsString);
+        bool IsDbRefreshTokenActive(string Id, string token);
+        bool GrantToGetNewToken(string token, string id);
+        bool AddRefreshTokenToTracker(string id, string token);
     }
     public class JwtHelper : IJwtHelper
     {
         private readonly ILogger<JwtHelper> _logger;
         private readonly string _secret;
         private readonly IConfiguration _config;
-
+        private IMemoryCache _memoryCache;
+        private IMapper _mapper;
+        private double _jwtExpiryLifespan;
 
         public JwtHelper(
             IConfiguration config,
-            ILogger<JwtHelper> logger)
+            ILogger<JwtHelper> logger,
+             IMemoryCache memory,
+            IMapper mapper)
         {
             _logger = logger;
             _config = config;
             _secret = config["JWTSecretKey"] ?? config.GetSection("AppSettings:JWTSecretKey").Value;
+            _memoryCache = memory;
+            _mapper = mapper;
+
+            var parameterExpiry = _config["JWTExpiryInMinutes"] ?? _config.GetSection("AppSettings:JWTExpiryInMinutes").Value;
+            _jwtExpiryLifespan = double.Parse(parameterExpiry ?? "20");
         }
 
         public (string, double) GenerateToken(UserProfile userProfile, IEnumerable<Permissions> permissions)
@@ -50,8 +64,7 @@ namespace HaloBiz.Helpers
         public (string, double) GenerateToken(string email, string id, string permissionsString)
         {
             //get the permissions for this guy
-            var permissionStr = JsonConvert.SerializeObject(permissionsString);
-            return GeneratTokenInternal(email, id, permissionStr);
+            return GeneratTokenInternal(email, id, permissionsString);
         }
 
         private (string, double) GeneratTokenInternal(string email, string id, string permissionStr)
@@ -65,23 +78,20 @@ namespace HaloBiz.Helpers
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_secret));
 
-            var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha512Signature);
-
-            var parameterExpiry = _config["JWTExpiryInMinutes"] ?? _config.GetSection("AppSettings:JWTExpiryInMinutes").Value;
-            double jwtExpiryLifespan = double.Parse(parameterExpiry ?? "20");
+            var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha512Signature);           
 
             //get the refreshToken for this guy
             var tokenDescriptor = new SecurityTokenDescriptor
             {
                 Subject = new ClaimsIdentity(claims),
-                Expires = DateTime.UtcNow.AddMinutes(jwtExpiryLifespan),
+                Expires = DateTime.UtcNow.AddMinutes(_jwtExpiryLifespan),
                 SigningCredentials = credentials
             };
 
             Console.WriteLine($"Expiry given {tokenDescriptor.Expires}");
             var tokenHandler = new JwtSecurityTokenHandler();
             var token = tokenHandler.CreateToken(tokenDescriptor);
-            return (tokenHandler.WriteToken(token), jwtExpiryLifespan);
+            return (tokenHandler.WriteToken(token), _jwtExpiryLifespan);
         }
 
         /// <summary>
@@ -130,6 +140,57 @@ namespace HaloBiz.Helpers
             {
                 _logger.LogError(ex.StackTrace);
                 return (false, false, null); //(isValid, isEXpired, permissions)
+            }
+        }
+
+        public bool AddRefreshTokenToTracker(string id, string token)
+        {
+            if (!_memoryCache.TryGetValue(token, out RefreshTokenTracker tracker))
+            {
+                tracker = new RefreshTokenTracker
+                {
+                    Id = id,
+                    Token = token,
+                    GracePeriod = DateTime.Now.AddMinutes(0.25)
+                };
+
+                var cacheEntryOptions = new MemoryCacheEntryOptions()
+                            .SetAbsoluteExpiration(TimeSpan.FromMinutes(_jwtExpiryLifespan));
+                _memoryCache.Set(token, tracker, cacheEntryOptions);
+                return true;
+            }
+
+            return false;
+        }
+
+
+        /// <summary>
+        /// (refreshToken) Once a refresh token is here, it means the user has been given access token
+        /// but has not made use of it. We must avoid fetching from the db to verify refresh tokens repeatedly
+        /// </summary>
+        /// <param name="email"></param>
+        /// <returns></returns>
+        public bool GrantToGetNewToken(string token, string Id)
+        {
+            var record = _memoryCache.Get<RefreshTokenTracker>(token);
+            if (record != null)
+            {
+                var canGrant = record.Id == Id && record.GracePeriod >= DateTime.Now;
+                return canGrant;
+            }
+
+            return true;
+        }
+
+        public bool IsDbRefreshTokenActive(string Id, string token)
+        {
+            var _id = long.Parse(Id);
+            using (var context = new HalobizContext())
+            {
+                var tokenRecord = context.RefreshTokens.Where(x => x.AssignedTo == _id && x.Token == token).FirstOrDefault();
+                if (tokenRecord == null) return false;
+                var mappedTokenRecord = _mapper.Map<mRefreshToken>(tokenRecord);
+                return mappedTokenRecord.IsActive;
             }
         }
     }
