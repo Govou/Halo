@@ -173,6 +173,8 @@ namespace HaloBiz.MyServices.Impl
                                     vehicle.Id = 0;
                                     vehicle.IsTemporarilyHeld = true;
                                     vehicle.DateTemporarilyHeld = DateTime.UtcNow;
+                                    //vehicle.IsHeldForAction = true;
+                                    //vehicle.DateHeldForAction = DateTime.UtcNow;
                                     vehicle.VehicleResourceId = getVehicleResourceId;
                                     vehicle.RequiredCount = resourceCount++;
                                     vehicle.CreatedById = context.GetLoggedInUserId();
@@ -187,6 +189,7 @@ namespace HaloBiz.MyServices.Impl
                                     else
                                     {
                                         VehicleResourceIdsToTie.Add(getVehicleResourceId);
+                                        VehicleResourceIdsToTieComm.Add(getVehicleResourceId);
                                         countSchedule++;
                                         if(countSchedule == getVehicleServiceRegistration.VehicleQuantityRequired)
                                         {
@@ -330,6 +333,7 @@ namespace HaloBiz.MyServices.Impl
                             int resourceCount = 0;
 
                             var _lastItem = result.Last();
+                            var _lastItemTie = VehicleResourceIdsToTie.Last();
                             foreach (var schedule in result)
                             {
                                 var breakOut = false;
@@ -340,7 +344,21 @@ namespace HaloBiz.MyServices.Impl
                                 commander.IsTemporarilyHeld = true;
                                 commander.DateTemporarilyHeld = DateTime.UtcNow;
                                 commander.CommanderResourceId = getResourceId;
-                                commander.TiedVehicleResourceId = TiedVehicleId;
+                                //commander.TiedVehicleResourceId = TiedVehicleId;
+                                foreach (var item in VehicleResourceIdsToTieComm)
+                                {
+                                    if (_lastItemTie.Equals(item))
+                                    {
+                                        commander.TiedVehicleResourceId = item;
+                                        break;
+                                    }
+                                    else
+                                    {
+                                        commander.TiedVehicleResourceId = item;
+                                        VehicleResourceIdsToTieComm.Remove(item);
+                                        break;
+                                    }
+                                }
                                 commander.RequiredCount = resourceCount++;
                                 commander.CreatedById = context.GetLoggedInUserId();
                                 commander.CreatedAt = DateTime.UtcNow;
