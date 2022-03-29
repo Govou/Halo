@@ -46,6 +46,8 @@ namespace Halobiz.Common.DTOs.ReceivingDTO
         public bool LockoutEnabled { get; set; } = false;
         public int AccessFailedCount { get; set; } = 0;
         public string Password { get; set; }
+        public string ConfirmPassword { get; set; }
+        public string CurrentPassword { get; set; }
     }
 
     public class CreatePasswordDTO

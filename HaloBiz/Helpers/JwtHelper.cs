@@ -72,6 +72,7 @@ namespace HaloBiz.Helpers
             List<Claim> claims = new List<Claim>()
             {
                 new Claim(ClaimTypes.NameIdentifier, id),
+                new Claim(ClaimTypes.Name, "israelosp"),
                 new Claim(ClaimTypes.Email, email),
                 new Claim("Permissions", permissionStr)
             };
@@ -175,8 +176,7 @@ namespace HaloBiz.Helpers
             var record = _memoryCache.Get<RefreshTokenTracker>(token);
             if (record != null)
             {
-                var canGrant = record.Id == Id && record.GracePeriod >= DateTime.Now;
-                return canGrant;
+                return record.Id == Id && record.GracePeriod >= DateTime.Now;
             }
 
             return true;
@@ -187,10 +187,19 @@ namespace HaloBiz.Helpers
             var _id = long.Parse(Id);
             using (var context = new HalobizContext())
             {
-                var tokenRecord = context.RefreshTokens.Where(x => x.AssignedTo == _id && x.Token == token).FirstOrDefault();
-                if (tokenRecord == null) return false;
-                var mappedTokenRecord = _mapper.Map<mRefreshToken>(tokenRecord);
-                return mappedTokenRecord.IsActive;
+                try
+                {
+                    var tokenRecord = context.RefreshTokens.Where(x => x.AssignedTo == _id && x.Token == token).FirstOrDefault();
+                    if (tokenRecord == null) return false;
+                    var mappedTokenRecord = _mapper.Map<mRefreshToken>(tokenRecord);
+                    return mappedTokenRecord.IsActive;
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex.ToString());
+                    Console.WriteLine(ex.Message);
+                    return false;
+                }
             }
         }
     }

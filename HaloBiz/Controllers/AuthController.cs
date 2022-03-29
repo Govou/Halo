@@ -38,17 +38,17 @@ namespace HaloBiz.Controllers
         }
 
         [AllowAnonymous]
-        [HttpPost("OtherLogin")]
-        public async Task<ApiCommonResponse> OtherLogin(LoginDTO login)
+        [HttpPost("Login")]
+        public async Task<ApiCommonResponse> Login(LoginDTO login)
         {
-            return await _userAuthentication.OtherLogin(login);
+            return await _userAuthentication.Login(login);
         }
 
         [AllowAnonymous]
-        [HttpPost("Login")]
+        [HttpPost("GoogleLogin")]
         public async Task<ApiCommonResponse> Login(GoogleLoginReceivingDTO loginReceiving)
         {
-            return await _userAuthentication.Login(loginReceiving);
+            return await _userAuthentication.GoogleLogin(loginReceiving);
         }
 
         [AllowAnonymous]

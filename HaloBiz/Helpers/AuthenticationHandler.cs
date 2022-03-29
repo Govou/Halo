@@ -52,8 +52,6 @@ namespace HaloBiz.Helpers
             var actionName = controllerActionDescriptor?.ActionName;
             var actionVerb = context.Request.Method;   
 
-           //var p = _context.authUsers
-
             if (string.IsNullOrEmpty(controllerName) || string.IsNullOrEmpty(actionName))
             {
                 context.Response.StatusCode = StatusCodes.Status404NotFound;
@@ -61,7 +59,7 @@ namespace HaloBiz.Helpers
                 return;
             }
             
-            bool isExempted = (controllerName.ToLower() == "auth" && (actionName.ToLower() == "login" || actionName.ToLower() == "otherlogin") || actionName.ToLower()== "createuser");
+            bool isExempted = (controllerName.ToLower() == "auth" && (actionName.ToLower() == "login" || actionName.ToLower() == "googlelogin"));
             if (!isExempted)
             {
                 var token = context.Request?.Headers["Authorization"].FirstOrDefault()?.Split(" ")?.Last();
@@ -106,39 +104,31 @@ namespace HaloBiz.Helpers
                             //get a replacement token for this guy
                             var (newToken, lifeSPan) = _jwtHelper.GenerateToken(authUser.Email, authUser.Id, authUser.permissionString);
                             //indicate that this guy has received access token
-                            var saved = _jwtHelper.AddRefreshTokenToTracker(authUser.Id, refreshToken);
-                            if (!saved)
-                                Console.WriteLine($"This guy existed previously {refreshToken}");
+                            _jwtHelper.AddRefreshTokenToTracker(authUser.Id, refreshToken);
+                            
 
                             //check the refresh token and use it to refresh the jwt at this point
                             context.Response.Headers.Add("Access-Control-Expose-Headers", "x-Token");
                             context.Response.Headers.Add("x-Token", newToken);
 
-                            if (!(controllerName.ToLower() == "user" && (actionVerb.ToLower() == "get")))
+                            if (!CheckAuthorization(context, controllerName, actionName, permissionsList))
                             {
-                                if (!CheckAuthorization(context, controllerName, permissionsList))
-                                {
-                                    //use 200 ok here so that the user can know that he does not have access to
-                                    context.Response.StatusCode = StatusCodes.Status200OK;
-                                    await context.Response.WriteAsJsonAsync(CommonResponse.Send(ResponseCodes.UNAUTHORIZED, null, $"You do not have permission for {actionVerb} in {controllerName}"));
-                                    return;
-                                }
+                                //use 200 ok here so that the user can know that he does not have access to
+                                context.Response.StatusCode = StatusCodes.Status200OK;
+                                await context.Response.WriteAsJsonAsync(CommonResponse.Send(ResponseCodes.UNAUTHORIZED, null, $"You do not have permission for {actionVerb} in {controllerName}"));
+                                return;
                             }
                         }
                         else if(isValid && !isExpired)
                         {
                             //test for the authorization
-                            //exempt users get
-                            if (!(controllerName.ToLower() == "user" && (actionVerb.ToLower() == "get")))
+                            if (!CheckAuthorization(context, controllerName, actionName, permissionsList))
                             {
-                                if (!CheckAuthorization(context, controllerName, permissionsList))
-                                {
-                                    //use 200 ok here so that the user can know that he does not have access to
-                                    context.Response.StatusCode = StatusCodes.Status200OK;
-                                    await context.Response.WriteAsJsonAsync(CommonResponse.Send(ResponseCodes.UNAUTHORIZED, null, $"You do not have permission for {actionVerb} in {controllerName}"));
-                                    return;
-                                }
-                            }
+                                //use 200 ok here so that the user can know that he does not have access to
+                                context.Response.StatusCode = StatusCodes.Status200OK;
+                                await context.Response.WriteAsJsonAsync(CommonResponse.Send(ResponseCodes.UNAUTHORIZED, null, $"You do not have permission for {actionVerb} in {controllerName}"));
+                                return;
+                            }                           
                         }
                         else
                         {
@@ -160,18 +150,21 @@ namespace HaloBiz.Helpers
                     await context.Response.WriteAsync("Unauthorized user. No access token");
                     return;
                 }
-            } 
+            }
 
             await _next(context);
         }
 
        
 
-        private bool CheckAuthorization(HttpContext context, string controller, List<short> permisssions)
+        private bool CheckAuthorization(HttpContext context, string controller,string actionName, List<short> permisssions)
         {
             var actionVerb = context.Request.Method;
 
             var permissionEnum = $"{controller}_{actionVerb}";
+
+            if ((controller.ToLower() == "auth" && actionName.ToLower()=="createuser") || controller.ToLower()=="user" )
+                return true;
 
             if (!Enum.TryParse(typeof(Permissions), permissionEnum, true, out var permission))
             {

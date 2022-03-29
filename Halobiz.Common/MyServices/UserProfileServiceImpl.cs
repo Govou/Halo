@@ -62,41 +62,30 @@ namespace Halobiz.Common.MyServices
 
         public async Task<ApiCommonResponse> AddUserProfile(UserProfileReceivingDTO userProfileReceivingDTO, bool isExternal = false)
         {
-            if (!isExternal)
+            try
             {
-                if (
-                    !(userProfileReceivingDTO.Email.Trim().EndsWith("halogen-group.com") ||
-                    userProfileReceivingDTO.Email.Trim().EndsWith("avanthalogen.com") ||
-                    userProfileReceivingDTO.Email.Trim().EndsWith("averthalogen.com") ||
-                    userProfileReceivingDTO.Email.Trim().EndsWith("armourxhalogen.com") ||
-                    userProfileReceivingDTO.Email.Trim().EndsWith("pshalogen.com") ||
-                    userProfileReceivingDTO.Email.Trim().EndsWith("academyhalogen.com") ||
-                    userProfileReceivingDTO.Email.Trim().EndsWith("armadahalogen.com"))
-                    )
+                if (userProfileReceivingDTO.ImageUrl.Length > 255)
                 {
-                    return CommonResponse.Send(ResponseCodes.FAILURE, null, "Invalid email address");
+                    userProfileReceivingDTO.ImageUrl = userProfileReceivingDTO.ImageUrl.Substring(0, 255);
                 }
-        }
 
-            if (userProfileReceivingDTO.ImageUrl.Length > 255)
-            {
-                userProfileReceivingDTO.ImageUrl = userProfileReceivingDTO.ImageUrl.Substring(0, 255);
+                var userProfile = JsonConvert.DeserializeObject<UserProfile>(JsonConvert.SerializeObject(userProfileReceivingDTO));
+
+                var savedUserProfile = await _userRepo.SaveUserProfile(userProfile);
+                if (savedUserProfile == null)
+                {
+                    return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+                }
+
+                //var userProfileTransferDto = Mapping.Mapper.Map<UserProfileTransferDTO>(userProfile);
+                var userProfileTransferDto = JsonConvert.DeserializeObject<UserProfileTransferDTO>(JsonConvert.SerializeObject(userProfile));
+
+                return CommonResponse.Send(ResponseCodes.SUCCESS, userProfileTransferDto);
             }
-
-            var userProfile = JsonConvert.DeserializeObject<UserProfile>(JsonConvert.SerializeObject(userProfileReceivingDTO));
-
-            var savedUserProfile = await _userRepo.SaveUserProfile(userProfile);
-            if (savedUserProfile == null)
+            catch (Exception ex)
             {
-                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+                throw;
             }
-
-            //var userProfileTransferDto = Mapping.Mapper.Map<UserProfileTransferDTO>(userProfile);
-            var userProfileTransferDto = JsonConvert.DeserializeObject<UserProfileTransferDTO>(JsonConvert.SerializeObject(userProfile));
-
-            return CommonResponse.Send(ResponseCodes.SUCCESS, userProfileTransferDto);
-
-
         }
 
 
@@ -148,80 +137,87 @@ namespace Halobiz.Common.MyServices
 
         public async Task<ApiCommonResponse> UpdateUserProfile(long userId, UserProfileReceivingDTO userProfileReceivingDTO)
         {
-            var userToUpdate = await _userRepo.FindUserById(userId);
-            if (userToUpdate == null)
+            try
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE); ;
-            }
-            var summary = $"Initial details before change, \n {userToUpdate.ToString()} \n";
-            userToUpdate.Address = userProfileReceivingDTO.Address;
-            userToUpdate.AltEmail = userProfileReceivingDTO.AltEmail;
-            userToUpdate.AltMobileNumber = userProfileReceivingDTO.AltMobileNumber;
-            userToUpdate.Email = userProfileReceivingDTO.Email;
-            userToUpdate.FacebookHandle = userProfileReceivingDTO.FacebookHandle;
-            userToUpdate.FirstName = userProfileReceivingDTO.FirstName;
-            userToUpdate.ImageUrl = userProfileReceivingDTO.ImageUrl;
-            userToUpdate.InstagramHandle = userProfileReceivingDTO.InstagramHandle;
-            userToUpdate.LastName = userProfileReceivingDTO.LastName;
-            userToUpdate.LinkedInHandle = userProfileReceivingDTO.LinkedInHandle;
-            userToUpdate.MobileNumber = userProfileReceivingDTO.MobileNumber;
-            userToUpdate.TwitterHandle = userProfileReceivingDTO.TwitterHandle;
-            userToUpdate.StaffId = userProfileReceivingDTO.StaffId;
-            userToUpdate.DateOfBirth = Convert.ToDateTime(userProfileReceivingDTO.DateOfBirth);
-            userToUpdate.CodeName = userProfileReceivingDTO.CodeName;
-            userToUpdate.OtherName = userProfileReceivingDTO.OtherName;
-
-            summary += $"Details after change, \n {userToUpdate} \n";
-
-            var updatedUser = await _userRepo.UpdateUserProfile(userToUpdate);
-
-            if (updatedUser == null)
-            {
-                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
-            }
-
-            // send the sign up mail when the user profile completion hits a 100%.
-            if (!updatedUser.SignUpMailSent.Value)
-            {
-                if (ProfileIs100Percent(updatedUser))
+                var userToUpdate = await _userRepo.FindUserById(userId);
+                if (userToUpdate == null)
                 {
-                    string serializedUser = JsonConvert.SerializeObject(updatedUser, new JsonSerializerSettings
+                    return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE); ;
+                }
+                var summary = $"Initial details before change, \n {userToUpdate.ToString()} \n";
+                userToUpdate.Address = userProfileReceivingDTO.Address;
+                userToUpdate.AltEmail = userProfileReceivingDTO.AltEmail;
+                userToUpdate.AltMobileNumber = userProfileReceivingDTO.AltMobileNumber;
+                userToUpdate.Email = userProfileReceivingDTO.Email;
+                userToUpdate.FacebookHandle = userProfileReceivingDTO.FacebookHandle;
+                userToUpdate.FirstName = userProfileReceivingDTO.FirstName;
+                userToUpdate.ImageUrl = userProfileReceivingDTO.ImageUrl;
+                userToUpdate.InstagramHandle = userProfileReceivingDTO.InstagramHandle;
+                userToUpdate.LastName = userProfileReceivingDTO.LastName;
+                userToUpdate.LinkedInHandle = userProfileReceivingDTO.LinkedInHandle;
+                userToUpdate.MobileNumber = userProfileReceivingDTO.MobileNumber;
+                userToUpdate.TwitterHandle = userProfileReceivingDTO.TwitterHandle;
+                userToUpdate.StaffId = userProfileReceivingDTO.StaffId;
+                userToUpdate.DateOfBirth = Convert.ToDateTime(userProfileReceivingDTO.DateOfBirth);
+                userToUpdate.CodeName = userProfileReceivingDTO.CodeName;
+                userToUpdate.OtherName = userProfileReceivingDTO.OtherName;
+
+                summary += $"Details after change, \n {userToUpdate} \n";
+
+                var updatedUser = await _userRepo.UpdateUserProfile(userToUpdate);
+
+                if (updatedUser == null)
+                {
+                    return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+                }
+
+                // send the sign up mail when the user profile completion hits a 100%.
+                if (!updatedUser.SignUpMailSent.Value)
+                {
+                    if (ProfileIs100Percent(updatedUser))
                     {
-                        ReferenceLoopHandling = ReferenceLoopHandling.Ignore
-                    });
+                        string serializedUser = JsonConvert.SerializeObject(updatedUser, new JsonSerializerSettings
+                        {
+                            ReferenceLoopHandling = ReferenceLoopHandling.Ignore
+                        });
 
-                    //RunTask(async () => {
-                    //    await _mailAdpater.SendNewUserSignup(serializedUser);
-                    //});
+                        //RunTask(async () => {
+                        //    await _mailAdpater.SendNewUserSignup(serializedUser);
+                        //});
 
-                    //var superAdminEmails = superAdmins.Select(x => x.Email).ToArray();
-                    //var serializedAdminEmails = JsonConvert.SerializeObject(superAdminEmails);
+                        //var superAdminEmails = superAdmins.Select(x => x.Email).ToArray();
+                        //var serializedAdminEmails = JsonConvert.SerializeObject(superAdminEmails);
 
-                    //RunTask(async () => {
-                    //    await _mailAdpater.AssignRoleToNewUser(serializedUser, serializedAdminEmails);
-                    //});
+                        //RunTask(async () => {
+                        //    await _mailAdpater.AssignRoleToNewUser(serializedUser, serializedAdminEmails);
+                        //});
 
-                    updatedUser.SignUpMailSent = true;
-                    updatedUser = await _userRepo.UpdateUserProfile(updatedUser);
-                    if (updatedUser == null)
-                    {
-                        return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+                        updatedUser.SignUpMailSent = true;
+                        updatedUser = await _userRepo.UpdateUserProfile(updatedUser);
+                        if (updatedUser == null)
+                        {
+                            return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+                        }
                     }
                 }
+
+
+                //ModificationHistory history = new ModificationHistory(){
+                //    ModelChanged = "UserProfile",
+                //    ChangeSummary = summary,
+                //    ChangedBy = updatedUser,
+                //    ModifiedModelId = updatedUser.Id
+                //};
+
+                //await _historyRepo.SaveHistory(history);
+
+                //var userProfileTransferDto = _mapper.Map<UserProfileTransferDTO>(updatedUser);
+                return CommonResponse.Send(ResponseCodes.SUCCESS, updatedUser);
             }
-
-
-            //ModificationHistory history = new ModificationHistory(){
-            //    ModelChanged = "UserProfile",
-            //    ChangeSummary = summary,
-            //    ChangedBy = updatedUser,
-            //    ModifiedModelId = updatedUser.Id
-            //};
-
-            //await _historyRepo.SaveHistory(history);
-
-            //var userProfileTransferDto = _mapper.Map<UserProfileTransferDTO>(updatedUser);
-            return CommonResponse.Send(ResponseCodes.SUCCESS, updatedUser);
+            catch (Exception ex)
+            {
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, ex.Message);
+            }
 
         }
         public async Task<ApiCommonResponse> AssignUserToSBU(long userId, long SBUId)
