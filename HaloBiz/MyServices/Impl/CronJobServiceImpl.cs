@@ -197,7 +197,7 @@ namespace HaloBiz.MyServices.Impl
 
                         if (response.StatusCode == 200 || response.StatusCode == 204)
                         {
-                            account.IntegrationFlag = true;
+                            account.IntegrationFlag = true;                            
                             _context.Accounts.Update(account);
                             await _context.SaveChangesAsync();
                             ++newlyIntegrated;

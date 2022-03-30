@@ -57,7 +57,7 @@ namespace HaloBiz.Controllers.AccountsModel
         [HttpPost("PostPeriodicAccounts")]
         public async Task<ApiCommonResponse> PostPeriodicAccount()
         {
-            return await _AccountMasterService.PostPeriodicAccountMaster();
+            return await _AccountMasterService.PostPeriodicAccountMaster(HttpContext);
         }
 
         [HttpPut("{id}")]

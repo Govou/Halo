@@ -9,6 +9,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Halobiz.Common", "Halobiz.C
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OnlinePortalBackend", "OnlinePortalBackend\OnlinePortalBackend.csproj", "{BD7E767E-547C-48A2-8657-D2236FD5AFF3}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HalobizIdentityServer", "HalobizIdentityServer\HalobizIdentityServer.csproj", "{F5FAD992-57F0-407E-87E2-560533EE2C53}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{BD7E767E-547C-48A2-8657-D2236FD5AFF3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BD7E767E-547C-48A2-8657-D2236FD5AFF3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BD7E767E-547C-48A2-8657-D2236FD5AFF3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F5FAD992-57F0-407E-87E2-560533EE2C53}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F5FAD992-57F0-407E-87E2-560533EE2C53}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F5FAD992-57F0-407E-87E2-560533EE2C53}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F5FAD992-57F0-407E-87E2-560533EE2C53}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
