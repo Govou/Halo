@@ -228,7 +228,7 @@ namespace HaloBiz.MyServices.Impl
                             .Where(x => x.IsAccountPosted==false && x.IsFinalInvoice==true && x.StartDate.Date == today)
                             .ToListAsync();                  
 
-                    if(invoices.Count() == 0)
+                    if(!invoices.Any())
                     {
                         _logger.LogInformation($"No Invoice Scheduled For Posting Today {DateTime.Now.Date}.......");
                         return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);
