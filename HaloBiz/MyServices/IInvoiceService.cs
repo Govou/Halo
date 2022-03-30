@@ -25,6 +25,7 @@ namespace HaloBiz.MyServices
         Task<ApiCommonResponse> GetInvoiceDetails(long invoiceId);
         Task<ApiCommonResponse> RemoveProformaInvoice(long invoiceId);
         Task<ApiCommonResponse> GetGroupInvoiceSendDateByContractId(long contractId);
+        Task<ApiCommonResponse> GetInvoiceDetails(string groupinvoiceNumber, string startdate);
 
     }
 }

@@ -111,5 +111,15 @@ namespace OnlinePortalBackend.Controllers
             var theResponse = ((ApiOkResponse)response).Result;
             return Ok(theResponse);
         }
+
+        [HttpGet("GetPaymentConfirmation/{paymentRef}")]
+        public async Task<ActionResult> GetPaymentConfirmation(string paymentRef)
+        {
+            var response = await _cartService.ConfirmPayment(paymentRef);
+           
+            var theResponse = ((ApiOkResponse)response).Result;
+            return Ok(theResponse);
+        }
+
     }
 }

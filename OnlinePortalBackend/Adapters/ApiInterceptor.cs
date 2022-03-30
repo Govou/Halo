@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace OnlinePortalBackend.Adapters
 {
-    public class ApiInterceptor
+    public class ApiInterceptor : IApiInterceptor
     {
         private readonly IConfiguration _configuration;
         private readonly ILogger<ApiInterceptor> _logger;
@@ -29,21 +29,21 @@ namespace OnlinePortalBackend.Adapters
 
         }
 
-        public Task<ApiCommonResponse> PostCalls(string url, object request)
-        {
-            try
-            {
+        //public Task<ApiCommonResponse> PostCalls(string url, object request)
+        //{
+        //    try
+        //    {
 
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex.StackTrace);
-                throw;
-            }
-            return null;
-        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        _logger.LogError(ex.StackTrace);
+        //        throw;
+        //    }
+        //    return null;
+        //}
 
-        private async Task<string> GetToken()
+        public async Task<string> GetToken()
         {
             //first check if this token is in the cache
             var token = _memoryCache.Get<string>(TokenName);

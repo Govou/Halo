@@ -325,7 +325,8 @@ namespace HaloBiz.Adapters.Impl
             {
                 _logger.LogInformation(ex.Message);
                 _logger.LogInformation(ex.StackTrace);
-                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+                //return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, ex.Message + " InnerException" + (ex.InnerException != null ? ex.InnerException.Message : ""));
             }
         }
 

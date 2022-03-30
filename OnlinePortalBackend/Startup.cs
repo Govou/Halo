@@ -24,7 +24,6 @@ using OnlinePortalBackend.Repository;
 using OnlinePortalBackend.Repository.Impl;
 using HalobizMigrations.Data;
 using OnlinePortalBackend.Adapters;
-//using OnlinePortalBackend.Adapters.Impl;
 using Halobiz.Common.MyServices;
 using Halobiz.Common.Repository;
 
@@ -47,8 +46,7 @@ namespace OnlinePortalBackend
             services.AddDbContext<HalobizContext>(options =>
                     options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
 
-          
-          
+
 
             //services
             services.AddScoped<ISecurityQuestionService, SecurityQuestionServiceImpl>();
@@ -60,7 +58,7 @@ namespace OnlinePortalBackend
             services.AddScoped<IProspectService, ProspectServiceImpl>();
             services.AddScoped<IServiceWishlistService, ServiceWishlistServiceImpl>();
             services.AddScoped<ICronJobService, CronJobServiceImpl>();
-            //services.AddScoped<IReceiptService, ReceiptServiceImpl>();
+           // services.AddScoped<IReceiptService, ReceiptServiceImpl>();
             services.AddScoped<IExistingCustomerService, ExistingCustomerServiceImpl>();
 
             //repositories
@@ -71,6 +69,9 @@ namespace OnlinePortalBackend
             services.AddScoped<IModificationHistoryRepository, ModificationHistoryRepositoryImpl>();
             services.AddScoped<IServiceRatingRepository, ServiceRatingRepositoryImpl>();
             services.AddScoped<IServiceWishlistRepository, ServiceWishlistRepositoryImpl>();
+            services.AddScoped<ICartContractRepository, CartContractRepositoryImpl>();
+            services.AddScoped<IEndorsementRepository, EndorsementRepositoryImpl>();
+            services.AddScoped<IServicesRepo, ServicesRepo>();
 
             services.AddScoped<IPaymentAdapter, PaymentAdapter>();
 
@@ -80,6 +81,11 @@ namespace OnlinePortalBackend
             services.AddSingleton<JwtHelper>();
             services.AddScoped<IUserProfileRepository, UserProfileRepositoryImpl>();
             services.AddScoped<ICustomer, Customer>();
+            services.AddScoped<ICartService, CartServiceImpl>();
+            services.AddScoped<IReceiptService, ReceiptService>();
+            services.AddScoped<ICartContractService, CartContractServiceImpl>();
+            services.AddScoped<IEndorsementService, EndorsementServiceImpl>();
+            services.AddScoped<IServicesService, ServicesService>();
 
             services.AddAutoMapper(typeof(Startup));
 
