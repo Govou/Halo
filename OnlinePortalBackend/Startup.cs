@@ -71,6 +71,7 @@ namespace OnlinePortalBackend
             services.AddScoped<IServiceWishlistRepository, ServiceWishlistRepositoryImpl>();
             services.AddScoped<ICartContractRepository, CartContractRepositoryImpl>();
             services.AddScoped<IEndorsementRepository, EndorsementRepositoryImpl>();
+            services.AddScoped<IServicesRepo, ServicesRepo>();
 
             services.AddScoped<IPaymentAdapter, PaymentAdapter>();
 
@@ -85,6 +86,7 @@ namespace OnlinePortalBackend
             services.AddScoped<IReceiptService, ReceiptService>();
             services.AddScoped<ICartContractService, CartContractServiceImpl>();
             services.AddScoped<IEndorsementService, EndorsementServiceImpl>();
+            services.AddScoped<IServicesService, ServicesService>();
 
             services.AddAutoMapper(typeof(Startup));
 

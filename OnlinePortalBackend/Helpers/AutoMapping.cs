@@ -4,6 +4,7 @@ using OnlinePortalBackend.DTOs.TransferDTOs;
 using HalobizMigrations.Models.OnlinePortal;
 using Halobiz.Common.Helpers;
 using HalobizMigrations.Models;
+using System;
 
 namespace OnlinePortalBackend.Helpers
 {
@@ -28,7 +29,9 @@ namespace OnlinePortalBackend.Helpers
             CreateMap<Contract, ContractTransferDTO>();
             CreateMap<ContractService, ContractServiceTransferDTO>();
             CreateMap<Invoice, InvoiceTransferDTO>();
-            CreateMap<CartContract, CartContractDTO>().ForMember(d => d.CartContractServices, o => o.MapFrom(s => s.CartContractServices));
+            CreateMap<CartContract, CartContractDTO>();
+            CreateMap<CartContractDetailDTO, CartContractService>();
+            CreateMap<Object, CartContract>();
             CreateMap<CartContractService, CartContractDetailDTO>();
             CreateMap<ContractServiceForEndorsement, EndorsementDTO>();
         }

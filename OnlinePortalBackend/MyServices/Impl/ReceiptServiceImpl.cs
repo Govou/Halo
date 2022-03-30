@@ -12,7 +12,8 @@ namespace OnlinePortalBackend.MyServices.Impl
 {
     public interface IReceiptService
     {
-        public Task<bool> PostAccounts(long loggedInUserId, Receipt receipt, Invoice invoice, long bankAccountId);
+        Task<bool> PostAccounts(long loggedInUserId, Receipt receipt, Invoice invoice, long bankAccountId);
+        Task<Invoice> GetInvoiceDetails(string groupInvoiceNumber, string startDate);
     }
 
     public class ReceiptService : IReceiptService
@@ -236,6 +237,11 @@ namespace OnlinePortalBackend.MyServices.Impl
             {
                 await _context.Database.ExecuteSqlRawAsync("SET IDENTITY_INSERT dbo.Accounts OFF");
             }
+        }
+
+        public Task<Invoice> GetInvoiceDetails(string groupInvoiceNumber, string startDate)
+        {
+            throw new NotImplementedException();
         }
     }
 }

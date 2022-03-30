@@ -39,6 +39,7 @@ namespace OnlinePortalBackend.MyServices.Impl
                 try
                 {
                     var cartContract = _mapper.Map<CartContract>(cartContractDTO);
+                    cartContract.CartContractServices = _mapper.Map<ICollection<CartContractService>>(cartContractDTO.CartContractServices);
                     var cartContractService = cartContract.CartContractServices;
 
                     cartContract.CartContractServices = null;
