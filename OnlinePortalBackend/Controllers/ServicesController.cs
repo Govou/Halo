@@ -17,8 +17,8 @@ namespace OnlinePortalBackend.Controllers
             _service = service;
         }
 
-        [HttpGet("GetServiceDetails")]
-        public async Task<ApiCommonResponse> GetServiceDetails(int contractServiceId)
+        [HttpGet("GetContractServiceDetails")]
+        public async Task<ApiCommonResponse> GetContractServiceDetails(int contractServiceId)
         {
             return await _service.GetServiceDetails(contractServiceId);
           
