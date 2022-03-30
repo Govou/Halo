@@ -133,6 +133,16 @@ namespace HaloBiz.Repository.Impl
            .ToListAsync();
         }
 
+        public Task<FeedbackDetail> FindFeedbackDetailById(long Id)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<FeedbackMaster> FindFeedbackMasterById(long Id)
+        {
+            throw new NotImplementedException();
+        }
+
         public async Task<JourneyIncident> FindJourneyIncidentById(long Id)
         {
             return await _context.JourneyIncidents.Include(r => r.JourneyStart)
@@ -174,6 +184,28 @@ namespace HaloBiz.Repository.Impl
             leadCommander.IsActive = false;
             _context.JourneyLeadCommanders.Update(leadCommander);
             return await SaveChanges();
+        }
+
+        public async Task<FeedbackDetail> SaveFeedbackDetail(FeedbackDetail feedbackDetail)
+        {
+            //var savedEntity = await _context.FeedbackDetail.AddAsync(feedbackDetail);
+
+            //if (await SaveChanges())
+            //{
+            //    return savedEntity.Entity;
+            //}
+            return null;
+        }
+
+        public async Task<FeedbackMaster> SaveFeedbackMaster(FeedbackMaster feedbackMaster)
+        {
+            var savedEntity = await _context.FeedbackMasters.AddAsync(feedbackMaster);
+
+            if (await SaveChanges())
+            {
+                return savedEntity.Entity;
+            }
+            return null;
         }
 
         public async Task<JourneyIncident> SaveJourneyIncident(JourneyIncident incident)

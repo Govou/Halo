@@ -68,4 +68,48 @@ namespace HaloBiz.DTOs.ReceivingDTOs
         public long ServiceAssignmentId { get; set; }
         
     }
+
+    public class FeedbackMastersReceivingDTO
+    {
+       
+        //public long Id { get; set; }
+        //public long? ServiceAssignmentId { get; set; }
+        //[ForeignKey("ServiceAssignmentId")]
+        //public ServiceAssignment ServiceAssignment { get; set; }
+        //public long? JourneyStartId { get; set; }
+        //[ForeignKey("JourneyStartId")]
+        //public ArmadaJourneyStart JourneyStart { get; set; }
+        //public ICollection<FeedbackDetail> FeedbackDetails { get; set; }
+        //public bool IsDeleted { get; set; }
+        //public long CreatedById { get; set; }
+        //[ForeignKey("CreatedById")]
+        //public UserProfile CreatedBy { get; set; }
+        //public DateTime CreatedAt { get; set; }
+        //public DateTime UpdatedAt { get; set; }
+    }
+
+    public class FeedbackDetailsReceivingDTO
+    {
+        
+        public string CommentOnCommanderResource { get; set; }
+        public int CommanderPerformanceScore { get; set; }
+     
+        public long? CommanderResourceId { get; set; }
+        public string CommentOnPilotResource { get; set; }
+        public int PilotPerformanceScore { get; set; }
+     
+        public long? PilotResourceId { get; set; }
+        public int VehiclePerformanceScore { get; set; }
+     
+        public long? VehicleResourceId { get; set; }
+        public int NPSScore { get; set; }
+        public int CSATScore { get; set; }
+        public string ReasonForNotFeelingSafe { get; set; }
+        public bool WasSafeAndComfortable { get; set; }
+      
+        public long? FeedbackMasterId { get; set; }
+     
+        public string CommentOnVehicleResource { get; set; }
+        
+    }
 }

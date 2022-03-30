@@ -88,5 +88,13 @@ namespace HaloBiz.Repository
         Task<JourneyNote> UpdateJourneyNote(JourneyNote journeyNote);
 
         Task<bool> DeleteJourneyNote(JourneyNote journeyNote);
+
+        //Feedback
+        Task<FeedbackMaster> SaveFeedbackMaster(FeedbackMaster feedbackMaster);
+
+        Task<FeedbackMaster> FindFeedbackMasterById(long Id);
+        Task<FeedbackDetail> SaveFeedbackDetail(FeedbackDetail feedbackDetail);
+
+        Task<FeedbackDetail> FindFeedbackDetailById(long Id);
     }
 }

@@ -476,6 +476,9 @@ namespace HaloBiz.Helpers
             CreateMap<JourneyNoteReceivingDTO, JourneyNote>();
             CreateMap<JourneyNote, JourneyNoteTransferDTO>();
 
+            //Feedback
+            CreateMap<JourneyNoteReceivingDTO, JourneyNote>();
+            CreateMap<JourneyNote, JourneyNoteTransferDTO>();
             //CreateMap<CommanderType, SMORegionTransferDTO>();
         }
     }
