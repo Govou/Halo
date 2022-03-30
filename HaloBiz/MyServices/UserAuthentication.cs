@@ -7,6 +7,7 @@ using Halobiz.Common.DTOs.TransferDTOs;
 using Halobiz.Common.Model;
 using Halobiz.Common.MyServices;
 using Halobiz.Common.MyServices.RoleManagement;
+using Halobiz.MyServices;
 using HaloBiz.DTOs.ReceivingDTOs;
 using HaloBiz.DTOs.TransferDTOs;
 using HaloBiz.Helpers;
@@ -38,10 +39,12 @@ namespace HaloBiz.MyServices
     public interface IUserAuthentication
     {
         Task<ApiCommonResponse> CreatePassword(CreatePasswordDTO user);
+        Task<ApiCommonResponse> UpdatePassword(UpdatePassworddDTO user);
         Task<ApiCommonResponse> Login(LoginDTO user);
         Task<ApiCommonResponse> GoogleLogin(GoogleLoginReceivingDTO loginReceiving);
         Task<ApiCommonResponse> CreateProfile(AuthUserProfileReceivingDTO authUserProfileReceivingDTO);
         Task<ApiCommonResponse> RevokeToken(RefreshTokenDTO token);
+
     }
 
     public class UserAuthentication : IUserAuthentication
@@ -75,49 +78,7 @@ namespace HaloBiz.MyServices
             _allowedDomains = config.GetSection("AllowedLoginDomains").Get<List<string>>();
         }
 
-        public async Task<ApiCommonResponse> OtherLogin(LoginDTO login)
-        {
-            try
-            {
-                var response = await _userProfileService.FindUserByEmail(login.Email);
-
-                if (!response.responseCode.Contains("00"))
-                {
-                    _logger.LogWarning($"Could not find user [{login.Email}] => {response.responseMsg}");
-                    return CommonResponse.Send(ResponseCodes.FAILURE, null, "Could not find the user");
-                }
-
-                if (login.Password != "12345")
-                {
-                    return CommonResponse.Send(ResponseCodes.FAILURE, null, "Username or password incorrect");
-                }
-
-                var user = response.responseData;
-                var userProfile = (UserProfile)user;
-
-                //get the permissions of the user
-                var permissions = await _roleService.GetPermissionEnumsOnUser(userProfile.Id);
-                var(jwtToken, jwtLifespan)  = _jwttHelper.GenerateToken(userProfile, permissions);
-
-                //get a refresh token for this user
-                var refreshToken = GenerateRefreshToken(userProfile.Id);
-
-                return CommonResponse.Send(ResponseCodes.SUCCESS, new UserAuthTransferDTO
-                {
-                    Token = jwtToken,
-                    JwtLifespan = jwtLifespan,
-                    RefreshToken = refreshToken,
-                    UserProfile = _mapper.Map<UserProfileTransferDTO>(userProfile)
-                });
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex.Message);
-                _logger.LogError(ex.StackTrace);
-                return CommonResponse.Send(ResponseCodes.FAILURE, null, "System error");
-            }
-        }
-
+      
         /// <summary>
         /// Login with google token
         /// </summary>
@@ -150,15 +111,13 @@ namespace HaloBiz.MyServices
 
                 var email = payload.Email;
 
-                var response = await _userProfileService.FindUserByEmail(email);
+                var userProfile = await _context.UserProfiles.Where(x=>x.Email==email).FirstOrDefaultAsync();
 
-                if (!response.responseCode.Contains("00"))
+                if (userProfile == null)
                 {
                     return await CreateNewProfile(email);
                 }
-
-                var user = response.responseData;
-                var userProfile = (UserProfile) user;
+                
 
                 //get the permissions of the user
                 var permissions = await _roleService.GetPermissionEnumsOnUser(userProfile.Id);
@@ -166,8 +125,11 @@ namespace HaloBiz.MyServices
                
                 //get a refresh token for this user
                 var refreshToken = GenerateRefreshToken(userProfile.Id);
+
                 var responseCode = ResponseCodes.SUCCESS;
-                if (string.IsNullOrEmpty(userProfile.MobileNumber)) responseCode = ResponseCodes.CREATE_PROFILE; 
+                if (string.IsNullOrEmpty(userProfile.MobileNumber))
+                    responseCode = ResponseCodes.CREATE_PROFILE; 
+
                 return CommonResponse.Send(responseCode, new UserAuthTransferDTO
                 {
                     Token = jwtToken,
@@ -188,11 +150,15 @@ namespace HaloBiz.MyServices
         {
             var names = email.Split('@')[0].Split('.');
             var firstName = System.Globalization.CultureInfo.CurrentCulture.TextInfo.ToTitleCase(names[0]);
-            var lastName = System.Globalization.CultureInfo.CurrentCulture.TextInfo.ToTitleCase(names[1]);
+            var lastName = "";
+            if(names.Length > 1)
+            {
+                lastName = System.Globalization.CultureInfo.CurrentCulture.TextInfo.ToTitleCase(names[1]);
+            }
 
             var profile = new UserProfileReceivingDTO {
                 Email = email,
-               // DateOfBirth = DateTime.Now.ToString("yyyy-MM-dd"),
+                DateOfBirth = DateTime.Now.ToString("yyyy-MM-dd"),
                 FirstName = firstName,
                 LastName = lastName,
                 ImageUrl = "",
@@ -384,7 +350,12 @@ namespace HaloBiz.MyServices
                 if (userProfile.PasswordHash != null && userProfile.SecurityStamp != null)
                 {
                     return CommonResponse.Send(ResponseCodes.FAILURE, null, $"You have already created password previously");
-                }              
+                }
+
+                if (user.Password != user.ConfirmPassword)
+                {
+                    return CommonResponse.Send(ResponseCodes.FAILURE, null, $"Confirm password does not match password");
+                }
 
                 var (salt, hashed) = HashPassword(new byte[] { }, user.Password);
                 userProfile.PasswordHash = hashed;
@@ -402,6 +373,63 @@ namespace HaloBiz.MyServices
                 _logger.LogError(ex.StackTrace);
                 return CommonResponse.Send(ResponseCodes.FAILURE, null, ex.Message);
             }
+        }
+
+        public async Task<ApiCommonResponse> UpdatePassword(UpdatePassworddDTO user)
+        {
+            try
+            {
+                var userProfile = await _context.UserProfiles.Where(x => x.Email == user.Email).FirstOrDefaultAsync();
+
+                if (userProfile == null)
+                {
+                    return CommonResponse.Send(ResponseCodes.FAILURE, null, $"You need login with Google first and create a profile on Halobiz");
+                }
+
+                //check if this customer division has an email
+                if (userProfile.PasswordHash == null && userProfile.SecurityStamp == null)
+                {
+                    return CommonResponse.Send(ResponseCodes.FAILURE, null, $"You did not have password previously. Please create");
+                }
+
+                if(user.Password != user.ConfirmPassword)
+                {
+                    return CommonResponse.Send(ResponseCodes.FAILURE, null, $"Confirm password does not match password");
+                }
+
+                if(!IsPreviousPasswordValid(userProfile, user.CurrentPassword))
+                {
+                    return CommonResponse.Send(ResponseCodes.FAILURE, null, $"Current password supplied is invalid");
+                }
+
+                var (salt, hashed) = HashPassword(new byte[] { }, user.Password);
+                userProfile.PasswordHash = hashed;
+                userProfile.SecurityStamp = Convert.ToBase64String(salt);
+                userProfile.UpdatedAt = DateTime.Now;
+
+                //hash password for this guy and create profile
+                var profileResult = _context.UserProfiles.Update(userProfile);
+                await _context.SaveChangesAsync();
+
+                return CommonResponse.Send(ResponseCodes.SUCCESS, null, $"Password successfully updated");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.StackTrace);
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, ex.Message);
+            }
+        }
+
+        private bool IsPreviousPasswordValid(UserProfile user, string previousPassword)
+        {
+            var byteSalt = Convert.FromBase64String(user.SecurityStamp);
+            var (salt, hashed) = HashPassword(byteSalt, previousPassword);
+            if (!_context.UserProfiles.Any(x => x.Email == user.Email && x.PasswordHash == hashed))
+            {
+                return false;
+            }
+
+            return true;
         }
 
         /// <summary>
@@ -428,7 +456,7 @@ namespace HaloBiz.MyServices
 
                 var byteSalt = Convert.FromBase64String(profile.SecurityStamp);
                 var (salt, hashed) = HashPassword(byteSalt, user.Password);
-                if (!_context.OnlineProfiles.Any(x => x.Email == user.Email && x.PasswordHash == hashed))
+                if (!_context.UserProfiles.Any(x => x.Email == user.Email && x.PasswordHash == hashed))
                 {
                     profile.AccessFailedCount = ++profile.AccessFailedCount;
                     if (profile.AccessFailedCount >= 3)

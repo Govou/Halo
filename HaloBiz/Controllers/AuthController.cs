@@ -1,6 +1,7 @@
 using AutoMapper;
 using Google.Apis.Auth;
 using Halobiz.Common.DTOs.ApiDTOs;
+using Halobiz.Common.DTOs.ReceivingDTO;
 using Halobiz.Common.DTOs.ReceivingDTOs;
 using Halobiz.Common.DTOs.TransferDTOs;
 using Halobiz.Common.MyServices;
@@ -62,6 +63,18 @@ namespace HaloBiz.Controllers
         public async Task<ApiCommonResponse> RevokeToken(RefreshTokenDTO model)
         {
             return await _userAuthentication.RevokeToken(model);
+        }
+
+        [HttpPut("UpdatePassword")]
+        public async Task<ApiCommonResponse> UpdatePassord(UpdatePassworddDTO request)
+        {
+            return await _userAuthentication.UpdatePassword(request);
+        }
+
+        [HttpPost("CreatePassword")]
+        public async Task<ApiCommonResponse> CreatePassword(CreatePasswordDTO request)
+        {
+            return await _userAuthentication.CreatePassword(request);
         }
     }
 }

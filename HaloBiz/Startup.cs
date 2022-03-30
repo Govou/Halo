@@ -33,6 +33,7 @@ using Halobiz.Repository.RoleManagement;
 using Halobiz.Common.MyServices;
 using Halobiz.Common.Repository;
 using Halobiz.Common.MyServices.RoleManagement;
+using Halobiz.MyServices;
 
 namespace HaloBiz
 {
@@ -115,6 +116,7 @@ namespace HaloBiz
 
                 return await Task.FromResult(Microsoft.Extensions.Diagnostics.HealthChecks.HealthCheckResult.Healthy());
             });
+
             services.RegisterServiceLayerDi();
 
             services.AddScoped<IRoleService, RoleServiceImpl>();
@@ -126,6 +128,7 @@ namespace HaloBiz
             //leave as singleton along with the dbcontext with lifespan as singleton
             services.AddSingleton<IJwtHelper, JwtHelper>();
             services.AddMemoryCache();
+
             services.AddAutoMapper(typeof(Startup));
             services.AddControllersWithViews()
                 .AddNewtonsoftJson(options =>

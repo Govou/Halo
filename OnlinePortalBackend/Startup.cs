@@ -78,7 +78,6 @@ namespace OnlinePortalBackend
             services.AddScoped<IMailService, MailService>();
             services.AddScoped<IOnlineAccounts, OnlineAccounts>();
             services.AddSingleton<JwtHelper>();
-            services.AddScoped<IUserProfileService, UserProfileServiceImpl>();
             services.AddScoped<IUserProfileRepository, UserProfileRepositoryImpl>();
             services.AddScoped<ICustomer, Customer>();
 

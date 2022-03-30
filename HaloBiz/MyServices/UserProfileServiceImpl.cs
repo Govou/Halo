@@ -15,8 +15,9 @@ using Newtonsoft.Json;
 using System.Security.Claims;
 using Halobiz.Common.DTOs.TransferDTOs;
 using Halobiz.Common.Helpers;
+using HaloBiz.MyServices;
 
-namespace Halobiz.Common.MyServices
+namespace Halobiz.MyServices
 {
     public interface IUserProfileService
     {
@@ -38,11 +39,12 @@ namespace Halobiz.Common.MyServices
        // private readonly IMailAdapter _mailAdpater;
        // private readonly IModificationHistoryRepository _historyRepo ;
         private readonly HalobizContext _context;
-        private IMapper _iMapper;
+        private IMapper _mapper;
 
         public UserProfileServiceImpl(IUserProfileRepository userRepo, 
            // IMailAdapter mailAdapter,
-            HalobizContext context
+            HalobizContext context,
+            IMapper mapper
           //  IModificationHistoryRepository historyRepo
           )
         {
@@ -50,13 +52,7 @@ namespace Halobiz.Common.MyServices
             //_mailAdpater = mailAdapter;
            // _historyRepo = historyRepo;
             _context = context;
-            var config = new MapperConfiguration(cfg =>
-            {
-                cfg.CreateMap<UserProfileTransferDTO, UserProfile>();
-
-            });
-
-            _iMapper = config.CreateMapper();
+            _mapper = mapper;
 
         }
 
@@ -77,8 +73,8 @@ namespace Halobiz.Common.MyServices
                     return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
                 }
 
-                //var userProfileTransferDto = Mapping.Mapper.Map<UserProfileTransferDTO>(userProfile);
-                var userProfileTransferDto = JsonConvert.DeserializeObject<UserProfileTransferDTO>(JsonConvert.SerializeObject(userProfile));
+                var userProfileTransferDto = _mapper.Map<UserProfileTransferDTO>(userProfile);
+               // var userProfileTransferDto = JsonConvert.DeserializeObject<UserProfileTransferDTO>(JsonConvert.SerializeObject(userProfile));
 
                 return CommonResponse.Send(ResponseCodes.SUCCESS, userProfileTransferDto);
             }
@@ -96,8 +92,11 @@ namespace Halobiz.Common.MyServices
             {
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE); ;
             }
-            //var userProfileTransferDto = _mapper.Map<UserProfileTransferDTO>(userProfile);
-            return CommonResponse.Send(ResponseCodes.SUCCESS, userProfile);
+
+            var userProfileTransferDto = _mapper.Map<UserProfileTransferDTO>(userProfile);
+            userProfileTransferDto.HasSetPassword = !string.IsNullOrEmpty(userProfile.PasswordHash);
+
+            return CommonResponse.Send(ResponseCodes.SUCCESS, userProfileTransferDto);
         }
 
         public async Task<ApiCommonResponse> FindUserByEmail(string email)
@@ -108,8 +107,10 @@ namespace Halobiz.Common.MyServices
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE); ;
             }          
 
-           // var userProfileTransferDto = _mapper.Map<UserProfileTransferDTO>(userProfile);
-            return CommonResponse.Send(ResponseCodes.SUCCESS, userProfile);
+            var userProfileTransferDto = _mapper.Map<UserProfileTransferDTO>(userProfile);
+            userProfileTransferDto.HasSetPassword = !string.IsNullOrEmpty(userProfile.PasswordHash);
+
+            return CommonResponse.Send(ResponseCodes.SUCCESS, userProfileTransferDto);
         }
 
 
@@ -121,8 +122,8 @@ namespace Halobiz.Common.MyServices
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE); ;
             }
 
-            //var userProfilesTransferDto = Mapping.Mapper.Map<IEnumerable<UserProfileTransferDTO>>(userProfiles);
-            return CommonResponse.Send(ResponseCodes.SUCCESS, userProfiles);
+            var userProfilesTransferDto = _mapper.Map<IEnumerable<UserProfileTransferDTO>>(userProfiles);
+            return CommonResponse.Send(ResponseCodes.SUCCESS, userProfilesTransferDto);
         }
 
         public async Task<ApiCommonResponse> FindAllUsersNotInAnSBU(long sbuId)
@@ -138,7 +139,8 @@ namespace Halobiz.Common.MyServices
         public async Task<ApiCommonResponse> UpdateUserProfile(long userId, UserProfileReceivingDTO userProfileReceivingDTO)
         {
             try
-            {
+            {               
+
                 var userToUpdate = await _userRepo.FindUserById(userId);
                 if (userToUpdate == null)
                 {
@@ -211,8 +213,8 @@ namespace Halobiz.Common.MyServices
 
                 //await _historyRepo.SaveHistory(history);
 
-                //var userProfileTransferDto = _mapper.Map<UserProfileTransferDTO>(updatedUser);
-                return CommonResponse.Send(ResponseCodes.SUCCESS, updatedUser);
+                var userProfileTransferDto = _mapper.Map<UserProfileTransferDTO>(updatedUser);
+                return CommonResponse.Send(ResponseCodes.SUCCESS, userProfileTransferDto);
             }
             catch (Exception ex)
             {
@@ -278,8 +280,8 @@ namespace Halobiz.Common.MyServices
 
             //await _historyRepo.SaveHistory(history);
 
-            //var userProfileTransferDto = _mapper.Map<UserProfileTransferDTO>(updatedUser);
-            return CommonResponse.Send(ResponseCodes.SUCCESS, updatedUser);
+            var userProfileTransferDto = _mapper.Map<UserProfileTransferDTO>(updatedUser);
+            return CommonResponse.Send(ResponseCodes.SUCCESS, userProfileTransferDto);
 
         }
 

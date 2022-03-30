@@ -163,7 +163,7 @@ namespace HaloBiz.Helpers
 
             var permissionEnum = $"{controller}_{actionVerb}";
 
-            if ((controller.ToLower() == "auth" && actionName.ToLower()=="createuser") || controller.ToLower()=="user" )
+            if ((controller.ToLower() == "auth" && actionName.ToLower()=="createuser") || controller.ToLower()=="user" || controller.ToLower() == "auth")
                 return true;
 
             if (!Enum.TryParse(typeof(Permissions), permissionEnum, true, out var permission))
