@@ -952,5 +952,22 @@ namespace OnlinePortalBackend.MyServices.Impl
                 return new ApiResponse(500, ex.Message);
             }
         }
+
+        public async Task<ApiResponse> ConfirmPayment(string transactionRef)
+        {
+
+            var result = await _context.Payments.Include(x => x.CreatedBy).FirstOrDefaultAsync(x => x.PaymentReference == transactionRef);
+
+            if (result == null) return new ApiResponse(200, "Payment refernce does not exist");
+
+            var verificationResponse = await _paymentAdapter.VerifyPaymentAsync(result.PaymentGateway, transactionRef);
+
+            if (!verificationResponse.PaymentSuccessful)
+                return new ApiResponse(200, "Payment Successful");
+
+            else
+                return new ApiResponse(200, "Payment failed");
+            
+        }
     }
 }
