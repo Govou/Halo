@@ -110,5 +110,11 @@ namespace HaloBiz.Controllers.AccountsModel
         {
             return await _invoiceService.SendPeriodicInvoices();
         }
+
+        [HttpGet("GetInvoiceDetails")]
+        public async Task<ApiCommonResponse> GetInvoiceDetails(string groupInvoiceNumber, string startDate)
+        {
+            return await _invoiceService.GetInvoiceDetails(groupInvoiceNumber, startDate);
+        }
     }
 }
