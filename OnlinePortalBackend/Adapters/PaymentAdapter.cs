@@ -48,6 +48,7 @@ namespace OnlinePortalBackend.Adapters
 
             string responseString;
 
+
             switch (paymentType)
             {
                 case PaymentGateway.Flutterwave:

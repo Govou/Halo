@@ -20,5 +20,10 @@ namespace OnlinePortalBackend.Controllers
         {
             return await receiptAdapter.AddReceipt(receiptReceiving);
         }
+
+        //public async Task<ApiCommonResponse> GetInvoiceDetails(string groupInvoiceNumber, string startDate)
+        //{
+
+        //}
     }
 }
