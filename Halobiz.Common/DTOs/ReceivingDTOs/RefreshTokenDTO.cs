@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Halobiz.Common.DTOs.ReceivingDTOs
 {
-    public class RefreshTokenRequest
+    public class RefreshTokenDTO
     {
         [Required]
         public string Token { get; set; }

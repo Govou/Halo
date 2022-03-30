@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace HaloBiz.DTOs.TransferDTOs
+namespace HaloBiz.Models
 {
    
-    public class RefreshTokenTransferDTO
+    public class mRefreshToken
     {
         public string Token { get; set; }
         public DateTime Expires { get; set; }
