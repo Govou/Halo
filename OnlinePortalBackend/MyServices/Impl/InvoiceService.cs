@@ -11,9 +11,9 @@ namespace OnlinePortalBackend.MyServices.Impl
         {
             _invoiceRepository = invoiceRepository;
         }
-        public async Task<ApiCommonResponse> GetContractInvoices(int contractServiceId)
+        public async Task<ApiCommonResponse> GetInvoices(int userId, int? contractService, int? contractId, int limit = 10)
         {
-            var invoices = _invoiceRepository.GetConractServiceInvoices(contractServiceId);
+            var invoices = _invoiceRepository.GetInvoices(userId, contractService, contractId, limit = 10);
 
             if (invoices == null)
             {

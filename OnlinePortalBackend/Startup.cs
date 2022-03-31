@@ -72,9 +72,10 @@ namespace OnlinePortalBackend
             services.AddScoped<ICartContractRepository, CartContractRepositoryImpl>();
             services.AddScoped<IEndorsementRepository, EndorsementRepositoryImpl>();
             services.AddScoped<IServicesRepo, ServicesRepo>();
-            services.AddScoped<IInvoiceRepository, InvoiceRepository> ();
+            services.AddScoped<IInvoiceRepository, InvoiceRepository > ();
 
             services.AddScoped<IPaymentAdapter, PaymentAdapter>();
+            services.AddScoped<IApiInterceptor, ApiInterceptor>();
 
             //services and repositories
             services.AddScoped<IMailService, MailService>();
