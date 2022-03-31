@@ -486,7 +486,10 @@ namespace HaloBiz.MyServices.Impl
             itemToUpdate.JourneyEndActualLongitude = journeyEndReceiving.JourneyEndActualLongitude;
             
             itemToUpdate.JourneyEndDatetime = DateTime.UtcNow; 
-            itemToUpdate.TotalTimeSpentOnJourney = journeyEndReceiving.TotalTimeSpentOnJourney;
+            TimeSpan gethrs = itemToUpdate.JourneyStartDatetime - itemToUpdate.JourneyEndDatetime;
+            int hours = (int)gethrs.TotalHours;
+            //int min = (int)gethrs.Minutes;
+            itemToUpdate.TotalTimeSpentOnJourney = hours;
             itemToUpdate.UpdatedAt = DateTime.UtcNow;
             var updatedRank = await _journeyStartandStopRepository.UpdateEndJouneyStart(itemToUpdate);
 

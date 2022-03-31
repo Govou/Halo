@@ -807,7 +807,7 @@ namespace HaloBiz.Repository.Impl
         {
             return await _context.VehicleDTSMasters.Include(dts => dts.GenericDays.Where(x => x.IsDeleted == false))
                .Include(dts => dts.CreatedBy).Include(dts => dts.VehicleResource).Include(dts => dts.VehicleResource.SupplierService)
-               .FirstOrDefaultAsync(aer => aer.VehicleResourceId  == resourceId && aer.AvailablilityEnd >= DateTime.UtcNow  && aer.IsDeleted == false);
+               .FirstOrDefaultAsync(aer => aer.VehicleResourceId  == resourceId && aer.AvailablilityEnd >= DateTime.Now  && aer.IsDeleted == false);
         }
 
         public async Task<VehicleDTSMaster> FindVehicleMasterByResourceId2(long? resourceId)

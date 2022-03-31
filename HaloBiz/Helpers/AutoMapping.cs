@@ -447,7 +447,6 @@ namespace HaloBiz.Helpers
             CreateMap<PilotServiceAssignmentDetailsReceivingDTO, PilotServiceAssignmentDetail>();
             CreateMap<VehicleServiceAssignmentDetailsReceivingDTO, VehicleServiceAssignmentDetail>();
 
-
             CreateMap<ArmedEscortServiceAssignmentDetail, ArmedEscortServiceAssignmentDetailsTransferDTO>();
             CreateMap<CommanderServiceAssignmentDetail, CommanderServiceAssignmentDetailsTransferDTO>();
             CreateMap<PilotServiceAssignmentDetail, PilotServiceAssignmentDetailsTransferDTO>();
@@ -455,6 +454,17 @@ namespace HaloBiz.Helpers
 
             CreateMap<PassengerReceivingDTO, Passenger>();
             CreateMap<Passenger, PassengerTransferDTO>();
+
+            //ServiceAssignmentDetail Replacement
+            CreateMap<ArmedEscortReplacementReceivingDTO, ArmedEscortServiceAssignmentDetailReplacement>();
+            CreateMap<CommanderReplacementReceivingDTO, CommanderServiceAssignmentDetailReplacement>();
+            CreateMap<PilotReplacementReceivingDTO, PilotServiceAssignmentDetailReplacement>();
+            CreateMap<VehicleReplacementReceivingDTO, VehicleAssignmentDetailReplacement>();
+
+            CreateMap<ArmedEscortServiceAssignmentDetailReplacement, ArmedEscortReplacementTrasnferDTO>();
+            CreateMap<CommanderServiceAssignmentDetailReplacement, CommanderReplacementTransferDTO>();
+            CreateMap<PilotServiceAssignmentDetailReplacement, PilotReplacementTransferDTO>();
+            CreateMap<VehicleAssignmentDetailReplacement, VehicleReplacementTransferDTO>();
 
             //JourneyStartandStop
             CreateMap<JourneyStartReceivingDTO, ArmadaJourneyStart>();

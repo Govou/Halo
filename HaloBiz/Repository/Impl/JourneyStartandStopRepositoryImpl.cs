@@ -188,7 +188,7 @@ namespace HaloBiz.Repository.Impl
 
         public async Task<FeedbackDetail> SaveFeedbackDetail(FeedbackDetail feedbackDetail)
         {
-            //var savedEntity = await _context.FeedbackDetail.AddAsync(feedbackDetail);
+            //var savedEntity = await _context.FeedbackDetails.AddAsync(feedbackDetail);
 
             //if (await SaveChanges())
             //{

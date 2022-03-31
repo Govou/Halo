@@ -1903,19 +1903,675 @@ namespace HaloBiz.MyServices.Impl
             return CommonResponse.Send(ResponseCodes.SUCCESS, null, ResponseMessage.Success200);
         }
 
-        //public Task<ApiCommonResponse> UpdateCommanderDetailHeldForActionByAssignmentId(long id)
-        //{
-        //    throw new NotImplementedException();
-        //}
+        public async Task<ApiCommonResponse> AddArmedEscortDetailReplacement(HttpContext context, ArmedEscortReplacementReceivingDTO armedEscortReceivingDTO)
+        {
+            var masterReplace = _mapper.Map<ArmedEscortServiceAssignmentDetailReplacement>(armedEscortReceivingDTO);
+            var master = new ArmedEscortServiceAssignmentDetail();
+           // var getEscort = await _serviceRegistrationRepository.FindServiceById(armedEscortReceivingDTO.ArmedEscortResourceId);
 
-        //public Task<ApiCommonResponse> UpdatePilotDetailHeldForActionByAssignmentId(long id)
-        //{
-        //    throw new NotImplementedException();
-        //}
+            var getServiceAssignment = await _serviceAssignmentMasterRepository.FindServiceAssignmentById(armedEscortReceivingDTO.MasterServiceAssignmentId);
+            var getServiceRegistration = await _serviceRegistrationRepository.FindServiceById(getServiceAssignment.ServiceRegistration.Id);
+            var getEscortDetail = await _serviceAssignmentDetailsRepository.FindEscortServiceAssignmentDetailByResourceId(armedEscortReceivingDTO.NewResourceId);
+            var getEscortDetailListById = await _serviceAssignmentDetailsRepository.FindAllEscortServiceAssignmentDetailsByAssignmentId(armedEscortReceivingDTO.MasterServiceAssignmentId);
+            var RouteExists = _armedEscortRegistrationRepository.GetServiceRegIdRegionAndRoute(armedEscortReceivingDTO.NewResourceId, getServiceAssignment.SMORouteId);
+            var getResourceTypePerService = await _serviceRegistrationRepository.FindArmedEscortResourceByServiceRegId(getServiceAssignment.ServiceRegistration.Id);
+            var getResourceSchedule = await _dTSMastersRepository.FindArmedEscortMasterByResourceId(armedEscortReceivingDTO.NewResourceId);
+            // var getGenericDaysByDTSMasterId = await _dTSDetailGenericDaysRepository.FindArmedEscortGenericByMasterId(getResourceSchedule.Id);
 
-        //public Task<ApiCommonResponse> UpdateVehicleDetailHeldForActionByAssignmentId(long id)
-        //{
-        //    throw new NotImplementedException();
-        //}
+            if (getResourceSchedule != null)
+            {
+                if (getServiceAssignment.PickupDate >= getResourceSchedule.AvailabilityStart && getServiceAssignment.PickupDate <= getResourceSchedule.AvailablilityEnd)
+                {
+
+                    if (getResourceSchedule.GenericDays.Count() != 0)
+                    {
+                        var lastItem = getResourceSchedule.GenericDays.Last();
+                        foreach (var item in getResourceSchedule.GenericDays)
+                        {
+                            if (!(getServiceAssignment.PickoffTime.TimeOfDay >= item.OpeningTime.TimeOfDay && getServiceAssignment.PickoffTime.TimeOfDay <= item.ClosingTime.TimeOfDay))
+                            {
+                                if (item.Equals(lastItem))
+                                {
+                                    return CommonResponse.Send(ResponseCodes.FAILURE, null, ResponseMessage.NoGenericDay449);
+
+                                }
+                                else
+                                {
+                                    continue;
+                                }
+
+                            }
+                            if (getServiceAssignment.PickoffTime.TimeOfDay >= item.OpeningTime.TimeOfDay && getServiceAssignment.PickoffTime.TimeOfDay <= item.ClosingTime.TimeOfDay)
+                            {
+                                if (getServiceAssignment.PickupDate.DayOfWeek.ToString() == "Monday" && item.Monday == true)
+                                {
+                                    break;
+                                }
+                                else if (getServiceAssignment.PickupDate.DayOfWeek.ToString() == "Tuesday" && item.Tuesday == true)
+                                {
+                                    break;
+                                }
+                                else if (getServiceAssignment.PickupDate.DayOfWeek.ToString() == "Wednesday" && item.Wednesday == true)
+                                {
+                                    break;
+                                }
+                                else if (getServiceAssignment.PickupDate.DayOfWeek.ToString() == "Thursday" && item.Thursday == true)
+                                {
+                                    break;
+                                }
+                                else if (getServiceAssignment.PickupDate.DayOfWeek.ToString() == "Friday" && item.Friday == true)
+                                {
+                                    break;
+                                }
+                                else if (getServiceAssignment.PickupDate.DayOfWeek.ToString() == "Saturday" && item.Saturday == true)
+                                {
+                                    break;
+                                }
+                                else if (getServiceAssignment.PickupDate.DayOfWeek.ToString() == "Sunday" && item.Sunday == true)
+                                {
+                                    break;
+                                }
+                                else
+                                {
+                                    return CommonResponse.Send(ResponseCodes.FAILURE, null, ResponseMessage.ScheduleTimeMismatch448);
+                                }
+                            }
+                            else
+                            {
+                                //return new ApiResponse(448);//for  schedule time
+                                return CommonResponse.Send(ResponseCodes.FAILURE, null, ResponseMessage.ScheduleTimeMismatch448);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        return CommonResponse.Send(ResponseCodes.FAILURE, null, ResponseMessage.NoGenericDay449);
+                    }
+
+
+                    if (RouteExists != null)
+                    {
+                        if (getResourceTypePerService != null)
+                        {
+                            var typeExists = _serviceRegistrationRepository.GetArmedEscortResourceApplicableTypeReqById(getServiceRegistration.Id, getResourceTypePerService.ArmedEscortTypeId);
+                            if (typeExists == null)
+                            {
+                                return CommonResponse.Send(ResponseCodes.FAILURE, null, ResponseMessage.NoApplicableType446);
+                            }
+                        }
+                        else
+                        {
+                            return CommonResponse.Send(ResponseCodes.FAILURE, null, ResponseMessage.NoApplicableType446);
+                        }
+                        if (getEscortDetail != null)
+                        {
+                            if (getEscortDetail.IsTemporarilyHeld == true || getEscortDetail.IsHeldForAction == true)
+                            {
+                                //return new ApiResponse(444);
+                                return CommonResponse.Send(ResponseCodes.FAILURE, null, ResponseMessage.Held444);
+                            }
+                        }
+                        //Add New Resource
+                            var transaction = _context.Database.BeginTransaction();
+                            master.Id = 0;
+                            master.CreatedById = context.GetLoggedInUserId();
+                            master.CreatedAt = DateTime.UtcNow;
+                            master.IsTemporarilyHeld = true;
+                            master.IsHeldForAction = true;
+                            master.DateHeldForAction = DateTime.UtcNow;
+                            master.RequiredCount = getEscortDetailListById.Count() + 1;
+                            master.DateTemporarilyHeld = DateTime.UtcNow;
+                            master.ServiceAssignmentId = armedEscortReceivingDTO.MasterServiceAssignmentId;
+                            var savedItem = await _serviceAssignmentDetailsRepository.SaveEscortServiceAssignmentdetail(master);
+                            if (savedItem == null)
+                            {
+                                //return  CommonResponse.Send(ResponseCodes.FAILURE, null, ResponseMessage.InternalServer500);
+                                return CommonResponse.Send(ResponseCodes.FAILURE, null, ResponseMessage.InternalServer500);
+                            }
+
+                        //Add ReplacementHistory
+                        masterReplace.CreatedById = context.GetLoggedInUserId();
+                        masterReplace.CreatedAt = DateTime.Now;
+                        masterReplace.DateTimeOfReplacement = DateTime.Now;
+                        var savedItem2 = await _serviceAssignmentDetailsRepository.ReplaceArmedEscortServiceAssignmentdetail(masterReplace);
+                        if (savedItem2 == null)
+                        {
+                            transaction.Rollback();
+                            return CommonResponse.Send(ResponseCodes.FAILURE, null, ResponseMessage.InternalServer500);
+                        }
+
+                        //Release
+                        var itemToDelete = await _serviceAssignmentDetailsRepository.FindEscortServiceAssignmentDetailByResourceIdAndAssignmentId(armedEscortReceivingDTO.OldResourceId, armedEscortReceivingDTO.MasterServiceAssignmentId);
+                        var deleteDetail = await DeleteArmedEscortDetail(itemToDelete.Id);
+                        if (deleteDetail == null)
+                        {
+                            transaction.Rollback();
+                            return CommonResponse.Send(ResponseCodes.FAILURE, null, ResponseMessage.InternalServer500);
+                        }
+                        transaction.Commit();
+                    }
+                    else
+                    {
+                        return CommonResponse.Send(ResponseCodes.FAILURE, null, ResponseMessage.NoResourceOnRoute443);
+                    }
+                }
+                else
+                {
+                    return CommonResponse.Send(ResponseCodes.FAILURE, null, ResponseMessage.ScheduleTimeMismatch448);
+                }
+
+            }
+            else
+            {
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, ResponseMessage.NoSchedule447);
+            }
+
+          
+            //var TransferDTO = _mapper.Map<ArmedEscortServiceAssignmentDetailsTransferDTO>(master);
+            return CommonResponse.Send(ResponseCodes.SUCCESS, "Replacement Successful");
+        }
+
+        public async Task<ApiCommonResponse> AddCommanderDetailReplacement(HttpContext context, CommanderReplacementReceivingDTO commanderReceivingDTO)
+        {
+            var masterReplace = _mapper.Map<CommanderServiceAssignmentDetailReplacement>(commanderReceivingDTO);
+            var master = new CommanderServiceAssignmentDetail();
+            var getServiceAssignment = await _serviceAssignmentMasterRepository.FindServiceAssignmentById(commanderReceivingDTO.MasterServiceAssignmentId);
+            var getServiceRegistration = await _serviceRegistrationRepository.FindServiceById(getServiceAssignment.ServiceRegistration.Id);
+            var getCommanderDetail = await _serviceAssignmentDetailsRepository.FindCommanderServiceAssignmentDetailByResourceId(commanderReceivingDTO.NewResourceId);
+            var getCommanderDetailListById = await _serviceAssignmentDetailsRepository.FindAllCommanderServiceAssignmentDetailsByAssignmentId(commanderReceivingDTO.MasterServiceAssignmentId);
+            var RouteExists = _commanderRegistrationRepository.GetResourceRegIdRegionAndRouteId(commanderReceivingDTO.NewResourceId, getServiceAssignment.SMORouteId);
+            var getResourceTypePerService = await _serviceRegistrationRepository.FindCommanderResourceByServiceRegId(getServiceAssignment.ServiceRegistration.Id);
+
+            var getResourceSchedule = await _dTSMastersRepository.FindCommanderMasterByResourceId(commanderReceivingDTO.NewResourceId);
+
+            if (getResourceSchedule != null)
+            {
+                if (getServiceAssignment.PickupDate >= getResourceSchedule.AvailabilityStart && getServiceAssignment.PickupDate <= getResourceSchedule.AvailablilityEnd)
+                {
+                    if (getResourceSchedule.GenericDays.Count() != 0)
+                    {
+                        var lastItem = getResourceSchedule.GenericDays.Last();
+                        foreach (var item in getResourceSchedule.GenericDays)
+                        {
+                            if (!(getServiceAssignment.PickoffTime.TimeOfDay >= item.OpeningTime.TimeOfDay && getServiceAssignment.PickoffTime.TimeOfDay <= item.ClosingTime.TimeOfDay))
+                            {
+                                if (item.Equals(lastItem))
+                                {
+                                    return CommonResponse.Send(ResponseCodes.FAILURE, null, ResponseMessage.NoGenericDay449);
+
+                                }
+                                else
+                                {
+                                    continue;
+                                }
+
+                            }
+                            if (getServiceAssignment.PickoffTime.TimeOfDay >= item.OpeningTime.TimeOfDay && getServiceAssignment.PickoffTime.TimeOfDay <= item.ClosingTime.TimeOfDay)
+                            {
+                                if (getServiceAssignment.PickupDate.DayOfWeek.ToString() == "Monday" && item.Monday == true)
+                                {
+                                    break;
+                                }
+                                else if (getServiceAssignment.PickupDate.DayOfWeek.ToString() == "Tuesday" && item.Tuesday == true)
+                                {
+                                    break;
+                                }
+                                else if (getServiceAssignment.PickupDate.DayOfWeek.ToString() == "Wednesday" && item.Wednesday == true)
+                                {
+                                    break;
+                                }
+                                else if (getServiceAssignment.PickupDate.DayOfWeek.ToString() == "Thursday" && item.Thursday == true)
+                                {
+                                    break;
+                                }
+                                else if (getServiceAssignment.PickupDate.DayOfWeek.ToString() == "Friday" && item.Friday == true)
+                                {
+                                    break;
+                                }
+                                else if (getServiceAssignment.PickupDate.DayOfWeek.ToString() == "Saturday" && item.Saturday == true)
+                                {
+                                    break;
+                                }
+                                else if (getServiceAssignment.PickupDate.DayOfWeek.ToString() == "Sunday" && item.Sunday == true)
+                                {
+                                    break;
+                                }
+                                else
+                                {
+                                    return CommonResponse.Send(ResponseCodes.FAILURE, null, ResponseMessage.NoGenericDay449);
+                                }
+                            }
+                            else
+                            {
+                                //return new ApiResponse(448);//for  schedule time
+                                return CommonResponse.Send(ResponseCodes.FAILURE, null, ResponseMessage.ScheduleTimeMismatch448);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        return CommonResponse.Send(ResponseCodes.FAILURE, null, ResponseMessage.NoGenericDay449);
+                    }
+
+
+                    if (RouteExists != null)
+                    {
+                        if (getResourceTypePerService != null)
+                        {
+                            var typeExists = _serviceRegistrationRepository.GetCommanderResourceApplicableTypeReqById(getServiceRegistration.Id, getResourceTypePerService.CommanderTypeId);
+                            if (typeExists == null)
+                            {
+                                return CommonResponse.Send(ResponseCodes.FAILURE, null, ResponseMessage.NoApplicableType446);
+                            }
+                        }
+                        else
+                        {
+                            return CommonResponse.Send(ResponseCodes.FAILURE, null, ResponseMessage.NoApplicableType446);
+                        }
+                        if (getCommanderDetail != null)
+                        {
+                            if (getCommanderDetail.IsTemporarilyHeld == true || getCommanderDetail.IsHeldForAction == true)
+                            {
+                                //return new ApiResponse(444);
+                                return CommonResponse.Send(ResponseCodes.FAILURE, null, ResponseMessage.Held444);
+                            }
+                        }
+                            //Add new resource
+                            var transaction = _context.Database.BeginTransaction();
+                            master.Id = 0;
+                            master.IsTemporarilyHeld = true;
+                            master.DateTemporarilyHeld = DateTime.Now;
+                            master.IsHeldForAction = true;
+                            master.DateHeldForAction = DateTime.Now;
+                            master.RequiredCount = getCommanderDetailListById.Count() + 1;
+                            master.CreatedById = context.GetLoggedInUserId();
+                            master.ServiceAssignmentId = commanderReceivingDTO.MasterServiceAssignmentId;
+                            master.CreatedAt = DateTime.Now;
+                            var savedItem = await _serviceAssignmentDetailsRepository.SaveCommanderServiceAssignmentdetail(master);
+                            if (savedItem == null)
+                            {
+                                return CommonResponse.Send(ResponseCodes.FAILURE, null, ResponseMessage.InternalServer500);
+                            }
+                        //Add ReplacementHistory
+                        masterReplace.CreatedById = context.GetLoggedInUserId();
+                        masterReplace.CreatedAt = DateTime.Now;
+                        masterReplace.DateTimeOfReplacement = DateTime.Now;
+                        var savedItem2 = await _serviceAssignmentDetailsRepository.ReplaceCommanderServiceAssignmentdetail(masterReplace);
+                        if (savedItem2 == null)
+                        {
+                            transaction.Rollback();
+                            return CommonResponse.Send(ResponseCodes.FAILURE, null, ResponseMessage.InternalServer500);
+                        }
+
+                        //Release
+                        var itemToDelete = await _serviceAssignmentDetailsRepository.FindCommanderServiceAssignmentDetailByResourceIdAndAssignmentId(commanderReceivingDTO.OldResourceId, commanderReceivingDTO.MasterServiceAssignmentId);
+                        var deleteDetail = await DeleteCommanderDetail(itemToDelete.Id);
+                        if (deleteDetail == null)
+                        {
+                            transaction.Rollback();
+                            return CommonResponse.Send(ResponseCodes.FAILURE, null, ResponseMessage.InternalServer500);
+                        }
+                        transaction.Commit();
+
+                    }
+                    else
+                    {
+                        return CommonResponse.Send(ResponseCodes.FAILURE, null, ResponseMessage.NoResourceOnRoute443);
+
+                    }
+                }
+                else
+                {
+                    //return new ApiResponse(448); //for schedule date
+                    return CommonResponse.Send(ResponseCodes.FAILURE, null, ResponseMessage.ScheduleTimeMismatch448);
+
+                }
+            }
+            else
+            {
+                //return new ApiResponse(447);
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, ResponseMessage.NoSchedule447);
+
+            }
+
+
+          
+            var TransferDTO = _mapper.Map<CommanderServiceAssignmentDetailsTransferDTO>(master);
+            return CommonResponse.Send(ResponseCodes.SUCCESS, "Replacement Successful");
+        }
+
+        public async Task<ApiCommonResponse> AddPilotDetailReplacement(HttpContext context, PilotReplacementReceivingDTO pilotReceivingDTO)
+        {
+            var masterReplace = _mapper.Map<PilotServiceAssignmentDetailReplacement>(pilotReceivingDTO);
+            var master = new PilotServiceAssignmentDetail();
+            var getServiceAssignment = await _serviceAssignmentMasterRepository.FindServiceAssignmentById(pilotReceivingDTO.MasterServiceAssignmentId);
+            var getServiceRegistration = await _serviceRegistrationRepository.FindServiceById(getServiceAssignment.ServiceRegistration.Id);
+            var getPilotDetail = await _serviceAssignmentDetailsRepository.FindPilotServiceAssignmentDetailByResourceId(pilotReceivingDTO.NewResourceId);
+            var getPilotDetailListById = await _serviceAssignmentDetailsRepository.FindAllPilotServiceAssignmentDetailsByAssignmentId(pilotReceivingDTO.MasterServiceAssignmentId);
+            var RouteExists = _pilotRegistrationRepository.GetResourceRegIdRegionAndRouteId(pilotReceivingDTO.NewResourceId, getServiceAssignment.SMORouteId);
+            var getResourceTypePerService = await _serviceRegistrationRepository.FindPilotResourceByServiceRegId(getServiceAssignment.ServiceRegistration.Id);
+            //var typeExists = _serviceRegistrationRepository.GetPilotResourceApplicableTypeReqById(getServiceRegistration.Id, getResourceTypePerService.PilotTypeId);
+            //Get Active Pilot resource schedule
+            var getResourceSchedule = await _dTSMastersRepository.FindPilotMasterByResourceId(pilotReceivingDTO.NewResourceId);
+
+
+            if (getResourceSchedule != null)
+            {
+                if (getServiceAssignment.PickupDate >= getResourceSchedule.AvailabilityStart && getServiceAssignment.PickupDate <= getResourceSchedule.AvailablilityEnd)
+                {
+                    if (getResourceSchedule.GenericDays.Count() != 0)
+                    {
+                        var lastItem = getResourceSchedule.GenericDays.Last();
+                        foreach (var item in getResourceSchedule.GenericDays)
+                        {
+                            if (!(getServiceAssignment.PickoffTime.TimeOfDay >= item.OpeningTime.TimeOfDay && getServiceAssignment.PickoffTime.TimeOfDay <= item.ClosingTime.TimeOfDay))
+                            {
+                                if (item.Equals(lastItem))
+                                {
+                                    return CommonResponse.Send(ResponseCodes.FAILURE, null, ResponseMessage.NoGenericDay449);
+
+                                }
+                                else
+                                {
+                                    continue;
+                                }
+
+                            }
+                            if (getServiceAssignment.PickoffTime.TimeOfDay >= item.OpeningTime.TimeOfDay && getServiceAssignment.PickoffTime.TimeOfDay <= item.ClosingTime.TimeOfDay)
+                            {
+                                if (getServiceAssignment.PickupDate.DayOfWeek.ToString() == "Monday" && item.Monday == true)
+                                {
+                                    break;
+                                }
+                                else if (getServiceAssignment.PickupDate.DayOfWeek.ToString() == "Tuesday" && item.Tuesday == true)
+                                {
+                                    break;
+                                }
+                                else if (getServiceAssignment.PickupDate.DayOfWeek.ToString() == "Wednesday" && item.Wednesday == true)
+                                {
+                                    break;
+                                }
+                                else if (getServiceAssignment.PickupDate.DayOfWeek.ToString() == "Thursday" && item.Thursday == true)
+                                {
+                                    break;
+                                }
+                                else if (getServiceAssignment.PickupDate.DayOfWeek.ToString() == "Friday" && item.Friday == true)
+                                {
+                                    break;
+                                }
+                                else if (getServiceAssignment.PickupDate.DayOfWeek.ToString() == "Saturday" && item.Saturday == true)
+                                {
+                                    break;
+                                }
+                                else if (getServiceAssignment.PickupDate.DayOfWeek.ToString() == "Sunday" && item.Sunday == true)
+                                {
+                                    break;
+                                }
+                                else
+                                {
+                                    return CommonResponse.Send(ResponseCodes.FAILURE, null, ResponseMessage.ScheduleTimeMismatch448);
+                                }
+                            }
+                            else
+                            {
+                                return CommonResponse.Send(ResponseCodes.FAILURE, null, ResponseMessage.ScheduleTimeMismatch448);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        return CommonResponse.Send(ResponseCodes.FAILURE, null, ResponseMessage.NoGenericDay449);
+                    }
+
+
+                    if (RouteExists != null)
+                    {
+                        if (getResourceTypePerService != null)
+                        {
+                            var typeExists = _serviceRegistrationRepository.GetPilotResourceApplicableTypeReqById(getServiceRegistration.Id, getResourceTypePerService.PilotTypeId);
+                            if (typeExists == null)
+                            {
+                                return CommonResponse.Send(ResponseCodes.FAILURE, null, ResponseMessage.NoApplicableType446);
+                            }
+                        }
+                        else
+                        {
+                            return CommonResponse.Send(ResponseCodes.FAILURE, null, ResponseMessage.NoApplicableType446);
+                        }
+                        if (getPilotDetail != null)
+                        {
+                            if (getPilotDetail.IsTemporarilyHeld == true || getPilotDetail.IsHeldForAction == true)
+                            {
+                                return CommonResponse.Send(ResponseCodes.FAILURE, null, ResponseMessage.Held444);
+                            }
+                        }
+                        //Add new 
+                            var transaction = _context.Database.BeginTransaction();
+                            master.Id = 0;
+                            master.IsTemporarilyHeld = true;
+                            master.DateTemporarilyHeld = DateTime.Now;
+                            master.IsHeldForAction = true;
+                            master.DateHeldForAction = DateTime.Now;
+                            master.RequiredCount = getPilotDetailListById.Count() + 1;
+                            master.CreatedById = context.GetLoggedInUserId();
+                            master.CreatedAt = DateTime.Now;
+                            master.ServiceAssignmentId = pilotReceivingDTO.MasterServiceAssignmentId;
+                            var savedItem = await _serviceAssignmentDetailsRepository.SavePilotServiceAssignmentdetail(master);
+                            if (savedItem == null)
+                            {
+                                return CommonResponse.Send(ResponseCodes.FAILURE, null, ResponseMessage.InternalServer500);
+                            }
+
+                        //Add ReplacementHistory
+                        masterReplace.CreatedById = context.GetLoggedInUserId();
+                        masterReplace.CreatedAt = DateTime.Now;
+                        masterReplace.DateTimeOfReplacement = DateTime.Now;
+                        var savedItem2 = await _serviceAssignmentDetailsRepository.ReplacePilotServiceAssignmentdetail(masterReplace);
+                        if (savedItem2 == null)
+                        {
+                            transaction.Rollback();
+                            return CommonResponse.Send(ResponseCodes.FAILURE, null, ResponseMessage.InternalServer500);
+                        }
+
+                        //Release
+                        var itemToDelete = await _serviceAssignmentDetailsRepository.FindPilotServiceAssignmentDetailByResourceIdAndAssignmentId(pilotReceivingDTO.OldResourceId, pilotReceivingDTO.MasterServiceAssignmentId);
+                        var deleteDetail = await DeletePilotDetail(itemToDelete.Id);
+                        if (deleteDetail == null)
+                        {
+                            transaction.Rollback();
+                            return CommonResponse.Send(ResponseCodes.FAILURE, null, ResponseMessage.InternalServer500);
+                        }
+                        transaction.Commit();
+
+                    }
+                    else
+                    {
+                        return CommonResponse.Send(ResponseCodes.FAILURE, null, ResponseMessage.NoResourceOnRoute443);
+                    }
+                }
+                else
+                {
+                    return CommonResponse.Send(ResponseCodes.FAILURE, null, ResponseMessage.ScheduleTimeMismatch448);
+                }
+            }
+            else
+            {
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, ResponseMessage.NoSchedule447);
+            }
+
+           
+            var TransferDTO = _mapper.Map<PilotServiceAssignmentDetailsTransferDTO>(master);
+            return CommonResponse.Send(ResponseCodes.SUCCESS, "Replacement Successful");
+        }
+
+        public async Task<ApiCommonResponse> AddVehicleDetailReplacement(HttpContext context, VehicleReplacementReceivingDTO vehicleReceivingDTO)
+        {
+            var master = new VehicleServiceAssignmentDetail();
+            var masterReplace = _mapper.Map<VehicleAssignmentDetailReplacement>(vehicleReceivingDTO);
+            var getServiceAssignment = await _serviceAssignmentMasterRepository.FindServiceAssignmentById(vehicleReceivingDTO.MasterServiceAssignmentId);
+            var getServiceRegistration = await _serviceRegistrationRepository.FindServiceById(getServiceAssignment.ServiceRegistration.Id);
+            var getVehicleDetail = await _serviceAssignmentDetailsRepository.FindVehicleServiceAssignmentDetailByResourceId(vehicleReceivingDTO.NewResourceId);
+            var getVehicleDetailListById = await _serviceAssignmentDetailsRepository.FindAllVehicleServiceAssignmentDetailsByAssignmentId(vehicleReceivingDTO.MasterServiceAssignmentId);
+            var RouteExists = _vehicleRegistrationRepository.GetResourceRegIdRegionAndRouteId(vehicleReceivingDTO.NewResourceId, getServiceAssignment.SMORouteId);
+            var getResourceTypePerService = await _serviceRegistrationRepository.FindVehicleResourceByServiceRegId(getServiceAssignment.ServiceRegistration.Id);
+
+            var getResourceSchedule = await _dTSMastersRepository.FindVehicleMasterByResourceId(vehicleReceivingDTO.NewResourceId);
+
+
+            if (getResourceSchedule != null)
+            {
+                if (getServiceAssignment.PickupDate >= getResourceSchedule.AvailabilityStart && getServiceAssignment.PickupDate <= getResourceSchedule.AvailablilityEnd)
+                {
+                    if (getResourceSchedule.GenericDays.Count() != 0)
+                    {
+                        var lastItem = getResourceSchedule.GenericDays.Last();
+                        foreach (var item in getResourceSchedule.GenericDays)
+                        {
+
+                            if (!(getServiceAssignment.PickoffTime.TimeOfDay >= item.OpeningTime.TimeOfDay && getServiceAssignment.PickoffTime.TimeOfDay <= item.ClosingTime.TimeOfDay))
+                            {
+                                if (item.Equals(lastItem))
+                                {
+                                    return CommonResponse.Send(ResponseCodes.FAILURE, null, ResponseMessage.NoGenericDay449);
+
+                                }
+                                else
+                                {
+                                    continue;
+                                }
+
+                            }
+                            if (getServiceAssignment.PickoffTime.TimeOfDay >= item.OpeningTime.TimeOfDay && getServiceAssignment.PickoffTime.TimeOfDay <= item.ClosingTime.TimeOfDay)
+                            {
+                                if (getServiceAssignment.PickupDate.DayOfWeek.ToString() == "Monday" && item.Monday == true)
+                                {
+                                    break;
+                                }
+                                else if (getServiceAssignment.PickupDate.DayOfWeek.ToString() == "Tuesday" && item.Tuesday == true)
+                                {
+                                    break;
+                                }
+                                else if (getServiceAssignment.PickupDate.DayOfWeek.ToString() == "Wednesday" && item.Wednesday == true)
+                                {
+                                    break;
+                                }
+                                else if (getServiceAssignment.PickupDate.DayOfWeek.ToString() == "Thursday" && item.Thursday == true)
+                                {
+                                    break;
+                                }
+                                else if (getServiceAssignment.PickupDate.DayOfWeek.ToString() == "Friday" && item.Friday == true)
+                                {
+                                    break;
+                                }
+                                else if (getServiceAssignment.PickupDate.DayOfWeek.ToString() == "Saturday" && item.Saturday == true)
+                                {
+                                    break;
+                                }
+                                else if (getServiceAssignment.PickupDate.DayOfWeek.ToString() == "Sunday" && item.Sunday == true)
+                                {
+                                    break;
+                                }
+                                else
+                                {
+                                    return CommonResponse.Send(ResponseCodes.FAILURE, null, ResponseMessage.ScheduleTimeMismatch448);
+                                }
+                            }
+                            else
+                            {
+                                return CommonResponse.Send(ResponseCodes.FAILURE, null, ResponseMessage.ScheduleTimeMismatch448);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        return CommonResponse.Send(ResponseCodes.FAILURE, null, ResponseMessage.NoGenericDay449);
+                    }
+
+
+                    if (RouteExists != null)
+                    {
+                        if (getResourceTypePerService != null)
+                        {
+                            var typeExists = _serviceRegistrationRepository.GetVehicleResourceApplicableTypeReqById(getServiceRegistration.Id, getResourceTypePerService.VehicleTypeId);
+                            if (typeExists == null)
+                            {
+                                return CommonResponse.Send(ResponseCodes.FAILURE, null, ResponseMessage.NoApplicableType446);
+                            }
+
+                        }
+                        else
+                        {
+                            return CommonResponse.Send(ResponseCodes.FAILURE, null, ResponseMessage.NoApplicableType446);
+                        }
+                        if (getVehicleDetail != null)
+                        {
+                            if (getVehicleDetail.IsTemporarilyHeld == true || getVehicleDetail.IsHeldForAction == true)
+                            {
+                                return CommonResponse.Send(ResponseCodes.FAILURE, null, ResponseMessage.Held444);
+                            }
+                        }
+                            //Open Tranx, Release OldResource add new Resource, Save History
+                            var transaction = _context.Database.BeginTransaction();
+                            master.Id = 0;
+                            master.VehicleResourceId = vehicleReceivingDTO.NewResourceId;
+                            master.IsTemporarilyHeld = true;
+                            master.DateTemporarilyHeld = DateTime.Now;
+                            master.IsHeldForAction = true;
+                            master.DateHeldForAction = DateTime.Now;
+                            master.ServiceAssignmentId = vehicleReceivingDTO.MasterServiceAssignmentId;
+                            master.RequiredCount = getVehicleDetailListById.Count() + 1;
+                            master.CreatedById = context.GetLoggedInUserId();
+                            master.CreatedAt = DateTime.UtcNow;
+                            var savedItem = await _serviceAssignmentDetailsRepository.SaveVehicleServiceAssignmentdetail(master);
+                            if (savedItem == null)
+                            {
+                                return CommonResponse.Send(ResponseCodes.FAILURE, null, ResponseMessage.InternalServer500);
+                            }
+
+                            //Add ReplacementHistory
+                           
+                            masterReplace.CreatedById = context.GetLoggedInUserId();
+                            masterReplace.CreatedAt = DateTime.Now;
+                            masterReplace.DateTimeOfReplacement = DateTime.Now;
+                            var savedItem2 = await _serviceAssignmentDetailsRepository.ReplaceVehicleServiceAssignmentdetail(masterReplace);
+                            if (savedItem2 == null)
+                            {
+                                transaction.Rollback();
+                                return CommonResponse.Send(ResponseCodes.FAILURE, null, ResponseMessage.InternalServer500);
+                            }
+
+                        //Release old
+                        var itemToDelete = await _serviceAssignmentDetailsRepository.FindVehicleServiceAssignmentDetailByResourceIdAndAssignmentId(vehicleReceivingDTO.OldResourceId, vehicleReceivingDTO.MasterServiceAssignmentId);
+                        var deleteDetail = await DeleteVehicleDetail(itemToDelete.Id);
+                        if (deleteDetail == null)
+                        {
+                            transaction.Rollback();
+                            return CommonResponse.Send(ResponseCodes.FAILURE, null, ResponseMessage.InternalServer500);
+                        }
+                        transaction.Commit();
+                    }
+                    else
+                    {
+                        return CommonResponse.Send(ResponseCodes.FAILURE, null, ResponseMessage.NoResourceOnRoute443);
+                    }
+
+
+                }
+                else
+                {
+                    return CommonResponse.Send(ResponseCodes.FAILURE, null, ResponseMessage.ScheduleTimeMismatch448);
+                }
+            }
+            else
+            {
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, ResponseMessage.NoSchedule447);
+            }
+
+            //
+            
+            //var TransferDTO = _mapper.Map<VehicleReplacementTransferDTO>(master);
+            return CommonResponse.Send(ResponseCodes.SUCCESS, "Replacement Successful");
+        }
+        
     }
 }
