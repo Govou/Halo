@@ -215,7 +215,7 @@ namespace HaloBiz.MyServices.Impl
             return CommonResponse.Send(ResponseCodes.SUCCESS,AccountMasterTransferDTOs);
         }
 
-        public async Task<ApiCommonResponse> PostPeriodicAccountMaster()
+        public async Task<ApiCommonResponse> PostPeriodicAccountMaster(HttpContext httpContext)
         {               
             
                 try
@@ -223,13 +223,12 @@ namespace HaloBiz.MyServices.Impl
                     _logger.LogInformation("Searching for Invoices to Post.......");
 
                    var today = DateTime.Now;
-                   //var today = DateTime.Parse("2022-04-30").Date; //30-Apr-2022
 
                 var invoices = await _context.Invoices
                             .Where(x => x.IsAccountPosted==false && x.IsFinalInvoice==true && x.StartDate.Date == today)
                             .ToListAsync();                  
 
-                    if(invoices.Count() == 0)
+                    if(!invoices.Any())
                     {
                         _logger.LogInformation($"No Invoice Scheduled For Posting Today {DateTime.Now.Date}.......");
                         return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);
@@ -242,7 +241,7 @@ namespace HaloBiz.MyServices.Impl
                         {
                             _logger.LogInformation($"Posting Invoice with Id: {invoice.Id}");
 
-                            this.LoggedInUserId = invoice.CreatedById ?? 31;
+                            this.LoggedInUserId = invoice.CreatedById ?? httpContext.GetLoggedInUserId();
 
                             var contractService = await _context.ContractServices
                                         .Include(x => x.Service)
@@ -261,8 +260,8 @@ namespace HaloBiz.MyServices.Impl
                             await _leadConversionService.CreateAccounts(contractService, customerDivision, (long)contractService.BranchId
                                 , (long)contractService.OfficeId, contractService.Service, accountVoucherType, null, LoggedInUserId, false, invoice);
 
-
                             invoice.IsAccountPosted = true;
+                            invoice.DatePosted = DateTime.Now;
                             _context.Invoices.Update(invoice);
                             await _context.SaveChangesAsync();
                             await transaction.CommitAsync();

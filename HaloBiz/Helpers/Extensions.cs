@@ -22,7 +22,8 @@ namespace HaloBiz.Helpers
 
         public static long GetLoggedInUserId(this HttpContext context)
         {
-            var id =  long.TryParse(context.User.FindFirstValue(ClaimTypes.NameIdentifier), out long userIdClaim) ?
+            var name = context.User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var id =  long.TryParse(name, out long userIdClaim) ?
                 userIdClaim : 0;
             if (id == 0)
                 throw new Exception("The user is not logged in");

@@ -71,20 +71,24 @@ namespace OnlinePortalBackend
             services.AddScoped<IServiceWishlistRepository, ServiceWishlistRepositoryImpl>();
             services.AddScoped<ICartContractRepository, CartContractRepositoryImpl>();
             services.AddScoped<IEndorsementRepository, EndorsementRepositoryImpl>();
+            services.AddScoped<IServicesRepo, ServicesRepo>();
+            services.AddScoped<IInvoiceRepository, InvoiceRepository > ();
 
             services.AddScoped<IPaymentAdapter, PaymentAdapter>();
+            services.AddScoped<IApiInterceptor, ApiInterceptor>();
 
             //services and repositories
             services.AddScoped<IMailService, MailService>();
             services.AddScoped<IOnlineAccounts, OnlineAccounts>();
             services.AddSingleton<JwtHelper>();
-            services.AddScoped<IUserProfileService, UserProfileServiceImpl>();
             services.AddScoped<IUserProfileRepository, UserProfileRepositoryImpl>();
             services.AddScoped<ICustomer, Customer>();
             services.AddScoped<ICartService, CartServiceImpl>();
             services.AddScoped<IReceiptService, ReceiptService>();
             services.AddScoped<ICartContractService, CartContractServiceImpl>();
             services.AddScoped<IEndorsementService, EndorsementServiceImpl>();
+            services.AddScoped<IServicesService, ServicesService>();
+            services.AddScoped<IInvoiceService, InvoiceService>();
 
             services.AddAutoMapper(typeof(Startup));
 

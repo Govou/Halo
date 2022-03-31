@@ -1309,9 +1309,9 @@ namespace HaloBiz.MyServices.Impl
             {
                 DateTime date = DateTime.Parse(startdate).Date;
 
-                invoices = await _context.Invoices
+                invoices = await _context.Invoices.Include(x => x.Receipts)
                     .Where(x => !x.IsDeleted && x.GroupInvoiceNumber == groupinvoiceNumber
-                            && x.StartDate.Date == date && !x.IsInvoiceSent).ToListAsync();
+                            && x.StartDate.Date == date.Date && !x.IsInvoiceSent).ToListAsync();
 
                 return CommonResponse.Send(ResponseCodes.SUCCESS, invoices);             
 
