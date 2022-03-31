@@ -5,6 +5,6 @@ namespace OnlinePortalBackend.MyServices
 {
     public interface IInvoiceService
     {
-        Task<ApiCommonResponse> GetContractInvoices(int contractServiceId);
+        Task<ApiCommonResponse> GetInvoices(int userId, int? contractService, int? contractId, int limit = 10);
     }
 }
