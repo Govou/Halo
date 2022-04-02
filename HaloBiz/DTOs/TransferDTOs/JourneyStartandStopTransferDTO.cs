@@ -122,4 +122,100 @@ namespace HaloBiz.DTOs.TransferDTOs
         public DateTime UpdatedAt { get; set; }
         public bool IsDeleted { get; set; }
     }
+
+    public class FeedbackMasterTransferDTO
+    {
+        public long Id { get; set; }
+        public UserProfile CreatedBy { get; set; }
+        public long CreatedById { get; set; }
+        public bool IsDeleted { get; set; }
+        public ICollection<GeneralFeedbackDetail> GeneralFeedbackDetails { get; set; }
+        public ICollection<CommanderFeedbackDetail> CommanderFeedbackDetails { get; set; }
+        public ICollection<ArmedEscortFeedbackDetail> ArmedEscortFeedbackDetails { get; set; }
+        public DateTime CreatedAt { get; set; }
+        public ICollection<PilotFeedbackDetail> PilotFeedbackDetails { get; set; }
+        public ICollection<FeedbackDetail> FeedbackDetails { get; set; }
+        public ArmadaJourneyStart JourneyStart { get; set; }
+        public long? JourneyStartId { get; set; }
+        public ServiceAssignment ServiceAssignment { get; set; }
+        public long? ServiceAssignmentId { get; set; }
+       
+        public ICollection<VehicleFeedbackDetail> VehicleFeedbackDetails { get; set; }
+        public DateTime UpdatedAt { get; set; }
+    }
+    public class GeneralFeedbackTransferDTO
+    {
+        public long Id { get; set; }
+        public long? FeedbackMasterId { get; set; }
+        public FeedbackMaster FeedbackMaster { get; set; }
+        public bool WasSafeAndComfortable { get; set; }
+        public string ReasonForNotFeelingSafe { get; set; }
+        public int CSATScore { get; set; }
+        public int NPSScore { get; set; }
+        public bool IsDeleted { get; set; }
+        public long CreatedById { get; set; }
+        public UserProfile CreatedBy { get; set; }
+        public DateTime CreatedAt { get; set; }
+        public DateTime UpdatedAt { get; set; }
+    }
+    public class ArmedEscortFeedbackTransferDTO
+    {
+        public long Id { get; set; }
+        public long? FeedbackMasterId { get; set; }
+        public FeedbackMaster FeedbackMaster { get; set; }
+        public long? ResourceId { get; set; }
+        public ArmedEscortProfile Resource { get; set; }
+        public int PerformanceScore { get; set; }
+        public string Comments { get; set; }
+        public bool IsDeleted { get; set; }
+        public long CreatedById { get; set; }
+        public UserProfile CreatedBy { get; set; }
+        public DateTime CreatedAt { get; set; }
+        public DateTime UpdatedAt { get; set; }
+    }
+    public class CommanderFeedbackTransferDTO
+    {
+        public long Id { get; set; }
+        public long? FeedbackMasterId { get; set; }
+        public FeedbackMaster FeedbackMaster { get; set; }
+        public long? ResourceId { get; set; }
+        public CommanderProfile Resource { get; set; }
+        public int PerformanceScore { get; set; }
+        public string Comments { get; set; }
+        public bool IsDeleted { get; set; }
+        public long CreatedById { get; set; }
+        public UserProfile CreatedBy { get; set; }
+        public DateTime CreatedAt { get; set; }
+        public DateTime UpdatedAt { get; set; }
+    }
+    public class PilotFeedbackTransferDTO
+    {
+        public long Id { get; set; }
+        public long? FeedbackMasterId { get; set; }
+        public FeedbackMaster FeedbackMaster { get; set; }
+        public long? ResourceId { get; set; }
+        public PilotProfile Resource { get; set; }
+        public int PerformanceScore { get; set; }
+        public string Comments { get; set; }
+        public bool IsDeleted { get; set; }
+        public long CreatedById { get; set; }
+        public UserProfile CreatedBy { get; set; }
+        public DateTime CreatedAt { get; set; }
+        public DateTime UpdatedAt { get; set; }
+    }
+    public class VehicleFeedbackTransferDTO
+    {
+        public long Id { get; set; }
+        public long? FeedbackMasterId { get; set; }
+        public FeedbackMaster FeedbackMaster { get; set; }
+        public long? ResourceId { get; set; }
+        public Vehicle Resource { get; set; }
+        public int PerformanceScore { get; set; }
+        public string Comments { get; set; }
+        public bool IsDeleted { get; set; }
+        public long CreatedById { get; set; }
+        public UserProfile CreatedBy { get; set; }
+        public DateTime CreatedAt { get; set; }
+        public DateTime UpdatedAt { get; set; }
+    }
 }

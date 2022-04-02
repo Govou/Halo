@@ -69,23 +69,58 @@ namespace HaloBiz.DTOs.ReceivingDTOs
         
     }
 
-    public class FeedbackMastersReceivingDTO
+    public class FeedbackMasterReceivingDTO
     {
        
-        //public long Id { get; set; }
-        //public long? ServiceAssignmentId { get; set; }
-        //[ForeignKey("ServiceAssignmentId")]
-        //public ServiceAssignment ServiceAssignment { get; set; }
-        //public long? JourneyStartId { get; set; }
-        //[ForeignKey("JourneyStartId")]
-        //public ArmadaJourneyStart JourneyStart { get; set; }
-        //public ICollection<FeedbackDetail> FeedbackDetails { get; set; }
-        //public bool IsDeleted { get; set; }
-        //public long CreatedById { get; set; }
-        //[ForeignKey("CreatedById")]
-        //public UserProfile CreatedBy { get; set; }
-        //public DateTime CreatedAt { get; set; }
-        //public DateTime UpdatedAt { get; set; }
+        public long? JourneyStartId { get; set; }
+        public long? ServiceAssignmentId { get; set; }
+
+    }
+    public class GeneralFeedbackReceivingDTO
+    {
+        public long Id { get; set; }
+        public long? FeedbackMasterId { get; set; }
+        public bool WasSafeAndComfortable { get; set; }
+        public string ReasonForNotFeelingSafe { get; set; }
+        public int CSATScore { get; set; }
+        public int NPSScore { get; set; }
+    
+    }
+    public class ArmedEscortFeedbackReceivingDTO
+    {
+        public long Id { get; set; }
+        public long? FeedbackMasterId { get; set; }
+        public long? ResourceId { get; set; }
+        public int PerformanceScore { get; set; }
+        public string Comments { get; set; }
+   
+    }
+    public class CommanderFeedbackReceivingDTO
+    {
+        public long Id { get; set; }
+        public long? FeedbackMasterId { get; set; }
+        public long? ResourceId { get; set; }
+        public int PerformanceScore { get; set; }
+        public string Comments { get; set; }
+    
+    }
+    public class PilotFeedbackReceivingDTO
+    {
+        public long Id { get; set; }
+        public long? FeedbackMasterId { get; set; }
+        public long? ResourceId { get; set; }
+        public int PerformanceScore { get; set; }
+        public string Comments { get; set; }
+      
+    }
+    public class VehicleFeedbackReceivingDTO
+    {
+        public long Id { get; set; }
+        public long? FeedbackMasterId { get; set; }
+        public long? ResourceId { get; set; }
+        public int PerformanceScore { get; set; }
+        public string Comments { get; set; }
+    
     }
 
     public class FeedbackDetailsReceivingDTO

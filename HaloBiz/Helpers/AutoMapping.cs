@@ -488,8 +488,23 @@ namespace HaloBiz.Helpers
             CreateMap<JourneyNote, JourneyNoteTransferDTO>();
 
             //Feedback
-            CreateMap<JourneyNoteReceivingDTO, JourneyNote>();
-            CreateMap<JourneyNote, JourneyNoteTransferDTO>();
+            CreateMap<FeedbackMasterReceivingDTO, FeedbackMaster>();
+            CreateMap<FeedbackMaster, FeedbackMasterTransferDTO>();
+
+            CreateMap<GeneralFeedbackReceivingDTO, GeneralFeedbackDetail>();
+            CreateMap<GeneralFeedbackDetail, GeneralFeedbackTransferDTO>();
+
+            CreateMap<ArmedEscortFeedbackReceivingDTO, ArmedEscortFeedbackDetail>();
+            CreateMap<ArmedEscortFeedbackDetail, ArmedEscortFeedbackTransferDTO>();
+
+            CreateMap<CommanderFeedbackReceivingDTO, CommanderFeedbackDetail>();
+            CreateMap<CommanderFeedbackDetail, CommanderFeedbackTransferDTO>();
+
+            CreateMap<PilotFeedbackReceivingDTO, PilotFeedbackDetail>();
+            CreateMap<PilotFeedbackDetail, PilotFeedbackTransferDTO>();
+
+            CreateMap<VehicleFeedbackReceivingDTO, VehicleFeedbackDetail>();
+            CreateMap<VehicleFeedbackDetail, VehicleFeedbackTransferDTO>();
             //CreateMap<CommanderType, SMORegionTransferDTO>();
         }
     }

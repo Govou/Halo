@@ -96,5 +96,12 @@ namespace HaloBiz.Repository
         Task<FeedbackDetail> SaveFeedbackDetail(FeedbackDetail feedbackDetail);
 
         Task<FeedbackDetail> FindFeedbackDetailById(long Id);
+
+        //Resource
+        Task<CommanderFeedbackDetail> SaveCommanderFeedback(CommanderFeedbackDetail feedback);
+        Task<ArmedEscortFeedbackDetail> SaveArmedEscortFeedback(ArmedEscortFeedbackDetail feedback);
+        Task<PilotFeedbackDetail> SavePilotFeedback(PilotFeedbackDetail feedback);
+        Task<VehicleFeedbackDetail> SaveVehicleFeedback(VehicleFeedbackDetail feedback);
+        Task<GeneralFeedbackDetail> SaveGeneralFeedback(GeneralFeedbackDetail feedback);
     }
 }

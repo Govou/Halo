@@ -1905,6 +1905,10 @@ namespace HaloBiz.MyServices.Impl
 
         public async Task<ApiCommonResponse> AddArmedEscortDetailReplacement(HttpContext context, ArmedEscortReplacementReceivingDTO armedEscortReceivingDTO)
         {
+            if(armedEscortReceivingDTO.NewResourceId == armedEscortReceivingDTO.OldResourceId)
+            {
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, ResponseMessage.CannotReplaceSameResource451);
+            }
             var masterReplace = _mapper.Map<ArmedEscortServiceAssignmentDetailReplacement>(armedEscortReceivingDTO);
             var master = new ArmedEscortServiceAssignmentDetail();
            // var getEscort = await _serviceRegistrationRepository.FindServiceById(armedEscortReceivingDTO.ArmedEscortResourceId);
@@ -2066,13 +2070,18 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.FAILURE, null, ResponseMessage.NoSchedule447);
             }
 
-          
+
             //var TransferDTO = _mapper.Map<ArmedEscortServiceAssignmentDetailsTransferDTO>(master);
+            await _invoiceService.SendJourneyManagementPlan(armedEscortReceivingDTO.MasterServiceAssignmentId);
             return CommonResponse.Send(ResponseCodes.SUCCESS, "Replacement Successful");
         }
 
         public async Task<ApiCommonResponse> AddCommanderDetailReplacement(HttpContext context, CommanderReplacementReceivingDTO commanderReceivingDTO)
         {
+            if (commanderReceivingDTO.NewResourceId == commanderReceivingDTO.OldResourceId)
+            {
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, ResponseMessage.CannotReplaceSameResource451);
+            }
             var masterReplace = _mapper.Map<CommanderServiceAssignmentDetailReplacement>(commanderReceivingDTO);
             var master = new CommanderServiceAssignmentDetail();
             var getServiceAssignment = await _serviceAssignmentMasterRepository.FindServiceAssignmentById(commanderReceivingDTO.MasterServiceAssignmentId);
@@ -2176,7 +2185,8 @@ namespace HaloBiz.MyServices.Impl
                                 return CommonResponse.Send(ResponseCodes.FAILURE, null, ResponseMessage.Held444);
                             }
                         }
-                            //Add new resource
+                        //Add new resource
+                            var itemToDelete = await _serviceAssignmentDetailsRepository.FindCommanderServiceAssignmentDetailByResourceIdAndAssignmentId(commanderReceivingDTO.OldResourceId, commanderReceivingDTO.MasterServiceAssignmentId);
                             var transaction = _context.Database.BeginTransaction();
                             master.Id = 0;
                             master.IsTemporarilyHeld = true;
@@ -2185,6 +2195,7 @@ namespace HaloBiz.MyServices.Impl
                             master.DateHeldForAction = DateTime.Now;
                             master.RequiredCount = getCommanderDetailListById.Count() + 1;
                             master.CreatedById = context.GetLoggedInUserId();
+                            master.TiedVehicleResourceId = itemToDelete.TiedVehicleResourceId;
                             master.ServiceAssignmentId = commanderReceivingDTO.MasterServiceAssignmentId;
                             master.CreatedAt = DateTime.Now;
                             var savedItem = await _serviceAssignmentDetailsRepository.SaveCommanderServiceAssignmentdetail(master);
@@ -2204,7 +2215,6 @@ namespace HaloBiz.MyServices.Impl
                         }
 
                         //Release
-                        var itemToDelete = await _serviceAssignmentDetailsRepository.FindCommanderServiceAssignmentDetailByResourceIdAndAssignmentId(commanderReceivingDTO.OldResourceId, commanderReceivingDTO.MasterServiceAssignmentId);
                         var deleteDetail = await DeleteCommanderDetail(itemToDelete.Id);
                         if (deleteDetail == null)
                         {
@@ -2236,12 +2246,17 @@ namespace HaloBiz.MyServices.Impl
 
 
           
-            var TransferDTO = _mapper.Map<CommanderServiceAssignmentDetailsTransferDTO>(master);
+            //var TransferDTO = _mapper.Map<CommanderServiceAssignmentDetailsTransferDTO>(master);
+            await _invoiceService.SendJourneyManagementPlan(commanderReceivingDTO.MasterServiceAssignmentId);
             return CommonResponse.Send(ResponseCodes.SUCCESS, "Replacement Successful");
         }
 
         public async Task<ApiCommonResponse> AddPilotDetailReplacement(HttpContext context, PilotReplacementReceivingDTO pilotReceivingDTO)
         {
+            if (pilotReceivingDTO.NewResourceId == pilotReceivingDTO.OldResourceId)
+            {
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, ResponseMessage.CannotReplaceSameResource451);
+            }
             var masterReplace = _mapper.Map<PilotServiceAssignmentDetailReplacement>(pilotReceivingDTO);
             var master = new PilotServiceAssignmentDetail();
             var getServiceAssignment = await _serviceAssignmentMasterRepository.FindServiceAssignmentById(pilotReceivingDTO.MasterServiceAssignmentId);
@@ -2346,6 +2361,7 @@ namespace HaloBiz.MyServices.Impl
                             }
                         }
                         //Add new 
+                            var itemToDelete = await _serviceAssignmentDetailsRepository.FindPilotServiceAssignmentDetailByResourceIdAndAssignmentId(pilotReceivingDTO.OldResourceId, pilotReceivingDTO.MasterServiceAssignmentId);
                             var transaction = _context.Database.BeginTransaction();
                             master.Id = 0;
                             master.IsTemporarilyHeld = true;
@@ -2354,6 +2370,7 @@ namespace HaloBiz.MyServices.Impl
                             master.DateHeldForAction = DateTime.Now;
                             master.RequiredCount = getPilotDetailListById.Count() + 1;
                             master.CreatedById = context.GetLoggedInUserId();
+                            master.TiedVehicleResourceId = itemToDelete.TiedVehicleResourceId;
                             master.CreatedAt = DateTime.Now;
                             master.ServiceAssignmentId = pilotReceivingDTO.MasterServiceAssignmentId;
                             var savedItem = await _serviceAssignmentDetailsRepository.SavePilotServiceAssignmentdetail(master);
@@ -2374,7 +2391,6 @@ namespace HaloBiz.MyServices.Impl
                         }
 
                         //Release
-                        var itemToDelete = await _serviceAssignmentDetailsRepository.FindPilotServiceAssignmentDetailByResourceIdAndAssignmentId(pilotReceivingDTO.OldResourceId, pilotReceivingDTO.MasterServiceAssignmentId);
                         var deleteDetail = await DeletePilotDetail(itemToDelete.Id);
                         if (deleteDetail == null)
                         {
@@ -2399,13 +2415,18 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.FAILURE, null, ResponseMessage.NoSchedule447);
             }
 
-           
-            var TransferDTO = _mapper.Map<PilotServiceAssignmentDetailsTransferDTO>(master);
+
+            //var TransferDTO = _mapper.Map<PilotServiceAssignmentDetailsTransferDTO>(master);
+            await _invoiceService.SendJourneyManagementPlan(pilotReceivingDTO.MasterServiceAssignmentId);
             return CommonResponse.Send(ResponseCodes.SUCCESS, "Replacement Successful");
         }
 
         public async Task<ApiCommonResponse> AddVehicleDetailReplacement(HttpContext context, VehicleReplacementReceivingDTO vehicleReceivingDTO)
         {
+            if (vehicleReceivingDTO.NewResourceId == vehicleReceivingDTO.OldResourceId)
+            {
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, ResponseMessage.CannotReplaceSameResource451);
+            }
             var master = new VehicleServiceAssignmentDetail();
             var masterReplace = _mapper.Map<VehicleAssignmentDetailReplacement>(vehicleReceivingDTO);
             var getServiceAssignment = await _serviceAssignmentMasterRepository.FindServiceAssignmentById(vehicleReceivingDTO.MasterServiceAssignmentId);
@@ -2510,7 +2531,8 @@ namespace HaloBiz.MyServices.Impl
                                 return CommonResponse.Send(ResponseCodes.FAILURE, null, ResponseMessage.Held444);
                             }
                         }
-                            //Open Tranx, Release OldResource add new Resource, Save History
+                        //Open Tranx, Release OldResource add new Resource, Save History
+                            var itemToDelete = await _serviceAssignmentDetailsRepository.FindVehicleServiceAssignmentDetailByResourceIdAndAssignmentId(vehicleReceivingDTO.OldResourceId, vehicleReceivingDTO.MasterServiceAssignmentId);
                             var transaction = _context.Database.BeginTransaction();
                             master.Id = 0;
                             master.VehicleResourceId = vehicleReceivingDTO.NewResourceId;
@@ -2539,9 +2561,38 @@ namespace HaloBiz.MyServices.Impl
                                 transaction.Rollback();
                                 return CommonResponse.Send(ResponseCodes.FAILURE, null, ResponseMessage.InternalServer500);
                             }
+                        //Commander to Update
+                        var commToUpdate = await _serviceAssignmentDetailsRepository.FindCommanderServiceAssignmentDetailByTiedVehicleResourceIdAndAssignmentId(itemToDelete.VehicleResourceId, vehicleReceivingDTO.MasterServiceAssignmentId);
+                        if (commToUpdate.Count() > 0)
+                        {
+                            foreach (var item in commToUpdate)
+                            {
+                                item.TiedVehicleResourceId = vehicleReceivingDTO.NewResourceId;
+                                var updatedItem = await _serviceAssignmentDetailsRepository.UpdateCommanderServiceAssignmentDetail(item);
 
+                                if (updatedItem == null)
+                                {
+                                    return CommonResponse.Send(ResponseCodes.FAILURE, null, ResponseMessage.InternalServer500);
+                                }
+                            }
+                           
+                        }
+                        //Pilot to Update
+                        var pilotToUpdate = await _serviceAssignmentDetailsRepository.FindPilotServiceAssignmentDetailByTiedVehicleResourceIdAndAssignmentId(itemToDelete.VehicleResourceId, vehicleReceivingDTO.MasterServiceAssignmentId);
+                        if (pilotToUpdate.Count() > 0)
+                        {
+                            foreach (var item in pilotToUpdate)
+                            {
+                                item.TiedVehicleResourceId = vehicleReceivingDTO.NewResourceId;
+                                var updatedItem = await _serviceAssignmentDetailsRepository.UpdatePilotServiceAssignmentDetail(item);
+
+                                if (updatedItem == null)
+                                {
+                                    return CommonResponse.Send(ResponseCodes.FAILURE, null, ResponseMessage.InternalServer500);
+                                }
+                            }
+                        }
                         //Release old
-                        var itemToDelete = await _serviceAssignmentDetailsRepository.FindVehicleServiceAssignmentDetailByResourceIdAndAssignmentId(vehicleReceivingDTO.OldResourceId, vehicleReceivingDTO.MasterServiceAssignmentId);
                         var deleteDetail = await DeleteVehicleDetail(itemToDelete.Id);
                         if (deleteDetail == null)
                         {
@@ -2568,10 +2619,12 @@ namespace HaloBiz.MyServices.Impl
             }
 
             //
-            
+
             //var TransferDTO = _mapper.Map<VehicleReplacementTransferDTO>(master);
+            await _invoiceService.SendJourneyManagementPlan(vehicleReceivingDTO.MasterServiceAssignmentId);
             return CommonResponse.Send(ResponseCodes.SUCCESS, "Replacement Successful");
         }
-        
+
+
     }
 }

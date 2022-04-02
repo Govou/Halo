@@ -46,6 +46,7 @@ namespace HaloBiz.DTOs.TransferDTOs
         public bool ReadyStatus { get; set; }
         public DateTime PickoffTime { get; set; }
         public DateTime UpdatedAt { get; set; }
+        public ICollection<SecondaryServiceAssignment> SecondaryServiceAssignments { get; set; }
     }
 
     public class SecondaryServiceAssignmentTransferDTO

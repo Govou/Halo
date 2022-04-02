@@ -40,6 +40,7 @@ namespace HaloBiz.Repository
         Task<CommanderServiceAssignmentDetail> FindCommanderServiceAssignmentDetailByAssignmentId(long Id);
         Task<CommanderServiceAssignmentDetail> FindCommanderServiceAssignmentDetailByResourceId(long resourceId);
         Task<CommanderServiceAssignmentDetail> FindCommanderServiceAssignmentDetailByResourceIdAndAssignmentId(long resourceId, long assId);
+        Task<IEnumerable<CommanderServiceAssignmentDetail>> FindCommanderServiceAssignmentDetailByTiedVehicleResourceIdAndAssignmentId(long? tiedResourceId, long assId);
         Task<CommanderServiceAssignmentDetail> FindCommanderServiceAssignmentDetailByResourceId2(long? resourceId);
 
         Task<IEnumerable<CommanderServiceAssignmentDetail>> FindAllCommanderServiceAssignmentDetails();
@@ -55,6 +56,7 @@ namespace HaloBiz.Repository
         Task<bool> DeleteCommanderServiceAssignmentDetailByAssignmentId(CommanderServiceAssignmentDetail serviceAssignmentDetail);
         Task<bool> UpdateCommanderServiceAssignmentDetailForEndJourneyByAssignmentId(CommanderServiceAssignmentDetail serviceAssignmentDetail);
         Task<bool> UpdateCommanderServiceAssignmentDetailHeldByAssignmentId(CommanderServiceAssignmentDetail serviceAssignmentDetail);
+       // Task<CommanderServiceAssignmentDetail> UpdateCommanderServiceAssignmentDetailForVehicleReplacementByAssignmentIdAndResourceId(CommanderServiceAssignmentDetail serviceAssignmentDetail);
 
         //Pilot
         Task<PilotServiceAssignmentDetail> SavePilotServiceAssignmentdetail(PilotServiceAssignmentDetail serviceAssignmentDetail);
@@ -64,6 +66,7 @@ namespace HaloBiz.Repository
         Task<PilotServiceAssignmentDetail> FindPilotServiceAssignmentDetailByAssignmentId(long Id);
         Task<PilotServiceAssignmentDetail> FindPilotServiceAssignmentDetailByResourceId(long resourceId);
         Task<PilotServiceAssignmentDetail> FindPilotServiceAssignmentDetailByResourceIdAndAssignmentId(long resourceId, long assId);
+        Task<IEnumerable<PilotServiceAssignmentDetail>> FindPilotServiceAssignmentDetailByTiedVehicleResourceIdAndAssignmentId(long? tiedResourceId, long assId);
         Task<PilotServiceAssignmentDetail> FindPilotServiceAssignmentDetailByResourceId2(long? resourceId);
 
         Task<IEnumerable<PilotServiceAssignmentDetail>> FindAllPilotServiceAssignmentDetails();
@@ -78,6 +81,8 @@ namespace HaloBiz.Repository
         Task<bool> DeletePilotServiceAssignmentDetailByAssignmentId(PilotServiceAssignmentDetail serviceAssignmentDetail);
         Task<bool> UpdatePilotServiceAssignmentDetailForEndJourneyByAssignmentId(PilotServiceAssignmentDetail serviceAssignmentDetail);
         Task<bool> UpdatePilotServiceAssignmentDetailHeldByAssignmentId(PilotServiceAssignmentDetail serviceAssignmentDetail);
+
+        //Task<PilotServiceAssignmentDetail> UpdatePilotServiceAssignmentDetailForVehicleReplacementByAssignmentIdAndResourceId(PilotServiceAssignmentDetail serviceAssignmentDetail);
 
         //Vehicle
         Task<VehicleServiceAssignmentDetail> SaveVehicleServiceAssignmentdetail(VehicleServiceAssignmentDetail serviceAssignmentDetail);

@@ -29,6 +29,66 @@ namespace HaloBiz.MyServices.Impl
             _serviceAssignmentDetailsRepository = serviceAssignmentDetailsRepository;
         }
 
+        public async Task<ApiCommonResponse> AddArmedEscortFeedback(HttpContext context, ArmedEscortFeedbackReceivingDTO feedback)
+        {
+            var itemToAdd = _mapper.Map<ArmedEscortFeedbackDetail>(feedback);
+
+            itemToAdd.CreatedById = context.GetLoggedInUserId();
+            itemToAdd.CreatedAt = DateTime.UtcNow;
+            var saved = await _journeyStartandStopRepository.SaveArmedEscortFeedback(itemToAdd);
+            if (saved == null)
+            {
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, ResponseMessage.InternalServer500);
+            }
+            var typeTransferDTO = _mapper.Map<ArmedEscortFeedbackTransferDTO>(itemToAdd);
+            return CommonResponse.Send(ResponseCodes.SUCCESS, typeTransferDTO);
+        }
+
+        public async Task<ApiCommonResponse> AddCommanderFeedback(HttpContext context, CommanderFeedbackReceivingDTO feedback)
+        {
+            var itemToAdd = _mapper.Map<CommanderFeedbackDetail>(feedback);
+
+            itemToAdd.CreatedById = context.GetLoggedInUserId();
+            itemToAdd.CreatedAt = DateTime.UtcNow;
+            var saved = await _journeyStartandStopRepository.SaveCommanderFeedback(itemToAdd);
+            if (saved == null)
+            {
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, ResponseMessage.InternalServer500);
+            }
+            var typeTransferDTO = _mapper.Map<CommanderFeedbackTransferDTO>(itemToAdd);
+            return CommonResponse.Send(ResponseCodes.SUCCESS, typeTransferDTO);
+        }
+
+        public async Task<ApiCommonResponse> AddFeedbackMaster(HttpContext context, FeedbackMasterReceivingDTO feedback)
+        {
+            var itemToAdd = _mapper.Map<FeedbackMaster>(feedback);
+
+            itemToAdd.CreatedById = context.GetLoggedInUserId();
+            itemToAdd.CreatedAt = DateTime.UtcNow;
+            var saved = await _journeyStartandStopRepository.SaveFeedbackMaster(itemToAdd);
+            if (saved == null)
+            {
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, ResponseMessage.InternalServer500);
+            }
+            var typeTransferDTO = _mapper.Map<FeedbackMasterTransferDTO>(itemToAdd);
+            return CommonResponse.Send(ResponseCodes.SUCCESS, typeTransferDTO);
+        }
+
+        public async Task<ApiCommonResponse> AddGeneralFeedback(HttpContext context, GeneralFeedbackReceivingDTO feedback)
+        {
+            var itemToAdd = _mapper.Map<GeneralFeedbackDetail>(feedback);
+
+            itemToAdd.CreatedById = context.GetLoggedInUserId();
+            itemToAdd.CreatedAt = DateTime.UtcNow;
+            var saved = await _journeyStartandStopRepository.SaveGeneralFeedback(itemToAdd);
+            if (saved == null)
+            {
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, ResponseMessage.InternalServer500);
+            }
+            var typeTransferDTO = _mapper.Map<GeneralFeedbackTransferDTO>(itemToAdd);
+            return CommonResponse.Send(ResponseCodes.SUCCESS, typeTransferDTO);
+        }
+
         public async Task<ApiCommonResponse> AddJourneyIncident(HttpContext context, JourneyIncidentReceivingDTO journeyIncidentReceiving)
         {
             var itemToAdd = _mapper.Map<JourneyIncident>(journeyIncidentReceiving);
@@ -98,6 +158,22 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.SUCCESS, typeTransferDTO);
             
         }
+
+        public async Task<ApiCommonResponse> AddPilotFeedback(HttpContext context, PilotFeedbackReceivingDTO feedback)
+        {
+            var itemToAdd = _mapper.Map<PilotFeedbackDetail>(feedback);
+
+            itemToAdd.CreatedById = context.GetLoggedInUserId();
+            itemToAdd.CreatedAt = DateTime.UtcNow;
+            var saved = await _journeyStartandStopRepository.SavePilotFeedback(itemToAdd);
+            if (saved == null)
+            {
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, ResponseMessage.InternalServer500);
+            }
+            var typeTransferDTO = _mapper.Map<PilotFeedbackTransferDTO>(itemToAdd);
+            return CommonResponse.Send(ResponseCodes.SUCCESS, typeTransferDTO);
+        }
+
         public async Task<ApiCommonResponse> AddSStopJourney(HttpContext context, JourneyStopReceivingDTO journeyStopReceiving)
         {
             var itemToAdd = _mapper.Map<ArmadaJourneyStop>(journeyStopReceiving);
@@ -156,6 +232,21 @@ namespace HaloBiz.MyServices.Impl
                 }
             }
             var typeTransferDTO = _mapper.Map<JourneyStartTransferDTO>(itemToAdd);
+            return CommonResponse.Send(ResponseCodes.SUCCESS, typeTransferDTO);
+        }
+
+        public async Task<ApiCommonResponse> AddVehicleFeedback(HttpContext context, VehicleFeedbackReceivingDTO feedback)
+        {
+            var itemToAdd = _mapper.Map<VehicleFeedbackDetail>(feedback);
+
+            itemToAdd.CreatedById = context.GetLoggedInUserId();
+            itemToAdd.CreatedAt = DateTime.UtcNow;
+            var saved = await _journeyStartandStopRepository.SaveVehicleFeedback(itemToAdd);
+            if (saved == null)
+            {
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, ResponseMessage.InternalServer500);
+            }
+            var typeTransferDTO = _mapper.Map<VehicleFeedbackTransferDTO>(itemToAdd);
             return CommonResponse.Send(ResponseCodes.SUCCESS, typeTransferDTO);
         }
 
@@ -485,8 +576,8 @@ namespace HaloBiz.MyServices.Impl
             itemToUpdate.JourneyEndActualLatitude = journeyEndReceiving.JourneyEndActualLatitude;
             itemToUpdate.JourneyEndActualLongitude = journeyEndReceiving.JourneyEndActualLongitude;
             
-            itemToUpdate.JourneyEndDatetime = DateTime.UtcNow; 
-            TimeSpan gethrs = itemToUpdate.JourneyStartDatetime - itemToUpdate.JourneyEndDatetime;
+            itemToUpdate.JourneyEndDatetime = DateTime.Now; 
+            TimeSpan gethrs = itemToUpdate.JourneyEndDatetime - itemToUpdate.JourneyStartDatetime;
             int hours = (int)gethrs.TotalHours;
             //int min = (int)gethrs.Minutes;
             itemToUpdate.TotalTimeSpentOnJourney = hours;

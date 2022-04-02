@@ -65,6 +65,13 @@ namespace HaloBiz.MyServices
         //Task<ApiCommonResponse> RelinquishJourneyNote(long id);
         Task<ApiCommonResponse> DeleteJourneyNote(long id);
 
+        //FeedBack
+        Task<ApiCommonResponse> AddFeedbackMaster(HttpContext context, FeedbackMasterReceivingDTO feedback);
+        Task<ApiCommonResponse> AddGeneralFeedback(HttpContext context, GeneralFeedbackReceivingDTO feedback);
+        Task<ApiCommonResponse> AddArmedEscortFeedback(HttpContext context, ArmedEscortFeedbackReceivingDTO feedback);
+        Task<ApiCommonResponse> AddCommanderFeedback(HttpContext context, CommanderFeedbackReceivingDTO feedback);
+        Task<ApiCommonResponse> AddPilotFeedback(HttpContext context, PilotFeedbackReceivingDTO feedback);
+        Task<ApiCommonResponse> AddVehicleFeedback(HttpContext context, VehicleFeedbackReceivingDTO feedback);
 
     }
 }

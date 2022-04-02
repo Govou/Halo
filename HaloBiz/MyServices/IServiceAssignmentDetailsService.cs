@@ -29,6 +29,7 @@ namespace HaloBiz.MyServices
         Task<ApiCommonResponse> GetAllCommanderDetailsByProfileId(long profileId);
         Task<ApiCommonResponse> GetCommanderDetailById(long id);
         Task<ApiCommonResponse> UpdateCommanderDetail(HttpContext context, long id, CommanderServiceAssignmentDetailsReceivingDTO commanderReceivingDTO);
+        //Task<ApiCommonResponse> UpdateCommanderDetailForVehicleReplacementByAssIdandResourceId(HttpContext context, long assId, long resourceId, CommanderServiceAssignmentDetailsReceivingDTO commanderReceivingDTO);
         Task<ApiCommonResponse> DeleteCommanderDetail(long id);
         //Task<ApiCommonResponse> UpdateCommanderDetailHeldForActionByAssignmentId(long id);
 
@@ -39,6 +40,8 @@ namespace HaloBiz.MyServices
         Task<ApiCommonResponse> GetAllPilotDetailsByAssignmentId(long assignmentId);
         Task<ApiCommonResponse> GetPilotDetailById(long id);
         Task<ApiCommonResponse> UpdatePilotDetail(HttpContext context, long id, PilotServiceAssignmentDetailsReceivingDTO pilotReceivingDTO);
+        //Task<ApiCommonResponse> UpdatePilotDetailForVehicleReplacementByAssIdandResourceId(HttpContext context, long assId, long resourceId, PilotServiceAssignmentDetailsReceivingDTO pilotReceivingDTO);
+
         Task<ApiCommonResponse> DeletePilotDetail(long id);
         //Task<ApiCommonResponse> UpdatePilotDetailHeldForActionByAssignmentId(long id);
 
