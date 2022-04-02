@@ -1480,25 +1480,25 @@ namespace HaloBiz.MyServices.Impl
                         .Include(x => x.ServiceAssignment).Include(x => x.PassengerType)
                         .ToListAsync();
             var commanders = await _context.CommanderServiceAssignmentDetails
-                        .Where(x => x.ServiceAssignmentId == invoice.Id && x.IsDeleted == false)
+                        .Where(x => x.ServiceAssignmentId == invoice.Id && x.IsDeleted == false && x.IsTemporarilyHeld == true)
                         .Include(x => x.ServiceAssignment)
                         .Include(x => x.CommanderResource)
                         .Include(x=>x.CommanderResource.Profile)
                        
                         .ToListAsync();
             var armedEscorts = await _context.ArmedEscortServiceAssignmentDetails
-                        .Where(x => x.ServiceAssignmentId == invoice.Id && x.IsDeleted == false)
+                        .Where(x => x.ServiceAssignmentId == invoice.Id && x.IsDeleted == false && x.IsTemporarilyHeld == true)
                         .Include(x => x.ServiceAssignment)
                         .Include(x => x.ArmedEscortResource)
                         .ToListAsync();
             var pilots = await _context.PilotServiceAssignmentDetails
-                        .Where(x => x.ServiceAssignmentId == invoice.Id && x.IsDeleted == false)
+                        .Where(x => x.ServiceAssignmentId == invoice.Id && x.IsDeleted == false && x.IsTemporarilyHeld == true)
                         .Include(x => x.ServiceAssignment)
                         .Include(x => x.PilotResource)
                         
                         .ToListAsync();
             var vehicles = await _context.VehicleServiceAssignmentDetails
-                        .Where(x => x.ServiceAssignmentId == invoice.Id && x.IsDeleted == false)
+                        .Where(x => x.ServiceAssignmentId == invoice.Id && x.IsDeleted == false && x.IsTemporarilyHeld == true)
                         .Include(x => x.ServiceAssignment)
                         .Include(x => x.VehicleResource)
                         .Include(x => x.VehicleResource.SupplierService)
