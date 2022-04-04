@@ -117,5 +117,59 @@ namespace OnlinePortalBackend.Repository.Impl
 
             return serviceInvoices;
         }
+
+        public async Task<InvoiceDetailDTO> GetInvoice(int invoiceId)
+        {
+            var firstInvoice = _context.Invoices.FirstOrDefault(x => x.Id == invoiceId);
+            var allInvoices = new List<InvoiceDetailInfo>();
+            var InvoiceDTO = new InvoiceDetailDTO();
+            if (firstInvoice == null)
+                return null;
+
+            if (firstInvoice.InvoiceNumber.StartsWith("G"))
+            {
+                var groupedInvoices = _context.Invoices.Where(x => x.GroupInvoiceNumber == firstInvoice.GroupInvoiceNumber && x.StartDate.Date == firstInvoice.StartDate.Date && x.EndDate.Date == firstInvoice.EndDate.Date).Select(
+                    x => new InvoiceDetailInfo
+                    {
+                        Total = x.Value,
+                        ContractServiceId = (int)x.ContractServiceId
+                    }).ToList();
+                var conServices = new Dictionary<int, string>();
+                foreach (var invoice in groupedInvoices)
+                {
+                    var res = _context.ContractServices.Include(x => x.Service).FirstOrDefault(x => x.Id == invoice.ContractServiceId);
+                    conServices.Add(invoice.ContractServiceId, res.Service.Name );
+                    invoice.Quantity = (int)res.Quantity;
+                    invoice.Discount = res.Discount;
+                }
+
+                foreach (var item in groupedInvoices)
+                {
+                    item.ServiceName = conServices[item.ContractServiceId];
+                }
+                allInvoices = groupedInvoices;
+            }
+            else
+            {
+                var invoice = new InvoiceDetailInfo
+                {
+                    Total = firstInvoice.Value,
+                    ContractServiceId = (int)firstInvoice.ContractServiceId
+                };
+                var res = _context.ContractServices.Include(x => x.Service).FirstOrDefault(x => x.Id == invoice.ContractServiceId);
+                invoice.ServiceName = res.Service.Name;
+                invoice.Quantity = (int)res.Quantity;
+                invoice.Discount = res.Discount;
+                allInvoices.Add(invoice);
+            }
+
+            InvoiceDTO.InvoiceNumber = firstInvoice.InvoiceNumber;
+            InvoiceDTO.InvoiceStart = firstInvoice.StartDate;
+            InvoiceDTO.InvoiceEnd = firstInvoice.EndDate;
+            InvoiceDTO.InvoiceDue = firstInvoice.DateToBeSent;
+            InvoiceDTO.InvoiceDetailsInfos = allInvoices;
+
+            return InvoiceDTO;
+        }
     }
 }
