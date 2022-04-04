@@ -21,37 +21,155 @@ namespace OnlinePortalBackend.Repository.Impl
             _context = context;
         }
 
-        public async Task<ContractServiceInvoiceDTO> GetConractServiceInvoices(int contractServiceId)
+        public async Task<ContractServiceInvoiceDTO> GetInvoices(int userId, int? contractService, int? contractId, int limit = 10)
         {
-            var xx = _context.Invoices.Include(x => x.Receipts).Include(x => x.ContractService).Where(x => x.ContractServiceId == contractServiceId);
-            IEnumerable<InvoiceDTO> invoices = _context.Invoices.Include(x => x.Receipts).Include(x => x.ContractService).Where(x => x.ContractServiceId == contractServiceId).Select(x => new InvoiceDTO
-            {
-                Id = (int)x.Id,
-                VAT = x.ContractService.Vat.Value,
-                InvoiceEndDate = x.EndDate,
-                InvoiceStartDate = x.StartDate,
-                InvoiceNumber = x.InvoiceNumber,
-                InvoiceValue = x.Value,
-                Payment = x.Receipts.FirstOrDefault(y => y.InvoiceId == x.Id).ReceiptValue,
-                DateToBeSent = x.DateToBeSent,
-                IsFinalInvoice = x.IsFinalInvoice.Value,
-                IsReceiptedStatus = x.IsReceiptedStatus,
-                InvoiceValueBalanceAfterReceipt = x.Receipts.FirstOrDefault(y => y.InvoiceId == x.Id).InvoiceValueBalanceAfterReceipting
-            });
+            ContractServiceInvoiceDTO serviceInvoices = null;
 
-            if (invoices == null)
-                return null;
-
-            var serviceInvoices = new ContractServiceInvoiceDTO
+            if (contractService != null && contractService.Value == 0)
             {
-                Invoices = invoices,
-                PaymentsOverDue = invoices.Where(x => x.IsFinalInvoice == true && x.IsReceiptedStatus == 0 && x.InvoiceEndDate < DateTime.Today).Count(),
-                PaymentsDue = invoices.Where(x => x.DateToBeSent < DateTime.Today).Count(),
-                TotalPayments = invoices.Where(x => x.Payment != null).Select(x => x.Payment.Value).Sum(),
-                Status = invoices.Where(x => x.InvoiceValueBalanceAfterReceipt != null).Select(x => x.InvoiceValueBalanceAfterReceipt).Any(x => x.Value == 0) ? "Completed Payment" : "Outstanding"
-            };
+                IEnumerable<InvoiceDTO> invoices = _context.Invoices.Include(x => x.Receipts).Include(x => x.ContractService).Where(x => x.ContractServiceId == contractService && x.CustomerDivisionId == userId).Select(x => new InvoiceDTO
+                {
+                    Id = (int)x.Id,
+                    VAT = x.ContractService.Vat.Value,
+                    InvoiceEndDate = x.EndDate,
+                    InvoiceStartDate = x.StartDate,
+                    InvoiceNumber = x.InvoiceNumber,
+                    InvoiceValue = x.Value,
+                    Payment = x.Receipts.FirstOrDefault(y => y.InvoiceId == x.Id).ReceiptValue,
+                    DateToBeSent = x.DateToBeSent,
+                    IsFinalInvoice = x.IsFinalInvoice.Value,
+                    IsReceiptedStatus = x.IsReceiptedStatus,
+                    InvoiceValueBalanceAfterReceipt = x.Receipts.FirstOrDefault(y => y.InvoiceId == x.Id).InvoiceValueBalanceAfterReceipting
+                });
+
+                if (invoices == null)
+                    return null;
+
+                serviceInvoices = new ContractServiceInvoiceDTO
+                {
+                    Invoices = invoices.Take(limit),
+                    PaymentsOverDue = invoices.Where(x => x.IsFinalInvoice == true && x.IsReceiptedStatus == 0 && x.InvoiceEndDate < DateTime.Today).Count(),
+                    PaymentsDue = invoices.Where(x => x.DateToBeSent < DateTime.Today).Count(),
+                    TotalPayments = invoices.Where(x => x.Payment != null).Select(x => x.Payment.Value).Sum(),
+                    Status = invoices.Where(x => x.InvoiceValueBalanceAfterReceipt != null).Select(x => x.InvoiceValueBalanceAfterReceipt).Any(x => x.Value == 0) ? "Completed Payment" : "Outstanding"
+                };
+            }
+
+            else if (contractId != null && contractId.Value == 0)
+            {
+                IEnumerable<InvoiceDTO> invoices = _context.Invoices.Include(x => x.Receipts).Include(x => x.ContractService).Where(x => x.ContractServiceId == contractService && x.CustomerDivisionId == userId).Select(x => new InvoiceDTO
+                {
+                    Id = (int)x.Id,
+                    VAT = x.ContractService.Vat.Value,
+                    InvoiceEndDate = x.EndDate,
+                    InvoiceStartDate = x.StartDate,
+                    InvoiceNumber = x.InvoiceNumber,
+                    InvoiceValue = x.Value,
+                    Payment = x.Receipts.FirstOrDefault(y => y.InvoiceId == x.Id).ReceiptValue,
+                    DateToBeSent = x.DateToBeSent,
+                    IsFinalInvoice = x.IsFinalInvoice.Value,
+                    IsReceiptedStatus = x.IsReceiptedStatus,
+                    InvoiceValueBalanceAfterReceipt = x.Receipts.FirstOrDefault(y => y.InvoiceId == x.Id).InvoiceValueBalanceAfterReceipting
+                });
+
+                if (invoices == null)
+                    return null;
+
+                serviceInvoices = new ContractServiceInvoiceDTO
+                {
+                    Invoices = invoices.Take(limit),
+                    PaymentsOverDue = invoices.Where(x => x.IsFinalInvoice == true && x.IsReceiptedStatus == 0 && x.InvoiceEndDate < DateTime.Today).Count(),
+                    PaymentsDue = invoices.Where(x => x.DateToBeSent < DateTime.Today).Count(),
+                    TotalPayments = invoices.Where(x => x.Payment != null).Select(x => x.Payment.Value).Sum(),
+                    Status = invoices.Where(x => x.InvoiceValueBalanceAfterReceipt != null).Select(x => x.InvoiceValueBalanceAfterReceipt).Any(x => x.Value == 0) ? "Completed Payment" : "Outstanding"
+                };
+            }
+
+            else
+            {
+                IEnumerable<InvoiceDTO> invoices = _context.Invoices.Include(x => x.Receipts).Include(x => x.ContractService).Where(x => x.CustomerDivisionId == userId).Select(x => new InvoiceDTO
+                {
+                        Id = (int)x.Id,
+                        VAT = x.ContractService.Vat.Value,
+                        InvoiceEndDate = x.EndDate,
+                        InvoiceStartDate = x.StartDate,
+                        InvoiceNumber = x.InvoiceNumber,
+                        InvoiceValue = x.Value,
+                        Payment = x.Receipts.FirstOrDefault(y => y.InvoiceId == x.Id).ReceiptValue,
+                        DateToBeSent = x.DateToBeSent,
+                        IsFinalInvoice = x.IsFinalInvoice.Value,
+                        IsReceiptedStatus = x.IsReceiptedStatus,
+                        InvoiceValueBalanceAfterReceipt = x.Receipts.FirstOrDefault(y => y.InvoiceId == x.Id).InvoiceValueBalanceAfterReceipting
+                });
+
+                if (invoices == null)
+                    return null;
+
+                serviceInvoices = new ContractServiceInvoiceDTO
+                {
+                    Invoices = invoices.Take(limit),
+                    PaymentsOverDue = invoices.Where(x => x.IsFinalInvoice == true && x.IsReceiptedStatus == 0 && x.InvoiceEndDate < DateTime.Today).Count(),
+                    PaymentsDue = invoices.Where(x => x.DateToBeSent < DateTime.Today).Count(),
+                    TotalPayments = invoices.Where(x => x.Payment != null).Select(x => x.Payment.Value).Sum(),
+                    Status = invoices.Where(x => x.InvoiceValueBalanceAfterReceipt != null).Select(x => x.InvoiceValueBalanceAfterReceipt).Any(x => x.Value == 0) ? "Completed Payment" : "Outstanding"
+                };
+            }
 
             return serviceInvoices;
+        }
+
+        public async Task<InvoiceDetailDTO> GetInvoice(int invoiceId)
+        {
+            var firstInvoice = _context.Invoices.FirstOrDefault(x => x.Id == invoiceId);
+            var allInvoices = new List<InvoiceDetailInfo>();
+            var InvoiceDTO = new InvoiceDetailDTO();
+            if (firstInvoice == null)
+                return null;
+
+            if (firstInvoice.InvoiceNumber.StartsWith("G"))
+            {
+                var groupedInvoices = _context.Invoices.Where(x => x.GroupInvoiceNumber == firstInvoice.GroupInvoiceNumber && x.StartDate.Date == firstInvoice.StartDate.Date && x.EndDate.Date == firstInvoice.EndDate.Date).Select(
+                    x => new InvoiceDetailInfo
+                    {
+                        Total = x.Value,
+                        ContractServiceId = (int)x.ContractServiceId
+                    }).ToList();
+                var conServices = new Dictionary<int, string>();
+                foreach (var invoice in groupedInvoices)
+                {
+                    var res = _context.ContractServices.Include(x => x.Service).FirstOrDefault(x => x.Id == invoice.ContractServiceId);
+                    conServices.Add(invoice.ContractServiceId, res.Service.Name );
+                    invoice.Quantity = (int)res.Quantity;
+                    invoice.Discount = res.Discount;
+                }
+
+                foreach (var item in groupedInvoices)
+                {
+                    item.ServiceName = conServices[item.ContractServiceId];
+                }
+                allInvoices = groupedInvoices;
+            }
+            else
+            {
+                var invoice = new InvoiceDetailInfo
+                {
+                    Total = firstInvoice.Value,
+                    ContractServiceId = (int)firstInvoice.ContractServiceId
+                };
+                var res = _context.ContractServices.Include(x => x.Service).FirstOrDefault(x => x.Id == invoice.ContractServiceId);
+                invoice.ServiceName = res.Service.Name;
+                invoice.Quantity = (int)res.Quantity;
+                invoice.Discount = res.Discount;
+                allInvoices.Add(invoice);
+            }
+
+            InvoiceDTO.InvoiceNumber = firstInvoice.InvoiceNumber;
+            InvoiceDTO.InvoiceStart = firstInvoice.StartDate;
+            InvoiceDTO.InvoiceEnd = firstInvoice.EndDate;
+            InvoiceDTO.InvoiceDue = firstInvoice.DateToBeSent;
+            InvoiceDTO.InvoiceDetailsInfos = allInvoices;
+
+            return InvoiceDTO;
         }
     }
 }

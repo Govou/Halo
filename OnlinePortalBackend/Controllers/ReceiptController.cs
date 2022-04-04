@@ -28,10 +28,17 @@ namespace OnlinePortalBackend.Controllers
             return await _receiptAdapter.AddReceipt(receiptReceiving);
         }
 
-        [HttpGet("GetContractInvoices")]
-        public async Task<ApiCommonResponse> GetContractInvoices(int contractInvoiveId)
+        [HttpGet("GetInvoices")]
+        public async Task<ApiCommonResponse> GetInvoices(int userId, int? contractServiceId, int? contractId, int limit = 10)
         {
-            return await _invoiceService.GetContractInvoices(contractInvoiveId);
+            return await _invoiceService.GetInvoices(userId, contractServiceId, contractId, limit = 10);
         }
+
+        [HttpGet("GetInvoice")]
+        public async Task<ApiCommonResponse> GetInvoice(int invoiceId)
+        {
+            return await _invoiceService.GetInvoice(invoiceId);
+        }
+
     }
 }

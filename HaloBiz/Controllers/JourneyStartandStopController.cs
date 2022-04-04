@@ -229,5 +229,42 @@ namespace HaloBiz.Controllers
         {
             return await _journeyStartandStopService.DeleteJourneyNote(id);
         }
+
+        //Feedback
+        [HttpPost("AddFeedbackMaster")]
+        public async Task<ApiCommonResponse> AddFeedbackMaster(FeedbackMasterReceivingDTO feedback)
+        {
+            return await _journeyStartandStopService.AddFeedbackMaster(HttpContext, feedback);
+        }
+
+        [HttpPost("AddGeneralFeedback")]
+        public async Task<ApiCommonResponse> AddGeneralFeedback(GeneralFeedbackReceivingDTO feedback)
+        {
+            return await _journeyStartandStopService.AddGeneralFeedback(HttpContext, feedback);
+        }
+
+        [HttpPost("AddArmedEscortFeedback")]
+        public async Task<ApiCommonResponse> AddArmedEscortFeedback(ArmedEscortFeedbackReceivingDTO feedback)
+        {
+            return await _journeyStartandStopService.AddArmedEscortFeedback(HttpContext, feedback);
+        }
+
+        [HttpPost("AddCommanderFeedback")]
+        public async Task<ApiCommonResponse> AddCommanderFeedback(CommanderFeedbackReceivingDTO feedback)
+        {
+            return await _journeyStartandStopService.AddCommanderFeedback(HttpContext, feedback);
+        }
+
+        [HttpPost("AddPilotFeedback")]
+        public async Task<ApiCommonResponse> AddPilotFeedback(PilotFeedbackReceivingDTO feedback)
+        {
+            return await _journeyStartandStopService.AddPilotFeedback(HttpContext, feedback);
+        }
+
+        [HttpPost("AddVehicleFeedback")]
+        public async Task<ApiCommonResponse> AddVehicleFeedback(VehicleFeedbackReceivingDTO feedback)
+        {
+            return await _journeyStartandStopService.AddVehicleFeedback(HttpContext, feedback);
+        }
     }
 }

@@ -133,6 +133,16 @@ namespace HaloBiz.Repository.Impl
            .ToListAsync();
         }
 
+        public Task<FeedbackDetail> FindFeedbackDetailById(long Id)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<FeedbackMaster> FindFeedbackMasterById(long Id)
+        {
+            throw new NotImplementedException();
+        }
+
         public async Task<JourneyIncident> FindJourneyIncidentById(long Id)
         {
             return await _context.JourneyIncidents.Include(r => r.JourneyStart)
@@ -174,6 +184,61 @@ namespace HaloBiz.Repository.Impl
             leadCommander.IsActive = false;
             _context.JourneyLeadCommanders.Update(leadCommander);
             return await SaveChanges();
+        }
+
+        public async Task<ArmedEscortFeedbackDetail> SaveArmedEscortFeedback(ArmedEscortFeedbackDetail feedback)
+        {
+            var savedEntity = await _context.ArmedEscortFeedbackDetails.AddAsync(feedback);
+
+            if (await SaveChanges())
+            {
+                return savedEntity.Entity;
+            }
+            return null;
+        }
+
+        public async Task<CommanderFeedbackDetail> SaveCommanderFeedback(CommanderFeedbackDetail feedback)
+        {
+            var savedEntity = await _context.CommanderFeedbackDetails.AddAsync(feedback);
+
+            if (await SaveChanges())
+            {
+                return savedEntity.Entity;
+            }
+            return null;
+        }
+
+        public async Task<FeedbackDetail> SaveFeedbackDetail(FeedbackDetail feedbackDetail)
+        {
+            //var savedEntity = await _context.FeedbackDetails.AddAsync(feedbackDetail);
+
+            //if (await SaveChanges())
+            //{
+            //    return savedEntity.Entity;
+            //}
+            return null;
+        }
+
+        public async Task<FeedbackMaster> SaveFeedbackMaster(FeedbackMaster feedbackMaster)
+        {
+            var savedEntity = await _context.FeedbackMasters.AddAsync(feedbackMaster);
+
+            if (await SaveChanges())
+            {
+                return savedEntity.Entity;
+            }
+            return null;
+        }
+
+        public async Task<GeneralFeedbackDetail> SaveGeneralFeedback(GeneralFeedbackDetail feedback)
+        {
+            var savedEntity = await _context.GeneralFeedbackDetails.AddAsync(feedback);
+
+            if (await SaveChanges())
+            {
+                return savedEntity.Entity;
+            }
+            return null;
         }
 
         public async Task<JourneyIncident> SaveJourneyIncident(JourneyIncident incident)
@@ -234,6 +299,28 @@ namespace HaloBiz.Repository.Impl
         public async Task<ArmadaJourneyStop> SaveJourneyStop(ArmadaJourneyStop journeyStop)
         {
             var savedEntity = await _context.ArmadaJourneyStops.AddAsync(journeyStop);
+
+            if (await SaveChanges())
+            {
+                return savedEntity.Entity;
+            }
+            return null;
+        }
+
+        public async Task<PilotFeedbackDetail> SavePilotFeedback(PilotFeedbackDetail feedback)
+        {
+            var savedEntity = await _context.PilotFeedbackDetails.AddAsync(feedback);
+
+            if (await SaveChanges())
+            {
+                return savedEntity.Entity;
+            }
+            return null;
+        }
+
+        public async Task<VehicleFeedbackDetail> SaveVehicleFeedback(VehicleFeedbackDetail feedback)
+        {
+            var savedEntity = await _context.VehicleFeedbackDetails.AddAsync(feedback);
 
             if (await SaveChanges())
             {

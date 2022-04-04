@@ -1,7 +1,9 @@
 ﻿using Halobiz.Common.DTOs.ApiDTOs;
+using Halobiz.Common.DTOs.TransferDTOs;
 using Microsoft.AspNetCore.Mvc;
 using OnlinePortalBackend.DTOs.TransferDTOs;
 using OnlinePortalBackend.MyServices;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace OnlinePortalBackend.Controllers
@@ -29,6 +31,35 @@ namespace OnlinePortalBackend.Controllers
         public async Task<ApiCommonResponse> TrackEndorsement(long id)
         {
             return await _endorsementService.TrackEndorsement(HttpContext, id);
+        }
+
+        [HttpPost("TopUp")]
+        public async Task<ApiCommonResponse> EndorsementTopUp(List<EndorsementDTO> endorsement)
+        {
+            return await _endorsementService.EndorsementTopUp(HttpContext, endorsement);
+        }
+
+        [HttpPost("Reduction")]
+        public async Task<ApiCommonResponse> EndorsementReduction(List<EndorsementDTO> endorsement)
+        {
+            return await _endorsementService.EndorsementReduction(HttpContext, endorsement);
+        }
+
+        //[HttpPost("Cancel")]
+        //public async Task<ApiCommonResponse> EndorsementCancellation(int id)
+        //{
+        //    return await _endorsementService.EndorsementCancellation(HttpContext, id);
+        //}
+        [HttpGet("GetContractServiceById")]
+        public async Task<ApiCommonResponse> GetContractService(int id)
+        {
+            return await _endorsementService.GetContractService(id);
+        }
+
+        [HttpGet("GetContractServices")]
+        public async Task<ApiCommonResponse> GetContractServices(int userId)
+        {
+            return await _endorsementService.GetContractServices(userId);
         }
     }
 }

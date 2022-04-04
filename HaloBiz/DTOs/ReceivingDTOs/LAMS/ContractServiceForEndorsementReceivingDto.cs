@@ -71,4 +71,6 @@ namespace HaloBiz.DTOs.ReceivingDTOs.LAMS
         public string GroupInvoiceNumber { get; set; }
 
     }
+
+
 }

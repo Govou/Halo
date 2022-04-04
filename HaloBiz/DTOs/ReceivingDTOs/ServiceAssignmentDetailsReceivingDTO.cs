@@ -59,4 +59,47 @@ namespace HaloBiz.DTOs.ReceivingDTOs
         public long? ServiceAssignmentId { get; set; }
         public string FacebooHandle { get; set; }
     }
+
+    public class ArmedEscortReplacementReceivingDTO
+    {
+        public long MasterServiceAssignmentId { get; set; }
+
+        public long OldResourceId { get; set; }
+
+        public long NewResourceId { get; set; }
+
+        public string ReasonForReplacement { get; set; }
+    }
+
+    public class CommanderReplacementReceivingDTO
+    {
+        public long MasterServiceAssignmentId { get; set; }
+
+        public long OldResourceId { get; set; }
+
+        public long NewResourceId { get; set; }
+        public string ReasonForReplacement { get; set; }
+    }
+
+    public class PilotReplacementReceivingDTO
+    {
+        public long MasterServiceAssignmentId { get; set; }
+       
+        public long OldResourceId { get; set; }
+
+        public long NewResourceId { get; set; }
+
+        public string ReasonForReplacement { get; set; }
+    }
+
+    public class VehicleReplacementReceivingDTO
+    {
+        public long MasterServiceAssignmentId { get; set; }
+
+        public long OldResourceId { get; set; }
+
+        public long NewResourceId { get; set; }
+    
+        public string ReasonForReplacement { get; set; }
+    }
 }
