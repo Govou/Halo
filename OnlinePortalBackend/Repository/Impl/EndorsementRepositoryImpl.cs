@@ -44,6 +44,7 @@ namespace OnlinePortalBackend.Repository.Impl
 
             var result = new ContractServiceDTO
             {
+                ContractServiceId = (int)contractService.Id,
                 ServiceName = service.Name,
                 ServiceCategory = service.ServiceCategory.Name,
                 Quantity = (int)contractService.Quantity,
@@ -81,6 +82,7 @@ namespace OnlinePortalBackend.Repository.Impl
 
                 var result = new ContractServiceDTO
                 {
+                    ContractServiceId = (int)contractService.Id,
                     ServiceName = service.Name,
                     ServiceCategory = service.ServiceCategory.Name,
                     Quantity = (int)contractService.Quantity,
