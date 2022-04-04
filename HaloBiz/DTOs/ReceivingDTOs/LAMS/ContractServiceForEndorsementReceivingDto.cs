@@ -69,4 +69,6 @@ namespace HaloBiz.DTOs.ReceivingDTOs.LAMS
         public long CreatedById { get; set; }
 
     }
+
+
 }

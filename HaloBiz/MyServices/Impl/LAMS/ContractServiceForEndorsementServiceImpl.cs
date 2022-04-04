@@ -72,6 +72,9 @@ namespace HaloBiz.MyServices.Impl.LAMS
                     return CommonResponse.Send(ResponseCodes.FAILURE,null, "There has been a retention on this contract service");
                 }
 
+               // bool isValid = ValidateAdminAccompaniesDirectService(contractServiceForEndorsementDtos);
+
+
                 item.CreatedById = id;
             }
 
@@ -109,7 +112,20 @@ namespace HaloBiz.MyServices.Impl.LAMS
                // await transaction.RollbackAsync();
                 return CommonResponse.Send(ResponseCodes.FAILURE, null, ex.Message);
             }
-        }       
+        }
+
+        //private bool ValidateAdminAccompaniesDirectService(List<ContractServiceForEndorsementReceivingDto> contractServiceForEndorsementDtos)
+        //{
+        //    var adminServices = new List<ContractServiceForEndorsementReceivingDto>();
+        //    var directServices = new List<ContractServiceForEndorsementReceivingDto>();
+
+        //    foreach (var item in contractServiceForEndorsementDtos)
+        //    {
+        //        var service = _context.ServiceRelationships.FirstOrDefault(x => x.AdminServiceId == item.ServiceId);
+        //        if (service != null) adminServices.Add(service);
+               
+        //    }
+        //}
 
         private async Task<bool> ValidateContractToRenew(ContractServiceForEndorsement contractServiceForEndorsement)
         {
