@@ -31,7 +31,7 @@ variables:
 
 stages:
 
-- stage: BuildAndDeployHalobizBackendMicroservice
+- stage: BuildAndDeployHalobizBackendMicroserviceDev
   displayName: Build and Deploy Halobiz Microservice to Dev
   condition: eq(variables.isDev, true)
 
@@ -104,7 +104,7 @@ stages:
           package: '/home/vsts/work/1/halobiz-drop/**/*.zip'
 
 
-- stage: BuildAndDeployOnlinePortalBackendMicroservice
+- stage: BuildAndDeployOnlinePortalBackendMicroserviceDev
   displayName: Build and deploy Online Portal backend Microservice to Dev
   condition: eq(variables.isDev, true)
 
@@ -178,7 +178,7 @@ stages:
           package: '/home/vsts/work/1/portal-drop/**/*.zip'
 
 
-- stage: BuildAndDeployHalobizIdentityServerMicroservice
+- stage: BuildAndDeployHalobizIdentityServerMicroserviceDev
   displayName: Build and deploy Online Halobiz Identity-server Microservice to Dev
   condition: eq(variables.isDev, true)
 
@@ -255,7 +255,7 @@ stages:
   #####################################################################################################################
 
 
-- stage: BuildAndDeployHalobizBackendMicroservice
+- stage: BuildAndDeployHalobizBackendMicroserviceStg
   displayName: Build and Deploy Halobiz Microservice to Stg
   condition: eq(variables.isStg, true)
 
@@ -330,7 +330,7 @@ stages:
           package: '/home/vsts/work/1/halobiz-drop/**/*.zip'
 
 
-- stage: BuildAndDeployOnlinePortalBackendMicroservice
+- stage: BuildAndDeployOnlinePortalBackendMicroserviceStg
   displayName: Build and deploy Online Portal backend Microservice to Stg
   condition: eq(variables.isStg, true)
 
@@ -405,7 +405,7 @@ stages:
           package: '/home/vsts/work/1/portal-drop/**/*.zip'
 
 
-- stage: BuildAndDeployHalobizIdentityServerMicroservice
+- stage: BuildAndDeployHalobizIdentityServerMicroserviceStg
   displayName: Build and deploy Online Halobiz Identity-server Microservice to Stg
   condition: eq(variables.isStg, true)
 
@@ -483,7 +483,7 @@ stages:
  #####################################################################################################################
 
 
-- stage: BuildAndDeployHalobizBackendMicroservice
+- stage: BuildAndDeployHalobizBackendMicroserviceProd
   displayName: Build and Deploy Halobiz Microservice to Production
   condition: eq(variables.isProd, true)
 
@@ -557,7 +557,7 @@ stages:
           package: '/home/vsts/work/1/halobiz-drop/**/*.zip'
 
 
-- stage: BuildAndDeployOnlinePortalBackendMicroservice
+- stage: BuildAndDeployOnlinePortalBackendMicroserviceProd
   displayName: Build and deploy Online Portal backend Microservice to
   condition: eq(variables.isProd, true)
 
@@ -631,7 +631,7 @@ stages:
           package: '/home/vsts/work/1/portal-drop/**/*.zip'
 
 
-- stage: BuildAndDeployHalobizIdentityServerMicroservice
+- stage: BuildAndDeployHalobizIdentityServerMicroserviceProd
   displayName: Build and deploy Online Halobiz Identity-server Microservice to Prod
   condition: eq(variables.isProd, true)
 
