@@ -1,4 +1,5 @@
-﻿using Halobiz.Common.DTOs.ApiDTOs;
+﻿using Halobiz.Common.Auths;
+using Halobiz.Common.DTOs.ApiDTOs;
 using HaloBiz.MyServices;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -11,6 +12,8 @@ namespace HaloBiz.Controllers
 {
     [Route("api/v1/[controller]")]
     [ApiController]
+    [ModuleName(HalobizModules.CronJobs)]
+
     public class CronJobsController : ControllerBase
     {
         private readonly ICronJobService _cronJobService;
