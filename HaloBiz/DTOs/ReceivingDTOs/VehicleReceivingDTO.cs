@@ -15,6 +15,12 @@ namespace HaloBiz.DTOs.ReceivingDTOs
         public long? AttachedOfficeId { get; set; }
 
         public long? VehicleTypeId { get; set; }
+        public string FrontViewImage { get; set; }
+        public string LeftViewImage { get; set; }
+        public string RightViewImage { get; set; }
+        public string RearViewImage { get; set; }
+        public string TopViewImage { get; set; }
+        public string InteriorViewImage { get; set; }
     }
 
     public class VehicleTypeReceivingDTO
