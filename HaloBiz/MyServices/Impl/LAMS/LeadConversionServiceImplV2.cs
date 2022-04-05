@@ -783,6 +783,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                             ServiceCategoryId = contractService.Service?.ServiceCategoryId,
                             ServiceGroupId = contractService.Service?.ServiceGroupId,
                             ContractId = contractService.ContractId,
+                            ServiceId = contractService.ServiceId,
                             ContractServiceId = contractService.Id,
                             GroupInvoiceNumber = contractService?.Contract?.GroupInvoiceNumber,
                             QuoteServiceId = contractService.QuoteServiceId,
