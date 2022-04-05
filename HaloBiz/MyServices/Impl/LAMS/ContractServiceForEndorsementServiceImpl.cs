@@ -101,8 +101,12 @@ namespace HaloBiz.MyServices.Impl.LAMS
                     return CommonResponse.Send(ResponseCodes.FAILURE,null, "There has been a retention on this contract service");
                 }
 
-               // bool isValid = ValidateAdminAccompaniesDirectService(contractServiceForEndorsementDtos);
+                bool isValid = ValidateAdminAccompaniesDirectService(contractServiceForEndorsementDtos);
 
+                if (!isValid)
+                {
+                    return CommonResponse.Send(ResponseCodes.FAILURE, null, "Admin and Direct services should go together");
+                }
 
                 item.CreatedById = id;
                 if (createNewContract)
@@ -140,6 +144,42 @@ namespace HaloBiz.MyServices.Impl.LAMS
             }
         }
 
+
+        private bool ValidateAdminAccompaniesDirectService(List<ContractServiceForEndorsementReceivingDto> ContractServices)
+        {
+            var isValidCount = 0;
+            var adminServiceCount = 0;
+
+            foreach (var contractService in ContractServices)
+            {
+                var directServiceExist = false;
+                var adminServiceExist = false;
+                var adminDirectService = _context.ServiceRelationships.FirstOrDefault(x => x.DirectServiceId == contractService.ServiceId || x.AdminServiceId == contractService.ServiceId);
+                foreach (var item in ContractServices)
+                {
+                    if (item.ServiceId == adminDirectService.AdminServiceId)
+                    {
+                        adminServiceExist = true;
+                        adminServiceCount++;
+                    }
+                    if (item.ServiceId == adminDirectService.DirectServiceId)
+                    {
+                        directServiceExist = true;
+                    }
+                }
+                if (directServiceExist && adminServiceExist)
+                {
+                    isValidCount++;
+                }
+            }
+
+            if (isValidCount == adminServiceCount)
+            {
+                return true;
+            }
+            return false;
+        }
+
         //private bool ValidateAdminAccompaniesDirectService(List<ContractServiceForEndorsementReceivingDto> contractServiceForEndorsementDtos)
         //{
         //    var adminServices = new List<ContractServiceForEndorsementReceivingDto>();
@@ -149,7 +189,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
         //    {
         //        var service = _context.ServiceRelationships.FirstOrDefault(x => x.AdminServiceId == item.ServiceId);
         //        if (service != null) adminServices.Add(service);
-               
+
         //    }
         //}
 

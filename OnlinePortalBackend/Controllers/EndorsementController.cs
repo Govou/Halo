@@ -45,11 +45,8 @@ namespace OnlinePortalBackend.Controllers
             return await _endorsementService.EndorsementReduction(HttpContext, endorsement);
         }
 
-        //[HttpPost("Cancel")]
-        //public async Task<ApiCommonResponse> EndorsementCancellation(int id)
-        //{
-        //    return await _endorsementService.EndorsementCancellation(HttpContext, id);
-        //}
+      
+
         [HttpGet("GetContractServiceById")]
         public async Task<ApiCommonResponse> GetContractService(int id)
         {
@@ -60,6 +57,12 @@ namespace OnlinePortalBackend.Controllers
         public async Task<ApiCommonResponse> GetContractServices(int userId)
         {
             return await _endorsementService.GetContractServices(userId);
+        }
+
+        [HttpGet("GetPossibleDatesOfEffectForEndorsement")]
+        public async Task<ApiCommonResponse> GetPossibleDatesOfEffectForEndorsement(int contractServiceId)
+        {
+            return await _endorsementService.GetPossibleDatesOfEffectForEndorsement(contractServiceId);
         }
     }
 }

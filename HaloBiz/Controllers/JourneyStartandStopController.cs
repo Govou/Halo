@@ -35,6 +35,11 @@ namespace HaloBiz.Controllers
         {
             return await _journeyStartandStopService.GetStartJourneyById(id);
         }
+        [HttpGet("GetJouneyStartByAssignmentId/{assignmentId}")]
+        public async Task<ApiCommonResponse> GetJouneyStartByAssignmentId(long assignmentId)
+        {
+            return await _journeyStartandStopService.GetStartJourneyByAssignmentId(assignmentId);
+        }
 
         [HttpPost("AddNewJourneyStart")]
         public async Task<ApiCommonResponse> AddNewJourneyStart(JourneyStartReceivingDTO ReceivingDTO)
@@ -239,7 +244,27 @@ namespace HaloBiz.Controllers
         {
             return await _journeyStartandStopService.AddFeedbackMaster(HttpContext, feedback);
         }
+        [HttpGet("GetAllFeedbackMasters")]
+        public async Task<ApiCommonResponse> GetAllFeedbackMasters()
+        {
+            return await _journeyStartandStopService.GetAllFeedbackMasters();
+        }
+        [HttpGet("GetFeedbackMasterById/{id}")]
+        public async Task<ApiCommonResponse> GetFeedbackMasterById(long id)
+        {
+            return await _journeyStartandStopService.GetFeedbackMasterById(id);
+        }
+        [HttpGet("GetFeedbackMasterByAssignmentId/{assignmentId}")]
+        public async Task<ApiCommonResponse> GetFeedbackMasterByAssignmentId(long assignmentId)
+        {
+            return await _journeyStartandStopService.GetFeedbackMasterByAssignmentId(assignmentId);
+        }
 
+        [HttpGet("GetGeneralFeedbackByAssignmentId/{assignId}")]
+        public async Task<ApiCommonResponse> GetGeneralFeedbackByAssignmentId(long assignId)
+        {
+            return await _journeyStartandStopService.GetGeneralFeedbackByAssignmenrId(assignId);
+        }
         [HttpPost("AddGeneralFeedback")]
         public async Task<ApiCommonResponse> AddGeneralFeedback(GeneralFeedbackReceivingDTO feedback)
         {

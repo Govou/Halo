@@ -62,13 +62,23 @@ namespace HaloBiz.MyServices.Impl
         public async Task<ApiCommonResponse> AddFeedbackMaster(HttpContext context, FeedbackMasterReceivingDTO feedback)
         {
             var itemToAdd = _mapper.Map<FeedbackMaster>(feedback);
+            var assignmentExist = await _journeyStartandStopRepository.FindFeedbackMasterByAssignmentId(feedback.ServiceAssignmentId);
+            //check for availability and skip a new insert for the same same assignment 
 
-            itemToAdd.CreatedById = context.GetLoggedInUserId();
-            itemToAdd.CreatedAt = DateTime.UtcNow;
-            var saved = await _journeyStartandStopRepository.SaveFeedbackMaster(itemToAdd);
-            if (saved == null)
+            if (assignmentExist == null)
             {
-                return CommonResponse.Send(ResponseCodes.FAILURE, null, ResponseMessage.InternalServer500);
+                itemToAdd.CreatedById = context.GetLoggedInUserId();
+                itemToAdd.CreatedAt = DateTime.UtcNow;
+                var saved = await _journeyStartandStopRepository.SaveFeedbackMaster(itemToAdd);
+                if (saved == null)
+                {
+                    return CommonResponse.Send(ResponseCodes.FAILURE, null, ResponseMessage.InternalServer500);
+                }
+            }
+            else
+            {
+                var typeTransfer = _mapper.Map<FeedbackMasterTransferDTO>(assignmentExist);
+                return CommonResponse.Send(ResponseCodes.SUCCESS, typeTransfer);
             }
             var typeTransferDTO = _mapper.Map<FeedbackMasterTransferDTO>(itemToAdd);
             return CommonResponse.Send(ResponseCodes.SUCCESS, typeTransferDTO);
@@ -352,6 +362,17 @@ namespace HaloBiz.MyServices.Impl
             return CommonResponse.Send(ResponseCodes.SUCCESS);
         }
 
+        public async Task<ApiCommonResponse> GetAllFeedbackMasters()
+        {
+            var getAll = await _journeyStartandStopRepository.FindAllFeedbackMasters();
+            if (getAll == null)
+            {
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE); ;
+            }
+            var TransferDTO = _mapper.Map<IEnumerable<FeedbackMasterTransferDTO>>(getAll);
+            return CommonResponse.Send(ResponseCodes.SUCCESS, TransferDTO);
+        }
+
         public async Task<ApiCommonResponse> GetAllJourneyIncidentPics()
         {
             var getAll = await _journeyStartandStopRepository.FindAllJouneyIncidentPics();
@@ -462,6 +483,39 @@ namespace HaloBiz.MyServices.Impl
             return CommonResponse.Send(ResponseCodes.SUCCESS, TransferDTO);
         }
 
+        public async Task<ApiCommonResponse> GetFeedbackMasterByAssignmentId(long assignId)
+        {
+            var getItem = await _journeyStartandStopRepository.FindFeedbackMasterByAssignmentId(assignId);
+            if (getItem == null)
+            {
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE); ;
+            }
+            var TransferDTO = _mapper.Map<FeedbackMasterTransferDTO>(getItem);
+            return CommonResponse.Send(ResponseCodes.SUCCESS, TransferDTO);
+        }
+
+        public async Task<ApiCommonResponse> GetFeedbackMasterById(long id)
+        {
+            var getItem = await _journeyStartandStopRepository.FindFeedbackMasterById(id);
+            if (getItem == null)
+            {
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE); ;
+            }
+            var TransferDTO = _mapper.Map<FeedbackMasterTransferDTO>(getItem);
+            return CommonResponse.Send(ResponseCodes.SUCCESS, TransferDTO);
+        }
+
+        public async Task<ApiCommonResponse> GetGeneralFeedbackByAssignmenrId(long assignId)
+        {
+            var getItem = await _journeyStartandStopRepository.FindGenralFeedbackByAssignmentId(assignId);
+            if (getItem == null)
+            {
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE); ;
+            }
+            var TransferDTO = _mapper.Map<GeneralFeedbackTransferDTO>(getItem);
+            return CommonResponse.Send(ResponseCodes.SUCCESS, TransferDTO);
+        }
+
         public async Task<ApiCommonResponse> GetJourneyIncidentById(long id)
         {
             var getItem = await _journeyStartandStopRepository.FindJourneyIncidentById(id);
@@ -480,7 +534,7 @@ namespace HaloBiz.MyServices.Impl
             {
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE); ;
             }
-            var TransferDTO = _mapper.Map<IEnumerable<JourneyIncidentPictureTransferDTO>>(getItem);
+            var TransferDTO = _mapper.Map<JourneyIncidentPictureTransferDTO>(getItem);
             return CommonResponse.Send(ResponseCodes.SUCCESS, TransferDTO);
         }
 
@@ -491,7 +545,7 @@ namespace HaloBiz.MyServices.Impl
             {
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE); ;
             }
-            var TransferDTO = _mapper.Map<IEnumerable<JourneyLeadCommanderTransferDTO>>(getItem);
+            var TransferDTO = _mapper.Map<JourneyLeadCommanderTransferDTO>(getItem);
             return CommonResponse.Send(ResponseCodes.SUCCESS, TransferDTO);
         }
 
@@ -502,7 +556,18 @@ namespace HaloBiz.MyServices.Impl
             {
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE); ;
             }
-            var TransferDTO = _mapper.Map<IEnumerable<JourneyNoteTransferDTO>>(getItem);
+            var TransferDTO = _mapper.Map<JourneyNoteTransferDTO>(getItem);
+            return CommonResponse.Send(ResponseCodes.SUCCESS, TransferDTO);
+        }
+
+        public async Task<ApiCommonResponse> GetStartJourneyByAssignmentId(long id)
+        {
+            var getItem = await _journeyStartandStopRepository.FindJourneyStartByAssignmentId(id);
+            if (getItem == null)
+            {
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE); ;
+            }
+            var TransferDTO = _mapper.Map<JourneyStartTransferDTO>(getItem);
             return CommonResponse.Send(ResponseCodes.SUCCESS, TransferDTO);
         }
 

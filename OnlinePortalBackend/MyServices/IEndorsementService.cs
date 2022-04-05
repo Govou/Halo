@@ -13,8 +13,8 @@ namespace OnlinePortalBackend.MyServices
         Task<ApiCommonResponse> TrackEndorsement(HttpContext context, long endorsementId);
         Task<ApiCommonResponse> EndorsementTopUp(HttpContext context, List<EndorsementDTO> endorsement);
         Task<ApiCommonResponse> EndorsementReduction(HttpContext context, List<EndorsementDTO> endorsement);
-        //Task<ApiCommonResponse> EndorsementCancellation(HttpContext context, int id);
         Task<ApiCommonResponse> GetContractService(int id);
         Task<ApiCommonResponse> GetContractServices(int userId);
+        Task<ApiCommonResponse> GetPossibleDatesOfEffectForEndorsement(int contractServiceId);
     }
 }
