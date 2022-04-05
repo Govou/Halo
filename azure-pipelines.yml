@@ -660,7 +660,7 @@ stages:
         name: DevEnv
         displayName: 'Download halobiz_identity_server appsettings.json to Prod environment'
         inputs:
-          secureFile: 'appsettings-identity-server-prod.json.json'
+          secureFile: 'appsettings-identity-server-prod.json'
 
       - task: CmdLine@2
         displayName: 'Copy halobiz_identity_server appsettings.json env to default directory'
