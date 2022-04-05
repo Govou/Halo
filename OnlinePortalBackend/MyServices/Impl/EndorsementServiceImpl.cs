@@ -77,7 +77,7 @@ namespace OnlinePortalBackend.MyServices.Impl
                     ContractId = contractService.ContractId,
                     BranchId = contractService.BranchId.Value,
                     ContractService = item.ContractServiceId,
-                    BillableAmount = contractService.BillableAmount,
+                    BillableAmount = contractService.UnitPrice * item.Quantity,
                     AdminDirectTie = contractService.AdminDirectTie,
                     VAT = contractService.Vat,
                     ServiceId = contractService.ServiceId,
@@ -215,7 +215,7 @@ namespace OnlinePortalBackend.MyServices.Impl
                     ContractId = contractService.ContractId,
                     BranchId = contractService.BranchId.Value,
                     ContractService = item.ContractServiceId,
-                    BillableAmount = contractService.BillableAmount,
+                    BillableAmount = contractService.UnitPrice * item.Quantity,
                     AdminDirectTie = contractService.AdminDirectTie,
                     VAT = contractService.Vat,
                     ServiceId = contractService.ServiceId,
@@ -357,11 +357,27 @@ namespace OnlinePortalBackend.MyServices.Impl
 
             var dateList = new List<DateTime>();
             var months = enddate - DateTime.Today;
-            var monthCount = months.TotalDays / 30;
+            var monthCount = Math.Floor(months.TotalDays / 30);
 
             for (int i = 1; i < monthCount - 1; i++)
             {
-                dateList.Add(new DateTime(year, month, day).AddMonths(i));
+                if (month == 2)
+                {
+                    dateList.Add(new DateTime(year, month, 29).AddMonths(i));
+                }
+                else
+                {
+                    try
+                    {
+                        dateList.Add(new DateTime(year, month, day).AddMonths(i));
+                    }
+                    catch (Exception)
+                    {
+                        dateList.Add(new DateTime(year, month, day - 1).AddMonths(i));
+                    }
+
+                }
+               
             }
 
             return dateList;
