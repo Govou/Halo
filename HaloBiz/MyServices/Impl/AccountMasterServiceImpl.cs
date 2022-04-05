@@ -225,7 +225,7 @@ namespace HaloBiz.MyServices.Impl
                    var today = DateTime.Now;
 
                 var invoices = await _context.Invoices
-                            .Where(x => x.IsAccountPosted==false && x.IsFinalInvoice==true && x.StartDate.Date == today)
+                            .Where(x => x.IsAccountPosted==false && x.IsFinalInvoice==true && x.StartDate.Date == today )
                             .ToListAsync();                  
 
                     if(!invoices.Any())

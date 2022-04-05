@@ -1,4 +1,5 @@
 using System.Threading.Tasks;
+using Halobiz.Common.Auths;
 using Halobiz.Common.DTOs.ApiDTOs;
 using HaloBiz.DTOs.ReceivingDTOs;
 using HaloBiz.MyServices;
@@ -8,6 +9,8 @@ namespace HaloBiz.Controllers
 {
     [Route("api/v1/[controller]")]
     [ApiController]
+    [ModuleName(HalobizModules.LeadAdministration)]
+
     public class SbuproportionController : ControllerBase
     {
         private readonly ISbuproportionService _sBUProportionService;

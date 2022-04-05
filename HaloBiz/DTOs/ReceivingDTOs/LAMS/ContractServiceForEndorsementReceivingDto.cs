@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using HaloBiz.Helpers;
 using HalobizMigrations.Models;
-
+using HalobizMigrations.Models.Shared;
 
 namespace HaloBiz.DTOs.ReceivingDTOs.LAMS
 {
@@ -67,6 +67,8 @@ namespace HaloBiz.DTOs.ReceivingDTOs.LAMS
         public string UniqueTag { get; set; }
         public string QuoteServiceId { get; set; }
         public long CreatedById { get; set; }
+        public GroupContractCategory GroupContractCategory { get; set; } = GroupContractCategory.IndividualContract;
+        public string GroupInvoiceNumber { get; set; }
 
     }
 

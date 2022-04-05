@@ -215,18 +215,19 @@ namespace Halobiz.Common.MyServices.RoleManagement
 
             //group according the controller id
             var grouped = from e in result
-                          group e by e.Controller into g
+                          group e by  e.ControllerModule into g
                           select new
                           {
-                              GroupName = g.Key,
-                              SplitName = SplitCamelCase(g.Key),
+                              GroupName = SplitControllerModule(g.Key).Item1,
+                              SplitName = SplitCamelCase(SplitControllerModule(g.Key).Item1),
+                              Module = SplitCamelCase(SplitControllerModule(g.Key).Item2),
                               PermissionList = g.Select(x => new PermissionDisplay
                               (
                                   x.Controller,
-                                   x.Action,
+                                  x.Action,
                                   x.Description,
+                                  SplitCamelCase(x.Module),
                                   x.Permission
-
                               )).ToList()
                           };
 
@@ -239,6 +240,11 @@ namespace Halobiz.Common.MyServices.RoleManagement
             return string.Join(" ", Regex.Split(source, @"(?<!^)(?=[A-Z](?![A-Z]|$))"));
         }
 
+        (string,string) SplitControllerModule(string source)
+        {
+            var split = source.Split('_');
+            return (split[0], split[1]); 
+        }
 
 
         public async Task<ApiCommonResponse> GetRoleById(long id)

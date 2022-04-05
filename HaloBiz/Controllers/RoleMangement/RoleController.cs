@@ -9,11 +9,14 @@ using System.Linq;
 using HaloBiz.DTOs.TransferDTOs;
 using Halobiz.Common.MyServices.RoleManagement;
 using Halobiz.Common.DTOs.ReceivingDTOs.RoleManagement;
+using Halobiz.Common.Auths;
 
 namespace HaloBiz.Controllers.RoleMangement
 {
     [Route("api/v1/[controller]")]
     [ApiController]
+    [ModuleName(HalobizModules.RolesManagement)]
+
     public class RoleController : Controller
     {
         private readonly IRoleService _roleService;

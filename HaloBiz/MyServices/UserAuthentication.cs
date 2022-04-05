@@ -112,7 +112,6 @@ namespace HaloBiz.MyServices
                 var email = payload.Email;
 
                 var userProfile = await _context.UserProfiles.Where(x=>x.Email==email).FirstOrDefaultAsync();
-
                 if (userProfile == null)
                 {
                     return await CreateNewProfile(email);

@@ -48,23 +48,52 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
         public async Task<ApiCommonResponse> AddNewRetentionContractServiceForEndorsement(HttpContext httpContext, List<ContractServiceForEndorsementReceivingDto> contractServiceForEndorsementDtos)
         {
+            if (!contractServiceForEndorsementDtos.Any())
+            {
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "No contract service specified");
+            }
+
+            using var transaction = await _context.Database.BeginTransactionAsync();
+
             var id = httpContext.GetLoggedInUserId();
+            bool createNewContract = contractServiceForEndorsementDtos.Any(x=>x.ContractId==0);
+            Contract newContract = null;
+            if (createNewContract)
+            {
+                var contractDetail = contractServiceForEndorsementDtos.FirstOrDefault();
+                newContract = new Contract {
+                    CreatedAt = DateTime.Now,
+                    CreatedById = id,
+                    CustomerDivisionId = contractDetail.CustomerDivisionId,
+                    Version = (int) VersionType.Latest,
+                   GroupContractCategory =  contractDetail.GroupContractCategory,
+                   GroupInvoiceNumber = contractDetail.GroupInvoiceNumber
+                };
+                var entity = await _context.Contracts.AddAsync(newContract);
+                await _context.SaveChangesAsync();
+                newContract = entity.Entity;
+            }
+
             foreach (var item in contractServiceForEndorsementDtos)
             {
-                var alreadyExists = await _context.ContractServiceForEndorsements
+                bool alreadyExists = false;              
+                if(item.ContractId != 0)
+                {
+                    alreadyExists = await _context.ContractServiceForEndorsements
                        .AnyAsync(x => x.ContractId == item.ContractId && x.PreviousContractServiceId == item.PreviousContractServiceId
                                    && x.CustomerDivisionId == item.CustomerDivisionId && x.ServiceId == item.ServiceId
                                    && !x.IsApproved && !x.IsDeclined && x.IsConvertedToContractService != true && !x.IsDeleted);
+                }
 
                 if (alreadyExists)
                 {
-                    return CommonResponse.Send(ResponseCodes.FAILURE,null, $"There is already an endorsement request for the contract service with id {item.ContractId}");
+                    return CommonResponse.Send(ResponseCodes.FAILURE, null, $"There is already an endorsement request for the contract service with id {item.ContractId}");
                 }
 
                 //check if this is nenewal and the previous contract has not
                 var previouslyRenewal = await _context.ContractServiceForEndorsements
                                                 .Include(x => x.EndorsementType)
-                                                .Where(x => x.ContractId == item.ContractId && x.PreviousContractServiceId == item.PreviousContractServiceId && x.EndorsementType.Caption.Contains("retention"))
+                                                .Where(x => x.PreviousContractServiceId == item.PreviousContractServiceId && x.EndorsementType.Caption.Contains("retention"))
                                                 .FirstOrDefaultAsync();
 
                 if (previouslyRenewal != null)
@@ -80,11 +109,12 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 }
 
                 item.CreatedById = id;
-            }
+                if (createNewContract)
+                    item.ContractId = newContract.Id;
+            }         
 
             var entityToSaveList = _mapper.Map<List<ContractServiceForEndorsement>>(contractServiceForEndorsementDtos);
                         
-            using var transaction = await _context.Database.BeginTransactionAsync();
             try
             {
                 foreach (var item in entityToSaveList)
@@ -98,7 +128,6 @@ namespace HaloBiz.MyServices.Impl.LAMS
                     bool successful = await _approvalService.SetUpApprovalsForContractModificationEndorsement(savedEntity, httpContext);
                     if (!successful)
                     {
-                        await transaction.RollbackAsync();
                         return CommonResponse.Send(ResponseCodes.FAILURE,null, "Could not set up approvals for service endorsement.");
                     }
                 }
@@ -111,7 +140,6 @@ namespace HaloBiz.MyServices.Impl.LAMS
             {
                 _logger.LogError(ex.Message);
                 _logger.LogError(ex.StackTrace);
-               // await transaction.RollbackAsync();
                 return CommonResponse.Send(ResponseCodes.FAILURE, null, ex.Message);
             }
         }

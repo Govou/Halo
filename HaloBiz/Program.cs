@@ -5,6 +5,8 @@ using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using Halobiz.Common.Auths;
+using HaloBiz.Helpers;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
@@ -31,34 +33,41 @@ namespace HaloBiz
                 //Assembly asm = Assembly.GetExecutingAssembly();
                 //var controlleractionlist = asm.GetTypes()
                 //        .Where(type => typeof(ControllerBase).IsAssignableFrom(type))
-
-                //        //  .SelectMany(type => type.GetMethods(BindingFlags.Instance | BindingFlags.DeclaredOnly | BindingFlags.Public))
-                //        //  .Where(m => !m.GetCustomAttributes(typeof(System.Runtime.CompilerServices.CompilerGeneratedAttribute), true).Any())
-                //        //  .Select(x => new { Controller = x.DeclaringType.Name, Action = x.Name, ReturnType = x.ReturnType.BaseType, Fullname=x.ReturnType.FullName, Attributes = String.Join(",", x.GetCustomAttributes().Select(a => a.GetType().Name.Replace("Attribute", ""))) })
-                //        // .OrderBy(x => x.Controller).ToList();
-
                 //        .ToList();
+
+                // .SelectMany(type => type.GetMethods(BindingFlags.Instance | BindingFlags.DeclaredOnly | BindingFlags.Public))
+                // .Where(m => !m.GetCustomAttributes(typeof(System.Runtime.CompilerServices.CompilerGeneratedAttribute), true).Any())
+                // .Select(x => new { Controller = x.DeclaringType.Name, Action = x.Name, ReturnType = x.ReturnType.BaseType, Fullname = x.ReturnType.FullName, Attributes = String.Join(",", x.GetCustomAttributes().Select(a => a.GetType().Name.Replace("Attribute", ""))) })
+                //.OrderBy(x => x.Controller).ToList();
+
+                // var p = controlleractionlist;
+
+                //        
 
                 //int counter = 0;
                 //foreach (var item in controlleractionlist)
                 //{
-                //    var name = item.Name.Replace("Controller","");
+                //    var name = item.Name.Replace("Controller", "");
                 //    var splitName = SplitCamelCase(name);
+                //    var module = (ModuleName)item.GetCustomAttributes<ModuleName>().FirstOrDefault();
+                //    if (module == null)
+                //        throw new Exception($"{name} controller does not have module specified");
+
 
                 //    //read
-                //    Console.WriteLine($"[Display(GroupName = \"{name}\", Name = \"Get\", Description = \"Can view {splitName.ToLower()}\")]");
+                //    Console.WriteLine($"[Display(ShortName=\"{module.GetModuleName()}\",GroupName = \"{name}\", Name = \"Get\", Description = \"Can view {splitName.ToLower()}\")]");
                 //    Console.WriteLine($"{name}_Get = 0x{++counter},");
 
                 //    //write
-                //    Console.WriteLine($"[Display(GroupName = \"{name}\", Name = \"Post\", Description = \"Can create {splitName.ToLower()}\")]");
+                //    Console.WriteLine($"[Display(ShortName=\"{module.GetModuleName()}\",GroupName = \"{name}\", Name = \"Post\", Description = \"Can create {splitName.ToLower()}\")]");
                 //    Console.WriteLine($"{name}_Post = 0x{++counter},");
 
                 //    //update
-                //    Console.WriteLine($"[Display(GroupName = \"{name}\", Name = \"Put\", Description = \"Can update {splitName.ToLower()}\")]");
+                //    Console.WriteLine($"[Display(ShortName=\"{module.GetModuleName()}\",GroupName = \"{name}\", Name = \"Put\", Description = \"Can update {splitName.ToLower()}\")]");
                 //    Console.WriteLine($"{name}_Put = 0x{++counter},");
 
                 //    //delete
-                //    Console.WriteLine($"[Display(GroupName = \"{name}\", Name = \"Delete\", Description = \"Can delete {splitName.ToLower()}\")]");
+                //    Console.WriteLine($"[Display(ShortName=\"{module.GetModuleName()}\",GroupName = \"{name}\", Name = \"Delete\", Description = \"Can delete {splitName.ToLower()}\")]");
                 //    Console.WriteLine($"{name}_Delete = 0x{++counter},\n");
 
                 //}
@@ -71,6 +80,7 @@ namespace HaloBiz
             catch(Exception ex)
             {
                 Log.Fatal(ex, "Host terminated unexpectedly");
+                Console.WriteLine(ex.Message);
             }
             finally
             {

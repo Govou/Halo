@@ -1,4 +1,5 @@
-﻿using Halobiz.Common.DTOs.ApiDTOs;
+﻿using Halobiz.Common.Auths;
+using Halobiz.Common.DTOs.ApiDTOs;
 using HaloBiz.DTOs.ReceivingDTOs;
 using HaloBiz.MyServices;
 using Microsoft.AspNetCore.Http;
@@ -12,6 +13,8 @@ namespace HaloBiz.Controllers
 {
     [Route("api/v1/[controller]")]
     [ApiController]
+    [ModuleName(HalobizModules.Setups)]
+
     public class MasterServiceAssignmentController : ControllerBase
     {
         private readonly IMasterServiceAssignmentService _masterServiceAssignmentService;
@@ -27,11 +30,7 @@ namespace HaloBiz.Controllers
         public async Task<ApiCommonResponse> GetAllServiceAssignmentMasters()
         {
             return await _masterServiceAssignmentService.GetAllMasterServiceAssignments();
-            //var response = await _masterServiceAssignmentService.GetAllMasterServiceAssignments();
-            //if (response.StatusCode >= 400)
-            //    return StatusCode(response.StatusCode, response);
-            //var cType = ((ApiOkResponse)response).Result;
-            //return Ok(cType);
+           
         }
 
         [HttpGet("GetAllCustomerDivisions")]
@@ -51,10 +50,7 @@ namespace HaloBiz.Controllers
         public async Task<ApiCommonResponse> GetServiceAssignmentMasterById(long id)
         {
             return await _masterServiceAssignmentService.GetMasterServiceAssignmentById(id);
-            //if (response.StatusCode >= 400)
-            //    return StatusCode(response.StatusCode, response);
-            //var Rank = ((ApiOkResponse)response).Result;
-            //return Ok(Rank);
+           
         }
 
         [HttpGet("GetSecondaryServiceAssignmentById/{id}")]
@@ -68,20 +64,12 @@ namespace HaloBiz.Controllers
         {
              return await _masterServiceAssignmentService.AddMasterServiceAssignment(HttpContext, ReceivingDTO);
 
-            //if (response.StatusCode >= 400)
-            //    return StatusCode(response.StatusCode, response);
-            //var rank = ((ApiOkResponse)response).Result;
-            //return Ok(rank);
         }
         [HttpPost("AddNewAutoServiceAssignmentMaster")]
         public async Task<ApiCommonResponse> AddNewAutoServiceAssignmentMaster(MasterServiceAssignmentReceivingDTO ReceivingDTO)
         {
              return await _masterServiceAssignmentService.AddMasterAutoServiceAssignment(HttpContext, ReceivingDTO);
 
-            //if (response.StatusCode >= 400)
-            //    return StatusCode(response.StatusCode, response);
-            //var rank = ((ApiOkResponse)response).Result;
-            //return Ok(rank);
         }
 
         [HttpPost("AddNewSecondaryServiceAssignment")]
@@ -94,10 +82,7 @@ namespace HaloBiz.Controllers
         public async Task<ApiCommonResponse> UpdateServiceAssignmentMasterById(long id, MasterServiceAssignmentReceivingDTO ReceivingDTO)
         {
             return await _masterServiceAssignmentService.UpdateMasterServiceAssignment(HttpContext, id, ReceivingDTO);
-            //if (response.StatusCode >= 400)
-            //    return StatusCode(response.StatusCode, response);
-            //var type = ((ApiOkResponse)response).Result;
-            //return Ok(type);
+           
         }
 
         [HttpDelete("DeleteServiceAssignmentMasterById/{id}")]
