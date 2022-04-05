@@ -136,8 +136,10 @@ namespace HaloBiz.DTOs.TransferDTOs
         public ICollection<PilotFeedbackDetail> PilotFeedbackDetails { get; set; }
         public ICollection<FeedbackDetail> FeedbackDetails { get; set; }
         public ArmadaJourneyStart JourneyStart { get; set; }
+      
         public long? JourneyStartId { get; set; }
         public ServiceAssignment ServiceAssignment { get; set; }
+      
         public long? ServiceAssignmentId { get; set; }
        
         public ICollection<VehicleFeedbackDetail> VehicleFeedbackDetails { get; set; }
@@ -149,6 +151,7 @@ namespace HaloBiz.DTOs.TransferDTOs
         public long? FeedbackMasterId { get; set; }
         public FeedbackMaster FeedbackMaster { get; set; }
         public bool WasSafeAndComfortable { get; set; }
+      
         public string ReasonForNotFeelingSafe { get; set; }
         public int CSATScore { get; set; }
         public int NPSScore { get; set; }

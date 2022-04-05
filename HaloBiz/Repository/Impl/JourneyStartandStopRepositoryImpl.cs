@@ -61,6 +61,15 @@ namespace HaloBiz.Repository.Impl
             return await SaveChanges();
         }
 
+        public async Task<IEnumerable<FeedbackMaster>> FindAllFeedbackMasters()
+        {
+            return await _context.FeedbackMasters.Where(jr => jr.IsDeleted == false).Include(x=>x.JourneyStart).Include(x=>x.ArmedEscortFeedbackDetails.Where(x=>x.IsDeleted == false))
+            .Include(x => x.CommanderFeedbackDetails.Where(x => x.IsDeleted == false)).Include(x => x.PilotFeedbackDetails.Where(x => x.IsDeleted == false))
+            .Include(x => x.VehicleFeedbackDetails.Where(x => x.IsDeleted == false))
+            .Include(ct => ct.ServiceAssignment).OrderByDescending(x => x.Id)
+            .ToListAsync();
+        }
+
         public async Task<IEnumerable<JourneyIncidentPicture>> FindAllJouneyIncidentPics()
         {
             return await _context.JourneyIncidentPictures.Where(jr => jr.IsDeleted == false)
@@ -138,9 +147,24 @@ namespace HaloBiz.Repository.Impl
             throw new NotImplementedException();
         }
 
-        public Task<FeedbackMaster> FindFeedbackMasterById(long Id)
+        public async Task<FeedbackMaster> FindFeedbackMasterByAssignmentId(long assignId)
         {
-            throw new NotImplementedException();
+            return await _context.FeedbackMasters.Include(r => r.ServiceAssignment)
+          .FirstOrDefaultAsync(aer => aer.ServiceAssignmentId == assignId && aer.IsDeleted == false);
+        }
+
+        public async Task<FeedbackMaster> FindFeedbackMasterById(long Id)
+        {
+            return await _context.FeedbackMasters.Include(r => r.ServiceAssignment)
+            .FirstOrDefaultAsync(aer => aer.Id == Id && aer.IsDeleted == false);
+        }
+
+        public async Task<GeneralFeedbackDetail> FindGenralFeedbackByAssignmentId(long assignId)
+        {
+            //return await _context.GeneralFeedbackDetails.Include(r => r.FeedbackMaster)
+            //.FirstOrDefaultAsync(aer => aer.FeedbackMasterId == fMasterId && aer.IsDeleted == false);
+            return await _context.GeneralFeedbackDetails.Include(r => r.FeedbackMaster)
+          .FirstOrDefaultAsync(aer => aer.FeedbackMaster.ServiceAssignmentId == assignId && aer.IsDeleted == false);
         }
 
         public async Task<JourneyIncident> FindJourneyIncidentById(long Id)
@@ -165,6 +189,12 @@ namespace HaloBiz.Repository.Impl
         {
             return await _context.JourneyNotes.Include(r => r.JourneyStart)
              .FirstOrDefaultAsync(aer => aer.Id == Id && aer.IsDeleted == false);
+        }
+
+        public async Task<ArmadaJourneyStart> FindJourneyStartByAssignmentId(long assignId)
+        {
+            return await _context.ArmadaJourneyStarts.Include(r => r.ServiceAssignment)
+            .FirstOrDefaultAsync(aer => aer.ServiceAssignmentId == assignId && aer.IsDeleted == false);
         }
 
         public async Task<ArmadaJourneyStart> FindJourneyStartById(long Id)
