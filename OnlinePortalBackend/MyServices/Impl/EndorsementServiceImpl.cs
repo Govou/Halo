@@ -329,5 +329,42 @@ namespace OnlinePortalBackend.MyServices.Impl
             }
             return CommonResponse.Send(ResponseCodes.SUCCESS, contractServices);
         }
+
+        public async Task<ApiCommonResponse> GetPossibleDatesOfEffectForEndorsement(int contractServiceId)
+        {
+            var contractDates = await GetDatesOfEffectForEndorsement(contractServiceId);
+            if (contractDates == null || contractDates.Count() == 0)
+            {
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE); ;
+            }
+            return CommonResponse.Send(ResponseCodes.SUCCESS, contractDates);
+        }
+
+        private async Task<IEnumerable<DateTime>> GetDatesOfEffectForEndorsement(int contractServiceId)
+        {
+            var contractService = _context.ContractServices.FirstOrDefault(x => x.Id == contractServiceId);
+
+            if (contractService == null)
+            {
+                return null;
+            }
+
+            DateTime startdate = contractService.ContractStartDate.Value;
+            DateTime enddate = contractService.ContractEndDate.Value;
+            var day = startdate.Day;
+            var month = DateTime.Today.Month;
+            var year = DateTime.Today.Year;
+
+            var dateList = new List<DateTime>();
+            var months = enddate - DateTime.Today;
+            var monthCount = months.TotalDays / 30;
+
+            for (int i = 1; i < monthCount - 1; i++)
+            {
+                dateList.Add(new DateTime(year, month, day).AddMonths(i));
+            }
+
+            return dateList;
+        }
     }
 }
