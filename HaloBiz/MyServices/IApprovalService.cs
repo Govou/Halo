@@ -25,5 +25,6 @@ namespace HaloBiz.MyServices
         Task<ApiCommonResponse> GetPendingApprovalsByQuoteId(long quoteId);
         Task<ApiCommonResponse> GetApprovalsByEndorsementId(long endorsement);
         Task<ApiCommonResponse> GetApprovalsByQuoteId(long quoteId);
+        Task<(bool, string)> SetUpApprovalsForContractCreationEndorsement(long contractId, HttpContext context);
     }
 }

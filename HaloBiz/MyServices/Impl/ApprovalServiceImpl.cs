@@ -257,6 +257,90 @@ namespace HaloBiz.MyServices.Impl
             }
         }
 
+        public async Task<(bool,string)> SetUpApprovalsForContractCreationEndorsement(long contractId, HttpContext context)
+        {
+            try
+            {
+                var contract = await _context.Contracts.Where(x => x.Id == contractId)
+                                    .Include(x=>x.CustomerDivision)
+                                    .Include(x => x.ContractServices)
+                                        .ThenInclude(x=>x.Branch)
+                                    .FirstOrDefaultAsync();
+                if (contract == null)
+                    return (false,$"No contract with Id {contractId}");
+
+                var module = await _processesRequiringApprovalRepo.FindProcessesRequiringApprovalByCaption("Contract Creation");
+                if (module == null)
+                {
+                    return (false,"No approval module for contract creation");
+                }
+
+                var approvalLimits = await _approvalLimitRepo.GetApprovalLimitsByModule(module.Id);
+                
+
+                if (!approvalLimits.Any())
+                    return (false, $"No approval limit for module with id {module.Id}");
+
+
+                List<Approval> approvals = new List<Approval>();
+                foreach (var conService in contract.ContractServices)
+                {
+                    conService.Service = await GetServiceInformationForApprovals(conService.ServiceId);
+                }
+
+                foreach (var contractService in contract.ContractServices)
+                {
+                    if (!contractService.BillableAmount.HasValue) continue;
+
+                    var orderedList = approvalLimits
+                        .Where(x => contractService.BillableAmount.Value > x.UpperlimitValue ||
+                                    (contractService.BillableAmount.Value <= x.UpperlimitValue && contractService.BillableAmount.Value >= x.LowerlimitValue))
+                        .OrderBy(x => x.Sequence);
+
+                    foreach (var approvalLimit in orderedList)
+                    {
+                        long responsibleId = GetWhoIsResponsible(approvalLimit, contractService.Service, contractService.Branch);
+
+                        var approval = new Approval
+                        {
+                            ContractServiceId = contractService.Id,
+                            ContractId = contractService.ContractId,
+                            Caption = $"Approval Needed To Create Contract Service {contractService.Service.Name} for client {contract.CustomerDivision.DivisionName}",
+                            CreatedById = context.GetLoggedInUserId(),
+                            Sequence = approvalLimit.Sequence,
+                            ResponsibleId = responsibleId,
+                            IsApproved = false,
+                            DateTimeApproved = null,
+                            Level = approvalLimit.ApproverLevel.Caption
+                        };
+
+                        approvals.Add(approval);
+                    }
+                }
+
+                if (approvals.Any())
+                {
+                    var successful = await _approvalRepo.SaveApprovalRange(approvals);
+                    if (successful)
+                    {
+                        await SendMailsForContractApprovals(approvals);
+                        return (true,"");
+                    }
+                    else
+                    {
+                        return (false,"No approvals set up");
+                    }
+                }
+                return (false, $"No approval setup");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogInformation(ex.Message);
+                _logger.LogInformation(ex.StackTrace);
+                return (false, ex.Message);
+            }
+        }
+
         public async Task<bool> SetUpApprovalsForContractModificationEndorsement(ContractServiceForEndorsement contractServiceForEndorsement, HttpContext context)
         {
             try

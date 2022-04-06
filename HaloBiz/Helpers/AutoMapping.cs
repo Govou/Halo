@@ -188,6 +188,10 @@ namespace HaloBiz.Helpers
                 ));
             CreateMap<SbutoQuoteServiceProportion, SbutoQuoteServiceProportionTransferDTO>();
             CreateMap<SbutoQuoteServiceProportionReceivingDTO, SbutoQuoteServiceProportion>();
+
+            CreateMap<SbutoContractServiceProportion, SbutoContractServiceProportionTransferDTO>();
+            CreateMap<SbutoContractServiceProportionReceivingDTO, SbutoContractServiceProportion>();
+
             CreateMap<RegionReceivingDTO, Region>();
             CreateMap<Region, RegionTransferDTO>();
             CreateMap<ZoneReceivingDTO, Zone>();
