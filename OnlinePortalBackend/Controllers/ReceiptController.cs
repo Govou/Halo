@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using OnlinePortalBackend.Adapters;
 using OnlinePortalBackend.MyServices;
+using OnlinePortalBackend.MyServices.Impl;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,17 +16,17 @@ namespace OnlinePortalBackend.Controllers
     [ApiController]
     public class ReceiptController : ControllerBase
     {
-        private readonly IReceiptAdapter _receiptAdapter;
+        private readonly IReceiptService _receiptService;
         private readonly IInvoiceService _invoiceService;
-        public ReceiptController(IInvoiceService invoiceService)
+        public ReceiptController(IInvoiceService invoiceService, IReceiptService receiptService)
         {
             _invoiceService = invoiceService;
-              
+            _receiptService = receiptService;
         }
         [HttpPost("")]
         public async Task<ApiCommonResponse> AddNewReceipt(ReceiptReceivingDTO receiptReceiving)
         {
-            return await _receiptAdapter.AddReceipt(receiptReceiving);
+            return await _receiptService.AddNewReceipt(receiptReceiving);
         }
 
         [HttpGet("GetInvoices")]
@@ -39,6 +40,11 @@ namespace OnlinePortalBackend.Controllers
         {
             return await _invoiceService.GetInvoice(invoiceId);
         }
+
+        //public async Task<ApiCommonResponse> CompletePaymentForReceipt(ReceiptReceivingDTO request)
+        //{
+            
+        //}
 
     }
 }

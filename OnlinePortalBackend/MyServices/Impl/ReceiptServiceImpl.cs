@@ -1,7 +1,14 @@
-﻿using HalobizMigrations.Data;
+﻿using Flurl.Http;
+using Halobiz.Common.DTOs.ApiDTOs;
+using Halobiz.Common.DTOs.ReceivingDTOs;
+using HalobizMigrations.Data;
 using HalobizMigrations.Models;
+using HalobizMigrations.Models.OnlinePortal;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
+using OnlinePortalBackend.Adapters;
 using OnlinePortalBackend.Helpers;
 using System;
 using System.Collections.Generic;
@@ -14,21 +21,36 @@ namespace OnlinePortalBackend.MyServices.Impl
     {
         Task<bool> PostAccounts(long loggedInUserId, Receipt receipt, Invoice invoice, long bankAccountId);
         Task<Invoice> GetInvoiceDetails(string groupInvoiceNumber, string startDate);
+        Task<ApiCommonResponse> AddNewReceipt(ReceiptReceivingDTO receivingDTO);
     }
 
-    public class ReceiptService : IReceiptService
+    public class ReceiptServiceImpl : IReceiptService
     {
         private readonly HalobizContext _context;
+        private readonly IPaymentAdapter _adapter;
+        private readonly IConfiguration _configuration;
+        private readonly IApiInterceptor _apiInterceptor;
+        private readonly ILogger<ReceiptServiceImpl> _logger;
 
         private readonly string WITHOLDING_TAX = "WITHOLDING TAX";
         private readonly string RECEIPTVOUCHERTYPE = "Sales Receipt";
         private readonly string RETAIL = "RETAIL";
 
+        private string _HalobizBaseUrl;
         private long LoggedInUserId;
 
-        public ReceiptService(HalobizContext context)
+        public ReceiptServiceImpl(HalobizContext context, 
+            IPaymentAdapter adapter, 
+            IConfiguration configuration,
+            IApiInterceptor apiInterceptor,
+            ILogger<ReceiptServiceImpl> logger)
         {
             _context = context;
+            _adapter = adapter;
+            _configuration = configuration;
+            _apiInterceptor = apiInterceptor;
+            _logger = logger;
+            _HalobizBaseUrl = _configuration["HalobizBaseUrl"] ?? _configuration.GetSection("AppSettings:HalobizBaseUrl").Value;
         }
         public async Task<bool> PostAccounts(long loggedInUserId, Receipt receipt, Invoice invoice, long bankAccountId)
         {
@@ -242,6 +264,53 @@ namespace OnlinePortalBackend.MyServices.Impl
         public Task<Invoice> GetInvoiceDetails(string groupInvoiceNumber, string startDate)
         {
             throw new NotImplementedException();
+        }
+
+        public async Task<ApiCommonResponse> AddNewReceipt(ReceiptReceivingDTO receiptDTO)
+        {
+            ApiCommonResponse responseData = new ApiCommonResponse();
+            var result = await _adapter.VerifyPaymentAsync((PaymentGateway)receiptDTO.PaymentGateway, receiptDTO.PaymentReference);
+
+            if (result == null)
+                return CommonResponse.Send(ResponseCodes.FAILURE, "failed");
+            if (!result.PaymentSuccessful)
+                return CommonResponse.Send(ResponseCodes.FAILURE, "failed");
+
+            try
+            {
+                var token = await _apiInterceptor.GetToken();
+                var baseUrl = string.Concat(_HalobizBaseUrl, "Receipt");
+
+
+                var response = await baseUrl.AllowAnyHttpStatus().WithOAuthBearerToken($"{token}")
+                   .PostJsonAsync(result)?.ReceiveJson();
+
+                foreach (KeyValuePair<string, object> kvp in (IDictionary<string, object>)response)
+                {
+                    if (kvp.Key.ToString() == "responseCode")
+                    {
+                        responseData.responseCode = kvp.Value.ToString();
+                    }
+                    if (kvp.Key.ToString() == "responseData")
+                    {
+                        responseData.responseData = kvp.Value;
+                    }
+                    if (kvp.Key.ToString() == "responseMsg")
+                    {
+                        responseData.responseMsg = kvp.Value.ToString();
+                    }
+                }
+              return CommonResponse.Send(ResponseCodes.SUCCESS, "success");
+              //  return true;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogInformation(ex.Message);
+                responseData.responseMsg = "An error occured";
+
+                return CommonResponse.Send(ResponseCodes.FAILURE, "failed");
+
+            }
         }
     }
 }
