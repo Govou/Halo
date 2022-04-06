@@ -135,5 +135,11 @@ namespace HaloBiz.MyServices
         Task<ApiCommonResponse> getAllWorkspacesRevamped(HttpContext httpContext);
         Task<ApiCommonResponse> getAllDataForWorkspaceSideBar(HttpContext httpContext);
         Task<ApiCommonResponse> getWorkspaceById(HttpContext httpContext, long workspaceId);
+        //Task<ApiCommonResponse> CreateDefaultWorkspace();
+        Task<ApiCommonResponse> ResolveQuotesIntoProjects(HttpContext httpContext,long serviceId, string fulfillmentType);
+        //Task<ApiCommonResponse> FetchAmortizationData(int year, int month);
+        Task<ApiCommonResponse> FetchAmortizationMaster(int year, int month);
+
+        Task<ApiCommonResponse> FetchAmortizationDetails();
     }
 }

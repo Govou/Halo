@@ -34,6 +34,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Halobiz.Common\Halobiz.Common.csproj" />
+    <ProjectReference Include="..\HaloBiz\HaloBiz.csproj" />
   </ItemGroup>
 
   <ItemGroup>

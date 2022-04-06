@@ -151,14 +151,19 @@ namespace HaloBiz.Repository.Impl
 
         public async Task<IEnumerable<Service>> FindAllUnplishedServices()
         {
+            var contract = new Contract();
             return await _context.Services
                 .Include(service => service.Target)
+                
                 .Include(service => service.ServiceType)
                 .Include(service => service.Account)
+                .Include(service=>service.Division)
                 .Include(service => service.ServiceCategory).AsNoTracking()
-                .Include(service => service.ServiceGroup).AsNoTracking()
-                .Include(service => service.Division).AsNoTracking()
+                
+                .Include(service => service.ServiceGroup).AsNoTracking()   
+                .Include(service => service.Division)
                 .Include(service => service.OperatingEntity).AsNoTracking()
+                 
                 .Include(service => service.CreatedBy)
                 .Include(service => service.ServiceRequiredServiceDocuments.Where(row => row.IsDeleted == false))
                     .ThenInclude(row => row.RequiredServiceDocument)
@@ -166,6 +171,8 @@ namespace HaloBiz.Repository.Impl
                     .ThenInclude(row => row.RequredServiceQualificationElement)
                 .Where(service => service.IsRequestedForPublish == true && service.IsPublished == false && service.IsDeleted == false)
                     .ToListAsync();
+
+           
         }
 
         public async Task<IEnumerable<Service>> FindOnlinePortalServices()
