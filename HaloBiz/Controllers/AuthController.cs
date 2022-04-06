@@ -1,6 +1,8 @@
 using AutoMapper;
 using Google.Apis.Auth;
+using Halobiz.Common.Auths;
 using Halobiz.Common.DTOs.ApiDTOs;
+using Halobiz.Common.DTOs.ReceivingDTO;
 using Halobiz.Common.DTOs.ReceivingDTOs;
 using Halobiz.Common.DTOs.TransferDTOs;
 using Halobiz.Common.MyServices;
@@ -28,6 +30,8 @@ namespace HaloBiz.Controllers
 {
     [Route("api/v1/[controller]")]
     [ApiController]
+    [ModuleName(HalobizModules.Setups)]
+
     public class AuthController : ControllerBase
     {
 
@@ -38,17 +42,17 @@ namespace HaloBiz.Controllers
         }
 
         [AllowAnonymous]
-        [HttpPost("OtherLogin")]
-        public async Task<ApiCommonResponse> OtherLogin(LoginDTO login)
+        [HttpPost("Login")]
+        public async Task<ApiCommonResponse> Login(LoginDTO login)
         {
-            return await _userAuthentication.OtherLogin(login);
+            return await _userAuthentication.Login(login);
         }
 
         [AllowAnonymous]
-        [HttpPost("Login")]
+        [HttpPost("GoogleLogin")]
         public async Task<ApiCommonResponse> Login(GoogleLoginReceivingDTO loginReceiving)
         {
-            return await _userAuthentication.Login(loginReceiving);
+            return await _userAuthentication.GoogleLogin(loginReceiving);
         }
 
         [AllowAnonymous]
@@ -57,6 +61,23 @@ namespace HaloBiz.Controllers
         {
             return await _userAuthentication.CreateProfile(authUserProfileReceivingDTO);
         }
-       
+
+        [HttpPost("RevokeToken")]
+        public async Task<ApiCommonResponse> RevokeToken(RefreshTokenDTO model)
+        {
+            return await _userAuthentication.RevokeToken(model);
+        }
+
+        [HttpPut("UpdatePassword")]
+        public async Task<ApiCommonResponse> UpdatePassord(UpdatePassworddDTO request)
+        {
+            return await _userAuthentication.UpdatePassword(request);
+        }
+
+        [HttpPost("CreatePassword")]
+        public async Task<ApiCommonResponse> CreatePassword(CreatePasswordDTO request)
+        {
+            return await _userAuthentication.CreatePassword(request);
+        }
     }
 }

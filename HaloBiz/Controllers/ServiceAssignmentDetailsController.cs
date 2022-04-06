@@ -1,4 +1,5 @@
-﻿using Halobiz.Common.DTOs.ApiDTOs;
+﻿using Halobiz.Common.Auths;
+using Halobiz.Common.DTOs.ApiDTOs;
 using HaloBiz.DTOs.ReceivingDTOs;
 using HaloBiz.MyServices;
 using HaloBiz.MyServices.LAMS;
@@ -13,6 +14,8 @@ namespace HaloBiz.Controllers
 {
     [Route("api/v1/[controller]")]
     [ApiController]
+    [ModuleName(HalobizModules.Setups)]
+
     public class ServiceAssignmentDetailsController : ControllerBase
     {
        
@@ -25,10 +28,10 @@ namespace HaloBiz.Controllers
             _contractServiceService = contractServiceService;
         }
 
-      
+        
 
-        //ArmedEscort
-        [HttpGet("GetAllArmedEscortDetails")]
+          //ArmedEscort
+          [HttpGet("GetAllArmedEscortDetails")]
         public async Task<ApiCommonResponse> GetAllArmedEscortDetails()
         {
             return await _serviceAssignmentDetailsService.GetAllArmedEscortDetails();
@@ -268,7 +271,11 @@ namespace HaloBiz.Controllers
             return await _serviceAssignmentDetailsService.DeleteVehicleDetail(id);
             //return StatusCode(response.StatusCode);
         }
-
+        [HttpPut("UpdateServiceDetailsHeldForActionAndReadyStatusByAssignmentId/{id}")]
+        public async Task<ApiCommonResponse> UpdateServiceDetailsHeldForActionAndReadyStatusByAssignmentId(long id)
+        {
+            return await _serviceAssignmentDetailsService.UpdateServiceDetailsHeldForActionAndReadyStatusByAssignmentId( id);
+        }
         //Passenger
         [HttpGet("GetAllPassengers")]
         public async Task<ApiCommonResponse> GetAllPassengers()
@@ -349,6 +356,35 @@ namespace HaloBiz.Controllers
         public async Task<ApiCommonResponse> GetAllContract()
         {
             return await _serviceAssignmentDetailsService.GetAllContracts();
+        }
+
+        //Replacement
+        [HttpPost("ArmedEscortDetailReplacement")]
+        public async Task<ApiCommonResponse> ArmedEscortDetailReplacement(ArmedEscortReplacementReceivingDTO ReceivingDTO)
+        {
+            return await _serviceAssignmentDetailsService.AddArmedEscortDetailReplacement(HttpContext, ReceivingDTO);
+
+        }
+
+        [HttpPost("CommanderDetailReplacement")]
+        public async Task<ApiCommonResponse> CommanderDetailReplacement(CommanderReplacementReceivingDTO ReceivingDTO)
+        {
+            return await _serviceAssignmentDetailsService.AddCommanderDetailReplacement(HttpContext, ReceivingDTO);
+
+        }
+
+        [HttpPost("PilotDetailReplacement")]
+        public async Task<ApiCommonResponse> PilotDetailReplacement(PilotReplacementReceivingDTO ReceivingDTO)
+        {
+            return await _serviceAssignmentDetailsService.AddPilotDetailReplacement(HttpContext, ReceivingDTO);
+
+        }
+
+        [HttpPost("VehicleDetailReplacement")]
+        public async Task<ApiCommonResponse> VehicleDetailReplacement(VehicleReplacementReceivingDTO ReceivingDTO)
+        {
+            return await _serviceAssignmentDetailsService.AddVehicleDetailReplacement(HttpContext, ReceivingDTO);
+
         }
     }
 }

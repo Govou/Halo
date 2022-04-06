@@ -1,3 +1,4 @@
+using Halobiz.Common.Auths;
 using Halobiz.Common.DTOs.ApiDTOs;
 using HaloBiz.DTOs.ReceivingDTOs;
 using HaloBiz.DTOs.TransferDTOs;
@@ -9,6 +10,8 @@ namespace HaloBiz.Controllers.AccountsModel
 {
     [Route("api/v1/[controller]")]
     [ApiController]
+    [ModuleName(HalobizModules.Finance)]
+
     public class ControlAccount : ControllerBase
     {
         private readonly IControlAccountService _controlAccountService;

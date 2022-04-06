@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Halobiz.Common.Auths;
 using Halobiz.Common.DTOs.ApiDTOs;
 using HaloBiz.DTOs.ReceivingDTOs;
 using HaloBiz.DTOs.TransferDTOs;
@@ -10,6 +11,8 @@ namespace HaloBiz.Controllers.AccountsModel
 {
     [Route("api/v1/[controller]")]
     [ApiController]
+    [ModuleName(HalobizModules.Finance)]
+
     public class InvoiceController : ControllerBase
     {
         private readonly IInvoiceService _invoiceService;
@@ -109,6 +112,12 @@ namespace HaloBiz.Controllers.AccountsModel
         public async Task<ApiCommonResponse> SendPeriodicInvoices()
         {
             return await _invoiceService.SendPeriodicInvoices();
+        }
+
+        [HttpGet("GetInvoiceDetails")]
+        public async Task<ApiCommonResponse> GetInvoiceDetails(string groupInvoiceNumber, string startDate)
+        {
+            return await _invoiceService.GetInvoiceDetails(groupInvoiceNumber, startDate);
         }
     }
 }

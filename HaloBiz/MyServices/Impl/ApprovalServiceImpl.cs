@@ -353,7 +353,7 @@ namespace HaloBiz.MyServices.Impl
             {
                 _logger.LogInformation(ex.Message);
                 _logger.LogInformation(ex.StackTrace);
-                return false;
+                throw;
             }
         }
         
@@ -528,23 +528,23 @@ namespace HaloBiz.MyServices.Impl
         {
             if (item.ApproverLevel.Caption == "Branch Head")
             {
-                return branch?.HeadId ?? 1;                          
+                return branch?.HeadId ?? throw new Exception($"No head set up for branch head in {branch?.Name}");
             }
             else if (item.ApproverLevel.Caption == "Division Head")
             {
-                return service?.Division?.HeadId ?? 1;
+                return service?.Division?.HeadId ?? throw new Exception($"No head set up for division head in {service?.Division?.Name}");
             }
             else if (item.ApproverLevel.Caption == "Operating Entity Head")
             {
-                return service?.OperatingEntity?.HeadId ?? 1;
+                return service?.OperatingEntity?.HeadId ?? throw new Exception($"No head set up for operating entity head in {service?.OperatingEntity?.Name}");
             }
             else if (item.ApproverLevel.Caption == "CEO")
             {
-                return service?.Division?.Company?.HeadId ?? 1;
+                return service?.Division?.Company?.HeadId ?? throw new Exception($"No head set up for CEO head in {service?.Division?.Company?.Name}");
             }
             else
             {
-                return 1;
+                throw new Exception($"No approval person set up approval level {item?.ApproverLevel}");
             }
         }
 

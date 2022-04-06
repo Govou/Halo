@@ -48,23 +48,52 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
         public async Task<ApiCommonResponse> AddNewRetentionContractServiceForEndorsement(HttpContext httpContext, List<ContractServiceForEndorsementReceivingDto> contractServiceForEndorsementDtos)
         {
+            if (!contractServiceForEndorsementDtos.Any())
+            {
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "No contract service specified");
+            }
+
+            using var transaction = await _context.Database.BeginTransactionAsync();
+
             var id = httpContext.GetLoggedInUserId();
+            bool createNewContract = contractServiceForEndorsementDtos.Any(x=>x.ContractId==0);
+            Contract newContract = null;
+            if (createNewContract)
+            {
+                var contractDetail = contractServiceForEndorsementDtos.FirstOrDefault();
+                newContract = new Contract {
+                    CreatedAt = DateTime.Now,
+                    CreatedById = id,
+                    CustomerDivisionId = contractDetail.CustomerDivisionId,
+                    Version = (int) VersionType.Latest,
+                   GroupContractCategory =  contractDetail.GroupContractCategory,
+                   GroupInvoiceNumber = contractDetail.GroupInvoiceNumber
+                };
+                var entity = await _context.Contracts.AddAsync(newContract);
+                await _context.SaveChangesAsync();
+                newContract = entity.Entity;
+            }
+
             foreach (var item in contractServiceForEndorsementDtos)
             {
-                var alreadyExists = await _context.ContractServiceForEndorsements
+                bool alreadyExists = false;              
+                if(item.ContractId != 0)
+                {
+                    alreadyExists = await _context.ContractServiceForEndorsements
                        .AnyAsync(x => x.ContractId == item.ContractId && x.PreviousContractServiceId == item.PreviousContractServiceId
                                    && x.CustomerDivisionId == item.CustomerDivisionId && x.ServiceId == item.ServiceId
                                    && !x.IsApproved && !x.IsDeclined && x.IsConvertedToContractService != true && !x.IsDeleted);
+                }
 
                 if (alreadyExists)
                 {
-                    return CommonResponse.Send(ResponseCodes.FAILURE,null, $"There is already an endorsement request for the contract service with id {item.ContractId}");
+                    return CommonResponse.Send(ResponseCodes.FAILURE, null, $"There is already an endorsement request for the contract service with id {item.ContractId}");
                 }
 
                 //check if this is nenewal and the previous contract has not
                 var previouslyRenewal = await _context.ContractServiceForEndorsements
                                                 .Include(x => x.EndorsementType)
-                                                .Where(x => x.ContractId == item.ContractId && x.PreviousContractServiceId == item.PreviousContractServiceId && x.EndorsementType.Caption.Contains("retention"))
+                                                .Where(x => x.PreviousContractServiceId == item.PreviousContractServiceId && x.EndorsementType.Caption.Contains("retention"))
                                                 .FirstOrDefaultAsync();
 
                 if (previouslyRenewal != null)
@@ -72,14 +101,20 @@ namespace HaloBiz.MyServices.Impl.LAMS
                     return CommonResponse.Send(ResponseCodes.FAILURE,null, "There has been a retention on this contract service");
                 }
 
-                item.CreatedById = id;
-            }
+                bool isValid = ValidateAdminAccompaniesDirectService(contractServiceForEndorsementDtos);
 
-           
+                if (!isValid)
+                {
+                    return CommonResponse.Send(ResponseCodes.FAILURE, null, "Admin and Direct services should go together");
+                }
+
+                item.CreatedById = id;
+                if (createNewContract)
+                    item.ContractId = newContract.Id;
+            }         
 
             var entityToSaveList = _mapper.Map<List<ContractServiceForEndorsement>>(contractServiceForEndorsementDtos);
                         
-            using var transaction = await _context.Database.BeginTransactionAsync();
             try
             {
                 foreach (var item in entityToSaveList)
@@ -93,7 +128,6 @@ namespace HaloBiz.MyServices.Impl.LAMS
                     bool successful = await _approvalService.SetUpApprovalsForContractModificationEndorsement(savedEntity, httpContext);
                     if (!successful)
                     {
-                        await transaction.RollbackAsync();
                         return CommonResponse.Send(ResponseCodes.FAILURE,null, "Could not set up approvals for service endorsement.");
                     }
                 }
@@ -106,10 +140,58 @@ namespace HaloBiz.MyServices.Impl.LAMS
             {
                 _logger.LogError(ex.Message);
                 _logger.LogError(ex.StackTrace);
-               // await transaction.RollbackAsync();
                 return CommonResponse.Send(ResponseCodes.FAILURE, null, ex.Message);
             }
-        }       
+        }
+
+
+        private bool ValidateAdminAccompaniesDirectService(List<ContractServiceForEndorsementReceivingDto> ContractServices)
+        {
+            var isValidCount = 0;
+            var adminServiceCount = 0;
+
+            foreach (var contractService in ContractServices)
+            {
+                var directServiceExist = false;
+                var adminServiceExist = false;
+                var adminDirectService = _context.ServiceRelationships.FirstOrDefault(x => x.DirectServiceId == contractService.ServiceId || x.AdminServiceId == contractService.ServiceId);
+                foreach (var item in ContractServices)
+                {
+                    if (item.ServiceId == adminDirectService.AdminServiceId)
+                    {
+                        adminServiceExist = true;
+                        adminServiceCount++;
+                    }
+                    if (item.ServiceId == adminDirectService.DirectServiceId)
+                    {
+                        directServiceExist = true;
+                    }
+                }
+                if (directServiceExist && adminServiceExist)
+                {
+                    isValidCount++;
+                }
+            }
+
+            if (isValidCount == adminServiceCount)
+            {
+                return true;
+            }
+            return false;
+        }
+
+        //private bool ValidateAdminAccompaniesDirectService(List<ContractServiceForEndorsementReceivingDto> contractServiceForEndorsementDtos)
+        //{
+        //    var adminServices = new List<ContractServiceForEndorsementReceivingDto>();
+        //    var directServices = new List<ContractServiceForEndorsementReceivingDto>();
+
+        //    foreach (var item in contractServiceForEndorsementDtos)
+        //    {
+        //        var service = _context.ServiceRelationships.FirstOrDefault(x => x.AdminServiceId == item.ServiceId);
+        //        if (service != null) adminServices.Add(service);
+
+        //    }
+        //}
 
         private async Task<bool> ValidateContractToRenew(ContractServiceForEndorsement contractServiceForEndorsement)
         {

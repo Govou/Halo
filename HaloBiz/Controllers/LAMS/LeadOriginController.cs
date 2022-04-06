@@ -1,4 +1,5 @@
 using System.Threading.Tasks;
+using Halobiz.Common.Auths;
 using Halobiz.Common.DTOs.ApiDTOs;
 using HaloBiz.DTOs.ReceivingDTOs;
 using HaloBiz.MyServices.LAMS;
@@ -8,6 +9,8 @@ namespace HaloBiz.Controllers.LAMS
 {
     [Route("api/v1/[controller]")]
     [ApiController]
+    [ModuleName(HalobizModules.Setups)]
+
     public class LeadOriginController : ControllerBase
     {
         private readonly ILeadOriginService _leadOriginService;

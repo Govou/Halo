@@ -68,4 +68,79 @@ namespace HaloBiz.DTOs.ReceivingDTOs
         public long ServiceAssignmentId { get; set; }
         
     }
+
+    public class FeedbackMasterReceivingDTO
+    {
+        public long JourneyStartId { get; set; }
+        public long ServiceAssignmentId { get; set; }
+
+    }
+    public class GeneralFeedbackReceivingDTO
+    {
+        public long FeedbackMasterId { get; set; }
+        public bool WasSafeAndComfortable { get; set; }
+       
+        public string ReasonForNotFeelingSafe { get; set; }
+        public int CSATScore { get; set; }
+        public int NPSScore { get; set; }
+    
+    }
+    public class ArmedEscortFeedbackReceivingDTO
+    {
+        public long FeedbackMasterId { get; set; }
+     
+        public long ResourceId { get; set; }
+        public int PerformanceScore { get; set; }
+        public string Comments { get; set; }
+   
+    }
+    public class CommanderFeedbackReceivingDTO
+    {
+        public long FeedbackMasterId { get; set; }
+        public long ResourceId { get; set; }
+        public int PerformanceScore { get; set; }
+        public string Comments { get; set; }
+    
+    }
+    public class PilotFeedbackReceivingDTO
+    {
+        public long FeedbackMasterId { get; set; }
+        public long ResourceId { get; set; }
+        public int PerformanceScore { get; set; }
+        public string Comments { get; set; }
+      
+    }
+    public class VehicleFeedbackReceivingDTO
+    {
+        public long FeedbackMasterId { get; set; }
+        public long ResourceId { get; set; }
+        public int PerformanceScore { get; set; }
+        public string Comments { get; set; }
+    
+    }
+
+    public class FeedbackDetailsReceivingDTO
+    {
+        
+        public string CommentOnCommanderResource { get; set; }
+        public int CommanderPerformanceScore { get; set; }
+     
+        public long? CommanderResourceId { get; set; }
+        public string CommentOnPilotResource { get; set; }
+        public int PilotPerformanceScore { get; set; }
+     
+        public long? PilotResourceId { get; set; }
+        public int VehiclePerformanceScore { get; set; }
+     
+        public long? VehicleResourceId { get; set; }
+        public int NPSScore { get; set; }
+        public int CSATScore { get; set; }
+        public string ReasonForNotFeelingSafe { get; set; }
+        public bool WasSafeAndComfortable { get; set; }
+      
+        public long? FeedbackMasterId { get; set; }
+     
+        public string CommentOnVehicleResource { get; set; }
+        
+    }
 }

@@ -3,6 +3,7 @@ using Halobiz.Common.DTOs.ReceivingDTOs;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using OnlinePortalBackend.Adapters;
+using OnlinePortalBackend.MyServices;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,11 +15,30 @@ namespace OnlinePortalBackend.Controllers
     [ApiController]
     public class ReceiptController : ControllerBase
     {
-        private readonly IReceiptAdapter receiptAdapter;
+        private readonly IReceiptAdapter _receiptAdapter;
+        private readonly IInvoiceService _invoiceService;
+        public ReceiptController(IInvoiceService invoiceService)
+        {
+            _invoiceService = invoiceService;
+              
+        }
         [HttpPost("")]
         public async Task<ApiCommonResponse> AddNewReceipt(ReceiptReceivingDTO receiptReceiving)
         {
-            return await receiptAdapter.AddReceipt(receiptReceiving);
+            return await _receiptAdapter.AddReceipt(receiptReceiving);
         }
+
+        [HttpGet("GetInvoices")]
+        public async Task<ApiCommonResponse> GetInvoices(int userId, int? contractServiceId, int? contractId, int limit = 10)
+        {
+            return await _invoiceService.GetInvoices(userId, contractServiceId, contractId, limit = 10);
+        }
+
+        [HttpGet("GetInvoice")]
+        public async Task<ApiCommonResponse> GetInvoice(int invoiceId)
+        {
+            return await _invoiceService.GetInvoice(invoiceId);
+        }
+
     }
 }

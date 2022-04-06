@@ -1,4 +1,5 @@
-﻿using Halobiz.Common.DTOs.ApiDTOs;
+﻿using Halobiz.Common.Auths;
+using Halobiz.Common.DTOs.ApiDTOs;
 using HaloBiz.DTOs.ProjectManagementDTO;
 using HaloBiz.DTOs.ReceivingDTOs;
 using HaloBiz.MyServices;
@@ -15,6 +16,8 @@ namespace HaloBiz.Controllers
 {
     [Route("api/v1/[controller]")]
     [ApiController]
+    [ModuleName(HalobizModules.ProjectManagment)]
+
     public class ProjectManagementController : ControllerBase
     {
         private readonly IProjectAllocationServiceImpl _projectAllocationService;

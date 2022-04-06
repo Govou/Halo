@@ -326,7 +326,30 @@ namespace HaloBiz.Adapters.Impl
                 _logger.LogInformation(ex.Message);
                 _logger.LogInformation(ex.StackTrace);
                 return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+                //return CommonResponse.Send(ResponseCodes.FAILURE, null, ex.Message + " InnerException" + (ex.InnerException != null ? ex.InnerException.Message : ""));
             }
+        }
+
+        public async Task<ApiCommonResponse> SendPaidJourneyConfirmationMail(MasterServiceAssignmentMailVMDTO masterServiceAssignmentMailVMDTO)
+        {
+            var baseUrl = $"{_mailBaseUrl}/Mail/PaidJourneyConfirmationMail";
+            try
+            {
+                var response = await baseUrl.AllowAnyHttpStatus()
+                   .PostJsonAsync(masterServiceAssignmentMailVMDTO).ReceiveJson();
+                return CommonResponse.Send(ResponseCodes.SUCCESS);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogInformation(ex.Message);
+                _logger.LogInformation(ex.StackTrace);
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+            }
+        }
+
+        public Task<ApiCommonResponse> SendNoPaymentConfirmationMail(MasterServiceAssignmentMailVMDTO masterServiceAssignmentMailVMDTO)
+        {
+            throw new NotImplementedException();
         }
 
         //public async Task<ApiCommonResponse> LeadConversionTriggered(string serializedLeadtoClient)
