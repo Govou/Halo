@@ -9,8 +9,9 @@ namespace Halobiz.Common.DTOs.ReceivingDTO
     
         [Required, RegularExpression("[\\w\\s\\W]{2,20}", ErrorMessage="Firstname can only be alphabets between 3 to 20 characters long")]
         public string FirstName { get; set; }
-        [Required, RegularExpression("[\\w\\s\\W]{2,20}", ErrorMessage="Lastname can only be alphabets between 3 to 20 characters long")]
-        public string LastName { get; set; }
+        //[Required, RegularExpression("[\\w\\s\\W]{2,20}", ErrorMessage="Lastname can only be alphabets between 3 to 20 characters long")]
+        public string LastName { get; set; } = "";
+
         [StringLength(20, ErrorMessage="Othername can only be alphabets between 3 to 20 characters long")]
         public string OtherName { get; set; }
         [StringLength(50, ErrorMessage="Codename can only be alphabets between 3 to 50 characters long")]
@@ -46,12 +47,24 @@ namespace Halobiz.Common.DTOs.ReceivingDTO
         public bool LockoutEnabled { get; set; } = false;
         public int AccessFailedCount { get; set; } = 0;
         public string Password { get; set; }
+        public string ConfirmPassword { get; set; }
+        public string CurrentPassword { get; set; }
     }
 
     public class CreatePasswordDTO
     {
         public string Password { get; set; }
+        public string ConfirmPassword { get; set; }
+
         public string Email { get; set; }
         public Origin Origin { get; set; } = Origin.Web;
+    }
+
+    public class UpdatePassworddDTO
+    {
+        public string Password { get; set; }
+        public string Email { get; set; }
+        public string ConfirmPassword { get; set; }
+        public string CurrentPassword { get; set; }
     }
 }

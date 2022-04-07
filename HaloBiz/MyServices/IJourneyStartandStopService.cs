@@ -14,6 +14,7 @@ namespace HaloBiz.MyServices
         Task<ApiCommonResponse> AddStartJourney(HttpContext context, JourneyStartReceivingDTO journeyStartReceiving);
         Task<ApiCommonResponse> GetAllStartJourneys();
         Task<ApiCommonResponse> GetStartJourneyById(long id);
+        Task<ApiCommonResponse> GetStartJourneyByAssignmentId(long id);
         // Task<ApiCommonResponse> UpdateArmedEscortType(HttpContext context, long id, JourneyStartReceivingDTO journeyStartReceiving);
         //Task<ApiCommonResponse> UpdateStartJourneyForStop(long id);
         Task<ApiCommonResponse> DeleteStartJourney(long id);
@@ -65,6 +66,17 @@ namespace HaloBiz.MyServices
         //Task<ApiCommonResponse> RelinquishJourneyNote(long id);
         Task<ApiCommonResponse> DeleteJourneyNote(long id);
 
+        //FeedBack
+        Task<ApiCommonResponse> AddFeedbackMaster(HttpContext context, FeedbackMasterReceivingDTO feedback);
+        Task<ApiCommonResponse> GetAllFeedbackMasters();
+        Task<ApiCommonResponse> GetFeedbackMasterById(long id);
+        Task<ApiCommonResponse> GetFeedbackMasterByAssignmentId(long assignId);
+        Task<ApiCommonResponse> GetGeneralFeedbackByAssignmenrId(long assignId);
+        Task<ApiCommonResponse> AddGeneralFeedback(HttpContext context, GeneralFeedbackReceivingDTO feedback);
+        Task<ApiCommonResponse> AddArmedEscortFeedback(HttpContext context, ArmedEscortFeedbackReceivingDTO feedback);
+        Task<ApiCommonResponse> AddCommanderFeedback(HttpContext context, CommanderFeedbackReceivingDTO feedback);
+        Task<ApiCommonResponse> AddPilotFeedback(HttpContext context, PilotFeedbackReceivingDTO feedback);
+        Task<ApiCommonResponse> AddVehicleFeedback(HttpContext context, VehicleFeedbackReceivingDTO feedback);
 
     }
 }

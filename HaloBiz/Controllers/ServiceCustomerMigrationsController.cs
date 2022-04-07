@@ -3,6 +3,7 @@ using Flurl;
 using Flurl.Http;
 using Flurl.Http.Configuration;
 using GoogleMaps.LocationServices;
+using Halobiz.Common.Auths;
 using Halobiz.Common.DTOs.ApiDTOs;
 using HaloBiz.Helpers;
 using HaloBiz.MigrationsHelpers;
@@ -30,9 +31,11 @@ namespace HaloBiz.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class ServiceCustomerMigrations : ControllerBase
+    [ModuleName(HalobizModules.Setups)]
+
+    public class ServiceCustomerMigrationsController : ControllerBase
     {
-        private ILogger<ServiceCustomerMigrations> _logger;
+        private ILogger<ServiceCustomerMigrationsController> _logger;
         private readonly IWebHostEnvironment _environment;
         private HalobizContext _context;
         private ILeadConversionService _leadConversionService;
@@ -45,7 +48,7 @@ namespace HaloBiz.Controllers
         long userIdToUse = 31;
         List<ServiceTypes> _serviceTypes = new List<ServiceTypes>();
 
-        public ServiceCustomerMigrations(ILogger<ServiceCustomerMigrations> logger,
+        public ServiceCustomerMigrationsController(ILogger<ServiceCustomerMigrationsController> logger,
             ILeadConversionService leadConversionService,
             IWebHostEnvironment environment,
             HalobizContext context)

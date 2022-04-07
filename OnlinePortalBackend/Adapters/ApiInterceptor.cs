@@ -1,8 +1,11 @@
 ﻿using Flurl.Http;
 using Halobiz.Common.DTOs.ApiDTOs;
+using Halobiz.Common.DTOs.ReceivingDTOs;
+using Halobiz.Common.DTOs.TransferDTOs;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -55,30 +58,51 @@ namespace OnlinePortalBackend.Adapters
 
         private async Task<string> RequestToken()
         {
+            var authToken = string.Empty;
+            DateTime expires = new DateTime();
             try
             {
-                var baseUrl = string.Concat(_HalobizBaseUrl, "/Auth/OnlinePortalNotice");
+                var baseUrl = string.Concat(_HalobizBaseUrl, "Auth/OtherLogin");
                 var username = _configuration["HalobizUsername"] ?? _configuration.GetSection("AppSettings:HalobizUsername").Value;
                 var password = _configuration["HalobizPassword"] ?? _configuration.GetSection("AppSettings:HalobizPassword").Value;
 
-
-                var request = new {username = username, password = password};
-                var response = await baseUrl.AllowAnyHttpStatus()
+                            
+                var request = new LoginDTO { Email = username, Password = password};
+                var resp = await baseUrl.AllowAnyHttpStatus()
                    .PostJsonAsync(request).ReceiveJson();
 
-                var responseData = response?.responseData;
-                if (responseData != null)
+                foreach (KeyValuePair<string, object> kvp in ((IDictionary<string, object>)resp))
+                {
+                    if (kvp.Key.ToString() == "responseData")
+                    {
+                        foreach (KeyValuePair<string, object> kvp1 in ((IDictionary<string, object>)kvp.Value))
+                        {
+                            if (kvp1.Key.ToString() == "token")
+                            {
+                                authToken = kvp1.Value.ToString();
+                            }
+                            if (kvp1.Key.ToString() == "tokenExpiryTime")
+                            {
+                                expires = DateTime.Parse(kvp1.Value.ToString());
+                            }
+                        }
+                    }
+                }
+
+                //   var response = JsonConvert.DeserializeObject<ApiCommonResponse>(resp);
+
+                if (resp != null)
                 {
                     //save the token with the expiry in mind in the cache
                     if (!_memoryCache.TryGetValue<string>(TokenName, out string token))
                     {
-                        DateTime expiry = DateTime.Parse(responseData.TokenExpiryTime);
+                        DateTime expiry = expires;
                         var cacheEntryOptions = new MemoryCacheEntryOptions()
                                     .SetAbsoluteExpiration(expiry);
-                        token = responseData.Token;
+                        token = authToken;
                         _memoryCache.Set(TokenName, token, cacheEntryOptions);
                     }
-                    return responseData.Token;
+                    return authToken;
                 }
                 else
                     throw new Exception("No token received from Halobiz");

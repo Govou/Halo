@@ -28,6 +28,7 @@ namespace HaloBiz.MyServices.Impl
         private readonly IArmedEscortRegistrationRepository _armedEscortRegistrationRepository;
         private readonly IPilotRegistrationRepository _pilotRegistrationRepository;
         private readonly IVehicleRegistrationRepository _vehicleRegistrationRepository;
+        private readonly IServiceAssignmentDetailsService _serviceAssignmentDetailsService;
         private readonly ILogger<ServiceAssignmentMasterRepositoryImpl> _logger;
         private readonly HalobizContext _context;
 
@@ -36,7 +37,7 @@ namespace HaloBiz.MyServices.Impl
         public MasterServiceAssignmentServiceImpl(IMapper mapper, IServiceAssignmentMasterRepository serviceAssignmentMasterRepository, 
             IServiceRegistrationRepository serviceRegistrationRepository, IDTSMastersRepository dTSMastersRepository, IServiceAssignmentDetailsRepository serviceAssignmentDetailsRepository, ICustomerDivisionRepository CustomerDivisionRepo,
             ICommanderRegistrationRepository commanderRegistrationRepository, IPilotRegistrationRepository pilotRegistrationRepository, IArmedEscortRegistrationRepository armedEscortRegistrationRepository,
-            IVehicleRegistrationRepository vehicleRegistrationRepository, ILogger<ServiceAssignmentMasterRepositoryImpl> logger, HalobizContext context)
+            IVehicleRegistrationRepository vehicleRegistrationRepository, ILogger<ServiceAssignmentMasterRepositoryImpl> logger, IServiceAssignmentDetailsService serviceAssignmentDetailsService, HalobizContext context)
         {
             _mapper = mapper;
             _serviceAssignmentMasterRepository = serviceAssignmentMasterRepository;
@@ -50,6 +51,7 @@ namespace HaloBiz.MyServices.Impl
             _vehicleRegistrationRepository = vehicleRegistrationRepository;
             _logger = logger;
             _context = context;
+            _serviceAssignmentDetailsService = serviceAssignmentDetailsService;
 
         }
 
@@ -473,6 +475,7 @@ namespace HaloBiz.MyServices.Impl
 
             // var typeTransferDTO = _mapper.Map<MasterServiceAssignmentTransferDTO>(master);
             transaction.Commit();
+            await _serviceAssignmentDetailsService.UpdateServiceDetailsHeldForActionAndReadyStatusByAssignmentId(getId);
             return CommonResponse.Send(ResponseCodes.SUCCESS, null, "Auto Assignment Successful");
         }
 

@@ -60,7 +60,7 @@ namespace HaloBiz.MyServices.Impl
                 int alreadyCreated = 0;
 
                 var customerAccountsThatHaveNotBeenIntegrated = await _context.Accounts
-                    .Where(x => x.IntegrationFlag == false && x.ControlAccount.Caption == "Receivable").ToListAsync();
+                    .Where(x =>x.CustomerJobCount < 10 &&  x.IntegrationFlag == false && x.ControlAccount.Caption == "Receivable").ToListAsync();
 
                 int allRecords = customerAccountsThatHaveNotBeenIntegrated.Count;
 
@@ -84,7 +84,10 @@ namespace HaloBiz.MyServices.Impl
                         var controlAccount = await _context.ControlAccounts.FindAsync(account.ControlAccountId);
                         if (controlAccount == null)
                         {
+                            account.CustomerJobCount = ++account.CustomerJobCount;
                             _logger.LogInformation($"Customer account {account.Name} does not have control account");
+                            _context.Accounts.Update(account);
+                            await _context.SaveChangesAsync();
                             continue;
                         }
 
@@ -113,6 +116,9 @@ namespace HaloBiz.MyServices.Impl
                             var customerDivision = await _context.CustomerDivisions.SingleOrDefaultAsync(x => x.ReceivableAccountId == account.Id);
                             if (customerDivision == null)
                             {
+                                account.CustomerJobCount = ++account.CustomerJobCount;
+                                _context.Accounts.Update(account);
+                                await _context.SaveChangesAsync();
                                 _logger.LogInformation($"Customer account {account.Name} does not have customer division. Skipping...");
                                 continue;
                             }
@@ -121,15 +127,22 @@ namespace HaloBiz.MyServices.Impl
 
                             if (state == null)
                             {
+                                account.CustomerJobCount = ++account.CustomerJobCount;
+                                _context.Accounts.Update(account);
+                                await _context.SaveChangesAsync();
                                 _logger.LogInformation($"Customer division {customerDivision.DivisionName} does not have state. Skipping...");
                                 continue;
                             }
+
                             else customerDivision.State = state;
 
 
                             var customer = await _context.Customers.FindAsync(customerDivision.CustomerId);
                             if (customer == null)
                             {
+                                account.CustomerJobCount = ++account.CustomerJobCount;
+                                _context.Accounts.Update(account);
+                                await _context.SaveChangesAsync();
                                 _logger.LogInformation($"Customer division {customerDivision.DivisionName} does not have customer. Skipping...");
                                 continue;
                             };
@@ -141,6 +154,9 @@ namespace HaloBiz.MyServices.Impl
                             
                             if (contactPerson == null)
                             {
+                                account.CustomerJobCount = ++account.CustomerJobCount;
+                                _context.Accounts.Update(account);
+                                await _context.SaveChangesAsync();
                                 _logger.LogInformation($"There is no primary contact for {customerDivision.DivisionName}. Skipping...");
                                 continue;
                             }
@@ -197,7 +213,7 @@ namespace HaloBiz.MyServices.Impl
 
                         if (response.StatusCode == 200 || response.StatusCode == 204)
                         {
-                            account.IntegrationFlag = true;
+                            account.IntegrationFlag = true;                            
                             _context.Accounts.Update(account);
                             await _context.SaveChangesAsync();
                             ++newlyIntegrated;
@@ -245,7 +261,7 @@ namespace HaloBiz.MyServices.Impl
                 DisableFlurlCertificateValidation();
 
                 var integratedCustomerAcccounts = await _context.Accounts
-                    .Where(x => x.IntegrationFlag == true && x.ControlAccount.Caption == ReceivableControlAccount)
+                    .Where(x =>x.AccountJobCount < 10 &&  x.IntegrationFlag == true && x.ControlAccount.Caption == ReceivableControlAccount)
                     .ToListAsync();
 
                 _logger.LogInformation($"Integrated Customer Accounts fetched => {integratedCustomerAcccounts.Count()}");
@@ -266,12 +282,18 @@ namespace HaloBiz.MyServices.Impl
 
                         if (customerDivisions == null || customerDivisions.Count < 1)
                         {
+                            account.AccountJobCount = ++account.AccountJobCount;
+                            _context.Accounts.Update(account);
+                            await _context.SaveChangesAsync();
                             _logger.LogError($"No customer division tied to account with name { account.Name }, Id:{account.Id}. Skipping...");
                             continue;
                         }
 
                         if (customerDivisions.Count > 1 && account.Name != RETAIL_RECEIVABLE_ACCOUNT)
                         {
+                            account.AccountJobCount = ++account.AccountJobCount;
+                            _context.Accounts.Update(account);
+                            await _context.SaveChangesAsync();
                             _logger.LogInformation($"You cannot have more than one customer division tied to account with Id {account.Id}. It is not a Receivable account");
                             continue;
                         }

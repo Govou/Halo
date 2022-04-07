@@ -22,7 +22,7 @@ using System.Threading.Tasks;
 using System.Text.RegularExpressions;
 using OnlinePortalBackend.DTOs.TransferDTOs;
 using Microsoft.Extensions.Caching.Memory;
-using OnlinePortalBackend.Model;
+using Halobiz.Common.Model;
 
 namespace OnlinePortalBackend.MyServices
 {

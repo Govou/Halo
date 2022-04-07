@@ -1,15 +1,20 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Halobiz.Common.Auths;
 using Halobiz.Common.DTOs.ApiDTOs;
 using Halobiz.Common.DTOs.ReceivingDTO;
 using Halobiz.Common.DTOs.ReceivingDTOs.RoleManagement;
 using Halobiz.Common.MyServices;
+using Halobiz.MyServices;
+using HaloBiz.Helpers;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HaloBiz.Controllers
 {
     [Route("api/v1/[controller]")]
     [ApiController]
+    [ModuleName(HalobizModules.Profile)]
+
     public class UserController : ControllerBase
     {
         private readonly IUserProfileService _userProfileService;

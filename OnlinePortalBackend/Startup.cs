@@ -72,21 +72,25 @@ namespace OnlinePortalBackend
             services.AddScoped<ICartContractRepository, CartContractRepositoryImpl>();
             services.AddScoped<IEndorsementRepository, EndorsementRepositoryImpl>();
             services.AddScoped<IServicesRepo, ServicesRepo>();
+            services.AddScoped<IInvoiceRepository, InvoiceRepository> ();
+            services.AddScoped<IComplaintRepository, ComplaintRepository > ();
 
+            services.AddScoped<IPaymentAdapter, PaymentAdapter>();
+            services.AddScoped<IApiInterceptor, ApiInterceptor>();
             services.AddScoped<IPaymentAdapter, PaymentAdapter>();
 
             //services and repositories
             services.AddScoped<IMailService, MailService>();
             services.AddScoped<IOnlineAccounts, OnlineAccounts>();
             services.AddSingleton<JwtHelper>();
-            services.AddScoped<IUserProfileService, UserProfileServiceImpl>();
             services.AddScoped<IUserProfileRepository, UserProfileRepositoryImpl>();
             services.AddScoped<ICustomer, Customer>();
-            services.AddScoped<ICartService, CartServiceImpl>();
-            services.AddScoped<IReceiptService, ReceiptService>();
+            services.AddScoped<IReceiptService, ReceiptServiceImpl>();
             services.AddScoped<ICartContractService, CartContractServiceImpl>();
             services.AddScoped<IEndorsementService, EndorsementServiceImpl>();
             services.AddScoped<IServicesService, ServicesService>();
+            services.AddScoped<IInvoiceService, InvoiceService>();
+            services.AddScoped<IComplaintService, ComplaintServiceImpl>();
 
             services.AddAutoMapper(typeof(Startup));
 

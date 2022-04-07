@@ -748,7 +748,8 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 DateTime startDate = endorsement == null ? (DateTime)contractService.ContractStartDate : (DateTime) endorsement?.DateForNewContractToTakeEffect;
                 DateTime endDate = (DateTime)contractService.ContractEndDate;
                 var InitialYear = startDate.Year;
-                
+
+                var customerType = customerDivision.Customer?.Id ?? _context.Customers.Where(x => x.Id == customerDivision.CustomerId).FirstOrDefault()?.Id;
                 var (interval, billableForInvoicingPeriod, vat) = CalculateTotalBillableForPeriod(contractService);
                 var allMonthAndYear = new List<MonthsAndYears>();
 
@@ -776,12 +777,19 @@ namespace HaloBiz.MyServices.Impl.LAMS
                         var repAmoritizationMaster = new RepAmortizationMaster()
                         {
                             Year = i,
-                            ClientId = customerDivision?.CustomerId,
-                            DivisionId = customerDivision.Id,
+                            ClientId = customerDivision.Id,
+                            DivisionId = contractService.Service?.DivisionId,
+                            OperatingEntityId = contractService.Service?.OperatingEntityId,
+                            ServiceCategoryId = contractService.Service?.ServiceCategoryId,
+                            ServiceGroupId = contractService.Service?.ServiceGroupId,
                             ContractId = contractService.ContractId,
+                            ServiceId = contractService.ServiceId,
                             ContractServiceId = contractService.Id,
                             GroupInvoiceNumber = contractService?.Contract?.GroupInvoiceNumber,
                             QuoteServiceId = contractService.QuoteServiceId,
+                            ClientTypeId = customerType,
+                            DateCreated = DateTime.Now,
+                            CreatedById = LoggedInUserId
                         };
 
                         await _context.RepAmortizationMasters.AddAsync(repAmoritizationMaster);
