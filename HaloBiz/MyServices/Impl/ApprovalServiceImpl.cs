@@ -109,6 +109,7 @@ namespace HaloBiz.MyServices.Impl
             return CommonResponse.Send(ResponseCodes.SUCCESS,approvalTransferDTO);
         }
         
+
         public async Task<ApiCommonResponse> GetApprovalsByQuoteId(long quoteId)
         {
             var approval = await _approvalRepo.GetApprovalsByQuoteId(quoteId);
@@ -119,6 +120,41 @@ namespace HaloBiz.MyServices.Impl
             var approvalTransferDTO = _mapper.Map<IEnumerable<ApprovalTransferDTO>>(approval);
             return CommonResponse.Send(ResponseCodes.SUCCESS,approvalTransferDTO);
         }
+
+        public async Task<ApiCommonResponse> GetApprovalsByContractId(long contractId)
+        {
+            var app = await _context.Approvals
+               .Where(x => x.ContractId == contractId && x.IsDeleted == false)
+               .Include(x => x.Responsible)
+               .OrderBy(x => x.Sequence)
+               .ToListAsync();
+
+            if (!app.Any())
+            {
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE); ;
+            }
+            var approvalTransferDTO = _mapper.Map<IEnumerable<ApprovalTransferDTO>>(app);
+            return CommonResponse.Send(ResponseCodes.SUCCESS, approvalTransferDTO);
+        }
+
+        public async Task<ApiCommonResponse> GetPendingApprovalsByContractId(long contractId)
+        {
+            var app = await _context.Approvals
+               .Where(x => x.ContractId == contractId && x.IsApproved==false && x.IsDeleted == false)
+               .Include(x => x.Responsible)
+               .OrderBy(x => x.Sequence)
+               .ToListAsync();
+
+            if (!app.Any())
+            {
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE); ;
+            }
+
+            var approvalTransferDTO = _mapper.Map<IEnumerable<ApprovalTransferDTO>>(app);
+            return CommonResponse.Send(ResponseCodes.SUCCESS, approvalTransferDTO);
+        }
+
+
 
         public async Task<ApiCommonResponse> GetPendingApprovalsByServiceId(long serviceId)
         {
@@ -261,7 +297,8 @@ namespace HaloBiz.MyServices.Impl
         {
             try
             {
-                var contract = await _context.Contracts.Where(x => x.Id == contractId)
+                var contract = await _context.Contracts.AsNoTracking()
+                                    .Where(x => x.Id == contractId)
                                     .Include(x=>x.CustomerDivision)
                                     .Include(x => x.ContractServices)
                                         .ThenInclude(x=>x.Branch)

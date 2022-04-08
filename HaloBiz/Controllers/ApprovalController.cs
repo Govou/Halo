@@ -61,6 +61,18 @@ namespace HaloBiz.Controllers
             return await _approvalService.GetApprovalsByQuoteId(quoteId);
         }
 
+        [HttpGet("GetApprovalsByContractId/{contractId}")]
+        public async Task<ApiCommonResponse> GetApprovalsByContractId(long contractId)
+        {
+            return await _approvalService.GetApprovalsByContractId(contractId);
+        }
+
+        [HttpGet("GetPendingApprovalsByContractId/{contractId}")]
+        public async Task<ApiCommonResponse> GetPendingApprovalsByContractId(long contractId)
+        {
+            return await _approvalService.GetPendingApprovalsByContractId(contractId);
+        }
+
         [HttpGet("GetApprovalsByEndorsementId/{endorsementId}")]
         public async Task<ApiCommonResponse> GetApprovalsByEndorsementId(long endorsementId)
         {

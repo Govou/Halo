@@ -45,6 +45,13 @@ namespace HaloBiz.Controllers.LAMS
             return await _contractService.GetContractsByLeadId(leadId);
         }
 
+        [HttpGet("GetUnApprovedContracts")]
+        public async Task<ApiCommonResponse> GetUnApprovedContracts()
+        {
+            return await _contractService.GetUnapprovedContracts();
+        }
+
+        
         [HttpGet("GetContractsByCustomerId/{customerId}")]
         [Microsoft.AspNetCore.Authorization.AllowAnonymous]
         public async Task<ApiCommonResponse> GetContractsByCustomerId(long customerId)

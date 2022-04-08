@@ -37,22 +37,23 @@ namespace HaloBiz.MyServices.Impl.LAMS
                                             ILogger<ContractServiceForEndorsementServiceImpl> logger,
                                             IConfiguration configuration)
         {
-            this._context = context;
-            this._mapper = mapper;
-            this._leadConversionService = leadConversionService;
+            _context = context;
+            _mapper = mapper;
+            _leadConversionService = leadConversionService;
             _approvalService = approvalService;
-            this._cntServiceForEndorsemntRepo = cntServiceForEndorsemntRepo;
-            this._configuration = configuration;
-            this._logger = logger;
+            _cntServiceForEndorsemntRepo = cntServiceForEndorsemntRepo;
+            _configuration = configuration;
+            _logger = logger;
         }
 
         public async Task<ApiCommonResponse> GetNewContractAdditionEndorsement(long customerDivisionId)
         {
-            var contract =  await _context.Contracts.Where(x => x.CustomerDivisionId == customerDivisionId && !x.HasAddedSBU && !x.IsApproved)
+            var contract =  await _context.Contracts.Where(x => x.CustomerDivisionId == customerDivisionId && !x.IsApproved)
                                 .Include(x => x.ContractServices)
                                     .ThenInclude(x=>x.Service)
                                 .Include(x => x.ContractServices)
                                     .ThenInclude(x=>x.SbutoContractServiceProportions)
+                                        .ThenInclude(x=>x.UserInvolved)
                                 .FirstOrDefaultAsync();
             if (contract == null)
             {
@@ -78,10 +79,10 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
             if (createNewContract)
             {
-                //check if there is a pending contract addition for this guy with non-complete sbu
-                if(_context.Contracts.Any(x=> !x.IsApproved && !x.HasAddedSBU))
+                //check if there is a pending contract addition for this guy
+                if(_context.Contracts.Any(x=> !x.IsApproved))
                 {
-                    return CommonResponse.Send(ResponseCodes.FAILURE, null, "There is pending contract with incomplete SBU");
+                    return CommonResponse.Send(ResponseCodes.FAILURE, null, "There is pending contract waiting approval");
                 }
 
                 var contractDetail = contractServiceForEndorsementDtos.FirstOrDefault();
@@ -134,7 +135,6 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 {
                     var contractService = _mapper.Map<ContractService>(item);
                     contractService.ContractId = newContract.Id;
-                    contractService.IsApproved = false;
                     newContractServices.Add(contractService);
                 }
             }         
