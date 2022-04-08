@@ -131,16 +131,16 @@ stages:
       steps:
       - task: DownloadSecureFile@1
         name: DevEnv
-        displayName: 'Download online_portal appsettings.json to Dev environment'
+        displayName: 'Download online_portal appsettings-online-backend.json to Dev environment'
         inputs:
-          secureFile: 'appsettings-identity-server.json'
+          secureFile: 'appsettings-online-backend.json'
 
       - task: CmdLine@2
-        displayName: 'Copy online_portal appsettings.json env to default directory'
+        displayName: 'Copy online_portal appsettings-online-backend.json env to default directory'
         inputs:
           script: |
             cp $(DevEnv.secureFilePath) '$(System.DefaultWorkingDirectory)/OnlinePortalBackend/'
-            mv $(System.DefaultWorkingDirectory)/OnlinePortalBackend/appsettings-identity-server.json  $(System.DefaultWorkingDirectory)/OnlinePortalBackend/appsettings.json
+            mv $(System.DefaultWorkingDirectory)/OnlinePortalBackend/appsettings-online-backend.json  $(System.DefaultWorkingDirectory)/OnlinePortalBackend/appsettings.json
 
       - task: UseDotNet@2
         displayName: 'Use .NET Core sdk'
