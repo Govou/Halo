@@ -46,6 +46,22 @@ namespace HaloBiz.MyServices.Impl.LAMS
             this._logger = logger;
         }
 
+        public async Task<ApiCommonResponse> GetNewContractAdditionEndorsement(long customerDivisionId)
+        {
+            var contract =  await _context.Contracts.Where(x => x.CustomerDivisionId == customerDivisionId && !x.HasAddedSBU && !x.IsApproved)
+                                .Include(x => x.ContractServices)
+                                    .ThenInclude(x=>x.Service)
+                                .Include(x => x.ContractServices)
+                                    .ThenInclude(x=>x.SbutoContractServiceProportions)
+                                .FirstOrDefaultAsync();
+            if (contract == null)
+            {
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);
+            }
+
+            return CommonResponse.Send(ResponseCodes.SUCCESS, contract);
+        }
+
         public async Task<ApiCommonResponse> AddNewRetentionContractServiceForEndorsement(HttpContext httpContext, List<ContractServiceForEndorsementReceivingDto> contractServiceForEndorsementDtos)
         {
             if (!contractServiceForEndorsementDtos.Any())
@@ -62,6 +78,12 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
             if (createNewContract)
             {
+                //check if there is a pending contract addition for this guy with non-complete sbu
+                if(_context.Contracts.Any(x=> !x.IsApproved && !x.HasAddedSBU))
+                {
+                    return CommonResponse.Send(ResponseCodes.FAILURE, null, "There is pending contract with incomplete SBU");
+                }
+
                 var contractDetail = contractServiceForEndorsementDtos.FirstOrDefault();
                 newContract = new Contract {
                     CreatedAt = DateTime.Now,
@@ -70,7 +92,9 @@ namespace HaloBiz.MyServices.Impl.LAMS
                     Version = (int) VersionType.Latest,
                    GroupContractCategory =  contractDetail.GroupContractCategory,
                    GroupInvoiceNumber = contractDetail.GroupInvoiceNumber,
-                   IsApproved = false
+                   IsApproved = false,
+                   HasAddedSBU = false,
+                   Caption = contractDetail.DocumentUrl
                 };
 
                 var entity = await _context.Contracts.AddAsync(newContract);
@@ -123,13 +147,6 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 {
                     await _context.ContractServices.AddRangeAsync(newContractServices);
                     await _context.SaveChangesAsync();
-
-                    ////set approval after SBU is completed
-                    //var (successful, msg) = await _approvalService.SetUpApprovalsForContractCreationEndorsement(newContract.Id, httpContext);
-                    //if (!successful)
-                    //{
-                    //    return CommonResponse.Send(ResponseCodes.FAILURE, null, msg);
-                    //}
                 }
                 else
                 {
@@ -151,6 +168,16 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
                 await _context.SaveChangesAsync();
                 await transaction.CommitAsync();
+
+                if(createNewContract)
+                {
+                    var contract = await _context.ContractServices
+                            .Where(x => x.ContractId == newContract.Id)
+                           .Include(x=>x.Contract)
+                           .ToListAsync();
+                    return CommonResponse.Send(ResponseCodes.SUCCESS, contract);
+                }
+
                 return CommonResponse.Send(ResponseCodes.SUCCESS);
             }
             catch (Exception ex)
