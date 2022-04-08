@@ -62,7 +62,7 @@ namespace OnlinePortalBackend.Adapters
             DateTime expires = new DateTime();
             try
             {
-                var baseUrl = string.Concat(_HalobizBaseUrl, "Auth/OtherLogin");
+                var baseUrl = string.Concat(_HalobizBaseUrl, "Auth/Login");
                 var username = _configuration["HalobizUsername"] ?? _configuration.GetSection("AppSettings:HalobizUsername").Value;
                 var password = _configuration["HalobizPassword"] ?? _configuration.GetSection("AppSettings:HalobizPassword").Value;
 
@@ -81,9 +81,9 @@ namespace OnlinePortalBackend.Adapters
                             {
                                 authToken = kvp1.Value.ToString();
                             }
-                            if (kvp1.Key.ToString() == "tokenExpiryTime")
+                            if (kvp1.Key.ToString() == "jwtLifespan")
                             {
-                                expires = DateTime.Parse(kvp1.Value.ToString());
+                                expires = DateTime.Now.AddMinutes(double.Parse(kvp1.Value.ToString()));
                             }
                         }
                     }
