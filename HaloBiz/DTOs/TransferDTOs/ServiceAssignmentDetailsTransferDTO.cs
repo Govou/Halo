@@ -115,6 +115,94 @@ namespace HaloBiz.DTOs.TransferDTOs
         public DateTime UpdatedAt { get; set; }
     }
 
+    public class ArmedEscortReplacementTrasnferDTO
+    {
+        public long Id { get; set; }
+        public long? MasterServiceAssignmentId { get; set; }
+       
+        public MasterServiceAssignment MasterServiceAssignment { get; set; }
+        public long? OldResourceId { get; set; }
+       
+        public ArmedEscortProfile OldResource { get; set; }
+        public long? NewResourceId { get; set; }
+        
+        public ArmedEscortProfile NewResource { get; set; }
+        public DateTime DateTimeOfReplacement { get; set; }
+        public string ReasonForReplacement { get; set; }
+        public bool IsDeleted { get; set; }
+        public long CreatedById { get; set; }
+      
+        public UserProfile CreatedBy { get; set; }
+        public DateTime CreatedAt { get; set; }
+        public DateTime UpdatedAt { get; set; }
+    }
+
+    public class CommanderReplacementTransferDTO
+    {
+        public long Id { get; set; }
+        public long? MasterServiceAssignmentId { get; set; }
+       
+        public MasterServiceAssignment MasterServiceAssignment { get; set; }
+        public long? OldResourceId { get; set; }
+       
+        public CommanderProfile OldResource { get; set; }
+        public long? NewResourceId { get; set; }
+      
+        public CommanderProfile NewResource { get; set; }
+        public DateTime DateTimeOfReplacement { get; set; }
+        public string ReasonForReplacement { get; set; }
+        public bool IsDeleted { get; set; }
+        public long CreatedById { get; set; }
+        
+        public UserProfile CreatedBy { get; set; }
+        public DateTime CreatedAt { get; set; }
+        public DateTime UpdatedAt { get; set; }
+    }
+
+    public class PilotReplacementTransferDTO
+    {
+        public long Id { get; set; }
+        public long? MasterServiceAssignmentId { get; set; }
+       
+        public MasterServiceAssignment MasterServiceAssignment { get; set; }
+        public long? OldResourceId { get; set; }
+       
+        public PilotProfile OldResource { get; set; }
+        public long? NewResourceId { get; set; }
+        
+        public PilotProfile NewResource { get; set; }
+        public DateTime DateTimeOfReplacement { get; set; }
+        public string ReasonForReplacement { get; set; }
+        public bool IsDeleted { get; set; }
+        public long CreatedById { get; set; }
+        
+        public UserProfile CreatedBy { get; set; }
+        public DateTime CreatedAt { get; set; }
+        public DateTime UpdatedAt { get; set; }
+    }
+
+    public class VehicleReplacementTransferDTO
+    {
+        public long Id { get; set; }
+        public long? MasterServiceAssignmentId { get; set; }
+      
+        public MasterServiceAssignment MasterServiceAssignment { get; set; }
+        public long? OldResourceId { get; set; }
+        
+        public Vehicle OldResource { get; set; }
+        public long? NewResourceId { get; set; }
+        
+        public Vehicle NewResource { get; set; }
+        public DateTime DateTimeOfReplacement { get; set; }
+        public string ReasonForReplacement { get; set; }
+        public bool IsDeleted { get; set; }
+        public long CreatedById { get; set; }
+        
+        public UserProfile CreatedBy { get; set; }
+        public DateTime CreatedAt { get; set; }
+        public DateTime UpdatedAt { get; set; }
+    }
+
     public class PassengerTransferDTO
     {
         public UserProfile CreatedBy { get; set; }

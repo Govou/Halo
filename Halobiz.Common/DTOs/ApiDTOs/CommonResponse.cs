@@ -28,9 +28,12 @@ namespace Halobiz.Common.DTOs.ApiDTOs
         /// </summary>
         FAILURE = 02,
         SYSTEM_ERROR_OCCURRED = 03,
-        NO_USER_PROFILE_FOUND = 04,
+        CREATE_PROFILE = 04,
         INVALID_LOGIN_DETAILS = 05,
         UNAUTHORIZED = 06,
+        EMAIL_NOT_EXIST = 07,
+        DUPLICATE_REQUEST = 08,
+        TOKEN_INACTIVE =09,
     }
 
     public static class CommonResponse

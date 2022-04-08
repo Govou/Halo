@@ -20,5 +20,11 @@ namespace HaloBiz.DTOs.TransferDTOs
         public string AveragePrice { get; set; }
         public long SupplierId { get; set; }
         public virtual Supplier Supplier { get; set; }
+        public string FrontViewImage { get; set; }
+        public string LeftViewImage { get; set; }
+        public string RightViewImage { get; set; }
+        public string RearViewImage { get; set; }
+        public string InteriorViewImage { get; set; }
+        public string TopViewImage { get; set; }
     }
 }

@@ -33,15 +33,12 @@ namespace OnlinePortalBackend.MyServices.Impl
             IPaymentAdapter paymentAdapter,
             ILogger<CartServiceImpl> logger,
             IHttpClientFactory httpClient,
-            IConfiguration config,
-            IReceiptService receiptService)
+            IConfiguration config)
         {
             _context = context;
             _logger = logger;
             _httpClient = httpClient;
             _paymentAdapter = paymentAdapter;
-            _receiptService = receiptService;
-
             _haloBizServiceUrl = config["HaloBizUrl"] ?? config.GetSection("ServicesUrl:HaloBizUrl").Value;
         }
 
@@ -951,6 +948,23 @@ namespace OnlinePortalBackend.MyServices.Impl
                 _logger.LogError(ex.StackTrace);
                 return new ApiResponse(500, ex.Message);
             }
+        }
+
+        public async Task<ApiResponse> ConfirmPayment(string transactionRef)
+        {
+
+            var result = await _context.Payments.Include(x => x.CreatedBy).FirstOrDefaultAsync(x => x.PaymentReference == transactionRef);
+
+            if (result == null) return new ApiResponse(200, "Payment refernce does not exist");
+
+            var verificationResponse = await _paymentAdapter.VerifyPaymentAsync(result.PaymentGateway, transactionRef);
+
+            if (!verificationResponse.PaymentSuccessful)
+                return new ApiResponse(200, "Payment Successful");
+
+            else
+                return new ApiResponse(200, "Payment failed");
+            
         }
     }
 }

@@ -20,6 +20,8 @@ namespace HaloBiz.Adapters
         Task<ApiCommonResponse> SendQuoteNotification(string serializedQuote);
         Task<ApiCommonResponse> SendPeriodicInvoice(InvoiceMailDTO invoiceMailDTO);
         Task<ApiCommonResponse> SendJourneyManagementPlan(MasterServiceAssignmentMailVMDTO masterServiceAssignmentMailVMDTO);
+        Task<ApiCommonResponse> SendPaidJourneyConfirmationMail(MasterServiceAssignmentMailVMDTO masterServiceAssignmentMailVMDTO);
+        Task<ApiCommonResponse> SendNoPaymentConfirmationMail(MasterServiceAssignmentMailVMDTO masterServiceAssignmentMailVMDTO);
         Task<ApiCommonResponse> SendComplaintResolutionConfirmationMail(ConfirmComplaintResolutionMailDTO model);
     }
 }

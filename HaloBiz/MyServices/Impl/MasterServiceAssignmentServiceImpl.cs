@@ -28,6 +28,7 @@ namespace HaloBiz.MyServices.Impl
         private readonly IArmedEscortRegistrationRepository _armedEscortRegistrationRepository;
         private readonly IPilotRegistrationRepository _pilotRegistrationRepository;
         private readonly IVehicleRegistrationRepository _vehicleRegistrationRepository;
+        private readonly IServiceAssignmentDetailsService _serviceAssignmentDetailsService;
         private readonly ILogger<ServiceAssignmentMasterRepositoryImpl> _logger;
         private readonly HalobizContext _context;
 
@@ -36,7 +37,7 @@ namespace HaloBiz.MyServices.Impl
         public MasterServiceAssignmentServiceImpl(IMapper mapper, IServiceAssignmentMasterRepository serviceAssignmentMasterRepository, 
             IServiceRegistrationRepository serviceRegistrationRepository, IDTSMastersRepository dTSMastersRepository, IServiceAssignmentDetailsRepository serviceAssignmentDetailsRepository, ICustomerDivisionRepository CustomerDivisionRepo,
             ICommanderRegistrationRepository commanderRegistrationRepository, IPilotRegistrationRepository pilotRegistrationRepository, IArmedEscortRegistrationRepository armedEscortRegistrationRepository,
-            IVehicleRegistrationRepository vehicleRegistrationRepository, ILogger<ServiceAssignmentMasterRepositoryImpl> logger, HalobizContext context)
+            IVehicleRegistrationRepository vehicleRegistrationRepository, ILogger<ServiceAssignmentMasterRepositoryImpl> logger, IServiceAssignmentDetailsService serviceAssignmentDetailsService, HalobizContext context)
         {
             _mapper = mapper;
             _serviceAssignmentMasterRepository = serviceAssignmentMasterRepository;
@@ -50,6 +51,7 @@ namespace HaloBiz.MyServices.Impl
             _vehicleRegistrationRepository = vehicleRegistrationRepository;
             _logger = logger;
             _context = context;
+            _serviceAssignmentDetailsService = serviceAssignmentDetailsService;
 
         }
 
@@ -73,6 +75,8 @@ namespace HaloBiz.MyServices.Impl
             var getRegService = await _serviceRegistrationRepository.FindServiceById(masterReceivingDTO.ServiceRegistrationId);
             long getId = 0;
             long? TiedVehicleId = 0;
+            List<long?> VehicleResourceIdsToTie = new List<long?>();
+            List<long?> VehicleResourceIdsToTieComm = new List<long?>();
             //var RouteExistsForVehicle = _vehicleRegistrationRepository.GetAllVehiclesOnRouteByResourceAndRouteId(masterReceivingDTO.SMORouteId);
 
             try
@@ -145,18 +149,23 @@ namespace HaloBiz.MyServices.Impl
                     long count = 0;
                     var getResourceTypePerServiceForVehicle = await _serviceRegistrationRepository.FindVehicleResourceByServiceRegId(masterReceivingDTO.ServiceRegistrationId);
                     var RouteExistsForVehicle = _vehicleRegistrationRepository.GetAllVehiclesOnRouteByResourceAndRouteId(masterReceivingDTO.SMORouteId);
-                    var getAllResourceSchedule = await _dTSMastersRepository.FindAllVehicleMastersForAutoAssignmentByPickupDate(masterReceivingDTO.ServiceRegistrationId,masterReceivingDTO.SMORouteId,masterReceivingDTO.PickupDate, masterReceivingDTO.PickoffTime);
 
                     if (getVehicleServiceRegistration.RequiresVehicle == true)
                     {
-                        if ( getAllResourceSchedule.Count() >= getVehicleServiceRegistration.VehicleQuantityRequired)
+                        
+                        var getAllResourceSchedule = await _dTSMastersRepository.FindAllVehicleMastersForAutoAssignmentByPickupDate(masterReceivingDTO.ServiceRegistrationId, masterReceivingDTO.SMORouteId, masterReceivingDTO.PickupDate, masterReceivingDTO.PickoffTime);
+
+                        var result = getAllResourceSchedule.eligibleVehiclesWithoutAssignment.Concat(getAllResourceSchedule.eligibleVehiclesWithAssignment).ToList();
+                      
+
+                        if (result.Count() >= getVehicleServiceRegistration.VehicleQuantityRequired)
                         {
                             int countSchedule = 0;
                             int resourceCount = 0;
                            
                             
-                            var _lastItem = getAllResourceSchedule.Last();
-                                foreach (var schedule in getAllResourceSchedule)
+                            //var _lastItem = getAllResourceSchedule.Last();
+                                foreach (var schedule in result)
                                 {
                                   //var breakOut = false;
                                 //var innerLoopBreak = false;
@@ -166,8 +175,10 @@ namespace HaloBiz.MyServices.Impl
                                     vehicle.Id = 0;
                                     vehicle.IsTemporarilyHeld = true;
                                     vehicle.DateTemporarilyHeld = DateTime.UtcNow;
+                                    //vehicle.IsHeldForAction = true;
+                                    //vehicle.DateHeldForAction = DateTime.UtcNow;
                                     vehicle.VehicleResourceId = getVehicleResourceId;
-                                    vehicle.RequiredCount = resourceCount + 1;
+                                    vehicle.RequiredCount = resourceCount++;
                                     vehicle.CreatedById = context.GetLoggedInUserId();
                                     vehicle.CreatedAt = DateTime.UtcNow;
                                     vehicle.ServiceAssignmentId = getId;
@@ -179,11 +190,12 @@ namespace HaloBiz.MyServices.Impl
                                     }
                                     else
                                     {
-                                       
+                                        VehicleResourceIdsToTie.Add(getVehicleResourceId);
+                                        VehicleResourceIdsToTieComm.Add(getVehicleResourceId);
                                         countSchedule++;
                                         if(countSchedule == getVehicleServiceRegistration.VehicleQuantityRequired)
                                         {
-                                            TiedVehicleId = getVehicleResourceId;
+                                            //TiedVehicleId = getVehicleResourceId;
                                             break;
                                         }
                                         else
@@ -218,18 +230,20 @@ namespace HaloBiz.MyServices.Impl
                     //var getResourceTypePerServiceForVehicle = await _serviceRegistrationRepository.FindAllVehicleResourceByServiceRegId(masterReceivingDTO.ServiceRegistrationId);
                     //var getAllResourceSchedule = await _dTSMastersRepository.FindAllVehicleMastersForAutoAssignment();
                     var RouteExists = _pilotRegistrationRepository.GetAllPilotsOnRouteByResourceAndRouteId(masterReceivingDTO.SMORouteId);
-                    var getAllResourceSchedule = await _dTSMastersRepository.FindAllPilotMastersForAutoAssignmentByPickupDate(masterReceivingDTO.ServiceRegistrationId, masterReceivingDTO.SMORouteId,masterReceivingDTO.PickupDate, masterReceivingDTO.PickoffTime);
                     
 
                     if (getVehicleServiceRegistration.RequiresPilot == true)
                     {
-                        if ( getAllResourceSchedule.Count() >= getVehicleServiceRegistration.PilotQuantityRequired)
+                        var getAllResourceSchedule = await _dTSMastersRepository.FindAllPilotMastersForAutoAssignmentByPickupDate(masterReceivingDTO.ServiceRegistrationId, masterReceivingDTO.SMORouteId, masterReceivingDTO.PickupDate, masterReceivingDTO.PickoffTime);
+                        var result = getAllResourceSchedule.eligiblePilotsWithoutAssignment.Concat(getAllResourceSchedule.eligiblePilotsWithAssignment).ToList();
+                        if (result.Count() >= getVehicleServiceRegistration.PilotQuantityRequired)
                         {
                             int countSchedule = 0;
                             int resourceCount = 0;
 
-                            var _lastItem = getAllResourceSchedule.Last();
-                            foreach (var schedule in getAllResourceSchedule)
+                            var _lastItem = result.Last();
+                            var _lastItemTie = VehicleResourceIdsToTie.Last();
+                            foreach (var schedule in result)
                             {
                                
                                 getResourceId = schedule.PilotResourceId;
@@ -241,8 +255,22 @@ namespace HaloBiz.MyServices.Impl
                                 pilot.IsTemporarilyHeld = true;
                                 pilot.DateTemporarilyHeld = DateTime.UtcNow;
                                 pilot.PilotResourceId = getResourceId;
-                                pilot.TiedVehicleResourceId = TiedVehicleId;
-                                pilot.RequiredCount = resourceCount + 1;
+                                foreach (var item in VehicleResourceIdsToTie)
+                                {
+                                    if (_lastItemTie.Equals(item))
+                                    {
+                                        pilot.TiedVehicleResourceId = item;
+                                        break;
+                                    }
+                                    else 
+                                    {
+                                        pilot.TiedVehicleResourceId = item;
+                                        VehicleResourceIdsToTie.Remove(item);
+                                        break;
+                                    }
+                                }
+                                //pilot.TiedVehicleResourceId = TiedVehicleId;
+                                pilot.RequiredCount = resourceCount++;
                                 pilot.CreatedById = context.GetLoggedInUserId();
                                 pilot.CreatedAt = DateTime.UtcNow;
                                 pilot.ServiceAssignmentId = getId;
@@ -294,18 +322,21 @@ namespace HaloBiz.MyServices.Impl
                     //var getResourceTypePerServiceForVehicle = await _serviceRegistrationRepository.FindAllVehicleResourceByServiceRegId(masterReceivingDTO.ServiceRegistrationId);
                     //var getAllResourceSchedule = await _dTSMastersRepository.FindAllVehicleMastersForAutoAssignment();
                     var RouteExists = _commanderRegistrationRepository.GetAllCommanderssOnRouteByResourceAndRouteId(masterReceivingDTO.SMORouteId);
-                    var getAllResourceSchedule = await _dTSMastersRepository.FindAllCommanderMastersForAutoAssignmentByPickupDate(masterReceivingDTO.ServiceRegistrationId, masterReceivingDTO.SMORouteId, masterReceivingDTO.PickupDate, masterReceivingDTO.PickoffTime);
                    
 
                     if (getVehicleServiceRegistration.RequiresCommander == true)
                     {
-                        if ( getAllResourceSchedule.Count() >= getVehicleServiceRegistration.CommanderQuantityRequired)
+                        var getAllResourceSchedule = await _dTSMastersRepository.FindAllCommanderMastersForAutoAssignmentByPickupDate(masterReceivingDTO.ServiceRegistrationId, masterReceivingDTO.SMORouteId, masterReceivingDTO.PickupDate, masterReceivingDTO.PickoffTime);
+                        var result = getAllResourceSchedule.eligibleCommandersWithoutAssignment.Concat(getAllResourceSchedule.eligibleCommandersWithAssignment).ToList();
+
+                        if (result.Count() >= getVehicleServiceRegistration.CommanderQuantityRequired)
                         {
                             int countSchedule = 0;
                             int resourceCount = 0;
 
-                            var _lastItem = getAllResourceSchedule.Last();
-                            foreach (var schedule in getAllResourceSchedule)
+                            var _lastItem = result.Last();
+                            var _lastItemTie = VehicleResourceIdsToTie.Last();
+                            foreach (var schedule in result)
                             {
                                 var breakOut = false;
                                 getResourceId = schedule.CommanderResourceId;
@@ -315,8 +346,22 @@ namespace HaloBiz.MyServices.Impl
                                 commander.IsTemporarilyHeld = true;
                                 commander.DateTemporarilyHeld = DateTime.UtcNow;
                                 commander.CommanderResourceId = getResourceId;
-                                commander.TiedVehicleResourceId = TiedVehicleId;
-                                commander.RequiredCount = resourceCount + 1;
+                                //commander.TiedVehicleResourceId = TiedVehicleId;
+                                foreach (var item in VehicleResourceIdsToTieComm)
+                                {
+                                    if (_lastItemTie.Equals(item))
+                                    {
+                                        commander.TiedVehicleResourceId = item;
+                                        break;
+                                    }
+                                    else
+                                    {
+                                        commander.TiedVehicleResourceId = item;
+                                        VehicleResourceIdsToTieComm.Remove(item);
+                                        break;
+                                    }
+                                }
+                                commander.RequiredCount = resourceCount++;
                                 commander.CreatedById = context.GetLoggedInUserId();
                                 commander.CreatedAt = DateTime.UtcNow;
                                 commander.ServiceAssignmentId = getId;
@@ -363,17 +408,19 @@ namespace HaloBiz.MyServices.Impl
                     //var getResourceTypePerServiceForVehicle = await _serviceRegistrationRepository.FindCommanderResourceByServiceRegId(masterReceivingDTO.ServiceRegistrationId);
                  
                     var RouteExists = _commanderRegistrationRepository.GetAllCommanderssOnRouteByResourceAndRouteId(masterReceivingDTO.SMORouteId);
-                    var getAllResourceSchedule = await _dTSMastersRepository.FindAllArmedEscortMastersForAutoAssignmentByPickupDate(masterReceivingDTO.ServiceRegistrationId, masterReceivingDTO.SMORouteId,masterReceivingDTO.PickupDate, masterReceivingDTO.PickoffTime);
 
                     if (getVehicleServiceRegistration.RequiresArmedEscort == true)
                     {
-                        if ( getAllResourceSchedule.Count() >= getVehicleServiceRegistration.ArmedEscortQuantityRequired)
+                        var getAllResourceSchedule = await _dTSMastersRepository.FindAllArmedEscortMastersForAutoAssignmentByPickupDate(masterReceivingDTO.ServiceRegistrationId, masterReceivingDTO.SMORouteId, masterReceivingDTO.PickupDate, masterReceivingDTO.PickoffTime);
+                        var result = getAllResourceSchedule.eligibleArmedEscortsWithoutAssignment.Concat(getAllResourceSchedule.eligibleArmedEscortsWithAssignment).ToList();
+
+                        if ( result.Count() >= getVehicleServiceRegistration.ArmedEscortQuantityRequired)
                         {
                             int countSchedule = 0;
                             int resourceCount = 0;
 
-                            var _lastItem = getAllResourceSchedule.Last();
-                            foreach (var schedule in getAllResourceSchedule)
+                            var _lastItem = result.Last();
+                            foreach (var schedule in result)
                             {
                                 var breakOut = false;
                                 getResourceId = schedule.ArmedEscortResourceId;
@@ -383,7 +430,7 @@ namespace HaloBiz.MyServices.Impl
                                 armedEscort.IsTemporarilyHeld = true;
                                 armedEscort.DateTemporarilyHeld = DateTime.UtcNow;
                                 armedEscort.ArmedEscortResourceId = getResourceId;
-                                armedEscort.RequiredCount = resourceCount + 1;
+                                armedEscort.RequiredCount = resourceCount++;
                                 armedEscort.CreatedById = context.GetLoggedInUserId();
                                 armedEscort.CreatedAt = DateTime.UtcNow;
                                 armedEscort.ServiceAssignmentId = getId;
@@ -426,18 +473,12 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.FAILURE, null, ex.Message);
             }
 
-
-
-
-
-
-
-
-
             // var typeTransferDTO = _mapper.Map<MasterServiceAssignmentTransferDTO>(master);
             transaction.Commit();
+            await _serviceAssignmentDetailsService.UpdateServiceDetailsHeldForActionAndReadyStatusByAssignmentId(getId);
             return CommonResponse.Send(ResponseCodes.SUCCESS, null, "Auto Assignment Successful");
         }
+
 
         public async Task<ApiCommonResponse> AddMasterServiceAssignment(HttpContext context, MasterServiceAssignmentReceivingDTO masterReceivingDTO)
         {

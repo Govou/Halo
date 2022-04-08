@@ -2,6 +2,7 @@
 using Flurl.Http;
 using Flurl.Http.Configuration;
 using Halobiz.Common.DTOs.ApiDTOs;
+using HaloBiz.DTOs.TransferDTOs;
 using HaloBiz.Helpers;
 using HaloBiz.MyServices.LAMS;
 using HalobizMigrations.Data;
@@ -59,7 +60,7 @@ namespace HaloBiz.MyServices.Impl
                 int alreadyCreated = 0;
 
                 var customerAccountsThatHaveNotBeenIntegrated = await _context.Accounts
-                    .Where(x => x.IntegrationFlag == false && x.ControlAccount.Caption == "Receivable").ToListAsync();
+                    .Where(x =>x.CustomerJobCount < 10 &&  x.IntegrationFlag == false && x.ControlAccount.Caption == "Receivable").ToListAsync();
 
                 int allRecords = customerAccountsThatHaveNotBeenIntegrated.Count;
 
@@ -76,21 +77,24 @@ namespace HaloBiz.MyServices.Impl
 
                 foreach (var account in customerAccountsThatHaveNotBeenIntegrated)
                 {
-                    object requestBody =  null;
+                    DTrackCustomerCreate requestBody =  null;
 
                     try
                     {
                         var controlAccount = await _context.ControlAccounts.FindAsync(account.ControlAccountId);
                         if (controlAccount == null)
                         {
+                            account.CustomerJobCount = ++account.CustomerJobCount;
                             _logger.LogInformation($"Customer account {account.Name} does not have control account");
+                            _context.Accounts.Update(account);
+                            await _context.SaveChangesAsync();
                             continue;
                         }
 
 
                         if (account.Name == "RETAIL RECEIVABLE ACCOUNT")
                         {
-                            requestBody = new
+                            requestBody = new DTrackCustomerCreate
                             {
                                 CustomerNumber = account.Alias,
                                 Name = "Retail",
@@ -112,7 +116,10 @@ namespace HaloBiz.MyServices.Impl
                             var customerDivision = await _context.CustomerDivisions.SingleOrDefaultAsync(x => x.ReceivableAccountId == account.Id);
                             if (customerDivision == null)
                             {
-                                _logger.LogInformation($"Customer account {account.Name} does not have customer division");
+                                account.CustomerJobCount = ++account.CustomerJobCount;
+                                _context.Accounts.Update(account);
+                                await _context.SaveChangesAsync();
+                                _logger.LogInformation($"Customer account {account.Name} does not have customer division. Skipping...");
                                 continue;
                             }
 
@@ -120,33 +127,23 @@ namespace HaloBiz.MyServices.Impl
 
                             if (state == null)
                             {
-                                _logger.LogInformation($"Customer division {customerDivision.DivisionName} does not have state");
+                                account.CustomerJobCount = ++account.CustomerJobCount;
+                                _context.Accounts.Update(account);
+                                await _context.SaveChangesAsync();
+                                _logger.LogInformation($"Customer division {customerDivision.DivisionName} does not have state. Skipping...");
                                 continue;
                             }
+
                             else customerDivision.State = state;
 
-                          
-                            //todo Contact adjustment
-
-                            //if (!customerDivision.PrimaryContactId.HasValue)
-                            //{
-                            //    _logger.LogInformation($"Customer division {customerDivision.DivisionName} does not have primary contact");
-                            //    continue;
-                            //};
-
-                            //todo Contact adjustment
-
-                            //var primaryContact = await _context.LeadDivisionContacts.FindAsync(customerDivision.PrimaryContactId.Value);
-                            //if (primaryContact == null)
-                            //{
-                            //    _logger.LogInformation($"Customer division {customerDivision.DivisionName} does not have primary contact");
-                            //    continue;
-                            //};
 
                             var customer = await _context.Customers.FindAsync(customerDivision.CustomerId);
                             if (customer == null)
                             {
-                                _logger.LogInformation($"Customer division {customerDivision.DivisionName} does not have customer");
+                                account.CustomerJobCount = ++account.CustomerJobCount;
+                                _context.Accounts.Update(account);
+                                await _context.SaveChangesAsync();
+                                _logger.LogInformation($"Customer division {customerDivision.DivisionName} does not have customer. Skipping...");
                                 continue;
                             };
                             //check that there is a primary contact for this customer
@@ -154,9 +151,13 @@ namespace HaloBiz.MyServices.Impl
                                     .Where(x => x.CustomerId == customerDivision.CustomerId && x.ContactPriority == HalobizMigrations.Models.Shared.ContactPriority.PrimaryContact)
                                     .Include(x=>x.Contact)
                                     .FirstOrDefault();
+                            
                             if (contactPerson == null)
                             {
-                                _logger.LogInformation($"There is no primary contact for {customerDivision.DivisionName}");
+                                account.CustomerJobCount = ++account.CustomerJobCount;
+                                _context.Accounts.Update(account);
+                                await _context.SaveChangesAsync();
+                                _logger.LogInformation($"There is no primary contact for {customerDivision.DivisionName}. Skipping...");
                                 continue;
                             }
 
@@ -179,20 +180,19 @@ namespace HaloBiz.MyServices.Impl
                             }
 
                             var sector = Extensions.GetIndustryShortName(customerDivision?.Industry);
-                            requestBody = new
-                            {
-                                CustomerNumber = customerNumber,
-                                Name = customerDivision?.DivisionName,
-                                GLAccount = controlAccount.Alias, // "180101",
-                                ShortName = $"{customerDivision?.DivisionName?.Substring(0, 3)}{customerDivision?.DivisionName?.Substring(customerDivision.DivisionName.Length - 4, 3)}{customerDivision.Rcnumber.Substring(customerDivision.Rcnumber.Length - 4, 3)}",
-                                AddressLine1 = customerDivision.Address.Length > 30 ? customerDivision?.Address?.Substring(0, 30) : customerDivision.Address,
-                                EmailAddress = customerDivision.Email,
-                                TelephoneNumber = customerDivision.PhoneNumber,
-                                Location = $"{Extensions.GetStateShortName(customerDivision?.State?.Capital)}",
-                                BusinessSector = sector,
-                                OtherInfo = $"{customerDivision?.DivisionName}-{customer?.Rcnumber}-{customer?.CreatedAt}",
-                                 Contact = $"{contactPerson.Contact?.FirstName} {contactPerson.Contact?.LastName}"
-                            };
+                            requestBody = new DTrackCustomerCreate();
+                            requestBody.CustomerNumber = customerNumber;
+                            requestBody.Name = customerDivision?.DivisionName;
+                            requestBody.GLAccount = controlAccount.Alias; // "180101";
+                            requestBody.ShortName = customerNumber; //$"{customerDivision?.DivisionName?.Substring(0, 3)}{customerDivision?.DivisionName?.Substring(customerDivision.DivisionName.Length - 4, 3)}{customerDivision.Rcnumber?.Substring(customerDivision.Rcnumber.Length - 4, 3)}";
+                            requestBody.AddressLine1 = customerDivision.Address.Length > 30 ? customerDivision?.Address?.Substring(0, 30) : customerDivision.Address;
+                            requestBody.EmailAddress = customerDivision.Email;
+                            requestBody.TelephoneNumber = customerDivision.PhoneNumber;
+                            requestBody.Location = $"{Extensions.GetStateShortName(customerDivision?.State?.Capital)}";
+                            requestBody.BusinessSector = sector;
+                            requestBody.OtherInfo = $"{customerDivision?.DivisionName}-{customer?.Rcnumber}-{customer?.CreatedAt}";
+                            requestBody.Contact = $"{contactPerson.Contact?.FirstName} {contactPerson.Contact?.LastName}";
+                            
                         }
 
                         _logger.LogInformation($"Customer to create: {JsonConvert.SerializeObject(requestBody)}");
@@ -204,7 +204,7 @@ namespace HaloBiz.MyServices.Impl
                             .WithHeader("Authorization", $"Bearer {token}")
                             .PostJsonAsync(requestBody);
 
-
+                        _logger.LogInformation($"Token received from Dtrack: {token}");
 
                         var responseMessage = await response.GetStringAsync();
                         _logger.LogInformation($"Response | [{response.StatusCode}] | {responseMessage}");
@@ -213,7 +213,7 @@ namespace HaloBiz.MyServices.Impl
 
                         if (response.StatusCode == 200 || response.StatusCode == 204)
                         {
-                            account.IntegrationFlag = true;
+                            account.IntegrationFlag = true;                            
                             _context.Accounts.Update(account);
                             await _context.SaveChangesAsync();
                             ++newlyIntegrated;
@@ -261,184 +261,199 @@ namespace HaloBiz.MyServices.Impl
                 DisableFlurlCertificateValidation();
 
                 var integratedCustomerAcccounts = await _context.Accounts
-                    .Where(x => x.IntegrationFlag == true && x.ControlAccount.Caption == ReceivableControlAccount)
+                    .Where(x =>x.AccountJobCount < 10 &&  x.IntegrationFlag == true && x.ControlAccount.Caption == ReceivableControlAccount)
                     .ToListAsync();
 
-                _logger.LogInformation($"Integrated Customer Accounts Count => {integratedCustomerAcccounts.Count()}");
+                _logger.LogInformation($"Integrated Customer Accounts fetched => {integratedCustomerAcccounts.Count()}");
 
 
                 foreach (var account in integratedCustomerAcccounts)
                 {
 
-                    #region Get Customer Division and Account Masters
-                    _logger.LogInformation($"Processing customer account => {account.Name}");
-
-                    var customerDivisions = await _context.CustomerDivisions
-                        .Where(x => x.ReceivableAccountId == account.Id)
-                        .ToListAsync();
-
-                    if (customerDivisions == null || customerDivisions.Count < 1)
+                    try
                     {
-                        _logger.LogInformation($"No customer division tied to account => [{account.Id}]");
-                        return CommonResponse.Send(ResponseCodes.FAILURE,null, $"No customer division tied to account => [{ account.Id }]");
-                    }
+                        #region Get Customer Division and Account Masters
+                        // _logger.LogInformation($"Processing customer account => {account.Name}");
 
-                    if(customerDivisions.Count > 1 && account.Name != RETAIL_RECEIVABLE_ACCOUNT)
-                    {
-                        _logger.LogInformation($"You cannot have more than one customer division tied to account => [{account.Id}]");
-                        return CommonResponse.Send(ResponseCodes.FAILURE,null, $"You cannot have more than one customer division tied to account => [{ account.Id }]");
-                    }
+                       
+                        var customerDivisions = await _context.CustomerDivisions
+                            .Where(x => x.ReceivableAccountId == account.Id)
+                            .ToListAsync();
 
-                    var isRetail = account.Name == RETAIL_RECEIVABLE_ACCOUNT;
-
-                    foreach (var customerDivision in customerDivisions)
-                    {
-                        _logger.LogInformation($"Processing Customer Division => [{customerDivision.DivisionName}]");
-                        string sourceCode;
-
-                        if(isRetail && customerDivision.DTrackCustomerNumber == null)
+                        if (customerDivisions == null || customerDivisions.Count < 1)
                         {
-                            sourceCode = account.Alias;
-                        }
-                        else
-                        {
-                            sourceCode = customerDivision.DTrackCustomerNumber;
+                            account.AccountJobCount = ++account.AccountJobCount;
+                            _context.Accounts.Update(account);
+                            await _context.SaveChangesAsync();
+                            _logger.LogError($"No customer division tied to account with name { account.Name }, Id:{account.Id}. Skipping...");
+                            continue;
                         }
 
-                        var accountMasters = await _context.AccountMasters
-                        .Where(x => x.CustomerDivisionId == customerDivision.Id && x.IntegrationFlag != true)
-                        .ToListAsync();
-
-                        _logger.LogInformation($"Total number of unintegrated account masters => {accountMasters.Count()}");
-                        #endregion
-
-                        foreach (var accountMaster in accountMasters)
+                        if (customerDivisions.Count > 1 && account.Name != RETAIL_RECEIVABLE_ACCOUNT)
                         {
-                            #region Get Voucher Type and Account Details
-                            _logger.LogInformation($"Processing account master with id => [{accountMaster.Id}]");
+                            account.AccountJobCount = ++account.AccountJobCount;
+                            _context.Accounts.Update(account);
+                            await _context.SaveChangesAsync();
+                            _logger.LogInformation($"You cannot have more than one customer division tied to account with Id {account.Id}. It is not a Receivable account");
+                            continue;
+                        }
 
-                            var voucherType = await _context.FinanceVoucherTypes.FindAsync(accountMaster.VoucherId);
-                            if (voucherType == null)
+                        var isRetail = account.Name == RETAIL_RECEIVABLE_ACCOUNT;
+
+                        foreach (var customerDivision in customerDivisions)
+                        {
+                            // _logger.LogInformation($"Processing Customer Division => [{customerDivision.DivisionName}]");
+                            string sourceCode;
+
+                            if (isRetail && customerDivision.DTrackCustomerNumber == null)
                             {
-                                _logger.LogInformation($"Invalid voucher type for account master => [{accountMaster.Id}]");
-                                return CommonResponse.Send(ResponseCodes.FAILURE,null, $"Invalid voucher type for account master => [{accountMaster.Id}]");
-                            }
-
-                            var accountDetails = await _context.AccountDetails
-                                //.Where(x => x.AccountMasterId == accountMaster.Id && !x.IntegrationFlag && x.AccountId.HasValue)
-                                .ToListAsync();
-
-                            if (accountDetails.Count < 1)
-                            {
-                                _logger.LogInformation($"No account details tied to account master => [{accountMaster.Id}]");
-                                return CommonResponse.Send(ResponseCodes.FAILURE,null, $"No account details tied to account master => [{accountMaster.Id}]");
-                            }
-                            #endregion
-
-                            var journalLines = new List<object>();
-
-                            foreach (var accountDetail in accountDetails)
-                            {
-                                #region Get Detail's Account and Control Account
-                                var detailAccount = await _context.Accounts.FindAsync(accountDetail.AccountId);
-                                if (detailAccount == null) throw new Exception($"Account Detail {accountDetail.Id} is not tied to an account");
-
-                                if (detailAccount.ControlAccountId == 0) throw new Exception($"Account {detailAccount.Name} is not tied to a control account.");
-
-                                var controlAccount = await _context.ControlAccounts.FindAsync(detailAccount.ControlAccountId);
-                                if (controlAccount == null) throw new Exception($"Account {detailAccount.Name} is not tied to a control account.");
-                                #endregion
-
-                                string costCenter = "05";  
-                                //var caption = controlAccount.Caption.ToLower();
-                                //if (caption.Contains("revenue") || caption.Contains("income")) costCenter = "05";
-
-                                //if(detailAccount.Name.ToLower().Contains("income") 
-                                //    && detailAccount.Name.Contains(controlAccount.Caption))
-                                //{
-                                //    costCenter = "05";
-                                //}
-
-                                bool isCashBook = controlAccount.Alias == "15020201";
-
-                                var amount = Math.Abs(accountDetail.Credit - accountDetail.Debit);
-                                if(amount == 0)
-                                {
-                                    continue;
-                                }
-
-                                var journalLine = new
-                                {
-                                    GLAccount = controlAccount.Alias,
-                                    SubAccount = "01",
-                                    AccountSection = "01",
-                                    CostCenter = costCenter,
-                                    Amount = amount,
-                                    Factor = (accountDetail.Credit > 0 && accountDetail.Debit == 0) ? -1 : 1,
-                                    Details = accountDetail.Description,
-                                    SourceCode = isCashBook ? detailAccount.Alias : sourceCode
-                                };
-
-                                journalLines.Add(journalLine);
-                            }
-
-                            string token = await GetAPIToken();
-
-                            var journalHeader = new
-                            {
-                                Year = accountMaster.CreatedAt.Year,
-                                Month = accountMaster.CreatedAt.Month,
-                                SubAccount = "01",
-                                AccountSection = "01",
-                                CurrencyCode = "NGN",
-                                ExchangeRate = 1,
-                                TranDate = accountMaster.CreatedAt.ToString("s"),
-                                DocumentDate = accountMaster.CreatedAt.ToString("s"),
-                                TranType = voucherType.Alias ?? "JV",
-                                Module = $"HaloBiz"
-                            };
-
-                            var requestBody = new
-                            {
-                                JournalHeader = journalHeader,
-                                JournalLines = journalLines,
-                                Notes = accountMaster.Description
-                            };
-
-                            _logger.LogInformation($"Request|{JsonConvert.SerializeObject(requestBody)}");
-
-                            var response = await _dTrackBaseUrl.AllowAnyHttpStatus()
-                                .AppendPathSegment("api/Journals/PostEntries")
-                                .WithHeader("Authorization", $"Bearer {token}")
-                                .PostJsonAsync(requestBody);
-
-                            var responseMessage = await response.GetStringAsync();
-                            _logger.LogInformation($"Response | [{response.StatusCode}] | {responseMessage}");
-
-                            if (response.StatusCode == 200)
-                            {
-                                var journalCode = responseMessage;
-
-                                accountMaster.IntegrationFlag = true;
-                                accountMaster.DtrackJournalCode = journalCode;
-
-                                _context.AccountMasters.Update(accountMaster);
-
-                                foreach (var acctDetail in accountDetails)
-                                {
-                                    acctDetail.IntegrationFlag = true;
-                                }
-
-                                _context.AccountDetails.UpdateRange(accountDetails);
-                                await _context.SaveChangesAsync();
-                                _logger.LogInformation($"Successfully integrated account master [{accountMaster.Id}] with details count [{accountDetails.Count()}].");
+                                sourceCode = account.Alias;
                             }
                             else
                             {
-                                _logger.LogError($"The call to the account posting endpoint failed.");
+                                sourceCode = customerDivision.DTrackCustomerNumber;
+                            }
+
+                            var accountMasters = await _context.AccountMasters
+                            .Where(x => x.CustomerDivisionId == customerDivision.Id && x.IntegrationFlag != true)
+                            .ToListAsync();
+
+                            // _logger.LogInformation($"Total number of unintegrated account masters => {accountMasters.Count()}");
+                            #endregion
+
+                            foreach (var accountMaster in accountMasters)
+                            {
+                                #region Get Voucher Type and Account Details
+                                //_logger.LogInformation($"Processing account master with id => [{accountMaster.Id}]");
+
+                                var voucherType = await _context.FinanceVoucherTypes.FindAsync(accountMaster.VoucherId);
+                                if (voucherType == null)
+                                {
+                                    _logger.LogInformation($"Invalid voucher type for account master => [{accountMaster.Id}]");
+                                    return CommonResponse.Send(ResponseCodes.FAILURE, null, $"Invalid voucher type for account master => [{accountMaster.Id}]");
+                                }
+
+                                var accountDetails = await _context.AccountDetails
+                                    .Where(x => x.AccountMasterId == accountMaster.Id && !x.IntegrationFlag)
+                                    .ToListAsync();
+
+                                if (accountDetails.Count < 1)
+                                {
+                                    _logger.LogInformation($"No account details tied to account master => [{accountMaster.Id}]");
+                                    return CommonResponse.Send(ResponseCodes.FAILURE, null, $"No account details tied to account master => [{accountMaster.Id}]");
+                                }
+                                #endregion
+
+                                var journalLines = new List<object>();
+
+                                foreach (var accountDetail in accountDetails)
+                                {
+                                    #region Get Detail's Account and Control Account
+                                    var detailAccount = await _context.Accounts.FindAsync(accountDetail?.AccountId);
+                                    if (detailAccount == null) throw new Exception($"Account Detail {accountDetail?.Id} is not tied to an account");
+
+                                    if (detailAccount.ControlAccountId == 0) throw new Exception($"Account {detailAccount?.Name} is not tied to a control account.");
+
+                                    var controlAccount = await _context.ControlAccounts.FindAsync(detailAccount.ControlAccountId);
+                                    if (controlAccount == null) throw new Exception($"Account {detailAccount?.Name} is not tied to a control account.");
+                                    #endregion
+
+                                    string costCenter = "05";
+                                    //var caption = controlAccount.Caption.ToLower();
+                                    //if (caption.Contains("revenue") || caption.Contains("income")) costCenter = "05";
+
+                                    //if(detailAccount.Name.ToLower().Contains("income") 
+                                    //    && detailAccount.Name.Contains(controlAccount.Caption))
+                                    //{
+                                    //    costCenter = "05";
+                                    //}
+
+                                    bool isCashBook = controlAccount.Alias == "15020201";
+
+                                    var amount = Math.Abs(accountDetail.Credit - accountDetail.Debit);
+                                    if (amount == 0)
+                                    {
+                                        continue;
+                                    }
+
+                                    var journalLine = new
+                                    {
+                                        GLAccount = controlAccount.Alias,
+                                        SubAccount = "01",
+                                        AccountSection = "01",
+                                        CostCenter = costCenter,
+                                        Amount = amount,
+                                        Factor = (accountDetail.Credit > 0 && accountDetail.Debit == 0) ? -1 : 1,
+                                        Details = accountDetail.Description,
+                                        SourceCode = isCashBook ? detailAccount.Alias : sourceCode
+                                    };
+
+                                    journalLines.Add(journalLine);
+                                }
+
+                                string token = await GetAPIToken();
+
+                                var journalHeader = new
+                                {
+                                    Year = accountMaster.CreatedAt.Year,
+                                    Month = accountMaster.CreatedAt.Month,
+                                    SubAccount = "01",
+                                    AccountSection = "01",
+                                    CurrencyCode = "NGN",
+                                    ExchangeRate = 1,
+                                    TranDate = accountMaster.CreatedAt.ToString("s"),
+                                    DocumentDate = accountMaster.CreatedAt.ToString("s"),
+                                    TranType = voucherType.Alias ?? "JV",
+                                    Module = $"HaloBiz"
+                                };
+
+                                var requestBody = new
+                                {
+                                    JournalHeader = journalHeader,
+                                    JournalLines = journalLines,
+                                    Notes = accountMaster.Description
+                                };
+
+                                _logger.LogInformation($"Request|{JsonConvert.SerializeObject(requestBody)}");
+
+                                var response = await _dTrackBaseUrl.AllowAnyHttpStatus()
+                                    .AppendPathSegment("api/Journals/PostEntries")
+                                    .WithHeader("Authorization", $"Bearer {token}")
+                                    .PostJsonAsync(requestBody);
+
+                                var responseMessage = await response.GetStringAsync();
+                                _logger.LogInformation($"Response | [{response.StatusCode}] | {responseMessage}");
+
+                                if (response.StatusCode == 200)
+                                {
+                                    var journalCode = responseMessage;
+
+                                    accountMaster.IntegrationFlag = true;
+                                    accountMaster.DtrackJournalCode = journalCode;
+
+                                    _context.AccountMasters.Update(accountMaster);
+
+                                    foreach (var acctDetail in accountDetails)
+                                    {
+                                        acctDetail.IntegrationFlag = true;
+                                    }
+
+                                    _context.AccountDetails.UpdateRange(accountDetails);
+                                    await _context.SaveChangesAsync();
+                                    _logger.LogInformation($"Successfully integrated account master [{accountMaster.Id}] with details count [{accountDetails.Count()}].");
+                                }
+                                else
+                                {
+                                    _logger.LogError($"The call to the account posting endpoint failed.");
+                                }
                             }
                         }
-                    }                                       
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError($"Error processing account with name {account.Name}, Id: {account.Id}");
+                        _logger.LogError(ex.Message);
+                    }                                  
                 }
 
                 return CommonResponse.Send(ResponseCodes.SUCCESS);

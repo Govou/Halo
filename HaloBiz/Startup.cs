@@ -33,6 +33,7 @@ using Halobiz.Repository.RoleManagement;
 using Halobiz.Common.MyServices;
 using Halobiz.Common.Repository;
 using Halobiz.Common.MyServices.RoleManagement;
+using Halobiz.MyServices;
 
 namespace HaloBiz
 {
@@ -115,14 +116,18 @@ namespace HaloBiz
 
                 return await Task.FromResult(Microsoft.Extensions.Diagnostics.HealthChecks.HealthCheckResult.Healthy());
             });
+
             services.RegisterServiceLayerDi();
-            services.AddSingleton<JwtHelper>();
 
-            services.AddTransient<IRoleService, RoleServiceImpl>();
-            services.AddTransient<IRoleRepository, RoleRepositoryImpl>();
-            services.AddTransient<IUserProfileService, UserProfileServiceImpl>();
-            services.AddTransient<IUserProfileRepository, UserProfileRepositoryImpl>();
+            services.AddScoped<IRoleService, RoleServiceImpl>();
+            services.AddScoped<IRoleRepository, RoleRepositoryImpl>();
+            services.AddScoped<IUserProfileService, UserProfileServiceImpl>();
+            services.AddScoped<IUserProfileRepository, UserProfileRepositoryImpl>();
+            services.AddScoped<IUserAuthentication, UserAuthentication>();
 
+            //leave as singleton along with the dbcontext with lifespan as singleton
+            services.AddSingleton<IJwtHelper, JwtHelper>();
+            services.AddMemoryCache();
 
             services.AddAutoMapper(typeof(Startup));
             services.AddControllersWithViews()
@@ -213,13 +218,11 @@ namespace HaloBiz
             app.UseCors(cors => cors.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
 
             app.UseHttpsRedirection();
-
             app.UseRouting();
 
-            app.UseMiddleware<AuthenticationHandler>();           
+            app.UseMiddleware<AuthenticationHandler>();
 
             app.UseAuthentication();
-
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>

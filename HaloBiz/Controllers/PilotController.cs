@@ -7,11 +7,14 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Halobiz.Common.Auths;
 
 namespace HaloBiz.Controllers
 {
     [Route("api/v1/[controller]")]
     [ApiController]
+    [ModuleName(HalobizModules.SecuredMobility)]
+
     public class PilotController : ControllerBase
     {
         private readonly IPilotService _pilotService;

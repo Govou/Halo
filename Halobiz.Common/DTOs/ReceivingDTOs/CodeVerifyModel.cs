@@ -12,6 +12,5 @@ namespace Halobiz.Common.DTOs.ReceivingDTOs
         //string email, string code
         public string Email { get; set; }
         public string Code { get; set; }
-        public CodePurpose Purpose { get; set; }
     }
 }

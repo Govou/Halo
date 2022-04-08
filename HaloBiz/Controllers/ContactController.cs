@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Halobiz.Common.Auths;
 using Halobiz.Common.DTOs.ApiDTOs;
 using HaloBiz.DTOs.ContactDTO;
 using HaloBiz.MyServices;
@@ -11,6 +12,8 @@ namespace HaloBiz.Controllers
 {
     [Route("api/v1/[controller]")]
     [ApiController]
+    [ModuleName(HalobizModules.LeadAdministration)]
+
     public class ContactController:ControllerBase
     {
         private readonly IContactServiceImpl _contactServiceImpl;
@@ -40,6 +43,13 @@ namespace HaloBiz.Controllers
         {
             return await _contactServiceImpl.GetAllContact(HttpContext);
         }
+
+        [HttpGet("GetEntireContacts")]
+        public async Task<ApiCommonResponse> GetEntireContacts()
+        {
+            return await _contactServiceImpl.GetEntireContact(HttpContext);
+        }
+
 
         [HttpDelete("DisableContact/{contactId}")]
         public async Task<ApiCommonResponse> DisableContact(long contactId)

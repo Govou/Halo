@@ -24,7 +24,8 @@ using OnlinePortalBackend.Repository;
 using OnlinePortalBackend.Repository.Impl;
 using HalobizMigrations.Data;
 using OnlinePortalBackend.Adapters;
-using OnlinePortalBackend.Adapters.Impl;
+using Halobiz.Common.MyServices;
+using Halobiz.Common.Repository;
 
 namespace OnlinePortalBackend
 {
@@ -45,47 +46,7 @@ namespace OnlinePortalBackend
             services.AddDbContext<HalobizContext>(options =>
                     options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
 
-            //if (env.IsDevelopment())
-            //{
-            //    services.AddDbContext<HalobizContext>(options =>
-            //        options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
 
-            //}
-            //else
-            //{
-            //    var server = Configuration["DbServer"];
-            //    var port = Configuration["DbPort"];
-            //    var user = Configuration["DbUser"];
-            //    var password = Configuration["DbPassword"];
-            //    var database = Configuration["Database"];
-            //    services.AddDbContext<HalobizContext>(options =>
-            //        options.UseSqlServer($"Server={server},{port};Database={database};User Id={user};Password={password};"));
-
-            //}
-
-            //Authentication with JWT Setup
-            services
-                .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-                .AddJwtBearer(options =>
-                {
-                    options.TokenValidationParameters = new TokenValidationParameters
-                    {
-                        ValidateIssuerSigningKey = true,
-                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(Configuration["JWTSecretKey"] ?? Configuration.GetSection("AppSettings:JWTSecretKey").Value)),
-                        ValidateIssuer = false,
-                        ValidateAudience = false
-                    };
-                });
-
-            /*if (env.IsProduction())
-            {
-                services.AddAuthorization(options =>
-                {
-                    options.FallbackPolicy = new AuthorizationPolicyBuilder()
-                        .RequireAuthenticatedUser()
-                        .Build();
-                });
-            }*/
 
             //services
             services.AddScoped<ISecurityQuestionService, SecurityQuestionServiceImpl>();
@@ -97,7 +58,7 @@ namespace OnlinePortalBackend
             services.AddScoped<IProspectService, ProspectServiceImpl>();
             services.AddScoped<IServiceWishlistService, ServiceWishlistServiceImpl>();
             services.AddScoped<ICronJobService, CronJobServiceImpl>();
-            services.AddScoped<IReceiptService, ReceiptServiceImpl>();
+           // services.AddScoped<IReceiptService, ReceiptServiceImpl>();
             services.AddScoped<IExistingCustomerService, ExistingCustomerServiceImpl>();
 
             //repositories
@@ -108,14 +69,36 @@ namespace OnlinePortalBackend
             services.AddScoped<IModificationHistoryRepository, ModificationHistoryRepositoryImpl>();
             services.AddScoped<IServiceRatingRepository, ServiceRatingRepositoryImpl>();
             services.AddScoped<IServiceWishlistRepository, ServiceWishlistRepositoryImpl>();
+            services.AddScoped<ICartContractRepository, CartContractRepositoryImpl>();
+            services.AddScoped<IEndorsementRepository, EndorsementRepositoryImpl>();
+            services.AddScoped<IServicesRepo, ServicesRepo>();
+            services.AddScoped<IInvoiceRepository, InvoiceRepository> ();
+            services.AddScoped<IComplaintRepository, ComplaintRepository > ();
 
             services.AddScoped<IPaymentAdapter, PaymentAdapter>();
+            services.AddScoped<IApiInterceptor, ApiInterceptor>();
+            services.AddScoped<IPaymentAdapter, PaymentAdapter>();
+
+            //services and repositories
+            services.AddScoped<IMailService, MailService>();
+            services.AddScoped<IOnlineAccounts, OnlineAccounts>();
+            services.AddSingleton<JwtHelper>();
+            services.AddScoped<IUserProfileRepository, UserProfileRepositoryImpl>();
+            services.AddScoped<ICustomer, Customer>();
+            services.AddScoped<IReceiptService, ReceiptServiceImpl>();
+            services.AddScoped<ICartContractService, CartContractServiceImpl>();
+            services.AddScoped<IEndorsementService, EndorsementServiceImpl>();
+            services.AddScoped<IServicesService, ServicesService>();
+            services.AddScoped<IInvoiceService, InvoiceService>();
+            services.AddScoped<IComplaintService, ComplaintServiceImpl>();
 
             services.AddAutoMapper(typeof(Startup));
 
             services.AddControllers()
                 .AddNewtonsoftJson(option => option.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore);
             services.AddHttpClient();
+            services.AddMemoryCache();
+
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "OnlinePortalBackend", Version = "v1" });
@@ -161,6 +144,7 @@ namespace OnlinePortalBackend
             app.UseAuthentication();
 
             app.UseAuthorization();
+           // app.UseMiddleware<AuthenticationHandler>();
 
             app.UseEndpoints(endpoints =>
             {

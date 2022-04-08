@@ -10,6 +10,7 @@ using Halobiz.Common.DTOs.ReceivingDTO;
 using Halobiz.Common.DTOs.TransferDTOs;
 using Halobiz.Common.Helpers;
 using HalobizMigrations.Models;
+using Halobiz.Common.DTOs.ReceivingDTOs;
 
 namespace Halobiz.Common.Helpers
 {
@@ -25,16 +26,15 @@ namespace Halobiz.Common.Helpers
                     opt => opt.MapFrom(src => src.DateOfBirth.ToShortDateString()));
 
             CreateMap<OperatingEntity, OperatingEntityWithoutServiceGroupDTO>();
-
             CreateMap<StrategicBusinessUnit, StrategicBusinessUnitTransferDTO>().AfterMap((x, y) =>
             {
                 y.Members = x.UserProfiles;
             });
 
             CreateMap<UserProfileTransferDTO, UserProfile>();
-
             CreateMap<RoleReceivingDTO, Role>();
             CreateMap<Role, RoleTransferDTO>();
+            CreateMap<ReceiptReceivingDTO, Receipt>();
         }
     }
 }

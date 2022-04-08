@@ -22,11 +22,12 @@ namespace HaloBiz.Helpers
 
         public static long GetLoggedInUserId(this HttpContext context)
         {
-            var id =  long.TryParse(context.User.FindFirstValue(ClaimTypes.NameIdentifier), out long userIdClaim) ?
-                userIdClaim : 31;
-
+            var name = context.User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var id =  long.TryParse(name, out long userIdClaim) ?
+                userIdClaim : 0;
+            if (id == 0)
+                throw new Exception("The user is not logged in");
             return id;
-
         }
 
         public static IEnumerable<RequiredServiceDocumentTransferDTO> GetListOfRequiredDocuments(this IEnumerable<ServiceRequiredServiceDocument> docs)
@@ -161,7 +162,7 @@ namespace HaloBiz.Helpers
                 case "SOKOTO":
                     return "SKT";
                 default:
-                    return stateName?.ToUpper()?.Substring(0, 4);
+                    return "LA"; //Lagos default to avoid errors //stateName?.ToUpper()?.Substring(0, 4);
             }
         }
 
@@ -214,8 +215,14 @@ namespace HaloBiz.Helpers
                 case "GENERAL BUSINESS":
                     return "XXX";
                 default:
-                    return industry?.ToUpper()?.Substring(0, 4);
+                    return "08"; //OTHERS
             }
+        }
+
+        public static IEnumerable<TSource> DistinctBy<TSource, TKey>(this IEnumerable<TSource> source, Func<TSource, TKey> keySelector)
+        {
+            HashSet<TKey> seenKeys = new HashSet<TKey>();
+            return source.Where(element => seenKeys.Add(keySelector(element)));
         }
     }
 }

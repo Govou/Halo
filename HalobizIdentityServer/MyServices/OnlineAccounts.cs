@@ -33,7 +33,7 @@ namespace HalobizIdentityServer.MyServices
     public class OnlineAccounts : IOnlineAccounts
     {
         private readonly IMailService _mailService;
-        private IUserProfileService _userProfileService;
+       // private IUserProfileService _userProfileService;
         private readonly HalobizContext _context;
         private readonly ILogger<OnlineAccounts> _logger;
         private readonly JwtHelper _jwttHelper;
@@ -42,7 +42,7 @@ namespace HalobizIdentityServer.MyServices
 
 
         public OnlineAccounts(IMailService mailService,
-              IUserProfileService userProfileService,
+             // IUserProfileService userProfileService,
             JwtHelper jwtHelper,
             IMapper mapper,
             IRoleService roleService,
@@ -51,7 +51,7 @@ namespace HalobizIdentityServer.MyServices
          )
         {
             _mailService = mailService;
-            _userProfileService = userProfileService;
+           // _userProfileService = userProfileService;
             _logger = logger;
             _mapper = mapper;
             _roleService = roleService;
@@ -64,54 +64,54 @@ namespace HalobizIdentityServer.MyServices
         {
             try
             {
-                var response = await _userProfileService.FindUserByEmail(Email);
+                //var response = await _userProfileService.FindUserByEmail(Email);
 
-                if (response.responseCode.Contains("00"))
-                {
-                    return CommonResponse.Send(ResponseCodes.FAILURE, null, "You already have a profile");
-                }
+                //if (response.responseCode.Contains("00"))
+                //{
+                //    return CommonResponse.Send(ResponseCodes.FAILURE, null, "You already have a profile");
+                //}
 
-                //check if this customer division has an email
-                if (!_context.CustomerDivisions.Any(x => x.Email == Email))
-                {
-                    return CommonResponse.Send(ResponseCodes.FAILURE, null, $"This email {Email} does not exist for a customer");
-                }
+                ////check if this customer division has an email
+                //if (!_context.CustomerDivisions.Any(x => x.Email == Email))
+                //{
+                //    return CommonResponse.Send(ResponseCodes.FAILURE, null, $"This email {Email} does not exist for a customer");
+                //}
 
-                if (_context.UsersCodeVerifications.Any(x => x.Email == Email && x.CodeExpiryTime >= DateTime.Now && x.CodeUsedTime == null))
-                {
-                    return CommonResponse.Send(ResponseCodes.FAILURE, null, $"The code for {Email} has not been used");
-                }
+                //if (_context.UsersCodeVerifications.Any(x => x.Email == Email && x.CodeExpiryTime >= DateTime.Now && x.CodeUsedTime == null))
+                //{
+                //    return CommonResponse.Send(ResponseCodes.FAILURE, null, $"The code for {Email} has not been used");
+                //}
 
-                //save security code for this guy
-                var code = await GenerateCode();
-                var codeModel = new UsersCodeVerification
-                {
-                    Email = Email,
-                    CodeExpiryTime = DateTime.Now.AddMinutes(10),
-                    Code = code,
-                    Purpose = CodePurpose.Onboarding
-                };
+                ////save security code for this guy
+                //var code = await GenerateCode();
+                //var codeModel = new UsersCodeVerification
+                //{
+                //    Email = Email,
+                //    CodeExpiryTime = DateTime.Now.AddMinutes(10),
+                //    Code = code,
+                //    Purpose = CodePurpose.Onboarding
+                //};
 
-                var entity = await _context.UsersCodeVerifications.AddAsync(codeModel);
-                await _context.SaveChangesAsync();
+                //var entity = await _context.UsersCodeVerifications.AddAsync(codeModel);
+                //await _context.SaveChangesAsync();
 
-                var codeBody = (UsersCodeVerification)response.responseData;
-                List<string> detail = new List<string>();
-                detail.Add($"Your verification code for the online portal is <strong>{code}</strong>. Please note that it expires it 10 minutes");
+                //var codeBody = (UsersCodeVerification)response.responseData;
+                //List<string> detail = new List<string>();
+                //detail.Add($"Your verification code for the online portal is <strong>{code}</strong>. Please note that it expires it 10 minutes");
 
-                //send email with the code
-                var request = new OnlinePortalDTO
-                {
-                    Recepients = new string[] { Email },
-                    Name = "",
-                    Salutation = "Hi",
-                    Subject = "Confirmation code for Account Creation",
-                    DetailsInPara = detail
-                };
+                ////send email with the code
+                //var request = new OnlinePortalDTO
+                //{
+                //    Recepients = new string[] { Email },
+                //    Name = "",
+                //    Salutation = "Hi",
+                //    Subject = "Confirmation code for Account Creation",
+                //    DetailsInPara = detail
+                //};
 
-                var mailresponse = await _mailService.ConfirmCodeSending(request);
-                mailresponse.responseData = $"Code for {Email} is: {code}";
-                return mailresponse;
+                //var mailresponse = await _mailService.ConfirmCodeSending(request);
+                //mailresponse.responseData = $"Code for {Email} is: {code}";
+                return null;
             }
             catch (Exception ex)
             {
@@ -168,48 +168,48 @@ namespace HalobizIdentityServer.MyServices
         {
             try
             {
-                var response = await _userProfileService.FindUserByEmail(user.Email);
+                // var response = await _userProfileService.FindUserByEmail(user.Email);
 
-                if (response.responseCode.Contains("00"))
-                {
-                    return CommonResponse.Send(ResponseCodes.FAILURE, null, $"This email {user.Email} already has a profile");
-                }
+                // if (response.responseCode.Contains("00"))
+                // {
+                //     return CommonResponse.Send(ResponseCodes.FAILURE, null, $"This email {user.Email} already has a profile");
+                // }
 
-                var customer = await _context.CustomerDivisions.Where(x => x.Email == user.Email).FirstOrDefaultAsync();
+                // var customer = await _context.CustomerDivisions.Where(x => x.Email == user.Email).FirstOrDefaultAsync();
 
-                //check if this customer division has an email
-                if (customer == null)
-                {
-                    return CommonResponse.Send(ResponseCodes.FAILURE, null, $"This email {user.Email} does not exist for a customer");
-                }
+                // //check if this customer division has an email
+                // if (customer == null)
+                // {
+                //     return CommonResponse.Send(ResponseCodes.FAILURE, null, $"This email {user.Email} does not exist for a customer");
+                // }
 
-                //check if the security code for this guy has been used
-                var code = await _context.UsersCodeVerifications.Where(x => x.Email == user.Email && x.CodeUsedTime != null).OrderByDescending(x=>x.Id).FirstOrDefaultAsync();
-                if (code == null)
-                {
-                    return CommonResponse.Send(ResponseCodes.FAILURE, null, $"The email {user.Email} does not have verified code");
-                }                
+                // //check if the security code for this guy has been used
+                // var code = await _context.UsersCodeVerifications.Where(x => x.Email == user.Email && x.CodeUsedTime != null).OrderByDescending(x=>x.Id).FirstOrDefaultAsync();
+                // if (code == null)
+                // {
+                //     return CommonResponse.Send(ResponseCodes.FAILURE, null, $"The email {user.Email} does not have verified code");
+                // }                
 
-               var (salt, hashed) = HashPassword(new byte[] { }, user.Password);
-                var userpro = new UserProfileReceivingDTO
-                {
-                    Email = user.Email,
-                    EmailConfirmed = true,
-                    NormalizedEmail = user.Email.ToUpper(),
-                    PasswordHash = hashed,
-                    SecurityStamp = Convert.ToBase64String(salt),                   
-                    ImageUrl = "",
-                    StaffId = 0,
-                    FirstName = customer.DivisionName,
-                    LastName = "",
-                    DateOfBirth = DateTime.Now.ToString("yyyy-MM-dd"),
-                };
+                //var (salt, hashed) = HashPassword(new byte[] { }, user.Password);
+                // var userpro = new OnlineProfile
+                // {
+                //     Email = user.Email,
+                //     EmailConfirmed = true,
+                //     NormalizedEmail = user.Email.ToUpper(),
+                //     PasswordHash = hashed,
+                //     SecurityStamp = Convert.ToBase64String(salt),                   
+                //     Name = customer.DivisionName,
+                // };
 
-                //hash password for this guy and create profile
-                var profileResult = await _userProfileService.AddUserProfile(userpro, true);
+                // //hash password for this guy and create profile
+                // var profileResult = await _context.OnlineProfiles.AddAsync(userpro);
+                // await _context.SaveChangesAsync();
 
-                //send code to the client
-                return profileResult;
+                // //send code to the client
+                //// var userprofile = profileResult.Entity;
+                // return CommonResponse.Send(ResponseCodes.SUCCESS, null, $"Account successfully created");
+                return null;
+
             }
             catch (Exception ex)
             {
@@ -222,7 +222,7 @@ namespace HalobizIdentityServer.MyServices
         {
             try
             {
-                var profile = _context.UserProfiles.Where(x => x.Email == user.Email).FirstOrDefault();
+                var profile = _context.OnlineProfiles.Where(x => x.Email == user.Email).FirstOrDefault();
                 if (profile == null)
                 {
                     return CommonResponse.Send(ResponseCodes.FAILURE, null, "User has not been created");
@@ -238,7 +238,7 @@ namespace HalobizIdentityServer.MyServices
                 //get the permissions of the user
                 var permissions = await _roleService.GetPermissionEnumsOnUser(profile.Id);
 
-                var jwtToken = _jwttHelper.GenerateToken(profile, permissions);
+                var jwtToken = _jwttHelper.GenerateToken(null, permissions);
 
                 var mappedProfile = _mapper.Map<UserProfileTransferDTO>(profile);
                 return CommonResponse.Send(ResponseCodes.SUCCESS, new UserAuthTransferDTO

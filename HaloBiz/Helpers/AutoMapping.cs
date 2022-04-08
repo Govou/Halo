@@ -17,6 +17,8 @@ using HalobizMigrations.Models.Shared;
 using HaloBiz.Controllers;
 using HaloBiz.DTOs.ContactDTO;
 using Halobiz.Common.Helpers;
+using Halobiz.Common.DTOs.ReceivingDTOs;
+using HaloBiz.Models;
 
 namespace HaloBiz.Helpers
 {
@@ -57,7 +59,7 @@ namespace HaloBiz.Helpers
             CreateMap<State, StateWithoutLGATransferDto>();
             CreateMap<OfficeReceivingDTO, Office>();
             CreateMap<Office, OfficeTransferDTO>();
-           
+            CreateMap<RefreshToken, mRefreshToken>();
             CreateMap<Quote, Contract>().AfterMap((s, d) => 
             {
                 d.Id = 0;
@@ -186,6 +188,10 @@ namespace HaloBiz.Helpers
                 ));
             CreateMap<SbutoQuoteServiceProportion, SbutoQuoteServiceProportionTransferDTO>();
             CreateMap<SbutoQuoteServiceProportionReceivingDTO, SbutoQuoteServiceProportion>();
+
+            CreateMap<SbutoContractServiceProportion, SbutoContractServiceProportionTransferDTO>();
+            CreateMap<SbutoContractServiceProportionReceivingDTO, SbutoContractServiceProportion>();
+
             CreateMap<RegionReceivingDTO, Region>();
             CreateMap<Region, RegionTransferDTO>();
             CreateMap<ZoneReceivingDTO, Zone>();
@@ -209,12 +215,10 @@ namespace HaloBiz.Helpers
             CreateMap<Industry, IndustryTransferDTO>();
             CreateMap<IndustryReceivingDTO, Industry>();
             CreateMap<Receipt, ReceiptTransferDTO>();
-            CreateMap<ReceiptReceivingDTO, Receipt>();
             CreateMap<Designation, DesignationTransferDTO>();
             CreateMap<DesignationReceivingDTO, Designation>();
             CreateMap<Receipt, ReceiptTransferDTO>();
             CreateMap<Receipt, Receipt>();
-            CreateMap<ReceiptReceivingDTO, Receipt>();
             CreateMap<Invoice, InvoiceTransferDTO>().ForMember(dest => dest.TotalAmountReceipted, 
                 opt => opt.MapFrom(src => src.Receipts.Sum(x => x.ReceiptValue)));
             CreateMap<InvoiceReceivingDTO, Invoice>();
@@ -243,12 +247,23 @@ namespace HaloBiz.Helpers
             CreateMap<ContractServiceForEndorsement, ContractService>();
             CreateMap<ModeOfTransportReceivingDTO, ModeOfTransport>();
             CreateMap<ModeOfTransport, ModeOfTransportTransferDTO>();
+            
+            //SUPPLIER
             CreateMap<SupplierReceivingDTO, Supplier>();
             CreateMap<Supplier, SupplierTransferDTO>();
             CreateMap<SupplierCategoryReceivingDTO, SupplierCategory>();
             CreateMap<SupplierCategory, SupplierCategoryTransferDTO>();
             CreateMap<SupplierServiceReceivingDTO, SupplierService>();
             CreateMap<SupplierService, SupplierServiceTransferDTO>();
+
+            //MAKE
+            CreateMap<MakeReceivingDTO, Make>();
+            CreateMap<Make, MakeTransferDTO>();
+
+            //MODEL
+            CreateMap<ModelReceivingDTO, HalobizMigrations.Models.Model>();
+            CreateMap<HalobizMigrations.Models.Model, ModelTransferDTO>();
+
             CreateMap<ClientEngagementReceivingDTO, ClientEngagement>();
             CreateMap<ClientEngagement, ClientEngagementTransferDTO>();
             CreateMap<LeadEngagementReceivingDTO, LeadEngagement>();
@@ -316,8 +331,8 @@ namespace HaloBiz.Helpers
             CreateMap<SMORegion, SMORouteRegionTransferDTO>();
             CreateMap<SMORoute, SMORouteRegionTransferDTO>();
 
-            //CreateMap<SMORouteMapReceivingDTO, SMORouteAndStateMap>();
-            //CreateMap<SMORouteAndStateMap, SMORouteMapTransferDTO>();
+            CreateMap<SMORouteMapReceivingDTO, SMORouteAndStateMap>();
+            CreateMap<SMORouteAndStateMap, SMORouteMapTransferDTO>();
 
             CreateMap<CommanderTypeAndRankReceivingDTO, CommanderType>(); //for type
             CreateMap<CommanderRankReceivingDTO, CommanderRank>();
@@ -437,7 +452,6 @@ namespace HaloBiz.Helpers
             CreateMap<PilotServiceAssignmentDetailsReceivingDTO, PilotServiceAssignmentDetail>();
             CreateMap<VehicleServiceAssignmentDetailsReceivingDTO, VehicleServiceAssignmentDetail>();
 
-
             CreateMap<ArmedEscortServiceAssignmentDetail, ArmedEscortServiceAssignmentDetailsTransferDTO>();
             CreateMap<CommanderServiceAssignmentDetail, CommanderServiceAssignmentDetailsTransferDTO>();
             CreateMap<PilotServiceAssignmentDetail, PilotServiceAssignmentDetailsTransferDTO>();
@@ -445,6 +459,17 @@ namespace HaloBiz.Helpers
 
             CreateMap<PassengerReceivingDTO, Passenger>();
             CreateMap<Passenger, PassengerTransferDTO>();
+
+            //ServiceAssignmentDetail Replacement
+            CreateMap<ArmedEscortReplacementReceivingDTO, ArmedEscortServiceAssignmentDetailReplacement>();
+            CreateMap<CommanderReplacementReceivingDTO, CommanderServiceAssignmentDetailReplacement>();
+            CreateMap<PilotReplacementReceivingDTO, PilotServiceAssignmentDetailReplacement>();
+            CreateMap<VehicleReplacementReceivingDTO, VehicleAssignmentDetailReplacement>();
+
+            CreateMap<ArmedEscortServiceAssignmentDetailReplacement, ArmedEscortReplacementTrasnferDTO>();
+            CreateMap<CommanderServiceAssignmentDetailReplacement, CommanderReplacementTransferDTO>();
+            CreateMap<PilotServiceAssignmentDetailReplacement, PilotReplacementTransferDTO>();
+            CreateMap<VehicleAssignmentDetailReplacement, VehicleReplacementTransferDTO>();
 
             //JourneyStartandStop
             CreateMap<JourneyStartReceivingDTO, ArmadaJourneyStart>();
@@ -466,6 +491,24 @@ namespace HaloBiz.Helpers
             CreateMap<JourneyNoteReceivingDTO, JourneyNote>();
             CreateMap<JourneyNote, JourneyNoteTransferDTO>();
 
+            //Feedback
+            CreateMap<FeedbackMasterReceivingDTO, FeedbackMaster>();
+            CreateMap<FeedbackMaster, FeedbackMasterTransferDTO>();
+
+            CreateMap<GeneralFeedbackReceivingDTO, GeneralFeedbackDetail>();
+            CreateMap<GeneralFeedbackDetail, GeneralFeedbackTransferDTO>();
+
+            CreateMap<ArmedEscortFeedbackReceivingDTO, ArmedEscortFeedbackDetail>();
+            CreateMap<ArmedEscortFeedbackDetail, ArmedEscortFeedbackTransferDTO>();
+
+            CreateMap<CommanderFeedbackReceivingDTO, CommanderFeedbackDetail>();
+            CreateMap<CommanderFeedbackDetail, CommanderFeedbackTransferDTO>();
+
+            CreateMap<PilotFeedbackReceivingDTO, PilotFeedbackDetail>();
+            CreateMap<PilotFeedbackDetail, PilotFeedbackTransferDTO>();
+
+            CreateMap<VehicleFeedbackReceivingDTO, VehicleFeedbackDetail>();
+            CreateMap<VehicleFeedbackDetail, VehicleFeedbackTransferDTO>();
             //CreateMap<CommanderType, SMORegionTransferDTO>();
         }
     }

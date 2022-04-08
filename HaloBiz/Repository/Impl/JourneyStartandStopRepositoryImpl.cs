@@ -61,6 +61,15 @@ namespace HaloBiz.Repository.Impl
             return await SaveChanges();
         }
 
+        public async Task<IEnumerable<FeedbackMaster>> FindAllFeedbackMasters()
+        {
+            return await _context.FeedbackMasters.Where(jr => jr.IsDeleted == false).Include(x=>x.JourneyStart).Include(x=>x.ArmedEscortFeedbackDetails.Where(x=>x.IsDeleted == false))
+            .Include(x => x.CommanderFeedbackDetails.Where(x => x.IsDeleted == false)).Include(x => x.PilotFeedbackDetails.Where(x => x.IsDeleted == false))
+            .Include(x => x.VehicleFeedbackDetails.Where(x => x.IsDeleted == false))
+            .Include(ct => ct.ServiceAssignment).OrderByDescending(x => x.Id)
+            .ToListAsync();
+        }
+
         public async Task<IEnumerable<JourneyIncidentPicture>> FindAllJouneyIncidentPics()
         {
             return await _context.JourneyIncidentPictures.Where(jr => jr.IsDeleted == false)
@@ -133,6 +142,31 @@ namespace HaloBiz.Repository.Impl
            .ToListAsync();
         }
 
+        public Task<FeedbackDetail> FindFeedbackDetailById(long Id)
+        {
+            throw new NotImplementedException();
+        }
+
+        public async Task<FeedbackMaster> FindFeedbackMasterByAssignmentId(long assignId)
+        {
+            return await _context.FeedbackMasters.Include(r => r.ServiceAssignment)
+          .FirstOrDefaultAsync(aer => aer.ServiceAssignmentId == assignId && aer.IsDeleted == false);
+        }
+
+        public async Task<FeedbackMaster> FindFeedbackMasterById(long Id)
+        {
+            return await _context.FeedbackMasters.Include(r => r.ServiceAssignment)
+            .FirstOrDefaultAsync(aer => aer.Id == Id && aer.IsDeleted == false);
+        }
+
+        public async Task<GeneralFeedbackDetail> FindGenralFeedbackByAssignmentId(long assignId)
+        {
+            //return await _context.GeneralFeedbackDetails.Include(r => r.FeedbackMaster)
+            //.FirstOrDefaultAsync(aer => aer.FeedbackMasterId == fMasterId && aer.IsDeleted == false);
+            return await _context.GeneralFeedbackDetails.Include(r => r.FeedbackMaster)
+          .FirstOrDefaultAsync(aer => aer.FeedbackMaster.ServiceAssignmentId == assignId && aer.IsDeleted == false);
+        }
+
         public async Task<JourneyIncident> FindJourneyIncidentById(long Id)
         {
             return await _context.JourneyIncidents.Include(r => r.JourneyStart)
@@ -157,6 +191,12 @@ namespace HaloBiz.Repository.Impl
              .FirstOrDefaultAsync(aer => aer.Id == Id && aer.IsDeleted == false);
         }
 
+        public async Task<ArmadaJourneyStart> FindJourneyStartByAssignmentId(long assignId)
+        {
+            return await _context.ArmadaJourneyStarts.Include(r => r.ServiceAssignment)
+            .FirstOrDefaultAsync(aer => aer.ServiceAssignmentId == assignId && aer.IsDeleted == false);
+        }
+
         public async Task<ArmadaJourneyStart> FindJourneyStartById(long Id)
         {
             return await _context.ArmadaJourneyStarts.Include(r => r.ServiceAssignment)
@@ -174,6 +214,61 @@ namespace HaloBiz.Repository.Impl
             leadCommander.IsActive = false;
             _context.JourneyLeadCommanders.Update(leadCommander);
             return await SaveChanges();
+        }
+
+        public async Task<ArmedEscortFeedbackDetail> SaveArmedEscortFeedback(ArmedEscortFeedbackDetail feedback)
+        {
+            var savedEntity = await _context.ArmedEscortFeedbackDetails.AddAsync(feedback);
+
+            if (await SaveChanges())
+            {
+                return savedEntity.Entity;
+            }
+            return null;
+        }
+
+        public async Task<CommanderFeedbackDetail> SaveCommanderFeedback(CommanderFeedbackDetail feedback)
+        {
+            var savedEntity = await _context.CommanderFeedbackDetails.AddAsync(feedback);
+
+            if (await SaveChanges())
+            {
+                return savedEntity.Entity;
+            }
+            return null;
+        }
+
+        public async Task<FeedbackDetail> SaveFeedbackDetail(FeedbackDetail feedbackDetail)
+        {
+            //var savedEntity = await _context.FeedbackDetails.AddAsync(feedbackDetail);
+
+            //if (await SaveChanges())
+            //{
+            //    return savedEntity.Entity;
+            //}
+            return null;
+        }
+
+        public async Task<FeedbackMaster> SaveFeedbackMaster(FeedbackMaster feedbackMaster)
+        {
+            var savedEntity = await _context.FeedbackMasters.AddAsync(feedbackMaster);
+
+            if (await SaveChanges())
+            {
+                return savedEntity.Entity;
+            }
+            return null;
+        }
+
+        public async Task<GeneralFeedbackDetail> SaveGeneralFeedback(GeneralFeedbackDetail feedback)
+        {
+            var savedEntity = await _context.GeneralFeedbackDetails.AddAsync(feedback);
+
+            if (await SaveChanges())
+            {
+                return savedEntity.Entity;
+            }
+            return null;
         }
 
         public async Task<JourneyIncident> SaveJourneyIncident(JourneyIncident incident)
@@ -234,6 +329,28 @@ namespace HaloBiz.Repository.Impl
         public async Task<ArmadaJourneyStop> SaveJourneyStop(ArmadaJourneyStop journeyStop)
         {
             var savedEntity = await _context.ArmadaJourneyStops.AddAsync(journeyStop);
+
+            if (await SaveChanges())
+            {
+                return savedEntity.Entity;
+            }
+            return null;
+        }
+
+        public async Task<PilotFeedbackDetail> SavePilotFeedback(PilotFeedbackDetail feedback)
+        {
+            var savedEntity = await _context.PilotFeedbackDetails.AddAsync(feedback);
+
+            if (await SaveChanges())
+            {
+                return savedEntity.Entity;
+            }
+            return null;
+        }
+
+        public async Task<VehicleFeedbackDetail> SaveVehicleFeedback(VehicleFeedbackDetail feedback)
+        {
+            var savedEntity = await _context.VehicleFeedbackDetails.AddAsync(feedback);
 
             if (await SaveChanges())
             {

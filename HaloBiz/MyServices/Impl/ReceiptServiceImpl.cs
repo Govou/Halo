@@ -15,6 +15,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using System.Linq;
 using System.Collections.Generic;
+using Halobiz.Common.DTOs.ReceivingDTOs;
 
 namespace HaloBiz.MyServices.Impl
 {
