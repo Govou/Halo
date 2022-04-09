@@ -33,30 +33,8 @@ namespace OnlinePortalBackend.MyServices.Impl
             ApiCommonResponse responseData = new ApiCommonResponse();
             try
             {
-                var token = await _apiInterceptor.GetToken();
-                var baseUrl = string.Concat(_HalobizBaseUrl, "Complaint");
-
-
-                var response = await baseUrl.AllowAnyHttpStatus().WithOAuthBearerToken($"{token}")
-                   .PostJsonAsync(complaint)?.ReceiveJson();
-
-                foreach (KeyValuePair<string, object> kvp in (IDictionary<string, object>)response)
-                {
-                    if (kvp.Key.ToString() == "responseCode")
-                    {
-                        responseData.responseCode = kvp.Value.ToString();
-                    }
-                    if (kvp.Key.ToString() == "responseData")
-                    {
-                        responseData.responseData = kvp.Value;
-                    }
-                    if (kvp.Key.ToString() == "responseMsg")
-                    {
-                        responseData.responseMsg = kvp.Value.ToString();
-                    }
-                }
-
-                return CommonResponse.Send(ResponseCodes.SUCCESS, responseData);
+                responseData = await _complaintRepository.CreateComplaint(complaint);
+                return responseData;
             }
             catch (Exception ex)
             {

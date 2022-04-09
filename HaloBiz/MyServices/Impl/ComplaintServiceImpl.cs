@@ -185,7 +185,7 @@ namespace HaloBiz.MyServices.Impl
             return CommonResponse.Send(ResponseCodes.SUCCESS);
         }
 
-        public async Task<ApiCommonResponse> GetAllComplaint()
+        public async Task<ApiCommonResponse> GetAllComplaint(int? id = null)
         {
             var complaints = await _complaintRepo.FindAllComplaints();
             if (complaints == null)
@@ -272,6 +272,11 @@ namespace HaloBiz.MyServices.Impl
 
             var complaintTransferDTOs = _mapper.Map<ComplaintTransferDTO>(updatedcomplaint);
             return CommonResponse.Send(ResponseCodes.SUCCESS,complaintTransferDTOs);
+        }
+
+        public Task<ApiCommonResponse> GetAllComplaint()
+        {
+            throw new NotImplementedException();
         }
     }
 }

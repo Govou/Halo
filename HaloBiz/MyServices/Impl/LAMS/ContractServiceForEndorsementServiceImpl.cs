@@ -110,7 +110,6 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 {
                     var contractService = _mapper.Map<ContractService>(item);
                     contractService.ContractId = newContract.Id;
-                    contractService.IsApproved = false;
                     newContractServices.Add(contractService);
                 }
             }         
