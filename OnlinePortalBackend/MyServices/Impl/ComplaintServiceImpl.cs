@@ -33,6 +33,8 @@ namespace OnlinePortalBackend.MyServices.Impl
             ApiCommonResponse responseData = new ApiCommonResponse();
             try
             {
+                complaint.ComplaintSourceId = await _complaintRepository.GetComplaintSource();
+                complaint.ComplaintOriginId = await _complaintRepository.GetComplaintOrigin();
                 var token = await _apiInterceptor.GetToken();
                 var baseUrl = string.Concat(_HalobizBaseUrl, "Complaint");
 

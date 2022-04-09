@@ -8,5 +8,7 @@ namespace OnlinePortalBackend.Repository
     {
         Task<IEnumerable<ComplaintTypeDTO>> GetComplainTypes();
         Task<int> CreateComplaint();
+        Task<int> GetComplaintOrigin();
+        Task<int> GetComplaintSource();
     }
 }

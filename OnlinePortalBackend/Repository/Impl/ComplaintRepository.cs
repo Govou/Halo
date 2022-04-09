@@ -31,5 +31,18 @@ namespace OnlinePortalBackend.Repository.Impl
                 Id = (int)t.Id
             });
         }
+
+        public async Task<int> GetComplaintOrigin()
+        {
+            var result =  _context.ComplaintOrigins.FirstOrDefault(x => x.Caption.ToLower() == "client").Id;
+            return (int)result;
+        }
+
+        public async Task<int> GetComplaintSource()
+        {
+            var result = _context.ComplaintSources.FirstOrDefault(x => x.Caption.ToLower().Contains("web")).Id;
+            return (int)result;
+        }
+
     }
 }
