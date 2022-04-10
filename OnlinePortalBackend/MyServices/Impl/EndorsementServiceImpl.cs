@@ -69,7 +69,7 @@ namespace OnlinePortalBackend.MyServices.Impl
 
             foreach (var item in endorsements)
             {
-                var contractService = _context.ContractServices.Include(x => x.Contract).Include(x => x.Service).FirstOrDefault(x => x.Id == item.ContractServiceId);
+                var contractService = _context.ContractServices.Include(x => x.Contract).Include(x => x.Service).AsNoTracking().FirstOrDefault(x => x.Id == item.ContractServiceId);
                 var endorsementDTO = new ContractServiceForEndorsementReceivingDto
                 {
                     UnitPrice = contractService.UnitPrice,
