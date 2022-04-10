@@ -9,7 +9,7 @@ namespace OnlinePortalBackend.Repository
     {
         Task<ServiceRating> SaveServiceRating(ServiceRating serviceRating);
         Task<bool> UpdateServiceRatings(IEnumerable<ServiceRating> serviceRating);
-        Task<ServiceRating> FindServiceRatingById(long Id);
+        Task<double> FindServiceRatingById(long Id);
         Task<IEnumerable<ServiceRating>> GetReviewHistoryByServiceId(long Id);
         Task<IEnumerable<ServiceRating>> FindServiceRatingsByUserId(long Id);
         Task<IEnumerable<ServiceRating>> FindAllServiceRatings();

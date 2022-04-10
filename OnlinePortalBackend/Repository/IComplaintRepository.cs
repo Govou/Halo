@@ -12,7 +12,7 @@ namespace OnlinePortalBackend.Repository
         Task<ApiCommonResponse> CreateComplaint(ComplaintDTO complaintReceivingDTO);
         Task<int> GetComplaintOrigin();
         Task<int> GetComplaintSource();
-
+        Task<IEnumerable<ComplaintItemDTO>> GetAllComplaints(int userId);
 
     }
 }

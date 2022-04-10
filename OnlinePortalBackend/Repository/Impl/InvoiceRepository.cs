@@ -27,7 +27,8 @@ namespace OnlinePortalBackend.Repository.Impl
 
             if (contractService != null && contractService.Value == 0)
             {
-                IEnumerable<InvoiceDTO> invoices = _context.Invoices.Include(x => x.Receipts).Include(x => x.ContractService).Where(x => x.ContractServiceId == contractService && x.CustomerDivisionId == userId).Select(x => new InvoiceDTO
+
+                IEnumerable<InvoiceDTO> invoices = _context.Invoices.Include(x => x.Receipts).Include(x => x.ContractService).Where(x => x.ContractServiceId == contractService && x.CustomerDivisionId == userId && x.IsDeleted == false).Select(x => new InvoiceDTO
                 {
                     Id = (int)x.Id,
                     VAT = x.ContractService.Vat.Value,
