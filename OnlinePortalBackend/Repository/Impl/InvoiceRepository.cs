@@ -124,6 +124,7 @@ namespace OnlinePortalBackend.Repository.Impl
             var firstInvoice = _context.Invoices.FirstOrDefault(x => x.Id == invoiceId);
             var allInvoices = new List<InvoiceDetailInfo>();
             var InvoiceDTO = new InvoiceDetailDTO();
+            var totalInvoices = 0.0;
             if (firstInvoice == null)
                 return null;
 
@@ -147,6 +148,7 @@ namespace OnlinePortalBackend.Repository.Impl
                 foreach (var item in groupedInvoices)
                 {
                     item.ServiceName = conServices[item.ContractServiceId];
+                    totalInvoices += item.Total;
                 }
                 allInvoices = groupedInvoices;
             }
@@ -168,6 +170,8 @@ namespace OnlinePortalBackend.Repository.Impl
             InvoiceDTO.InvoiceStart = firstInvoice.StartDate;
             InvoiceDTO.InvoiceEnd = firstInvoice.EndDate;
             InvoiceDTO.InvoiceDue = firstInvoice.DateToBeSent;
+            InvoiceDTO.InvoiceBalanceBeforeReceipting = firstInvoice.Value;
+            InvoiceDTO.InvoiceValue = totalInvoices;
             InvoiceDTO.InvoiceDetailsInfos = allInvoices;
 
             return InvoiceDTO;
