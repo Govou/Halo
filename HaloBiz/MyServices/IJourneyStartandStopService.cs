@@ -66,6 +66,9 @@ namespace HaloBiz.MyServices
         //Task<ApiCommonResponse> RelinquishJourneyNote(long id);
         Task<ApiCommonResponse> DeleteJourneyNote(long id);
 
+        //TrackingAPI Call
+        Task<ApiCommonResponse> TrackAPI(string imei);
+
         //FeedBack
         Task<ApiCommonResponse> AddFeedbackMaster(HttpContext context, FeedbackMasterReceivingDTO feedback);
         Task<ApiCommonResponse> GetAllFeedbackMasters();

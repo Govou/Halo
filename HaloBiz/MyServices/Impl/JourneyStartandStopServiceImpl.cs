@@ -7,6 +7,9 @@ using HaloBiz.Helpers;
 using HaloBiz.Repository;
 using HalobizMigrations.Models.Armada;
 using Microsoft.AspNetCore.Http;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using RestSharp;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -67,6 +70,7 @@ namespace HaloBiz.MyServices.Impl
 
             if (assignmentExist == null)
             {
+                itemToAdd.Id = 0;
                 itemToAdd.CreatedById = context.GetLoggedInUserId();
                 itemToAdd.CreatedAt = DateTime.UtcNow;
                 var saved = await _journeyStartandStopRepository.SaveFeedbackMaster(itemToAdd);
@@ -88,6 +92,7 @@ namespace HaloBiz.MyServices.Impl
         {
             var itemToAdd = _mapper.Map<GeneralFeedbackDetail>(feedback);
 
+            itemToAdd.Id = 0;
             itemToAdd.CreatedById = context.GetLoggedInUserId();
             itemToAdd.CreatedAt = DateTime.UtcNow;
             var saved = await _journeyStartandStopRepository.SaveGeneralFeedback(itemToAdd);
@@ -608,6 +613,19 @@ namespace HaloBiz.MyServices.Impl
             }
 
             return CommonResponse.Send(ResponseCodes.SUCCESS);
+        }
+
+        public async Task<ApiCommonResponse> TrackAPI(string imei)
+        {
+            var client = new RestClient($"https://gsh3.net/id22/api/api.php?api=user&ver=1.0&key=530B360EF691F58B9E3B35059D016045&cmd=OBJECT_GET_LOCATIONS,{imei}");
+            //client.Timeout = -1;
+            var request = new RestRequest();
+            request.AddHeader("Cookie", "gs_language=english");
+            var response = await client.GetAsync(request);
+            //var res = JsonConvert.SerializeObject(response.Content);
+            var res = JObject.Parse( response.Content);
+            //Console.WriteLine(response.Content);
+            return CommonResponse.Send(ResponseCodes.SUCCESS, res);
         }
 
         public async Task<ApiCommonResponse> UpdateCancelStartJourney(long id)

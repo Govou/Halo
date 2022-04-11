@@ -1839,6 +1839,97 @@ namespace HaloBiz.MyServices.Impl
             return (masterServiceAssignmentMailDTO, invoicesToUpdate);
         }
 
+        private async Task<(MasterServiceAssignmentMailVMDTO, IEnumerable<MasterServiceAssignment>)> GenerateJourneyEndNotificationMailDTO(MasterServiceAssignment invoice)
+        {
+           
+            var serviceAss = await _context.MasterServiceAssignments
+                         .Where(x => x.Id == invoice.Id && x.IsDeleted == false)
+                         .Include(x => x.CustomerDivision).Include(x => x.CreatedBy)
+                         .FirstOrDefaultAsync();
+           
+            var serviceReg = await _context.ServiceRegistrations
+                          .Where(x => x.Id == invoice.ServiceRegistrationId && x.IsDeleted == false)
+                          .Include(x => x.Service)
+                          .FirstOrDefaultAsync();
+          
+            //var commanders = await _context.CommanderServiceAssignmentDetails
+            //           .Where(x => x.ServiceAssignmentId == invoice.Id && x.IsDeleted == false)
+            //           .Include(x => x.ServiceAssignment)
+            //           .Include(x => x.CommanderResource)
+            //           .Include(x => x.CommanderResource.Profile)
+            //           .ToListAsync();
+
+
+
+            IEnumerable<MasterServiceAssignment> invoices;
+            List<MasterServiceAssignment> invoicesToUpdate = new List<MasterServiceAssignment>();
+            invoices = await _context.MasterServiceAssignments
+                       .Where(x => x.Id == invoice.Id)
+                       .Include(x => x.ServiceRegistration)
+                       .Include(x => x.ContractService).Include(x => x.CreatedBy)
+                       .ToListAsync();
+
+
+            List<string> recepients = new List<string>();
+            
+
+            //send to detailing officer
+            //if (serviceAss.CreatedBy.Email != null)
+            //    recepients.Add(serviceAss.CreatedBy.Email);
+            //Commander
+            //foreach (var item in commanders)
+            //{
+            //    if (item.CommanderResource.Profile.Email != null)
+            //        recepients.Add(item.CommanderResource.Profile.Email);
+            //}
+       
+
+            //send to client company
+            if (serviceAss.CustomerDivision.Email != null)
+                recepients.Add(serviceAss.CustomerDivision.Email);
+
+          
+
+
+            List<PassengersMailDTO> passengersMailDTO = new List<PassengersMailDTO>();
+
+            ServiceMailDTO serviceMailDTO = new ServiceMailDTO()
+            {
+                Name = serviceReg.Service.Name,
+                Description = serviceReg.Service.Description,
+
+            };
+            ClientInfosMailDTO client = new ClientInfosMailDTO()
+            {
+                Name = serviceAss.CustomerDivision.DivisionName,
+                Email = serviceAss.CustomerDivision.Email,
+                Street = serviceAss.CustomerDivision.Street,
+                State = serviceAss.CustomerDivision.State != null ? serviceAss.CustomerDivision.State.Name : "No State Provided",
+                LGA = serviceAss.CustomerDivision.Lga != null ? serviceAss.CustomerDivision.Lga.Name : "No LGA Provided"
+            };
+
+            MasterServiceAssignmentMailVMDTO masterServiceAssignmentMailDTO = new MasterServiceAssignmentMailVMDTO()
+            {
+                id = invoice.Id,
+                //PickupDate = invoice.PickupDate,
+                //PickoffTime = invoice.PickoffTime,
+                //PickoffLocation = invoice.PickoffLocation,
+                //ServiceRegistrationId = invoice.ServiceRegistrationId,
+                //DropoffLocation = invoice.DropoffLocation,
+                //CreatedBy = invoice.CreatedBy.FirstName + " " + invoice.CreatedBy.LastName,
+                //CreatedByMobile = invoice.CreatedBy.MobileNumber,
+                //Subject = $"JMP {invoice.InvoiceNumber} for {keyServiceName} due {invoice.EndDate.ToString("dddd, dd MMMM yyyy")}",
+                Subject = $"End Of Journey",
+                Recepients = recepients.ToArray(),
+                //passengers = passengersMailDTO,
+                clientInfo = client,
+                ServiceMailDTO = serviceMailDTO,
+                //ContractServices = contractServiceMailDTOs
+            };
+
+            return (masterServiceAssignmentMailDTO, invoicesToUpdate);
+        }
+
         private async Task<long> GetServiceIncomeAccountForRetailClient(Service service)
         {
             string serviceClientIncomeAccountName = $"{service.Name} Income for {RETAIL}";
@@ -1974,6 +2065,32 @@ namespace HaloBiz.MyServices.Impl
                 _logger.LogError($"Error: {ex.Message}");
                 _logger.LogError($"Error: {ex.StackTrace}");
                 return CommonResponse.Send(ResponseCodes.FAILURE, null, "confirmation Not Sent");
+            }
+        }
+
+        public async Task<ApiCommonResponse> SendJourneyEndNotification(long serviceAssignmentId)
+        {
+            try
+            {
+                MasterServiceAssignment MSA = await _context.MasterServiceAssignments
+                            .Where(x => x.Id == serviceAssignmentId && !x.IsDeleted)
+                            .FirstOrDefaultAsync();
+
+                if (serviceAssignmentId == null)
+                {
+                    return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE); ;
+                }
+
+                var (masterServiceAssignmentMailDTO, assignments) = await GenerateJourneyEndNotificationMailDTO(MSA);
+                return await _mailAdapter.SendJourneyEndNotificationMail(masterServiceAssignmentMailDTO);
+
+            }
+            catch (System.Exception ex)
+            {
+                _logger.LogError($"An Error occured while trying to send notification with Id: {serviceAssignmentId}");
+                _logger.LogError($"Error: {ex.Message}");
+                _logger.LogError($"Error: {ex.StackTrace}");
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Notification Not Sent");
             }
         }
         public async Task<ApiCommonResponse> GetJMPDetails(long serviceAssignmentId)

@@ -21,6 +21,7 @@ namespace HaloBiz.MyServices
         Task<ApiCommonResponse> SendInvoice(long invoiceId);
         Task<ApiCommonResponse> SendJourneyManagementPlan(long serviceAssignmentId);
         Task<ApiCommonResponse> SendJourneyConfirmation(long serviceAssignmentId);
+        Task<ApiCommonResponse> SendJourneyEndNotification(long serviceAssignmentId);
         Task<ApiCommonResponse> GetJMPDetails(long serviceAssignmentId);
         Task<ApiCommonResponse> GetInvoiceDetails(long invoiceId);
         Task<ApiCommonResponse> RemoveProformaInvoice(long invoiceId);
