@@ -494,14 +494,17 @@ namespace OnlinePortalBackend.MyServices.Impl
                 var adminDirectService = _context.ServiceRelationships.FirstOrDefault(x => x.DirectServiceId == contractService.ServiceId || x.AdminServiceId == contractService.ServiceId);
                 foreach (var item in ContractServices)
                 {
-                    if (item.ServiceId == adminDirectService.AdminServiceId)
+                    if (adminDirectService != null)
                     {
-                        adminServiceExist = true;
-                        adminServiceCount++;
-                    }
-                    if (item.ServiceId == adminDirectService.DirectServiceId)
-                    {
-                        directServiceExist = true;
+                        if (item.ServiceId == adminDirectService?.AdminServiceId)
+                        {
+                            adminServiceExist = true;
+                            adminServiceCount++;
+                        }
+                        if (item.ServiceId == adminDirectService?.DirectServiceId)
+                        {
+                            directServiceExist = true;
+                        }
                     }
                 }
                 if (directServiceExist && adminServiceExist)
