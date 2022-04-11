@@ -14,5 +14,6 @@ namespace HaloBiz.MyServices.LAMS
         Task<ApiCommonResponse> GetContractById(long id);
         Task<ApiCommonResponse> GetContractsByLeadId(long leadId);
         Task<ApiCommonResponse> GetContractsByCustomerId(long leadId);
+        Task<ApiCommonResponse> GetUnapprovedContracts();
     }
 }

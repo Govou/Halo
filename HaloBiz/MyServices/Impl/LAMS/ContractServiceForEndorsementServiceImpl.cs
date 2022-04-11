@@ -37,13 +37,30 @@ namespace HaloBiz.MyServices.Impl.LAMS
                                             ILogger<ContractServiceForEndorsementServiceImpl> logger,
                                             IConfiguration configuration)
         {
-            this._context = context;
-            this._mapper = mapper;
-            this._leadConversionService = leadConversionService;
+            _context = context;
+            _mapper = mapper;
+            _leadConversionService = leadConversionService;
             _approvalService = approvalService;
-            this._cntServiceForEndorsemntRepo = cntServiceForEndorsemntRepo;
-            this._configuration = configuration;
-            this._logger = logger;
+            _cntServiceForEndorsemntRepo = cntServiceForEndorsemntRepo;
+            _configuration = configuration;
+            _logger = logger;
+        }
+
+        public async Task<ApiCommonResponse> GetNewContractAdditionEndorsement(long customerDivisionId)
+        {
+            var contract =  await _context.Contracts.Where(x => x.CustomerDivisionId == customerDivisionId && !x.IsApproved)
+                                .Include(x => x.ContractServices)
+                                    .ThenInclude(x=>x.Service)
+                                .Include(x => x.ContractServices)
+                                    .ThenInclude(x=>x.SbutoContractServiceProportions)
+                                        .ThenInclude(x=>x.UserInvolved)
+                                .FirstOrDefaultAsync();
+            if (contract == null)
+            {
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);
+            }
+
+            return CommonResponse.Send(ResponseCodes.SUCCESS, contract);
         }
 
         public async Task<ApiCommonResponse> AddNewRetentionContractServiceForEndorsement(HttpContext httpContext, List<ContractServiceForEndorsementReceivingDto> contractServiceForEndorsementDtos)
@@ -68,6 +85,13 @@ namespace HaloBiz.MyServices.Impl.LAMS
             if (createNewContract)
             {
                 var contractDetail = contractServiceForEndorsementDtos.FirstOrDefault();
+
+                //check if there is a pending contract addition for this guy
+                if (_context.Contracts.Any(x=>x.CustomerDivisionId==contractDetail.CustomerDivisionId && !x.IsApproved))
+                {
+                    return CommonResponse.Send(ResponseCodes.FAILURE, null, "You have pending contract waiting approval");
+                }
+
                 newContract = new Contract {
                     CreatedAt = DateTime.Now,
                     CreatedById = id,
@@ -75,7 +99,9 @@ namespace HaloBiz.MyServices.Impl.LAMS
                     Version = (int) VersionType.Latest,
                    GroupContractCategory =  contractDetail.GroupContractCategory,
                    GroupInvoiceNumber = contractDetail.GroupInvoiceNumber,
-                   IsApproved = false
+                   IsApproved = false,
+                   HasAddedSBU = false,
+                   Caption = contractDetail.DocumentUrl
                 };
 
                 var entity = await _context.Contracts.AddAsync(newContract);
@@ -84,7 +110,8 @@ namespace HaloBiz.MyServices.Impl.LAMS
             }
 
             foreach (var item in contractServiceForEndorsementDtos)
-            {
+            {              
+
                 bool alreadyExists = false;              
                 if(item.ContractId != 0)
                 {
@@ -113,6 +140,14 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 item.CreatedById = id;
                 if (createNewContract)
                 {
+                    if (item.InvoicingInterval == TimeCycle.MonthlyProrata)
+                    {
+                        if (item.ContractEndDate.Value.AddDays(1).Day != 1)
+                        {
+                            return CommonResponse.Send(ResponseCodes.FAILURE, null, $"Contract end date must be last day of month for tag {item.UniqueTag}");
+                        }
+                    }
+
                     var contractService = _mapper.Map<ContractService>(item);
                     contractService.ContractId = newContract.Id;
                     newContractServices.Add(contractService);
@@ -127,13 +162,6 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 {
                     await _context.ContractServices.AddRangeAsync(newContractServices);
                     await _context.SaveChangesAsync();
-
-                    ////set approval after SBU is completed
-                    //var (successful, msg) = await _approvalService.SetUpApprovalsForContractCreationEndorsement(newContract.Id, httpContext);
-                    //if (!successful)
-                    //{
-                    //    return CommonResponse.Send(ResponseCodes.FAILURE, null, msg);
-                    //}
                 }
                 else
                 {
@@ -155,6 +183,16 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
                 await _context.SaveChangesAsync();
                 await transaction.CommitAsync();
+
+                if(createNewContract)
+                {
+                    var contract = await _context.ContractServices
+                            .Where(x => x.ContractId == newContract.Id)
+                           .Include(x=>x.Contract)
+                           .ToListAsync();
+                    return CommonResponse.Send(ResponseCodes.SUCCESS, contract);
+                }
+
                 return CommonResponse.Send(ResponseCodes.SUCCESS);
             }
             catch (Exception ex)

@@ -43,9 +43,10 @@ namespace HaloBiz.Repository.Impl.LAMS
                 return null;
             }
             client.Contracts = await _context.Contracts
+                .Where(x => x.CustomerDivisionId == client.Id && x.HasAddedSBU && x.IsApproved)
                 .Include(x => x.ContractServices.Where(x => x.Version == (int)Helpers.VersionType.Latest && x.ContractEndDate >= DateTime.Now))
                     .ThenInclude(x => x.Service)
-                .Where(x => x.CustomerDivisionId == client.Id).ToListAsync();
+                .ToListAsync();
             
             client.Customer.CustomerDivisions = null;
 
