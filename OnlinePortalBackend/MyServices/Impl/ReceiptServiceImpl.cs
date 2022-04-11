@@ -1,4 +1,5 @@
-﻿using Flurl.Http;
+﻿using AutoMapper;
+using Flurl.Http;
 using Halobiz.Common.DTOs.ApiDTOs;
 using Halobiz.Common.DTOs.ReceivingDTOs;
 using HalobizMigrations.Data;
@@ -9,6 +10,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using OnlinePortalBackend.Adapters;
+using OnlinePortalBackend.DTOs.TransferDTOs;
 using OnlinePortalBackend.Helpers;
 using System;
 using System.Collections.Generic;
@@ -31,6 +33,7 @@ namespace OnlinePortalBackend.MyServices.Impl
         private readonly IConfiguration _configuration;
         private readonly IApiInterceptor _apiInterceptor;
         private readonly ILogger<ReceiptServiceImpl> _logger;
+        private readonly IMapper _mapper;
 
         private readonly string WITHOLDING_TAX = "WITHOLDING TAX";
         private readonly string RECEIPTVOUCHERTYPE = "Sales Receipt";
@@ -43,13 +46,15 @@ namespace OnlinePortalBackend.MyServices.Impl
             IPaymentAdapter adapter, 
             IConfiguration configuration,
             IApiInterceptor apiInterceptor,
-            ILogger<ReceiptServiceImpl> logger)
+            ILogger<ReceiptServiceImpl> logger,
+            IMapper mapper)
         {
             _context = context;
             _adapter = adapter;
             _configuration = configuration;
             _apiInterceptor = apiInterceptor;
             _logger = logger;
+            _mapper = mapper;
             _HalobizBaseUrl = _configuration["HalobizBaseUrl"] ?? _configuration.GetSection("AppSettings:HalobizBaseUrl").Value;
         }
         public async Task<bool> PostAccounts(long loggedInUserId, Receipt receipt, Invoice invoice, long bankAccountId)
@@ -266,51 +271,239 @@ namespace OnlinePortalBackend.MyServices.Impl
             throw new NotImplementedException();
         }
 
-        public async Task<ApiCommonResponse> AddNewReceipt(ReceiptReceivingDTO receiptDTO)
+        public async Task<ApiCommonResponse> AddNewReceipt(ReceiptReceivingDTO receiptReceivingDTO)
         {
-            ApiCommonResponse responseData = new ApiCommonResponse();
-            var result = await _adapter.VerifyPaymentAsync((PaymentGateway)receiptDTO.PaymentGateway, receiptDTO.PaymentReference);
-
-            if (result == null)
-                return CommonResponse.Send(ResponseCodes.FAILURE, "failed");
-            if (!result.PaymentSuccessful)
-                return CommonResponse.Send(ResponseCodes.FAILURE, "failed");
-
-            try
+            LoggedInUserId = (long)_context.UserProfiles.FirstOrDefault(x => x.Email.ToLower().Contains("online.portal")).Id;
+            if (receiptReceivingDTO.InvoiceNumber.ToUpper().Contains("GINV"))
             {
-                var token = await _apiInterceptor.GetToken();
-                var baseUrl = string.Concat(_HalobizBaseUrl, "Receipt");
+                // do special receipting for group invoice.            
+                var singleInvoice = await FindInvoiceById(receiptReceivingDTO.InvoiceId);
 
+                var invoicesGrouped = await _context.Invoices
+                    .Include(x => x.Receipts)
+                    .Include(x => x.CustomerDivision)
+                    .Where(x => x.GroupInvoiceNumber == singleInvoice.GroupInvoiceNumber
+                            && x.StartDate == singleInvoice.StartDate && !x.IsDeleted)
+                    .ToListAsync();
 
-                var response = await baseUrl.AllowAnyHttpStatus().WithOAuthBearerToken($"{token}")
-                   .PostJsonAsync(result)?.ReceiveJson();
+                var totalReceiptAmount = receiptReceivingDTO.ReceiptValue;
 
-                foreach (KeyValuePair<string, object> kvp in (IDictionary<string, object>)response)
+                using var trx = await _context.Database.BeginTransactionAsync();
+                foreach (var invoice in invoicesGrouped)
                 {
-                    if (kvp.Key.ToString() == "responseCode")
+                    if (invoice.IsReceiptedStatus == (int)InvoiceStatus.CompletelyReceipted) continue;
+
+                    try
                     {
-                        responseData.responseCode = kvp.Value.ToString();
+                        var totalAmoutReceipted = invoice.Receipts.Sum(x => x.ReceiptValue);
+                        var invoiceValueBeforeReceipting = invoice.Value - totalAmoutReceipted;
+
+                        var receipt = _mapper.Map<Receipt>(receiptReceivingDTO);
+                        receipt.InvoiceId = invoice.Id;
+                        receipt.TransactionId = invoice.TransactionId;
+                        receipt.ReceiptNumber = $"{invoice.InvoiceNumber.Replace("INV", "RCP")}/{invoice.Receipts.Count + 1}";
+                        receipt.InvoiceValueBalanceBeforeReceipting = invoiceValueBeforeReceipting;
+                        receipt.CreatedById = LoggedInUserId;
+
+                        if (totalReceiptAmount < invoiceValueBeforeReceipting)
+                        {
+                            receipt.InvoiceValueBalanceAfterReceipting = receipt.InvoiceValueBalanceBeforeReceipting - totalReceiptAmount;
+                            receipt.ReceiptValue = totalReceiptAmount;
+                            var savedReceipt = await SaveReceipt(receipt);
+                            invoice.IsReceiptedStatus = (int)InvoiceStatus.PartlyReceipted;
+                            await UpdateInvoice(invoice);
+                            await PostAccounts(receipt, invoice, receiptReceivingDTO.AccountId);
+                            break;
+                        }
+                        else if (totalReceiptAmount == invoiceValueBeforeReceipting)
+                        {
+                            receipt.InvoiceValueBalanceAfterReceipting = 0;
+                            receipt.ReceiptValue = invoiceValueBeforeReceipting;
+                            var savedReceipt = await SaveReceipt(receipt);
+                            invoice.IsReceiptedStatus = (int)InvoiceStatus.CompletelyReceipted;
+                            await UpdateInvoice(invoice);
+                            await PostAccounts(receipt, invoice, receiptReceivingDTO.AccountId);
+                            break;
+                        }
+                        else
+                        {
+                            receipt.InvoiceValueBalanceAfterReceipting = 0;
+                            receipt.ReceiptValue = invoiceValueBeforeReceipting;
+                            var savedReceipt = await SaveReceipt(receipt);
+                            invoice.IsReceiptedStatus = (int)InvoiceStatus.CompletelyReceipted;
+                            await UpdateInvoice(invoice);
+                            totalReceiptAmount -= invoiceValueBeforeReceipting;
+                            await PostAccounts(receipt, invoice, receiptReceivingDTO.AccountId);
+                        }
                     }
-                    if (kvp.Key.ToString() == "responseData")
+                    catch (Exception ex)
                     {
-                        responseData.responseData = kvp.Value;
-                    }
-                    if (kvp.Key.ToString() == "responseMsg")
-                    {
-                        responseData.responseMsg = kvp.Value.ToString();
+                        await trx.RollbackAsync();
+                        _logger.LogError(ex.Message);
+                        _logger.LogError(ex.StackTrace);
+                        return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
                     }
                 }
-              return CommonResponse.Send(ResponseCodes.SUCCESS, "success");
-              //  return true;
+
+                await trx.CommitAsync();
+                return CommonResponse.Send(ResponseCodes.SUCCESS);
+            }
+            else
+            {
+                int count = 1;
+                using (var transaction = await _context.Database.BeginTransactionAsync())
+                {
+                    try
+                    {
+                        this.LoggedInUserId = LoggedInUserId;
+                        var receipt = _mapper.Map<Receipt>(receiptReceivingDTO);
+                        var invoice = await FindInvoiceById(receipt.InvoiceId);
+                        foreach (var item in invoice.Receipts)
+                        {
+                            count++;
+                        }
+                        receipt.TransactionId = invoice.TransactionId;
+                        receipt.ReceiptNumber = $"{invoice.InvoiceNumber.Replace("INV", "RCP")}/{count}";
+                        receipt.InvoiceValueBalanceAfterReceipting = receipt.InvoiceValueBalanceBeforeReceipting - receipt.ReceiptValue;
+                        receipt.CreatedById = LoggedInUserId;
+                        var savedReceipt = await SaveReceipt(receipt);
+                        var receiptTransferDTO = _mapper.Map<ReceiptTransferDTO>(savedReceipt);
+
+                        if (receipt.InvoiceValueBalanceAfterReceipting == 0)
+                        {
+                            invoice.IsReceiptedStatus = (int)InvoiceStatus.CompletelyReceipted;
+                            await UpdateInvoice(invoice);
+                        }
+                        else if (receipt.InvoiceValueBalanceAfterReceipting > 0)
+                        {
+                            invoice.IsReceiptedStatus = (int)InvoiceStatus.PartlyReceipted;
+                            await UpdateInvoice(invoice);
+                        }
+
+                        await PostAccounts(receipt, invoice, receiptReceivingDTO.AccountId);
+                        await transaction.CommitAsync();
+                        return CommonResponse.Send(ResponseCodes.SUCCESS, receiptTransferDTO);
+                    }
+                    catch (Exception e)
+                    {
+                        _logger.LogError(e.Message);
+                        _logger.LogError(e.StackTrace);
+                        await transaction.RollbackAsync();
+                        return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+                    }
+                }
+            }
+        }
+
+        private async Task<Invoice> FindInvoiceById(long Id)
+        {
+            return await _context.Invoices
+            .Include(x => x.CustomerDivision)
+             .Include(x => x.Receipts)
+             .FirstOrDefaultAsync(x => x.Id == Id && x.IsDeleted == false);
+        }
+
+        private async Task<Receipt> SaveReceipt(Receipt receipt)
+        {
+            var receiptEntity = await _context.Receipts.AddAsync(receipt);
+            if (await SaveChanges())
+            {
+                return receiptEntity.Entity;
+            }
+            return null;
+        }
+
+        private async Task<Invoice> UpdateInvoice(Invoice invoice)
+        {
+            var invoiceEntity = _context.Invoices.Update(invoice);
+            if (await SaveChanges())
+            {
+                return invoiceEntity.Entity;
+            }
+            return null;
+        }
+
+        private async Task<bool> SaveChanges()
+        {
+            try
+            {
+                return await _context.SaveChangesAsync() > 0;
             }
             catch (Exception ex)
             {
-                _logger.LogInformation(ex.Message);
-                responseData.responseMsg = "An error occured";
-
-                return CommonResponse.Send(ResponseCodes.FAILURE, "failed");
-
+                _logger.LogError(ex.Message);
+                return false;
             }
         }
+
+        private async Task<bool> PostAccounts(Receipt receipt, Invoice invoice, long bankAccountId)
+        {
+            var amount = receipt.ReceiptValue;
+            var amountToPost = receipt.ReceiptValue;
+            var whtAmount = 0.0;
+            if (receipt.IsTaskWitheld)
+            {
+                var whtPercentage = receipt.ValueOfWht;
+                whtAmount = amount * (whtPercentage / 100.0);
+                amountToPost = amount - whtAmount;
+            }
+            var queryable = GetAccountQueriable();
+
+            /*var witholdingTaxAccount = await queryable
+                .FirstOrDefaultAsync(x => x.Name.ToUpper().Trim() == WITHOLDING_TAX && x.IsDeleted == false);*/
+
+            var whtControlAccount = await _context.ControlAccounts
+                                            .Where(x => x.Caption.ToUpper() == WITHOLDING_TAX && !x.IsDeleted)
+                                            .FirstOrDefaultAsync();
+
+            var receiptVoucherType = await GetFinanceVoucherTypeByName(this.RECEIPTVOUCHERTYPE);
+
+            var branch = await _context.Branches.FirstOrDefaultAsync();
+            var office = await _context.Offices.FirstOrDefaultAsync();
+
+
+            var accountMaster = await CreateAccountMaster(receipt, receiptVoucherType.Id, invoice, branch.Id, office.Id);
+
+            //Post to bank
+            await PostAccountDetail(invoice, receipt, receiptVoucherType.Id,
+                                       false, accountMaster.Id, bankAccountId, amountToPost, branch.Id, office.Id);
+            //Post to Task Witholding
+            if (receipt.IsTaskWitheld)
+            {
+
+                var retailCustomer = await _context.Customers.FirstOrDefaultAsync(x => x.GroupName == RETAIL);
+
+                long whtAccountId;
+
+                if (invoice.CustomerDivision.CustomerId == retailCustomer.Id)
+                {
+                    whtAccountId = await GetWHTAccountForRetailClient(whtControlAccount);
+                }
+                else
+                {
+                    whtAccountId = await GetWHTAccountForClient(invoice.CustomerDivision, whtControlAccount);
+                }
+
+                await PostAccountDetail(invoice, receipt, receiptVoucherType.Id,
+                            false, accountMaster.Id, whtAccountId, whtAmount, branch.Id, office.Id);
+
+            }
+            //Post to client account 
+            await PostAccountDetail(invoice, receipt, receiptVoucherType.Id,
+                                       true, accountMaster.Id, (long)invoice.CustomerDivision.ReceivableAccountId, amount, branch.Id, office.Id);
+            return true;
+        }
+
+        private IQueryable<Account> GetAccountQueriable()
+        {
+            return _context.Accounts.Include(x => x.AccountDetails).AsQueryable();
+        }
+
+        private async Task<FinanceVoucherType> GetFinanceVoucherTypeByName(string name)
+        {
+            return await _context.FinanceVoucherTypes
+                .FirstOrDefaultAsync(x => x.IsDeleted == false && x.VoucherType.ToUpper().Trim() == name);
+        }
+
     }
 }

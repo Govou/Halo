@@ -141,5 +141,16 @@ namespace OnlinePortalBackend.Repository.Impl
             return (int)result;
         }
 
+        public async Task<IEnumerable<ComplaintItemDTO>> GetAllComplaints(int userId)
+        {
+            var originId = _context.ComplaintOrigins.FirstOrDefault(x => x.Caption.ToLower().Equals("client")).Id;
+            return _context.Complaints.Where(x => x.ComplainantId == userId && x.ComplaintOriginId == originId).Select(x => new ComplaintItemDTO
+            {
+                DateCreated = x.DateCreated,
+                Description = x.ComplaintDescription,
+                Id = (int)x.Id,
+                TrackingId = x.TrackingId
+            });
+        }
     }
 }

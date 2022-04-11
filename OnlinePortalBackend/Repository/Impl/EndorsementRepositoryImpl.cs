@@ -186,7 +186,8 @@ namespace OnlinePortalBackend.Repository.Impl
                         ResponsibleId = responsibleId,
                         IsApproved = false,
                         DateTimeApproved = null,
-                        Level = item.ApproverLevel.Caption
+                        Level = item.ApproverLevel.Caption,
+                        ServicesId = contractServiceForEndorsement.ServiceId
                     };
 
                     approvals.Add(approval);
@@ -194,6 +195,7 @@ namespace OnlinePortalBackend.Repository.Impl
 
                 if (approvals.Any())
                 {
+           
                     var successful = await SaveApprovalRange(approvals);
                     if (successful)
                     {

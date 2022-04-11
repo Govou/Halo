@@ -69,7 +69,7 @@ namespace OnlinePortalBackend.MyServices.Impl
 
             foreach (var item in endorsements)
             {
-                var contractService = _context.ContractServices.Include(x => x.Contract).Include(x => x.Service).FirstOrDefault(x => x.Id == item.ContractServiceId);
+                var contractService = _context.ContractServices.Include(x => x.Contract).Include(x => x.Service).AsNoTracking().FirstOrDefault(x => x.Id == item.ContractServiceId);
                 var endorsementDTO = new ContractServiceForEndorsementReceivingDto
                 {
                     UnitPrice = contractService.UnitPrice,
@@ -369,6 +369,11 @@ namespace OnlinePortalBackend.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.FAILURE, null, "No contract service specified");
             }
 
+            if (!ValidateAdminAccompaniesDirectService(contractServiceForEndorsementDtos))
+            {
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Admin service must accompany direct service");
+            }
+
             using var transaction = await _context.Database.BeginTransactionAsync();
 
             var id = _context.UserProfiles.FirstOrDefault(x => x.Email.ToLower().Contains("online.portal")).Id;
@@ -475,6 +480,41 @@ namespace OnlinePortalBackend.MyServices.Impl
                 _logger.LogError(ex.StackTrace);
                 return CommonResponse.Send(ResponseCodes.FAILURE, null, ex.Message);
             }
+        }
+
+        private bool ValidateAdminAccompaniesDirectService(List<ContractServiceForEndorsementReceivingDto> ContractServices)
+        {
+            var isValidCount = 0;
+            var adminServiceCount = 0;
+
+            foreach (var contractService in ContractServices)
+            {
+                var directServiceExist = false;
+                var adminServiceExist = false;
+                var adminDirectService = _context.ServiceRelationships.FirstOrDefault(x => x.DirectServiceId == contractService.ServiceId || x.AdminServiceId == contractService.ServiceId);
+                foreach (var item in ContractServices)
+                {
+                    if (item.ServiceId == adminDirectService.AdminServiceId)
+                    {
+                        adminServiceExist = true;
+                        adminServiceCount++;
+                    }
+                    if (item.ServiceId == adminDirectService.DirectServiceId)
+                    {
+                        directServiceExist = true;
+                    }
+                }
+                if (directServiceExist && adminServiceExist)
+                {
+                    isValidCount++;
+                }
+            }
+
+            if (isValidCount == adminServiceCount)
+            {
+                return true;
+            }
+            return false;
         }
     }
 }

@@ -37,10 +37,12 @@ namespace OnlinePortalBackend.Helpers
             CreateMap<CartContractService, CartContractDetailDTO>();
             CreateMap<ContractServiceForEndorsement, EndorsementDTO>();
             CreateMap<Complaint, ComplaintDTO>();
+            CreateMap<Receipt, ReceiptTransferDTO>();
+            CreateMap<ContractServiceForEndorsementReceivingDto, ContractServiceForEndorsement>();
             //CreateMap<CartItemsReceiving, CartItemsReceivingDTO>();
             //CreateMap<CompletePaymentReceiving, CompletePaymentReceivingDTO>();
-            
-                
+
+
         }
     }
 }
