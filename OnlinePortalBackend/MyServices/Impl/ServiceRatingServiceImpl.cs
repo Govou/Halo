@@ -9,6 +9,7 @@ using OnlinePortalBackend.DTOs.TransferDTOs;
 using OnlinePortalBackend.Helpers;
 using HalobizMigrations.Models.OnlinePortal;
 using OnlinePortalBackend.Repository;
+using Halobiz.Common.DTOs.ApiDTOs;
 
 namespace OnlinePortalBackend.MyServices.Impl
 {
@@ -26,17 +27,17 @@ namespace OnlinePortalBackend.MyServices.Impl
             _historyRepo = historyRepo;
         }
 
-        public async Task<ApiResponse> AddServiceRating(HttpContext context, ServiceRatingReceivingDTO serviceRatingReceivingDTO)
+        public async Task<ApiCommonResponse> AddServiceRating(HttpContext context, ServiceRatingReceivingDTO serviceRatingReceivingDTO)
         {
             var serviceRating = _mapper.Map<ServiceRating>(serviceRatingReceivingDTO);
             serviceRating.CreatedById = context.GetLoggedInUserId();
             var savedServiceRating = await _serviceRatingRepo.SaveServiceRating(serviceRating);
             if(savedServiceRating == null)
             {
-                return new ApiResponse(500);
+                return CommonResponse.Send(ResponseCodes.FAILURE);
             }
             var serviceRatingTransferDto = _mapper.Map<ServiceRatingTransferDTO>(serviceRating);
-            return new ApiOkResponse(serviceRatingTransferDto);
+            return CommonResponse.Send(ResponseCodes.SUCCESS);
         }
 
         public async Task<ApiResponse> GetReviewHistoryByServiceId(long id)

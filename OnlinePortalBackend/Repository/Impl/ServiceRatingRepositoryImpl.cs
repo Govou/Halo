@@ -20,12 +20,17 @@ namespace OnlinePortalBackend.Repository.Impl
             _context = context;
         }
 
-        public async Task<ServiceRating> SaveServiceRating(ServiceRating controlRoomAlert)
+        public async Task<ServiceRating> SaveServiceRating(ServiceRating rating)
         {
-            var controlRoomAlertEntity = await _context.ServiceRatings.AddAsync(controlRoomAlert);
+            rating.UpdatedAt = DateTime.Now;
+            rating.ProspectId = 17;
+            rating.CreatedById = 4;
+            rating.CreatedAt = DateTime.Now;
+            var addedRating = await _context.ServiceRatings.AddAsync(rating);
+
             if (await SaveChanges())
             {
-                return controlRoomAlertEntity.Entity;
+                return addedRating.Entity;
             }
             return null;
         }

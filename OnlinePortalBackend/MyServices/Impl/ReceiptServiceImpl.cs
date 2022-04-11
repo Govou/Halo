@@ -293,7 +293,11 @@ namespace OnlinePortalBackend.MyServices.Impl
 
 
             LoggedInUserId = (long)_context.UserProfiles.FirstOrDefault(x => x.Email.ToLower().Contains("online.portal")).Id;
-
+            //var accountId = _configuration["AccountId"] ?? _configuration.GetSection("AppSettings:AccountId").Value;
+            //if (accountId != null)
+            //{
+            //    receiptReceivingDTO.AccountId = long.Parse(accountId);
+            //}
             receiptReceivingDTO.AccountId = 1928;
 
             if (receiptReceivingDTO.InvoiceNumber.ToUpper().Contains("GINV"))
@@ -529,7 +533,14 @@ namespace OnlinePortalBackend.MyServices.Impl
                             false, accountMaster.Id, whtAccountId, whtAmount, branch.Id, office.Id);
 
             }
-            var accountId = invoice?.CustomerDivision?.ReceivableAccountId ?? 1928;
+            //var accountIdStr = _configuration["AccountId"] ?? _configuration.GetSection("AppSettings:AccountId").Value;
+            //long accountIDNum = 0;
+            //if (accountIdStr != null)
+            //{
+            //    accountIDNum = long.Parse(accountIdStr);
+            //}
+            //var accountId = invoice?.CustomerDivision?.ReceivableAccountId ?? accountIDNum;
+            var accountId = 1928;
             //Post to client account 
             await PostAccountDetail(invoice, receipt, receiptVoucherType.Id,
                                        true, accountMaster.Id, (long)accountId, amount, branch.Id, office.Id);
