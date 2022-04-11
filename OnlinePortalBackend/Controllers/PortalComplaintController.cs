@@ -55,8 +55,13 @@ namespace HaloBiz.Controllers
         }
 
         [HttpGet("TrackComplaint")]
-        public async Task<ActionResult> TrackComplaint(ComplaintTrackingDTO complaint)
+        public async Task<ActionResult> TrackComplaint(string trackingNumber = null, long? complaintId = null)
         {
+            var complaint = new ComplaintTrackingDTO
+            {
+                TrackingNo = trackingNumber,
+                ComplaintId = complaintId.Value
+            };
             var response = await _portalComplaintService.TrackComplaint(complaint);
             return Ok(response);
         }

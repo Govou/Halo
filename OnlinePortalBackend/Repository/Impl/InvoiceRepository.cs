@@ -129,7 +129,7 @@ namespace OnlinePortalBackend.Repository.Impl
 
             if (firstInvoice.InvoiceNumber.StartsWith("G"))
             {
-                var groupedInvoices = _context.Invoices.Where(x => x.GroupInvoiceNumber == firstInvoice.GroupInvoiceNumber && x.StartDate.Date == firstInvoice.StartDate.Date && x.EndDate.Date == firstInvoice.EndDate.Date).Select(
+                var groupedInvoices = _context.Invoices.Where(x => x.GroupInvoiceNumber == firstInvoice.GroupInvoiceNumber && x.DateToBeSent.Date == firstInvoice.DateToBeSent.Date).Select(
                     x => new InvoiceDetailInfo
                     {
                         Total = x.Value,

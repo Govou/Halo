@@ -167,7 +167,16 @@ namespace OnlinePortalBackend.MyServices.Impl
             };
 
             var savedAccountDetails = await _context.AccountDetails.AddAsync(accountDetail);
-            await _context.SaveChangesAsync();
+            try
+            {
+                await _context.SaveChangesAsync();
+
+            }
+            catch (Exception ex)
+            {
+
+                throw;
+            }
             return savedAccountDetails.Entity;
         }
 
@@ -188,11 +197,19 @@ namespace OnlinePortalBackend.MyServices.Impl
                     Description = $"WHT Account for {customerDivision.DivisionName}",
                     Alias = customerDivision.DTrackCustomerNumber,
                     IsDebitBalance = true,
-                    ControlAccountId = whtControlAccount.Id,
-                    CreatedById = LoggedInUserId
+                   ControlAccountId = whtControlAccount.Id,
+                    CreatedById = LoggedInUserId,
                 };
-                var savedAccount = await SaveAccount(account);
-                accountId = savedAccount.Id;
+                try
+                {
+                    var savedAccount = await SaveAccount(account);
+                    accountId = savedAccount.Id;
+                }
+                catch (Exception ex)
+                {
+                    throw ex;
+                }
+                
                 await _context.SaveChangesAsync();
             }
             else
@@ -239,25 +256,25 @@ namespace OnlinePortalBackend.MyServices.Impl
         {
             try
             {
-                await _context.Database.ExecuteSqlRawAsync("SET IDENTITY_INSERT dbo.Accounts ON");
+              //  await _context.Database.ExecuteSqlRawAsync("SET IDENTITY_INSERT dbo.Accounts ON");
 
                 var lastSavedAccount = await _context.Accounts.Where(x => x.ControlAccountId == account.ControlAccountId)
                     .OrderBy(x => x.Id).LastOrDefaultAsync();
                 if (lastSavedAccount == null || lastSavedAccount.Id < 1000000000)
                 {
-                    account.Id = (long)account.ControlAccountId + 1;
+                    account.ControlAccountId = (long)account.ControlAccountId + 1;
                 }
                 else
                 {
-                    account.Id = lastSavedAccount.Id + 1;
+                    account.ControlAccountId = lastSavedAccount.Id + 1;
                 }
                 var savedAccount = await _context.Accounts.AddAsync(account);
                 await _context.SaveChangesAsync();
                 return savedAccount.Entity;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                throw;
+                throw ex;
             }
             finally
             {
@@ -268,7 +285,6 @@ namespace OnlinePortalBackend.MyServices.Impl
    
         public async Task<ApiCommonResponse> AddNewReceipt(ReceiptReceivingDTO receiptReceivingDTO)
         {
-
             var result = await _adapter.VerifyPaymentAsync((PaymentGateway)receiptReceivingDTO.PaymentGateway, receiptReceivingDTO.PaymentReference);
             if (result == null)
                 return CommonResponse.Send(ResponseCodes.FAILURE, "failed");
@@ -277,6 +293,9 @@ namespace OnlinePortalBackend.MyServices.Impl
 
 
             LoggedInUserId = (long)_context.UserProfiles.FirstOrDefault(x => x.Email.ToLower().Contains("online.portal")).Id;
+
+            receiptReceivingDTO.AccountId = 1928;
+
             if (receiptReceivingDTO.InvoiceNumber.ToUpper().Contains("GINV"))
             {
                 // do special receipting for group invoice.            
@@ -301,7 +320,26 @@ namespace OnlinePortalBackend.MyServices.Impl
                         var totalAmoutReceipted = invoice.Receipts.Sum(x => x.ReceiptValue);
                         var invoiceValueBeforeReceipting = invoice.Value - totalAmoutReceipted;
 
-                        var receipt = _mapper.Map<Receipt>(receiptReceivingDTO);
+                        // var receipt = _mapper.Map<Receipt>(receiptReceivingDTO);
+                        var receipt = new Receipt
+                        {
+                            CreatedAt = DateTime.Now,
+                            DateAndTimeOfFundsReceived = DateTime.Now,
+                            InvoiceValueBalanceAfterReceipting = receiptReceivingDTO.InvoiceValueBalanceAfterReceipting,
+                            UpdatedAt = DateTime.Now,
+                            Caption = receiptReceivingDTO.Caption,
+                            CreatedById = LoggedInUserId,
+                            EvidenceOfPaymentUrl = receiptReceivingDTO.EvidenceOfPaymentUrl,
+                            InvoiceId = receiptReceivingDTO.InvoiceId,
+                            ValueOfWht = receiptReceivingDTO.ValueOfWHT,
+                            ReceiptValue = receiptReceivingDTO.ReceiptValue,
+                            InvoiceNumber = receiptReceivingDTO.InvoiceNumber,
+                            InvoiceValueBalanceBeforeReceipting = receiptReceivingDTO.InvoiceValueBalanceBeforeReceipting,
+                            InvoiceValue = receiptReceivingDTO.InvoiceValue,
+                            Depositor = receiptReceivingDTO.Depositor,
+                            IsTaskWitheld = receiptReceivingDTO.IsTaskWitheld
+                        };
+
                         receipt.InvoiceId = invoice.Id;
                         receipt.TransactionId = invoice.TransactionId;
                         receipt.ReceiptNumber = $"{invoice.InvoiceNumber.Replace("INV", "RCP")}/{invoice.Receipts.Count + 1}";
@@ -491,9 +529,10 @@ namespace OnlinePortalBackend.MyServices.Impl
                             false, accountMaster.Id, whtAccountId, whtAmount, branch.Id, office.Id);
 
             }
+            var accountId = invoice?.CustomerDivision?.ReceivableAccountId ?? 1928;
             //Post to client account 
             await PostAccountDetail(invoice, receipt, receiptVoucherType.Id,
-                                       true, accountMaster.Id, (long)invoice.CustomerDivision.ReceivableAccountId, amount, branch.Id, office.Id);
+                                       true, accountMaster.Id, (long)accountId, amount, branch.Id, office.Id);
             return true;
         }
 
