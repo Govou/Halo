@@ -103,5 +103,6 @@ namespace HaloBiz.DTOs.TransferDTOs.LAMS
         public string AdminDirectTie { get; set; }
         public string UniqueTag { get; set; }
         public long QuoteServiceId { get; set; }
+        public bool IsApproved { get; set; }
     }
 }

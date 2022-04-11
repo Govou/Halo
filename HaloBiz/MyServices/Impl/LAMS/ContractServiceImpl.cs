@@ -1,11 +1,14 @@
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
 using Halobiz.Common.DTOs.ApiDTOs;
 using HaloBiz.DTOs.TransferDTOs.LAMS;
 using HaloBiz.MyServices.LAMS;
 using HaloBiz.Repository;
+using HalobizMigrations.Data;
 using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
 namespace HaloBiz.MyServices.Impl.LAMS
@@ -16,13 +19,17 @@ namespace HaloBiz.MyServices.Impl.LAMS
         private readonly IModificationHistoryRepository _historyRepo;
         private readonly IContractRepository _contractRepo;
         private readonly IMapper _mapper;
+        private readonly HalobizContext _context;
 
-        public ContractServiceImpl(IModificationHistoryRepository historyRepo, IContractRepository ContractRepo, ILogger<ContractServiceImpl> logger, IMapper mapper)
+        public ContractServiceImpl(IModificationHistoryRepository historyRepo,
+            HalobizContext context,
+            IContractRepository ContractRepo, ILogger<ContractServiceImpl> logger, IMapper mapper)
         {
-            this._mapper = mapper;
-            this._historyRepo = historyRepo;
-            this._contractRepo = ContractRepo;
-            this._logger = logger;
+            _mapper = mapper;
+            _historyRepo = historyRepo;
+            _contractRepo = ContractRepo;
+            _logger = logger;
+            _context = context;
         }
 
         public async Task<ApiCommonResponse> DeleteContract(long id)
@@ -83,6 +90,25 @@ namespace HaloBiz.MyServices.Impl.LAMS
             }
             var contractTransferDTOs = _mapper.Map<IEnumerable<ContractTransferDTO>>(contracts);
             return CommonResponse.Send(ResponseCodes.SUCCESS,contractTransferDTOs);
+        }
+
+        public async Task<ApiCommonResponse> GetUnapprovedContracts()
+        {
+            var contracts = await _context.Contracts.Where(x=> !x.IsApproved && x.HasAddedSBU && !x.IsDeleted)
+                    .Include(x=>x.CustomerDivision)
+                    .Include(x=>x.ContractServices)
+                        .ThenInclude(x=>x.Service)
+                            .ThenInclude(x=>x.OperatingEntity)
+                    .Include(x=>x.ContractServices)
+                        .ThenInclude(x=>x.SbutoContractServiceProportions)
+                    .ToListAsync();
+            if (!contracts.Any())
+            {
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE); ;
+            }
+
+            //var contractTransferDTOs = _mapper.Map<IEnumerable<ContractTransferDTO>>(contracts);
+            return CommonResponse.Send(ResponseCodes.SUCCESS, contracts);
         }
 
         public async Task<ApiCommonResponse> GetContractsByCustomerId(long customerId)

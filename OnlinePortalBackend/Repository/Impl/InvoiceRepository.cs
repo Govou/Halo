@@ -27,7 +27,8 @@ namespace OnlinePortalBackend.Repository.Impl
 
             if (contractService != null && contractService.Value == 0)
             {
-                IEnumerable<InvoiceDTO> invoices = _context.Invoices.Include(x => x.Receipts).Include(x => x.ContractService).Where(x => x.ContractServiceId == contractService && x.CustomerDivisionId == userId).Select(x => new InvoiceDTO
+
+                IEnumerable<InvoiceDTO> invoices = _context.Invoices.Include(x => x.Receipts).Include(x => x.ContractService).Where(x => x.ContractServiceId == contractService && x.CustomerDivisionId == userId && x.IsDeleted == false).Select(x => new InvoiceDTO
                 {
                     Id = (int)x.Id,
                     VAT = x.ContractService.Vat.Value,
@@ -123,12 +124,13 @@ namespace OnlinePortalBackend.Repository.Impl
             var firstInvoice = _context.Invoices.FirstOrDefault(x => x.Id == invoiceId);
             var allInvoices = new List<InvoiceDetailInfo>();
             var InvoiceDTO = new InvoiceDetailDTO();
+            var totalInvoices = 0.0;
             if (firstInvoice == null)
                 return null;
 
             if (firstInvoice.InvoiceNumber.StartsWith("G"))
             {
-                var groupedInvoices = _context.Invoices.Where(x => x.GroupInvoiceNumber == firstInvoice.GroupInvoiceNumber && x.StartDate.Date == firstInvoice.StartDate.Date && x.EndDate.Date == firstInvoice.EndDate.Date).Select(
+                var groupedInvoices = _context.Invoices.Where(x => x.GroupInvoiceNumber == firstInvoice.GroupInvoiceNumber && x.DateToBeSent.Date == firstInvoice.DateToBeSent.Date).Select(
                     x => new InvoiceDetailInfo
                     {
                         Total = x.Value,
@@ -146,6 +148,7 @@ namespace OnlinePortalBackend.Repository.Impl
                 foreach (var item in groupedInvoices)
                 {
                     item.ServiceName = conServices[item.ContractServiceId];
+                    totalInvoices += item.Total;
                 }
                 allInvoices = groupedInvoices;
             }
@@ -167,6 +170,8 @@ namespace OnlinePortalBackend.Repository.Impl
             InvoiceDTO.InvoiceStart = firstInvoice.StartDate;
             InvoiceDTO.InvoiceEnd = firstInvoice.EndDate;
             InvoiceDTO.InvoiceDue = firstInvoice.DateToBeSent;
+            InvoiceDTO.InvoiceBalanceBeforeReceipting = firstInvoice.Value;
+            InvoiceDTO.InvoiceValue = totalInvoices;
             InvoiceDTO.InvoiceDetailsInfos = allInvoices;
 
             return InvoiceDTO;

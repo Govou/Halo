@@ -64,12 +64,7 @@ namespace OnlinePortalBackend.MyServices.Impl
         public async Task<ApiResponse> FindServiceRatingById(long id)
         {
             var serviceRating = await _serviceRatingRepo.FindServiceRatingById(id);
-            if(serviceRating == null)
-            {
-                return new ApiResponse(404);
-            }
-            var serviceRatingTransferDto = _mapper.Map<ServiceRatingTransferDTO>(serviceRating);
-            return new ApiOkResponse(serviceRatingTransferDto);
+            return new ApiOkResponse(serviceRating);
         }        
 
         public async Task<ApiResponse> FindAllServiceRatings()
@@ -83,52 +78,52 @@ namespace OnlinePortalBackend.MyServices.Impl
             return new ApiOkResponse(serviceRatingsTransferDto);
         }
 
-        public async Task<ApiResponse> UpdateServiceRating(HttpContext context, long serviceRatingId, ServiceRatingReceivingDTO serviceRatingReceivingDTO)
-        {
-            var serviceRatingToUpdate = await _serviceRatingRepo.FindServiceRatingById(serviceRatingId);
-            if(serviceRatingToUpdate == null)
-            {
-                return new ApiResponse(404);
-            }
-            var summary = $"Initial details before change, \n {serviceRatingToUpdate.ToString()} \n" ;
-            serviceRatingToUpdate.Rating = serviceRatingReceivingDTO.Rating;
+        //public async Task<ApiResponse> UpdateServiceRating(HttpContext context, long serviceRatingId, ServiceRatingReceivingDTO serviceRatingReceivingDTO)
+        //{
+        //    var serviceRatingToUpdate = await _serviceRatingRepo.FindServiceRatingById(serviceRatingId);
+        //    if(serviceRatingToUpdate == null)
+        //    {
+        //        return new ApiResponse(404);
+        //    }
+        //    var summary = $"Initial details before change, \n {serviceRatingToUpdate.ToString()} \n" ;
+        //    serviceRatingToUpdate.Rating = serviceRatingReceivingDTO.Rating;
 
-            summary += $"Details after change, \n {serviceRatingToUpdate} \n";
+        //    summary += $"Details after change, \n {serviceRatingToUpdate} \n";
 
-            var updatedServiceRating = await _serviceRatingRepo.UpdateServiceRating(serviceRatingToUpdate);
+        //    var updatedServiceRating = await _serviceRatingRepo.UpdateServiceRating(serviceRatingToUpdate);
 
-            if(updatedServiceRating == null)
-            {
-                return new ApiResponse(500);
-            }      
+        //    if(updatedServiceRating == null)
+        //    {
+        //        return new ApiResponse(500);
+        //    }      
 
-            ModificationHistory history = new ModificationHistory(){
-                ModelChanged = "ServiceRating",
-                ChangeSummary = summary,
-                ChangedById = context.GetLoggedInUserId(),
-                ModifiedModelId = updatedServiceRating.Id
-            };
+        //    ModificationHistory history = new ModificationHistory(){
+        //        ModelChanged = "ServiceRating",
+        //        ChangeSummary = summary,
+        //        ChangedById = context.GetLoggedInUserId(),
+        //        ModifiedModelId = updatedServiceRating.Id
+        //    };
 
-            await _historyRepo.SaveHistory(history);
+        //    await _historyRepo.SaveHistory(history);
 
-            var serviceRatingTransferDto = _mapper.Map<ServiceRatingTransferDTO>(updatedServiceRating);
-            return new ApiOkResponse(serviceRatingTransferDto);
-        }
+        //    var serviceRatingTransferDto = _mapper.Map<ServiceRatingTransferDTO>(updatedServiceRating);
+        //    return new ApiOkResponse(serviceRatingTransferDto);
+        //}
 
-        public async Task<ApiResponse> DeleteServiceRating(long serviceRatingId)
-        {
-            var serviceRatingToDelete = await _serviceRatingRepo.FindServiceRatingById(serviceRatingId);
-            if(serviceRatingToDelete == null)
-            {
-                return new ApiResponse(404);
-            }
+        //public async Task<ApiResponse> DeleteServiceRating(long serviceRatingId)
+        //{
+        //    var serviceRatingToDelete = await _serviceRatingRepo.FindServiceRatingById(serviceRatingId);
+        //    if(serviceRatingToDelete == null)
+        //    {
+        //        return new ApiResponse(404);
+        //    }
 
-            if(!await _serviceRatingRepo.RemoveServiceRating(serviceRatingToDelete))
-            {
-                return new ApiResponse(500);
-            }
+        //    if(!await _serviceRatingRepo.RemoveServiceRating(serviceRatingToDelete))
+        //    {
+        //        return new ApiResponse(500);
+        //    }
 
-            return new ApiOkResponse(true);
-        }
+        //    return new ApiOkResponse(true);
+        //}
     }
 }

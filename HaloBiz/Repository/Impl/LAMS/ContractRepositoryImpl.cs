@@ -107,7 +107,7 @@ namespace HaloBiz.Repository.Impl.LAMS
             return await _context.Contracts.AsNoTracking()
                     .Include(x => x.ContractServices)
                     .Include(x => x.CustomerDivision)
-                    .Where(x => !x.IsDeleted && customerDivisionIds.Contains(x.CustomerDivisionId))
+                    .Where(x => !x.IsDeleted && x.HasAddedSBU && x.IsApproved && customerDivisionIds.Contains(x.CustomerDivisionId))
                     .ToListAsync();
         }
 
@@ -123,7 +123,7 @@ namespace HaloBiz.Repository.Impl.LAMS
             return await _context.Contracts.AsNoTracking()
                     .Include(x => x.ContractServices)
                     .Include(x => x.CustomerDivision)
-                    .Where(x => !x.IsDeleted && customerDivisionIds.Contains(x.CustomerDivisionId))
+                    .Where(x => !x.IsDeleted && x.HasAddedSBU && x.IsApproved && customerDivisionIds.Contains(x.CustomerDivisionId))
                     .ToListAsync();
         }
     }

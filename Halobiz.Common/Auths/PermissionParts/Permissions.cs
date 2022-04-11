@@ -969,6 +969,64 @@ namespace Halobiz.Common.Auths.PermissionParts
         [Display(ShortName = "Finance", GroupName = "Receipt", Name = "Delete", Description = "Can delete receipt")]
         Receipt_Delete = 0x480,
 
+        [Display(ShortName = "Employment", GroupName = "Employment", Name = "Get", Description = "Can view employment")]
+        Employment_Get = 0x481,
+        [Display(ShortName = "Employment", GroupName = "Employment", Name = "Post", Description = "Can create employment")]
+        Employment_Post = 0x482,
+        [Display(ShortName = "Employment", GroupName = "Employment", Name = "Put", Description = "Can update employment")]
+        Employment_Put = 0x483,
+        [Display(ShortName = "Employment", GroupName = "Employment", Name = "Delete", Description = "Can delete employment")]
+        Employment_Delete = 0x484,
+        [Display(ShortName = "InventoryManagement", GroupName = "Inventory", Name = "Get", Description = "Can view inventory")]
+        Inventory_Get = 0x485,
+        [Display(ShortName = "InventoryManagement", GroupName = "Inventory", Name = "Post", Description = "Can create inventory")]
+        Inventory_Post = 0x486,
+        [Display(ShortName = "InventoryManagement", GroupName = "Inventory", Name = "Put", Description = "Can update inventory")]
+        Inventory_Put = 0x487,
+        [Display(ShortName = "InventoryManagement", GroupName = "Inventory", Name = "Delete", Description = "Can delete inventory")]
+        Inventory_Delete = 0x488,
+        [Display(ShortName = "PayrollManagement", GroupName = "Payroll", Name = "Get", Description = "Can view payroll")]
+        Payroll_Get = 0x489,
+        [Display(ShortName = "PayrollManagement", GroupName = "Payroll", Name = "Post", Description = "Can create payroll")]
+        Payroll_Post = 0x490,
+        [Display(ShortName = "PayrollManagement", GroupName = "Payroll", Name = "Put", Description = "Can update payroll")]
+        Payroll_Put = 0x491,
+        [Display(ShortName = "PayrollManagement", GroupName = "Payroll", Name = "Delete", Description = "Can delete payroll")]
+        Payroll_Delete = 0x492,
+        [Display(ShortName = "Employment", GroupName = "Premployment", Name = "Get", Description = "Can view premployment")]
+        Premployment_Get = 0x493,
+        [Display(ShortName = "Employment", GroupName = "Premployment", Name = "Post", Description = "Can create premployment")]
+        Premployment_Post = 0x494,
+        [Display(ShortName = "Employment", GroupName = "Premployment", Name = "Put", Description = "Can update premployment")]
+        Premployment_Put = 0x495,
+        [Display(ShortName = "Employment", GroupName = "Premployment", Name = "Delete", Description = "Can delete premployment")]
+        Premployment_Delete = 0x496,
+        [Display(ShortName = "Employment", GroupName = "JobTitle", Name = "Get", Description = "Can view job title")]
+        JobTitle_Get = 0x497,
+        [Display(ShortName = "Employment", GroupName = "JobTitle", Name = "Post", Description = "Can create job title")]
+        JobTitle_Post = 0x498,
+        [Display(ShortName = "Employment", GroupName = "JobTitle", Name = "Put", Description = "Can update job title")]
+        JobTitle_Put = 0x499,
+        [Display(ShortName = "Employment", GroupName = "JobTitle", Name = "Delete", Description = "Can delete job title")]
+        JobTitle_Delete = 0x500,
+        [Display(ShortName = "Employment", GroupName = "JobTypes", Name = "Get", Description = "Can view job types")]
+        JobTypes_Get = 0x501,
+        [Display(ShortName = "Employment", GroupName = "JobTypes", Name = "Post", Description = "Can create job types")]
+        JobTypes_Post = 0x502,
+        [Display(ShortName = "Employment", GroupName = "JobTypes", Name = "Put", Description = "Can update job types")]
+        JobTypes_Put = 0x503,
+        [Display(ShortName = "Employment", GroupName = "JobTypes", Name = "Delete", Description = "Can delete job types")]
+        JobTypes_Delete = 0x504,
+
+        [Display(ShortName = "LeadAdministration", GroupName = "SBUContractServiceProportion", Name = "Get", Description = "Can view sbu contract service proportion")]
+        SBUContractServiceProportion_Get = 0x505,
+        [Display(ShortName = "LeadAdministration", GroupName = "SBUContractServiceProportion", Name = "Post", Description = "Can create sbu contract service proportion")]
+        SBUContractServiceProportion_Post = 0x506,
+        [Display(ShortName = "LeadAdministration", GroupName = "SBUContractServiceProportion", Name = "Put", Description = "Can update sbu contract service proportion")]
+        SBUContractServiceProportion_Put = 0x507,
+        [Display(ShortName = "LeadAdministration", GroupName = "SBUContractServiceProportion", Name = "Delete", Description = "Can delete sbu contract service proportion")]
+        SBUContractServiceProportion_Delete = 0x508,
+
     }
 
 }

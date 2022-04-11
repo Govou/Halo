@@ -1,5 +1,6 @@
 ﻿using Halobiz.Common.DTOs.ApiDTOs;
 using Halobiz.Common.DTOs.TransferDTOs;
+using OnlinePortalBackend.DTOs.TransferDTOs;
 using System.Threading.Tasks;
 
 namespace OnlinePortalBackend.MyServices
@@ -8,5 +9,7 @@ namespace OnlinePortalBackend.MyServices
     {
         Task<ApiCommonResponse> GetComplainType();
         Task<ApiCommonResponse> CreateComplaint(ComplaintDTO complaint);
+        Task<ApiCommonResponse> TrackComplaint(ComplaintTrackingDTO model);
+        Task<ApiCommonResponse> GetAllComplaints(int userId);
     }
 }
