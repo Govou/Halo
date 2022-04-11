@@ -5,6 +5,8 @@ using HalobizMigrations.Models.OnlinePortal;
 using Halobiz.Common.Helpers;
 using HalobizMigrations.Models;
 using System;
+using Halobiz.Common.DTOs.TransferDTOs;
+using HalobizMigrations.Models.Complaints;
 
 namespace OnlinePortalBackend.Helpers
 {
@@ -34,10 +36,13 @@ namespace OnlinePortalBackend.Helpers
             CreateMap<Object, CartContract>();
             CreateMap<CartContractService, CartContractDetailDTO>();
             CreateMap<ContractServiceForEndorsement, EndorsementDTO>();
+            CreateMap<Complaint, ComplaintDTO>();
+            CreateMap<Receipt, ReceiptTransferDTO>();
+            CreateMap<ContractServiceForEndorsementReceivingDto, ContractServiceForEndorsement>();
             //CreateMap<CartItemsReceiving, CartItemsReceivingDTO>();
             //CreateMap<CompletePaymentReceiving, CompletePaymentReceivingDTO>();
-            
-                
+
+
         }
     }
 }

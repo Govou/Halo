@@ -347,6 +347,23 @@ namespace HaloBiz.Adapters.Impl
             }
         }
 
+        public async Task<ApiCommonResponse> SendJourneyEndNotificationMail(MasterServiceAssignmentMailVMDTO masterServiceAssignmentMailVMDTO)
+        {
+            var baseUrl = $"{_mailBaseUrl}/Mail/EndOfJourneyNotificationMail";
+            try
+            {
+                var response = await baseUrl.AllowAnyHttpStatus()
+                   .PostJsonAsync(masterServiceAssignmentMailVMDTO).ReceiveJson();
+                return CommonResponse.Send(ResponseCodes.SUCCESS);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogInformation(ex.Message);
+                _logger.LogInformation(ex.StackTrace);
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+            }
+        }
+
         public Task<ApiCommonResponse> SendNoPaymentConfirmationMail(MasterServiceAssignmentMailVMDTO masterServiceAssignmentMailVMDTO)
         {
             throw new NotImplementedException();

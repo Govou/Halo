@@ -54,6 +54,20 @@ namespace HaloBiz.Controllers
             return Ok(response);
         }
 
+        [HttpGet("TrackComplaint")]
+        public async Task<ActionResult> TrackComplaint(ComplaintTrackingDTO complaint)
+        {
+            var response = await _portalComplaintService.TrackComplaint(complaint);
+            return Ok(response);
+        }
+
+        [HttpGet("GetAllComplaints")]
+        public async Task<ActionResult> GetAllComplaints(int userId)
+        {
+            var response = await _portalComplaintService.GetAllComplaints(userId);
+            return Ok(response);
+        }
+
         //[HttpPut("{id}")]
         //public async Task<IActionResult> UpdateById(long id, PortalComplaintReceivingDTO portalComplaintReceiving)
         //{

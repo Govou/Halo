@@ -35,10 +35,13 @@ namespace OnlinePortalBackend.Repository.Impl
             return await SaveChanges();
         }
 
-        public async Task<ServiceRating> FindServiceRatingById(long Id)
+        public async Task<double> FindServiceRatingById(long Id)
         {
-            return await _context.ServiceRatings
-                .FirstOrDefaultAsync(user => user.Id == Id && user.IsDeleted == false);
+            var ratings =  _context.ServiceRatings.Where(x => x.ServiceId == Id && x.IsDeleted == false).Select(x => x.Rating);
+            if (ratings.Any())
+                return ratings.Average();
+            else
+                return 0.0;
         }
 
         public async Task<IEnumerable<ServiceRating>> GetReviewHistoryByServiceId(long Id)
