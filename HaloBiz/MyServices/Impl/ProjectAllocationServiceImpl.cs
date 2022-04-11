@@ -4586,9 +4586,10 @@ namespace HaloBiz.MyServices.Impl
                     DateTime startDate = new DateTime(year,1,1);
                     var getAmortizationMaster = await _context.RepAmortizationMasters.AsNoTracking()
                    .Where(x => x.IsDeleted == false && startDate <= x.CreatedAt && x.CreatedAt < endDate)
+                   .Include(x=>x.EndorsementType)
+                   .Include(x=>x.Service).AsNoTracking()
                    .Include(x=>x.RepAmortizationDetails).AsNoTracking()
                    .ToListAsync();
-
                     
                if (getAmortizationMaster.Any())
                {
