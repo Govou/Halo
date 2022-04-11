@@ -64,12 +64,7 @@ namespace OnlinePortalBackend.MyServices.Impl
         public async Task<ApiResponse> FindServiceRatingById(long id)
         {
             var serviceRating = await _serviceRatingRepo.FindServiceRatingById(id);
-            if(serviceRating == null)
-            {
-                return new ApiResponse(404);
-            }
-            var serviceRatingTransferDto = _mapper.Map<ServiceRatingTransferDTO>(serviceRating);
-            return new ApiOkResponse(serviceRatingTransferDto);
+            return new ApiOkResponse(serviceRating);
         }        
 
         public async Task<ApiResponse> FindAllServiceRatings()

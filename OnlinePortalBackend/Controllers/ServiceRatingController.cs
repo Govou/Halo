@@ -56,7 +56,7 @@ namespace HaloBiz.Controllers
             if (response.StatusCode >= 400)
                 return StatusCode(response.StatusCode, response);
             var serviceRating = ((ApiOkResponse)response).Result;
-            return Ok((ServiceRatingTransferDTO)serviceRating);
+            return Ok(serviceRating);
         }
 
         [HttpPost("")]

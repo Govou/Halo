@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using HalobizMigrations.Models.OnlinePortal;
 using HalobizMigrations.Data;
+using OnlinePortalBackend.DTOs.TransferDTOs;
 
 namespace OnlinePortalBackend.Repository.Impl
 {
@@ -35,13 +36,24 @@ namespace OnlinePortalBackend.Repository.Impl
             return await SaveChanges();
         }
 
-        public async Task<double> FindServiceRatingById(long Id)
+        public async Task<ServiceRatingsDTO> FindServiceRatingById(long Id)
         {
-            var ratings =  _context.ServiceRatings.Where(x => x.ServiceId == Id && x.IsDeleted == false).Select(x => x.Rating);
+            var averageRatings = 0.0;
+            var ratings = _context.ServiceRatings.Where(x => x.ServiceId == Id && x.IsDeleted == false).Select(
+                x => new ServiceRatingsDetailDTO
+                {
+                    DatePosted = x.CreatedAt,
+                    Rating = x.Rating,
+                    Review = x.Review,
+                }).ToList();
+
             if (ratings.Any())
-                return ratings.Average();
-            else
-                return 0.0;
+            {
+                averageRatings = ratings.Select(x => x.Rating).Average();
+            }
+
+            var result = new ServiceRatingsDTO { AverageRating = averageRatings, Details = ratings };
+            return result;
         }
 
         public async Task<IEnumerable<ServiceRating>> GetReviewHistoryByServiceId(long Id)
