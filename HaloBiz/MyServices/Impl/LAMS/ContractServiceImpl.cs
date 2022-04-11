@@ -94,10 +94,11 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
         public async Task<ApiCommonResponse> GetUnapprovedContracts()
         {
-            var contracts = await _context.Contracts.Where(x=> !x.IsApproved && x.HasAddedSBU)
+            var contracts = await _context.Contracts.Where(x=> !x.IsApproved && x.HasAddedSBU && !x.IsDeleted)
                     .Include(x=>x.CustomerDivision)
                     .Include(x=>x.ContractServices)
                         .ThenInclude(x=>x.Service)
+                            .ThenInclude(x=>x.OperatingEntity)
                     .Include(x=>x.ContractServices)
                         .ThenInclude(x=>x.SbutoContractServiceProportions)
                     .ToListAsync();

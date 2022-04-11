@@ -79,13 +79,14 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
             if (createNewContract)
             {
+                var contractDetail = contractServiceForEndorsementDtos.FirstOrDefault();
+
                 //check if there is a pending contract addition for this guy
-                if(_context.Contracts.Any(x=> !x.IsApproved))
+                if (_context.Contracts.Any(x=>x.CustomerDivisionId==contractDetail.CustomerDivisionId && !x.IsApproved))
                 {
-                    return CommonResponse.Send(ResponseCodes.FAILURE, null, "There is pending contract waiting approval");
+                    return CommonResponse.Send(ResponseCodes.FAILURE, null, "You have pending contract waiting approval");
                 }
 
-                var contractDetail = contractServiceForEndorsementDtos.FirstOrDefault();
                 newContract = new Contract {
                     CreatedAt = DateTime.Now,
                     CreatedById = id,
@@ -104,7 +105,8 @@ namespace HaloBiz.MyServices.Impl.LAMS
             }
 
             foreach (var item in contractServiceForEndorsementDtos)
-            {
+            {              
+
                 bool alreadyExists = false;              
                 if(item.ContractId != 0)
                 {
@@ -133,6 +135,14 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 item.CreatedById = id;
                 if (createNewContract)
                 {
+                    if (item.InvoicingInterval == TimeCycle.MonthlyProrata)
+                    {
+                        if (item.ContractEndDate.Value.AddDays(1).Day != 1)
+                        {
+                            return CommonResponse.Send(ResponseCodes.FAILURE, null, $"Contract end date must be last day of month for tag {item.UniqueTag}");
+                        }
+                    }
+
                     var contractService = _mapper.Map<ContractService>(item);
                     contractService.ContractId = newContract.Id;
                     newContractServices.Add(contractService);

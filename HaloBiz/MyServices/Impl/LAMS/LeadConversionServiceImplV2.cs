@@ -449,6 +449,39 @@ namespace HaloBiz.MyServices.Impl.LAMS
             return true;
         }
 
+        public async Task<bool> AccountsForContractServices(ContractService contractService, CustomerDivision customerDivision, long userId)
+        {
+            try
+            {
+                if (contractService.InvoicingInterval != (int)TimeCycle.Adhoc)
+                {
+                    FinanceVoucherType accountVoucherType = await _context.FinanceVoucherTypes
+                        .FirstOrDefaultAsync(x => x.VoucherType == SALESINVOICEVOUCHER);
+
+                    var (createSuccess, createMsg) = await CreateAccounts(
+                                          contractService,
+                                          customerDivision,
+                                          (long)contractService.BranchId,
+                                         (long)contractService.OfficeId,
+                                         contractService.Service,
+                                         accountVoucherType,
+                                         null,
+                                         userId,
+                                         false, null);
+
+                    var _serviceCode = contractService.Service?.ServiceCode;
+                    var (invoiceSuccess, invoiceMsg) = await GenerateInvoices(contractService, customerDivision.Id, _serviceCode, userId, "");
+                    var (amoSuccess, amoMsg) = await GenerateAmortizations(contractService, customerDivision, (double)contractService.BillableAmount);
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.StackTrace);
+                return false;
+            }
+
+            return true;
+        }
         public async Task<bool> onMigrationAccountsForContracts(ContractService contractService,
                                                                       CustomerDivision customerDivision,
                                                                       long contractId, long userId, string startDate)
@@ -597,21 +630,46 @@ namespace HaloBiz.MyServices.Impl.LAMS
                                                      contractService, customerDivisionId, serviceCode, invoiceNumber, loggedInUserId));
 
                 }
+                else if(cycle == TimeCycle.MonthlyProrata)
+                {
+                    var firstDayOfMonth = new DateTime(startDate.Year, startDate.Month, 1);
+                    var lastDayOfFirstMonth = firstDayOfMonth.AddMonths(1).AddDays(-1);
+
+                    //get the first date and how many days left in the month
+                    var daysCounted = (lastDayOfFirstMonth - startDate).TotalDays + 1;
+                    var daysInMonth = (lastDayOfFirstMonth - firstDayOfMonth).TotalDays + 1;
+                    var proratedAmount = double.Parse((daysCounted / daysInMonth * amount).ToString("#.##"));
+
+                    invoices.Add(GenerateInvoice(startDate, lastDayOfFirstMonth, proratedAmount, firstInvoiceSendDate,
+                                                     contractService, customerDivisionId, serviceCode, invoiceNumber, loggedInUserId));
+
+                    //change start date to next day
+                    startDate = lastDayOfFirstMonth.AddDays(1);
+                    //get the next month and start from the first, add 1 month till end of contract date
+                    while (startDate < endDate)
+                    {
+                        var invoiceEndDateToPost = startDate.AddMonths(interval);
+
+                        //todo where is VAT in this?
+                        invoices.Add(GenerateInvoice(startDate,
+                                                    invoiceEndDateToPost,
+                                                    amount,
+                                                    firstInvoiceSendDate,
+                                                    contractService,
+                                                    customerDivisionId,
+                                                    serviceCode,
+                                                    invoiceNumber,
+                                                    loggedInUserId));
+                        startDate = startDate.AddMonths(interval);
+                        invoiceNumber++;
+                    }
+                }
                 else
                 {
 
                     while (startDate < endDate)
                     {
-
-                        //to cater for edge cases where the last invoicing cycle isn't complete
-                        //var invoiceValueToPost = billableForInvoicingPeriod <= totalContractValue ?
-                        //                    billableForInvoicingPeriod : totalContractValue;
-                        var invoiceValueToPost = billableForInvoicingPeriod; //check working well
-
-                        //to cater for edge cases where the calculated enddate false beyond the contract end date
-                        //                        var invoiceEndDateToPost = startDate.AddMonths(interval) > endDate ? endDate : startDate.AddMonths(interval);
-
-                        var invoiceEndDateToPost = startDate.AddMonths(interval);
+                        var invoiceValueToPost = billableForInvoicingPeriod;   var invoiceEndDateToPost = startDate.AddMonths(interval);
 
                         //todo where is VAT in this?
                         invoices.Add(GenerateInvoice(startDate,
@@ -623,10 +681,8 @@ namespace HaloBiz.MyServices.Impl.LAMS
                                                     serviceCode,
                                                     invoiceNumber,
                                                     loggedInUserId));
-                        //firstInvoiceSendDate = firstInvoiceSendDate.AddMonths(interval);
                         startDate = startDate.AddMonths(interval);
                         invoiceNumber++;
-                       // totalContractValue -= billableForInvoicingPeriod;
                     }
                 }
                 return invoices;
@@ -748,10 +804,12 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 DateTime startDate = endorsement == null ? (DateTime)contractService.ContractStartDate : (DateTime) endorsement?.DateForNewContractToTakeEffect;
                 DateTime endDate = (DateTime)contractService.ContractEndDate;
                 var InitialYear = startDate.Year;
+                var amount = billableAmount;
 
                 var customerType = customerDivision.Customer?.Id ?? _context.Customers.Where(x => x.Id == customerDivision.CustomerId).FirstOrDefault()?.Id;
                 var (interval, billableForInvoicingPeriod, vat) = CalculateTotalBillableForPeriod(contractService);
                 var allMonthAndYear = new List<MonthsAndYears>();
+                double? proratedAmount = null;
 
                 billableAmount = billableAmount == 0 ? billableForInvoicingPeriod : billableAmount;
 
@@ -760,6 +818,19 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 if(contractService.InvoicingInterval == (int)TimeCycle.OneTime)
                 {
                     endDate = startDate.AddMonths(1).AddDays(-1);
+                }
+                else if (contractService.InvoicingInterval == (int) TimeCycle.MonthlyProrata)
+                {
+
+                    var firstDayOfMonth = new DateTime(startDate.Year, startDate.Month, 1);
+                    var lastDayOfFirstMonth = firstDayOfMonth.AddMonths(1).AddDays(-1);
+
+                    //get the first date and how many days left in the month
+                    var daysCounted = (lastDayOfFirstMonth - startDate).TotalDays + 1;
+                    var daysInMonth = (lastDayOfFirstMonth - firstDayOfMonth).TotalDays + 1;
+
+                     proratedAmount = double.Parse((daysCounted / daysInMonth * amount).ToString("#.##"));
+
                 }
 
                 while (startDate < endDate)
@@ -800,14 +871,28 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
 
                         List<RepAmortizationDetail> repAmortizationDetails = new List<RepAmortizationDetail>();
+                        int counter = 0;
                         foreach (var item in thisYearValues)
                         {
+                            if(counter == 0 && proratedAmount != null)
+                            {
+                                repAmortizationDetails.Add(new RepAmortizationDetail
+                                {
+                                    Month = item.Month,
+                                    BillableAmount = (double)proratedAmount,
+                                    RepAmortizationMasterId = repAmoritizationMaster.Id,
+                                });
+                                ++counter;
+                                continue;
+                            }
+
                             repAmortizationDetails.Add(new RepAmortizationDetail
                             {
                                 Month = item.Month,
                                 BillableAmount = billableAmount,
                                 RepAmortizationMasterId = repAmoritizationMaster.Id,
                             });
+                            ++counter;
                         }
 
                         await _context.RepAmortizationDetails.AddRangeAsync(repAmortizationDetails);
@@ -1034,16 +1119,6 @@ namespace HaloBiz.MyServices.Impl.LAMS
                                     Invoice invoice,
                                     bool setIntegrationFlag = false)
         {
-            //check that we define the type of customer
-            //if(isRetail == null)
-            //{
-            //    if(customerDivision?.Customer?.GroupType == null)                
-            //        throw new Exception("The customer divison must include customer and the customer must then include grouptype");              
-
-            //    var groupType = customerDivision?.Customer?.GroupType;
-            //    isRetail = groupType.Caption.ToLower().Trim() == "individual" || groupType.Caption.ToLower().Trim() == "sme";
-            //}
-
             isRetail = false;
 
             double totalContractBillable, totalVAT;
@@ -1051,13 +1126,28 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
             if (invoice == null)
             {
-                (interval, totalContractBillable, totalVAT) = CalculateTotalBillableForPeriod(contractService);
+                if (contractService.InvoicingInterval == (int)TimeCycle.MonthlyProrata)
+                {
+                    var startDate = (DateTime)contractService.ContractStartDate;                    
+                    var firstDayOfMonth = new DateTime(startDate.Year, startDate.Month, 1);
+                    var lastDayOfFirstMonth = firstDayOfMonth.AddMonths(1).AddDays(-1);
+
+                    //get the first date and how many days left in the month
+                    var daysCounted = (lastDayOfFirstMonth - startDate).TotalDays + 1;
+                    var daysInMonth = (lastDayOfFirstMonth - firstDayOfMonth).TotalDays + 1;
+
+                    totalContractBillable = double.Parse((daysCounted / daysInMonth * (double)contractService.BillableAmount).ToString("#.##"));
+                    totalVAT = double.Parse((daysCounted / daysInMonth * (double)contractService.Vat).ToString("#.##"));
+                }
+                else
+                {
+                    (interval, totalContractBillable, totalVAT) = CalculateTotalBillableForPeriod(contractService);
+                }
             }
             else
             {
                 totalContractBillable = invoice.Value; totalVAT = invoice.Value * 0.075; 
-            }
-            
+            }            
             
             var totalAfterTax = totalContractBillable - totalVAT;
 
@@ -1798,7 +1888,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                     break;
             }
 
-            if (cycle == TimeCycle.OneTime)
+           if (cycle == TimeCycle.OneTime)
             {
                 return (interval, amount, vat);
             }

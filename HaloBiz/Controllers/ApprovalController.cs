@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Halobiz.Common.Auths;
 using Halobiz.Common.DTOs.ApiDTOs;
 using HaloBiz.DTOs.ReceivingDTOs;
+using HaloBiz.DTOs.ReceivingDTOs.LAMS;
 using HaloBiz.DTOs.TransferDTOs.LAMS;
 using HaloBiz.MyServices;
 using HaloBiz.MyServices.LAMS;
@@ -95,6 +96,12 @@ namespace HaloBiz.Controllers
         public async Task<ApiCommonResponse> UpdateById(long id, ApprovalReceivingDTO approvalReceiving)
         {
             return await _approvalService.UpdateApproval(HttpContext, id, approvalReceiving);
+        }
+
+        [HttpPut("disapprove-or-approve-contractservice")]
+        public async Task<ApiCommonResponse> approvedOrDisapprove(ContractApprovalDTO approvalReceiving)
+        {
+            return await _approvalService.ApprovalOrDispproveContractService(HttpContext, approvalReceiving);
         }
 
         [HttpDelete("{id}")]
