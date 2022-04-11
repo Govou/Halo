@@ -22,7 +22,6 @@ namespace OnlinePortalBackend.MyServices.Impl
     public interface IReceiptService
     {
         Task<bool> PostAccounts(long loggedInUserId, Receipt receipt, Invoice invoice, long bankAccountId);
-        Task<Invoice> GetInvoiceDetails(string groupInvoiceNumber, string startDate);
         Task<ApiCommonResponse> AddNewReceipt(ReceiptReceivingDTO receivingDTO);
     }
 
@@ -266,13 +265,17 @@ namespace OnlinePortalBackend.MyServices.Impl
             }
         }
 
-        public Task<Invoice> GetInvoiceDetails(string groupInvoiceNumber, string startDate)
-        {
-            throw new NotImplementedException();
-        }
-
+   
         public async Task<ApiCommonResponse> AddNewReceipt(ReceiptReceivingDTO receiptReceivingDTO)
         {
+
+            var result = await _adapter.VerifyPaymentAsync((PaymentGateway)receiptReceivingDTO.PaymentGateway, receiptReceivingDTO.PaymentReference);
+            if (result == null)
+                return CommonResponse.Send(ResponseCodes.FAILURE, "failed");
+            if (!result.PaymentSuccessful)
+                return CommonResponse.Send(ResponseCodes.FAILURE, "failed");
+
+
             LoggedInUserId = (long)_context.UserProfiles.FirstOrDefault(x => x.Email.ToLower().Contains("online.portal")).Id;
             if (receiptReceivingDTO.InvoiceNumber.ToUpper().Contains("GINV"))
             {
