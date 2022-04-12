@@ -23,9 +23,9 @@ namespace OnlinePortalBackend.MyServices.Impl
             return CommonResponse.Send(ResponseCodes.SUCCESS, invoices);
         }
 
-        public async Task<ApiCommonResponse> GetInvoices(int userId, int? contractService, int? contractId, int limit = 10)
+        public async Task<ApiCommonResponse> GetInvoices(int userId)
         {
-            var invoices = _invoiceRepository.GetInvoices(userId, contractService, contractId, limit = 10);
+            var invoices = _invoiceRepository.GetInvoices(userId);
 
             if (invoices == null)
             {
