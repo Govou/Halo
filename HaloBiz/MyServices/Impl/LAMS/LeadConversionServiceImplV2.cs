@@ -862,7 +862,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                             QuoteServiceId = contractService.QuoteServiceId,
                             ClientTypeId = customerType,
                             DateCreated = DateTime.Now,
-                            CreatedById = LoggedInUserId,
+                            CreatedById = LoggedInUserId > 0 ? LoggedInUserId : contractService.CreatedById,
                             CustomerDivisionId = customerDivision.Id
                         };
 
