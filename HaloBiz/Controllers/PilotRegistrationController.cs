@@ -1,4 +1,5 @@
-﻿using Halobiz.Common.DTOs.ApiDTOs;
+﻿using Halobiz.Common.Auths;
+using Halobiz.Common.DTOs.ApiDTOs;
 using HaloBiz.DTOs.ReceivingDTOs;
 using HaloBiz.MyServices;
 using Microsoft.AspNetCore.Http;
@@ -12,6 +13,8 @@ namespace HaloBiz.Controllers
 {
     [Route("api/v1/[controller]")]
     [ApiController]
+    [ModuleName(HalobizModules.SecuredMobility)]
+
     public class PilotRegistrationController : ControllerBase
     {
         private readonly IPilotRegistrationService _pilotService;

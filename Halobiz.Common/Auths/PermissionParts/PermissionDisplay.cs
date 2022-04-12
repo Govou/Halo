@@ -10,13 +10,17 @@ namespace Halobiz.Common.Auths.PermissionParts
 {
     public class PermissionDisplay
     {
-        public PermissionDisplay(string groupName, string name, string description, Permissions permission)
+        public PermissionDisplay(string groupName, string name, string description, string module, Permissions permission)
         {
             Permission = permission;
             Controller = groupName;
+            Module = module;
             Action = name ?? throw new ArgumentNullException(nameof(name));
             Description = description ?? throw new ArgumentNullException(nameof(description));
         }
+
+        public string Module { get; set; }
+        public string ControllerModule => string.Concat(Controller,"_", Module);
 
         /// <summary>
         /// GroupName, which groups permissions working in the same area
@@ -62,7 +66,7 @@ namespace Halobiz.Common.Auths.PermissionParts
                 var permission = (Permissions)Enum.Parse(enumType, permissionName, false);
 
                 result.Add(new PermissionDisplay(displayAttribute.GroupName, displayAttribute.Name, 
-                        displayAttribute.Description, permission /*, moduleAttribute?.PaidForModule.ToString()*/));
+                        displayAttribute.Description, displayAttribute.ShortName, permission));
             }
 
             return result;

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Halobiz.Common.Auths;
 using Halobiz.Common.DTOs.ApiDTOs;
 using HaloBiz.DTOs.ReceivingDTOs;
 using HaloBiz.DTOs.ReceivingDTOs.LAMS;
@@ -14,6 +15,8 @@ namespace Controllers.Controllers
 {
     [Route("api/v1/[controller]")]
     [ApiController]
+    [ModuleName(HalobizModules.ClientManagement)]
+
     public class EndorsementController : ControllerBase
     {
         private readonly IContractServiceForEndorsementService _contractServiceForEndorsementService;
@@ -33,6 +36,12 @@ namespace Controllers.Controllers
         public async Task<ApiCommonResponse> GetDropReason()
         {
             return await _contractServiceForEndorsementService.GetUnApprovedContractServiceForEndorsement();
+        }
+
+        [HttpGet("GetNewContractAdditionEndorsement/{customerDivisionId}")]
+        public async Task<ApiCommonResponse> GetNewContractAdditionEndorsement(long customerDivisionId)
+        {
+            return await _contractServiceForEndorsementService.GetNewContractAdditionEndorsement(customerDivisionId);
         }
 
         [HttpGet("GetEndorsementHistory/{contractServiceId}")]

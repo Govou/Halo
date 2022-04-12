@@ -1,4 +1,5 @@
 ﻿using Halobiz.Common.Helpers;
+using HalobizMigrations.Models.Shared;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -66,5 +67,7 @@ namespace Halobiz.Common.DTOs.TransferDTOs
         public string UniqueTag { get; set; }
         public string QuoteServiceId { get; set; }
         public long CreatedById { get; set; }
+        public GroupContractCategory GroupContractCategory { get; set; } = GroupContractCategory.IndividualContract;
+        public string GroupInvoiceNumber { get; set; }
     }
 }

@@ -5,6 +5,9 @@ using HalobizMigrations.Models.OnlinePortal;
 using Halobiz.Common.Helpers;
 using HalobizMigrations.Models;
 using System;
+using Halobiz.Common.DTOs.TransferDTOs;
+using HalobizMigrations.Models.Complaints;
+using Halobiz.Common.DTOs.ReceivingDTOs;
 
 namespace OnlinePortalBackend.Helpers
 {
@@ -34,6 +37,32 @@ namespace OnlinePortalBackend.Helpers
             CreateMap<Object, CartContract>();
             CreateMap<CartContractService, CartContractDetailDTO>();
             CreateMap<ContractServiceForEndorsement, EndorsementDTO>();
+            CreateMap<Complaint, ComplaintDTO>();
+            CreateMap<Receipt, ReceiptTransferDTO>();
+            CreateMap<ContractServiceForEndorsementReceivingDto, ContractServiceForEndorsement>();
+            CreateMap<Receipt, ReceiptReceivingDTO>();
+           // CreateMap<ComplaintTypeReceivingDTO, ComplaintType>();
+           // CreateMap<ComplaintType, ComplaintTypeTransferDTO>();
+           // CreateMap<ComplaintOriginReceivingDTO, ComplaintOrigin>();
+           // CreateMap<ComplaintOrigin, ComplaintOriginTransferDTO>();
+
+         //   CreateMap<ComplaintReceivingDTO, Complaint>();
+            CreateMap<Complaint, ComplaintTransferDTO>();
+            CreateMap<ComplaintTransferDTO, Complaint>();
+          //  CreateMap<ComplaintSourceReceivingDTO, ComplaintSource>();
+          //  CreateMap<ComplaintSource, ComplaintSourceTransferDTO>();
+
+            CreateMap<ComplaintDTO, Complaint>();
+            CreateMap<ComplaintAssesment, ComplaintAssessmentTransferDTO>();
+            CreateMap<ComplaintInvestigation, ComplaintInvestigationTransferDTO>();
+            CreateMap<ComplaintResolution, ComplaintResolutionTransferDTO>();
+
+            CreateMap<ComplaintReassignment, ComplaintReassignmentTransferDTO>();
+            CreateMap<ComplaintReassignment, ComplaintReassignmentTransferDTO>();
+            //CreateMap<CartItemsReceiving, CartItemsReceivingDTO>();
+            //CreateMap<CompletePaymentReceiving, CompletePaymentReceivingDTO>();
+
+
         }
     }
 }

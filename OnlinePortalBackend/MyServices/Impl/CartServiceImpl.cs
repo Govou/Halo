@@ -33,15 +33,12 @@ namespace OnlinePortalBackend.MyServices.Impl
             IPaymentAdapter paymentAdapter,
             ILogger<CartServiceImpl> logger,
             IHttpClientFactory httpClient,
-            IConfiguration config,
-            IReceiptService receiptService)
+            IConfiguration config)
         {
             _context = context;
             _logger = logger;
             _httpClient = httpClient;
             _paymentAdapter = paymentAdapter;
-            _receiptService = receiptService;
-
             _haloBizServiceUrl = config["HaloBizUrl"] ?? config.GetSection("ServicesUrl:HaloBizUrl").Value;
         }
 

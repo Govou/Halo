@@ -12,6 +12,7 @@ namespace HaloBiz.Repository
         Task<ArmadaJourneyStart> SaveJourneyStart(ArmadaJourneyStart journeyStart);
 
         Task<ArmadaJourneyStart> FindJourneyStartById(long Id);
+        Task<ArmadaJourneyStart> FindJourneyStartByAssignmentId(long assignId);
 
         Task<IEnumerable<ArmadaJourneyStart>> FindAllJouneyStarts();
 
@@ -93,6 +94,9 @@ namespace HaloBiz.Repository
         Task<FeedbackMaster> SaveFeedbackMaster(FeedbackMaster feedbackMaster);
 
         Task<FeedbackMaster> FindFeedbackMasterById(long Id);
+        Task<FeedbackMaster> FindFeedbackMasterByAssignmentId(long assignId);
+        Task<GeneralFeedbackDetail> FindGenralFeedbackByAssignmentId(long assignId);
+        Task<IEnumerable<FeedbackMaster>> FindAllFeedbackMasters();
         Task<FeedbackDetail> SaveFeedbackDetail(FeedbackDetail feedbackDetail);
 
         Task<FeedbackDetail> FindFeedbackDetailById(long Id);

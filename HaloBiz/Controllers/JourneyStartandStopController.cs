@@ -1,4 +1,5 @@
-﻿using Halobiz.Common.DTOs.ApiDTOs;
+﻿using Halobiz.Common.Auths;
+using Halobiz.Common.DTOs.ApiDTOs;
 using HaloBiz.DTOs.ReceivingDTOs;
 using HaloBiz.MyServices;
 using Microsoft.AspNetCore.Http;
@@ -12,6 +13,8 @@ namespace HaloBiz.Controllers
 {
     [Route("api/v1/[controller]")]
     [ApiController]
+    [ModuleName(HalobizModules.Setups)]
+
     public class JourneyStartandStopController : ControllerBase
     {
         private readonly IJourneyStartandStopService _journeyStartandStopService;
@@ -31,6 +34,11 @@ namespace HaloBiz.Controllers
         public async Task<ApiCommonResponse> GetJouneyStartById(long id)
         {
             return await _journeyStartandStopService.GetStartJourneyById(id);
+        }
+        [HttpGet("GetJouneyStartByAssignmentId/{assignmentId}")]
+        public async Task<ApiCommonResponse> GetJouneyStartByAssignmentId(long assignmentId)
+        {
+            return await _journeyStartandStopService.GetStartJourneyByAssignmentId(assignmentId);
         }
 
         [HttpPost("AddNewJourneyStart")]
@@ -236,7 +244,27 @@ namespace HaloBiz.Controllers
         {
             return await _journeyStartandStopService.AddFeedbackMaster(HttpContext, feedback);
         }
+        [HttpGet("GetAllFeedbackMasters")]
+        public async Task<ApiCommonResponse> GetAllFeedbackMasters()
+        {
+            return await _journeyStartandStopService.GetAllFeedbackMasters();
+        }
+        [HttpGet("GetFeedbackMasterById/{id}")]
+        public async Task<ApiCommonResponse> GetFeedbackMasterById(long id)
+        {
+            return await _journeyStartandStopService.GetFeedbackMasterById(id);
+        }
+        [HttpGet("GetFeedbackMasterByAssignmentId/{assignmentId}")]
+        public async Task<ApiCommonResponse> GetFeedbackMasterByAssignmentId(long assignmentId)
+        {
+            return await _journeyStartandStopService.GetFeedbackMasterByAssignmentId(assignmentId);
+        }
 
+        [HttpGet("GetGeneralFeedbackByAssignmentId/{assignId}")]
+        public async Task<ApiCommonResponse> GetGeneralFeedbackByAssignmentId(long assignId)
+        {
+            return await _journeyStartandStopService.GetGeneralFeedbackByAssignmenrId(assignId);
+        }
         [HttpPost("AddGeneralFeedback")]
         public async Task<ApiCommonResponse> AddGeneralFeedback(GeneralFeedbackReceivingDTO feedback)
         {
@@ -265,6 +293,11 @@ namespace HaloBiz.Controllers
         public async Task<ApiCommonResponse> AddVehicleFeedback(VehicleFeedbackReceivingDTO feedback)
         {
             return await _journeyStartandStopService.AddVehicleFeedback(HttpContext, feedback);
+        }
+        [HttpGet("GetTrackingByIMEI/{imei}")]
+        public async Task<ApiCommonResponse> GetTrackingByIMEI(string imei)
+        {
+            return await _journeyStartandStopService.TrackAPI(imei);
         }
     }
 }

@@ -37,18 +37,12 @@ namespace HaloBiz.Repository.Impl.LAMS
         public async Task<Customer> FindCustomerById(long Id)
         {
             var customer =  await _context.Customers
-            .Include(x => x.PrimaryContact)
-            .Include(x => x.SecondaryContact)
             .Include(x => x.LeadKeyPeople)
                 .Include(x => x.GroupType)
                 .FirstOrDefaultAsync(entity => entity.Id == Id && entity.IsDeleted == false);
             if(customer != null)
             {
                 customer.CustomerDivisions = await _context.CustomerDivisions
-                    //.Include(x => x.PrimaryContact)
-                    //.Include(x => x.SecondaryContact)
-                    //todo Contact adjustment
-
                     .Include(x => x.LeadKeyPeople)
                     .Where(x => x.CustomerId == customer.Id && x.IsDeleted == false)
                     .ToListAsync();

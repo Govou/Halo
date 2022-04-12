@@ -1,4 +1,5 @@
 using System.Threading.Tasks;
+using Halobiz.Common.Auths;
 using Halobiz.Common.DTOs.ApiDTOs;
 using HaloBiz.DTOs.ReceivingDTOs;
 using HaloBiz.DTOs.ReceivingDTOs.LAMS;
@@ -9,6 +10,8 @@ namespace HaloBiz.Controllers.LAMS
 {
     [Route("api/v1/Lead/{leadId}/LeadContact")]
     [ApiController]
+    [ModuleName(HalobizModules.LeadAdministration)]
+
     public class LeadContactController : ControllerBase
     {
         private readonly ILeadContactService _leadContactService;
