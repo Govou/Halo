@@ -18,5 +18,6 @@ namespace HaloBiz.MyServices.LAMS
         Task<ApiCommonResponse> GetAllPossibleEndorsementStartDate(long contractServiceId);
         Task<ApiCommonResponse> GetEndorsementHistory(long contractServiceId);
         Task<ApiCommonResponse> AddNewRetentionContractServiceForEndorsement (HttpContext httpContext, List<ContractServiceForEndorsementReceivingDto> contractServiceForEndorsementDtos);
+        Task<ApiCommonResponse> GetNewContractAdditionEndorsement(long customerDivisionId);
     }
 }

@@ -17,6 +17,8 @@ using Halobiz.Common.DTOs.TransferDTOs;
 using OnlinePortalBackend.Adapters;
 using Microsoft.EntityFrameworkCore;
 using Halobiz.Common.Helpers;
+using HalobizMigrations.Models;
+using HaloBiz.Helpers;
 
 namespace OnlinePortalBackend.MyServices.Impl
 {
@@ -67,7 +69,7 @@ namespace OnlinePortalBackend.MyServices.Impl
 
             foreach (var item in endorsements)
             {
-                var contractService = _context.ContractServices.Include(x => x.Contract).Include(x => x.Service).FirstOrDefault(x => x.Id == item.ContractServiceId);
+                var contractService = _context.ContractServices.Include(x => x.Contract).Include(x => x.Service).AsNoTracking().FirstOrDefault(x => x.Id == item.ContractServiceId);
                 var endorsementDTO = new ContractServiceForEndorsementReceivingDto
                 {
                     UnitPrice = contractService.UnitPrice,
@@ -124,29 +126,29 @@ namespace OnlinePortalBackend.MyServices.Impl
 
             try
             {
-                var token = await _apiInterceptor.GetToken();
-                var baseUrl = string.Concat(_HalobizBaseUrl, "Endorsement");
+                //var token = await _apiInterceptor.GetToken();
+                //var baseUrl = string.Concat(_HalobizBaseUrl, "Endorsement");
 
 
-                var response = await baseUrl.AllowAnyHttpStatus().WithOAuthBearerToken($"{token}")
-                   .PostJsonAsync(endorsementDetailDTOs)?.ReceiveJson();
+                //var response = await baseUrl.AllowAnyHttpStatus().WithOAuthBearerToken($"{token}")
+                //   .PostJsonAsync(endorsementDetailDTOs)?.ReceiveJson();
 
-                foreach (KeyValuePair<string, object> kvp in (IDictionary<string, object>)response)
-                {
-                    if (kvp.Key.ToString() == "responseCode")
-                    {
-                        responseData.responseCode = kvp.Value.ToString();
-                    }
-                    if (kvp.Key.ToString() == "responseData")
-                    {
-                        responseData.responseData = kvp.Value;
-                    }
-                    if (kvp.Key.ToString() == "responseMsg")
-                    {
-                        responseData.responseMsg = kvp.Value.ToString();
-                    }
-                }
-
+                //foreach (KeyValuePair<string, object> kvp in (IDictionary<string, object>)response)
+                //{
+                //    if (kvp.Key.ToString() == "responseCode")
+                //    {
+                //        responseData.responseCode = kvp.Value.ToString();
+                //    }
+                //    if (kvp.Key.ToString() == "responseData")
+                //    {
+                //        responseData.responseData = kvp.Value;
+                //    }
+                //    if (kvp.Key.ToString() == "responseMsg")
+                //    {
+                //        responseData.responseMsg = kvp.Value.ToString();
+                //    }
+                //}
+                responseData = await AddNewRetentionContractServiceForEndorsement(endorsementDetailDTOs);
             }
             catch (Exception ex)
             {
@@ -258,32 +260,9 @@ namespace OnlinePortalBackend.MyServices.Impl
                 endorsementDetailDTOs.Add(endorsementDTO);
             }
 
-
-
             try
             {
-                var token = await _apiInterceptor.GetToken();
-                var baseUrl = string.Concat(_HalobizBaseUrl, "Endorsement");
-
-
-                var response = await baseUrl.AllowAnyHttpStatus().WithOAuthBearerToken($"{token}")
-                   .PostJsonAsync(endorsementDetailDTOs)?.ReceiveJson();
-
-                foreach (KeyValuePair<string, object> kvp in (IDictionary<string, object>)response)
-                {
-                    if (kvp.Key.ToString() == "responseCode")
-                    {
-                        responseData.responseCode = kvp.Value.ToString();
-                    }
-                    if (kvp.Key.ToString() == "responseData")
-                    {
-                        responseData.responseData = kvp.Value;
-                    }
-                    if (kvp.Key.ToString() == "responseMsg")
-                    {
-                        responseData.responseMsg = kvp.Value.ToString();
-                    }
-                }
+                responseData = await AddNewRetentionContractServiceForEndorsement(endorsementDetailDTOs);
 
             }
             catch (Exception ex)
@@ -381,6 +360,164 @@ namespace OnlinePortalBackend.MyServices.Impl
             }
 
             return dateList;
+        }
+
+        private async Task<ApiCommonResponse> AddNewRetentionContractServiceForEndorsement(List<ContractServiceForEndorsementReceivingDto> contractServiceForEndorsementDtos)
+        {
+            if (!contractServiceForEndorsementDtos.Any())
+            {
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "No contract service specified");
+            }
+
+            if (!ValidateAdminAccompaniesDirectService(contractServiceForEndorsementDtos))
+            {
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Admin service must accompany direct service");
+            }
+
+            using var transaction = await _context.Database.BeginTransactionAsync();
+
+            var id = _context.UserProfiles.FirstOrDefault(x => x.Email.ToLower().Contains("online.portal")).Id;
+            bool createNewContract = contractServiceForEndorsementDtos.Any(x => x.ContractId == 0);
+            Contract newContract = null;
+            List<ContractService> newContractServices = new List<ContractService>();
+
+            if (createNewContract)
+            {
+                var contractDetail = contractServiceForEndorsementDtos.FirstOrDefault();
+                newContract = new Contract
+                {
+                    CreatedAt = DateTime.Now,
+                    CreatedById = id,
+                    CustomerDivisionId = contractDetail.CustomerDivisionId,
+                    Version = (int)VersionType.Latest,
+                    GroupContractCategory = contractDetail.GroupContractCategory,
+                    GroupInvoiceNumber = contractDetail.GroupInvoiceNumber,
+                    IsApproved = false
+                };
+
+                var entity = await _context.Contracts.AddAsync(newContract);
+                await _context.SaveChangesAsync();
+                newContract = entity.Entity;
+            }
+
+            foreach (var item in contractServiceForEndorsementDtos)
+            {
+                bool alreadyExists = false;
+                if (item.ContractId != 0)
+                {
+                    alreadyExists = await _context.ContractServiceForEndorsements
+                       .AnyAsync(x => x.ContractId == item.ContractId && x.PreviousContractServiceId == item.PreviousContractServiceId
+                                   && x.CustomerDivisionId == item.CustomerDivisionId && x.ServiceId == item.ServiceId
+                                   && !x.IsApproved && !x.IsDeclined && x.IsConvertedToContractService != true && !x.IsDeleted);
+                }
+
+                if (alreadyExists)
+                {
+                    return CommonResponse.Send(ResponseCodes.FAILURE, null, $"There is already an endorsement request for the contract service");
+                }
+
+                //check if this is nenewal and the previous contract has not
+                var previouslyRenewal = await _context.ContractServiceForEndorsements
+                                                .Include(x => x.EndorsementType)
+                                                .Where(x => x.PreviousContractServiceId == item.PreviousContractServiceId && x.EndorsementType.Caption.Contains("retention"))
+                                                .FirstOrDefaultAsync();
+
+                if (previouslyRenewal != null)
+                {
+                    return CommonResponse.Send(ResponseCodes.FAILURE, null, "There has been a retention on this contract service");
+                }
+
+                item.CreatedById = id;
+                if (createNewContract)
+                {
+                    var contractService = _mapper.Map<ContractService>(item);
+                    contractService.ContractId = newContract.Id;
+                    newContractServices.Add(contractService);
+                }
+            }
+
+            var entityToSaveList = _mapper.Map<List<ContractServiceForEndorsement>>(contractServiceForEndorsementDtos);
+
+            try
+            {
+                if (createNewContract)
+                {
+                    await _context.ContractServices.AddRangeAsync(newContractServices);
+                    await _context.SaveChangesAsync();
+
+                    ////set approval after SBU is completed
+                    //var (successful, msg) = await _approvalService.SetUpApprovalsForContractCreationEndorsement(newContract.Id, httpContext);
+                    //if (!successful)
+                    //{
+                    //    return CommonResponse.Send(ResponseCodes.FAILURE, null, msg);
+                    //}
+                }
+                else
+                {
+                    foreach (var item in entityToSaveList)
+                    {
+                        var savedEntity = await _endorsementRepo.SaveContractServiceForEndorsement(item);
+                        if (savedEntity == null)
+                        {
+                            return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+                        }
+
+                        bool successful = await _endorsementRepo.SetUpApprovalsForContractModificationEndorsement(savedEntity);
+                        if (!successful)
+                        {
+                            return CommonResponse.Send(ResponseCodes.FAILURE, null, "Could not set up approvals for service endorsement.");
+                        }
+                    }
+                }
+
+                await _context.SaveChangesAsync();
+                await transaction.CommitAsync();
+                return CommonResponse.Send(ResponseCodes.SUCCESS);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.Message);
+                _logger.LogError(ex.StackTrace);
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, ex.Message);
+            }
+        }
+
+        private bool ValidateAdminAccompaniesDirectService(List<ContractServiceForEndorsementReceivingDto> ContractServices)
+        {
+            var isValidCount = 0;
+            var adminServiceCount = 0;
+
+            foreach (var contractService in ContractServices)
+            {
+                var directServiceExist = false;
+                var adminServiceExist = false;
+                var adminDirectService = _context.ServiceRelationships.FirstOrDefault(x => x.DirectServiceId == contractService.ServiceId || x.AdminServiceId == contractService.ServiceId);
+                foreach (var item in ContractServices)
+                {
+                    if (adminDirectService != null)
+                    {
+                        if (item.ServiceId == adminDirectService?.AdminServiceId)
+                        {
+                            adminServiceExist = true;
+                            adminServiceCount++;
+                        }
+                        if (item.ServiceId == adminDirectService?.DirectServiceId)
+                        {
+                            directServiceExist = true;
+                        }
+                    }
+                }
+                if (directServiceExist && adminServiceExist)
+                {
+                    isValidCount++;
+                }
+            }
+
+            if (isValidCount == adminServiceCount)
+            {
+                return true;
+            }
+            return false;
         }
     }
 }

@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Halobiz.Common.DTOs.ApiDTOs;
 using HaloBiz.DTOs.ReceivingDTOs;
+using HaloBiz.DTOs.ReceivingDTOs.LAMS;
 using HalobizMigrations.Models;
 
 using Microsoft.AspNetCore.Http;
@@ -26,5 +27,9 @@ namespace HaloBiz.MyServices
         Task<ApiCommonResponse> GetApprovalsByEndorsementId(long endorsement);
         Task<ApiCommonResponse> GetApprovalsByQuoteId(long quoteId);
         Task<(bool, string)> SetUpApprovalsForContractCreationEndorsement(long contractId, HttpContext context);
+        Task<ApiCommonResponse> GetApprovalsByContractId(long contractId);
+        Task<ApiCommonResponse> GetPendingApprovalsByContractId(long contractId);
+        Task<ApiCommonResponse> ApprovalOrDispproveContractService(HttpContext context, ContractApprovalDTO dto);
+
     }
 }

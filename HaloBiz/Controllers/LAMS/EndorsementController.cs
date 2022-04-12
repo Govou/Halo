@@ -38,6 +38,12 @@ namespace Controllers.Controllers
             return await _contractServiceForEndorsementService.GetUnApprovedContractServiceForEndorsement();
         }
 
+        [HttpGet("GetNewContractAdditionEndorsement/{customerDivisionId}")]
+        public async Task<ApiCommonResponse> GetNewContractAdditionEndorsement(long customerDivisionId)
+        {
+            return await _contractServiceForEndorsementService.GetNewContractAdditionEndorsement(customerDivisionId);
+        }
+
         [HttpGet("GetEndorsementHistory/{contractServiceId}")]
         public async Task<ApiCommonResponse> GetEndorsementHistory(long contractServiceId)
         {

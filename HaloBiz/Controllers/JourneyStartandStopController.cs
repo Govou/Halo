@@ -294,5 +294,10 @@ namespace HaloBiz.Controllers
         {
             return await _journeyStartandStopService.AddVehicleFeedback(HttpContext, feedback);
         }
+        [HttpGet("GetTrackingByIMEI/{imei}")]
+        public async Task<ApiCommonResponse> GetTrackingByIMEI(string imei)
+        {
+            return await _journeyStartandStopService.TrackAPI(imei);
+        }
     }
 }

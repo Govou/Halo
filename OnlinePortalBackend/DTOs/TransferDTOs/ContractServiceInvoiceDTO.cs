@@ -42,6 +42,8 @@ namespace OnlinePortalBackend.DTOs.TransferDTOs
         public DateTime InvoiceEnd { get; set; }
         public DateTime InvoiceDue { get; set; }
         public string InvoiceNumber { get; set; }
+        public double InvoiceValue { get; set; }
+        public double InvoiceBalanceBeforeReceipting { get; set; }
 
         public List<InvoiceDetailInfo> InvoiceDetailsInfos { get; set; }
     }

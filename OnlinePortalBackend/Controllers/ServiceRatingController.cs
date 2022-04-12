@@ -56,34 +56,31 @@ namespace HaloBiz.Controllers
             if (response.StatusCode >= 400)
                 return StatusCode(response.StatusCode, response);
             var serviceRating = ((ApiOkResponse)response).Result;
-            return Ok((ServiceRatingTransferDTO)serviceRating);
+            return Ok(serviceRating);
         }
 
         [HttpPost("")]
         public async Task<ActionResult> AddNewServiceRating(ServiceRatingReceivingDTO serviceRatingReceiving)
         {
             var response = await _serviceRatingService.AddServiceRating(HttpContext, serviceRatingReceiving);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var serviceRating = ((ApiOkResponse)response).Result;
-            return Ok((ServiceRatingTransferDTO)serviceRating);
+            return Ok(response);
         }
 
-        [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateById(long id, ServiceRatingReceivingDTO serviceRatingReceiving)
-        {
-            var response = await _serviceRatingService.UpdateServiceRating(HttpContext, id, serviceRatingReceiving);
-            if (response.StatusCode >= 400)
-                return StatusCode(response.StatusCode, response);
-            var serviceRating = ((ApiOkResponse)response).Result;
-            return Ok((ServiceRatingTransferDTO)serviceRating);
-        }
+        //[HttpPut("{id}")]
+        //public async Task<IActionResult> UpdateById(long id, ServiceRatingReceivingDTO serviceRatingReceiving)
+        //{
+        //    var response = await _serviceRatingService.UpdateServiceRating(HttpContext, id, serviceRatingReceiving);
+        //    if (response.StatusCode >= 400)
+        //        return StatusCode(response.StatusCode, response);
+        //    var serviceRating = ((ApiOkResponse)response).Result;
+        //    return Ok((ServiceRatingTransferDTO)serviceRating);
+        //}
 
-        [HttpDelete("{id}")]
-        public async Task<ActionResult> DeleteById(int id)
-        {
-            var response = await _serviceRatingService.DeleteServiceRating(id);
-            return StatusCode(response.StatusCode);
-        }
+        //[HttpDelete("{id}")]
+        //public async Task<ActionResult> DeleteById(int id)
+        //{
+        //    var response = await _serviceRatingService.DeleteServiceRating(id);
+        //    return StatusCode(response.StatusCode);
+        //}
     }
 }

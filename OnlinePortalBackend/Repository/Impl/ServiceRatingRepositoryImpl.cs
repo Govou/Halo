@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using HalobizMigrations.Models.OnlinePortal;
 using HalobizMigrations.Data;
+using OnlinePortalBackend.DTOs.TransferDTOs;
 
 namespace OnlinePortalBackend.Repository.Impl
 {
@@ -19,12 +20,17 @@ namespace OnlinePortalBackend.Repository.Impl
             _context = context;
         }
 
-        public async Task<ServiceRating> SaveServiceRating(ServiceRating controlRoomAlert)
+        public async Task<ServiceRating> SaveServiceRating(ServiceRating rating)
         {
-            var controlRoomAlertEntity = await _context.ServiceRatings.AddAsync(controlRoomAlert);
+            rating.UpdatedAt = DateTime.Now;
+            rating.ProspectId = 17;
+            rating.CreatedById = 4;
+            rating.CreatedAt = DateTime.Now;
+            var addedRating = await _context.ServiceRatings.AddAsync(rating);
+
             if (await SaveChanges())
             {
-                return controlRoomAlertEntity.Entity;
+                return addedRating.Entity;
             }
             return null;
         }
@@ -35,10 +41,24 @@ namespace OnlinePortalBackend.Repository.Impl
             return await SaveChanges();
         }
 
-        public async Task<ServiceRating> FindServiceRatingById(long Id)
+        public async Task<ServiceRatingsDTO> FindServiceRatingById(long Id)
         {
-            return await _context.ServiceRatings
-                .FirstOrDefaultAsync(user => user.Id == Id && user.IsDeleted == false);
+            var averageRatings = 0.0;
+            var ratings = _context.ServiceRatings.Where(x => x.ServiceId == Id && x.IsDeleted == false).Select(
+                x => new ServiceRatingsDetailDTO
+                {
+                    DatePosted = x.CreatedAt,
+                    Rating = x.Rating,
+                    Review = x.Review,
+                }).ToList();
+
+            if (ratings.Any())
+            {
+                averageRatings = ratings.Select(x => x.Rating).Average();
+            }
+
+            var result = new ServiceRatingsDTO { AverageRating = averageRatings, Details = ratings };
+            return result;
         }
 
         public async Task<IEnumerable<ServiceRating>> GetReviewHistoryByServiceId(long Id)
