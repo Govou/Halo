@@ -11,7 +11,7 @@ namespace OnlinePortalBackend.Repository
         Task<ContractServiceForEndorsement> FindEndorsementById(long userId, long Id);
         Task<IEnumerable<ContractServiceForEndorsement>> FindEndorsements(long userId, int limit);
         Task<ContractServiceDTO> GetContractService(int id);
-        Task<IEnumerable<ContractServiceDTO>> GetContractServices(int userId);
+        Task<IEnumerable<ContractDTO>> GetContractServices(int userId);
         Task<ContractServiceForEndorsement> SaveContractServiceForEndorsement(ContractServiceForEndorsement entity);
         Task<bool> SetUpApprovalsForContractModificationEndorsement(ContractServiceForEndorsement contractServiceForEndorsement);
     }
