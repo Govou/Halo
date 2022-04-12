@@ -63,7 +63,7 @@ namespace OnlinePortalBackend.MyServices.Impl
 
             foreach (var item in endorsements)
             {
-              //  item.CreatedById = userId;
+                //  item.CreatedById = userId;
                 item.EndorsementType = (int)topup.Value;
             }
 
@@ -122,7 +122,7 @@ namespace OnlinePortalBackend.MyServices.Impl
                 endorsementDetailDTOs.Add(endorsementDTO);
             }
 
-          
+
 
             try
             {
@@ -356,23 +356,25 @@ namespace OnlinePortalBackend.MyServices.Impl
                     }
 
                 }
-               
+
             }
 
             return dateList;
         }
 
-        private async Task<ApiCommonResponse> AddNewRetentionContractServiceForEndorsement(List<ContractServiceForEndorsementReceivingDto> contractServiceForEndorsementDtos)
+        private async Task<ApiCommonResponse> AddNewRetentionContractServiceForEndorsement(List<ContractServiceForEndorsementReceivingDto> contractServiceForEndorsement)
         {
-            if (!contractServiceForEndorsementDtos.Any())
+            if (!contractServiceForEndorsement.Any())
             {
                 return CommonResponse.Send(ResponseCodes.FAILURE, null, "No contract service specified");
             }
 
-            //if (!ValidateAdminAccompaniesDirectService(contractServiceForEndorsementDtos))
-            //{
-            //    return CommonResponse.Send(ResponseCodes.FAILURE, null, "Admin service must accompany direct service");
-            //}
+            var contractServiceForEndorsementDtos =  LinkAdminDirectServiceForEndorsement(contractServiceForEndorsement);
+
+            if (contractServiceForEndorsementDtos == null)
+            {
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Admin service cannot be endorsed");
+            }
 
             using var transaction = await _context.Database.BeginTransactionAsync();
 
@@ -482,6 +484,86 @@ namespace OnlinePortalBackend.MyServices.Impl
             }
         }
 
+        private List<ContractServiceForEndorsementReceivingDto> LinkAdminDirectServiceForEndorsement(List<ContractServiceForEndorsementReceivingDto> contractServices)
+        {
+            var adminDirectServices = new List<ContractServiceForEndorsementReceivingDto>();
+            var directServices = new List<ContractServiceForEndorsementReceivingDto>();
+            var adminServices = new List<ContractServiceForEndorsementReceivingDto>();
+            var directSeviceIds = new List<int>();
+            var adminDirectServiceIds = _context.ServiceRelationships.Select(x => new AdminDirectObj
+            {
+                AdminId = (int)x.AdminServiceId,
+                DirectId = (int)x.DirectServiceId
+            });
+            foreach (var item in contractServices)
+            {
+                if (adminDirectServiceIds.Any(x => x.AdminId == item.ServiceId))
+                {
+                    return null;
+                }
+            }
+
+            foreach (var item in contractServices)
+            {
+                if (adminDirectServiceIds.Any(x => x.DirectId == item.ServiceId))
+                {
+                    directServices.Add(item);
+                }
+            }
+
+            foreach (var item in directServices)
+            {
+                var adminId = adminDirectServiceIds.FirstOrDefault(x => x.DirectId == item.ServiceId).AdminId;
+                var adminContractService = _context.ContractServices.FirstOrDefault(x => x.ContractId == item.ContractId && x.ServiceId == adminId);
+                adminServices.Add(new ContractServiceForEndorsementReceivingDto
+                {
+                    ActivationDate = adminContractService.ActivationDate,
+                    AdminDirectTie = adminContractService.AdminDirectTie,
+                    BillableAmount = item.Quantity * adminContractService.UnitPrice,
+                    VAT = adminContractService.Vat,
+                    UnitPrice = adminContractService.UnitPrice,
+                    Quantity = item.Quantity,
+                    IsApproved = item.IsApproved,
+                    IsRequestedForApproval = item.IsRequestedForApproval,
+                    BeneficiaryIdentificationType = adminContractService.BeneficiaryIdentificationType,
+                    BeneficiaryName = adminContractService.BeneficiaryName,
+                    Budget = item.Budget,
+                    ContractId = adminContractService.ContractId,
+                    CustomerDivisionId = item.CustomerDivisionId,
+                    EndorsementTypeId = item.EndorsementTypeId,
+                    EndorsementDescription = item.EndorsementDescription,
+                    BenificiaryIdentificationNumber = item.BenificiaryIdentificationNumber,
+                    BranchId = item.BranchId,
+                    ServiceId = adminContractService.ServiceId,
+                    PickupLocation = item.PickupLocation,
+                    ContractEndDate = adminContractService.ContractEndDate,
+                    ContractStartDate = adminContractService.ContractStartDate,
+                    FirstInvoiceSendDate = adminContractService.FirstInvoiceSendDate,
+                    CreatedById = item.CreatedById,
+                    QuoteServiceId = adminContractService.QuoteServiceId.Value.ToString(),
+                    DateForNewContractToTakeEffect = item.DateForNewContractToTakeEffect,
+                    Discount = item.Discount,
+                    FulfillmentStartDate = adminContractService.FulfillmentStartDate,
+                    DocumentUrl = item.DocumentUrl,
+                    DropoffDateTime = item.DropoffDateTime,
+                    PreviousContractServiceId = item.PreviousContractServiceId,
+                    UniqueTag = adminContractService.UniqueTag,
+                    PaymentCycleInDays = item.PaymentCycleInDays,
+                    FulfillmentEndDate = adminContractService.FulfillmentEndDate,
+                    InvoicingInterval = (TimeCycle)adminContractService.InvoicingInterval,
+                    GroupInvoiceNumber = item.GroupInvoiceNumber,
+                    ProblemStatement = item.ProblemStatement,
+                    PaymentCycle = (TimeCycle)adminContractService.PaymentCycle,
+                });
+            }
+
+            adminDirectServices.AddRange(directServices);
+            adminDirectServices.AddRange(adminServices);
+
+            return adminDirectServices;
+
+        }
+
         private bool ValidateAdminAccompaniesDirectService(List<ContractServiceForEndorsementReceivingDto> ContractServices)
         {
             var isValidCount = 0;
@@ -520,4 +602,10 @@ namespace OnlinePortalBackend.MyServices.Impl
             return false;
         }
     }
+    class AdminDirectObj
+    {
+        public int AdminId { get; set; }
+        public int DirectId { get; set; }
+    }
+    
 }
