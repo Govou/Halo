@@ -325,6 +325,8 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 //Create contract from quote
                 var contract = _mapper.Map<Contract>(quote);
                 contract.CustomerDivisionId = customerDivisionId;
+                contract.IsApproved = true;
+                contract.HasAddedSBU = true;
 
                 var entity = await context.Contracts.AddAsync(contract);
 
@@ -860,7 +862,8 @@ namespace HaloBiz.MyServices.Impl.LAMS
                             QuoteServiceId = contractService.QuoteServiceId,
                             ClientTypeId = customerType,
                             DateCreated = DateTime.Now,
-                            CreatedById = LoggedInUserId
+                            CreatedById = LoggedInUserId,
+                            CustomerDivisionId = customerDivision.Id
                         };
 
                         await _context.RepAmortizationMasters.AddAsync(repAmoritizationMaster);
