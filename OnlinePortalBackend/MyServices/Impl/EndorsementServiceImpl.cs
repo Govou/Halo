@@ -413,7 +413,7 @@ namespace OnlinePortalBackend.MyServices.Impl
 
                 if (alreadyExists)
                 {
-                    return CommonResponse.Send(ResponseCodes.FAILURE, null, $"There is already an endorsement request for the contract service with id {item.ContractId}");
+                    return CommonResponse.Send(ResponseCodes.FAILURE, null, $"There is already an endorsement request for the contract service");
                 }
 
                 //check if this is nenewal and the previous contract has not
