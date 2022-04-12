@@ -369,10 +369,10 @@ namespace OnlinePortalBackend.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.FAILURE, null, "No contract service specified");
             }
 
-            if (!ValidateAdminAccompaniesDirectService(contractServiceForEndorsementDtos))
-            {
-                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Admin service must accompany direct service");
-            }
+            //if (!ValidateAdminAccompaniesDirectService(contractServiceForEndorsementDtos))
+            //{
+            //    return CommonResponse.Send(ResponseCodes.FAILURE, null, "Admin service must accompany direct service");
+            //}
 
             using var transaction = await _context.Database.BeginTransactionAsync();
 

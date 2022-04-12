@@ -12,7 +12,12 @@ namespace OnlinePortalBackend.DTOs.TransferDTOs
         public IEnumerable<InvoiceDTO> Invoices { get; set; }
         public double TotalPayments { get; set; }
         public string Status { get; set; }
+        public int ContractId { get; set; }
+    }
 
+    public class ContractInvoiceDTO
+    {
+        public IEnumerable<ContractServiceInvoiceDTO> ContractServiceInvoices { get; set; }
     }
 
     public class InvoiceDTO
@@ -34,6 +39,7 @@ namespace OnlinePortalBackend.DTOs.TransferDTOs
         public DateTime DateToBeSent { get; set; }
         [JsonIgnore]
         public double? InvoiceValueBalanceAfterReceipt { get; set; }
+        public int ContractId { get; set; }
     }
 
     public class InvoiceDetailDTO

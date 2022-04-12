@@ -70,11 +70,6 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 return CommonResponse.Send(ResponseCodes.FAILURE, null, "No contract service specified");
             }
 
-            //if (ValidateAdminAccompaniesDirectService(contractServiceForEndorsementDtos))
-            //{
-            //    return CommonResponse.Send(ResponseCodes.FAILURE, null, "Admin service must accompany direct service");
-            //}
-
             using var transaction = await _context.Database.BeginTransactionAsync();
 
             var id = httpContext.GetLoggedInUserId();
@@ -203,40 +198,40 @@ namespace HaloBiz.MyServices.Impl.LAMS
             }
         }
 
-        //private bool ValidateAdminAccompaniesDirectService(List<ContractServiceForEndorsementReceivingDto> ContractServices)
-        //{
-        //    var isValidCount = 0;
-        //    var adminServiceCount = 0;
+        private bool ValidateAdminAccompaniesDirectService(List<ContractServiceForEndorsementReceivingDto> ContractServices)
+        {
+            var isValidCount = 0;
+            var adminServiceCount = 0;
 
-        //    foreach (var contractService in ContractServices)
-        //    {
-        //        var directServiceExist = false;
-        //        var adminServiceExist = false;
-        //        var adminDirectService = _context.ServiceRelationships.FirstOrDefault(x => x.DirectServiceId == contractService.ServiceId || x.AdminServiceId == contractService.ServiceId);
-        //        foreach (var item in ContractServices)
-        //        {
-        //            if (item.ServiceId == adminDirectService.AdminServiceId)
-        //            {
-        //                adminServiceExist = true;
-        //                adminServiceCount++;
-        //            }
-        //            if (item.ServiceId == adminDirectService.DirectServiceId)
-        //            {
-        //                directServiceExist = true;
-        //            }
-        //        }
-        //        if (directServiceExist && adminServiceExist)
-        //        {
-        //            isValidCount++;
-        //        }
-        //    }
+            foreach (var contractService in ContractServices)
+            {
+                var directServiceExist = false;
+                var adminServiceExist = false;
+                var adminDirectService = _context.ServiceRelationships.FirstOrDefault(x => x.DirectServiceId == contractService.ServiceId || x.AdminServiceId == contractService.ServiceId);
+                foreach (var item in ContractServices)
+                {
+                    if (item.ServiceId == adminDirectService.AdminServiceId)
+                    {
+                        adminServiceExist = true;
+                        adminServiceCount++;
+                    }
+                    if (item.ServiceId == adminDirectService.DirectServiceId)
+                    {
+                        directServiceExist = true;
+                    }
+                }
+                if (directServiceExist && adminServiceExist)
+                {
+                    isValidCount++;
+                }
+            }
 
-        //    if (isValidCount == adminServiceCount)
-        //    {
-        //        return true;
-        //    }
-        //    return false;
-        //}
+            if (isValidCount == adminServiceCount)
+            {
+                return true;
+            }
+            return false;
+        }
 
         private async Task<bool> ValidateContractToRenew(ContractServiceForEndorsement contractServiceForEndorsement)
         {
