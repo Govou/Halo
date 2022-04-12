@@ -58,7 +58,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                     || quoteService.InvoicingInterval == null || quoteService.PaymentCycle == null || quoteService.FirstInvoiceSendDate == null
                     || quoteService.FulfillmentStartDate == null || quoteService.FulfillmentEndDate == null)
                 {
-                    return CommonResponse.Send(ResponseCodes.FAILURE,null, "Missing Quote Service Parameters");
+                    return CommonResponse.Send(ResponseCodes.FAILURE, null, "Missing Quote Service Parameters");
                 }
             }
 
@@ -84,6 +84,14 @@ namespace HaloBiz.MyServices.Impl.LAMS
                     {
                         item.QuoteId = savedQuote.Id;
                         item.CreatedById = createdById;
+
+                        if (item.InvoicingInterval == (int) TimeCycle.MonthlyProrata)
+                        {
+                            if (item.ContractEndDate.Value.AddDays(1).Day != 1)
+                            {
+                                return CommonResponse.Send(ResponseCodes.FAILURE, null, $"Contract end date must be last day of month for tag {item.UniqueTag}");
+                            }
+                        }
                     }
 
                     var savedSuccessfully = await _quoteServiceRepo.SaveQuoteServiceRange(quoteService);
@@ -103,15 +111,6 @@ namespace HaloBiz.MyServices.Impl.LAMS
             }
 
             var quoteFromDatabase = await _quoteRepo.FindQuoteById(savedQuote.Id);
-            
-            //var serializedQuote = JsonConvert.SerializeObject(quoteFromDatabase, new JsonSerializerSettings { 
-            //    ReferenceLoopHandling = ReferenceLoopHandling.Ignore
-            //});
-
-            //Action action = async () => {
-            //    await _mailAdapter.SendQuoteNotification(serializedQuote);
-            //};
-            //action.RunAsTask();
             var quoteTransferDTO = _mapper.Map<QuoteTransferDTO>(quoteFromDatabase);
             return CommonResponse.Send(ResponseCodes.SUCCESS,quoteTransferDTO);
         }

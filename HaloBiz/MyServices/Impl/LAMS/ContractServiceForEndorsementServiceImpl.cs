@@ -37,13 +37,30 @@ namespace HaloBiz.MyServices.Impl.LAMS
                                             ILogger<ContractServiceForEndorsementServiceImpl> logger,
                                             IConfiguration configuration)
         {
-            this._context = context;
-            this._mapper = mapper;
-            this._leadConversionService = leadConversionService;
+            _context = context;
+            _mapper = mapper;
+            _leadConversionService = leadConversionService;
             _approvalService = approvalService;
-            this._cntServiceForEndorsemntRepo = cntServiceForEndorsemntRepo;
-            this._configuration = configuration;
-            this._logger = logger;
+            _cntServiceForEndorsemntRepo = cntServiceForEndorsemntRepo;
+            _configuration = configuration;
+            _logger = logger;
+        }
+
+        public async Task<ApiCommonResponse> GetNewContractAdditionEndorsement(long customerDivisionId)
+        {
+            var contract =  await _context.Contracts.Where(x => x.CustomerDivisionId == customerDivisionId && !x.IsApproved)
+                                .Include(x => x.ContractServices)
+                                    .ThenInclude(x=>x.Service)
+                                .Include(x => x.ContractServices)
+                                    .ThenInclude(x=>x.SbutoContractServiceProportions)
+                                        .ThenInclude(x=>x.UserInvolved)
+                                .FirstOrDefaultAsync();
+            if (contract == null)
+            {
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);
+            }
+
+            return CommonResponse.Send(ResponseCodes.SUCCESS, contract);
         }
 
         public async Task<ApiCommonResponse> AddNewRetentionContractServiceForEndorsement(HttpContext httpContext, List<ContractServiceForEndorsementReceivingDto> contractServiceForEndorsementDtos)
@@ -56,13 +73,20 @@ namespace HaloBiz.MyServices.Impl.LAMS
             using var transaction = await _context.Database.BeginTransactionAsync();
 
             var id = httpContext.GetLoggedInUserId();
-            bool createNewContract = contractServiceForEndorsementDtos.Any(x=>x.ContractId==0);
+            bool createNewContract = contractServiceForEndorsementDtos.Any(x=>x.ContractId==0 && x.PreviousContractServiceId==0);
             Contract newContract = null;
             List<ContractService> newContractServices = new List<ContractService>();
 
             if (createNewContract)
             {
                 var contractDetail = contractServiceForEndorsementDtos.FirstOrDefault();
+
+                //check if there is a pending contract addition for this guy
+                if (_context.Contracts.Any(x=>x.CustomerDivisionId==contractDetail.CustomerDivisionId && !x.IsApproved))
+                {
+                    return CommonResponse.Send(ResponseCodes.FAILURE, null, "You have pending contract waiting approval");
+                }
+
                 newContract = new Contract {
                     CreatedAt = DateTime.Now,
                     CreatedById = id,
@@ -70,7 +94,9 @@ namespace HaloBiz.MyServices.Impl.LAMS
                     Version = (int) VersionType.Latest,
                    GroupContractCategory =  contractDetail.GroupContractCategory,
                    GroupInvoiceNumber = contractDetail.GroupInvoiceNumber,
-                   IsApproved = false
+                   IsApproved = false,
+                   HasAddedSBU = false,
+                   Caption = contractDetail.DocumentUrl
                 };
 
                 var entity = await _context.Contracts.AddAsync(newContract);
@@ -79,7 +105,8 @@ namespace HaloBiz.MyServices.Impl.LAMS
             }
 
             foreach (var item in contractServiceForEndorsementDtos)
-            {
+            {              
+
                 bool alreadyExists = false;              
                 if(item.ContractId != 0)
                 {
@@ -108,6 +135,14 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 item.CreatedById = id;
                 if (createNewContract)
                 {
+                    if (item.InvoicingInterval == TimeCycle.MonthlyProrata)
+                    {
+                        if (item.ContractEndDate.Value.AddDays(1).Day != 1)
+                        {
+                            return CommonResponse.Send(ResponseCodes.FAILURE, null, $"Contract end date must be last day of month for tag {item.UniqueTag}");
+                        }
+                    }
+
                     var contractService = _mapper.Map<ContractService>(item);
                     contractService.ContractId = newContract.Id;
                     newContractServices.Add(contractService);
@@ -122,13 +157,6 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 {
                     await _context.ContractServices.AddRangeAsync(newContractServices);
                     await _context.SaveChangesAsync();
-
-                    ////set approval after SBU is completed
-                    //var (successful, msg) = await _approvalService.SetUpApprovalsForContractCreationEndorsement(newContract.Id, httpContext);
-                    //if (!successful)
-                    //{
-                    //    return CommonResponse.Send(ResponseCodes.FAILURE, null, msg);
-                    //}
                 }
                 else
                 {
@@ -150,6 +178,16 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
                 await _context.SaveChangesAsync();
                 await transaction.CommitAsync();
+
+                if(createNewContract)
+                {
+                    var contract = await _context.ContractServices
+                            .Where(x => x.ContractId == newContract.Id)
+                           .Include(x=>x.Contract)
+                           .ToListAsync();
+                    return CommonResponse.Send(ResponseCodes.SUCCESS, contract);
+                }
+
                 return CommonResponse.Send(ResponseCodes.SUCCESS);
             }
             catch (Exception ex)
@@ -158,6 +196,41 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 _logger.LogError(ex.StackTrace);
                 return CommonResponse.Send(ResponseCodes.FAILURE, null, ex.Message);
             }
+        }
+
+        private bool ValidateAdminAccompaniesDirectService(List<ContractServiceForEndorsementReceivingDto> ContractServices)
+        {
+            var isValidCount = 0;
+            var adminServiceCount = 0;
+
+            foreach (var contractService in ContractServices)
+            {
+                var directServiceExist = false;
+                var adminServiceExist = false;
+                var adminDirectService = _context.ServiceRelationships.FirstOrDefault(x => x.DirectServiceId == contractService.ServiceId || x.AdminServiceId == contractService.ServiceId);
+                foreach (var item in ContractServices)
+                {
+                    if (item.ServiceId == adminDirectService.AdminServiceId)
+                    {
+                        adminServiceExist = true;
+                        adminServiceCount++;
+                    }
+                    if (item.ServiceId == adminDirectService.DirectServiceId)
+                    {
+                        directServiceExist = true;
+                    }
+                }
+                if (directServiceExist && adminServiceExist)
+                {
+                    isValidCount++;
+                }
+            }
+
+            if (isValidCount == adminServiceCount)
+            {
+                return true;
+            }
+            return false;
         }
 
         private async Task<bool> ValidateContractToRenew(ContractServiceForEndorsement contractServiceForEndorsement)
@@ -213,43 +286,69 @@ namespace HaloBiz.MyServices.Impl.LAMS
             return CommonResponse.Send(ResponseCodes.SUCCESS,possibleDates);
         }
 
-        public async Task<ApiCommonResponse> ApproveContractServiceForEndorsement(long Id, long sequence, bool isApproved)
+        public async Task<ApiCommonResponse> ApproveContractServiceForEndorsement(long Id, long sequence, bool isApproved, HttpContext httpContext)
         {
             if (isApproved)
             {
-                var approvalsForTheEndorsement = await _context.Approvals.Where(x => !x.IsDeleted && x.ContractServiceForEndorsementId == Id).ToListAsync();
-
-                var theApproval = approvalsForTheEndorsement.SingleOrDefault(x => x.Sequence == sequence);
-
-                if (theApproval == null)
+                try
                 {
-                    return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+                    using var transaction = await _context.Database.BeginTransactionAsync();
+
+                    var approvalsForTheEndorsement = await _context.Approvals.Where(x => !x.IsDeleted && x.ContractServiceForEndorsementId == Id).ToListAsync();
+
+                    var theApproval = approvalsForTheEndorsement.SingleOrDefault(x => x.Sequence == sequence);
+
+                    if (theApproval == null)
+                    {
+                        return CommonResponse.Send(ResponseCodes.FAILURE, null, "There is no sequence for this approval");
+                    }
+
+                    theApproval.IsApproved = true;
+                    theApproval.DateTimeApproved = DateTime.Now;
+                    _context.Approvals.Update(theApproval);
+                    await _context.SaveChangesAsync();
+
+                    bool allApprovalsApproved = approvalsForTheEndorsement.All(x => x.IsApproved);
+
+                    // Return scenario 1
+                    // All the approvals for endorsement not yet approved.
+                    if (allApprovalsApproved)
+                    {
+                       var response = await ConvertContractServiceForEndorsement(httpContext, Id);
+                        if (response.responseCode == "00")
+                        {
+                            await transaction.CommitAsync();
+                            return CommonResponse.Send(ResponseCodes.REFRESH_APPROVALS, null, "The approval was successful and converted");
+                        }
+                        else
+                        {
+                            return response;
+                        }
+                       
+                    }
+
+                    //var entityToApprove = await _cntServiceForEndorsemntRepo.FindContractServiceForEndorsementById(Id);
+                    //if (entityToApprove == null)
+                    //{
+                    //    return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                    //}
+                    //entityToApprove.IsApproved = isApproved;
+                    //var approvedEntity = await _cntServiceForEndorsemntRepo.UpdateContractServiceForEndorsement(entityToApprove);
+                    //if (approvedEntity == null)
+                    //{
+                    //    return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+                    //}
+
+                    //var contractServiceToEndorseTransferDto = _mapper.Map<ContractServiceForEndorsementTransferDto>(approvedEntity);
+
+                    await transaction.CommitAsync();
+                    return CommonResponse.Send(ResponseCodes.SUCCESS, null, "The approval was successful");
                 }
-
-                theApproval.IsApproved = true;
-                theApproval.DateTimeApproved = DateTime.Now;
-                _context.Approvals.Update(theApproval);
-                await _context.SaveChangesAsync();
-
-                bool allApprovalsApproved = approvalsForTheEndorsement.All(x => x.IsApproved);
-
-                // Return scenario 1
-                // All the approvals for endorsement not yet approved.
-                if (!allApprovalsApproved) return CommonResponse.Send(ResponseCodes.SUCCESS);
-
-                var entityToApprove = await _cntServiceForEndorsemntRepo.FindContractServiceForEndorsementById(Id);
-                if (entityToApprove == null)
+                catch (Exception ex)
                 {
-                    return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+                    _logger.LogError(ex.StackTrace);
+                    return CommonResponse.Send(ResponseCodes.FAILURE, null, ex.Message);
                 }
-                entityToApprove.IsApproved = isApproved;
-                var approvedEntity = await _cntServiceForEndorsemntRepo.UpdateContractServiceForEndorsement(entityToApprove);
-                if (approvedEntity == null)
-                {
-                    return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
-                }
-                var contractServiceToEndorseTransferDto = _mapper.Map<ContractServiceForEndorsementTransferDto>(approvedEntity);
-                return CommonResponse.Send(ResponseCodes.SUCCESS,contractServiceToEndorseTransferDto);
             }
             else
             {
@@ -273,102 +372,124 @@ namespace HaloBiz.MyServices.Impl.LAMS
             }
         }
 
-        public async Task<ApiCommonResponse> ConvertContractServiceForEndorsement(HttpContext httpContext, long Id)
+        private async Task<ApiCommonResponse> ConvertContractServiceForEndorsement(HttpContext httpContext, long Id)
         {
-            using(var transaction =  await _context.Database.BeginTransactionAsync())
+            
+            try
             {
-                try
+                this.loggedInUserId = httpContext.GetLoggedInUserId();
+                var contractServiceForEndorsement = await _cntServiceForEndorsemntRepo
+                                            .FindContractServiceForEndorsementById(Id);
+
+                if (contractServiceForEndorsement == null)
                 {
-                    this.loggedInUserId = httpContext.GetLoggedInUserId();
-                    var contractServiceForEndorsement = await _cntServiceForEndorsemntRepo
-                                                .FindContractServiceForEndorsementById(Id);
-
-                    if(contractServiceForEndorsement == null)
-                    {
-                        return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
-                    }
-
-                    var contractServiceToRetire = await _context.ContractServices
-                            .FirstOrDefaultAsync(x => x.Id == contractServiceForEndorsement.PreviousContractServiceId);
-                   
-                    var contractServiceToSave = _mapper.Map<ContractService>(contractServiceForEndorsement);
-                    contractServiceToSave.Id = 0;
-                   
-
-                    var contractServiceEntity = await _context.ContractServices.AddAsync(contractServiceToSave);
-                    await _context.SaveChangesAsync();
-
-
-                    var contractService = await _context.ContractServices
-                        .Where(x => x.Id == contractServiceToSave.Id)
-                        .Include(x => x.Service)
-                        .FirstOrDefaultAsync(); //contractServiceEntity.Entity;
-
-
-                    var contract = await _context.Contracts
-                                .Include(x => x.CustomerDivision)
-                                .FirstOrDefaultAsync(x => x.Id == contractService.ContractId);
-
-                    var customerDivision = contract.CustomerDivision;
-
-                    var service = await _context.Services
-                                .FirstOrDefaultAsync(x => x.Id == contractServiceForEndorsement.ServiceId);
-
-                    string endorsementType = contractServiceForEndorsement.EndorsementType.Caption;
-
-                    if(endorsementType.ToLower().Contains("addition"))
-                    {
-                        await AddServiceEndorsement( contractService, contractServiceForEndorsement,  service, customerDivision);
-
-                    }else if(endorsementType.ToLower().Contains("topup")){
-                        //this new contract would have the same start and end date as the on to retire
-                        await RetainContractValues(contractService, contractServiceToRetire);
-
-                        await ServiceTopUpGoingForwardEndorsement( contractServiceToRetire,
-                                                                    contractService,
-                                                                    customerDivision,
-                                                                    service,
-                                                                    contractServiceForEndorsement
-                                                                    );
-                    }else if(endorsementType.ToLower().Contains("reduction")){
-
-                        //this new contract would have the same start and end date as the on to retire
-                        await RetainContractValues(contractService, contractServiceToRetire);
-
-                        await ServiceReductionGoingForwardEndorsement( contractServiceToRetire,
-                                                                    contractService,
-                                                                    customerDivision,
-                                                                    service,
-                                                                    contractServiceForEndorsement
-                                                                    );
-                    }else if(endorsementType.ToLower().Contains("retention"))
-                    {
-                        await RetainSbuInfo(contractService, contractServiceToRetire, true);
-
-                        await ServiceRenewalEndorsement(contractService,
-                                                        service,
-                                                        customerDivision);
-                    }
-                    else
-                    {
-                        throw new Exception("Invalid Endorsement Type");
-                    }
-
-                    contractServiceForEndorsement.IsConvertedToContractService = true;
-                    _context.ContractServiceForEndorsements.Update(contractServiceForEndorsement);
-                    await _context.SaveChangesAsync();
-
-                    await transaction.CommitAsync();
-
-                    return CommonResponse.Send(ResponseCodes.SUCCESS);
+                    return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE); ;
                 }
-                catch (System.Exception e)
+
+                var contractServiceToRetire = await _context.ContractServices
+                        .FirstOrDefaultAsync(x => x.Id == contractServiceForEndorsement.PreviousContractServiceId);
+
+                var contractServiceToSave = _mapper.Map<ContractService>(contractServiceForEndorsement);
+                contractServiceToSave.Id = 0;
+
+
+                var contractServiceEntity = await _context.ContractServices.AddAsync(contractServiceToSave);
+                await _context.SaveChangesAsync();
+
+
+                var contractService = await _context.ContractServices
+                    .Where(x => x.Id == contractServiceToSave.Id)
+                    .Include(x => x.Service)
+                    .FirstOrDefaultAsync(); //contractServiceEntity.Entity;
+
+
+                var contract = await _context.Contracts
+                            .Include(x => x.CustomerDivision)
+                            .FirstOrDefaultAsync(x => x.Id == contractService.ContractId);
+
+                var customerDivision = contract.CustomerDivision;
+
+                var service = await _context.Services
+                            .FirstOrDefaultAsync(x => x.Id == contractServiceForEndorsement.ServiceId);
+
+                string endorsementType = contractServiceForEndorsement.EndorsementType.Caption;
+
+                if (endorsementType.ToLower().Contains("addition"))
                 {
-                    await transaction.RollbackAsync();
-                    _logger.LogError(e.Message);
-                    _logger.LogError(e.StackTrace);
-                    return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+                    await AddServiceEndorsement(contractService, contractServiceForEndorsement, service, customerDivision);
+
                 }
+                else if (endorsementType.ToLower().Contains("topup"))
+                {
+                    //this new contract would have the same start and end date as the on to retire
+                    await RetainContractValues(contractService, contractServiceToRetire);
+
+                    await ServiceTopUpGoingForwardEndorsement(contractServiceToRetire,
+                                                                contractService,
+                                                                customerDivision,
+                                                                service,
+                                                                contractServiceForEndorsement
+                                                                );
+                }
+                else if (endorsementType.ToLower().Contains("reduction"))
+                {
+
+                    //this new contract would have the same start and end date as the on to retire
+                    await RetainContractValues(contractService, contractServiceToRetire);
+
+                    await ServiceReductionGoingForwardEndorsement(contractServiceToRetire,
+                                                                contractService,
+                                                                customerDivision,
+                                                                service,
+                                                                contractServiceForEndorsement
+                                                                );
+                }
+                else if (endorsementType.ToLower().Contains("retention"))
+                {
+                    await RetainSbuInfo(contractService, contractServiceToRetire, true);
+
+                    await ServiceRenewalEndorsement(contractService,
+                                                    service,
+                                                    customerDivision);
+                }
+                else if (endorsementType.ToLower().Contains("credit"))
+                {
+                    var currentContractService = await _context.ContractServices
+                        .FirstOrDefaultAsync(x => x.Id == contractServiceForEndorsement.PreviousContractServiceId);
+
+                    await CreditNoteEndorsement(currentContractService,
+                                                customerDivision,
+                                                service,
+                                                contractServiceForEndorsement);
+                }
+                else if (endorsementType.ToLower().Contains("debit"))
+                {
+                    var currentContractService = await _context.ContractServices
+                        .FirstOrDefaultAsync(x => x.Id == contractServiceForEndorsement.PreviousContractServiceId);
+
+                    await DebitNoteEndorsement(currentContractService,
+                                               customerDivision,
+                                               service,
+                                               contractServiceForEndorsement);
+                }
+                else
+                {
+                    throw new Exception("Invalid Endorsement Type");
+                }
+
+                contractServiceForEndorsement.IsConvertedToContractService = true;
+                contractServiceForEndorsement.IsApproved = true;
+                _context.ContractServiceForEndorsements.Update(contractServiceForEndorsement);
+                await _context.SaveChangesAsync();
+
+
+                return CommonResponse.Send(ResponseCodes.SUCCESS);
+            }
+            catch (System.Exception e)
+            {
+                _logger.LogError(e.Message);
+                _logger.LogError(e.StackTrace);
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
 
         }
@@ -517,76 +638,76 @@ namespace HaloBiz.MyServices.Impl.LAMS
             return true;
         }
 
-        public async Task<ApiCommonResponse> ConvertDebitCreditNoteEndorsement(HttpContext httpContext, long id)
-        {
-            using (var transaction = await _context.Database.BeginTransactionAsync())
-            {
-                try
-                {
-                    loggedInUserId = httpContext.GetLoggedInUserId();
-                    var contractServiceForEndorsement = await _cntServiceForEndorsemntRepo
-                                                .FindContractServiceForEndorsementById(id);
+        //public async Task<ApiCommonResponse> ConvertDebitCreditNoteEndorsement(HttpContext httpContext, long id)
+        //{
+        //    using (var transaction = await _context.Database.BeginTransactionAsync())
+        //    {
+        //        try
+        //        {
+        //            loggedInUserId = httpContext.GetLoggedInUserId();
+        //            var contractServiceForEndorsement = await _cntServiceForEndorsemntRepo
+        //                                        .FindContractServiceForEndorsementById(id);
 
-                    if (contractServiceForEndorsement == null)
-                    {
-                        return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
-                    }
+        //            if (contractServiceForEndorsement == null)
+        //            {
+        //                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
+        //            }
 
-                    contractServiceForEndorsement.IsConvertedToContractService = true;
-                    _context.ContractServiceForEndorsements.Update(contractServiceForEndorsement);
-                    await _context.SaveChangesAsync();
+        //            contractServiceForEndorsement.IsConvertedToContractService = true;
+        //            _context.ContractServiceForEndorsements.Update(contractServiceForEndorsement);
+        //            await _context.SaveChangesAsync();
 
-                    var contract = await _context.Contracts
-                                .Include(x => x.CustomerDivision)
-                                    .ThenInclude(x=>x.Customer)
-                                        .ThenInclude(x=>x.GroupType)
-                                .FirstOrDefaultAsync(x => x.Id == contractServiceForEndorsement.ContractId);
+        //            var contract = await _context.Contracts
+        //                        .Include(x => x.CustomerDivision)
+        //                            .ThenInclude(x=>x.Customer)
+        //                                .ThenInclude(x=>x.GroupType)
+        //                        .FirstOrDefaultAsync(x => x.Id == contractServiceForEndorsement.ContractId);
 
-                    var customerDivision = contract.CustomerDivision;
+        //            var customerDivision = contract.CustomerDivision;
 
-                    var service = await _context.Services
-                                .FirstOrDefaultAsync(x => x.Id == contractServiceForEndorsement.ServiceId);
+        //            var service = await _context.Services
+        //                        .FirstOrDefaultAsync(x => x.Id == contractServiceForEndorsement.ServiceId);
 
-                    string endorsementType = contractServiceForEndorsement.EndorsementType.Caption;
+        //            string endorsementType = contractServiceForEndorsement.EndorsementType.Caption;
 
-                    if (endorsementType.ToLower().Contains("credit"))
-                    {
-                        var currentContractService = await _context.ContractServices
-                            .FirstOrDefaultAsync(x => x.Id == contractServiceForEndorsement.PreviousContractServiceId);
+        //            if (endorsementType.ToLower().Contains("credit"))
+        //            {
+        //                var currentContractService = await _context.ContractServices
+        //                    .FirstOrDefaultAsync(x => x.Id == contractServiceForEndorsement.PreviousContractServiceId);
 
-                        await CreditNoteEndorsement(currentContractService,
-                                                    customerDivision,
-                                                    service,
-                                                    contractServiceForEndorsement);
-                    }
-                    else if (endorsementType.ToLower().Contains("debit"))
-                    {
-                        var currentContractService = await _context.ContractServices
-                            .FirstOrDefaultAsync(x => x.Id == contractServiceForEndorsement.PreviousContractServiceId);
+        //                await CreditNoteEndorsement(currentContractService,
+        //                                            customerDivision,
+        //                                            service,
+        //                                            contractServiceForEndorsement);
+        //            }
+        //            else if (endorsementType.ToLower().Contains("debit"))
+        //            {
+        //                var currentContractService = await _context.ContractServices
+        //                    .FirstOrDefaultAsync(x => x.Id == contractServiceForEndorsement.PreviousContractServiceId);
 
-                        await DebitNoteEndorsement(currentContractService,
-                                                   customerDivision,
-                                                   service,
-                                                   contractServiceForEndorsement);
-                    }
-                    else
-                    {
-                        throw new Exception("Invalid Endorsement Type");
-                    }
+        //                await DebitNoteEndorsement(currentContractService,
+        //                                           customerDivision,
+        //                                           service,
+        //                                           contractServiceForEndorsement);
+        //            }
+        //            else
+        //            {
+        //                throw new Exception("Invalid Endorsement Type");
+        //            }
 
-                    await transaction.CommitAsync();
+        //            await transaction.CommitAsync();
 
-                    return CommonResponse.Send(ResponseCodes.SUCCESS);
-                }
-                catch (Exception ex)
-                {
-                    await transaction.RollbackAsync();
-                    _logger.LogError(ex.Message);
-                    _logger.LogError(ex.StackTrace);
-                    return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
-                }
-            }
-        }
+        //            return CommonResponse.Send(ResponseCodes.SUCCESS);
+        //        }
+        //        catch (Exception ex)
+        //        {
+        //            await transaction.RollbackAsync();
+        //            _logger.LogError(ex.Message);
+        //            _logger.LogError(ex.StackTrace);
+        //            return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+        //        }
+        //    }
+        //}
 
         private async Task<bool> AddServiceEndorsement(ContractService contractService, ContractServiceForEndorsement contractServiceForEndorsement, Service service, CustomerDivision customerDivision)
         {

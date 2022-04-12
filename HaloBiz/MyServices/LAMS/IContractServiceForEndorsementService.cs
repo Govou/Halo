@@ -11,12 +11,13 @@ namespace HaloBiz.MyServices.LAMS
        // Task<ApiCommonResponse> AddNewContractServiceForEndorsement (HttpContext httpContext, ContractServiceForEndorsementReceivingDto contractServiceForEndorsementReceiving);
         Task<ApiCommonResponse> GetUnApprovedContractServiceForEndorsement();
         Task<ApiCommonResponse> GetEndorsementDetailsById(long endorsementId);
-        Task<ApiCommonResponse> ApproveContractServiceForEndorsement(long Id, long sequence, bool isApproved);
+        Task<ApiCommonResponse> ApproveContractServiceForEndorsement(long Id, long sequence, bool isApproved, HttpContext httpContext);
         Task<ApiCommonResponse> JobPostingRenewContractService(HttpContext httpContext);
-        Task<ApiCommonResponse> ConvertContractServiceForEndorsement(HttpContext httpContext, long Id);
-        Task<ApiCommonResponse> ConvertDebitCreditNoteEndorsement(HttpContext httpContext, long Id);
+       // Task<ApiCommonResponse> ConvertContractServiceForEndorsement(HttpContext httpContext, long Id);
+      //  Task<ApiCommonResponse> ConvertDebitCreditNoteEndorsement(HttpContext httpContext, long Id);
         Task<ApiCommonResponse> GetAllPossibleEndorsementStartDate(long contractServiceId);
         Task<ApiCommonResponse> GetEndorsementHistory(long contractServiceId);
         Task<ApiCommonResponse> AddNewRetentionContractServiceForEndorsement (HttpContext httpContext, List<ContractServiceForEndorsementReceivingDto> contractServiceForEndorsementDtos);
+        Task<ApiCommonResponse> GetNewContractAdditionEndorsement(long customerDivisionId);
     }
 }

@@ -34,6 +34,7 @@ namespace Halobiz.Common.DTOs.ApiDTOs
         EMAIL_NOT_EXIST = 07,
         DUPLICATE_REQUEST = 08,
         TOKEN_INACTIVE =09,
+        REFRESH_APPROVALS = 10,
     }
 
     public static class CommonResponse

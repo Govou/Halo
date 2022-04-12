@@ -171,7 +171,7 @@ namespace HaloBiz.Helpers
                 _logger.LogError($"No permission has be defined for {permissionEnum}");
 
                 //this would ensure all devs have the endpoints written in the rightful place
-                throw new Exception("This endpoint controller and action has not been added to this system");
+                throw new Exception("This endpoint controller and action has not been added to Permission.cs");
             }
 
             var permissionInt = (short)permission;

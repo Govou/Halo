@@ -1018,6 +1018,15 @@ namespace Halobiz.Common.Auths.PermissionParts
         [Display(ShortName = "Employment", GroupName = "JobTypes", Name = "Delete", Description = "Can delete job types")]
         JobTypes_Delete = 0x504,
 
+        [Display(ShortName = "LeadAdministration", GroupName = "SBUContractServiceProportion", Name = "Get", Description = "Can view sbu contract service proportion")]
+        SBUContractServiceProportion_Get = 0x505,
+        [Display(ShortName = "LeadAdministration", GroupName = "SBUContractServiceProportion", Name = "Post", Description = "Can create sbu contract service proportion")]
+        SBUContractServiceProportion_Post = 0x506,
+        [Display(ShortName = "LeadAdministration", GroupName = "SBUContractServiceProportion", Name = "Put", Description = "Can update sbu contract service proportion")]
+        SBUContractServiceProportion_Put = 0x507,
+        [Display(ShortName = "LeadAdministration", GroupName = "SBUContractServiceProportion", Name = "Delete", Description = "Can delete sbu contract service proportion")]
+        SBUContractServiceProportion_Delete = 0x508,
+
     }
 
 }

@@ -38,6 +38,12 @@ namespace Controllers.Controllers
             return await _contractServiceForEndorsementService.GetUnApprovedContractServiceForEndorsement();
         }
 
+        [HttpGet("GetNewContractAdditionEndorsement/{customerDivisionId}")]
+        public async Task<ApiCommonResponse> GetNewContractAdditionEndorsement(long customerDivisionId)
+        {
+            return await _contractServiceForEndorsementService.GetNewContractAdditionEndorsement(customerDivisionId);
+        }
+
         [HttpGet("GetEndorsementHistory/{contractServiceId}")]
         public async Task<ApiCommonResponse> GetEndorsementHistory(long contractServiceId)
         {
@@ -53,13 +59,13 @@ namespace Controllers.Controllers
         [HttpPut("ApproveEndorsement/{id}/{sequence}")]
         public async Task<ApiCommonResponse> ApproveEndorsement(long id, long sequence)
         {
-            return await _contractServiceForEndorsementService.ApproveContractServiceForEndorsement(id, sequence, true);
+            return await _contractServiceForEndorsementService.ApproveContractServiceForEndorsement(id, sequence, true, HttpContext);
         }
 
         [HttpPut("DeclineEndorsementApproval/{id}/{sequence}")]
         public async Task<ApiCommonResponse> DeclineEndorsementApproval(long id, long sequence)
         {
-            return await _contractServiceForEndorsementService.ApproveContractServiceForEndorsement(id, sequence, false);
+            return await _contractServiceForEndorsementService.ApproveContractServiceForEndorsement(id, sequence, false, HttpContext);
         }       
 
         [HttpPost("")]
@@ -78,18 +84,18 @@ namespace Controllers.Controllers
 
 
 
-        [HttpPut("ConverToContract/{contractServiceForEndorsementId}")]
-        public async Task<ApiCommonResponse> ConvertEndorsementToCOntract(long contractServiceForEndorsementId)
-        {
-            return await _contractServiceForEndorsementService.ConvertContractServiceForEndorsement(HttpContext ,contractServiceForEndorsementId);
+        //[HttpPut("ConverToContract/{contractServiceForEndorsementId}")]
+        //public async Task<ApiCommonResponse> ConvertEndorsementToCOntract(long contractServiceForEndorsementId)
+        //{
+        //    return await _contractServiceForEndorsementService.ConvertContractServiceForEndorsement(HttpContext ,contractServiceForEndorsementId);
             
-        }
+        //}
 
-        [HttpPut("ConvertDebitCreditNote/{contractServiceForEndorsementId}")]
-        public async Task<ApiCommonResponse> ConvertDebitCreditNote(long contractServiceForEndorsementId)
-        {
-            return await _contractServiceForEndorsementService.ConvertDebitCreditNoteEndorsement(HttpContext, contractServiceForEndorsementId);
+        //[HttpPut("ConvertDebitCreditNote/{contractServiceForEndorsementId}")]
+        //public async Task<ApiCommonResponse> ConvertDebitCreditNote(long contractServiceForEndorsementId)
+        //{
+        //    return await _contractServiceForEndorsementService.ConvertDebitCreditNoteEndorsement(HttpContext, contractServiceForEndorsementId);
             
-        }
+        //}
     }
 }
