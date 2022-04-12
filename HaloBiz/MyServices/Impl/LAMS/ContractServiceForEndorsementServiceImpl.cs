@@ -78,7 +78,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
             using var transaction = await _context.Database.BeginTransactionAsync();
 
             var id = httpContext.GetLoggedInUserId();
-            bool createNewContract = contractServiceForEndorsementDtos.Any(x=>x.ContractId==0);
+            bool createNewContract = contractServiceForEndorsementDtos.Any(x=>x.ContractId==0 && x.PreviousContractServiceId==0);
             Contract newContract = null;
             List<ContractService> newContractServices = new List<ContractService>();
 
