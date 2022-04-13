@@ -180,7 +180,7 @@ namespace OnlinePortalBackend.MyServices.Impl
 
             if (endorsement.IsDeclined) result = "Declined";
             else if (endorsement.IsApproved) result = "Approved";
-            else result = "Pending";
+            else result = "Pending Approval";
 
             return CommonResponse.Send(ResponseCodes.SUCCESS, result);
         }

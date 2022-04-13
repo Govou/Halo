@@ -117,7 +117,46 @@ namespace OnlinePortalBackend.MyServices.Impl
                     EstimatedDateResolved = escalationMatrix == null ? complaint.DateRegistered : complaint.DateRegistered.AddHours(escalationMatrix.Level1MaxResolutionTimeInHrs),
                     HandlerName = complaint.PickedBy == null ? String.Empty : complaint.PickedBy.LastName + " " + complaint.PickedBy.FirstName,
                 };
-                return CommonResponse.Send(ResponseCodes.SUCCESS, resultObject);
+
+                var result = new ComplaintTrackingDetailDTO
+                {
+                    ComplaintAssessment = new ComplaintAssessmentTracking
+                    {
+                        AssesmentDetails = resultObject?.Assessment?.AssesmentDetails,
+                        CapturedDate = resultObject?.Assessment?.CapturedDateTime,
+                        Findings = resultObject?.Assessment?.Findings,
+                        AssessmentEvidenceUrls = assessmentEvidences
+                    },
+
+                    ComplaintInvestigation = new ComplaintInvestigationTracking
+                    {
+                        CapturedDate = resultObject?.Investigation?.CapturedDateTime,
+                        ConcludedDate = resultObject?.Investigation?.CapturedDateTime,
+                        Findings = resultObject?.Investigation?.Findings,
+                        InvestigationDetails = resultObject?.Investigation?.InvestigationDetails,
+                        InvestigationEvidenceUrls = investiagtionEvidences
+                    },
+
+                    ComplaintRegistration = new ComplaintRegistrationTracking
+                    {
+                        RegistrationEvidenceUrls = registrationEvidences
+                    },
+
+                    ComplaintResolution = new ComplaintResolutionTracking
+                    {
+                        ResolutionEvidenceUrls = resolutionEvidences,
+                        CapturedDate = resultObject?.Resolution?.CapturedDateTime,
+                        Learnings = resultObject?.Resolution?.Learnings,
+                        ResolutionDetails = resultObject?.Resolution?.ResolutionDetails,
+                        RootCause = resultObject?.Resolution?.RootCause
+                    },
+
+                    ComplaintClosed = new ComplaintClosedTracking
+                    {
+                        ClosureEvidenceUrls = closureEvidences,
+                    }
+                };
+                return CommonResponse.Send(ResponseCodes.SUCCESS, result);
             }
             catch (Exception error)
             {
