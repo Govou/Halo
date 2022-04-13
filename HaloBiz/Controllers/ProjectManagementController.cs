@@ -770,6 +770,14 @@ namespace HaloBiz.Controllers
 
         }
         
+        [HttpGet("GetCustomerDivision")]
+        public async Task<ApiCommonResponse> GetCustomerDivision()
+        {
+            
+            return await _projectAllocationService.RetrieveCustomerDivision();
+
+        }
+        
 
     }
 }

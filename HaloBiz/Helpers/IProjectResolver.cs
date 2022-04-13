@@ -10,12 +10,12 @@ namespace HaloBiz.Helpers
 {
     public interface IProjectResolver
     {
-        Task<Halobiz.Common.DTOs.ApiDTOs.ApiCommonResponse> CreateEndorseMentProject(ContractServiceForEndorsement endorsement);
+        Task<Halobiz.Common.DTOs.ApiDTOs.ApiCommonResponse> CreateEndorseMentProject(HttpContext httpContext,ContractServiceForEndorsement endorsement);
         Task<List<ContractFulfillMentStructure>> StructureServices(List<QuoteService> quoteServices);
 
         Task<ApiCommonResponse> CreateProjectForFulfilmentProject(HttpContext httpContext, LeadDivision leadDivision,
             List<ContractFulfillMentStructure> contractFulfillMentStructures);
 
-        Task<ApiCommonResponse> CreateServiceProject(Service service);
+        Task<ApiCommonResponse> CreateServiceProject(HttpContext httpContext,Service service);
     }
 }

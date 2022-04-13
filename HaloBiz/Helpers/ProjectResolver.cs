@@ -40,7 +40,7 @@ namespace HaloBiz.Helpers
         this._context = context;
     }
 
-    public async Task<ApiCommonResponse> CreateEndorseMentProject(ContractServiceForEndorsement endorsement)
+    public async Task<ApiCommonResponse> CreateEndorseMentProject(HttpContext httpContext,ContractServiceForEndorsement endorsement)
     {
         var getWatchers = await _context.Divisions.AsNoTracking()
             .Where(x => x.Name == endorsement.Service.Division.Name)
@@ -77,7 +77,7 @@ namespace HaloBiz.Helpers
                     {
                         IsActive = true,
                         CreatedAt = DateTime.Now,
-                        CreatedById = 46, //httpContext.GetLoggedInUserId(),
+                        CreatedById = httpContext.GetLoggedInUserId(),
                         ProjectWatcherId = watcher.Head.Id,
                         ProjectId = projectInstance.Id
                     };
@@ -88,14 +88,14 @@ namespace HaloBiz.Helpers
                 await _context.SaveChangesAsync();
             }
 
-            await createEndorsementTask(projectInstance.Id, endorsement);
+            await createEndorsementTask(httpContext,projectInstance.Id, endorsement);
             return CommonResponse.Send(ResponseCodes.SUCCESS, null, "successfully created task");
         }
 
         return CommonResponse.Send(ResponseCodes.FAILURE, null, "An error occurred before a project could be created");
     }
 
-    public async Task<ApiCommonResponse> CreateServiceProject(Service service)
+    public async Task<ApiCommonResponse> CreateServiceProject(HttpContext httpContext, Service service)
     {
         var getWatchers = await _context.Divisions.AsNoTracking()
             .Where(x => x.Name == service.Division.Name)
@@ -116,7 +116,7 @@ namespace HaloBiz.Helpers
                 Description =
                     $"Service creation for service type {service.ServiceType.Caption} with a service code of {service.ServiceCode}",
                 IsActive = true,
-                CreatedById = 46, //httpContext.GetLoggedInUserId(),
+                CreatedById = httpContext.GetLoggedInUserId(),
                 CreatedAt = DateTime.Now,
                 WorkspaceId = getDefaultWorkspace.Id,
                 ProjectImage = service.ImageUrl
@@ -132,7 +132,7 @@ namespace HaloBiz.Helpers
                     {
                         IsActive = true,
                         CreatedAt = DateTime.Now,
-                        CreatedById = 46, //httpContext.GetLoggedInUserId(),
+                        CreatedById = httpContext.GetLoggedInUserId(),
                         ProjectWatcherId = watcher.Head.Id,
                         ProjectId = projectInstance.Id
                     };
@@ -143,13 +143,13 @@ namespace HaloBiz.Helpers
                 await _context.SaveChangesAsync();
             }
 
-            await createServiceTask(projectInstance.Id, service);
+            await createServiceTask(httpContext,projectInstance.Id, service);
             return CommonResponse.Send(ResponseCodes.SUCCESS, null, "successfully created task");
         }
         return CommonResponse.Send(ResponseCodes.FAILURE, null, "An application error occurred at creating service project");
     }
 
-    public async Task<ApiCommonResponse> createServiceTask(long Id, Service service)
+    public async Task<ApiCommonResponse> createServiceTask(HttpContext httpContext,long Id, Service service)
     {
         if (service != null)
         {
@@ -172,7 +172,7 @@ namespace HaloBiz.Helpers
                      DateTime.Now,
                 TaskEndDate =
                      DateTime.Now,
-                CreatedById = 46, //httpContext.GetLoggedInUserId()
+                CreatedById = httpContext.GetLoggedInUserId(),
                 ProjectId = Id
             };
             await _context.Tasks.AddAsync(taskInstance);
@@ -191,7 +191,7 @@ namespace HaloBiz.Helpers
                         Name = user.ManagerName,
                         CreatedAt = DateTime.Now,
                         TaskId = taskInstance.Id,
-                        CreatedById = 46, //httpContext.GetLoggedInUserId(),
+                        CreatedById = httpContext.GetLoggedInUserId(),
                         UserImage = user.ManagerImageUrl,
                         TaskAssigneeId = user.ManagerId
                     };
@@ -205,7 +205,7 @@ namespace HaloBiz.Helpers
 
         return CommonResponse.Send(ResponseCodes.SUCCESS, null, "successfully created task");
     }
-    public async Task<ApiCommonResponse> createEndorsementTask(long Id, ContractServiceForEndorsement endorsement)
+    public async Task<ApiCommonResponse> createEndorsementTask(HttpContext httpContext,long Id, ContractServiceForEndorsement endorsement)
     {
         if (endorsement != null)
         {
@@ -228,7 +228,7 @@ namespace HaloBiz.Helpers
                     endorsement.ContractStartDate ?? DateTime.Now,
                 TaskEndDate =
                     endorsement.ContractEndDate ?? DateTime.Now,
-                CreatedById = 46, //httpContext.GetLoggedInUserId()
+                CreatedById = httpContext.GetLoggedInUserId(),
                 ProjectId = Id
             };
             await _context.Tasks.AddAsync(taskInstance);
@@ -247,7 +247,7 @@ namespace HaloBiz.Helpers
                         Name = user.ManagerName,
                         CreatedAt = DateTime.Now,
                         TaskId = taskInstance.Id,
-                        CreatedById = 46, //httpContext.GetLoggedInUserId(),
+                        CreatedById = httpContext.GetLoggedInUserId(),
                         UserImage = user.ManagerImageUrl,
                         TaskAssigneeId = user.ManagerId
                     };
@@ -321,14 +321,14 @@ namespace HaloBiz.Helpers
                     Description =
                         $"{leadDivision.DivisionName}-{division.FulfillmentClass} Fulfillment project",
                     IsActive = true,
-                    CreatedById = 46, //httpContext.GetLoggedInUserId(),
+                    CreatedById = httpContext.GetLoggedInUserId(),
                     CreatedAt = DateTime.Now,
                     WorkspaceId = getDefaultWorkspace.Id,
                     ProjectImage = leadDivision.Lead.LogoUrl
                 };
                 await _context.Projects.AddAsync(projectInstance);
                 var status = await _context.SaveChangesAsync();
-                await CreateTaskFromProject(projectInstance.Id, division.QuoteService);
+                await CreateTaskFromProject(httpContext,projectInstance.Id, division.QuoteService);
 
                 if (status > 0)
                 {
@@ -339,7 +339,7 @@ namespace HaloBiz.Helpers
                         {
                             IsActive = true,
                             CreatedAt = DateTime.Now,
-                            CreatedById = 46, //httpContext.GetLoggedInUserId(),
+                            CreatedById = httpContext.GetLoggedInUserId(),
                             ProjectWatcherId = watcher.Head.Id,
                             ProjectId = projectInstance.Id
                         };
@@ -357,7 +357,7 @@ namespace HaloBiz.Helpers
     }
 
 
-    public async Task<ApiCommonResponse> CreateTaskFromProject(long Id, QuoteService[] quoteServices)
+    public async Task<ApiCommonResponse> CreateTaskFromProject(HttpContext httpContext,long Id, QuoteService[] quoteServices)
     {
         if (quoteServices.Any())
         {
@@ -383,7 +383,7 @@ namespace HaloBiz.Helpers
                         quoteService.ContractStartDate ?? DateTime.Now,
                     TaskEndDate =
                         quoteService.ContractEndDate ?? DateTime.Now,
-                    CreatedById = 46, //httpContext.GetLoggedInUserId()
+                    CreatedById = httpContext.GetLoggedInUserId(),
                     ProjectId = Id,
                     
                 };
