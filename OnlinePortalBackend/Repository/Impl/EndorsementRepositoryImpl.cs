@@ -56,16 +56,19 @@ namespace OnlinePortalBackend.Repository.Impl
                 ServiceDescription = service.Description,
                 HasDirectComponent = service.AdminRelationship?.DirectServiceId != null && service.AdminRelationship?.AdminService != null ? true : false,
                 HasAdminComponent = service.AdminRelationship?.AdminServiceId != null && service.AdminRelationship?.DirectService != null ? true : false,
-                TotalContractValue = (int)contractService.Quantity * service.UnitPrice
+                TotalContractValue = (int)contractService.Quantity * service.UnitPrice,
+                ContractId = (int)contractService.Contract.Id,
+                ServiceId = (int)service.Id
             };
 
             return result;
         }
 
-        public async Task<IEnumerable<ContractServiceDTO>> GetContractServices(int userId)
+        public async Task<IEnumerable<ContractDTO>> GetContractServices(int userId)
         {
             var contractServiceDTOs = new List<ContractServiceDTO>();
-            var contracts = _context.Contracts.Include(x => x.ContractServices).Where(x => x.CustomerDivisionId == userId && !x.IsDeleted && !x.IsDeleted);
+            var contractDTOs = new List<ContractDTO>();
+            var contracts = _context.Contracts.Include(x => x.ContractServices).Where(x => x.CustomerDivisionId == userId && !x.IsDeleted && !x.IsDeleted && x.IsApproved);
             if (contracts == null)
             {
                 return null;
@@ -94,12 +97,24 @@ namespace OnlinePortalBackend.Repository.Impl
                     ServiceDescription = service.Description,
                     HasDirectComponent = service.AdminRelationship?.DirectServiceId != null && service.AdminRelationship?.AdminService != null ? true : false,
                     HasAdminComponent = service.AdminRelationship?.AdminServiceId != null && service.AdminRelationship?.DirectService != null ? true : false,
-                    TotalContractValue = (int)contractService.Quantity * service.UnitPrice
+                    TotalContractValue = (int)contractService.Quantity * service.UnitPrice,
+                    ContractId = (int)contractService.ContractId,
+                    ServiceId = (int)service.Id
                 };
 
                 contractServiceDTOs.Add(result);
             }
-            return contractServiceDTOs;
+            var grpContractServices = contractServiceDTOs.GroupBy(x => x.ContractId);
+            foreach (var contractService in grpContractServices)
+            {
+                contractDTOs.Add(new ContractDTO
+                {
+                    Id = contractService.Key,
+                    ContractServices = contractService.ToArray()
+                });
+            }
+
+            return contractDTOs;
         }
 
         public async Task<ContractServiceForEndorsement> SaveContractServiceForEndorsement(ContractServiceForEndorsement entity)

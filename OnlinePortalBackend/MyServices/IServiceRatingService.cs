@@ -1,4 +1,5 @@
 using System.Threading.Tasks;
+using Halobiz.Common.DTOs.ApiDTOs;
 using Microsoft.AspNetCore.Http;
 using OnlinePortalBackend.DTOs.ApiDTOs;
 using OnlinePortalBackend.DTOs.ReceivingDTOs;
@@ -7,7 +8,7 @@ namespace OnlinePortalBackend.MyServices
 {
     public interface IServiceRatingService
     {
-        Task<ApiResponse> AddServiceRating(HttpContext context, ServiceRatingReceivingDTO controlRoomAlertReceivingDTO);
+        Task<ApiCommonResponse> AddServiceRating(HttpContext context, ServiceRatingReceivingDTO controlRoomAlertReceivingDTO);
         Task<ApiResponse> FindServiceRatingById(long id);
         Task<ApiResponse> GetReviewHistoryByServiceId(long contractServiceId);
         Task<ApiResponse> FindAllServiceRatings();
