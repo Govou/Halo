@@ -61,5 +61,6 @@ namespace OnlinePortalBackend.DTOs.TransferDTOs
         public double Total { get; set; }
         public double Discount { get; set; }
         public int ContractServiceId { get; set; }
+        public string InvoiceNumber { get; set; }
     }
 }
