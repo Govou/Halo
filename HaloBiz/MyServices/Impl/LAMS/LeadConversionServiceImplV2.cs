@@ -162,6 +162,8 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
                 isRetail = false;
                 customer = await GetOtherCustomer(lead, _context);
+                if (customer == null)
+                    throw new Exception("Sysem errors. Could not get customer");
 
                 lead.CustomerId = customer.Id;
                 lead.LeadConversionStatus = true;
@@ -1140,7 +1142,8 @@ namespace HaloBiz.MyServices.Impl.LAMS
                     var daysInMonth = (lastDayOfFirstMonth - firstDayOfMonth).TotalDays + 1;
 
                     totalContractBillable = double.Parse((daysCounted / daysInMonth * (double)contractService.BillableAmount).ToString("#.##"));
-                    totalVAT = double.Parse((daysCounted / daysInMonth * (double)contractService.Vat).ToString("#.##"));
+                    totalVAT = totalContractBillable * 0.075;
+                   // totalVAT = double.Parse((daysCounted / daysInMonth) *  * .ToString("#.##"));
                 }
                 else
                 {

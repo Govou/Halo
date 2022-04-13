@@ -14,6 +14,9 @@ namespace HaloBiz.DTOs.TransferDTOs
         public string Description { get; set; }
         public string MissionStatement { get; set; }
         public virtual UserProfileTransferDTO Head { get; set; }
+        public CompanyTransferDTO Company { get; set; }
+        public long CompanyId { get; set; }
+
         public IEnumerable<OperatingEntityTransferDTO> OperatingEntities { get; set; }
     }
 }
