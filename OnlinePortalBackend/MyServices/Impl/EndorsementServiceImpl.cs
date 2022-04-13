@@ -19,6 +19,7 @@ using Microsoft.EntityFrameworkCore;
 using Halobiz.Common.Helpers;
 using HalobizMigrations.Models;
 using HaloBiz.Helpers;
+using TimeCycle = Halobiz.Common.Helpers.TimeCycle;
 
 namespace OnlinePortalBackend.MyServices.Impl
 {
