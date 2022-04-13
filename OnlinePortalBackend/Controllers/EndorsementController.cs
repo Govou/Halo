@@ -1,6 +1,7 @@
 ﻿using Halobiz.Common.DTOs.ApiDTOs;
 using Halobiz.Common.DTOs.TransferDTOs;
 using Microsoft.AspNetCore.Mvc;
+using OnlinePortalBackend.DTOs.TransferDTOs;
 using OnlinePortalBackend.MyServices;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -33,15 +34,35 @@ namespace OnlinePortalBackend.Controllers
         }
 
         [HttpPost("TopUp")]
-        public async Task<ApiCommonResponse> EndorsementTopUp(List<ContractServiceForEndorsementReceivingDto> endorsement)
+        public async Task<ApiCommonResponse> EndorsementTopUp(List<EndorsementDTO> endorsement)
         {
             return await _endorsementService.EndorsementTopUp(HttpContext, endorsement);
         }
 
         [HttpPost("Reduction")]
-        public async Task<ApiCommonResponse> EndorsementReduction(List<ContractServiceForEndorsementReceivingDto> endorsement)
+        public async Task<ApiCommonResponse> EndorsementReduction(List<EndorsementDTO> endorsement)
         {
             return await _endorsementService.EndorsementReduction(HttpContext, endorsement);
+        }
+
+      
+
+        [HttpGet("GetContractServiceById")]
+        public async Task<ApiCommonResponse> GetContractService(int id)
+        {
+            return await _endorsementService.GetContractService(id);
+        }
+
+        [HttpGet("GetContractServices")]
+        public async Task<ApiCommonResponse> GetContractServices(int userId)
+        {
+            return await _endorsementService.GetContractServices(userId);
+        }
+
+        [HttpGet("GetPossibleDatesOfEffectForEndorsement")]
+        public async Task<ApiCommonResponse> GetPossibleDatesOfEffectForEndorsement(int contractServiceId)
+        {
+            return await _endorsementService.GetPossibleDatesOfEffectForEndorsement(contractServiceId);
         }
     }
 }

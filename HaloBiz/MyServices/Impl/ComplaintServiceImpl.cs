@@ -188,6 +188,7 @@ namespace HaloBiz.MyServices.Impl
         public async Task<ApiCommonResponse> GetAllComplaint()
         {
             var complaints = await _complaintRepo.FindAllComplaints();
+
             if (complaints == null)
             {
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;

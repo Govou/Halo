@@ -1,4 +1,5 @@
-﻿using Halobiz.Common.DTOs.ApiDTOs;
+﻿using Halobiz.Common.Auths;
+using Halobiz.Common.DTOs.ApiDTOs;
 using HaloBiz.DTOs.ReceivingDTOs;
 using HaloBiz.DTOs.TransferDTOs;
 using HaloBiz.MyServices;
@@ -13,6 +14,8 @@ namespace HaloBiz.Controllers
 {
     [Route("api/v1/[controller]")]
     [ApiController]
+    [ModuleName(HalobizModules.Setups)]
+
     public class OperatingEntityController : ControllerBase
     {
         private readonly IOperatingEntityService _operatingEntityService;

@@ -36,8 +36,6 @@ namespace HaloBiz.Repository.Impl.LAMS
 
         public async Task<IEnumerable<Lead>> FindUserLeads(long userId)
         {
-            //todo remove hardcooded id
-           // userId = 47;
             return await _context.Leads.Where(lead => !lead.IsDeleted && !lead.LeadConversionStatus && lead.CreatedById == userId).ToListAsync();
         }
 
@@ -63,13 +61,7 @@ namespace HaloBiz.Repository.Impl.LAMS
 
             lead.DropReason = await _context.
                 DropReasons.Where(dropReason => lead.DropReasonId == dropReason.Id).FirstOrDefaultAsync();
-            //todo Contact adjustment
-
-            //if(lead.PrimaryContactId != null)
-            //    lead.PrimaryContact = await _context.LeadContacts.FirstOrDefaultAsync(primaryContact => lead.PrimaryContactId == primaryContact.Id);
-            //if(lead.SecondaryContactId != null)
-            //    lead.SecondaryContact = await _context.LeadContacts.FirstOrDefaultAsync(contact => lead.SecondaryContactId == contact.Id);
-            lead.LeadDivisions = await _context.LeadDivisions.AsNoTracking()
+           lead.LeadDivisions = await _context.LeadDivisions.AsNoTracking()
                                     .Include(x => x.Branch)
                                     .Include(x => x.Office)
                                     .Include(division => division.PrimaryContact)
@@ -79,7 +71,6 @@ namespace HaloBiz.Repository.Impl.LAMS
                                         .ThenInclude(quote => quote.QuoteServices.Where(x => x.IsDeleted == false))
                                         .ThenInclude(x => x.QuoteServiceDocuments.Where(x => x.IsDeleted == false))
                                     .Where(division => division.LeadId == lead.Id).ToListAsync();
-            //lead.LeadDivisions.ToList().ForEach(x => x.Lead = null);
             lead.LeadKeyPeople = await _context.LeadKeyPeople
                                     .Where(x => x.LeadId == lead.Id && x.IsDeleted == false).ToListAsync();
             if(lead.LeadKeyPeople != null)
@@ -104,12 +95,6 @@ namespace HaloBiz.Repository.Impl.LAMS
                 return null;
             }
             lead.DropReason = await _context.DropReasons.FirstOrDefaultAsync(dropReason => lead.DropReasonId == dropReason.Id);
-
-            //todo Contact adjustment
-            //if(lead.PrimaryContactId != null)
-            //    lead.PrimaryContact = await _context.LeadContacts.FirstOrDefaultAsync(primaryContact => lead.PrimaryContactId == primaryContact.Id);
-            //if(lead.SecondaryContactId != null)
-            //    lead.SecondaryContact = await _context.LeadContacts.FirstOrDefaultAsync(contact => lead.SecondaryContactId == contact.Id);
 
             lead.LeadDivisions = await _context.LeadDivisions
                                     .Include(division => division.PrimaryContact)

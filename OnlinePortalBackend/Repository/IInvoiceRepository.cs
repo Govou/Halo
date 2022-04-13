@@ -5,6 +5,7 @@ namespace OnlinePortalBackend.Repository
 {
     public interface IInvoiceRepository
     {
-        Task<ContractServiceInvoiceDTO> GetInvoices(int userId, int? contractService, int? contractId, int limit = 10);
+        Task<ContractInvoiceDTO> GetInvoices(int userId);
+        Task<InvoiceDetailDTO> GetInvoice(int invoiceId);
     }
 }

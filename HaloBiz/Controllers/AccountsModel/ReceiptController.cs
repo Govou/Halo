@@ -1,4 +1,5 @@
 using System.Threading.Tasks;
+using Halobiz.Common.Auths;
 using Halobiz.Common.DTOs.ApiDTOs;
 using Halobiz.Common.DTOs.ReceivingDTOs;
 using HaloBiz.DTOs.ReceivingDTOs;
@@ -10,6 +11,8 @@ namespace HaloBiz.Controllers.AccountsModel
 {
     [Route("api/v1/[controller]")]
     [ApiController]
+    [ModuleName(HalobizModules.Finance)]
+
     public class ReceiptController : ControllerBase
     {
         private readonly IReceiptService _receiptService;

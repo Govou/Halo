@@ -1,5 +1,6 @@
 using AutoMapper;
 using Google.Apis.Auth;
+using Halobiz.Common.Auths;
 using Halobiz.Common.DTOs.ApiDTOs;
 using Halobiz.Common.DTOs.ReceivingDTO;
 using Halobiz.Common.DTOs.ReceivingDTOs;
@@ -29,6 +30,8 @@ namespace HaloBiz.Controllers
 {
     [Route("api/v1/[controller]")]
     [ApiController]
+    [ModuleName(HalobizModules.Setups)]
+
     public class AuthController : ControllerBase
     {
 

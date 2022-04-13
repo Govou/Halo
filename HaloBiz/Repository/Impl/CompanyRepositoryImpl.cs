@@ -53,11 +53,8 @@ namespace HaloBiz.Repository.Impl
         public async Task<Company> UpdateCompany(Company company)
         {
             var companyEntity =  _context.Companies.Update(company);
-            if(await SaveChanges())
-            {
-                return companyEntity.Entity;
-            }
-            return null;
+            await _context.SaveChangesAsync();
+            return companyEntity.Entity;
         }
 
         private async Task<bool> SaveChanges()

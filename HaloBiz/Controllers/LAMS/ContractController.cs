@@ -1,4 +1,5 @@
 using System.Threading.Tasks;
+using Halobiz.Common.Auths;
 using Halobiz.Common.DTOs.ApiDTOs;
 using HaloBiz.MyServices.LAMS;
 using Microsoft.AspNetCore.Mvc;
@@ -7,6 +8,8 @@ namespace HaloBiz.Controllers.LAMS
 {
     [Route("api/v1/[controller]")]
     [ApiController]
+    [ModuleName(HalobizModules.LeadAdministration)]
+
     public class ContractController : ControllerBase
     {
         private readonly IContractService _contractService;
@@ -42,6 +45,13 @@ namespace HaloBiz.Controllers.LAMS
             return await _contractService.GetContractsByLeadId(leadId);
         }
 
+        [HttpGet("GetUnApprovedContracts")]
+        public async Task<ApiCommonResponse> GetUnApprovedContracts()
+        {
+            return await _contractService.GetUnapprovedContracts();
+        }
+
+        
         [HttpGet("GetContractsByCustomerId/{customerId}")]
         [Microsoft.AspNetCore.Authorization.AllowAnonymous]
         public async Task<ApiCommonResponse> GetContractsByCustomerId(long customerId)

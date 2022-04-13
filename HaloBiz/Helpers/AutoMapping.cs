@@ -188,6 +188,10 @@ namespace HaloBiz.Helpers
                 ));
             CreateMap<SbutoQuoteServiceProportion, SbutoQuoteServiceProportionTransferDTO>();
             CreateMap<SbutoQuoteServiceProportionReceivingDTO, SbutoQuoteServiceProportion>();
+
+            CreateMap<SbutoContractServiceProportion, SbutoContractServiceProportionTransferDTO>();
+            CreateMap<SbutoContractServiceProportionReceivingDTO, SbutoContractServiceProportion>();
+
             CreateMap<RegionReceivingDTO, Region>();
             CreateMap<Region, RegionTransferDTO>();
             CreateMap<ZoneReceivingDTO, Zone>();
@@ -241,6 +245,7 @@ namespace HaloBiz.Helpers
             CreateMap<ContractServiceForEndorsementReceivingDto, ContractServiceForEndorsement>();
             CreateMap<ContractServiceForEndorsement, ContractServiceForEndorsementTransferDto>();
             CreateMap<ContractServiceForEndorsement, ContractService>();
+            CreateMap<ContractServiceForEndorsementReceivingDto, ContractService>();
             CreateMap<ModeOfTransportReceivingDTO, ModeOfTransport>();
             CreateMap<ModeOfTransport, ModeOfTransportTransferDTO>();
             

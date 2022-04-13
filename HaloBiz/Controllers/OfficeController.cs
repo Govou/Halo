@@ -1,6 +1,8 @@
+using Halobiz.Common.Auths;
 using Halobiz.Common.DTOs.ApiDTOs;
 using HaloBiz.DTOs.ReceivingDTOs;
 using HaloBiz.DTOs.TransferDTOs;
+using HaloBiz.Helpers;
 using HaloBiz.MyServices;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -12,6 +14,8 @@ namespace HaloBiz.Controllers
 {
     [Route("api/v1/[controller]")]
     [ApiController]
+    [ModuleName(HalobizModules.Profile)]
+
     public class OfficeController : ControllerBase
     {
         private readonly IOfficeService _officeService;

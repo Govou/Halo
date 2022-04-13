@@ -16,6 +16,8 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using HaloBiz.DTOs.ReceivingDTOs.LAMS;
+using HaloBiz.MyServices.LAMS;
 
 namespace HaloBiz.MyServices.Impl
 {
@@ -28,6 +30,7 @@ namespace HaloBiz.MyServices.Impl
         private readonly IApprovalLimitRepository _approvalLimitRepo;
         private readonly IProcessesRequiringApprovalRepository _processesRequiringApprovalRepo;
         private readonly IMailAdapter _mailAdapter;
+        private readonly ILeadConversionService _leadConversionService;
 
         private readonly IMapper _mapper;
 
@@ -37,6 +40,7 @@ namespace HaloBiz.MyServices.Impl
             IProcessesRequiringApprovalRepository processesRequiringApprovalRepo,
             IMailAdapter mailAdapter,
             HalobizContext context,
+            ILeadConversionService leadConversionService,
             ILogger<ApprovalServiceImpl> logger, IMapper mapper)
         {
             _mapper = mapper;
@@ -47,6 +51,7 @@ namespace HaloBiz.MyServices.Impl
             _mailAdapter = mailAdapter;
             _context = context;
             _logger = logger;
+            _leadConversionService = leadConversionService;
         }
         public async  Task<ApiCommonResponse> AddApproval(HttpContext context, ApprovalReceivingDTO approvalReceivingDTO)
         {
@@ -109,6 +114,7 @@ namespace HaloBiz.MyServices.Impl
             return CommonResponse.Send(ResponseCodes.SUCCESS,approvalTransferDTO);
         }
         
+
         public async Task<ApiCommonResponse> GetApprovalsByQuoteId(long quoteId)
         {
             var approval = await _approvalRepo.GetApprovalsByQuoteId(quoteId);
@@ -119,6 +125,41 @@ namespace HaloBiz.MyServices.Impl
             var approvalTransferDTO = _mapper.Map<IEnumerable<ApprovalTransferDTO>>(approval);
             return CommonResponse.Send(ResponseCodes.SUCCESS,approvalTransferDTO);
         }
+
+        public async Task<ApiCommonResponse> GetApprovalsByContractId(long contractId)
+        {
+            var app = await _context.Approvals
+               .Where(x => x.ContractId == contractId && x.IsDeleted == false)
+               .Include(x => x.Responsible)
+               .OrderBy(x => x.Sequence)
+               .ToListAsync();
+
+            if (!app.Any())
+            {
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE); ;
+            }
+            var approvalTransferDTO = _mapper.Map<IEnumerable<ApprovalTransferDTO>>(app);
+            return CommonResponse.Send(ResponseCodes.SUCCESS, approvalTransferDTO);
+        }
+
+        public async Task<ApiCommonResponse> GetPendingApprovalsByContractId(long contractId)
+        {
+            var app = await _context.Approvals
+               .Where(x => x.ContractId == contractId && x.IsApproved==false && x.IsDeleted == false)
+               .Include(x => x.Responsible)
+               .OrderBy(x => x.Sequence)
+               .ToListAsync();
+
+            if (!app.Any())
+            {
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE); ;
+            }
+
+            var approvalTransferDTO = _mapper.Map<IEnumerable<ApprovalTransferDTO>>(app);
+            return CommonResponse.Send(ResponseCodes.SUCCESS, approvalTransferDTO);
+        }
+
+
 
         public async Task<ApiCommonResponse> GetPendingApprovalsByServiceId(long serviceId)
         {
@@ -257,6 +298,91 @@ namespace HaloBiz.MyServices.Impl
             }
         }
 
+        public async Task<(bool,string)> SetUpApprovalsForContractCreationEndorsement(long contractId, HttpContext context)
+        {
+            try
+            {
+                var contract = await _context.Contracts.AsNoTracking()
+                                    .Where(x => x.Id == contractId)
+                                    .Include(x=>x.CustomerDivision)
+                                    .Include(x => x.ContractServices)
+                                        .ThenInclude(x=>x.Branch)
+                                    .FirstOrDefaultAsync();
+                if (contract == null)
+                    return (false,$"No contract with Id {contractId}");
+
+                var module = await _processesRequiringApprovalRepo.FindProcessesRequiringApprovalByCaption("Contract Creation");
+                if (module == null)
+                {
+                    return (false,"No approval module for contract creation");
+                }
+
+                var approvalLimits = await _approvalLimitRepo.GetApprovalLimitsByModule(module.Id);
+                
+
+                if (!approvalLimits.Any())
+                    return (false, $"No approval limit for module with id {module.Id}");
+
+
+                List<Approval> approvals = new List<Approval>();
+                foreach (var conService in contract.ContractServices)
+                {
+                    conService.Service = await GetServiceInformationForApprovals(conService.ServiceId);
+                }
+
+                foreach (var contractService in contract.ContractServices)
+                {
+                    if (!contractService.BillableAmount.HasValue) continue;
+
+                    var orderedList = approvalLimits
+                        .Where(x => contractService.BillableAmount.Value > x.UpperlimitValue ||
+                                    (contractService.BillableAmount.Value <= x.UpperlimitValue && contractService.BillableAmount.Value >= x.LowerlimitValue))
+                        .OrderBy(x => x.Sequence);
+
+                    foreach (var approvalLimit in orderedList)
+                    {
+                        long responsibleId = GetWhoIsResponsible(approvalLimit, contractService.Service, contractService.Branch);
+
+                        var approval = new Approval
+                        {
+                            ContractServiceId = contractService.Id,
+                            ContractId = contractService.ContractId,
+                            Caption = $"Approval Needed To Create Contract Service {contractService.Service.Name} for client {contract.CustomerDivision.DivisionName}",
+                            CreatedById = context.GetLoggedInUserId(),
+                            Sequence = approvalLimit.Sequence,
+                            ResponsibleId = responsibleId,
+                            IsApproved = false,
+                            DateTimeApproved = null,
+                            Level = approvalLimit.ApproverLevel.Caption
+                        };
+
+                        approvals.Add(approval);
+                    }
+                }
+
+                if (approvals.Any())
+                {
+                    var successful = await _approvalRepo.SaveApprovalRange(approvals);
+                    if (successful)
+                    {
+                        await SendMailsForContractApprovals(approvals);
+                        return (true,"");
+                    }
+                    else
+                    {
+                        return (false,"No approvals set up");
+                    }
+                }
+                return (false, $"No approval setup");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogInformation(ex.Message);
+                _logger.LogInformation(ex.StackTrace);
+                return (false, ex.Message);
+            }
+        }
+
         public async Task<bool> SetUpApprovalsForContractModificationEndorsement(ContractServiceForEndorsement contractServiceForEndorsement, HttpContext context)
         {
             try
@@ -353,7 +479,7 @@ namespace HaloBiz.MyServices.Impl
             {
                 _logger.LogInformation(ex.Message);
                 _logger.LogInformation(ex.StackTrace);
-                return false;
+                throw;
             }
         }
         
@@ -528,24 +654,104 @@ namespace HaloBiz.MyServices.Impl
         {
             if (item.ApproverLevel.Caption == "Branch Head")
             {
-                return branch?.HeadId ?? 1;                          
+                return branch?.HeadId ?? throw new Exception($"No head set up for branch head in {branch?.Name}");
             }
             else if (item.ApproverLevel.Caption == "Division Head")
             {
-                return service?.Division?.HeadId ?? 1;
+                return service?.Division?.HeadId ?? throw new Exception($"No head set up for division head in {service?.Division?.Name}");
             }
             else if (item.ApproverLevel.Caption == "Operating Entity Head")
             {
-                return service?.OperatingEntity?.HeadId ?? 1;
+                return service?.OperatingEntity?.HeadId ?? throw new Exception($"No head set up for operating entity head in {service?.OperatingEntity?.Name}");
             }
             else if (item.ApproverLevel.Caption == "CEO")
             {
-                return service?.Division?.Company?.HeadId ?? 1;
+                return service?.Division?.Company?.HeadId ?? throw new Exception($"No head set up for CEO head in {service?.Division?.Company?.Name}");
             }
             else
             {
-                return 1;
+                throw new Exception($"No approval person set up approval level {item?.ApproverLevel}");
             }
+        }
+
+        public async Task<ApiCommonResponse> ApprovalOrDispproveContractService(HttpContext context, ContractApprovalDTO dto)
+        {
+            using var transaction = await _context.Database.BeginTransactionAsync();
+
+            try
+            {
+                var approval = await _context.Approvals.Where(x=>x.Id==dto.approvalId).FirstOrDefaultAsync();
+                if (approval == null)
+                {
+                    return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE, null, "This approval was not found");
+                }
+
+                if (approval.IsApproved)
+                {
+                    return CommonResponse.Send(ResponseCodes.FAILURE, null, "This has already been approved");
+                }
+
+                if (dto.isApproved)
+                {
+                    approval.IsApproved = true;
+                    _context.Approvals.Update(approval);
+                    await _context.SaveChangesAsync();
+
+                    //check if this is the last approval needed
+                    var allApprovals = await _context.Approvals.Where(x => x.ContractId == dto.contractId).ToListAsync();
+                    if (allApprovals.All(x => x.IsApproved))
+                    {
+                        //now create accounts etc
+                        var contract = await _context.Contracts.AsNoTracking()
+                                .Where(x => x.Id == dto.contractId)
+                                .Include(x => x.CustomerDivision)
+                                .Include(x => x.ContractServices)
+                                    .ThenInclude(x => x.Service)
+                                 .FirstOrDefaultAsync();
+
+                        var customerDivision = contract.CustomerDivision;
+                        long userId = context.GetLoggedInUserId();
+                        foreach (var item in contract.ContractServices)
+                        {
+                            var issuccess = await _leadConversionService.AccountsForContractServices(item, customerDivision, userId);
+                            if (!issuccess)
+                                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Could not create accounts after approval");
+
+                        }
+
+                        //update the contract
+                        var contractToUpdate = await _context.Contracts.Where(x => x.Id == dto.contractId).FirstOrDefaultAsync();
+                        contractToUpdate.IsApproved = true;
+                        _context.Update(contractToUpdate); 
+                        await _context.SaveChangesAsync();
+
+                        transaction.Commit();
+                        return CommonResponse.Send(ResponseCodes.REFRESH_APPROVALS, null, "Approval successful and accounts created");
+                    }
+                }
+                else
+                {
+                    approval.IsApproved = false;
+                    _context.Approvals.Update(approval);
+
+                    await _context.SaveChangesAsync();                    
+
+                    //update the contract with delete
+                    var contractToUpdate = await _context.Contracts.Where(x=>x.Id==dto.contractId).FirstOrDefaultAsync();
+                    contractToUpdate.IsDeleted = true;
+                    _context.Update(contractToUpdate);
+                    await _context.SaveChangesAsync();
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.StackTrace);
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, ex.Message);
+            }
+
+            transaction.Commit();
+
+            return CommonResponse.Send(ResponseCodes.SUCCESS);
         }
 
         public  async Task<ApiCommonResponse> UpdateApproval(HttpContext context, long id, ApprovalReceivingDTO approvalReceivingDTO)
