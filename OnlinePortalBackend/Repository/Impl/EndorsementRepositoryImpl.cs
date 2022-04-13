@@ -68,7 +68,7 @@ namespace OnlinePortalBackend.Repository.Impl
         {
             var contractServiceDTOs = new List<ContractServiceDTO>();
             var contractDTOs = new List<ContractDTO>();
-            var contracts = _context.Contracts.Include(x => x.ContractServices).Where(x => x.CustomerDivisionId == userId && !x.IsDeleted && !x.IsDeleted);
+            var contracts = _context.Contracts.Include(x => x.ContractServices).Where(x => x.CustomerDivisionId == userId && !x.IsDeleted && !x.IsDeleted && x.IsApproved);
             if (contracts == null)
             {
                 return null;
