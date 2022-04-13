@@ -68,14 +68,13 @@ namespace HaloBiz.MyServices.Impl
         public async Task<ApiCommonResponse> AddFeedbackMaster(HttpContext context, FeedbackMasterReceivingDTO feedback)
         {
             var itemToAdd = _mapper.Map<FeedbackMaster>(feedback);
-            var assignmentExist = await _journeyStartandStopRepository.FindFeedbackMasterByAssignmentId(feedback.ServiceAssignmentId);
+            var assignmentExist = await _journeyStartandStopRepository.FindFeedbackMasterByAssignmentId(feedback.MasterServiceAssignmentId);
             //check for availability and skip a new insert for the same same assignment 
 
             if (assignmentExist == null)
             {
                 //itemToAdd.Id = 0;
-                itemToAdd.ServiceAssignmentId = feedback.ServiceAssignmentId;
-                itemToAdd.JourneyStartId = feedback.JourneyStartId;
+                //itemToAdd.JourneyStartId = feedback.JourneyStartId;
                 itemToAdd.CreatedById = context.GetLoggedInUserId();
                 itemToAdd.CreatedAt = DateTime.UtcNow;
                 var saved = await _journeyStartandStopRepository.SaveFeedbackMaster(itemToAdd);
