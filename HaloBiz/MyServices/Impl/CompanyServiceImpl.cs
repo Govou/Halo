@@ -72,23 +72,57 @@ namespace HaloBiz.MyServices.Impl
 
         public async Task<ApiCommonResponse> UpdateCompany(long id, CompanyReceivingDTO companyReceivingDTO)
         {
-            var companyToUpdate = await _companyRepo.FindCompanyById(id);
-            if (companyToUpdate == null)
+            try
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
-            }
-            companyToUpdate.Name = companyReceivingDTO.Name;
-            companyToUpdate.Description = companyReceivingDTO.Description;
-            companyToUpdate.Address = companyReceivingDTO.Address;
-            companyToUpdate.HeadId = companyReceivingDTO.HeadId;
-            var updatedCompany = await _companyRepo.UpdateCompany(companyToUpdate);
+                var companyToUpdate = await _companyRepo.FindCompanyById(id);
+                if (companyToUpdate == null)
+                {
+                    return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE); ;
+                }
+                companyToUpdate.Name = companyReceivingDTO.Name;
+                companyToUpdate.Description = companyReceivingDTO.Description;
+                companyToUpdate.Address = companyReceivingDTO.Address;
+                companyToUpdate.HeadId = companyReceivingDTO.HeadId;
+                var updatedCompany = await _companyRepo.UpdateCompany(companyToUpdate);
 
-            if (updatedCompany == null)
-            {
-                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+                if (updatedCompany == null)
+                {
+                    return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+                }
+                var companyTransferDTOs = _mapper.Map<CompanyTransferDTO>(updatedCompany);
+                return CommonResponse.Send(ResponseCodes.SUCCESS, companyTransferDTOs);
             }
-            var companyTransferDTOs = _mapper.Map<CompanyTransferDTO>(updatedCompany);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,companyTransferDTOs);
+            catch (Exception ex)
+            {
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, ex.Message);
+            }
+
+
+        }
+
+        public async Task<ApiCommonResponse> DeleteCompany(long id)
+        {
+            try
+            {
+                var companyToUpdate = await _companyRepo.FindCompanyById(id);
+                if (companyToUpdate == null)
+                {
+                    return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE); ;
+                }
+                companyToUpdate.IsDeleted = true;
+                var updatedCompany = await _companyRepo.UpdateCompany(companyToUpdate);
+
+                if (updatedCompany == null)
+                {
+                    return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+                }
+                var companyTransferDTOs = _mapper.Map<CompanyTransferDTO>(updatedCompany);
+                return CommonResponse.Send(ResponseCodes.SUCCESS, companyTransferDTOs);
+            }
+            catch (Exception ex)
+            {
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, ex.Message);
+            }
 
 
         }

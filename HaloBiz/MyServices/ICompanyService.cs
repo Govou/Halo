@@ -14,6 +14,6 @@ namespace HaloBiz.MyServices
         Task<ApiCommonResponse> GetCompanyByName(string name);
         Task<ApiCommonResponse> GetAllCompanies();
         Task<ApiCommonResponse> UpdateCompany(long id, CompanyReceivingDTO companyReceivingDTO);
-       // Task<ApiCommonResponse> DeleteCompany(long id);
+        Task<ApiCommonResponse> DeleteCompany(long id);
     }
 }
