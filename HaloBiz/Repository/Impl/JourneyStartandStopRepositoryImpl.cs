@@ -446,6 +446,7 @@ namespace HaloBiz.Repository.Impl
             catch (Exception ex)
             {
                 _logger.LogError(ex.Message);
+                _logger.LogError(ex.StackTrace);
                 _logger.LogError(ex.InnerException.Message);
                 return false;
             }
