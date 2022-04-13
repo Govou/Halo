@@ -26,6 +26,9 @@ using HalobizMigrations.Data;
 using OnlinePortalBackend.Adapters;
 using Halobiz.Common.MyServices;
 using Halobiz.Common.Repository;
+using HaloBiz.MyServices.Impl;
+using CronJobServiceImpl = OnlinePortalBackend.MyServices.Impl.CronJobServiceImpl;
+using ProspectServiceImpl = OnlinePortalBackend.MyServices.Impl.ProspectServiceImpl;
 
 namespace OnlinePortalBackend
 {

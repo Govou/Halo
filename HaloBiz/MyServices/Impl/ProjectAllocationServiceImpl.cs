@@ -17,23 +17,26 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using HaloBiz.DTOs;
 using Task = HalobizMigrations.Models.ProjectManagement.Task;
 
 namespace HaloBiz.MyServices.Impl
 {
     public class ProjectAllocationServiceImpl : IProjectAllocationServiceImpl
     {
+        private readonly IProjectResolver _projectResolver;
         private readonly HalobizContext _context;
         private readonly ILogger<ProjectAllocationServiceImpl> _logger;
         private readonly IProjectAllocationRepositoryImpl _projectAllocationRepository;
         private readonly IMapper _mapper;
 
-        public ProjectAllocationServiceImpl(HalobizContext context, IProjectAllocationRepositoryImpl projectAllocationRepository, ILogger<ProjectAllocationServiceImpl> logger, IMapper mapper)
+        public ProjectAllocationServiceImpl(IProjectResolver projectResolver, HalobizContext context, IProjectAllocationRepositoryImpl projectAllocationRepository, ILogger<ProjectAllocationServiceImpl> logger, IMapper mapper)
         {
             this._mapper = mapper;
             this._projectAllocationRepository = projectAllocationRepository;
             this._logger = logger;
             this._context = context;
+            this._projectResolver = projectResolver;
         }
 
 
@@ -164,7 +167,7 @@ namespace HaloBiz.MyServices.Impl
 
         public async Task<ApiCommonResponse> getAllDataForWorkspaceSideBar(HttpContext httpContext)
         {
-            var getAllWorkspaceQuery = await _context.Workspaces.Where(x => x.CreatedById == httpContext.GetLoggedInUserId() && x.IsActive == true).ToListAsync();
+            var getAllWorkspaceQuery = await _context.Workspaces.Where(x => x.CreatedById == httpContext.GetLoggedInUserId() && x.IsActive == true || x.IsDefault == true).ToListAsync();
 
             var getAllProjectQuery = await _context.Projects.Where(x => x.IsActive == true && x.CreatedById == httpContext.GetLoggedInUserId()).ToListAsync();
 
@@ -4460,8 +4463,143 @@ namespace HaloBiz.MyServices.Impl
 
         }
 
+        
+       
 
+        public async Task<ApiCommonResponse> ResolveQuotesIntoProjects(HttpContext httpContext, long instanceId,string fulfillmentType)
+        {
+            if (fulfillmentType.ToLower().Trim() == "Contract Creation".ToLower().Trim())
+            {
+                        var getNewLeadWithQuotes = await _context.LeadDivisions.AsNoTracking()
+                        .Include(lead => lead.LeadOrigin)
+                        .Include(lead => lead.Lead)
+                        .Include(lead => lead.LeadType)
+                        .Include(lead => lead.LeadDivisionKeyPeople.Where(x => x.IsDeleted == false))
+                        .Include(lead => lead.Quote)
+                        .ThenInclude(quote => quote.QuoteServices.Where(x=>x.IsDeleted == false))
+                        .ThenInclude(x=>x.Service)
+                        .ThenInclude(x=>x.Division)
+                        .FirstOrDefaultAsync(x => x.LeadId == instanceId);
 
+                     if (getNewLeadWithQuotes != null)
+                     {
+                         var quotesServiceArray = new List<QuoteService>();
+                         foreach (var leadQuotes in getNewLeadWithQuotes.Quote.QuoteServices)
+                         {
+                             quotesServiceArray.AddRange(leadQuotes.Quote.QuoteServices);
+                         }
+                         var structuredService = await  _projectResolver.StructureServices(quotesServiceArray);
+                         var createFulfilmentProject = await _projectResolver.CreateProjectForFulfilmentProject(httpContext,getNewLeadWithQuotes,structuredService);
+                         return CommonResponse.Send(ResponseCodes.SUCCESS,null, "Successfully resolved projects and tasks");
+                     }
+                     else
+                     {
+                         return CommonResponse.Send(ResponseCodes.FAILURE,null, "Couldn't resolve task and projects");
+                     }
+            }
+            else if (fulfillmentType.ToLower().Trim() == "Endorsements".ToLower().Trim())
+            {
+                
+                    var getNewEndorsementById = await _context.ContractServiceForEndorsements.AsNoTracking()
+                                                                    .Include(x => x.EndorsementType)
+                                                                    .Include(x=>x.Service)
+                                                                    .ThenInclude(x=>x.Division).AsNoTracking()
+                                                                    .Include(x => x.CustomerDivision)
+                                                                    .Where(x => x.IsRequestedForApproval && !x.IsApproved && !x.IsDeclined && x.Id == instanceId)
+                                                                    .FirstOrDefaultAsync();
+                    if (getNewEndorsementById != null)
+                    {
+                        var createEndorseMent = await _projectResolver.CreateEndorseMentProject(getNewEndorsementById);
+                        if (createEndorseMent.responseCode == "00")
+                        {
+                            return CommonResponse.Send(ResponseCodes.SUCCESS,null, "Endorsement was successfully resolved into project");
+                        }
+                        else
+                        {
+                            return CommonResponse.Send(ResponseCodes.FAILURE,null, "Endorsement couldn't be resolved into project");
+                        }
+                    }
+                    else
+                    {
+                        return CommonResponse.Send(ResponseCodes.FAILURE,null, $"Endorsement with id {instanceId} couldn't be found");
+                    }
+                
+                
+            }
+            else
+            {
+                var getService = await _context.Services
+                        .Include(service => service.Target)
+                        .Include(service => service.ServiceType)
+                        .Include(service => service.Account)
+                        .Include(service=>service.Division)
+                        .Include(service => service.ServiceCategory).AsNoTracking()
+                        .Include(service => service.ServiceGroup).AsNoTracking()   
+                        .Include(service => service.Division)
+                        .Include(service => service.OperatingEntity).AsNoTracking()
+                        .Include(service => service.CreatedBy)
+                        .Include(service => service.ServiceRequiredServiceDocuments.Where(row => row.IsDeleted == false))
+                        .ThenInclude(row => row.RequiredServiceDocument)
+                        .Include(service => service.ServiceRequredServiceQualificationElements.Where(row => row.IsDeleted == false))
+                        .ThenInclude(row => row.RequredServiceQualificationElement)
+                        .Where(service => service.IsRequestedForPublish == true && service.IsPublished == false && service.IsDeleted == false && service.Id == instanceId)
+                        .FirstOrDefaultAsync();
 
+                if (getService != null)
+                {
+                    var createProject = await _projectResolver.CreateServiceProject(getService);
+
+                    if (createProject.responseCode == "00")
+                    {
+                        return CommonResponse.Send(ResponseCodes.SUCCESS,null, "Service was successfully resolved into project");
+                    }
+                    else
+                    {
+                        return CommonResponse.Send(ResponseCodes.FAILURE,null, "Service couldn't be resolved into project");
+                    }
+                }
+                return CommonResponse.Send(ResponseCodes.FAILURE,null, $"Service with id {instanceId} couldn't be found");
+            }
+        }
+        
+              
+        
+        public async Task<ApiCommonResponse> FetchAmortizationDetails()
+        {
+            
+            var getAmortizationDetails = await _context.RepAmortizationDetails.AsNoTracking()
+                // .Include(x=>x.RepAmortizationDetails).AsNoTracking()
+                .ToListAsync();
+
+                    
+            if (getAmortizationDetails.Any())
+            {
+                return CommonResponse.Send(ResponseCodes.SUCCESS,getAmortizationDetails, "Amortization data successfully retrieved");
+            }
+            return CommonResponse.Send(ResponseCodes.FAILURE,getAmortizationDetails, "Could not retrieve armortization data");
+        }
+
+           public async Task<ApiCommonResponse> FetchAmortizationMaster(int year,int month)
+           {
+                    var chosenDay = month == 2 ? 28 : 30;
+                    DateTime endDate = new DateTime(year, month,chosenDay);
+                    DateTime startDate = new DateTime(year,1,1);
+                    var getAmortizationMaster = await _context.RepAmortizationMasters.AsNoTracking()
+                   .Where(x => x.IsDeleted == false && startDate <= x.CreatedAt && x.CreatedAt < endDate)
+                   .Include(x=>x.EndorsementType)
+                   .Include(x=>x.Service).AsNoTracking()
+                   .Include(x=>x.RepAmortizationDetails).AsNoTracking()
+                   .ToListAsync();
+                    
+               if (getAmortizationMaster.Any())
+               {
+                   return CommonResponse.Send(ResponseCodes.SUCCESS,getAmortizationMaster, "Amortization data successfully retrieved");
+               }
+               return CommonResponse.Send(ResponseCodes.FAILURE,getAmortizationMaster, "Could not retrieve armortization data");
+           }
+
+           
     }
+    
+    
 }

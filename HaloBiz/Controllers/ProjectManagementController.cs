@@ -10,6 +10,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using RestSharp;
 
 namespace HaloBiz.Controllers
 {
@@ -223,7 +224,6 @@ namespace HaloBiz.Controllers
 
 
 
-
         [HttpPut("AddMoreStatus/{workspaceId}")]
         public async Task<ApiCommonResponse> addMoreStatus(long workspaceId, List<StatusFlowDTO> statusFlowDTO)
         {
@@ -392,12 +392,7 @@ namespace HaloBiz.Controllers
 
         }
 
-        //[HttpDelete("DisableDeliverable/{taskId}/{deliverableId}")]
-        //public async Task<ApiCommonResponse> DisableDeliverable(long taskId, long deliverableId)
-        //{
-        //    return await _projectAllocationService.disableDeliverable(HttpContext, taskId, deliverableId);
-
-        //}
+       
 
         [HttpGet("GetAllTaskIllustrations/{taskId}")]
 
@@ -536,7 +531,6 @@ namespace HaloBiz.Controllers
         }
 
 
-
         [HttpGet("GetDeliverableDeclined")]
         public async Task<ActionResult> GetDeliverableDeclined()
         {
@@ -618,12 +612,7 @@ namespace HaloBiz.Controllers
             return Ok(response);
         }
 
-        //[HttpGet("GetDeliverableStatus")]
-        //public async Task<ActionResult> GetDeliverableStatus()
-        //{
-        //    var response = await _projectAllocationService.getDeliverableStatus(HttpContext);
-        //    return Ok(response);
-        //}
+       
 
         [HttpGet("GetWorkspaceStatus")]
         public async Task<ActionResult> GetWorkspaceStatus()
@@ -756,9 +745,31 @@ namespace HaloBiz.Controllers
             return await _projectAllocationService.addMoreTaskAssignees(HttpContext, taskId, taskAssigneeDTO);
 
         }
+        
+        [HttpPost("ResolveQuotesToProjects/{fulfillmentTypeId}/{instanceTypeId}")]
+        public async Task<ApiCommonResponse> CreateDefaultWorkspace(long instanceTypeId,string fulfillmentTypeId)
+        {
+            
+            return await _projectAllocationService.ResolveQuotesIntoProjects(HttpContext,instanceTypeId,fulfillmentTypeId);
 
+        }
+        
+        [HttpGet("GetAmortizationMaster/{year}/{month}")]
+        public async Task<ApiCommonResponse> GetAmortizationData(int year,int month )
+        {
+            
+            return await _projectAllocationService.FetchAmortizationMaster(year,month);
 
+        }
+        
+        [HttpGet("GetAmortizationDetails")]
+        public async Task<ApiCommonResponse> GetAmortizationDetails()
+        {
+            
+            return await _projectAllocationService.FetchAmortizationDetails();
 
+        }
+        
 
     }
 }

@@ -122,6 +122,7 @@ namespace HaloBiz
             services.AddScoped<IRoleService, RoleServiceImpl>();
             services.AddScoped<IRoleRepository, RoleRepositoryImpl>();
             services.AddScoped<IUserProfileService, UserProfileServiceImpl>();
+            services.AddScoped<IProjectResolver, ProjectResolver>();
             services.AddScoped<IUserProfileRepository, UserProfileRepositoryImpl>();
             services.AddScoped<IUserAuthentication, UserAuthentication>();
 
