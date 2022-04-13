@@ -25,10 +25,7 @@ namespace OnlinePortalBackend.Repository.Impl
             _logger = logger;
         }
 
-        public Task<int> CreateComplaint()
-        {
-            throw new System.NotImplementedException();
-        }
+
 
         public async Task<ApiCommonResponse> CreateComplaint(ComplaintDTO complaintReceivingDTO)
         {
