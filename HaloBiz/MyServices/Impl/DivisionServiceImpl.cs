@@ -30,7 +30,6 @@ namespace HaloBiz.MyServices.Impl
         public async Task<ApiCommonResponse> AddDivision(DivisionReceivingDTO divisionReceivingDTO)
         {
             var division = _mapper.Map<Division>(divisionReceivingDTO);
-            division.CompanyId = 1;
             var saveddivision = await _divisionRepo.SaveDivision(division);
             if (saveddivision == null)
             {
