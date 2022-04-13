@@ -22,12 +22,12 @@ namespace HaloBiz.MyServices.Impl
         public DivisionServiceImpl(IOperatingEntityService operatingEntityService ,IDivisionRepository divisionRepo, ILogger<DivisionServiceImpl> logger, IMapper mapper)
         {
             this._mapper = mapper;
-            this._operatingEntityService = operatingEntityService;
+            this._operatingEntityService = operatingEntityService;                                                                                                                                                                                                                                                             
             this._divisionRepo = divisionRepo;
             this._logger = logger;
         }
 
-        public async Task<ApiCommonResponse> AddDivision(DivisionReceivingDTO divisionReceivingDTO)
+        public async Task<ApiCommonResponse> AddDivision(DivisionReceivingDTO                                                                      divisionReceivingDTO)
         {
             var division = _mapper.Map<Division>(divisionReceivingDTO);
             var saveddivision = await _divisionRepo.SaveDivision(division);
