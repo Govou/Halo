@@ -162,6 +162,8 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
                 isRetail = false;
                 customer = await GetOtherCustomer(lead, _context);
+                if (customer == null)
+                    throw new Exception("Sysem errors. Could not get customer");
 
                 lead.CustomerId = customer.Id;
                 lead.LeadConversionStatus = true;
@@ -325,6 +327,8 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 //Create contract from quote
                 var contract = _mapper.Map<Contract>(quote);
                 contract.CustomerDivisionId = customerDivisionId;
+                contract.IsApproved = true;
+                contract.HasAddedSBU = true;
 
                 var entity = await context.Contracts.AddAsync(contract);
 
@@ -806,7 +810,11 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 var InitialYear = startDate.Year;
                 var amount = billableAmount;
 
-                var customerType = customerDivision.Customer?.Id ?? _context.Customers.Where(x => x.Id == customerDivision.CustomerId).FirstOrDefault()?.Id;
+                var group = await _context.Customers.Where(x => x.Id==customerDivision.CustomerId)
+                    .Include(x=>x.GroupType)
+                    .FirstOrDefaultAsync();
+                var _customerType = group?.GroupType?.Id;
+
                 var (interval, billableForInvoicingPeriod, vat) = CalculateTotalBillableForPeriod(contractService);
                 var allMonthAndYear = new List<MonthsAndYears>();
                 double? proratedAmount = null;
@@ -858,9 +866,12 @@ namespace HaloBiz.MyServices.Impl.LAMS
                             ContractServiceId = contractService.Id,
                             GroupInvoiceNumber = contractService?.Contract?.GroupInvoiceNumber,
                             QuoteServiceId = contractService.QuoteServiceId,
-                            ClientTypeId = customerType,
+                            ClientTypeId = _customerType,
                             DateCreated = DateTime.Now,
-                            CreatedById = LoggedInUserId
+                            CreatedById = LoggedInUserId > 0 ? LoggedInUserId : contractService.CreatedById,
+                            CustomerDivisionId = customerDivision.Id,
+                            EndorsementTypeId = endorsement?.EndorsementTypeId ?? 1, //new 
+
                         };
 
                         await _context.RepAmortizationMasters.AddAsync(repAmoritizationMaster);
@@ -1137,7 +1148,8 @@ namespace HaloBiz.MyServices.Impl.LAMS
                     var daysInMonth = (lastDayOfFirstMonth - firstDayOfMonth).TotalDays + 1;
 
                     totalContractBillable = double.Parse((daysCounted / daysInMonth * (double)contractService.BillableAmount).ToString("#.##"));
-                    totalVAT = double.Parse((daysCounted / daysInMonth * (double)contractService.Vat).ToString("#.##"));
+                    totalVAT = totalContractBillable * 0.075;
+                   // totalVAT = double.Parse((daysCounted / daysInMonth) *  * .ToString("#.##"));
                 }
                 else
                 {

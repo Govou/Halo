@@ -21,28 +21,28 @@ namespace OnlinePortalBackend.Controllers
         }
 
         [HttpGet("FetchEndorsements")]
-        public async Task<ApiCommonResponse> FetchEndorsements(int limit = 10)
+        public async Task<ApiCommonResponse> FetchEndorsements(int userId)
         {
-            return await _endorsementService.FetchEndorsements(HttpContext, limit);
+            return await _endorsementService.FetchEndorsements(userId);
         }
 
 
-        [HttpGet("TrackEndorsement/{id}")]
+        [HttpGet("TrackEndorsement")]
         public async Task<ApiCommonResponse> TrackEndorsement(long id)
         {
-            return await _endorsementService.TrackEndorsement(HttpContext, id);
+            return await _endorsementService.TrackEndorsement(id);
         }
 
         [HttpPost("TopUp")]
-        public async Task<ApiCommonResponse> EndorsementTopUp(List<EndorsementDTO> endorsement)
+        public async Task<ApiCommonResponse> EndorsementTopUp(int userId, List<EndorsementDTO> endorsement)
         {
-            return await _endorsementService.EndorsementTopUp(HttpContext, endorsement);
+            return await _endorsementService.EndorsementTopUp(userId, endorsement);
         }
 
         [HttpPost("Reduction")]
-        public async Task<ApiCommonResponse> EndorsementReduction(List<EndorsementDTO> endorsement)
+        public async Task<ApiCommonResponse> EndorsementReduction(int userId, List<EndorsementDTO> endorsement)
         {
-            return await _endorsementService.EndorsementReduction(HttpContext, endorsement);
+            return await _endorsementService.EndorsementReduction(userId, endorsement);
         }
 
       

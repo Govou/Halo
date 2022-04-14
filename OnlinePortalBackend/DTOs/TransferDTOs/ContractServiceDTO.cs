@@ -1,4 +1,7 @@
-﻿namespace OnlinePortalBackend.DTOs.TransferDTOs
+﻿using System.Collections;
+using System.Collections.Generic;
+
+namespace OnlinePortalBackend.DTOs.TransferDTOs
 {
     public class ContractServiceDTO
     {
@@ -15,5 +18,13 @@
         public int Quantity { get; set; }
         public double UnitPrice { get; set; }
         public double TotalContractValue { get; set; }
+        public int ContractId { get; set; }
+        public int ServiceId { get; set; }
+    }
+
+    public class ContractDTO
+    {
+        public int Id { get; set; }
+        public IEnumerable<ContractServiceDTO> ContractServices { get; set; }
     }
 }

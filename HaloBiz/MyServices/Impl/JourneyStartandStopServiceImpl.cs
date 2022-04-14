@@ -22,14 +22,17 @@ namespace HaloBiz.MyServices.Impl
         private readonly IJourneyStartandStopRepository _journeyStartandStopRepository;
         private readonly IServiceAssignmentMasterRepository _serviceAssignmentMasterRepository;
         private readonly IServiceAssignmentDetailsRepository _serviceAssignmentDetailsRepository;
+        private readonly IInvoiceService _invoiceService;
         private readonly IMapper _mapper;
 
-        public JourneyStartandStopServiceImpl(IMapper mapper, IJourneyStartandStopRepository journeyStartandStopRepository, IServiceAssignmentMasterRepository serviceAssignmentMasterRepository, IServiceAssignmentDetailsRepository serviceAssignmentDetailsRepository)
+        public JourneyStartandStopServiceImpl(IMapper mapper, IJourneyStartandStopRepository journeyStartandStopRepository, IServiceAssignmentMasterRepository serviceAssignmentMasterRepository, 
+            IServiceAssignmentDetailsRepository serviceAssignmentDetailsRepository, IInvoiceService invoiceService)
         {
             _mapper = mapper;
             _journeyStartandStopRepository = journeyStartandStopRepository;
             _serviceAssignmentMasterRepository = serviceAssignmentMasterRepository;
             _serviceAssignmentDetailsRepository = serviceAssignmentDetailsRepository;
+            _invoiceService = invoiceService;
         }
 
         public async Task<ApiCommonResponse> AddArmedEscortFeedback(HttpContext context, ArmedEscortFeedbackReceivingDTO feedback)
@@ -65,12 +68,13 @@ namespace HaloBiz.MyServices.Impl
         public async Task<ApiCommonResponse> AddFeedbackMaster(HttpContext context, FeedbackMasterReceivingDTO feedback)
         {
             var itemToAdd = _mapper.Map<FeedbackMaster>(feedback);
-            var assignmentExist = await _journeyStartandStopRepository.FindFeedbackMasterByAssignmentId(feedback.ServiceAssignmentId);
+            var assignmentExist = await _journeyStartandStopRepository.FindFeedbackMasterByAssignmentId(feedback.MasterServiceAssignmentId);
             //check for availability and skip a new insert for the same same assignment 
 
             if (assignmentExist == null)
             {
-                itemToAdd.Id = 0;
+                //itemToAdd.Id = 0;
+                //itemToAdd.JourneyStartId = feedback.JourneyStartId;
                 itemToAdd.CreatedById = context.GetLoggedInUserId();
                 itemToAdd.CreatedAt = DateTime.UtcNow;
                 var saved = await _journeyStartandStopRepository.SaveFeedbackMaster(itemToAdd);
@@ -723,6 +727,7 @@ namespace HaloBiz.MyServices.Impl
             }
 
             //var TransferDTOs = _mapper.Map<JourneyStartTransferDTO>(updatedRank);
+            await _invoiceService.SendJourneyEndNotification(journeyEndReceiving.ServiceAssignmentId);
             return CommonResponse.Send(ResponseCodes.SUCCESS);
         }
 

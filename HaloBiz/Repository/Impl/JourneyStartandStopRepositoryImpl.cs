@@ -66,7 +66,7 @@ namespace HaloBiz.Repository.Impl
             return await _context.FeedbackMasters.Where(jr => jr.IsDeleted == false).Include(x=>x.JourneyStart).Include(x=>x.ArmedEscortFeedbackDetails.Where(x=>x.IsDeleted == false))
             .Include(x => x.CommanderFeedbackDetails.Where(x => x.IsDeleted == false)).Include(x => x.PilotFeedbackDetails.Where(x => x.IsDeleted == false))
             .Include(x => x.VehicleFeedbackDetails.Where(x => x.IsDeleted == false))
-            .Include(ct => ct.ServiceAssignment).OrderByDescending(x => x.Id)
+            .Include(ct => ct.MasterServiceAssignment).OrderByDescending(x => x.Id)
             .ToListAsync();
         }
 
@@ -149,13 +149,13 @@ namespace HaloBiz.Repository.Impl
 
         public async Task<FeedbackMaster> FindFeedbackMasterByAssignmentId(long assignId)
         {
-            return await _context.FeedbackMasters.Include(r => r.ServiceAssignment)
-          .FirstOrDefaultAsync(aer => aer.ServiceAssignmentId == assignId && aer.IsDeleted == false);
+            return await _context.FeedbackMasters.Include(r => r.MasterServiceAssignment)
+          .FirstOrDefaultAsync(aer => aer.MasterServiceAssignmentId == assignId && aer.IsDeleted == false);
         }
 
         public async Task<FeedbackMaster> FindFeedbackMasterById(long Id)
         {
-            return await _context.FeedbackMasters.Include(r => r.ServiceAssignment)
+            return await _context.FeedbackMasters.Include(r => r.MasterServiceAssignment)
             .FirstOrDefaultAsync(aer => aer.Id == Id && aer.IsDeleted == false);
         }
 
@@ -164,7 +164,7 @@ namespace HaloBiz.Repository.Impl
             //return await _context.GeneralFeedbackDetails.Include(r => r.FeedbackMaster)
             //.FirstOrDefaultAsync(aer => aer.FeedbackMasterId == fMasterId && aer.IsDeleted == false);
             return await _context.GeneralFeedbackDetails.Include(r => r.FeedbackMaster)
-          .FirstOrDefaultAsync(aer => aer.FeedbackMaster.ServiceAssignmentId == assignId && aer.IsDeleted == false);
+          .FirstOrDefaultAsync(aer => aer.FeedbackMaster.MasterServiceAssignmentId == assignId && aer.IsDeleted == false);
         }
 
         public async Task<JourneyIncident> FindJourneyIncidentById(long Id)
@@ -446,6 +446,7 @@ namespace HaloBiz.Repository.Impl
             catch (Exception ex)
             {
                 _logger.LogError(ex.Message);
+                _logger.LogError(ex.StackTrace);
                 _logger.LogError(ex.InnerException.Message);
                 return false;
             }

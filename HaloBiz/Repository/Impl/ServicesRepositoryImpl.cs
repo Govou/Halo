@@ -151,14 +151,19 @@ namespace HaloBiz.Repository.Impl
 
         public async Task<IEnumerable<Service>> FindAllUnplishedServices()
         {
+            var contract = new Contract();
             return await _context.Services
                 .Include(service => service.Target)
+                
                 .Include(service => service.ServiceType)
                 .Include(service => service.Account)
+                .Include(service=>service.Division)
                 .Include(service => service.ServiceCategory).AsNoTracking()
-                .Include(service => service.ServiceGroup).AsNoTracking()
-                .Include(service => service.Division).AsNoTracking()
+                
+                .Include(service => service.ServiceGroup).AsNoTracking()   
+                .Include(service => service.Division)
                 .Include(service => service.OperatingEntity).AsNoTracking()
+                 
                 .Include(service => service.CreatedBy)
                 .Include(service => service.ServiceRequiredServiceDocuments.Where(row => row.IsDeleted == false))
                     .ThenInclude(row => row.RequiredServiceDocument)
@@ -166,6 +171,8 @@ namespace HaloBiz.Repository.Impl
                     .ThenInclude(row => row.RequredServiceQualificationElement)
                 .Where(service => service.IsRequestedForPublish == true && service.IsPublished == false && service.IsDeleted == false)
                     .ToListAsync();
+
+           
         }
 
         public async Task<IEnumerable<Service>> FindOnlinePortalServices()
@@ -204,26 +211,34 @@ namespace HaloBiz.Repository.Impl
 
         public async Task<IEnumerable<Service>> FindAllSecuredMobilityServices()
         {
-            //var _agencies = _configuration.GetSection("AppSettings:Codes").Value;
-            List<Service> services = new List<Service>();
-            //IList<Service> servicess = services;
-             
-            var quuery = _context.Services
-                .Include(service => service.Target)
-                .Include(service => service.ServiceType)
-                .Include(service => service.Account)
-                .Include(service => service.ServiceRequiredServiceDocuments.Where(row => row.IsDeleted == false))
-                    .ThenInclude(row => row.RequiredServiceDocument)
-                    .Include(service => service.ServiceRequredServiceQualificationElements.Where(row => row.IsDeleted == false))
-                    .ThenInclude(row => row.RequredServiceQualificationElement)
-                .Where(service => service.IsDeleted == false && service.PublishedApprovedStatus == true);
-            var _agencies = _configuration.GetSection("AppSettings:ServiceCodes").Get<string[]>().ToList();
-            foreach (var items in _agencies)
+            try
             {
-                //quuery.Where(x => x.ServiceCode.Contains(items));
-                services.AddRange(quuery.Where(x => x.ServiceCode.Contains(items)));
+                //var _agencies = _configuration.GetSection("AppSettings:Codes").Value;
+                List<Service> services = new List<Service>();
+
+                var quuery = _context.Services
+                    .Include(service => service.Target)
+                    .Include(service => service.ServiceType)
+                    .Include(service => service.Account)
+                    //.Include(service => service.ServiceRequiredServiceDocuments.Where(row => row.IsDeleted == false))
+                        //.ThenInclude(row => row.RequiredServiceDocument)
+                        .Include(service => service.ServiceRequredServiceQualificationElements.Where(row => row.IsDeleted == false))
+                        //.ThenInclude(row => row.RequredServiceQualificationElement)
+                    .Where(service => service.IsDeleted == false && service.PublishedApprovedStatus == true);
+                var _agencies = _configuration.GetSection("AppSettings:ServiceCodes").Get<string[]>().ToList();
+                foreach (var items in _agencies)
+                {
+                    //quuery.Where(x => x.ServiceCode.Contains(items));
+                    services.AddRange(quuery.Where(x => x.ServiceCode.Contains(items)));
+                }
+                return  services.ToList();
             }
-            return  services.ToList();
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.Message);
+                _logger.LogError(ex.StackTrace);
+                return null;
+            }
           
         }
     }

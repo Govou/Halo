@@ -71,6 +71,7 @@ namespace HaloBiz.Repository.Impl
         {
             return await _context.Divisions
                 .Include(division => division.Head)
+                .Include(x=>x.Company)
                 .Include(division => division.OperatingEntities
                 .Where(operatingEntity => operatingEntity.IsDeleted == false))
                 .ThenInclude(x => x.ServiceGroups

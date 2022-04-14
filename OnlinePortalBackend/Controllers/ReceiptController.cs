@@ -30,9 +30,9 @@ namespace OnlinePortalBackend.Controllers
         }
 
         [HttpGet("GetInvoices")]
-        public async Task<ApiCommonResponse> GetInvoices(int userId, int? contractServiceId, int? contractId, int limit = 10)
+        public async Task<ApiCommonResponse> GetInvoices(int userId)
         {
-            return await _invoiceService.GetInvoices(userId, contractServiceId, contractId, limit = 10);
+            return await _invoiceService.GetInvoices(userId);
         }
 
         [HttpGet("GetInvoice")]
