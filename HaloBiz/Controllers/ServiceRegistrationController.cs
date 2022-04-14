@@ -34,11 +34,11 @@ namespace HaloBiz.Controllers
         {
             return await _serviceRegistration.GetAllServiceRegs();
         }
-        [HttpGet("AllSecuredMobilityServices")]
-        public async Task<ApiCommonResponse> AllSecuredMobilityServices()
-        {
-            return await _servicesService.GetAllSecuredMobilityServices();
-        }
+        //[HttpGet("AllSecuredMobilityServices")]
+        //public async Task<ApiCommonResponse> AllSecuredMobilityServices()
+        //{
+        //    return await _servicesService.GetAllSecuredMobilityServices();
+        //}
         [HttpGet("GetAllArmedEscortResourceRequired")]
         public async Task<ApiCommonResponse> GetAllArmedEscortResourceRequired()
         {

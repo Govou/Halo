@@ -222,7 +222,7 @@ namespace HaloBiz.Repository.Impl
                     .Include(service => service.Account)
                     //.Include(service => service.ServiceRequiredServiceDocuments.Where(row => row.IsDeleted == false))
                         //.ThenInclude(row => row.RequiredServiceDocument)
-                        .Include(service => service.ServiceRequredServiceQualificationElements.Where(row => row.IsDeleted == false))
+                        //.Include(service => service.ServiceRequredServiceQualificationElements.Where(row => row.IsDeleted == false))
                         //.ThenInclude(row => row.RequredServiceQualificationElement)
                     .Where(service => service.IsDeleted == false && service.PublishedApprovedStatus == true);
                 var _agencies = _configuration.GetSection("AppSettings:ServiceCodes").Get<string[]>().ToList();

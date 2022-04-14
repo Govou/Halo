@@ -286,7 +286,7 @@ namespace HaloBiz.MyServices.Impl
 
         public async Task<ApiCommonResponse> GetAllSecuredMobilityServices()
         {
-            var services = await _servicesRepository.FindAllSecuredMobilityServices();
+            var services = await _serviceregRepository.FindAllSecuredMobilityServices();
             if (services == null)
             {
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE); ;
