@@ -15,7 +15,7 @@ namespace HaloBiz.Controllers
 {
     [Route("api/v1/[controller]")]
     [ApiController]
-    [ModuleName(HalobizModules.ProjectManagment)]
+    [ModuleName(HalobizModules.ProjectManagment,83)]
 
     public class ProjectManagementController : ControllerBase
     {

@@ -13,7 +13,7 @@ namespace Controllers.Controllers
 {
     [Route("api/v1/[controller]")]
     [ApiController]
-    [ModuleName(HalobizModules.LeadAdministration)]
+    [ModuleName(HalobizModules.LeadAdministration,30)]
 
     public class QuoteServiceController : ControllerBase
     {

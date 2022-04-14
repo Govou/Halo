@@ -89,7 +89,6 @@ namespace HaloBiz.Helpers
                 SigningCredentials = credentials
             };
 
-            Console.WriteLine($"Expiry given {tokenDescriptor.Expires}");
             var tokenHandler = new JwtSecurityTokenHandler();
             var token = tokenHandler.CreateToken(tokenDescriptor);
             return (tokenHandler.WriteToken(token), _jwtExpiryLifespan);
@@ -103,7 +102,7 @@ namespace HaloBiz.Helpers
 
         public (bool, bool, AuthUser) ValidateToken(string token)
         {
-            var emptyPermissions = new List<short>();
+            var emptyPermissions = new List<int>();
             try
             {
                 var tokenHandler = new JwtSecurityTokenHandler();
@@ -128,7 +127,6 @@ namespace HaloBiz.Helpers
                 var id = jwtToken.Claims.First(x => x.Type == "nameid").Value;
 
                 var tokenExpiry = validatedToken.ValidTo;
-                Console.WriteLine($"Valid to {validatedToken.ValidTo}");
                 var authUser = new AuthUser { Id = id, Email = email, permissionString = permssionsStr };
                 if (tokenExpiry < DateTime.UtcNow)
                 {

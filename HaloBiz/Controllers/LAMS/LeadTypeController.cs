@@ -14,7 +14,7 @@ namespace Controllers.Controllers
 {
     [Route("api/v1/[controller]")]
     [ApiController]
-    [ModuleName(HalobizModules.Setups)]
+    [ModuleName(HalobizModules.Setups,26)]
 
     public class LeadTypeController : ControllerBase
     {

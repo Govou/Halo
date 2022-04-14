@@ -13,7 +13,7 @@ namespace HaloBiz.Controllers
 {
     [Route("api/v1/[controller]")]
     [ApiController]
-    [ModuleName(HalobizModules.SecuredMobility)]
+    [ModuleName(HalobizModules.SecuredMobility,42)]
 
     public class ArmedEscortRegistrationController : ControllerBase
     {

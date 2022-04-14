@@ -14,7 +14,7 @@ namespace HaloBiz.Controllers
 {
     [Route("api/v1/[controller]")]
     [ApiController]
-    [ModuleName(HalobizModules.ClientManagement)]
+    [ModuleName(HalobizModules.ClientManagement,48)]
 
     public class ClientPolicyController : ControllerBase
     {

@@ -15,7 +15,7 @@ namespace HaloBiz.Controllers
 {
     [Route("api/v1/[controller]")]
     [ApiController]
-    [ModuleName(HalobizModules.ApprovalManagement)]
+    [ModuleName(HalobizModules.ApprovalManagement,117)]
 
     public class ApprovalController : ControllerBase
     {
