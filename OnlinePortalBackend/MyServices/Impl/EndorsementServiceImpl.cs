@@ -19,6 +19,7 @@ using Microsoft.EntityFrameworkCore;
 using Halobiz.Common.Helpers;
 using HalobizMigrations.Models;
 using HaloBiz.Helpers;
+using TimeCycle = Halobiz.Common.Helpers.TimeCycle;
 
 namespace OnlinePortalBackend.MyServices.Impl
 {
@@ -48,11 +49,10 @@ namespace OnlinePortalBackend.MyServices.Impl
             _HalobizBaseUrl = _configuration["HalobizBaseUrl"] ?? _configuration.GetSection("AppSettings:HalobizBaseUrl").Value;
         }
 
-        public async Task<ApiCommonResponse> EndorsementTopUp(HttpContext context, List<EndorsementDTO> endorsements)
+        public async Task<ApiCommonResponse> EndorsementTopUp(int userId, List<EndorsementDTO> endorsements)
         {
             ApiCommonResponse responseData = new ApiCommonResponse();
             var endorsementDetailDTOs = new List<ContractServiceForEndorsementReceivingDto>();
-            var userId = context.GetLoggedInUserId();
             var topup = _context.EndorsementTypes.FirstOrDefault(x => x.Caption.ToLower().Contains("topup"))?.Id;
 
             if (topup == null)
@@ -101,7 +101,7 @@ namespace OnlinePortalBackend.MyServices.Impl
                     InvoicingInterval = (TimeCycle)contractService.InvoicingInterval.Value,
                     EndorsementTypeId = item.EndorsementType,
                     FulfillmentStartDate = contractService.FulfillmentStartDate,
-                    Quantity = contractService.Quantity,
+                    Quantity = item.Quantity,
                     PreviousContractServiceId = item.ContractServiceId,
                     PaymentCycle = (TimeCycle)contractService.PaymentCycle.Value,
                     ProblemStatement = contractService.ProblemStatement,
@@ -158,9 +158,9 @@ namespace OnlinePortalBackend.MyServices.Impl
             return responseData;
         }
 
-        public async Task<ApiCommonResponse> FetchEndorsements(HttpContext context, int limit = 10)
+        public async Task<ApiCommonResponse> FetchEndorsements(int userId)
         {
-            var endorsements = await _endorsementRepo.FindEndorsements(context.GetLoggedInUserId(), limit);
+            var endorsements = await _endorsementRepo.FindEndorsements(userId);
             if (endorsements.Count() == 0)
             {
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE); ;
@@ -169,28 +169,22 @@ namespace OnlinePortalBackend.MyServices.Impl
             return CommonResponse.Send(ResponseCodes.SUCCESS, endorsementDTOs);
         }
 
-        public async Task<ApiCommonResponse> TrackEndorsement(HttpContext context, long endorsementId)
+        public async Task<ApiCommonResponse> TrackEndorsement(long endorsementId)
         {
-            var endorsement = await _endorsementRepo.FindEndorsementById(context.GetLoggedInUserId(), endorsementId);
-            var result = string.Empty;
+            var endorsement = await _endorsementRepo.TrackEndorsement(endorsementId);
             if (endorsement == null)
             {
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE); ;
             }
 
-            if (endorsement.IsDeclined) result = "Declined";
-            else if (endorsement.IsApproved) result = "Approved";
-            else result = "Pending Approval";
-
-            return CommonResponse.Send(ResponseCodes.SUCCESS, result);
+            return CommonResponse.Send(ResponseCodes.SUCCESS, endorsement);
         }
 
-        public async Task<ApiCommonResponse> EndorsementReduction(HttpContext context, List<EndorsementDTO> endorsements)
+        public async Task<ApiCommonResponse> EndorsementReduction(int userId, List<EndorsementDTO> endorsements)
         {
 
             ApiCommonResponse responseData = new ApiCommonResponse();
             var endorsementDetailDTOs = new List<ContractServiceForEndorsementReceivingDto>();
-            var userId = context.GetLoggedInUserId();
             var topup = _context.EndorsementTypes.FirstOrDefault(x => x.Caption.ToLower().Contains("reduction"))?.Id;
 
             if (topup == null)
@@ -239,7 +233,7 @@ namespace OnlinePortalBackend.MyServices.Impl
                     InvoicingInterval = (TimeCycle)contractService.InvoicingInterval.Value,
                     EndorsementTypeId = item.EndorsementType,
                     FulfillmentStartDate = contractService.FulfillmentStartDate,
-                    Quantity = contractService.Quantity,
+                    Quantity = item.Quantity,
                     PreviousContractServiceId = item.ContractServiceId,
                     PaymentCycle = (TimeCycle)contractService.PaymentCycle.Value,
                     ProblemStatement = contractService.ProblemStatement,
@@ -324,42 +318,47 @@ namespace OnlinePortalBackend.MyServices.Impl
             var contractService = _context.ContractServices.FirstOrDefault(x => x.Id == contractServiceId);
 
             if (contractService == null)
-            {
                 return null;
-            }
+            
 
-            DateTime startdate = contractService.ContractStartDate.Value;
-            DateTime enddate = contractService.ContractEndDate.Value;
-            var day = startdate.Day;
-            var month = DateTime.Today.Month;
-            var year = DateTime.Today.Year;
+            //DateTime startdate = contractService.ContractStartDate.Value;
+            //DateTime enddate = contractService.ContractEndDate.Value;
+            //var day = startdate.Day;
+            //var month = DateTime.Today.Month;
+            //var year = DateTime.Today.Year;
 
-            var dateList = new List<DateTime>();
-            var months = enddate - DateTime.Today;
-            var monthCount = Math.Floor(months.TotalDays / 30);
+            //var dateList = new List<DateTime>();
+            //var months = enddate - DateTime.Today;
+            //var monthCount = Math.Floor(months.TotalDays / 30);
 
-            for (int i = 1; i < monthCount - 1; i++)
-            {
-                if (month == 2)
-                {
-                    dateList.Add(new DateTime(year, month, 29).AddMonths(i));
-                }
-                else
-                {
-                    try
-                    {
-                        dateList.Add(new DateTime(year, month, day).AddMonths(i));
-                    }
-                    catch (Exception)
-                    {
-                        dateList.Add(new DateTime(year, month, day - 1).AddMonths(i));
-                    }
+            //for (int i = 0; i < monthCount - 1; i++)
+            //{
+            //    if (month == 2)
+            //    {
+            //        dateList.Add(new DateTime(year, month, 29).AddMonths(i));
+            //    }
+            //    else
+            //    {
+            //        try
+            //        {
+            //            dateList.Add(new DateTime(year, month, day).AddMonths(i));
+            //        }
+            //        catch (Exception)
+            //        {
+            //            dateList.Add(new DateTime(year, month, day - 1).AddMonths(i));
+            //        }
 
-                }
+            //    }
 
-            }
+            //}
 
-            return dateList;
+            var possibleDateList = await _context.Invoices
+               .Where(x => !x.IsReversalInvoice.Value && !x.IsDeleted && !x.IsReversed.Value
+                       && x.StartDate > DateTime.Now && x.ContractServiceId == contractServiceId && x.Quantity > 0 && x.IsAccountPosted == false)
+               .OrderBy(x => x.StartDate)
+               .Select(x => x.StartDate).ToListAsync();
+
+            return possibleDateList;
         }
 
         private async Task<ApiCommonResponse> AddNewRetentionContractServiceForEndorsement(List<ContractServiceForEndorsementReceivingDto> contractServiceForEndorsement)
@@ -487,6 +486,7 @@ namespace OnlinePortalBackend.MyServices.Impl
         private List<ContractServiceForEndorsementReceivingDto> LinkAdminDirectServiceForEndorsement(List<ContractServiceForEndorsementReceivingDto> contractServices)
         {
             var adminDirectServices = new List<ContractServiceForEndorsementReceivingDto>();
+            var nonAdminDirectServices = new List<ContractServiceForEndorsementReceivingDto>();
             var directServices = new List<ContractServiceForEndorsementReceivingDto>();
             var adminServices = new List<ContractServiceForEndorsementReceivingDto>();
             var directSeviceIds = new List<int>();
@@ -509,7 +509,12 @@ namespace OnlinePortalBackend.MyServices.Impl
                 {
                     directServices.Add(item);
                 }
+                else
+                {
+                    nonAdminDirectServices.Add(item);
+                }
             }
+
 
             foreach (var item in directServices)
             {
@@ -559,7 +564,7 @@ namespace OnlinePortalBackend.MyServices.Impl
 
             adminDirectServices.AddRange(directServices);
             adminDirectServices.AddRange(adminServices);
-
+            adminDirectServices.AddRange(nonAdminDirectServices);
             return adminDirectServices;
 
         }

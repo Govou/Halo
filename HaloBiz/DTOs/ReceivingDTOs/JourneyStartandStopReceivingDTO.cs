@@ -72,7 +72,7 @@ namespace HaloBiz.DTOs.ReceivingDTOs
     public class FeedbackMasterReceivingDTO
     {
         public long JourneyStartId { get; set; }
-        public long ServiceAssignmentId { get; set; }
+        public long MasterServiceAssignmentId { get; set; }
 
     }
     public class GeneralFeedbackReceivingDTO

@@ -400,7 +400,6 @@ namespace OnlinePortalBackend.MyServices.Impl
                 {
                     try
                     {
-                        this.LoggedInUserId = LoggedInUserId;
                         var receipt = _mapper.Map<Receipt>(receiptReceivingDTO);
                         var invoice = await FindInvoiceById(receipt.InvoiceId);
                         foreach (var item in invoice.Receipts)
