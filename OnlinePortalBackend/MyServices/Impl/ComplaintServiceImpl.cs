@@ -138,6 +138,8 @@ namespace OnlinePortalBackend.MyServices.Impl
 
             var result = new ComplaintTrackingDetailDTO
             {
+                TrackingId = complaint.TrackingId,
+                RegisteredDate = complaint.CreatedAt,
                 ComplaintAssessment = new ComplaintAssessmentTracking
                 {
                     AssesmentDetails = resultObject?.Assessment?.AssesmentDetails,
