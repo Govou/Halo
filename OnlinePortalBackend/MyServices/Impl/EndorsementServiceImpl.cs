@@ -325,42 +325,47 @@ namespace OnlinePortalBackend.MyServices.Impl
             var contractService = _context.ContractServices.FirstOrDefault(x => x.Id == contractServiceId);
 
             if (contractService == null)
-            {
                 return null;
-            }
+            
 
-            DateTime startdate = contractService.ContractStartDate.Value;
-            DateTime enddate = contractService.ContractEndDate.Value;
-            var day = startdate.Day;
-            var month = DateTime.Today.Month;
-            var year = DateTime.Today.Year;
+            //DateTime startdate = contractService.ContractStartDate.Value;
+            //DateTime enddate = contractService.ContractEndDate.Value;
+            //var day = startdate.Day;
+            //var month = DateTime.Today.Month;
+            //var year = DateTime.Today.Year;
 
-            var dateList = new List<DateTime>();
-            var months = enddate - DateTime.Today;
-            var monthCount = Math.Floor(months.TotalDays / 30);
+            //var dateList = new List<DateTime>();
+            //var months = enddate - DateTime.Today;
+            //var monthCount = Math.Floor(months.TotalDays / 30);
 
-            for (int i = 1; i < monthCount - 1; i++)
-            {
-                if (month == 2)
-                {
-                    dateList.Add(new DateTime(year, month, 29).AddMonths(i));
-                }
-                else
-                {
-                    try
-                    {
-                        dateList.Add(new DateTime(year, month, day).AddMonths(i));
-                    }
-                    catch (Exception)
-                    {
-                        dateList.Add(new DateTime(year, month, day - 1).AddMonths(i));
-                    }
+            //for (int i = 0; i < monthCount - 1; i++)
+            //{
+            //    if (month == 2)
+            //    {
+            //        dateList.Add(new DateTime(year, month, 29).AddMonths(i));
+            //    }
+            //    else
+            //    {
+            //        try
+            //        {
+            //            dateList.Add(new DateTime(year, month, day).AddMonths(i));
+            //        }
+            //        catch (Exception)
+            //        {
+            //            dateList.Add(new DateTime(year, month, day - 1).AddMonths(i));
+            //        }
 
-                }
+            //    }
 
-            }
+            //}
 
-            return dateList;
+            var possibleDateList = await _context.Invoices
+               .Where(x => !x.IsReversalInvoice.Value && !x.IsDeleted && !x.IsReversed.Value
+                       && x.StartDate > DateTime.Now && x.ContractServiceId == contractServiceId && x.Quantity > 0 && x.IsAccountPosted == false)
+               .OrderBy(x => x.StartDate)
+               .Select(x => x.StartDate).ToListAsync();
+
+            return possibleDateList;
         }
 
         private async Task<ApiCommonResponse> AddNewRetentionContractServiceForEndorsement(List<ContractServiceForEndorsementReceivingDto> contractServiceForEndorsement)
