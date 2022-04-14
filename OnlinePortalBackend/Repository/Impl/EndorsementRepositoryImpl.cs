@@ -24,9 +24,9 @@ namespace OnlinePortalBackend.Repository.Impl
             _context = context;
             _mapper = mapper;
         }
-        public async Task<IEnumerable<ContractServiceForEndorsement>> FindEndorsements(long userId, int limit = 10)
+        public async Task<IEnumerable<ContractServiceForEndorsement>> FindEndorsements(long userId)
         {
-            return _context.ContractServiceForEndorsements.Where(x => x.CreatedById == userId).Take(10);
+            return _context.ContractServiceForEndorsements.Where(x => x.CustomerDivisionId == userId);
         }
 
         public async Task<ContractServiceForEndorsement> FindEndorsementById(long userId, long Id)
@@ -299,6 +299,30 @@ namespace OnlinePortalBackend.Repository.Impl
                 .Include(x => x.ProcessesRequiringApproval)
                 .OrderBy(x => x.Caption)
                 .ToListAsync();
+        }
+
+        public async Task<EndorsementTrackingDTO> TrackEndorsement(long contractServiceId)
+        {
+            var approvals = _context.Approvals.Include(x => x.ContractServiceForEndorsement).Where(x => x.ContractServiceId == contractServiceId && !x.IsDeleted);
+            if (approvals == null || approvals.Count() == 0)
+                return null;
+
+            var requestExecution = approvals.Where(x => x.IsApproved && !x.IsDeleted).Count() / approvals.Count() * 100;
+
+            var service = approvals.FirstOrDefault().ContractServiceForEndorsement.ServiceId;
+            var serviceName = _context.Services.FirstOrDefault(x => x.Id == service).Name;
+            var endorsementHistoryCount = _context.ContractServiceForEndorsements.Where(x => x.PreviousContractServiceId == contractServiceId && x.IsConvertedToContractService.Value).Count();
+
+            var endorsementTracking = new EndorsementTrackingDTO
+            {
+                EndorsementProcessingCount = approvals.Count(),
+                RequestExecution = Math.Floor((decimal)requestExecution).ToString() + "%",
+                EndorsementRequestDate = approvals.FirstOrDefault().CreatedAt,
+                ServiceName = serviceName,
+                EndorsementHistoryCount = endorsementHistoryCount
+            };
+
+            return endorsementTracking;
         }
     }
 }

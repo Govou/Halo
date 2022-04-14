@@ -49,11 +49,10 @@ namespace OnlinePortalBackend.MyServices.Impl
             _HalobizBaseUrl = _configuration["HalobizBaseUrl"] ?? _configuration.GetSection("AppSettings:HalobizBaseUrl").Value;
         }
 
-        public async Task<ApiCommonResponse> EndorsementTopUp(HttpContext context, List<EndorsementDTO> endorsements)
+        public async Task<ApiCommonResponse> EndorsementTopUp(int userId, List<EndorsementDTO> endorsements)
         {
             ApiCommonResponse responseData = new ApiCommonResponse();
             var endorsementDetailDTOs = new List<ContractServiceForEndorsementReceivingDto>();
-            var userId = context.GetLoggedInUserId();
             var topup = _context.EndorsementTypes.FirstOrDefault(x => x.Caption.ToLower().Contains("topup"))?.Id;
 
             if (topup == null)
@@ -159,9 +158,9 @@ namespace OnlinePortalBackend.MyServices.Impl
             return responseData;
         }
 
-        public async Task<ApiCommonResponse> FetchEndorsements(HttpContext context, int limit = 10)
+        public async Task<ApiCommonResponse> FetchEndorsements(int userId)
         {
-            var endorsements = await _endorsementRepo.FindEndorsements(context.GetLoggedInUserId(), limit);
+            var endorsements = await _endorsementRepo.FindEndorsements(userId);
             if (endorsements.Count() == 0)
             {
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE); ;
@@ -170,28 +169,22 @@ namespace OnlinePortalBackend.MyServices.Impl
             return CommonResponse.Send(ResponseCodes.SUCCESS, endorsementDTOs);
         }
 
-        public async Task<ApiCommonResponse> TrackEndorsement(HttpContext context, long endorsementId)
+        public async Task<ApiCommonResponse> TrackEndorsement(long endorsementId)
         {
-            var endorsement = await _endorsementRepo.FindEndorsementById(context.GetLoggedInUserId(), endorsementId);
-            var result = string.Empty;
+            var endorsement = await _endorsementRepo.TrackEndorsement(endorsementId);
             if (endorsement == null)
             {
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE); ;
             }
 
-            if (endorsement.IsDeclined) result = "Declined";
-            else if (endorsement.IsApproved) result = "Approved";
-            else result = "Pending Approval";
-
-            return CommonResponse.Send(ResponseCodes.SUCCESS, result);
+            return CommonResponse.Send(ResponseCodes.SUCCESS, endorsement);
         }
 
-        public async Task<ApiCommonResponse> EndorsementReduction(HttpContext context, List<EndorsementDTO> endorsements)
+        public async Task<ApiCommonResponse> EndorsementReduction(int userId, List<EndorsementDTO> endorsements)
         {
 
             ApiCommonResponse responseData = new ApiCommonResponse();
             var endorsementDetailDTOs = new List<ContractServiceForEndorsementReceivingDto>();
-            var userId = context.GetLoggedInUserId();
             var topup = _context.EndorsementTypes.FirstOrDefault(x => x.Caption.ToLower().Contains("reduction"))?.Id;
 
             if (topup == null)
