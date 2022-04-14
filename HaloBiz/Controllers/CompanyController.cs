@@ -41,20 +41,22 @@ namespace HaloBiz.Controllers
             return await _companyService.GetCompanyById(id);
         }
 
-        //[HttpPost("")]
-        //public async Task<ApiCommonResponse> AddNewCompany(CompanyReceivingDTO companyReceiving)
-        //{
-        //    return await _companyService.AddCompany(companyReceiving);
-        //    
-        //        
-        //    var company = ((ApiOkResponse)response).Result;
-        //    return Ok((CompanyTransferDTO)company);
-        //}
+        [HttpPost("")]
+        public async Task<ApiCommonResponse> AddNewCompany(CompanyReceivingDTO companyReceiving)
+        {
+            return await _companyService.AddCompany(companyReceiving);
+        }
 
         [HttpPut("{id}")]
         public async Task<ApiCommonResponse> UpdateById(long id, CompanyReceivingDTO companyReceiving)
         {
             return await _companyService.UpdateCompany(id, companyReceiving);
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<ApiCommonResponse> DeleteById(long id)
+        {
+            return await _companyService.DeleteCompany(id);
         }
     }
 }

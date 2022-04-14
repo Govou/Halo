@@ -26,6 +26,8 @@ using HalobizMigrations.Data;
 using OnlinePortalBackend.Adapters;
 using Halobiz.Common.MyServices;
 using Halobiz.Common.Repository;
+using CronJobServiceImpl = OnlinePortalBackend.MyServices.Impl.CronJobServiceImpl;
+using ProspectServiceImpl = OnlinePortalBackend.MyServices.Impl.ProspectServiceImpl;
 
 namespace OnlinePortalBackend
 {
@@ -85,12 +87,12 @@ namespace OnlinePortalBackend
             services.AddSingleton<JwtHelper>();
             services.AddScoped<IUserProfileRepository, UserProfileRepositoryImpl>();
             services.AddScoped<ICustomer, Customer>();
-            services.AddScoped<IReceiptService, ReceiptServiceImpl>();
+            services.AddScoped<IReceiptService, MyServices.Impl.ReceiptServiceImpl>();
             services.AddScoped<ICartContractService, CartContractServiceImpl>();
             services.AddScoped<IEndorsementService, EndorsementServiceImpl>();
             services.AddScoped<IServicesService, ServicesService>();
-            services.AddScoped<IInvoiceService, InvoiceService>();
-            services.AddScoped<IComplaintService, ComplaintServiceImpl>();
+            services.AddScoped<IInvoiceService, MyServices.Impl.InvoiceService>();
+            services.AddScoped<IComplaintService, MyServices.Impl.ComplaintServiceImpl>();
 
             services.AddAutoMapper(typeof(Startup));
 

@@ -15,5 +15,8 @@ namespace HaloBiz.DTOs.ReceivingDTOs
         public string MissionStatement { get; set; }
         [Required]
         public long HeadId { get; set; }
+        [Required]
+        public long CompanyId { get; set; }
+
     }
 }

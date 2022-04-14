@@ -185,9 +185,10 @@ namespace HaloBiz.MyServices.Impl
             return CommonResponse.Send(ResponseCodes.SUCCESS);
         }
 
-        public async Task<ApiCommonResponse> GetAllComplaint(int? id = null)
+        public async Task<ApiCommonResponse> GetAllComplaint()
         {
             var complaints = await _complaintRepo.FindAllComplaints();
+
             if (complaints == null)
             {
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
@@ -272,11 +273,6 @@ namespace HaloBiz.MyServices.Impl
 
             var complaintTransferDTOs = _mapper.Map<ComplaintTransferDTO>(updatedcomplaint);
             return CommonResponse.Send(ResponseCodes.SUCCESS,complaintTransferDTOs);
-        }
-
-        public Task<ApiCommonResponse> GetAllComplaint()
-        {
-            throw new NotImplementedException();
         }
     }
 }
