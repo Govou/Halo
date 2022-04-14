@@ -810,7 +810,11 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 var InitialYear = startDate.Year;
                 var amount = billableAmount;
 
-                var customerType = customerDivision.Customer?.Id ?? _context.Customers.Where(x => x.Id == customerDivision.CustomerId).FirstOrDefault()?.Id;
+                var group = await _context.Customers.Where(x => x.Id==customerDivision.CustomerId)
+                    .Include(x=>x.GroupType)
+                    .FirstOrDefaultAsync();
+                var _customerType = group?.GroupType?.Id;
+
                 var (interval, billableForInvoicingPeriod, vat) = CalculateTotalBillableForPeriod(contractService);
                 var allMonthAndYear = new List<MonthsAndYears>();
                 double? proratedAmount = null;
@@ -862,10 +866,12 @@ namespace HaloBiz.MyServices.Impl.LAMS
                             ContractServiceId = contractService.Id,
                             GroupInvoiceNumber = contractService?.Contract?.GroupInvoiceNumber,
                             QuoteServiceId = contractService.QuoteServiceId,
-                            ClientTypeId = customerType,
+                            ClientTypeId = _customerType,
                             DateCreated = DateTime.Now,
                             CreatedById = LoggedInUserId > 0 ? LoggedInUserId : contractService.CreatedById,
-                            CustomerDivisionId = customerDivision.Id
+                            CustomerDivisionId = customerDivision.Id,
+                            EndorsementTypeId = endorsement?.EndorsementTypeId ?? 1, //new 
+
                         };
 
                         await _context.RepAmortizationMasters.AddAsync(repAmoritizationMaster);

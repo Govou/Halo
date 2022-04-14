@@ -15,7 +15,7 @@ namespace Controllers.Controllers
 {
     [Route("api/v1/[controller]")]
     [ApiController]
-    [ModuleName(HalobizModules.ProjectManagment)]
+    [ModuleName(HalobizModules.ProjectManagment,750)]
 
     public class DeliverableFulfillmentController : ControllerBase
     {

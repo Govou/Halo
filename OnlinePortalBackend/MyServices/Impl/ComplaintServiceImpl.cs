@@ -73,89 +73,12 @@ namespace OnlinePortalBackend.MyServices.Impl
         {
             try
             {
-                Complaint complaint = await _context.Complaints
-                    .Include(x => x.ComplaintOrigin)
-                    .Include(x => x.ComplaintType)
-                    .Include(x => x.ComplaintSource)
-                    .Include(x => x.PickedBy)
-                    .FirstOrDefaultAsync(x => x.TrackingId == model.TrackingNo || x.Id == model.ComplaintId);
 
-                if (complaint == null) return CommonResponse.Send(ResponseCodes.FAILURE, null, "No Complaint with the passed tracking number exists.");
+                var result = await TrackComplaintDetails(model);
 
-                var complaintTransferDTOs = _mapper.Map<ComplaintTransferDTO>(complaint);
-                complaintTransferDTOs.Complainant = await _context.CustomerDivisions.FindAsync(complaint.ComplainantId);
+                if (result == null) 
+                    return CommonResponse.Send(ResponseCodes.FAILURE, null, "No Complaint with the passed tracking number exists.");
 
-                ComplaintAssesment complaintAssesment = await _context.ComplaintAssesments.FirstOrDefaultAsync(x => x.ComplaintId == complaint.Id);
-                ComplaintInvestigation complaintInvestigation = await _context.ComplaintInvestigations.FirstOrDefaultAsync(x => x.ComplaintId == complaint.Id);
-                ComplaintResolution complaintResolution = await _context.ComplaintResolutions.FirstOrDefaultAsync(x => x.ComplaintId == complaint.Id);
-                List<Evidence> complaintEvidences = await _context.Evidences.Where(x => x.ComplaintId == complaint.Id).ToListAsync();
-                List<string> registrationEvidences = complaintEvidences.Where(x => x.ComplaintStage == ComplaintStage.Registration).Select(x => x.ImageUrl).ToList();
-                List<string> assessmentEvidences = complaintEvidences.Where(x => x.ComplaintStage == ComplaintStage.Assesment).Select(x => x.ImageUrl).ToList();
-                List<string> investiagtionEvidences = complaintEvidences.Where(x => x.ComplaintStage == ComplaintStage.Investigation).Select(x => x.ImageUrl).ToList();
-                List<string> resolutionEvidences = complaintEvidences.Where(x => x.ComplaintStage == ComplaintStage.Resolution).Select(x => x.ImageUrl).ToList();
-                List<string> closureEvidences = complaintEvidences.Where(x => x.ComplaintStage == ComplaintStage.Closure).Select(x => x.ImageUrl).ToList();
-                var totalHandlerCases = await _context.Complaints.Where(x => x.PickedById == complaint.PickedById && x.IsDeleted == false).ToListAsync();
-                EscalationMatrix escalationMatrix = await _context.EscalationMatrices.FirstOrDefaultAsync(x => x.ComplaintTypeId == complaint.ComplaintTypeId && x.IsDeleted == false);
-                decimal totalCasesResolvedPercentage = (Convert.ToDecimal(totalHandlerCases.Where(x => x.IsResolved == true).Count()) / Convert.ToDecimal(totalHandlerCases.Count())) * 100m;
-                decimal totalCasesUnresolvedPercentage = (Convert.ToDecimal(totalHandlerCases.Where(x => x.IsResolved == null).Count()) / Convert.ToDecimal(totalHandlerCases.Count())) * 100m;
-
-                var resultObject = new ComplaintTrackingTransferDTO()
-                {
-                    Complaint = complaintTransferDTOs,
-                    Assessment = _mapper.Map<ComplaintAssessmentTransferDTO>(complaintAssesment),
-                    Investigation = _mapper.Map<ComplaintInvestigationTransferDTO>(complaintInvestigation),
-                    Resolution = _mapper.Map<ComplaintResolutionTransferDTO>(complaintResolution),
-                    RegistrationEvidenceUrls = registrationEvidences,
-                    AssessmentEvidenceUrls = assessmentEvidences,
-                    InvestigationEvidenceUrls = investiagtionEvidences,
-                    ResolutionEvidenceUrls = resolutionEvidences,
-                    ClosureEvidenceUrls = closureEvidences,
-                    UserProfileImageUrl = complaint.PickedBy == null ? String.Empty : complaint.PickedBy.ImageUrl,
-                    TotalHandlerCases = complaint.PickedById == null ? 0 : totalHandlerCases.Count(),
-                    TotalHandlerCasesResolved = complaint.PickedById == null ? 0 : Math.Round(totalCasesResolvedPercentage, 2),
-                    TotalHanlderCasesUnresolved = complaint.PickedById == null ? 0 : Math.Round(totalCasesUnresolvedPercentage, 2),
-                    EstimatedDateResolved = escalationMatrix == null ? complaint.DateRegistered : complaint.DateRegistered.AddHours(escalationMatrix.Level1MaxResolutionTimeInHrs),
-                    HandlerName = complaint.PickedBy == null ? String.Empty : complaint.PickedBy.LastName + " " + complaint.PickedBy.FirstName,
-                };
-
-                var result = new ComplaintTrackingDetailDTO
-                {
-                    ComplaintAssessment = new ComplaintAssessmentTracking
-                    {
-                        AssesmentDetails = resultObject?.Assessment?.AssesmentDetails,
-                        CapturedDate = resultObject?.Assessment?.CapturedDateTime,
-                        Findings = resultObject?.Assessment?.Findings,
-                        AssessmentEvidenceUrls = assessmentEvidences
-                    },
-
-                    ComplaintInvestigation = new ComplaintInvestigationTracking
-                    {
-                        CapturedDate = resultObject?.Investigation?.CapturedDateTime,
-                        ConcludedDate = resultObject?.Investigation?.CapturedDateTime,
-                        Findings = resultObject?.Investigation?.Findings,
-                        InvestigationDetails = resultObject?.Investigation?.InvestigationDetails,
-                        InvestigationEvidenceUrls = investiagtionEvidences
-                    },
-
-                    ComplaintRegistration = new ComplaintRegistrationTracking
-                    {
-                        RegistrationEvidenceUrls = registrationEvidences
-                    },
-
-                    ComplaintResolution = new ComplaintResolutionTracking
-                    {
-                        ResolutionEvidenceUrls = resolutionEvidences,
-                        CapturedDate = resultObject?.Resolution?.CapturedDateTime,
-                        Learnings = resultObject?.Resolution?.Learnings,
-                        ResolutionDetails = resultObject?.Resolution?.ResolutionDetails,
-                        RootCause = resultObject?.Resolution?.RootCause
-                    },
-
-                    ComplaintClosed = new ComplaintClosedTracking
-                    {
-                        ClosureEvidenceUrls = closureEvidences,
-                    }
-                };
                 return CommonResponse.Send(ResponseCodes.SUCCESS, result);
             }
             catch (Exception error)
@@ -165,16 +88,123 @@ namespace OnlinePortalBackend.MyServices.Impl
             }
         }
 
+        private async Task<ComplaintTrackingDetailDTO> TrackComplaintDetails(ComplaintTrackingDTO model)
+        {
+            Complaint complaint = await _context.Complaints
+                   .Include(x => x.ComplaintOrigin)
+                   .Include(x => x.ComplaintType)
+                   .Include(x => x.ComplaintSource)
+                   .Include(x => x.PickedBy)
+                   .FirstOrDefaultAsync(x => x.TrackingId == model.TrackingNo || x.Id == model.ComplaintId);
+
+            if (complaint == null)
+                return null;
+
+            var complaintTransferDTOs = _mapper.Map<ComplaintTransferDTO>(complaint);
+            complaintTransferDTOs.Complainant = await _context.CustomerDivisions.FindAsync(complaint.ComplainantId);
+
+            ComplaintAssesment complaintAssesment = await _context.ComplaintAssesments.FirstOrDefaultAsync(x => x.ComplaintId == complaint.Id);
+            ComplaintInvestigation complaintInvestigation = await _context.ComplaintInvestigations.FirstOrDefaultAsync(x => x.ComplaintId == complaint.Id);
+            ComplaintResolution complaintResolution = await _context.ComplaintResolutions.FirstOrDefaultAsync(x => x.ComplaintId == complaint.Id);
+            List<Evidence> complaintEvidences = await _context.Evidences.Where(x => x.ComplaintId == complaint.Id).ToListAsync();
+            List<string> registrationEvidences = complaintEvidences.Where(x => x.ComplaintStage == ComplaintStage.Registration).Select(x => x.ImageUrl).ToList();
+            List<string> assessmentEvidences = complaintEvidences.Where(x => x.ComplaintStage == ComplaintStage.Assesment).Select(x => x.ImageUrl).ToList();
+            List<string> investiagtionEvidences = complaintEvidences.Where(x => x.ComplaintStage == ComplaintStage.Investigation).Select(x => x.ImageUrl).ToList();
+            List<string> resolutionEvidences = complaintEvidences.Where(x => x.ComplaintStage == ComplaintStage.Resolution).Select(x => x.ImageUrl).ToList();
+            List<string> closureEvidences = complaintEvidences.Where(x => x.ComplaintStage == ComplaintStage.Closure).Select(x => x.ImageUrl).ToList();
+            var totalHandlerCases = await _context.Complaints.Where(x => x.PickedById == complaint.PickedById && x.IsDeleted == false).ToListAsync();
+            EscalationMatrix escalationMatrix = await _context.EscalationMatrices.FirstOrDefaultAsync(x => x.ComplaintTypeId == complaint.ComplaintTypeId && x.IsDeleted == false);
+            decimal totalCasesResolvedPercentage = (Convert.ToDecimal(totalHandlerCases.Where(x => x.IsResolved == true).Count()) / Convert.ToDecimal(totalHandlerCases.Count())) * 100m;
+            decimal totalCasesUnresolvedPercentage = (Convert.ToDecimal(totalHandlerCases.Where(x => x.IsResolved == null).Count()) / Convert.ToDecimal(totalHandlerCases.Count())) * 100m;
+
+            var resultObject = new ComplaintTrackingTransferDTO()
+            {
+                Complaint = complaintTransferDTOs,
+                Assessment = _mapper.Map<ComplaintAssessmentTransferDTO>(complaintAssesment),
+                Investigation = _mapper.Map<ComplaintInvestigationTransferDTO>(complaintInvestigation),
+                Resolution = _mapper.Map<ComplaintResolutionTransferDTO>(complaintResolution),
+                RegistrationEvidenceUrls = registrationEvidences,
+                AssessmentEvidenceUrls = assessmentEvidences,
+                InvestigationEvidenceUrls = investiagtionEvidences,
+                ResolutionEvidenceUrls = resolutionEvidences,
+                ClosureEvidenceUrls = closureEvidences,
+                UserProfileImageUrl = complaint.PickedBy == null ? String.Empty : complaint.PickedBy.ImageUrl,
+                TotalHandlerCases = complaint.PickedById == null ? 0 : totalHandlerCases.Count(),
+                TotalHandlerCasesResolved = complaint.PickedById == null ? 0 : Math.Round(totalCasesResolvedPercentage, 2),
+                TotalHanlderCasesUnresolved = complaint.PickedById == null ? 0 : Math.Round(totalCasesUnresolvedPercentage, 2),
+                EstimatedDateResolved = escalationMatrix == null ? complaint.DateRegistered : complaint.DateRegistered.AddHours(escalationMatrix.Level1MaxResolutionTimeInHrs),
+                HandlerName = complaint.PickedBy == null ? String.Empty : complaint.PickedBy.LastName + " " + complaint.PickedBy.FirstName,
+            };
+
+            var result = new ComplaintTrackingDetailDTO
+            {
+                TrackingId = complaint.TrackingId,
+                RegisteredDate = complaint.CreatedAt,
+                ComplaintAssessment = new ComplaintAssessmentTracking
+                {
+                    AssesmentDetails = resultObject?.Assessment?.AssesmentDetails,
+                    CapturedDate = resultObject?.Assessment?.CapturedDateTime,
+                    Findings = resultObject?.Assessment?.Findings,
+                    AssessmentEvidenceUrls = assessmentEvidences
+                },
+
+                ComplaintInvestigation = new ComplaintInvestigationTracking
+                {
+                    CapturedDate = resultObject?.Investigation?.CapturedDateTime,
+                    ConcludedDate = resultObject?.Investigation?.CapturedDateTime,
+                    Findings = resultObject?.Investigation?.Findings,
+                    InvestigationDetails = resultObject?.Investigation?.InvestigationDetails,
+                    InvestigationEvidenceUrls = investiagtionEvidences
+                },
+
+                ComplaintRegistration = new ComplaintRegistrationTracking
+                {
+                    RegistrationEvidenceUrls = registrationEvidences
+                },
+
+                ComplaintResolution = new ComplaintResolutionTracking
+                {
+                    ResolutionEvidenceUrls = resolutionEvidences,
+                    CapturedDate = resultObject?.Resolution?.CapturedDateTime,
+                    Learnings = resultObject?.Resolution?.Learnings,
+                    ResolutionDetails = resultObject?.Resolution?.ResolutionDetails,
+                    RootCause = resultObject?.Resolution?.RootCause
+                },
+
+                ComplaintClosed = new ComplaintClosedTracking
+                {
+                    ClosureEvidenceUrls = closureEvidences,
+                }
+            };
+            return result;
+        }
+
         public async Task<ApiCommonResponse> GetAllComplaints(int userId)
         {
-
-            var complaints = _complaintRepository.GetAllComplaints(userId);
+            var result = new List<ComplaintTrackingDetailDTO>();
+            var complaints = await _complaintRepository.GetAllComplaints(userId);
 
             if (complaints == null)
             {
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);
             }
-            return CommonResponse.Send(ResponseCodes.SUCCESS, complaints);
+
+            var complaintTrackings = new List<ComplaintTrackingDTO>();
+
+            foreach (var item in complaints)
+            {
+                complaintTrackings.Add(new ComplaintTrackingDTO
+                {
+                    ComplaintId = item.Id
+                });
+            }
+
+            foreach (var item in complaintTrackings)
+            {
+                result.Add(await TrackComplaintDetails(item));
+            }
+
+            return CommonResponse.Send(ResponseCodes.SUCCESS, result);
         }
     }
 }

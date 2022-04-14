@@ -44,7 +44,7 @@ namespace HaloBiz.Adapters.Impl
                    {
                        emailAddress = userProfile.Email,
                        userName = $"{userProfile.FirstName} {userProfile.LastName}",
-                       role = userProfile.Role.Name,
+                       //role = userProfile.Role.Name,
                    }).ReceiveJson();
 
                 return CommonResponse.Send(ResponseCodes.SUCCESS);

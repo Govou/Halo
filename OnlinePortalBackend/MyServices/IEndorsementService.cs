@@ -9,10 +9,10 @@ namespace OnlinePortalBackend.MyServices
 {
     public interface IEndorsementService
     {
-        Task<ApiCommonResponse> FetchEndorsements(HttpContext context, int limit = 10);
-        Task<ApiCommonResponse> TrackEndorsement(HttpContext context, long endorsementId);
-        Task<ApiCommonResponse> EndorsementTopUp(HttpContext context, List<EndorsementDTO> endorsement);
-        Task<ApiCommonResponse> EndorsementReduction(HttpContext context, List<EndorsementDTO> endorsement);
+        Task<ApiCommonResponse> FetchEndorsements(int userId);
+        Task<ApiCommonResponse> TrackEndorsement(long endorsementId);
+        Task<ApiCommonResponse> EndorsementTopUp(int userId, List<EndorsementDTO> endorsement);
+        Task<ApiCommonResponse> EndorsementReduction(int userId, List<EndorsementDTO> endorsement);
         Task<ApiCommonResponse> GetContractService(int id);
         Task<ApiCommonResponse> GetContractServices(int userId);
         Task<ApiCommonResponse> GetPossibleDatesOfEffectForEndorsement(int contractServiceId);

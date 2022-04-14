@@ -60,7 +60,7 @@ namespace Halobiz.Common.Repository
         {
             return await _context.UserProfiles
                 .Include(x => x.Sbu)
-                .Include(x => x.Role)
+                //.Include(x => x.Role)
                 .FirstOrDefaultAsync( user => user.Id == Id && user.IsDeleted == false);
         }
 
@@ -69,7 +69,7 @@ namespace Halobiz.Common.Repository
             return await _context.UserProfiles
                 .Where(user => user.Email == email && user.IsDeleted == false)
                 .Include(x => x.Sbu)
-                .Include(x => x.Role)
+                //.Include(x => x.Role)
                 .FirstOrDefaultAsync();
         }
 
@@ -77,7 +77,7 @@ namespace Halobiz.Common.Repository
         {
             return await _context.UserProfiles.AsNoTracking()
                 .Include(x => x.Sbu)
-                .Include(x => x.Role)
+                //.Include(x => x.Role)
                 .Where(user => user.IsDeleted == false)
                 .OrderBy(user => user.Email)
                 .ToListAsync();
@@ -86,7 +86,7 @@ namespace Halobiz.Common.Repository
         public async Task<List<UserProfile>> FindAllUserProfilesAttachedToRole(long roleId)
         {
             return await _context.UserProfiles
-                .Where(user => user.RoleId == roleId && user.IsDeleted == false)
+                //.Where(user => user.RoleId == roleId && user.IsDeleted == false)
                 .ToListAsync();
         }
 

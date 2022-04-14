@@ -84,13 +84,14 @@ namespace OnlinePortalBackend.Repository.Impl
                     x => new InvoiceDetailInfo
                     {
                         Total = x.Value,
-                        ContractServiceId = (int)x.ContractServiceId
+                        ContractServiceId = (int)x.ContractServiceId,
+                        InvoiceNumber = x.InvoiceNumber
                     }).ToList();
                 var conServices = new Dictionary<int, string>();
                 foreach (var invoice in groupedInvoices)
                 {
                     var res = _context.ContractServices.Include(x => x.Service).FirstOrDefault(x => x.Id == invoice.ContractServiceId);
-                    conServices.Add(invoice.ContractServiceId, res.Service.Name );
+                    try{ conServices.Add(invoice.ContractServiceId, res.Service.Name); }catch (Exception) { }
                     invoice.Quantity = (int)res.Quantity;
                     invoice.Discount = res.Discount;
                 }

@@ -11,7 +11,7 @@ namespace HaloBiz.Controllers.AccountsModel
 {
     [Route("api/v1/[controller]")]
     [ApiController]
-    [ModuleName(HalobizModules.Finance)]
+    [ModuleName(HalobizModules.Finance,7)]
 
     public class ReceiptController : ControllerBase
     {

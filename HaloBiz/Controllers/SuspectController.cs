@@ -14,7 +14,7 @@ namespace HaloBiz.Controllers
 {
     [Route("api/v1/[controller]")]
     [ApiController]
-    [ModuleName(HalobizModules.LeadAdministration)]
+    [ModuleName(HalobizModules.LeadAdministration,108)]
 
     public class SuspectController : ControllerBase
     {
