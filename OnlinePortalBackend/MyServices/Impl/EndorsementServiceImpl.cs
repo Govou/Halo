@@ -486,6 +486,7 @@ namespace OnlinePortalBackend.MyServices.Impl
         private List<ContractServiceForEndorsementReceivingDto> LinkAdminDirectServiceForEndorsement(List<ContractServiceForEndorsementReceivingDto> contractServices)
         {
             var adminDirectServices = new List<ContractServiceForEndorsementReceivingDto>();
+            var nonAdminDirectServices = new List<ContractServiceForEndorsementReceivingDto>();
             var directServices = new List<ContractServiceForEndorsementReceivingDto>();
             var adminServices = new List<ContractServiceForEndorsementReceivingDto>();
             var directSeviceIds = new List<int>();
@@ -508,7 +509,12 @@ namespace OnlinePortalBackend.MyServices.Impl
                 {
                     directServices.Add(item);
                 }
+                else
+                {
+                    nonAdminDirectServices.Add(item);
+                }
             }
+
 
             foreach (var item in directServices)
             {
@@ -558,7 +564,7 @@ namespace OnlinePortalBackend.MyServices.Impl
 
             adminDirectServices.AddRange(directServices);
             adminDirectServices.AddRange(adminServices);
-
+            adminDirectServices.AddRange(nonAdminDirectServices);
             return adminDirectServices;
 
         }
