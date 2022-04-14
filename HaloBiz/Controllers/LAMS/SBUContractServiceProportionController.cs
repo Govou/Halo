@@ -15,7 +15,7 @@ namespace HaloBiz.Controllers.LAMS
 {
     [Route("api/v1/[controller]")]
     [ApiController]
-    [ModuleName(HalobizModules.LeadAdministration)]
+    [ModuleName(HalobizModules.LeadAdministration,32)]
 
     public class SBUContractServiceProportionController : ControllerBase
     {

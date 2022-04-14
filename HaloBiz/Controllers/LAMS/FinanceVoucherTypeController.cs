@@ -9,7 +9,7 @@ namespace HaloBiz.Controllers.LAMS
 {
     [Route("api/v1/[controller]")]
     [ApiController]
-    [ModuleName(HalobizModules.Finance)]
+    [ModuleName(HalobizModules.Finance,18)]
 
     public class FinanceVoucherTypeController : ControllerBase
     {

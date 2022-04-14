@@ -13,7 +13,7 @@ namespace HaloBiz.Controllers.AccountsModel
 {
     [Route("api/v1/[controller]")]
     [ApiController]
-    [ModuleName(HalobizModules.Finance)]
+    [ModuleName(HalobizModules.Finance,3)]
 
     public class AccountDetailController : ControllerBase
     {

@@ -9,14 +9,16 @@ namespace Halobiz.Common.Auths
     public class ModuleName : Attribute
     {
         private HalobizModules _modules;
-        public ModuleName(HalobizModules halobizModules)
+        private int _controllerId;
+        public ModuleName(HalobizModules halobizModules, int controllerId)
         {
             _modules = halobizModules;
+            _controllerId = controllerId;
         }
 
-        public string GetModuleName()
+        public (string, int) GetModuleAndControllerId()
         {
-            return _modules.ToString();
+            return (_modules.ToString(), _controllerId);
         }
 
     }

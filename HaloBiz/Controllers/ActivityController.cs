@@ -15,7 +15,7 @@ namespace HaloBiz.Controllers
 {
     [Route("api/v1/[controller]")]
     [ApiController]
-    [ModuleName(HalobizModules.RolesManagement)]
+    [ModuleName(HalobizModules.RolesManagement,36)]
     public class ActivityController : ControllerBase
     {
         private readonly IActivityService _ActivityService;
