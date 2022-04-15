@@ -4509,7 +4509,7 @@ namespace HaloBiz.MyServices.Impl
                                                                     .FirstOrDefaultAsync();
                     if (getNewEndorsementById != null)
                     {
-                        var createEndorseMent = await _projectResolver.CreateEndorseMentProject(getNewEndorsementById);
+                        var createEndorseMent = await _projectResolver.CreateEndorseMentProject(httpContext,getNewEndorsementById);
                         if (createEndorseMent.responseCode == "00")
                         {
                             return CommonResponse.Send(ResponseCodes.SUCCESS,null, "Endorsement was successfully resolved into project");
@@ -4547,7 +4547,7 @@ namespace HaloBiz.MyServices.Impl
 
                 if (getService != null)
                 {
-                    var createProject = await _projectResolver.CreateServiceProject(getService);
+                    var createProject = await _projectResolver.CreateServiceProject(httpContext,getService);
 
                     if (createProject.responseCode == "00")
                     {
@@ -4586,9 +4586,8 @@ namespace HaloBiz.MyServices.Impl
                     DateTime startDate = new DateTime(year,1,1);
                     var getAmortizationMaster = await _context.RepAmortizationMasters.AsNoTracking()
                    .Where(x => x.IsDeleted == false && startDate <= x.CreatedAt && x.CreatedAt < endDate)
-                   .Include(x=>x.EndorsementType)
-                   .Include(x=>x.Service).AsNoTracking()
-                   .Include(x=>x.RepAmortizationDetails).AsNoTracking()
+                   // .Include(x=>x.CustomerDivision).AsNoTracking()
+                   .Include(x=>x.RepAmortizationDetails)
                    .ToListAsync();
                     
                if (getAmortizationMaster.Any())
@@ -4597,6 +4596,19 @@ namespace HaloBiz.MyServices.Impl
                }
                return CommonResponse.Send(ResponseCodes.FAILURE,getAmortizationMaster, "Could not retrieve armortization data");
            }
+
+           public async Task<ApiCommonResponse> RetrieveCustomerDivision()
+           {
+               var getCustomerDivision = await _context.CustomerDivisions.AsNoTracking()
+                   .Where(x => x.IsDeleted == false)
+                   .ToListAsync();
+               if (getCustomerDivision.Any())
+               {
+                   return CommonResponse.Send(ResponseCodes.SUCCESS,getCustomerDivision, "Customer division data successfully retrieved");
+               }
+               return CommonResponse.Send(ResponseCodes.FAILURE,null, "Could not retrieve Customerdivision");
+           }
+           
 
            
     }

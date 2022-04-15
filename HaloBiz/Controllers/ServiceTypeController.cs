@@ -14,7 +14,7 @@ namespace HaloBiz.Controllers
 {
     [Route("api/v1/[controller]")]
     [ApiController]
-    [ModuleName(HalobizModules.Setups)]
+    [ModuleName(HalobizModules.Setups,100)]
     public class ServiceTypeController : ControllerBase
     {
         private readonly IServiceTypeService _ServiceTypeService;

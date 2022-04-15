@@ -9,7 +9,7 @@ namespace HaloBiz.Controllers
 {
     [Route("api/v1/[controller]")]
     [ApiController]
-    [ModuleName(HalobizModules.Setups)]
+    [ModuleName(HalobizModules.Setups,98)]
     public class ServicesController : ControllerBase
     {
         private readonly IServicesService _servicesService;

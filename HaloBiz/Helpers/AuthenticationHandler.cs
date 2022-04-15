@@ -71,10 +71,10 @@ namespace HaloBiz.Helpers
                     if (token.ToLower() != "null")
                     {
                         var (isValid, isExpired, authUser) = _jwtHelper.ValidateToken(token);
-                        var permissionsList = new List<short>();
+                        var permissionsList = new List<int>();
                         if(authUser != null)
                         {
-                            permissionsList = JsonConvert.DeserializeObject<List<short>>(authUser.permissionString);
+                            permissionsList = JsonConvert.DeserializeObject<List<int>>(authUser.permissionString);
                         }
 
                         if (isValid && isExpired)
@@ -157,7 +157,7 @@ namespace HaloBiz.Helpers
 
        
 
-        private bool CheckAuthorization(HttpContext context, string controller,string actionName, List<short> permisssions)
+        private bool CheckAuthorization(HttpContext context, string controller,string actionName, List<int> permisssions)
         {
             var actionVerb = context.Request.Method;
 
@@ -174,7 +174,7 @@ namespace HaloBiz.Helpers
                 throw new Exception("This endpoint controller and action has not been added to Permission.cs");
             }
 
-            var permissionInt = (short)permission;
+            var permissionInt = (int)permission;
             return permisssions.Contains(permissionInt);
         }
 

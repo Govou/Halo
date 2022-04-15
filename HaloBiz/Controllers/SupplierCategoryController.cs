@@ -14,7 +14,7 @@ namespace HaloBiz.Controllers
 {
     [Route("api/v1/[controller]")]
     [ApiController]
-    [ModuleName(HalobizModules.Supplier)]
+    [ModuleName(HalobizModules.Supplier,105)]
 
     public class SupplierCategoryController : ControllerBase
     {

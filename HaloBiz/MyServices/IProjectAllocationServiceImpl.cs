@@ -141,5 +141,6 @@ namespace HaloBiz.MyServices
         Task<ApiCommonResponse> FetchAmortizationMaster(int year, int month);
 
         Task<ApiCommonResponse> FetchAmortizationDetails();
+         Task<ApiCommonResponse> RetrieveCustomerDivision();
     }
 }

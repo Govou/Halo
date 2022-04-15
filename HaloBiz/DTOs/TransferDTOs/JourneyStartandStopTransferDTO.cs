@@ -138,9 +138,9 @@ namespace HaloBiz.DTOs.TransferDTOs
         public ArmadaJourneyStart JourneyStart { get; set; }
       
         public long? JourneyStartId { get; set; }
-        public ServiceAssignment ServiceAssignment { get; set; }
+        public MasterServiceAssignment MasterServiceAssignment { get; set; }
       
-        public long? ServiceAssignmentId { get; set; }
+        public long? MasterServiceAssignmentId { get; set; }
        
         public ICollection<VehicleFeedbackDetail> VehicleFeedbackDetails { get; set; }
         public DateTime UpdatedAt { get; set; }

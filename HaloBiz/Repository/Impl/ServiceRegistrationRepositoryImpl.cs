@@ -1,4 +1,5 @@
 ﻿using HalobizMigrations.Data;
+using HalobizMigrations.Models;
 using HalobizMigrations.Models.Armada;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -82,6 +83,39 @@ namespace HaloBiz.Repository.Impl
                         .Include(s => s.PilotType.ServiceRegistration).Include(s => s.ServiceRegistration.ApplicableArmedEscortTypes)
                         .Include(s => s.PilotType.ServiceRegistration.Service)
                                   .ToListAsync();
+        }
+
+        public async Task<IEnumerable<Service>> FindAllSecuredMobilityServices()
+        {
+            //try
+            //{
+            //    //var _agencies = _configuration.GetSection("AppSettings:Codes").Value;
+            //    List<Service> services = new List<Service>();
+
+            //    var quuery = _context.Services
+            //        .Include(service => service.Target)
+            //        .Include(service => service.ServiceType)
+            //        .Include(service => service.Account)
+            //            //.Include(service => service.ServiceRequiredServiceDocuments.Where(row => row.IsDeleted == false))
+            //            //.ThenInclude(row => row.RequiredServiceDocument)
+            //            .Include(service => service.ServiceRequredServiceQualificationElements.Where(row => row.IsDeleted == false))
+            //        //.ThenInclude(row => row.RequredServiceQualificationElement)
+            //        .Where(service => service.IsDeleted == false && service.PublishedApprovedStatus == true);
+            //    var _agencies = _configuration.GetSection("AppSettings:ServiceCodes").Get<string[]>().ToList();
+            //    foreach (var items in _agencies)
+            //    {
+            //        //quuery.Where(x => x.ServiceCode.Contains(items));
+            //        services.AddRange(quuery.Where(x => x.ServiceCode.Contains(items)));
+            //    }
+            //    return services.ToList();
+            //}
+            //catch (Exception ex)
+            //{
+            //    _logger.LogError(ex.Message);
+            //    _logger.LogError(ex.StackTrace);
+            //    return null;
+            //}
+            return null;
         }
 
         public async Task<IEnumerable<ServiceRegistration>> FindAllServicess()

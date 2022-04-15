@@ -13,7 +13,7 @@ namespace HaloBiz.Controllers
 {
     [Route("api/v1/[controller]")]
     [ApiController]
-    [ModuleName(HalobizModules.Setups)]
+    [ModuleName(HalobizModules.SecuredMobility,60)]
 
     public class DTSDetailGenericDaysController : ControllerBase
     {

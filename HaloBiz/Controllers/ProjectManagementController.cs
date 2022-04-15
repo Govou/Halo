@@ -16,7 +16,7 @@ namespace HaloBiz.Controllers
 {
     [Route("api/v1/[controller]")]
     [ApiController]
-    [ModuleName(HalobizModules.ProjectManagment)]
+    [ModuleName(HalobizModules.ProjectManagment,83)]
 
     public class ProjectManagementController : ControllerBase
     {
@@ -767,6 +767,14 @@ namespace HaloBiz.Controllers
         {
             
             return await _projectAllocationService.FetchAmortizationDetails();
+
+        }
+        
+        [HttpGet("GetCustomerDivision")]
+        public async Task<ApiCommonResponse> GetCustomerDivision()
+        {
+            
+            return await _projectAllocationService.RetrieveCustomerDivision();
 
         }
         
