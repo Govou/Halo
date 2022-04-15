@@ -221,7 +221,7 @@ namespace HaloBiz
             app.UseHttpsRedirection();
             app.UseRouting();
 
-            app.UseMiddleware<AuthenticationHandler>();
+            //app.UseMiddleware<AuthenticationHandler>();
 
             app.UseAuthentication();
             app.UseAuthorization();
