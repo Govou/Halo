@@ -14,7 +14,7 @@ namespace OnlinePortalBackend.MyServices.Impl
 
         public async Task<ApiCommonResponse> GetInvoice(int invoiceId)
         {
-            var invoices = _invoiceRepository.GetInvoice(invoiceId);
+            var invoices = await _invoiceRepository.GetInvoice(invoiceId);
 
             if (invoices == null)
             {
@@ -25,7 +25,7 @@ namespace OnlinePortalBackend.MyServices.Impl
 
         public async Task<ApiCommonResponse> GetInvoices(int userId)
         {
-            var invoices = _invoiceRepository.GetInvoices(userId);
+            var invoices = await _invoiceRepository.GetInvoices(userId);
 
             if (invoices == null)
             {

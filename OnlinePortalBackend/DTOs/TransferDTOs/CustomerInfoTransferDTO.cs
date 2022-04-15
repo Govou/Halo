@@ -44,7 +44,7 @@ namespace OnlinePortalBackend.DTOs.TransferDTOs
         public int customerDivisionId { get; set; }
         public int contractId { get; set; }
         public int contractServiceId { get; set; }
-       
+        public int TotalAmountReceipted { get; set; }
         public DateTime endDate { get; set; }
         public DateTime startDate { get; set; }
         public int isReceiptedStatus { get; set; }
