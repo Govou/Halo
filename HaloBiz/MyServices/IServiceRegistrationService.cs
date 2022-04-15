@@ -14,6 +14,7 @@ namespace HaloBiz.MyServices
     {
         Task<ApiCommonResponse> AddServiceReg(HttpContext context, ServiceRegistrationReceivingDTO serviceRegReceivingDTO);
         Task<ApiCommonResponse> GetAllServiceRegs();
+        Task<ApiCommonResponse> GetAllSecuredMobilityServices();
         Task<ApiCommonResponse> GetServiceRegById(long id);
         Task<ApiCommonResponse> UpdateServiceReg(HttpContext context, long id, ServiceRegistrationReceivingDTO serviceRegReceivingDTO);
         Task<ApiCommonResponse> DeleteServiceReg(long id);
