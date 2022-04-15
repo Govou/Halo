@@ -296,7 +296,10 @@ namespace Halobiz.MyServices
                 }
 
                 var thisUserId = long.TryParse(context.User.FindFirstValue(ClaimTypes.NameIdentifier), out long userIdClaim) ?
-                userIdClaim : 31;
+                userIdClaim : 0;
+                if (thisUserId == 0)
+                    throw new Exception("User is not logged in");
+
                 if (thisUserId == userId)
                 {
                     return CommonResponse.Send(ResponseCodes.FAILURE, null, "You cannot add/update role for yourself");
