@@ -1,4 +1,5 @@
-﻿using HalobizMigrations.Models.Armada;
+﻿using HalobizMigrations.Models;
+using HalobizMigrations.Models.Armada;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,6 +14,7 @@ namespace HaloBiz.Repository
         Task<ServiceRegistration> FindServiceById(long Id);
 
         Task<IEnumerable<ServiceRegistration>> FindAllServicess();
+        Task<IEnumerable<Service>> FindAllSecuredMobilityServices();
 
         ServiceRegistration GetserviceId(long serviceId);
 

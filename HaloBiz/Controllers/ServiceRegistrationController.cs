@@ -19,11 +19,13 @@ namespace HaloBiz.Controllers
     public class ServiceRegistrationController : ControllerBase
     {
         private readonly IServiceRegistrationService _serviceRegistration;
+        private readonly IServicesService _servicesService;
 
 
-        public ServiceRegistrationController(IServiceRegistrationService serviceRegistration)
+        public ServiceRegistrationController(IServiceRegistrationService serviceRegistration, IServicesService servicesService)
         {
             _serviceRegistration = serviceRegistration;
+            _servicesService = servicesService;
         }
 
 
@@ -32,6 +34,11 @@ namespace HaloBiz.Controllers
         {
             return await _serviceRegistration.GetAllServiceRegs();
         }
+        //[HttpGet("AllSecuredMobilityServices")]
+        //public async Task<ApiCommonResponse> AllSecuredMobilityServices()
+        //{
+        //    return await _servicesService.GetAllSecuredMobilityServices();
+        //}
         [HttpGet("GetAllArmedEscortResourceRequired")]
         public async Task<ApiCommonResponse> GetAllArmedEscortResourceRequired()
         {
