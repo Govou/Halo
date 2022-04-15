@@ -41,5 +41,6 @@ namespace Halobiz.Common.Auths
         GuardManagement,
         PayrollManagement,
         CronJobs,
+        Employment
     }
 }

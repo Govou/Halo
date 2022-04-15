@@ -977,6 +977,87 @@ namespace Halobiz.Common.Auths.PermissionParts
         [Display(ShortName = "Finance", GroupName = "Receipt", Name = "Delete", Description = "Can delete receipt")]
         Receipt_Delete = 0x1074,
 
+        [Display(ShortName = "Employment", GroupName = "Employment", Name = "Get", Description = "Can view employment")]
+        Employment_Get = 0x6,
+        [Display(ShortName = "Employment", GroupName = "Employment", Name = "Post", Description = "Can create employment")]
+        Employment_Post = 0x7,
+        [Display(ShortName = "Employment", GroupName = "Employment", Name = "Put", Description = "Can update employment")]
+        Employment_Put = 0x8,
+        [Display(ShortName = "Employment", GroupName = "Employment", Name = "Delete", Description = "Can delete employment")]
+        Employment_Delete = 0x9,
+        [Display(ShortName = "InventoryManagement", GroupName = "InventoryConfirmation", Name = "Get", Description = "Can view inventory confirmation")]
+        InventoryConfirmation_Get = 0x11,
+        [Display(ShortName = "InventoryManagement", GroupName = "InventoryConfirmation", Name = "Post", Description = "Can create inventory confirmation")]
+        InventoryConfirmation_Post = 0x12,
+        [Display(ShortName = "InventoryManagement", GroupName = "InventoryConfirmation", Name = "Put", Description = "Can update inventory confirmation")]
+        InventoryConfirmation_Put = 0x13,
+        [Display(ShortName = "InventoryManagement", GroupName = "InventoryConfirmation", Name = "Delete", Description = "Can delete inventory confirmation")]
+        InventoryConfirmation_Delete = 0x14,
+        [Display(ShortName = "InventoryManagement", GroupName = "Inventory", Name = "Get", Description = "Can view inventory")]
+        Inventory_Get = 0x16,
+        [Display(ShortName = "InventoryManagement", GroupName = "Inventory", Name = "Post", Description = "Can create inventory")]
+        Inventory_Post = 0x17,
+        [Display(ShortName = "InventoryManagement", GroupName = "Inventory", Name = "Put", Description = "Can update inventory")]
+        Inventory_Put = 0x18,
+        [Display(ShortName = "InventoryManagement", GroupName = "Inventory", Name = "Delete", Description = "Can delete inventory")]
+        Inventory_Delete = 0x19,
+        [Display(ShortName = "InventoryManagement", GroupName = "InventoryPolicy", Name = "Get", Description = "Can view inventory policy")]
+        InventoryPolicy_Get = 0x21,
+        [Display(ShortName = "InventoryManagement", GroupName = "InventoryPolicy", Name = "Post", Description = "Can create inventory policy")]
+        InventoryPolicy_Post = 0x22,
+        [Display(ShortName = "InventoryManagement", GroupName = "InventoryPolicy", Name = "Put", Description = "Can update inventory policy")]
+        InventoryPolicy_Put = 0x23,
+        [Display(ShortName = "InventoryManagement", GroupName = "InventoryPolicy", Name = "Delete", Description = "Can delete inventory policy")]
+        InventoryPolicy_Delete = 0x24,
+        [Display(ShortName = "InventoryManagement", GroupName = "InventoryRequest", Name = "Get", Description = "Can view inventory request")]
+        InventoryRequest_Get = 0x26,
+        [Display(ShortName = "InventoryManagement", GroupName = "InventoryRequest", Name = "Post", Description = "Can create inventory request")]
+        InventoryRequest_Post = 0x27,
+        [Display(ShortName = "InventoryManagement", GroupName = "InventoryRequest", Name = "Put", Description = "Can update inventory request")]
+        InventoryRequest_Put = 0x28,
+        [Display(ShortName = "InventoryManagement", GroupName = "InventoryRequest", Name = "Delete", Description = "Can delete inventory request")]
+        InventoryRequest_Delete = 0x29,
+        [Display(ShortName = "InventoryManagement", GroupName = "InventoryStore", Name = "Get", Description = "Can view inventory store")]
+        InventoryStore_Get = 0x31,
+        [Display(ShortName = "InventoryManagement", GroupName = "InventoryStore", Name = "Post", Description = "Can create inventory store")]
+        InventoryStore_Post = 0x32,
+        [Display(ShortName = "InventoryManagement", GroupName = "InventoryStore", Name = "Put", Description = "Can update inventory store")]
+        InventoryStore_Put = 0x33,
+        [Display(ShortName = "InventoryManagement", GroupName = "InventoryStore", Name = "Delete", Description = "Can delete inventory store")]
+        InventoryStore_Delete = 0x34,
+        [Display(ShortName = "PayrollManagement", GroupName = "Payroll", Name = "Get", Description = "Can view payroll")]
+        Payroll_Get = 0x36,
+        [Display(ShortName = "PayrollManagement", GroupName = "Payroll", Name = "Post", Description = "Can create payroll")]
+        Payroll_Post = 0x37,
+        [Display(ShortName = "PayrollManagement", GroupName = "Payroll", Name = "Put", Description = "Can update payroll")]
+        Payroll_Put = 0x38,
+        [Display(ShortName = "PayrollManagement", GroupName = "Payroll", Name = "Delete", Description = "Can delete payroll")]
+        Payroll_Delete = 0x39,
+        [Display(ShortName = "Employment", GroupName = "Premployment", Name = "Get", Description = "Can view premployment")]
+        Premployment_Get = 0x41,
+        [Display(ShortName = "Employment", GroupName = "Premployment", Name = "Post", Description = "Can create premployment")]
+        Premployment_Post = 0x42,
+        [Display(ShortName = "Employment", GroupName = "Premployment", Name = "Put", Description = "Can update premployment")]
+        Premployment_Put = 0x43,
+        [Display(ShortName = "Employment", GroupName = "Premployment", Name = "Delete", Description = "Can delete premployment")]
+        Premployment_Delete = 0x44,
+        [Display(ShortName = "Employment", GroupName = "JobTitle", Name = "Get", Description = "Can view job title")]
+        JobTitle_Get = 0x51,
+        [Display(ShortName = "Employment", GroupName = "JobTitle", Name = "Post", Description = "Can create job title")]
+        JobTitle_Post = 0x52,
+        [Display(ShortName = "Employment", GroupName = "JobTitle", Name = "Put", Description = "Can update job title")]
+        JobTitle_Put = 0x53,
+        [Display(ShortName = "Employment", GroupName = "JobTitle", Name = "Delete", Description = "Can delete job title")]
+        JobTitle_Delete = 0x54,
+        [Display(ShortName = "Employment", GroupName = "JobTypes", Name = "Get", Description = "Can view job types")]
+        JobTypes_Get = 0x56,
+        [Display(ShortName = "Employment", GroupName = "JobTypes", Name = "Post", Description = "Can create job types")]
+        JobTypes_Post = 0x57,
+        [Display(ShortName = "Employment", GroupName = "JobTypes", Name = "Put", Description = "Can update job types")]
+        JobTypes_Put = 0x58,
+        [Display(ShortName = "Employment", GroupName = "JobTypes", Name = "Delete", Description = "Can delete job types")]
+        JobTypes_Delete = 0x59,
+
     }
 
 }
