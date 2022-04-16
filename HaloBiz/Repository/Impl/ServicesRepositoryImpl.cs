@@ -209,13 +209,13 @@ namespace HaloBiz.Repository.Impl
            }
         }
 
-        public async Task<IEnumerable<Service>> FindAllSecuredMobilityServices()
+        public  IEnumerable<Service> FindAllSecuredMobilityServices()
         {
             try
             {
                 //var _agencies = _configuration.GetSection("AppSettings:Codes").Value;
                 List<Service> services = new List<Service>();
-
+                var _agencies = _configuration.GetSection("AppSettings:ServiceCodes").Get<string[]>().ToList();
                 var quuery = _context.Services
                     .Include(service => service.Target)
                     .Include(service => service.ServiceType)
@@ -225,7 +225,7 @@ namespace HaloBiz.Repository.Impl
                         //.Include(service => service.ServiceRequredServiceQualificationElements.Where(row => row.IsDeleted == false))
                         //.ThenInclude(row => row.RequredServiceQualificationElement)
                     .Where(service => service.IsDeleted == false && service.PublishedApprovedStatus == true);
-                var _agencies = _configuration.GetSection("AppSettings:ServiceCodes").Get<string[]>().ToList();
+                
                 foreach (var items in _agencies)
                 {
                     //quuery.Where(x => x.ServiceCode.Contains(items));
