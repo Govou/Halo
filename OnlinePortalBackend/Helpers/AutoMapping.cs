@@ -8,6 +8,7 @@ using System;
 using Halobiz.Common.DTOs.TransferDTOs;
 using HalobizMigrations.Models.Complaints;
 using Halobiz.Common.DTOs.ReceivingDTOs;
+using System.Linq;
 
 namespace OnlinePortalBackend.Helpers
 {
@@ -41,12 +42,12 @@ namespace OnlinePortalBackend.Helpers
             CreateMap<Receipt, ReceiptTransferDTO>();
             CreateMap<ContractServiceForEndorsementReceivingDto, ContractServiceForEndorsement>();
             CreateMap<Receipt, ReceiptReceivingDTO>();
-           // CreateMap<ComplaintTypeReceivingDTO, ComplaintType>();
-           // CreateMap<ComplaintType, ComplaintTypeTransferDTO>();
-           // CreateMap<ComplaintOriginReceivingDTO, ComplaintOrigin>();
-           // CreateMap<ComplaintOrigin, ComplaintOriginTransferDTO>();
+            CreateMap<Invoice, InvoiceTransferDTO>().ForMember(dest => dest.TotalAmountReceipted,
+                 opt => opt.MapFrom(src => src.Receipts.Sum(x => x.ReceiptValue)));
+          //  CreateMap<InvoiceReceivingDTO, Invoice>();
+            CreateMap<Invoice, Invoice>();
 
-         //   CreateMap<ComplaintReceivingDTO, Complaint>();
+            //   CreateMap<ComplaintReceivingDTO, Complaint>();
             CreateMap<Complaint, ComplaintTransferDTO>();
             CreateMap<ComplaintTransferDTO, Complaint>();
           //  CreateMap<ComplaintSourceReceivingDTO, ComplaintSource>();
