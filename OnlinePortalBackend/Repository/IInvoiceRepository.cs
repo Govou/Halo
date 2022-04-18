@@ -8,6 +8,6 @@ namespace OnlinePortalBackend.Repository
     public interface IInvoiceRepository
     {
         Task<ContractInvoiceDTO> GetInvoices(long userId);
-        Task<InvoiceDetailDTO> GetInvoice(int invoiceId);
+        Task<InvoiceDetailDTO> GetInvoice(string invoiceNumber);
     }
 }

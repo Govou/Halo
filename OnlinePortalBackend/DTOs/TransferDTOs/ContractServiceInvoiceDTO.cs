@@ -40,7 +40,7 @@ namespace OnlinePortalBackend.DTOs.TransferDTOs
         [JsonIgnore]
         public double? InvoiceValueBalanceAfterReceipt { get; set; }
         public int ContractId { get; set; }
-        public string ServiceName { get; set; }
+        public int ContractServiceId { get; set; }
     }
 
     public class InvoiceDetailDTO
