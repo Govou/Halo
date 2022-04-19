@@ -6,6 +6,6 @@ namespace OnlinePortalBackend.MyServices
     public interface IInvoiceService
     {
         Task<ApiCommonResponse> GetInvoices(int userId);
-        Task<ApiCommonResponse> GetInvoice(int invoiceId);
+        Task<ApiCommonResponse> GetInvoice(string invoiceNumber);
     }
 }
