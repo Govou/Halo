@@ -78,7 +78,7 @@ namespace HaloBiz.MyServices.Impl
             {
                 //itemToAdd.Id = 0;
                 //itemToAdd.JourneyStartId = feedback.JourneyStartId;
-                itemToAdd.CreatedById = context.GetLoggedInUserId();
+                //itemToAdd.CreatedById = context.GetLoggedInUserId();
                 itemToAdd.CreatedAt = DateTime.UtcNow;
                 var saved = await _journeyStartandStopRepository.SaveFeedbackMaster(itemToAdd);
                 if (saved == null)
@@ -99,8 +99,8 @@ namespace HaloBiz.MyServices.Impl
         {
             var itemToAdd = _mapper.Map<GeneralFeedbackDetail>(feedback);
 
-            itemToAdd.Id = 0;
-            itemToAdd.CreatedById = context.GetLoggedInUserId();
+            //itemToAdd.Id = 0;
+            //itemToAdd.CreatedById = context.GetLoggedInUserId();
             itemToAdd.CreatedAt = DateTime.UtcNow;
             var saved = await _journeyStartandStopRepository.SaveGeneralFeedback(itemToAdd);
             if (saved == null)
