@@ -148,7 +148,7 @@ namespace HaloBiz.MyServices.Impl
         public async Task<ApiCommonResponse> getAllWorkspacesRevamped(HttpContext httpContext)
         {
 
-            var workspaceQuery = await _context.Workspaces.Where(x => x.IsActive == true && x.CreatedById == httpContext.GetLoggedInUserId())
+            var workspaceQuery = await _context.Workspaces.Where(x => x.IsActive == true && x.CreatedById == httpContext.GetLoggedInUserId() || x.IsDefault == true)
                                                           .Include(x => x.Projects.Where(x => x.IsActive == true))
                                                           .Include(x => x.PrivacyAccesses.Where(x => x.IsActive == true))
                                                           .Include(x => x.ProjectCreators.Where(x => x.IsActive == true))
@@ -4586,7 +4586,7 @@ namespace HaloBiz.MyServices.Impl
                     DateTime startDate = new DateTime(year,1,1);
                     var getAmortizationMaster = await _context.RepAmortizationMasters.AsNoTracking()
                    .Where(x => x.IsDeleted == false && startDate <= x.CreatedAt && x.CreatedAt < endDate)
-                   // .Include(x=>x.CustomerDivision).AsNoTracking()
+                   //.Include(x=>x.CustomerDivision)
                    .Include(x=>x.RepAmortizationDetails)
                    .ToListAsync();
                     
