@@ -22,10 +22,11 @@ namespace HaloBiz.Repository.Impl
 
         public async Task<bool> DeleteCommanderServiceAssignmentDetail(CommanderServiceAssignmentDetail serviceAssignmentDetail)
         {
+            //serviceAssignmentDetail.recoverydatetime = 
             serviceAssignmentDetail.IsHeldForAction = false;
             serviceAssignmentDetail.IsTemporarilyHeld = false;
-            serviceAssignmentDetail.DateActionReleased = DateTime.UtcNow;
-            serviceAssignmentDetail.DateTemporarilyReleased = DateTime.UtcNow;
+            serviceAssignmentDetail.DateActionReleased = DateTime.Now;
+            serviceAssignmentDetail.DateTemporarilyReleased = DateTime.Now;
             _context.CommanderServiceAssignmentDetails.Update(serviceAssignmentDetail);
             return await SaveChanges();
         }

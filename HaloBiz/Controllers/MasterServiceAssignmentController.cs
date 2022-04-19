@@ -2,6 +2,7 @@
 using Halobiz.Common.DTOs.ApiDTOs;
 using HaloBiz.DTOs.ReceivingDTOs;
 using HaloBiz.MyServices;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -45,7 +46,7 @@ namespace HaloBiz.Controllers
             return await _masterServiceAssignmentService.GetAllSecondaryServiceAssignments();
         }
 
-
+        [AllowAnonymous]
         [HttpGet("GetServiceAssignmentMasterById/{id}")]
         public async Task<ApiCommonResponse> GetServiceAssignmentMasterById(long id)
         {
