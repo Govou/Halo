@@ -12,6 +12,7 @@ namespace HaloBiz.Repository
         Task<SMORoute> SaveSMORoute(SMORoute sMORoute);
         Task<SMORoute> UpdateSMORoute(SMORoute sMORoute);
         Task<SMORoute> FindSMORouteById(long id);
+        Task<SMORoute> FindSMORouteById2(long? id);
 
         SMORoute GetRouteName(string Name);
         Task<IEnumerable<SMORoute>> FindAllSMORoutes();

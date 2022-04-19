@@ -22,17 +22,20 @@ namespace HaloBiz.MyServices.Impl
         private readonly IJourneyStartandStopRepository _journeyStartandStopRepository;
         private readonly IServiceAssignmentMasterRepository _serviceAssignmentMasterRepository;
         private readonly IServiceAssignmentDetailsRepository _serviceAssignmentDetailsRepository;
+        private readonly ISMORouteAndRegionRepository _sMORouteAndRegionRepository;
+      
         private readonly IInvoiceService _invoiceService;
         private readonly IMapper _mapper;
 
         public JourneyStartandStopServiceImpl(IMapper mapper, IJourneyStartandStopRepository journeyStartandStopRepository, IServiceAssignmentMasterRepository serviceAssignmentMasterRepository, 
-            IServiceAssignmentDetailsRepository serviceAssignmentDetailsRepository, IInvoiceService invoiceService)
+            IServiceAssignmentDetailsRepository serviceAssignmentDetailsRepository, IInvoiceService invoiceService, ISMORouteAndRegionRepository sMORouteAndRegionRepository)
         {
             _mapper = mapper;
             _journeyStartandStopRepository = journeyStartandStopRepository;
             _serviceAssignmentMasterRepository = serviceAssignmentMasterRepository;
             _serviceAssignmentDetailsRepository = serviceAssignmentDetailsRepository;
             _invoiceService = invoiceService;
+            _sMORouteAndRegionRepository = sMORouteAndRegionRepository;
         }
 
         public async Task<ApiCommonResponse> AddArmedEscortFeedback(HttpContext context, ArmedEscortFeedbackReceivingDTO feedback)
@@ -668,6 +671,7 @@ namespace HaloBiz.MyServices.Impl
             int hours = (int)gethrs.TotalHours;
             //int min = (int)gethrs.Minutes;
             itemToUpdate.TotalTimeSpentOnJourney = hours;
+            
             itemToUpdate.UpdatedAt = DateTime.UtcNow;
             var updatedRank = await _journeyStartandStopRepository.UpdateEndJouneyStart(itemToUpdate);
 
@@ -679,11 +683,13 @@ namespace HaloBiz.MyServices.Impl
             }
             else
             {
+                
                 var endItemToUpdate = await _serviceAssignmentMasterRepository.FindServiceAssignmentById(journeyEndReceiving.ServiceAssignmentId);
                 var escortToDelete = await _serviceAssignmentDetailsRepository.FindAllEscortServiceAssignmentDetailsByAssignmentId(journeyEndReceiving.ServiceAssignmentId);
                 var commanderToDelete = await _serviceAssignmentDetailsRepository.FindAllCommanderServiceAssignmentDetailsByAssignmentId(journeyEndReceiving.ServiceAssignmentId);
                 var pilotToDelete = await _serviceAssignmentDetailsRepository.FindAllPilotServiceAssignmentDetailsByAssignmentId(journeyEndReceiving.ServiceAssignmentId);
                 var vehicleToDelete = await _serviceAssignmentDetailsRepository.FindAllVehicleServiceAssignmentDetailsByAssignmentId(journeyEndReceiving.ServiceAssignmentId);
+                var getRoute = await _sMORouteAndRegionRepository.FindSMORouteById2(updatedRank.ServiceAssignment.SMORouteId);
 
                 if (endItemToUpdate == null)
                 {
@@ -699,6 +705,7 @@ namespace HaloBiz.MyServices.Impl
                 {
                     foreach (var item in escortToDelete)
                     {
+                        //item.recoverydatetime = DateTime.Now.AddMinutes(getRoute.RRecoveryTime); 
                         await _serviceAssignmentDetailsRepository.DeleteEscortServiceAssignmentDetail(item);
                     }
 
@@ -707,6 +714,7 @@ namespace HaloBiz.MyServices.Impl
                 {
                     foreach (var item in commanderToDelete)
                     {
+                        //item.recoverydatetime = DateTime.Now.AddMinutes(getRoute.RRecoveryTime); 
                         await _serviceAssignmentDetailsRepository.DeleteCommanderServiceAssignmentDetail(item);
                     }
                 }
@@ -714,6 +722,7 @@ namespace HaloBiz.MyServices.Impl
                 {
                     foreach (var item in pilotToDelete)
                     {
+                        //item.recoverydatetime = DateTime.Now.AddMinutes(getRoute.RRecoveryTime); 
                         await _serviceAssignmentDetailsRepository.DeletePilotServiceAssignmentDetail(item);
                     }
                 }
@@ -721,6 +730,7 @@ namespace HaloBiz.MyServices.Impl
                 {
                     foreach (var item in vehicleToDelete)
                     {
+                        //item.recoverydatetime = DateTime.Now.AddMinutes(getRoute.RRecoveryTime); 
                         await _serviceAssignmentDetailsRepository.DeleteVehicleServiceAssignmentDetail(item);
                     }
                 }
