@@ -58,13 +58,13 @@ namespace HaloBiz
 
                     controllerIdList.Add(controllerId);
 
-                    //var isFourAdded = Enum.TryParse(typeof(Permissions), string.Concat(name, "_get"), true, out var permission)
-                    //                && Enum.TryParse(typeof(Permissions), string.Concat(name, "_post"), true, out var permission2)
-                    //                && Enum.TryParse(typeof(Permissions), string.Concat(name, "_put"), true, out var permission3)
-                    //                && Enum.TryParse(typeof(Permissions), string.Concat(name, "_delete"), true, out var permission4);
+                    var isFourAdded = Enum.TryParse(typeof(Permissions), string.Concat(name, "_get"), true, out var permission)
+                                    && Enum.TryParse(typeof(Permissions), string.Concat(name, "_post"), true, out var permission2)
+                                    && Enum.TryParse(typeof(Permissions), string.Concat(name, "_put"), true, out var permission3)
+                                    && Enum.TryParse(typeof(Permissions), string.Concat(name, "_delete"), true, out var permission4);
 
-                    ////check that this controller with its 4 permissions do not exist
-                    //if (isFourAdded) continue;  //no problem
+                    //check that this controller with its 4 permissions do not exist
+                    if (isFourAdded) continue;  //no problem
 
                     counter = (controllerId * 10) + 1000;
 
