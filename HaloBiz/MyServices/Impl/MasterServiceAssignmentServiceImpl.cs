@@ -475,7 +475,11 @@ namespace HaloBiz.MyServices.Impl
 
             // var typeTransferDTO = _mapper.Map<MasterServiceAssignmentTransferDTO>(master);
             transaction.Commit();
-            await _serviceAssignmentDetailsService.UpdateServiceDetailsHeldForActionAndReadyStatusByAssignmentId(getId);
+            if(masterReceivingDTO.InhouseAssignment == true)
+            {
+                await _serviceAssignmentDetailsService.UpdateServiceDetailsHeldForActionAndReadyStatusByAssignmentId(getId);
+            }
+           
             return CommonResponse.Send(ResponseCodes.SUCCESS, null, "Auto Assignment Successful");
         }
 

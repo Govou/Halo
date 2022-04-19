@@ -705,8 +705,12 @@ namespace HaloBiz.MyServices.Impl
                 {
                     foreach (var item in escortToDelete)
                     {
-                        //item.recoverydatetime = DateTime.Now.AddMinutes(getRoute.RRecoveryTime); 
-                        await _serviceAssignmentDetailsRepository.DeleteEscortServiceAssignmentDetail(item);
+                        item.RecoveryDateTime = DateTime.Now.AddMinutes(getRoute.RRecoveryTime);
+                        if (!await _serviceAssignmentDetailsRepository.DeleteEscortServiceAssignmentDetail(item))
+                        {
+                            return CommonResponse.Send(ResponseCodes.FAILURE, null, ResponseMessage.InternalServer500);
+                        }
+                        
                     }
 
                 }
@@ -714,24 +718,34 @@ namespace HaloBiz.MyServices.Impl
                 {
                     foreach (var item in commanderToDelete)
                     {
-                        //item.recoverydatetime = DateTime.Now.AddMinutes(getRoute.RRecoveryTime); 
-                        await _serviceAssignmentDetailsRepository.DeleteCommanderServiceAssignmentDetail(item);
+                        item.RecoveryDateTime = DateTime.Now.AddMinutes(getRoute.RRecoveryTime);
+                        if(!await _serviceAssignmentDetailsRepository.DeleteCommanderServiceAssignmentDetail(item))
+                        {
+                            return CommonResponse.Send(ResponseCodes.FAILURE, null, ResponseMessage.InternalServer500);
+                        }
+                       
                     }
                 }
                 if (pilotToDelete.Count() != 0)
                 {
                     foreach (var item in pilotToDelete)
                     {
-                        //item.recoverydatetime = DateTime.Now.AddMinutes(getRoute.RRecoveryTime); 
-                        await _serviceAssignmentDetailsRepository.DeletePilotServiceAssignmentDetail(item);
+                        item.RecoveryDateTime = DateTime.Now.AddMinutes(getRoute.RRecoveryTime);
+                        if (!await _serviceAssignmentDetailsRepository.DeletePilotServiceAssignmentDetail(item))
+                        {
+                            
+                        }
                     }
                 }
                 if (vehicleToDelete.Count() != 0)
                 {
                     foreach (var item in vehicleToDelete)
                     {
-                        //item.recoverydatetime = DateTime.Now.AddMinutes(getRoute.RRecoveryTime); 
-                        await _serviceAssignmentDetailsRepository.DeleteVehicleServiceAssignmentDetail(item);
+                        item.RecoveryDateTime = DateTime.Now.AddMinutes(getRoute.RRecoveryTime);
+                        if (!await _serviceAssignmentDetailsRepository.DeleteVehicleServiceAssignmentDetail(item))
+                        {
+                            return CommonResponse.Send(ResponseCodes.FAILURE, null, ResponseMessage.InternalServer500);
+                        }
                     }
                 }
             }
