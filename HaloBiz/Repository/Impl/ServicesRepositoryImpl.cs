@@ -181,11 +181,11 @@ namespace HaloBiz.Repository.Impl
             //var _agencies = _configuration.GetSection("AppSettings:Codes").Value;
         
                 List<Service> services = new List<Service>();
-                var _agencies = new List<string>();
-                _agencies.Add("40/45/51/52");
-                _agencies.Add("35/33/32/33");
-                _agencies.Add("40/45/51/54");
-                //var _agencies = _configuration.GetSection("AppSettings:ServiceCodes").Get<string[]>().ToList();
+                //var _agencies = new List<string>();
+                //_agencies.Add("40/45/51/52");
+                //_agencies.Add("35/33/32/33");
+                //_agencies.Add("40/45/51/54");
+                var _agencies = _configuration.GetSection("AppSettings:ServiceCodes").Get<string[]>().ToList();
                     var quuery = _context.Services
                     .Include(service => service.Target)
                     .Include(service => service.ServiceType)
