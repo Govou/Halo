@@ -272,6 +272,7 @@ namespace HaloBiz.Controllers
         {
             return await _journeyStartandStopService.GetGeneralFeedbackByAssignmenrId(assignId);
         }
+
         [AllowAnonymous]
         [HttpPost("AddGeneralFeedback")]
         public async Task<ApiCommonResponse> AddGeneralFeedback(GeneralFeedbackReceivingDTO feedback)
