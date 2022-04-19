@@ -545,7 +545,7 @@ namespace OnlinePortalBackend.MyServices.Impl
                     ContractStartDate = adminContractService.ContractStartDate,
                     FirstInvoiceSendDate = adminContractService.FirstInvoiceSendDate,
                     CreatedById = item.CreatedById,
-                    QuoteServiceId = adminContractService.QuoteServiceId.Value.ToString(),
+                  //  QuoteServiceId = adminContractService.QuoteServiceId.Value.ToString(),
                     DateForNewContractToTakeEffect = item.DateForNewContractToTakeEffect,
                     Discount = item.Discount,
                     FulfillmentStartDate = adminContractService.FulfillmentStartDate,
