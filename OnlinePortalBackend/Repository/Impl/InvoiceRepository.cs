@@ -136,7 +136,7 @@ namespace OnlinePortalBackend.Repository.Impl
                     foreach (var item in invoices)
                     {
                         var receiptDetail = item.Receipts.Where(x => x.InvoiceId == item.Id).OrderBy(x => x.Id).FirstOrDefault();
-                        var grpInvoiceDetail = item.GroupInvoiceDetails.FirstOrDefault(x => x.ContractServiceId == item.ContractServiceId);
+                     //   var grpInvoiceDetail = item.GroupInvoiceDetails.FirstOrDefault(x => x.ContractServiceId == item.ContractServiceId);
                         grpInvoice.Add(new InvoiceDTO
                         {
                             InvoiceValueBalanceAfterReceipt = receiptDetail?.InvoiceValueBalanceAfterReceipting,
