@@ -47,7 +47,8 @@ namespace OnlinePortalBackend.Repository.Impl
             foreach (var item in contractServiceIds)
             {
                 var result = await GetInvoiceByContractServiceId(item);
-                invoices.AddRange(result.ToList());
+                if (result != null )
+                   invoices.AddRange(result.ToList());
             }
 
             foreach (var item in contracts)
@@ -187,13 +188,13 @@ namespace OnlinePortalBackend.Repository.Impl
                     }
                     else
                     {
-                        invoices = await _context.Invoices
+                        invoices = await _context.Invoices?
                                                 .Include(x => x.Receipts)
-                                                .Include(x => x.ContractService)
+                                                ?.Include(x => x.ContractService)
                                                     .Where(x => x.GroupInvoiceNumber == contractService.Contract.GroupInvoiceNumber
-                                                                && (bool)x.IsFinalInvoice && !x.IsDeleted)
-                                                    .OrderBy(x => x.StartDate)
-                                                    .ToListAsync();
+                                                                && (bool)x.IsFinalInvoice && !x.IsDeleted)?.OrderBy(x => x.StartDate)?.ToListAsync();
+                                                    //.OrderBy(x => x.StartDate)
+                                                    //.ToListAsync();
 
                         foreach (var invoice in invoices)
                         {
