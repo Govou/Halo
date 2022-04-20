@@ -106,7 +106,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
             }
 
             //validate the admin direct pairs
-            var (isValid, errorMessage) = await ValidateAdminDirectPair(createNewContract, contractServiceForEndorsementDtos);
+            var (isValid, errorMessage) = await ValidateEndorsementRequest(createNewContract, contractServiceForEndorsementDtos);
             if(!isValid)
                 return CommonResponse.Send(ResponseCodes.FAILURE, null, errorMessage);
 
@@ -244,7 +244,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
             return false;
         }
 
-        private async Task<(bool, string)> ValidateAdminDirectPair(bool isToCreateNewContract, List<ContractServiceForEndorsementReceivingDto> contractServices)
+        private async Task<(bool, string)> ValidateEndorsementRequest(bool isToCreateNewContract, List<ContractServiceForEndorsementReceivingDto> contractServices)
         {
             if (contractServices.Count == 1)
                 return (true, null);
