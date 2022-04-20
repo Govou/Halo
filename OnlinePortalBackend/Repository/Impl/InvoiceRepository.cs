@@ -28,7 +28,7 @@ namespace OnlinePortalBackend.Repository.Impl
             _mapper = mapper;
         }
 
-        public async Task<ContractInvoiceDTO> GetInvoices(long userId)
+        public async Task<ContractInvoiceDTO>  GetInvoices(long userId)
         {
             var contractInvoiceDTO = new ContractInvoiceDTO();
             var invoices = new List<ContractServiceInvoiceDTO>();
@@ -40,7 +40,7 @@ namespace OnlinePortalBackend.Repository.Impl
 
             foreach (var item in contracts)
             {
-                var contractServiceId = _context.ContractServices.Where(x => x.ContractId == item).Select(x => x.Id).AsEnumerable();
+                var contractServiceId = _context.ContractServices.Where(x => x.ContractId == item && x.Version == 0).Select(x => x.Id).AsEnumerable();
                 contractServiceIds.AddRange(contractServiceId);
             }
 
@@ -96,7 +96,8 @@ namespace OnlinePortalBackend.Repository.Impl
                 InvoiceEnd = invoices.FirstOrDefault().EndDate,
                 InvoiceStart = invoices.FirstOrDefault().StartDate,
                 InvoiceNumber = invoices.FirstOrDefault().InvoiceNumber,
-                InvoiceValue = invoices.FirstOrDefault().Value,
+                InvoiceValue = invoices.Select(x => x.Value).Sum(),
+                
             };
 
             return invoiceDetail;
