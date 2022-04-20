@@ -11,10 +11,13 @@ namespace HaloBiz.DTOs.ReceivingDTOs.LAMS
     public class ContractServiceForEndorsementReceivingDto
     {
        
+        [Required]
         public double? UnitPrice {get ; set; }
+        [Required]
         public long Quantity {get ; set; }
         public double Discount {get ; set; }
         public double? VAT {get ; set; }
+        [Required]
         public double? BillableAmount {get ; set; }
         public double? Budget {get ; set; }
         public DateTime? ContractStartDate {get ; set; }
@@ -49,6 +52,7 @@ namespace HaloBiz.DTOs.ReceivingDTOs.LAMS
         public long? ProgramDuration {get ; set; }
         public DateTime? ProgramEndDate {get ; set; }
         public DateTime? TentativeDateOfSiteVisit {get ; set; }
+        [Required]
         public long ServiceId { get; set; }
         public long ContractId { get; set; }
         public long ContractService {get; set; }
@@ -69,6 +73,7 @@ namespace HaloBiz.DTOs.ReceivingDTOs.LAMS
         public long CreatedById { get; set; }
         public GroupContractCategory GroupContractCategory { get; set; } = GroupContractCategory.IndividualContract;
         public string GroupInvoiceNumber { get; set; }
+        public ServiceRelationshipEnum ServiceRelationshipEnum { get; set; }
 
     }
 
