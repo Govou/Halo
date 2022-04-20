@@ -11,5 +11,6 @@ namespace OnlinePortalBackend.DTOs.TransferDTOs
         public string DocumentUrl { get; set; }
         public int EndorsementType { get; set; }
         public int ContractServiceId { get; set; }
+        public long Id { get; set; }
     }
 }
