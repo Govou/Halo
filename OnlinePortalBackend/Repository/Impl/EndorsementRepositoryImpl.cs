@@ -301,23 +301,27 @@ namespace OnlinePortalBackend.Repository.Impl
                 .ToListAsync();
         }
 
-        public async Task<EndorsementTrackingDTO> TrackEndorsement(long contractServiceId)
+        public async Task<EndorsementTrackingDTO> TrackEndorsement(long endorsementId)
         {
-            var approvals = _context.Approvals.Include(x => x.ContractServiceForEndorsement).Where(x => x.ContractServiceId == contractServiceId && !x.IsDeleted);
-            if (approvals == null || approvals.Count() == 0)
-                return null;
+            var contractServiceEndorsement = _context.ContractServiceForEndorsements.FirstOrDefault(x => x.Id == endorsementId);
+            var approvals = _context.Approvals.Include(x => x.ContractServiceForEndorsement).Where(x => x.ContractServiceId == contractServiceEndorsement.PreviousContractServiceId && !x.IsDeleted).ToList();
+            var serviceName = string.Empty;
+            var requestExecution = 0;
+            if (approvals.Count() > 0)
+            {
+                requestExecution = approvals.Where(x => x.IsApproved && !x.IsDeleted).Count() / approvals.Count() * 100;
+                var service = approvals.FirstOrDefault().ContractServiceForEndorsement.ServiceId;
+                serviceName = _context.Services.FirstOrDefault(x => x.Id == service).Name;
+            }
 
-            var requestExecution = approvals.Where(x => x.IsApproved && !x.IsDeleted).Count() / approvals.Count() * 100;
-
-            var service = approvals.FirstOrDefault().ContractServiceForEndorsement.ServiceId;
-            var serviceName = _context.Services.FirstOrDefault(x => x.Id == service).Name;
-            var endorsementHistoryCount = _context.ContractServiceForEndorsements.Where(x => x.PreviousContractServiceId == contractServiceId && x.IsConvertedToContractService.Value).Count();
+           
+            var endorsementHistoryCount = _context.ContractServiceForEndorsements.Where(x => x.PreviousContractServiceId == contractServiceEndorsement.PreviousContractServiceId && x.IsConvertedToContractService.Value).Count();
 
             var endorsementTracking = new EndorsementTrackingDTO
             {
                 EndorsementProcessingCount = approvals.Count(),
                 RequestExecution = Math.Floor((decimal)requestExecution).ToString() + "%",
-                EndorsementRequestDate = approvals.FirstOrDefault().CreatedAt,
+                EndorsementRequestDate = contractServiceEndorsement.FulfillmentStartDate.Value,
                 ServiceName = serviceName,
                 EndorsementHistoryCount = endorsementHistoryCount
             };
