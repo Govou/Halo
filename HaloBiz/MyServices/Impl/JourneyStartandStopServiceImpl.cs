@@ -79,7 +79,8 @@ namespace HaloBiz.MyServices.Impl
                 //itemToAdd.Id = 0;
                 //itemToAdd.JourneyStartId = feedback.JourneyStartId;
                 //itemToAdd.CreatedById = context.GetLoggedInUserId();
-                itemToAdd.CreatedAt = DateTime.UtcNow;
+                itemToAdd.CreatedById = 31; //since its a standalone
+                itemToAdd.CreatedAt = DateTime.Now;
                 var saved = await _journeyStartandStopRepository.SaveFeedbackMaster(itemToAdd);
                 if (saved == null)
                 {
@@ -101,6 +102,7 @@ namespace HaloBiz.MyServices.Impl
 
             //itemToAdd.Id = 0;
             //itemToAdd.CreatedById = context.GetLoggedInUserId();
+            itemToAdd.CreatedById = 31;
             itemToAdd.CreatedAt = DateTime.UtcNow;
             var saved = await _journeyStartandStopRepository.SaveGeneralFeedback(itemToAdd);
             if (saved == null)
