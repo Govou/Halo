@@ -13,7 +13,7 @@ namespace HaloBiz.Controllers
 {
     [Route("api/v1/[controller]")]
     [ApiController]
-    [ModuleName(HalobizModules.Profile)]
+    [ModuleName(HalobizModules.Profile,113)]
 
     public class UserController : ControllerBase
     {

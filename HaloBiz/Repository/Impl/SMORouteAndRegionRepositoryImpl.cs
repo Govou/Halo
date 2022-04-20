@@ -48,6 +48,15 @@ namespace HaloBiz.Repository.Impl
                 .Include(r => r.SMORegion)
                 .FirstOrDefaultAsync(route => route.Id == Id && route.IsDeleted == false);
         }
+        public async Task<SMORoute> FindSMORouteById2(long? Id)
+        {
+            return await _context.SMORoutes.Include(reg => reg.SMORegion)
+                .Include(r => r.VehiclesOnRoute.Where(r => r.IsDeleted == false))
+                .Include(r => r.ArmedEscortsOnRoute.Where(ae => ae.IsDeleted == false)).
+                Include(r => r.PilotsOnRoute.Where(pi => pi.IsDeleted == false))
+                .Include(r => r.SMORegion)
+                .FirstOrDefaultAsync(route => route.Id == Id && route.IsDeleted == false);
+        }
 
         public async Task<IEnumerable<SMORoute>> FindAllSMORoutes()
         {

@@ -2,6 +2,7 @@
 using Halobiz.Common.DTOs.ApiDTOs;
 using HaloBiz.DTOs.ReceivingDTOs;
 using HaloBiz.MyServices;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -13,7 +14,7 @@ namespace HaloBiz.Controllers
 {
     [Route("api/v1/[controller]")]
     [ApiController]
-    [ModuleName(HalobizModules.Setups)]
+    [ModuleName(HalobizModules.SecuredMobility,69)]
 
     public class JourneyStartandStopController : ControllerBase
     {
@@ -29,12 +30,13 @@ namespace HaloBiz.Controllers
         {
             return await _journeyStartandStopService.GetAllStartJourneys();
         }
-
+        [AllowAnonymous]
         [HttpGet("GetJouneyStartById/{id}")]
         public async Task<ApiCommonResponse> GetJouneyStartById(long id)
         {
             return await _journeyStartandStopService.GetStartJourneyById(id);
         }
+        [AllowAnonymous]
         [HttpGet("GetJouneyStartByAssignmentId/{assignmentId}")]
         public async Task<ApiCommonResponse> GetJouneyStartByAssignmentId(long assignmentId)
         {
@@ -239,61 +241,69 @@ namespace HaloBiz.Controllers
         }
 
         //Feedback
+        [AllowAnonymous]
         [HttpPost("AddFeedbackMaster")]
+        
         public async Task<ApiCommonResponse> AddFeedbackMaster(FeedbackMasterReceivingDTO feedback)
         {
             return await _journeyStartandStopService.AddFeedbackMaster(HttpContext, feedback);
         }
+        [AllowAnonymous]
         [HttpGet("GetAllFeedbackMasters")]
         public async Task<ApiCommonResponse> GetAllFeedbackMasters()
         {
             return await _journeyStartandStopService.GetAllFeedbackMasters();
         }
+        [AllowAnonymous]
         [HttpGet("GetFeedbackMasterById/{id}")]
         public async Task<ApiCommonResponse> GetFeedbackMasterById(long id)
         {
             return await _journeyStartandStopService.GetFeedbackMasterById(id);
         }
+        [AllowAnonymous]
         [HttpGet("GetFeedbackMasterByAssignmentId/{assignmentId}")]
         public async Task<ApiCommonResponse> GetFeedbackMasterByAssignmentId(long assignmentId)
         {
             return await _journeyStartandStopService.GetFeedbackMasterByAssignmentId(assignmentId);
         }
-
+        [AllowAnonymous]
         [HttpGet("GetGeneralFeedbackByAssignmentId/{assignId}")]
         public async Task<ApiCommonResponse> GetGeneralFeedbackByAssignmentId(long assignId)
         {
             return await _journeyStartandStopService.GetGeneralFeedbackByAssignmenrId(assignId);
         }
+
+        [AllowAnonymous]
         [HttpPost("AddGeneralFeedback")]
         public async Task<ApiCommonResponse> AddGeneralFeedback(GeneralFeedbackReceivingDTO feedback)
         {
             return await _journeyStartandStopService.AddGeneralFeedback(HttpContext, feedback);
         }
-
+        [AllowAnonymous]
         [HttpPost("AddArmedEscortFeedback")]
         public async Task<ApiCommonResponse> AddArmedEscortFeedback(ArmedEscortFeedbackReceivingDTO feedback)
         {
             return await _journeyStartandStopService.AddArmedEscortFeedback(HttpContext, feedback);
         }
-
+        [AllowAnonymous]
         [HttpPost("AddCommanderFeedback")]
         public async Task<ApiCommonResponse> AddCommanderFeedback(CommanderFeedbackReceivingDTO feedback)
         {
             return await _journeyStartandStopService.AddCommanderFeedback(HttpContext, feedback);
         }
-
+        [AllowAnonymous]
         [HttpPost("AddPilotFeedback")]
         public async Task<ApiCommonResponse> AddPilotFeedback(PilotFeedbackReceivingDTO feedback)
         {
             return await _journeyStartandStopService.AddPilotFeedback(HttpContext, feedback);
         }
-
+        [AllowAnonymous]
         [HttpPost("AddVehicleFeedback")]
         public async Task<ApiCommonResponse> AddVehicleFeedback(VehicleFeedbackReceivingDTO feedback)
         {
             return await _journeyStartandStopService.AddVehicleFeedback(HttpContext, feedback);
         }
+        [AllowAnonymous]
         [HttpGet("GetTrackingByIMEI/{imei}")]
         public async Task<ApiCommonResponse> GetTrackingByIMEI(string imei)
         {

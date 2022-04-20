@@ -10,7 +10,7 @@ namespace HaloBiz.Controllers.LAMS
 {
     [Route("api/v1/Lead/{leadId}/LeadContact")]
     [ApiController]
-    [ModuleName(HalobizModules.LeadAdministration)]
+    [ModuleName(HalobizModules.LeadAdministration,19)]
 
     public class LeadContactController : ControllerBase
     {

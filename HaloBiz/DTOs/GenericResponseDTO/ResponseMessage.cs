@@ -22,7 +22,7 @@ namespace HaloBiz.DTOs.GenericResponseDTO
         public const string TimeCheck441 = "Please check your Opening or Closing Time";
         public const string DaysAvailability442 = "All Available days can't be false";
         public const string NoResourceOnRoute443 = "Sorry, this resource is not allowed on this route";
-        public const string Held444 = "Sorry, this item is temporarily held for action";
+        public const string Held444 = "Sorry, this item is temporarily held for action or pickup date is less than recovery time";
         public const string MaxQuantity445 = "Sorry, maximum quantity required exceeded";
         public const string NoApplicableType446 = "Sorry, applicableType is not attached to this service";
         public const string NoSchedule447 = "Sorry, this resource has no schedule";

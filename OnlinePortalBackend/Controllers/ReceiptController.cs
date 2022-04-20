@@ -36,9 +36,9 @@ namespace OnlinePortalBackend.Controllers
         }
 
         [HttpGet("GetInvoice")]
-        public async Task<ApiCommonResponse> GetInvoice(int invoiceId)
+        public async Task<ApiCommonResponse> GetInvoice(string invoiceNumber)
         {
-            return await _invoiceService.GetInvoice(invoiceId);
+            return await _invoiceService.GetInvoice(invoiceNumber);
         }
 
         //public async Task<ApiCommonResponse> CompletePaymentForReceipt(ReceiptReceivingDTO request)

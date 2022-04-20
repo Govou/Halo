@@ -13,6 +13,7 @@ using Halobiz.Common.DTOs.ReceivingDTOs.RoleManagement;
 using Halobiz.Repository.RoleManagement;
 using Halobiz.Common.DTOs.TransferDTOs.RoleManagement;
 using Halobiz.Common.Helpers;
+using Microsoft.EntityFrameworkCore;
 
 namespace Halobiz.Common.MyServices.RoleManagement
 {
@@ -29,7 +30,7 @@ namespace Halobiz.Common.MyServices.RoleManagement
         Task<ApiCommonResponse> GetPermissionsOnRole(string name);
         Task<ApiCommonResponse> FindRolesByUser(long userId);
         Task<ApiCommonResponse> GetPermissionsOnUser(long userId);
-        Task<IEnumerable<Permissions>> GetPermissionEnumsOnUser(long userId);
+        Task<(IEnumerable<Permissions>, string[])> GetPermissionEnumsOnUser(long userId);
 
 
     }
@@ -91,12 +92,14 @@ namespace Halobiz.Common.MyServices.RoleManagement
             return CommonResponse.Send(ResponseCodes.SUCCESS, roles);
         }
 
-        public async Task<IEnumerable<Permissions>> GetPermissionEnumsOnUser(long userId)
+        public async Task<(IEnumerable<Permissions>,string[])> GetPermissionEnumsOnUser(long userId)
         {
             var roles = await _roleRepo.FindRolesByUser(userId);
 
             if (!roles.Any())
-                return new List<Permissions>();
+                return (new List<Permissions>(), new string[] { });
+
+            var rolesList = roles.Select(x => x.Name).ToArray();
 
             List<Permissions> permissionsInRole = new List<Permissions>();
 
@@ -110,14 +113,14 @@ namespace Halobiz.Common.MyServices.RoleManagement
             }
 
             //remove duplicates
-            return permissionsInRole.Distinct().ToList();
+            return (permissionsInRole.Distinct().ToList(), rolesList);
         }
 
         public async Task<ApiCommonResponse> GetPermissionsOnUser(long userId)
         {
             IEnumerable<PermissionDisplay> allPermissions = PermissionDisplay.GetPermissionsToDisplay(typeof(Permissions));
 
-            var permissionsInRole = await GetPermissionEnumsOnUser(userId);
+            var (permissionsInRole, roleList) = await GetPermissionEnumsOnUser(userId);
             List<PermissionDisplay> permissions = new List<PermissionDisplay>();
 
             foreach (PermissionDisplay permission in allPermissions)
@@ -155,7 +158,7 @@ namespace Halobiz.Common.MyServices.RoleManagement
         {
             try
             {
-                var role = await _roleRepo.FindRoleByName(roleReceivingDto.Name);
+                var role = await _context.Roles.Where(x => x.Id == id).FirstOrDefaultAsync() ;
                 if (role == null)
                 {
                     return CommonResponse.Send(ResponseCodes.FAILURE, null, $"Role {roleReceivingDto.Name} does not exists.");

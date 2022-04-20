@@ -31,7 +31,7 @@ namespace HaloBiz.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [ModuleName(HalobizModules.Setups)]
+    [ModuleName(HalobizModules.Setups,92)]
 
     public class ServiceCustomerMigrationsController : ControllerBase
     {

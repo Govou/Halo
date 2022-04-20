@@ -15,7 +15,7 @@ namespace HaloBiz.Controllers.RoleMangement
 {
     [Route("api/v1/[controller]")]
     [ApiController]
-    [ModuleName(HalobizModules.RolesManagement)]
+    [ModuleName(HalobizModules.RolesManagement,35)]
 
     public class RoleController : Controller
     {

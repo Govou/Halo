@@ -14,7 +14,7 @@ namespace HaloBiz.Controllers
 {
     [Route("api/v1/[controller]")]
     [ApiController]
-    [ModuleName(HalobizModules.Profile)]
+    [ModuleName(HalobizModules.Profile,76)]
 
     public class OfficeController : ControllerBase
     {

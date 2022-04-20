@@ -69,7 +69,7 @@ namespace OnlinePortalBackend.MyServices.Impl
 
             foreach (var item in endorsements)
             {
-                var contractService = _context.ContractServices.Include(x => x.Contract).Include(x => x.Service).AsNoTracking().FirstOrDefault(x => x.Id == item.ContractServiceId);
+                var contractService = _context.ContractServices.Include(x => x.Contract).Include(x => x.Service).AsNoTracking().FirstOrDefault(x => x.Id == item.ContractServiceId && x.Version == 0);
                 var endorsementDTO = new ContractServiceForEndorsementReceivingDto
                 {
                     UnitPrice = contractService.UnitPrice,
@@ -101,7 +101,7 @@ namespace OnlinePortalBackend.MyServices.Impl
                     InvoicingInterval = (TimeCycle)contractService.InvoicingInterval.Value,
                     EndorsementTypeId = item.EndorsementType,
                     FulfillmentStartDate = contractService.FulfillmentStartDate,
-                    Quantity = contractService.Quantity,
+                    Quantity = item.Quantity,
                     PreviousContractServiceId = item.ContractServiceId,
                     PaymentCycle = (TimeCycle)contractService.PaymentCycle.Value,
                     ProblemStatement = contractService.ProblemStatement,
@@ -126,28 +126,7 @@ namespace OnlinePortalBackend.MyServices.Impl
 
             try
             {
-                //var token = await _apiInterceptor.GetToken();
-                //var baseUrl = string.Concat(_HalobizBaseUrl, "Endorsement");
-
-
-                //var response = await baseUrl.AllowAnyHttpStatus().WithOAuthBearerToken($"{token}")
-                //   .PostJsonAsync(endorsementDetailDTOs)?.ReceiveJson();
-
-                //foreach (KeyValuePair<string, object> kvp in (IDictionary<string, object>)response)
-                //{
-                //    if (kvp.Key.ToString() == "responseCode")
-                //    {
-                //        responseData.responseCode = kvp.Value.ToString();
-                //    }
-                //    if (kvp.Key.ToString() == "responseData")
-                //    {
-                //        responseData.responseData = kvp.Value;
-                //    }
-                //    if (kvp.Key.ToString() == "responseMsg")
-                //    {
-                //        responseData.responseMsg = kvp.Value.ToString();
-                //    }
-                //}
+               
                 responseData = await AddNewRetentionContractServiceForEndorsement(endorsementDetailDTOs);
             }
             catch (Exception ex)
@@ -201,7 +180,7 @@ namespace OnlinePortalBackend.MyServices.Impl
 
             foreach (var item in endorsements)
             {
-                var contractService = _context.ContractServices.Include(x => x.Contract).Include(x => x.Service).FirstOrDefault(x => x.Id == item.ContractServiceId);
+                var contractService = _context.ContractServices.Include(x => x.Contract).Include(x => x.Service).FirstOrDefault(x => x.Id == item.ContractServiceId && x.Version == 0);
                 var endorsementDTO = new ContractServiceForEndorsementReceivingDto
                 {
                     UnitPrice = contractService.UnitPrice,
@@ -233,7 +212,7 @@ namespace OnlinePortalBackend.MyServices.Impl
                     InvoicingInterval = (TimeCycle)contractService.InvoicingInterval.Value,
                     EndorsementTypeId = item.EndorsementType,
                     FulfillmentStartDate = contractService.FulfillmentStartDate,
-                    Quantity = contractService.Quantity,
+                    Quantity = item.Quantity,
                     PreviousContractServiceId = item.ContractServiceId,
                     PaymentCycle = (TimeCycle)contractService.PaymentCycle.Value,
                     ProblemStatement = contractService.ProblemStatement,
@@ -484,7 +463,7 @@ namespace OnlinePortalBackend.MyServices.Impl
         }
 
         private List<ContractServiceForEndorsementReceivingDto> LinkAdminDirectServiceForEndorsement(List<ContractServiceForEndorsementReceivingDto> contractServices)
-        {
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     {
             var adminDirectServices = new List<ContractServiceForEndorsementReceivingDto>();
             var nonAdminDirectServices = new List<ContractServiceForEndorsementReceivingDto>();
             var directServices = new List<ContractServiceForEndorsementReceivingDto>();
@@ -519,7 +498,7 @@ namespace OnlinePortalBackend.MyServices.Impl
             foreach (var item in directServices)
             {
                 var adminId = adminDirectServiceIds.FirstOrDefault(x => x.DirectId == item.ServiceId).AdminId;
-                var adminContractService = _context.ContractServices.FirstOrDefault(x => x.ContractId == item.ContractId && x.ServiceId == adminId);
+                var adminContractService = _context.ContractServices.FirstOrDefault(x => x.ContractId == item.ContractId && x.AdminDirectTie == item.AdminDirectTie && x.Version == 0 && x.ServiceId == adminId);
                 adminServices.Add(new ContractServiceForEndorsementReceivingDto
                 {
                     ActivationDate = adminContractService.ActivationDate,
@@ -545,13 +524,13 @@ namespace OnlinePortalBackend.MyServices.Impl
                     ContractStartDate = adminContractService.ContractStartDate,
                     FirstInvoiceSendDate = adminContractService.FirstInvoiceSendDate,
                     CreatedById = item.CreatedById,
-                    QuoteServiceId = adminContractService.QuoteServiceId.Value.ToString(),
+                  //  QuoteServiceId = adminContractService.QuoteServiceId.Value.ToString(),
                     DateForNewContractToTakeEffect = item.DateForNewContractToTakeEffect,
                     Discount = item.Discount,
                     FulfillmentStartDate = adminContractService.FulfillmentStartDate,
                     DocumentUrl = item.DocumentUrl,
                     DropoffDateTime = item.DropoffDateTime,
-                    PreviousContractServiceId = item.PreviousContractServiceId,
+                    PreviousContractServiceId = adminContractService.Id,
                     UniqueTag = adminContractService.UniqueTag,
                     PaymentCycleInDays = item.PaymentCycleInDays,
                     FulfillmentEndDate = adminContractService.FulfillmentEndDate,
@@ -559,8 +538,9 @@ namespace OnlinePortalBackend.MyServices.Impl
                     GroupInvoiceNumber = item.GroupInvoiceNumber,
                     ProblemStatement = item.ProblemStatement,
                     PaymentCycle = (TimeCycle)adminContractService.PaymentCycle,
+                    OfficeId = item.OfficeId,
                 });
-            }
+                                                                                                                                                                                                                                                                                                                                                                                    }
 
             adminDirectServices.AddRange(directServices);
             adminDirectServices.AddRange(adminServices);
