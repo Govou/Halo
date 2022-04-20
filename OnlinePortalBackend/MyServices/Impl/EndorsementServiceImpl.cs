@@ -152,13 +152,22 @@ namespace OnlinePortalBackend.MyServices.Impl
 
         public async Task<ApiCommonResponse> FetchEndorsements(int userId)
         {
+            var endorsementList = new EndorsementList();
             var endorsements = await _endorsementRepo.FindEndorsements(userId);
             if (endorsements.Count() == 0)
             {
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE); ;
             }
             var endorsementDTOs = _mapper.Map<IEnumerable<EndorsementDTO>>(endorsements);
-            return CommonResponse.Send(ResponseCodes.SUCCESS, endorsementDTOs);
+
+            foreach (var item in endorsementDTOs)
+            {
+                item.endorsementTracking = await _endorsementRepo.TrackEndorsement(item.Id);
+            }
+            endorsementList.EndorsementProcessingCount = endorsementDTOs.Where(x => !x.endorsementTracking.RequestExecution.Contains("100")).Count();
+            endorsementList.EndorsementHistoryCount = endorsementDTOs.Select(x => x.endorsementTracking.EndorsementHistoryCount).Count();
+            endorsementList.EndorsementDTOs = endorsementDTOs;
+            return CommonResponse.Send(ResponseCodes.SUCCESS, endorsementList);
         }
 
         public async Task<ApiCommonResponse> TrackEndorsement(long endorsementId)

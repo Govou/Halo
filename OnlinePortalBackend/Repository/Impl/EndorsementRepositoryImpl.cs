@@ -310,8 +310,9 @@ namespace OnlinePortalBackend.Repository.Impl
             if (approvals.Count() > 0)
             {
                 requestExecution = approvals.Where(x => x.IsApproved && !x.IsDeleted).Count() / approvals.Count() * 100;
-                var service = approvals.FirstOrDefault().ContractServiceForEndorsement.ServiceId;
-                serviceName = _context.Services.FirstOrDefault(x => x.Id == service).Name;
+                var service = approvals.FirstOrDefault()?.ContractServiceForEndorsement?.ServiceId;
+                if (service != null)
+                   serviceName = _context.Services.FirstOrDefault(x => x.Id == service.Value)?.Name;
             }
 
            
