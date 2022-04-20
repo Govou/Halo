@@ -78,7 +78,7 @@ namespace OnlinePortalBackend.Repository.Impl
             {
                 contractServices.AddRange(item.ContractServices);
             }
-            var validContractServices = contractServices.Where(x => x.ContractEndDate > DateTime.Today);
+            var validContractServices = contractServices.Where(x => x.ContractEndDate > DateTime.Today && x.Version == 0);
             foreach (var contractService in validContractServices)
             {
                 var service = _context.Services.Include(x => x.ServiceType).Include(x => x.ServiceCategory).Include(x => x.AdminRelationship).FirstOrDefault(x => x.Id == contractService.ServiceId);
@@ -310,8 +310,9 @@ namespace OnlinePortalBackend.Repository.Impl
             if (approvals.Count() > 0)
             {
                 requestExecution = approvals.Where(x => x.IsApproved && !x.IsDeleted).Count() / approvals.Count() * 100;
-                var service = approvals.FirstOrDefault().ContractServiceForEndorsement.ServiceId;
-                serviceName = _context.Services.FirstOrDefault(x => x.Id == service).Name;
+                var service = approvals.FirstOrDefault()?.ContractServiceForEndorsement?.ServiceId;
+                if (service != null)
+                   serviceName = _context.Services.FirstOrDefault(x => x.Id == service.Value)?.Name;
             }
 
            
