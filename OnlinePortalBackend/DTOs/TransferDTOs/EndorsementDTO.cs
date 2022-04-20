@@ -7,6 +7,7 @@ namespace OnlinePortalBackend.DTOs.TransferDTOs
     {
         public int Quantity { get; set; }
         public DateTime DateOfEffect { get; set; }
+        public DateTime CreatedAt { get; set; }
         public string Description { get; set; }
         public string DocumentUrl { get; set; }
         public int EndorsementType { get; set; }
