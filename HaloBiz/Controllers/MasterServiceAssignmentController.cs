@@ -117,5 +117,10 @@ namespace HaloBiz.Controllers
         {
             return await _invoiceService.SendJourneyConfirmation(id);
         }
+        [HttpGet("SendEndOfJourneyConfirmation/{id}")]
+        public async Task<ApiCommonResponse> SendEndOfJourneyConfirmation(long id)
+        {
+            return await _invoiceService.SendJourneyEndNotification(id);
+        }
     }
 }
