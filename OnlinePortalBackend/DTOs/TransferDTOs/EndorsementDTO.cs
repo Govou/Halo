@@ -9,7 +9,8 @@ namespace OnlinePortalBackend.DTOs.TransferDTOs
         public DateTime DateOfEffect { get; set; }
         public string Description { get; set; }
         public string DocumentUrl { get; set; }
-        public int EndorsementType { get; set; }
+       // public int EndorsementType { get; set; }
+        public int EndorsementTypeId { get; set; }
         public int ContractServiceId { get; set; }
         public long Id { get; set; }
     }
