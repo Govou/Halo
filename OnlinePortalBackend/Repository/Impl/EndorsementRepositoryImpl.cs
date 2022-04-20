@@ -78,7 +78,7 @@ namespace OnlinePortalBackend.Repository.Impl
             {
                 contractServices.AddRange(item.ContractServices);
             }
-            var validContractServices = contractServices.Where(x => x.ContractEndDate > DateTime.Today);
+            var validContractServices = contractServices.Where(x => x.ContractEndDate > DateTime.Today && x.Version == 0);
             foreach (var contractService in validContractServices)
             {
                 var service = _context.Services.Include(x => x.ServiceType).Include(x => x.ServiceCategory).Include(x => x.AdminRelationship).FirstOrDefault(x => x.Id == contractService.ServiceId);
