@@ -15,7 +15,7 @@ namespace HaloBiz.Controllers
 {
     [Route("api/v1/[controller]")]
     [ApiController]
-    [ModuleName(HalobizModules.LeadAdministration)]
+    [ModuleName(HalobizModules.LeadAdministration,119)]
 
     public class EngagementTypeController : ControllerBase
     {

@@ -12,7 +12,7 @@ namespace HaloBiz.Controllers
 {
     [Route("api/v1/[controller]")]
     [ApiController]
-    [ModuleName(HalobizModules.CronJobs)]
+    [ModuleName(HalobizModules.CronJobs,57)]
 
     public class CronJobsController : ControllerBase
     {

@@ -2,6 +2,7 @@
 using Halobiz.Common.DTOs.ApiDTOs;
 using HaloBiz.DTOs.ReceivingDTOs;
 using HaloBiz.MyServices;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -13,7 +14,7 @@ namespace HaloBiz.Controllers
 {
     [Route("api/v1/[controller]")]
     [ApiController]
-    [ModuleName(HalobizModules.Setups)]
+    [ModuleName(HalobizModules.SecuredMobility,71)]
 
     public class MasterServiceAssignmentController : ControllerBase
     {
@@ -45,7 +46,7 @@ namespace HaloBiz.Controllers
             return await _masterServiceAssignmentService.GetAllSecondaryServiceAssignments();
         }
 
-
+        [AllowAnonymous]
         [HttpGet("GetServiceAssignmentMasterById/{id}")]
         public async Task<ApiCommonResponse> GetServiceAssignmentMasterById(long id)
         {
@@ -115,6 +116,11 @@ namespace HaloBiz.Controllers
         public async Task<ApiCommonResponse> SendPaidConfirmation(long id)
         {
             return await _invoiceService.SendJourneyConfirmation(id);
+        }
+        [HttpGet("SendEndOfJourneyConfirmation/{id}")]
+        public async Task<ApiCommonResponse> SendEndOfJourneyConfirmation(long id)
+        {
+            return await _invoiceService.SendJourneyEndNotification(id);
         }
     }
 }

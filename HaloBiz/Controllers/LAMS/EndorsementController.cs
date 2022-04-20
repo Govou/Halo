@@ -15,7 +15,7 @@ namespace Controllers.Controllers
 {
     [Route("api/v1/[controller]")]
     [ApiController]
-    [ModuleName(HalobizModules.ClientManagement)]
+    [ModuleName(HalobizModules.ClientManagement,16)]
 
     public class EndorsementController : ControllerBase
     {

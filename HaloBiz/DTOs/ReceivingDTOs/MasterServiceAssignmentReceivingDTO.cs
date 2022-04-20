@@ -32,6 +32,7 @@ namespace HaloBiz.DTOs.ReceivingDTOs
         public string DropOffLocationGeometry { get; set; }
         public double DistanceInKM { get; set; }
         public long?[] SecondaryServiceRegistrationId { get; set; }
+        public bool InhouseAssignment { get; set; }
         //public SecondaryServiceAssignmentReceivingDTO SecondaryServiceAssignmentReceivingDTO { get; set; }
     }
 
@@ -59,7 +60,8 @@ namespace HaloBiz.DTOs.ReceivingDTOs
         public string DropOffLocationGeometry { get; set; }
         public double DistanceInKM { get; set; }
         public long?[] SecondaryServiceRegistrationId { get; set; }
-      
+        public bool InhouseAssignment { get; set; }
+
     }
 
     public class SecondaryServiceAssignmentReceivingDTO
@@ -134,6 +136,8 @@ namespace HaloBiz.DTOs.ReceivingDTOs
     {
         public string serviceName { get; set; }
         public string IdentificationNumber { get; set; }
+        public string FrontViewImage { get; set; }
+
         
         //public string Mobile { get; set; }
         //public string ImageUrl { get; set; }
@@ -157,6 +161,8 @@ namespace HaloBiz.DTOs.ReceivingDTOs
         public string Name { get; set; }
         public string Email { get; set; }
         public string Street { get; set; }
+        public string Address { get; set; }
+
         public string LGA { get; set; }
         public string State { get; set; }
     }

@@ -119,7 +119,7 @@ namespace HaloBiz.MyServices
                 
 
                 //get the permissions of the user
-                var permissions = await _roleService.GetPermissionEnumsOnUser(userProfile.Id);
+                var (permissions, roleList) = await _roleService.GetPermissionEnumsOnUser(userProfile.Id);
                 var (jwtToken, jwtLifespan) = _jwttHelper.GenerateToken(new UserProfile { Id = userProfile.Id, Email = userProfile.Email }, permissions);
                
                 //get a refresh token for this user
@@ -134,6 +134,7 @@ namespace HaloBiz.MyServices
                     Token = jwtToken,
                     JwtLifespan = jwtLifespan,
                     RefreshToken = refreshToken,
+                    Roles = roleList,
                     UserProfile = _mapper.Map<UserProfileTransferDTO>(userProfile)
                 });
             }
@@ -176,7 +177,7 @@ namespace HaloBiz.MyServices
             var userProfile = (UserProfileTransferDTO)user;
 
             //get the permissions of the user
-            var permissions = await _roleService.GetPermissionEnumsOnUser(userProfile.Id);
+            var (permissions, roleList) = await _roleService.GetPermissionEnumsOnUser(userProfile.Id);
 
             var (jwtToken, jwtLifespan) = _jwttHelper.GenerateToken(new UserProfile { Id = userProfile.Id, Email = userProfile.Email }, permissions);
 
@@ -187,6 +188,7 @@ namespace HaloBiz.MyServices
                 Token = jwtToken,
                 JwtLifespan = jwtLifespan,
                 RefreshToken = refreshToken,
+                Roles = roleList,
                 UserProfile = userProfile
             });
         }
@@ -238,7 +240,7 @@ namespace HaloBiz.MyServices
                 var userProfile = (UserProfile)user;               
 
                 //get the permissions of the user
-                var permissions = await _roleService.GetPermissionEnumsOnUser(userProfile.Id);
+                var (permissions, roleList) = await _roleService.GetPermissionEnumsOnUser(userProfile.Id);
                 var (jwtToken, jwtLifespan) = _jwttHelper.GenerateToken(userProfile, permissions);
 
                 //get a refresh token for this user
@@ -248,6 +250,7 @@ namespace HaloBiz.MyServices
                     Token = jwtToken,
                     JwtLifespan = jwtLifespan,
                     RefreshToken = refreshToken,
+                    Roles = roleList,
                     UserProfile = _mapper.Map<UserProfileTransferDTO>(userProfile)
                 });
             }
@@ -468,7 +471,7 @@ namespace HaloBiz.MyServices
                 }
 
                 //get the permissions of the user
-                var permissions = await _roleService.GetPermissionEnumsOnUser(profile.Id);
+                var (permissions, roles) = await _roleService.GetPermissionEnumsOnUser(profile.Id);
                 var (jwtToken, jwtLifespan) = _jwttHelper.GenerateToken(profile, permissions);
 
                 //get a refresh token for this user
@@ -478,6 +481,7 @@ namespace HaloBiz.MyServices
                     Token = jwtToken,
                     JwtLifespan = jwtLifespan,
                     RefreshToken = refreshToken,
+                    Roles = roles,
                     UserProfile = _mapper.Map<UserProfileTransferDTO>(profile)
                 });
             }

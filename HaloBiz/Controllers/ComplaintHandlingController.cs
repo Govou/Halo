@@ -15,7 +15,7 @@ namespace HaloBiz.Controllers
 {
     [Route("api/v1/[controller]")]
     [ApiController]
-    [ModuleName(HalobizModules.ComplaintManagement)]
+    [ModuleName(HalobizModules.ComplaintManagement,52)]
 
     public class ComplaintHandlingController : ControllerBase
     {
