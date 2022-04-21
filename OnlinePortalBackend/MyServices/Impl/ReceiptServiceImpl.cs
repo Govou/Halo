@@ -400,7 +400,27 @@ namespace OnlinePortalBackend.MyServices.Impl
                 {
                     try
                     {
-                        var receipt = _mapper.Map<Receipt>(receiptReceivingDTO);
+                        // var receipt = _mapper.Map<Receipt>(receiptReceivingDTO);
+                        var receipt = new Receipt
+                        {
+                            CreatedAt = DateTime.Now,
+                            DateAndTimeOfFundsReceived = DateTime.Now,
+                            InvoiceValueBalanceAfterReceipting = receiptReceivingDTO.InvoiceValueBalanceAfterReceipting,
+                            UpdatedAt = DateTime.Now,
+                            Caption = receiptReceivingDTO.Caption,
+                            CreatedById = LoggedInUserId,
+                            EvidenceOfPaymentUrl = receiptReceivingDTO.EvidenceOfPaymentUrl,
+                            InvoiceId = receiptReceivingDTO.InvoiceId,
+                            ValueOfWht = receiptReceivingDTO.ValueOfWHT,
+                            ReceiptValue = receiptReceivingDTO.ReceiptValue,
+                            InvoiceNumber = receiptReceivingDTO.InvoiceNumber,
+                            InvoiceValueBalanceBeforeReceipting = receiptReceivingDTO.InvoiceValueBalanceBeforeReceipting,
+                            InvoiceValue = receiptReceivingDTO.InvoiceValue,
+                            Depositor = receiptReceivingDTO.Depositor,
+                            IsTaskWitheld = receiptReceivingDTO.IsTaskWitheld
+                        };
+
+                       
                         var invoice = await FindInvoiceById(receipt.InvoiceId);
                         foreach (var item in invoice.Receipts)
                         {
