@@ -94,6 +94,7 @@ namespace OnlinePortalBackend.Repository.Impl
                     InvoiceStart = invoice.StartDate,
                     InvoiceNumber = invoice.InvoiceNumber,
                     InvoiceValue = invoice.Value,
+                    InvoiceBalanceBeforeReceipting = invoice.Value
                 };
 
                 return invDetailDTO;
@@ -124,7 +125,7 @@ namespace OnlinePortalBackend.Repository.Impl
                 InvoiceEnd = invoices.FirstOrDefault().EndDate,
                 InvoiceStart = invoices.FirstOrDefault().StartDate,
                 InvoiceNumber = invoices.FirstOrDefault().InvoiceNumber,
-                InvoiceValue = invoices.Select(x => x.Value).Sum(),
+                InvoiceValue = invoices.Select(x => x.Value).Sum()
                 
             };
 
@@ -177,7 +178,8 @@ namespace OnlinePortalBackend.Repository.Impl
                             IsReceiptedStatus = item.IsReceiptedStatus,
                             Payment = receiptDetail?.ReceiptValue,
                             Id = (int)item.Id,
-                            ContractServiceId = (int)contractServiceId
+                            ContractServiceId = (int)contractServiceId,
+                            
                         });
 
                         contractServiceInvoices.Add(new ContractServiceInvoiceDTO
