@@ -63,9 +63,43 @@ namespace OnlinePortalBackend.Repository.Impl
 
         public async Task<InvoiceDetailDTO> GetInvoice(string invoiceNumber)
         {
+            var invoiceDetailsInfo = new List<InvoiceDetailInfo>();
+
+            if (!invoiceNumber.StartsWith("G"))
+            {
+                var invoice = _context.Invoices.Include(x => x.Contract).Include(x => x.ContractService).Include(x => x.Receipts).FirstOrDefault(x => x.InvoiceNumber == invoiceNumber);
+
+                if (invoice == null)
+                {
+                    return null;
+                }
+                
+                var invDetail = new InvoiceDetailInfo
+                {
+                    InvoiceNumber = invoice.InvoiceNumber,
+                    ContractServiceId = (int)invoice.ContractServiceId,
+                    Discount = invoice.Discount,
+                    Quantity = (int)invoice.Quantity,
+                    Total = invoice.Value
+                };
+                var conService = _context.ContractServices.Include(x => x.Service).FirstOrDefault(x => x.Id == invoice.ContractServiceId);
+                invDetail.ServiceName = conService.Service.Name;
+                invoiceDetailsInfo.Add(invDetail);
+
+                var invDetailDTO = new InvoiceDetailDTO
+                {
+                    InvoiceDetailsInfos = invoiceDetailsInfo,
+                    InvoiceDue = invoice.EndDate,
+                    InvoiceEnd = invoice.EndDate,
+                    InvoiceStart = invoice.StartDate,
+                    InvoiceNumber = invoice.InvoiceNumber,
+                    InvoiceValue = invoice.Value,
+                };
+
+                return invDetailDTO;
+            }
             var invoices = _context.Invoices.Include(x => x.Contract).Include(x => x.ContractService).Include(x => x.Receipts).Where(x => x.InvoiceNumber == invoiceNumber);
            // var receipt = _context.Receipts.FirstOrDefault(x => x.)
-            var invoiceDetailsInfo = new List<InvoiceDetailInfo>();
 
             foreach (var item in invoices)
             {
@@ -82,16 +116,9 @@ namespace OnlinePortalBackend.Repository.Impl
                 invoiceDetailsInfo.Add(invDetail);
             }
 
-            //var contractServiceInvoice = invoices.FirstOrDefault(x => x.ContractId == contractService.ContractId);
-            //var grpContractServiceInvoice = contractServiceInvoice.Invoices.Where(x => x.InvoiceStartDate == contractService.StartDate);
-            //var contractInvoice = invoices.FirstOrDefault(x => x.ContractId == contractService.ContractId);
-
-            //var receipt = _context.Receipts.Include(x => x.Invoice).Where(x => x.InvoiceId == invoiceId).OrderByDescending(x => x.Id).FirstOrDefault();
-
            
             var invoiceDetail = new InvoiceDetailDTO
             {
-             //   InvoiceBalanceBeforeReceipting = receipt?.InvoiceValueBalanceBeforeReceipting ?? 0,
                 InvoiceDetailsInfos = invoiceDetailsInfo,
                 InvoiceDue = invoices.FirstOrDefault().EndDate,
                 InvoiceEnd = invoices.FirstOrDefault().EndDate,
