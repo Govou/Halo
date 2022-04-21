@@ -130,8 +130,14 @@ namespace OnlinePortalBackend.MyServices.Impl
                     ProgramEndDate = contractService.ProgramEndDate,
                     TentativeDateForSiteSurvey = contractService.TentativeDateForSiteSurvey,
                     TentativeFulfillmentDate = contractService.TentativeFulfillmentDate,
-                    DateForNewContractToTakeEffect = item.DateOfEffect
+                    DateForNewContractToTakeEffect = item.DateOfEffect,
+                    QuoteServiceId = contractService.QuoteServiceId
                 };
+
+                if (string.IsNullOrEmpty(contractService.Contract.GroupInvoiceNumber))
+                {
+                    endorsementDTO.InvoicingInterval = 0;
+                }
                 endorsementDetailDTOs.Add(endorsementDTO);
             }
 
@@ -263,8 +269,14 @@ namespace OnlinePortalBackend.MyServices.Impl
                     ProgramEndDate = contractService.ProgramEndDate,
                     TentativeDateForSiteSurvey = contractService.TentativeDateForSiteSurvey,
                     TentativeFulfillmentDate = contractService.TentativeFulfillmentDate,
-                    DateForNewContractToTakeEffect = item.DateOfEffect
+                    DateForNewContractToTakeEffect = item.DateOfEffect,
+                    QuoteServiceId = contractService.QuoteServiceId,
                 };
+
+                if (string.IsNullOrEmpty(contractService.Contract.GroupInvoiceNumber))
+                {
+                    endorsementDTO.InvoicingInterval = 0;
+                }
                 endorsementDetailDTOs.Add(endorsementDTO);
             }
 
@@ -531,7 +543,7 @@ namespace OnlinePortalBackend.MyServices.Impl
                     ContractStartDate = adminContractService.ContractStartDate,
                     FirstInvoiceSendDate = adminContractService.FirstInvoiceSendDate,
                     CreatedById = item.CreatedById,
-                  //  QuoteServiceId = adminContractService.QuoteServiceId.Value.ToString(),
+                    QuoteServiceId = adminContractService.QuoteServiceId,
                     DateForNewContractToTakeEffect = item.DateForNewContractToTakeEffect,
                     Discount = item.Discount,
                     FulfillmentStartDate = adminContractService.FulfillmentStartDate,
@@ -548,7 +560,6 @@ namespace OnlinePortalBackend.MyServices.Impl
                     OfficeId = item.OfficeId,
                 });
                                                                                                                                                                                                                                                                                                                                                                                     }
-
             adminDirectServices.AddRange(directServices);
             adminDirectServices.AddRange(adminServices);
             adminDirectServices.AddRange(nonAdminDirectServices);

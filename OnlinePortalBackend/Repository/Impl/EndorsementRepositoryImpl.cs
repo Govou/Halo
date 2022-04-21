@@ -307,12 +307,26 @@ namespace OnlinePortalBackend.Repository.Impl
             var approvals = _context.Approvals.Include(x => x.ContractServiceForEndorsement).Where(x => x.ContractServiceId == contractServiceEndorsement.PreviousContractServiceId && !x.IsDeleted).ToList();
             var serviceName = string.Empty;
             var requestExecution = 0;
+            var approvalStatus = string.Empty;
             if (approvals.Count() > 0)
             {
                 requestExecution = approvals.Where(x => x.IsApproved && !x.IsDeleted).Count() / approvals.Count() * 100;
                 var service = approvals.FirstOrDefault()?.ContractServiceForEndorsement?.ServiceId;
                 if (service != null)
                    serviceName = _context.Services.FirstOrDefault(x => x.Id == service.Value)?.Name;
+
+                if (contractServiceEndorsement.IsDeclined)
+                {
+                    approvalStatus = "Request Declined";
+                }
+                else if (contractServiceEndorsement.IsApproved)
+                {
+                    approvalStatus = "Request Approved";
+                }
+                else
+                {
+                    approvalStatus = "Request Pending";
+                }
             }
 
            
@@ -324,7 +338,8 @@ namespace OnlinePortalBackend.Repository.Impl
                 RequestExecution = Math.Floor((decimal)requestExecution).ToString() + "%",
                 EndorsementRequestDate = contractServiceEndorsement.FulfillmentStartDate.Value,
                 ServiceName = serviceName,
-                EndorsementHistoryCount = endorsementHistoryCount
+                EndorsementHistoryCount = endorsementHistoryCount,
+                ApprovalStatus = approvalStatus
             };
 
             return endorsementTracking;
