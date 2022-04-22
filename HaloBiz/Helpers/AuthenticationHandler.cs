@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Halobiz.Common.Auths.PermissionParts;
 using Halobiz.Common.DTOs.ApiDTOs;
+using HaloBiz.Model;
 using HaloBiz.Models;
 using HalobizMigrations.Data;
 using HalobizMigrations.Models;
@@ -28,16 +29,18 @@ namespace HaloBiz.Helpers
         private readonly RequestDelegate _next;
         private readonly IJwtHelper _jwtHelper;
         private readonly ILogger<AuthenticationHandler> _logger;
+        private readonly IConfiguration _configuration;
        
 
 
         public AuthenticationHandler(RequestDelegate next, IJwtHelper jwtHelper,
-            ILogger<AuthenticationHandler> logger           
+            ILogger<AuthenticationHandler> logger, IConfiguration configuration      
             )
         {
             _next = next;
             _jwtHelper = jwtHelper;
             _logger = logger;
+            _configuration = configuration;
         }
 
         public async Task Invoke(HttpContext context)
@@ -68,6 +71,7 @@ namespace HaloBiz.Helpers
                 if (token != null)
                 {
                     //validate the token
+                    
                     if (token.ToLower() != "null")
                     {
                         var (isValid, isExpired, authUser) = _jwtHelper.ValidateToken(token);
@@ -159,7 +163,22 @@ namespace HaloBiz.Helpers
 
         private bool CheckAuthorization(HttpContext context, string controller,string actionName, List<int> permisssions)
         {
-            var actionVerb = context.Request.Method;
+            var actionVerb = context.Request.Method.ToLower();
+
+            //all GET method must pass
+            if (actionVerb == "get") 
+                return true; 
+
+            var exemptedList = _configuration.GetSection("AuthorizationExemption").Get<List<AuthorizationExemption>>();
+            var exemptions = exemptedList.Where(x => x.Controller.ToLower().Contains(controller.ToLower())).FirstOrDefault() ?? new AuthorizationExemption();
+            //if (exemptions.ActionVerbs.Any(x=>x.ToLower().Contains(actionVerb) || exemptions.Endpoints.Any(x=>x.ToLower().Contains(actionName.ToLower()))))
+            //{
+            //    return true;
+            //}
+            if (exemptions.ActionVerbs.Contains(actionVerb, StringComparer.OrdinalIgnoreCase) || exemptions.Endpoints.Contains(actionName.ToLower(), StringComparer.OrdinalIgnoreCase))
+            {
+                return true;
+            }
 
             var permissionEnum = $"{controller}_{actionVerb}";
 

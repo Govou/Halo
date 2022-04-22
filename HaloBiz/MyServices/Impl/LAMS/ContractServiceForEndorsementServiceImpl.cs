@@ -114,19 +114,20 @@ namespace HaloBiz.MyServices.Impl.LAMS
             foreach (var item in contractServiceForEndorsementDtos)
             {              
 
-                bool alreadyExists = false;              
                 if(item.ContractId != 0)
                 {
-                    alreadyExists = await _context.ContractServiceForEndorsements
-                       .AnyAsync(x => x.ContractId == item.ContractId && x.PreviousContractServiceId == item.PreviousContractServiceId
+                   var alreadyExists = await _context.ContractServiceForEndorsements
+                       .Where(x => x.ContractId == item.ContractId && x.PreviousContractServiceId == item.PreviousContractServiceId
                                    && x.CustomerDivisionId == item.CustomerDivisionId && x.ServiceId == item.ServiceId
-                                   && !x.IsApproved && !x.IsDeclined && x.IsConvertedToContractService != true && !x.IsDeleted);
+                                   && !x.IsApproved && !x.IsDeclined && x.IsConvertedToContractService != true && !x.IsDeleted).FirstOrDefaultAsync();
+
+                    if (alreadyExists != null)
+                    {
+                        return CommonResponse.Send(ResponseCodes.FAILURE, null, $"There is already an endorsement request for the contract service with id {alreadyExists.Id}");
+                    }
                 }
 
-                if (alreadyExists)
-                {
-                    return CommonResponse.Send(ResponseCodes.FAILURE, null, $"There is already an endorsement request for the contract service with id {item.ContractId}");
-                }
+               
 
                 //check if this is nenewal and the previous contract has not
                 var previouslyRenewal = await _context.ContractServiceForEndorsements

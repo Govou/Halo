@@ -33,6 +33,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Include="Model\AuthExemptedEndponts.cs" />
     <Compile Include="Model\ContactDTO.cs" />
     <Compile Include="Model\IValidation.cs" />
     <Compile Include="Model\LAMS\LeadContact.cs" />
