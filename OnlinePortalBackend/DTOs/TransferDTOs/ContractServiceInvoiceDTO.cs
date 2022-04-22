@@ -18,6 +18,7 @@ namespace OnlinePortalBackend.DTOs.TransferDTOs
     public class ContractInvoiceDTO
     {
         public IEnumerable<ContractServiceInvoiceDTO> ContractServiceInvoices { get; set; }
+        public IEnumerable<ContractServiceInvoiceDTO> IndividualContractServiceInvoices { get; set; }
     }
 
     public class InvoiceDTO
