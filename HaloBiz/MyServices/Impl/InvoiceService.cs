@@ -1885,7 +1885,7 @@ namespace HaloBiz.MyServices.Impl
             //    if (item.CommanderResource.Profile.Email != null)
             //        recepients.Add(item.CommanderResource.Profile.Email);
             //}
-            recepients.Add("ybyusbash@gmail.com");
+            //recepients.Add("ybyusbash@gmail.com");
 
             //send to client company
             if (serviceAss.CustomerDivision.Email != null)
