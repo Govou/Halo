@@ -1879,17 +1879,8 @@ namespace HaloBiz.MyServices.Impl
                     }
                 }
 
-               
 
-                if (!await _serviceAssignmentMasterRepository.UpdateReadyStatus(itemToUpdate))
-                {
-                    transaction.Rollback();
-                    return CommonResponse.Send(ResponseCodes.FAILURE, null, ResponseMessage.InternalServer500);
-                }
-
-
-                await _invoiceService.SendJourneyManagementPlan(id);
-                await _invoiceService.SendJourneyConfirmation(id);
+                
 
             }//end try
             catch (Exception ex)
@@ -1900,6 +1891,8 @@ namespace HaloBiz.MyServices.Impl
 
 
             transaction.Commit();
+            await _invoiceService.SendJourneyManagementPlan(id);
+            await _invoiceService.SendJourneyConfirmation(id);
             return CommonResponse.Send(ResponseCodes.SUCCESS, null, ResponseMessage.Success200);
         }
 
