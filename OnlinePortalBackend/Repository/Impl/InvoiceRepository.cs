@@ -31,40 +31,116 @@ namespace OnlinePortalBackend.Repository.Impl
         public async Task<ContractInvoiceDTO>  GetInvoices(long userId)
         {
             var contractInvoiceDTO = new ContractInvoiceDTO();
-            var invoices = new List<ContractServiceInvoiceDTO>();
+            var groupedInvoices = new List<ContractServiceInvoiceDTO>();
+            var individualInvoices = new List<ContractServiceInvoiceDTO>();
+            var grpIndividualInvoices = new List<List<ContractServiceInvoiceDTO>>();
             var finalInvoices = new List<ContractServiceInvoiceDTO>();
-            var contractServiceIds = new List<long>();
-            // var contractInvoices = _context.Invoices.Where(x => x.CustomerDivisionId == userId).Select(x => x.ContractServiceId).Distinct();
+            var groupedContractServiceIds = new List<long>();
+            var individualContractServiceIds = new List<long>();
             var contractInvoices = _context.Contracts.Include(x => x.ContractServices).Where(x => x.CustomerDivisionId == userId);
-            var contracts = _context.Contracts.Where(x => x.CustomerDivisionId == userId).Select(x => x.Id).ToList();
+            var groupedContractsIds = _context.Contracts.Where(x => x.CustomerDivisionId == userId && !string.IsNullOrEmpty(x.GroupInvoiceNumber)).Select(x => x.Id).ToList();
+            var individualContractsIds = _context.Contracts.Where(x => x.CustomerDivisionId == userId && string.IsNullOrEmpty(x.GroupInvoiceNumber)).Select(x => x.Id).ToList();
+            var individualContracts = _context.Contracts.Include(x => x.ContractServices).Where(x => x.CustomerDivisionId == userId && string.IsNullOrEmpty(x.GroupInvoiceNumber)).ToList();
 
-            foreach (var item in contracts)
+            foreach (var item in groupedContractsIds)
             {
                 var contractServiceId = _context.ContractServices.Where(x => x.ContractId == item && x.Version == 0).Select(x => x.Id).AsEnumerable();
-                contractServiceIds.AddRange(contractServiceId);
+                groupedContractServiceIds.AddRange(contractServiceId);
             }
 
-            foreach (var item in contractServiceIds)
+            foreach (var item in individualContractsIds)
+            {
+                var contractServiceId = _context.ContractServices.Where(x => x.ContractId == item && x.Version == 0).Select(x => x.Id).AsEnumerable();
+                individualContractServiceIds.AddRange(contractServiceId);
+            }
+
+            foreach (var item in groupedContractServiceIds)
             {
                 var result = await GetInvoiceByContractServiceId(item);
-                invoices.AddRange(result.ToList());
+                if (result != null )
+                   groupedInvoices.AddRange(result.ToList());
             }
 
-            foreach (var item in contracts)
+            foreach (var item in individualContractServiceIds)
             {
-                var cIncoince = invoices.FirstOrDefault(x => x.ContractId == item);
+                var result = await GetInvoiceByContractServiceId(item);
+                if (result != null)
+                    individualInvoices.AddRange(result.ToList());
+            }
+
+            foreach (var item in groupedContractsIds)
+            {
+                var cIncoince = groupedInvoices.FirstOrDefault(x => x.ContractId == item);
                 finalInvoices.Add(cIncoince);
             }
+
+
+            var indContrServInvs = new List<ContractServiceInvoiceDTO>();
+            foreach (var item in individualContractsIds)
+            {
+                var contractServices = _context.ContractServices.Where(x => x.ContractId == item).Select(x => x.Id).AsEnumerable();
+                var contInvoices = individualInvoices.Where(x => x.ContractId == item);
+                foreach (var conServ in contractServices)
+                {
+                    foreach (var ci in contInvoices)
+                    {
+                        var exist = ci.Invoices.Any(x => x.ContractServiceId == conServ);
+                        if (exist)
+                        {
+                            indContrServInvs.Add(ci);
+                            break;
+                        }
+                    }
+                }
+               // var cIncoince = individualInvoices.Where(x => x.ContractId == item);
+              //  finalInvoices.Add(cIncoince);
+            }
             contractInvoiceDTO.ContractServiceInvoices = finalInvoices;
+            contractInvoiceDTO.IndividualContractServiceInvoices = indContrServInvs;
 
            return contractInvoiceDTO;
         }
 
         public async Task<InvoiceDetailDTO> GetInvoice(string invoiceNumber)
         {
+            var invoiceDetailsInfo = new List<InvoiceDetailInfo>();
+
+            if (!invoiceNumber.StartsWith("G"))
+            {
+                var invoice = _context.Invoices.Include(x => x.Contract).Include(x => x.ContractService).Include(x => x.Receipts).FirstOrDefault(x => x.InvoiceNumber == invoiceNumber);
+
+                if (invoice == null)
+                {
+                    return null;
+                }
+                
+                var invDetail = new InvoiceDetailInfo
+                {
+                    InvoiceNumber = invoice.InvoiceNumber,
+                    ContractServiceId = (int)invoice.ContractServiceId,
+                    Discount = invoice.Discount,
+                    Quantity = (int)invoice.Quantity,
+                    Total = invoice.Value
+                };
+                var conService = _context.ContractServices.Include(x => x.Service).FirstOrDefault(x => x.Id == invoice.ContractServiceId);
+                invDetail.ServiceName = conService.Service.Name;
+                invoiceDetailsInfo.Add(invDetail);
+
+                var invDetailDTO = new InvoiceDetailDTO
+                {
+                    InvoiceDetailsInfos = invoiceDetailsInfo,
+                    InvoiceDue = invoice.EndDate,
+                    InvoiceEnd = invoice.EndDate,
+                    InvoiceStart = invoice.StartDate,
+                    InvoiceNumber = invoice.InvoiceNumber,
+                    InvoiceValue = invoice.Value,
+                    InvoiceBalanceBeforeReceipting = invoice.Value
+                };
+
+                return invDetailDTO;
+            }
             var invoices = _context.Invoices.Include(x => x.Contract).Include(x => x.ContractService).Include(x => x.Receipts).Where(x => x.InvoiceNumber == invoiceNumber);
            // var receipt = _context.Receipts.FirstOrDefault(x => x.)
-            var invoiceDetailsInfo = new List<InvoiceDetailInfo>();
 
             foreach (var item in invoices)
             {
@@ -81,22 +157,15 @@ namespace OnlinePortalBackend.Repository.Impl
                 invoiceDetailsInfo.Add(invDetail);
             }
 
-            //var contractServiceInvoice = invoices.FirstOrDefault(x => x.ContractId == contractService.ContractId);
-            //var grpContractServiceInvoice = contractServiceInvoice.Invoices.Where(x => x.InvoiceStartDate == contractService.StartDate);
-            //var contractInvoice = invoices.FirstOrDefault(x => x.ContractId == contractService.ContractId);
-
-            //var receipt = _context.Receipts.Include(x => x.Invoice).Where(x => x.InvoiceId == invoiceId).OrderByDescending(x => x.Id).FirstOrDefault();
-
            
             var invoiceDetail = new InvoiceDetailDTO
             {
-             //   InvoiceBalanceBeforeReceipting = receipt?.InvoiceValueBalanceBeforeReceipting ?? 0,
                 InvoiceDetailsInfos = invoiceDetailsInfo,
                 InvoiceDue = invoices.FirstOrDefault().EndDate,
                 InvoiceEnd = invoices.FirstOrDefault().EndDate,
                 InvoiceStart = invoices.FirstOrDefault().StartDate,
                 InvoiceNumber = invoices.FirstOrDefault().InvoiceNumber,
-                InvoiceValue = invoices.Select(x => x.Value).Sum(),
+                InvoiceValue = invoices.Select(x => x.Value).Sum()
                 
             };
 
@@ -135,7 +204,7 @@ namespace OnlinePortalBackend.Repository.Impl
                     foreach (var item in invoices)
                     {
                         var receiptDetail = item.Receipts.Where(x => x.InvoiceId == item.Id).OrderBy(x => x.Id).FirstOrDefault();
-                        var grpInvoiceDetail = item.GroupInvoiceDetails.FirstOrDefault(x => x.ContractServiceId == item.ContractServiceId);
+                     //   var grpInvoiceDetail = item.GroupInvoiceDetails.FirstOrDefault(x => x.ContractServiceId == item.ContractServiceId);
                         grpInvoice.Add(new InvoiceDTO
                         {
                             InvoiceValueBalanceAfterReceipt = receiptDetail?.InvoiceValueBalanceAfterReceipting,
@@ -149,7 +218,8 @@ namespace OnlinePortalBackend.Repository.Impl
                             IsReceiptedStatus = item.IsReceiptedStatus,
                             Payment = receiptDetail?.ReceiptValue,
                             Id = (int)item.Id,
-                            ContractServiceId = (int)contractServiceId
+                            ContractServiceId = (int)contractServiceId,
+                            
                         });
 
                         contractServiceInvoices.Add(new ContractServiceInvoiceDTO
@@ -187,13 +257,13 @@ namespace OnlinePortalBackend.Repository.Impl
                     }
                     else
                     {
-                        invoices = await _context.Invoices
+                        invoices = await _context.Invoices?
                                                 .Include(x => x.Receipts)
-                                                .Include(x => x.ContractService)
+                                                ?.Include(x => x.ContractService)
                                                     .Where(x => x.GroupInvoiceNumber == contractService.Contract.GroupInvoiceNumber
-                                                                && (bool)x.IsFinalInvoice && !x.IsDeleted)
-                                                    .OrderBy(x => x.StartDate)
-                                                    .ToListAsync();
+                                                                && (bool)x.IsFinalInvoice && !x.IsDeleted)?.OrderBy(x => x.StartDate)?.ToListAsync();
+                                                    //.OrderBy(x => x.StartDate)
+                                                    //.ToListAsync();
 
                         foreach (var invoice in invoices)
                         {
