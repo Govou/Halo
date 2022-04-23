@@ -9,5 +9,6 @@ namespace OnlinePortalBackend.DTOs.TransferDTOs
         public string ServiceName { get; set; }
         public DateTime EndorsementRequestDate { get; set; }
         public string RequestExecution { get; set; }
+        public string ApprovalStatus { get; set; }
     }
 }
