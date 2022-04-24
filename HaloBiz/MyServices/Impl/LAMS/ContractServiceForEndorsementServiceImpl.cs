@@ -126,8 +126,11 @@ namespace HaloBiz.MyServices.Impl.LAMS
                         return CommonResponse.Send(ResponseCodes.FAILURE, null, $"There is already an endorsement request for the contract service with id {alreadyExists.Id}");
                     }
                 }
-
                
+                if(item.QuoteServiceId == 0)
+                {
+                    item.QuoteServiceId = null;
+                }
 
                 //check if this is nenewal and the previous contract has not
                 var previouslyRenewal = await _context.ContractServiceForEndorsements
@@ -206,44 +209,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
             }
         }
 
-        private bool ValidateAdminAccompaniesDirectService(List<ContractServiceForEndorsementReceivingDto> contractServices)
-        {
-            if (contractServices.Count == 1)
-                return true;
-            
-            
-            var isValidCount = 0;
-            var adminServiceCount = 0;
-
-            foreach (var contractService in contractServices)
-            {
-                var directServiceExist = false;
-                var adminServiceExist = false;
-                var adminDirectService = _context.ServiceRelationships.FirstOrDefault(x => x.DirectServiceId == contractService.ServiceId || x.AdminServiceId == contractService.ServiceId);
-                foreach (var item in contractServices)
-                {
-                    if (item.ServiceId == adminDirectService.AdminServiceId)
-                    {
-                        adminServiceExist = true;
-                        adminServiceCount++;
-                    }
-                    if (item.ServiceId == adminDirectService.DirectServiceId)
-                    {
-                        directServiceExist = true;
-                    }
-                }
-                if (directServiceExist && adminServiceExist)
-                {
-                    isValidCount++;
-                }
-            }
-
-            if (isValidCount == adminServiceCount)
-            {
-                return true;
-            }
-            return false;
-        }
+     
 
         private async Task<(bool, string)> ValidateEndorsementRequest(bool isToCreateNewContract, List<ContractServiceForEndorsementReceivingDto> contractServices)
         {
@@ -299,32 +265,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
             }
 
             return (true, null);
-        }
-
-        private async Task<bool> ValidateContractToRenew(ContractServiceForEndorsement contractServiceForEndorsement)
-        {
-            if (contractServiceForEndorsement.PreviousContractServiceId == null || contractServiceForEndorsement.PreviousContractServiceId == 0)
-            {
-                return false;
-            }
-
-            if(contractServiceForEndorsement.PreviousContractServiceId != null && contractServiceForEndorsement.PreviousContractServiceId > 0)
-            {
-                var contractService = await _context.ContractServices
-                        .FirstOrDefaultAsync(x => x.Id == contractServiceForEndorsement.PreviousContractServiceId);
-
-                if (contractService == null)
-                {
-                    return false;
-                }
-                if (contractService.ContractEndDate >= contractServiceForEndorsement.ContractStartDate)
-                {
-                    return false;
-                }
-            }
-
-            return true;
-        }
+        }       
 
         public async Task<ApiCommonResponse> GetUnApprovedContractServiceForEndorsement()
         {
@@ -1025,7 +966,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                     invoices = invoicesToUpdate
                                    .Where(x => x.StartDate >= contractServiceForEndorsement.DateForNewContractToTakeEffect && !x.IsDeleted);
 
-                    var billbalbleForInvoicingPeriod = CalculateTotalBillableForPeriod(contractService);
+                    var (interval,billbalbleForInvoicingPeriod, tax) = _leadConversionService.CalculateTotalBillableForPeriod(contractService);
 
                     foreach (var invoice in invoices)
                     {
@@ -1150,50 +1091,6 @@ namespace HaloBiz.MyServices.Impl.LAMS
             return amountToPay;
         }
 
-        private double CalculateTotalBillableForPeriod(ContractService contractService)
-        {
-            int interval = 0;
-
-            try
-            {
-                DateTime startDate = (DateTime)contractService.ContractStartDate;
-                DateTime endDate = (DateTime)contractService.ContractEndDate;
-                TimeCycle cycle = (TimeCycle)contractService.InvoicingInterval;
-                double amount = (double) contractService.BillableAmount;
-
-                switch (cycle)
-                {                   
-                    case TimeCycle.Monthly:
-                        interval = 1;
-                        break;
-                    case TimeCycle.BiMonthly:
-                        interval = 2;
-                        break;
-                    case TimeCycle.Quarterly:
-                        interval = 3;
-                        break;
-                    case TimeCycle.BiAnnually:
-                        interval = 6;
-                        break;
-                    case TimeCycle.Annually:
-                        interval = 12;
-                        break;                    
-                }
-
-               if (cycle == TimeCycle.OneTime)
-                {
-                    return amount;
-                }
-                else
-                {
-                    return amount * (double)interval;
-                }
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex.StackTrace);
-                throw;
-            }
-        }
+       
     }
 }

@@ -164,26 +164,17 @@ namespace HaloBiz.Helpers
         private bool CheckAuthorization(HttpContext context, string controller,string actionName, List<int> permisssions)
         {
             var actionVerb = context.Request.Method.ToLower();
-
-            //all GET method must pass
             if (actionVerb == "get") 
                 return true; 
 
             var exemptedList = _configuration.GetSection("AuthorizationExemption").Get<List<AuthorizationExemption>>();
-            var exemptions = exemptedList.Where(x => x.Controller.ToLower().Contains(controller.ToLower())).FirstOrDefault() ?? new AuthorizationExemption();
-            //if (exemptions.ActionVerbs.Any(x=>x.ToLower().Contains(actionVerb) || exemptions.Endpoints.Any(x=>x.ToLower().Contains(actionName.ToLower()))))
-            //{
-            //    return true;
-            //}
+            var exemptions = exemptedList.Where(x => x.Controller.ToLower().Contains(controller.ToLower())).FirstOrDefault() ?? new AuthorizationExemption();           
             if (exemptions.ActionVerbs.Contains(actionVerb, StringComparer.OrdinalIgnoreCase) || exemptions.Endpoints.Contains(actionName.ToLower(), StringComparer.OrdinalIgnoreCase))
             {
                 return true;
             }
 
-            var permissionEnum = $"{controller}_{actionVerb}";
-
-            if ((controller.ToLower() == "auth" && actionName.ToLower()=="createuser") || controller.ToLower()=="user" || controller.ToLower() == "auth")
-                return true;
+            var permissionEnum = $"{controller}_{actionVerb}";           
 
             if (!Enum.TryParse(typeof(Permissions), permissionEnum, true, out var permission))
             {
