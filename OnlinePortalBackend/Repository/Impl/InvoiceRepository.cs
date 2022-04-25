@@ -106,6 +106,8 @@ namespace OnlinePortalBackend.Repository.Impl
                     contractServiceIdividualInvoiceDTOs.Add(new ContractServiceIdividualInvoiceDTO
                     {
                         ContractId = item.ContractId,
+                        PaymentsDue = item.PaymentsDue,
+                        PaymentsOverDue = item.PaymentsOverDue,
                     });
 
                     var index = contractServiceIdividualInvoiceDTOs.FindIndex(x => x.ContractId == item.ContractId);
@@ -116,8 +118,11 @@ namespace OnlinePortalBackend.Repository.Impl
                 {
                     var indInvoice = new IdividualInvoiceDTO { Invoices = item.Invoices };
 
-                  var index =  contractServiceIdividualInvoiceDTOs.FindIndex(x => x.ContractId == item.ContractId);
-                  contractServiceIdividualInvoiceDTOs[index].IndividualInvoices.Add(indInvoice);
+                    var index =  contractServiceIdividualInvoiceDTOs.FindIndex(x => x.ContractId == item.ContractId);
+                    contractServiceIdividualInvoiceDTOs[index].IndividualInvoices.Add(indInvoice);
+                    contractServiceIdividualInvoiceDTOs[index].PaymentsDue += item.PaymentsDue;
+                    contractServiceIdividualInvoiceDTOs[index].PaymentsOverDue += item.PaymentsOverDue;
+
                 }
     
             }

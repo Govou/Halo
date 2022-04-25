@@ -24,6 +24,8 @@ namespace OnlinePortalBackend.DTOs.TransferDTOs
 
         public List<IdividualInvoiceDTO> IndividualInvoices { get; set; }
         public int ContractId { get; set; }
+        public int PaymentsDue { get; set; }
+        public int PaymentsOverDue { get; set; }
     }
 
     public class ContractInvoiceDTO
