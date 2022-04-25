@@ -15,10 +15,21 @@ namespace OnlinePortalBackend.DTOs.TransferDTOs
         public int ContractId { get; set; }
     }
 
+    public class IdividualInvoiceDTO
+    {
+        public IEnumerable<InvoiceDTO> Invoices { get; set; }
+    }
+    public class ContractServiceIdividualInvoiceDTO
+    {
+
+        public List<IdividualInvoiceDTO> IndividualInvoices { get; set; }
+        public int ContractId { get; set; }
+    }
+
     public class ContractInvoiceDTO
     {
         public IEnumerable<ContractServiceInvoiceDTO> ContractServiceInvoices { get; set; }
-        public IEnumerable<ContractServiceInvoiceDTO> IndividualContractServiceInvoices { get; set; }
+        public IEnumerable<ContractServiceIdividualInvoiceDTO> IndividualContractServiceInvoices { get; set; }
     }
 
     public class InvoiceDTO
