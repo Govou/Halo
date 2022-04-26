@@ -1,6 +1,7 @@
 ﻿using Halobiz.Common.DTOs.ApiDTOs;
 using OnlinePortalBackend.Repository;
 using System.Threading.Tasks;
+using System;
 
 namespace OnlinePortalBackend.MyServices.Impl
 {
@@ -12,9 +13,9 @@ namespace OnlinePortalBackend.MyServices.Impl
             _invoiceRepository = invoiceRepository;
         }
 
-        public async Task<ApiCommonResponse> GetInvoice(string invoiceNumber)
+        public async Task<ApiCommonResponse> GetInvoice(string invoiceNumber, DateTime invoiceDate)
         {
-            var invoices = await _invoiceRepository.GetInvoice(invoiceNumber);
+            var invoices = await _invoiceRepository.GetInvoice(invoiceNumber, invoiceDate);
 
             if (invoices == null)
             {
