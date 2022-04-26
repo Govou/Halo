@@ -31,6 +31,12 @@ namespace Controllers.Controllers
         {
             return await _contractServiceForEndorsementService.GetEndorsementDetailsById(endorsementId);
         }
+        
+        [HttpGet("GetEndorsementServiceAddition/{endorsementId}")]
+        public async Task<ApiCommonResponse> GetEndorsementServiceAddition(long endorsementId)
+        {
+            return await _contractServiceForEndorsementService.GetEndorsementServiceAddition(endorsementId);
+        }
 
         [HttpGet("UnApprovedEndorsements")]
         public async Task<ApiCommonResponse> GetDropReason()
