@@ -101,42 +101,65 @@ namespace HaloBiz.MyServices.Impl.LAMS
             var sbuToQuoteProportionTransferDTOs = _mapper
                                         .Map<IEnumerable<SbutoContractServiceProportionTransferDTO>>(savedEntities);
 
-            var (isSbuComplete, contract) = await IsSBUComplete(defaultService);
-            if (isSbuComplete)
-            {
-                //add aapprovals and update contract that SBU has been added
-                contract.HasAddedSBU = true;
-                _context.Contracts.Update(contract);
-                 await _context.SaveChangesAsync();
-
-                //set up approvals for the contract services
-               var approvedSetup = await _approvalService.SetUpApprovalsForContractCreationEndorsement(contract.Id, httpcontext);
-               
-                return CommonResponse.Send(ResponseCodes.SUCCESS, sbuToQuoteProportionTransferDTOs, "Users added and sent for approval");
-
-            }
-
-            return CommonResponse.Send(ResponseCodes.SUCCESS,sbuToQuoteProportionTransferDTOs,"User added successfully");
-        }
-
-        private async Task<(bool, Contract)> IsSBUComplete(SbutoContractServiceProportionReceivingDTO entity)
-        {
-            //check how many have been enttered again how many are available
-            var contractService = await _context.ContractServices.FindAsync(entity.ContractServiceId);
-
-            var contract =  await _context.Contracts.Where(x => x.Id == contractService.ContractId)
+            //get the contract this contract service belongs to
+            var contractService = await _context.ContractServices.FindAsync(defaultService.ContractServiceId);
+            var contract = await _context.Contracts.Where(x => x.Id == contractService.ContractId)
                                 .Include(x => x.ContractServices)
                                     .ThenInclude(x => x.SbutoContractServiceProportions)
                                 .FirstOrDefaultAsync();
+
+            //check for addition
+            if (contract.IsApproved && contract.HasAddedSBU)
+            {
+                //update for each endorsement service
+                foreach (var item in entities)
+                {
+                    var _contractService = await _context.ContractServices.FindAsync(item.ContractServiceId);
+
+                    //find the endorsement this belongs to
+                    var endorsement = await _context.ContractServiceForEndorsements.Where(x => x.PreviousContractServiceId == _contractService.Id && x.EndorsementTypeId == 2).FirstOrDefaultAsync();
+                    endorsement.IsRequestedForApproval = true;
+                    _context.ContractServiceForEndorsements.Update(endorsement);
+                }
+
+                await _context.SaveChangesAsync();
+                return CommonResponse.Send(ResponseCodes.SUCCESS, sbuToQuoteProportionTransferDTOs, "User(s) added and sent for approval");
+            }
+            else
+            {
+                var isSbuComplete = IsSBUComplete(contract);
+                if (isSbuComplete)
+                {
+                    //add aapprovals and update contract that SBU has been added
+                    contract.HasAddedSBU = true;
+                    _context.Contracts.Update(contract);
+                    await _context.SaveChangesAsync();
+
+                    //set up approvals for the contract services
+                    var approvedSetup = await _approvalService.SetUpApprovalsForContractCreationEndorsement(contract.Id, httpcontext);
+
+                    return CommonResponse.Send(ResponseCodes.SUCCESS, sbuToQuoteProportionTransferDTOs, "Users added and sent for approval");
+
+                }
+
+                return CommonResponse.Send(ResponseCodes.SUCCESS, sbuToQuoteProportionTransferDTOs, "User added successfully");
+            }
+            
+        }
+
+        private bool IsSBUComplete(Contract contract)
+        {
+            //check how many have been enttered again how many are available
+           
             foreach (var item in contract.ContractServices)
             {
                 if(!item.SbutoContractServiceProportions.Any())
                 {
-                    return (false, null);
+                    return false;
                 }
             }
 
-            return (true,contract);
+            return true;
         }
 
         private async Task<IEnumerable<SbutoContractServiceProportion>> SetProportionValue(IEnumerable<SbutoContractServiceProportion> entities, HttpContext context) 

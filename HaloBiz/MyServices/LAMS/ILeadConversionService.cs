@@ -42,5 +42,6 @@ namespace HaloBiz.MyServices.LAMS
         public Task<string> GetDtrackCustomerNumber(CustomerDivision customer);
         public Task<bool> AccountsForContractServices(ContractService contractService, CustomerDivision customerDivision, long userId);
         public (int, double, double) CalculateTotalBillableForPeriod(ContractService contractService);
+        public Task<bool> AddServiceEndorsement(ContractService contractService, CustomerDivision customerDivision, long loggedInUser);
     }
 }
