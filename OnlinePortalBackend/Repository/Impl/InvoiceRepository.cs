@@ -95,8 +95,40 @@ namespace OnlinePortalBackend.Repository.Impl
                // var cIncoince = individualInvoices.Where(x => x.ContractId == item);
               //  finalInvoices.Add(cIncoince);
             }
+            var contractServiceIdividualInvoiceDTOs = new List<ContractServiceIdividualInvoiceDTO>();
             contractInvoiceDTO.ContractServiceInvoices = finalInvoices;
-            contractInvoiceDTO.IndividualContractServiceInvoices = indContrServInvs;
+
+            foreach (var item in indContrServInvs)
+            {
+                if (contractServiceIdividualInvoiceDTOs.FirstOrDefault(x => x.ContractId == item.ContractId) == null )
+                {
+                    var indInvoice = new IdividualInvoiceDTO { Invoices = item.Invoices };
+                    contractServiceIdividualInvoiceDTOs.Add(new ContractServiceIdividualInvoiceDTO
+                    {
+                        ContractId = item.ContractId,
+                        PaymentsDue = item.PaymentsDue,
+                        PaymentsOverDue = item.PaymentsOverDue,
+                    });
+
+                    var index = contractServiceIdividualInvoiceDTOs.FindIndex(x => x.ContractId == item.ContractId);
+                    contractServiceIdividualInvoiceDTOs[index].IndividualInvoices = new List<IdividualInvoiceDTO>();
+                    contractServiceIdividualInvoiceDTOs[index].IndividualInvoices.Add(indInvoice);
+                }
+                else
+                {
+                    var indInvoice = new IdividualInvoiceDTO { Invoices = item.Invoices };
+
+                    var index =  contractServiceIdividualInvoiceDTOs.FindIndex(x => x.ContractId == item.ContractId);
+                    contractServiceIdividualInvoiceDTOs[index].IndividualInvoices.Add(indInvoice);
+                    contractServiceIdividualInvoiceDTOs[index].PaymentsDue += item.PaymentsDue;
+                    contractServiceIdividualInvoiceDTOs[index].PaymentsOverDue += item.PaymentsOverDue;
+
+                }
+    
+            }
+
+          
+            contractInvoiceDTO.IndividualContractServiceInvoices = contractServiceIdividualInvoiceDTOs;
 
            return contractInvoiceDTO;
         }
