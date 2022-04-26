@@ -89,18 +89,23 @@ namespace HaloBiz.Repository.Impl
 
 
             //type check
-            foreach (var items in eligibleArmedEscorts)
-            {
-                var typeExists = _serviceRegistrationRepository.GetArmedEscortResourceApplicableTypeReqById(seviceRegId, items.ArmedEscortTypeId);
-                if (typeExists == null)
-                {
-                    eligibleArmedEscorts.Remove(items);
-                    //services_.Add(items);
-                }
+            var getType = _context.ArmedEscortResourceRequiredPerServices.Where
+             (ct => ct.ServiceRegistrationId == seviceRegId && ct.IsDeleted == false).ToList();
 
-            }
+            eligibleArmedEscorts = eligibleArmedEscorts.Where(x => getType.Any(y => y.ArmedEscortTypeId == x.ArmedEscortTypeId)).OrderBy(x => x.CreatedAt).ToList();
+            
+            //foreach (var items in eligibleArmedEscorts)
+            //{
+            //    var typeExists = _serviceRegistrationRepository.GetArmedEscortResourceApplicableTypeReqById(seviceRegId, items.ArmedEscortTypeId);
+            //    if (typeExists == null)
+            //    {
+            //        eligibleArmedEscorts.Remove(items);
+            //        //services_.Add(items);
+            //    }
 
-            var scheduleQuery = _context.ArmedEscortDTSMasters.Where(dts => dts.IsDeleted == false && (pickupDate >= dts.AvailabilityStart && pickupDate <= dts.AvailablilityEnd))
+            //}
+
+            var scheduleQuery = _context.ArmedEscortDTSMasters.Where(dts => dts.IsDeleted == false && pickupDate >= dts.AvailabilityStart && pickupDate <= dts.AvailablilityEnd)
             .Include(dts => dts.CreatedBy).Include(dts => dts.ArmedEscortResource).
             Include(dts => dts.GenericDays.Where(x => x.IsDeleted == false))
             .OrderByDescending(x => x.Id);
@@ -220,19 +225,24 @@ namespace HaloBiz.Repository.Impl
 
 
             //type check
-            foreach (var items in eligibleCommanders)
-            {
-                var typeExists = _serviceRegistrationRepository.GetCommanderResourceApplicableTypeReqById(seviceRegId, items.CommanderTypeId);
-                if (typeExists == null)
-                {
-                    eligibleCommanders.Remove(items);
-                    //services_.Add(items);
-                }
+            var getType = _context.CommanderResourceRequiredPerServices.Where
+              (ct => ct.ServiceRegistrationId == seviceRegId && ct.IsDeleted == false).ToList();
 
-            }
+            eligibleCommanders = eligibleCommanders.Where(x => getType.Any(y => y.CommanderTypeId == x.CommanderTypeId)).OrderBy(x => x.CreatedAt).DistinctBy(y => y.CommanderTypeId).ToList();
+
+            //foreach (var items in eligibleCommanders)
+            //{
+            //    var typeExists = _serviceRegistrationRepository.GetCommanderResourceApplicableTypeReqById(seviceRegId, items.CommanderTypeId);
+            //    if (typeExists == null)
+            //    {
+            //        eligibleCommanders.Remove(items);
+            //        //services_.Add(items);
+            //    }
+
+            //}
             
 
-            var scheduleQuery = _context.CommanderDTSMasters.Where(dts => dts.IsDeleted == false && (pickupDate >= dts.AvailabilityStart && pickupDate <= dts.AvailablilityEnd))
+            var scheduleQuery = _context.CommanderDTSMasters.Where(dts => dts.IsDeleted == false && pickupDate >= dts.AvailabilityStart && pickupDate <= dts.AvailablilityEnd)
             .Include(dts => dts.CreatedBy).Include(dts => dts.CommanderResource).
             Include(dts => dts.GenericDays.Where(x => x.IsDeleted == false))
             .OrderByDescending(x => x.Id);
@@ -352,19 +362,23 @@ namespace HaloBiz.Repository.Impl
 
 
             //type check
-           
-            foreach (var items in eligiblePilots)
-            {
-                var typeExists = _serviceRegistrationRepository.GetPilotResourceApplicableTypeReqById(seviceRegId, items.PilotTypeId);
-                if (typeExists == null)
-                {
-                    eligiblePilots.Remove(items);
-                }
+            var getType = _context.PilotResourceRequiredPerService.Where
+               (ct => ct.ServiceRegistrationId == seviceRegId && ct.IsDeleted == false).ToList();
 
-            }
+            eligiblePilots = eligiblePilots.Where(x => getType.Any(y => y.PilotTypeId == x.PilotTypeId)).OrderBy(x => x.CreatedAt).ToList();
+
+            //foreach (var items in eligiblePilots)
+            //{
+            //    var typeExists = _serviceRegistrationRepository.GetPilotResourceApplicableTypeReqById(seviceRegId, items.PilotTypeId);
+            //    if (typeExists == null)
+            //    {
+            //        eligiblePilots.Remove(items);
+            //    }
+
+            //}
            
 
-            var scheduleQuery = _context.PilotDTSMasters.Where(dts => dts.IsDeleted == false && (pickupDate >= dts.AvailabilityStart && pickupDate <= dts.AvailablilityEnd))
+            var scheduleQuery = _context.PilotDTSMasters.Where(dts => dts.IsDeleted == false && pickupDate >= dts.AvailabilityStart && pickupDate <= dts.AvailablilityEnd)
             .Include(dts => dts.CreatedBy).Include(dts => dts.PilotResource).
             Include(dts => dts.GenericDays.Where(x => x.IsDeleted == false));
 
@@ -623,20 +637,25 @@ namespace HaloBiz.Repository.Impl
 
             //check for route
             eligibleVehicles = eligibleVehicles.Where(x => query.Any(y => y.ResourceId == x.Id && y.SMORouteId == RouteId)).OrderBy(x=>x.CreatedAt).ToList();
-           
+
 
             //type check
-            
-            foreach (var items in eligibleVehicles)
-            {
-                var typeExists = _serviceRegistrationRepository.GetVehicleResourceApplicableTypeReqById(seviceRegId, items.VehicleTypeId);
-                if (typeExists == null)
-                {
-                    eligibleVehicles.Remove(items);
-                    //services_.Add(items);
-                }
+            var getType =  _context.VehicleResourceRequiredPerServices.Where
+               (ct => ct.ServiceRegistrationId == seviceRegId && ct.IsDeleted == false).ToList();
 
-            }
+            //eligibleVehicles = eligibleVehicles.Where(x => getType.Any(y =>  y.VehicleTypeId == x.VehicleTypeId)).OrderBy(x => x.CreatedAt).DistinctBy(y=>y.VehicleTypeId).ToList();
+            eligibleVehicles = eligibleVehicles.Where(x => getType.Any(y =>  y.VehicleTypeId == x.VehicleTypeId)).OrderBy(x => x.CreatedAt).ToList();
+
+            //foreach (var items in eligibleVehicles)
+            //{
+            //    var typeExists = _serviceRegistrationRepository.GetVehicleResourceApplicableTypeReqById(seviceRegId, items.VehicleTypeId);
+            //    if (typeExists == null)
+            //    {
+            //        eligibleVehicles.Remove(items);
+            //        //services_.Add(items);
+            //    }
+
+            //}
             //services_.ToList();
             var neverAssigned = eligibleVehicles.ToList();
 
