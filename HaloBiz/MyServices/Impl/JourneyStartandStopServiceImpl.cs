@@ -22,17 +22,20 @@ namespace HaloBiz.MyServices.Impl
         private readonly IJourneyStartandStopRepository _journeyStartandStopRepository;
         private readonly IServiceAssignmentMasterRepository _serviceAssignmentMasterRepository;
         private readonly IServiceAssignmentDetailsRepository _serviceAssignmentDetailsRepository;
+        private readonly ISMORouteAndRegionRepository _sMORouteAndRegionRepository;
+      
         private readonly IInvoiceService _invoiceService;
         private readonly IMapper _mapper;
 
         public JourneyStartandStopServiceImpl(IMapper mapper, IJourneyStartandStopRepository journeyStartandStopRepository, IServiceAssignmentMasterRepository serviceAssignmentMasterRepository, 
-            IServiceAssignmentDetailsRepository serviceAssignmentDetailsRepository, IInvoiceService invoiceService)
+            IServiceAssignmentDetailsRepository serviceAssignmentDetailsRepository, IInvoiceService invoiceService, ISMORouteAndRegionRepository sMORouteAndRegionRepository)
         {
             _mapper = mapper;
             _journeyStartandStopRepository = journeyStartandStopRepository;
             _serviceAssignmentMasterRepository = serviceAssignmentMasterRepository;
             _serviceAssignmentDetailsRepository = serviceAssignmentDetailsRepository;
             _invoiceService = invoiceService;
+            _sMORouteAndRegionRepository = sMORouteAndRegionRepository;
         }
 
         public async Task<ApiCommonResponse> AddArmedEscortFeedback(HttpContext context, ArmedEscortFeedbackReceivingDTO feedback)
@@ -75,8 +78,9 @@ namespace HaloBiz.MyServices.Impl
             {
                 //itemToAdd.Id = 0;
                 //itemToAdd.JourneyStartId = feedback.JourneyStartId;
-                itemToAdd.CreatedById = context.GetLoggedInUserId();
-                itemToAdd.CreatedAt = DateTime.UtcNow;
+                //itemToAdd.CreatedById = context.GetLoggedInUserId();
+                itemToAdd.CreatedById = 31; //since its a standalone
+                itemToAdd.CreatedAt = DateTime.Now;
                 var saved = await _journeyStartandStopRepository.SaveFeedbackMaster(itemToAdd);
                 if (saved == null)
                 {
@@ -96,8 +100,9 @@ namespace HaloBiz.MyServices.Impl
         {
             var itemToAdd = _mapper.Map<GeneralFeedbackDetail>(feedback);
 
-            itemToAdd.Id = 0;
-            itemToAdd.CreatedById = context.GetLoggedInUserId();
+            //itemToAdd.Id = 0;
+            //itemToAdd.CreatedById = context.GetLoggedInUserId();
+            itemToAdd.CreatedById = 31;
             itemToAdd.CreatedAt = DateTime.UtcNow;
             var saved = await _journeyStartandStopRepository.SaveGeneralFeedback(itemToAdd);
             if (saved == null)
@@ -668,6 +673,7 @@ namespace HaloBiz.MyServices.Impl
             int hours = (int)gethrs.TotalHours;
             //int min = (int)gethrs.Minutes;
             itemToUpdate.TotalTimeSpentOnJourney = hours;
+            
             itemToUpdate.UpdatedAt = DateTime.UtcNow;
             var updatedRank = await _journeyStartandStopRepository.UpdateEndJouneyStart(itemToUpdate);
 
@@ -679,11 +685,13 @@ namespace HaloBiz.MyServices.Impl
             }
             else
             {
+                
                 var endItemToUpdate = await _serviceAssignmentMasterRepository.FindServiceAssignmentById(journeyEndReceiving.ServiceAssignmentId);
                 var escortToDelete = await _serviceAssignmentDetailsRepository.FindAllEscortServiceAssignmentDetailsByAssignmentId(journeyEndReceiving.ServiceAssignmentId);
                 var commanderToDelete = await _serviceAssignmentDetailsRepository.FindAllCommanderServiceAssignmentDetailsByAssignmentId(journeyEndReceiving.ServiceAssignmentId);
                 var pilotToDelete = await _serviceAssignmentDetailsRepository.FindAllPilotServiceAssignmentDetailsByAssignmentId(journeyEndReceiving.ServiceAssignmentId);
                 var vehicleToDelete = await _serviceAssignmentDetailsRepository.FindAllVehicleServiceAssignmentDetailsByAssignmentId(journeyEndReceiving.ServiceAssignmentId);
+                var getRoute = await _sMORouteAndRegionRepository.FindSMORouteById2(updatedRank.ServiceAssignment.SMORouteId);
 
                 if (endItemToUpdate == null)
                 {
@@ -699,7 +707,12 @@ namespace HaloBiz.MyServices.Impl
                 {
                     foreach (var item in escortToDelete)
                     {
-                        await _serviceAssignmentDetailsRepository.DeleteEscortServiceAssignmentDetail(item);
+                        item.RecoveryDateTime = DateTime.Now.AddMinutes(getRoute.RRecoveryTime);
+                        if (!await _serviceAssignmentDetailsRepository.DeleteEscortServiceAssignmentDetail(item))
+                        {
+                            return CommonResponse.Send(ResponseCodes.FAILURE, null, ResponseMessage.InternalServer500);
+                        }
+                        
                     }
 
                 }
@@ -707,21 +720,34 @@ namespace HaloBiz.MyServices.Impl
                 {
                     foreach (var item in commanderToDelete)
                     {
-                        await _serviceAssignmentDetailsRepository.DeleteCommanderServiceAssignmentDetail(item);
+                        item.RecoveryDateTime = DateTime.Now.AddMinutes(getRoute.RRecoveryTime);
+                        if(!await _serviceAssignmentDetailsRepository.DeleteCommanderServiceAssignmentDetail(item))
+                        {
+                            return CommonResponse.Send(ResponseCodes.FAILURE, null, ResponseMessage.InternalServer500);
+                        }
+                       
                     }
                 }
                 if (pilotToDelete.Count() != 0)
                 {
                     foreach (var item in pilotToDelete)
                     {
-                        await _serviceAssignmentDetailsRepository.DeletePilotServiceAssignmentDetail(item);
+                        item.RecoveryDateTime = DateTime.Now.AddMinutes(getRoute.RRecoveryTime);
+                        if (!await _serviceAssignmentDetailsRepository.DeletePilotServiceAssignmentDetail(item))
+                        {
+                            
+                        }
                     }
                 }
                 if (vehicleToDelete.Count() != 0)
                 {
                     foreach (var item in vehicleToDelete)
                     {
-                        await _serviceAssignmentDetailsRepository.DeleteVehicleServiceAssignmentDetail(item);
+                        item.RecoveryDateTime = DateTime.Now.AddMinutes(getRoute.RRecoveryTime);
+                        if (!await _serviceAssignmentDetailsRepository.DeleteVehicleServiceAssignmentDetail(item))
+                        {
+                            return CommonResponse.Send(ResponseCodes.FAILURE, null, ResponseMessage.InternalServer500);
+                        }
                     }
                 }
             }
