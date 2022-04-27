@@ -96,6 +96,17 @@ namespace OnlinePortalBackend.Repository.Impl
               //  finalInvoices.Add(cIncoince);
             }
             var contractServiceIdividualInvoiceDTOs = new List<ContractServiceIdividualInvoiceDTO>();
+            foreach (var fInv in finalInvoices)
+            {
+                foreach (var item in fInv.Invoices)
+                {
+                    var sessionId = item.InvoiceNumber + item.InvoiceStartDate + userId;
+                    sessionId = sessionId.Replace('/', '0');
+                    var trx = _context.OnlineTransactions.FirstOrDefault(x => x.PaymentReferenceInternal == item.InvoiceNumber && x.SessionId == sessionId && !string.IsNullOrEmpty(x.PaymentReferenceGateway) && x.PaymentConfirmation != true);
+                    if (trx != null)
+                        item.IsToBeReceipted = true;
+                }
+            }
             contractInvoiceDTO.ContractServiceInvoices = finalInvoices;
 
             foreach (var item in indContrServInvs)
@@ -127,7 +138,22 @@ namespace OnlinePortalBackend.Repository.Impl
     
             }
 
-          
+            foreach (var fInv in contractServiceIdividualInvoiceDTOs)
+            {
+                foreach (var indInv in fInv.IndividualInvoices)
+                {
+                    foreach (var item in indInv.Invoices)
+                    {
+                        var sessionId = item.InvoiceNumber + item.InvoiceStartDate + userId;
+                        sessionId = sessionId.Replace('/', '0');
+                        var trx = _context.OnlineTransactions.FirstOrDefault(x => x.PaymentReferenceInternal == item.InvoiceNumber && x.SessionId == sessionId && !string.IsNullOrEmpty(x.PaymentReferenceGateway) && x.PaymentConfirmation != true);
+                        if (trx != null)
+                            item.IsToBeReceipted = true;
+                    }
+                  
+                }
+            }
+
             contractInvoiceDTO.IndividualContractServiceInvoices = contractServiceIdividualInvoiceDTOs;
 
            return contractInvoiceDTO;

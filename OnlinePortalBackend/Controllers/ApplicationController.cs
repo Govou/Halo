@@ -27,23 +27,23 @@ namespace OnlinePortalBackend.Controllers
         }
 
         [HttpGet("GetAppRatings")]
-        public async Task<ActionResult> GetAppRatings()
+        public async Task<ActionResult> GetAppRatings(int appId)
         {
-            var response = await _serviceRatingService.FindAllAppRatings();
+            var response = await _serviceRatingService.FindAllAppRatings(appId);
             if (response.StatusCode >= 400)
                 return StatusCode(response.StatusCode, response);
             var serviceRating = ((ApiOkResponse)response).Result;
-            return Ok((IEnumerable<AppRatingReceivingDTO>)serviceRating);
+            return Ok(serviceRating);
         }
 
         [HttpGet("GetApplications")]
         public async Task<ActionResult> GetApplications()
         {
-            var response = await _serviceRatingService.FindAllAppRatings();
+            var response = await _serviceRatingService.FindAllApplications();
             if (response.StatusCode >= 400)
                 return StatusCode(response.StatusCode, response);
-            var serviceRating = ((ApiOkResponse)response).Result;
-            return Ok((IEnumerable<AppRatingReceivingDTO>)serviceRating);
+            var apps = ((ApiOkResponse)response).Result;
+            return Ok(apps);
         }
     }
 }

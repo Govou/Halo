@@ -102,10 +102,10 @@ namespace OnlinePortalBackend.MyServices.Impl
             return new ApiOkResponse(serviceRatingsTransferDto);
         }
 
-        public async Task<ApiResponse> FindAllAppRatings()
+        public async Task<ApiResponse> FindAllAppRatings(int appId)
         {
             var appRatingsList = new List<AppRatingTransferDTO>();
-            var appRatings = await _serviceRatingRepo.FindAllAppRatings();
+            var appRatings = await _serviceRatingRepo.FindAllAppRatings(appId);
             if (appRatings == null)
             {
                 return new ApiResponse(404);
