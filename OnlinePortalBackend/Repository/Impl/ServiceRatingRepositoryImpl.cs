@@ -122,10 +122,10 @@ namespace OnlinePortalBackend.Repository.Impl
             return null;
         }
 
-        public async Task<IEnumerable<AppRating>> FindAllAppRatings()
+        public async Task<IEnumerable<AppRating>> FindAllAppRatings(int appId)
         {
             return await _context.AppRatings.Include(x => x.Application).Include(x => x.CustomerDivision)
-              .Where(user => user.IsDeleted == false)
+              .Where(x => x.IsDeleted == false && x.ApplicationId == appId)
               .ToListAsync();
         }
 

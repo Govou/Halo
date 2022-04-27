@@ -15,7 +15,7 @@ namespace OnlinePortalBackend.Repository
         Task<IEnumerable<ServiceRating>> GetReviewHistoryByServiceId(long Id);
         Task<IEnumerable<ServiceRating>> FindServiceRatingsByUserId(long Id);
         Task<IEnumerable<ServiceRating>> FindAllServiceRatings();
-        Task<IEnumerable<AppRating>> FindAllAppRatings();
+        Task<IEnumerable<AppRating>> FindAllAppRatings(int Id);
         Task<IEnumerable<Application>> FindAllApplications();
         Task<ServiceRating> UpdateServiceRating(ServiceRating serviceRating);
         Task<bool> RemoveServiceRating(ServiceRating serviceRating);

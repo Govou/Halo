@@ -13,7 +13,7 @@ namespace OnlinePortalBackend.MyServices
         Task<ApiResponse> FindServiceRatingById(long id);
         Task<ApiResponse> GetReviewHistoryByServiceId(long contractServiceId);
         Task<ApiResponse> FindAllServiceRatings();
-        Task<ApiResponse> FindAllAppRatings();
+        Task<ApiResponse> FindAllAppRatings(int appId);
         Task<ApiResponse> FindAllApplications();
         Task<ApiResponse> GetMyServiceRatings(HttpContext context);
        // Task<ApiResponse> UpdateServiceRating(HttpContext context, long userId, ServiceRatingReceivingDTO controlRoomAlertReceivingDTO);
