@@ -23,8 +23,8 @@ namespace OnlinePortalBackend.Repository.Impl
         public async Task<ServiceRating> SaveServiceRating(ServiceRating rating)
         {
             rating.UpdatedAt = DateTime.Now;
-            rating.ProspectId = 17;
-            rating.CreatedById = 4;
+            rating.CustomerDivisionId = rating.CustomerDivisionId;
+            rating.CreatedById = _context.UserProfiles.FirstOrDefault(x => x.FirstName.ToLower() == "seeder").Id;
             rating.CreatedAt = DateTime.Now;
             var addedRating = await _context.ServiceRatings.AddAsync(rating);
 
@@ -109,5 +109,27 @@ namespace OnlinePortalBackend.Repository.Impl
                 return false;
             }
         }
+
+        public async Task<ServiceRating> SaveAppRating(AppRating rating)
+        {
+            rating.UpdatedAt = DateTime.Now;
+            rating.CustomerDivisionId = rating.CustomerDivisionId;
+            rating.CreatedById = _context.UserProfiles.FirstOrDefault(x => x.FirstName.ToLower() == "seeder").Id;
+            rating.CreatedAt = DateTime.Now;
+           // var addedRating = await _context.AppRatings.AddAsync(rating);
+
+            //if (await SaveChanges())
+            //{
+            //    return addedRating.Entity;
+            //}
+            return null;
+        }
+
+        //public async Task<IEnumerable<AppRating>> FindAllAppRatings()
+        //{
+        //    //return await _context.AppRatings
+        //    //  .Where(user => user.IsDeleted == false)
+        //    //  .ToListAsync();
+        //}
     }
 }

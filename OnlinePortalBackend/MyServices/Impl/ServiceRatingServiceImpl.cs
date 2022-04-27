@@ -27,16 +27,38 @@ namespace OnlinePortalBackend.MyServices.Impl
             _historyRepo = historyRepo;
         }
 
-        public async Task<ApiCommonResponse> AddServiceRating(HttpContext context, ServiceRatingReceivingDTO serviceRatingReceivingDTO)
+        public async Task<ApiCommonResponse> AddServiceRating(ServiceRatingReceivingDTO serviceRatingReceivingDTO)
         {
             var serviceRating = _mapper.Map<ServiceRating>(serviceRatingReceivingDTO);
-            serviceRating.CreatedById = context.GetLoggedInUserId();
+            serviceRating.CreatedById = serviceRatingReceivingDTO.CustomerDivisionId;
             var savedServiceRating = await _serviceRatingRepo.SaveServiceRating(serviceRating);
             if(savedServiceRating == null)
             {
                 return CommonResponse.Send(ResponseCodes.FAILURE);
             }
             var serviceRatingTransferDto = _mapper.Map<ServiceRatingTransferDTO>(serviceRating);
+            return CommonResponse.Send(ResponseCodes.SUCCESS);
+        }
+
+        public async Task<ApiCommonResponse> AddAppRating(AppRatingReceivingDTO appRating)
+        {
+            var rating = new AppRating
+            {
+                ApplicationId = appRating.ApplicationId,
+                CustomerDivisionId = appRating.CustomerDivisionId,
+                CreatedAt = DateTime.Now,
+                Rating = appRating.Rating,
+                Review = appRating.Review,
+                UpdatedAt = DateTime.Now,
+                CreatedById = appRating.CustomerDivisionId
+
+            } ;
+            var savedAppRating = await _serviceRatingRepo.SaveAppRating(rating);
+            if (savedAppRating == null)
+            {
+                return CommonResponse.Send(ResponseCodes.FAILURE);
+            }
+          //  var serviceRatingTransferDto = _mapper.Map<ServiceRatingTransferDTO>(serviceRating);
             return CommonResponse.Send(ResponseCodes.SUCCESS);
         }
 
@@ -77,6 +99,11 @@ namespace OnlinePortalBackend.MyServices.Impl
             }
             var serviceRatingsTransferDto = _mapper.Map<IEnumerable<ServiceRatingTransferDTO>>(serviceRatings);
             return new ApiOkResponse(serviceRatingsTransferDto);
+        }
+
+        public Task<ApiResponse> FindAllAppRatings()
+        {
+            throw new NotImplementedException();
         }
 
         //public async Task<ApiResponse> UpdateServiceRating(HttpContext context, long serviceRatingId, ServiceRatingReceivingDTO serviceRatingReceivingDTO)

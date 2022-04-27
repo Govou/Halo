@@ -62,7 +62,14 @@ namespace HaloBiz.Controllers
         [HttpPost("")]
         public async Task<ActionResult> AddNewServiceRating(ServiceRatingReceivingDTO serviceRatingReceiving)
         {
-            var response = await _serviceRatingService.AddServiceRating(HttpContext, serviceRatingReceiving);
+            var response = await _serviceRatingService.AddServiceRating(serviceRatingReceiving);
+            return Ok(response);
+        }
+
+        [HttpPost("AddAppRating")]
+        public async Task<ActionResult> AddAppRating(AppRatingReceivingDTO appRating)
+        {
+            var response = await _serviceRatingService.AddAppRating(appRating);
             return Ok(response);
         }
 

@@ -23,6 +23,7 @@ namespace OnlinePortalBackend.MyServices.Impl
     {
         Task<bool> PostAccounts(long loggedInUserId, Receipt receipt, Invoice invoice, long bankAccountId);
         Task<ApiCommonResponse> AddNewReceipt(ReceiptReceivingDTO receivingDTO);
+        Task<ApiCommonResponse> PostPaymentDetails(PaymentDetailsDTO paymentDetails);
     }
 
     public class ReceiptServiceImpl : IReceiptService
@@ -111,6 +112,45 @@ namespace OnlinePortalBackend.MyServices.Impl
                                        true, accountMaster.Id, (long)invoice.CustomerDivision.ReceivableAccountId, amount, branch.Id, office.Id);
             return true;
         }
+
+        public async Task<ApiCommonResponse> PostPaymentDetails(PaymentDetailsDTO paymentDetails)
+        {
+            var profileId = _context.OnlineProfiles.FirstOrDefault(x => x.CustomerDivisionId == paymentDetails.userId).Id;
+            _context.OnlineTransactions.Add(new OnlineTransaction
+            {
+                ConvenienceFee = paymentDetails.ConvenienceFee,
+                CreatedAt = DateTime.Now,
+                PaymentGatewayResponseCode = paymentDetails.PaymentGatewayResponseCode,
+                PaymentGatewayResponseDescription = paymentDetails.PaymentGatewayResponseDescription,
+                PaymentConfirmation = paymentDetails.PaymentConfirmation,
+                PaymentReferenceGateway = paymentDetails.PaymentReferenceGateway,
+                VAT = paymentDetails.VAT,
+                PaymentGateway = paymentDetails.PaymentGateway,
+                Value = paymentDetails.Value,
+                TotalValue = paymentDetails.Value + paymentDetails.ConvenienceFee,
+                TransactionType = paymentDetails.TransactionType,
+                PaymentReferenceInternal = paymentDetails.PaymentReferenceInternal,
+                PaymentFulfilment = paymentDetails.PaymentFulfilment,
+                TransactionSource = paymentDetails.TransactionSource,
+                ProfileId = profileId,
+                CreatedById = paymentDetails.CreatedById,
+                SessionId = paymentDetails.SessionId,
+                UpdatedAt = DateTime.Now,
+            });
+
+            try
+            {
+                _context.SaveChanges();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.StackTrace);
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+            }
+            return CommonResponse.Send(ResponseCodes.SUCCESS);
+
+        }
+
 
         private async Task<AccountMaster> CreateAccountMaster(Receipt receipt,
                                                         long accountVoucherTypeId,
@@ -576,5 +616,6 @@ namespace OnlinePortalBackend.MyServices.Impl
                 .FirstOrDefaultAsync(x => x.IsDeleted == false && x.VoucherType.ToUpper().Trim() == name);
         }
 
+       
     }
 }

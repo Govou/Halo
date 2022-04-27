@@ -29,6 +29,12 @@ namespace OnlinePortalBackend.Controllers
             return await _receiptService.AddNewReceipt(receiptReceiving);
         }
 
+        [HttpPost("PostPaymentDetails")]
+        public async Task<ApiCommonResponse> PostPaymentDetails(PaymentDetailsDTO paymentDetails)
+        {
+            return await _receiptService.PostPaymentDetails(paymentDetails);
+        }
+
         [HttpGet("GetInvoices")]
         public async Task<ApiCommonResponse> GetInvoices(int userId)
         {
