@@ -14,6 +14,7 @@ using Newtonsoft.Json;
 using HaloBiz.MyServices.LAMS;
 using HalobizMigrations.Models.Halobiz;
 using HaloBiz.Model;
+using Microsoft.Extensions.Configuration;
 
 namespace HaloBiz.MyServices.Impl.LAMS
 {
@@ -40,18 +41,21 @@ namespace HaloBiz.MyServices.Impl.LAMS
         private bool? isRetail = null;
 
         private readonly List<string> groupInvoiceNumbers = new List<string>();
+        private readonly IConfiguration _configuration;
 
         public LeadConversionServiceImplV2(
                                         HalobizContext context,
                                         ILogger<LeadConversionServiceImplV2> logger,
                                         IMapper mapper,
-                                        IMailAdapter mailAdapter
+                                        IMailAdapter mailAdapter,
+                                        IConfiguration configuration
                                         )
         {
             _context = context;
             _logger = logger;
             _mapper = mapper;
             _mailAdapter = mailAdapter;
+            _configuration = configuration;
         }
 
         public async Task<(bool, string)> ConvertLeadToClient(long leadId, long loggedInUserId)
@@ -138,6 +142,28 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 _context.Database.ExecuteSqlRaw("SET IDENTITY_INSERT dbo.FinanceVoucherTypes OFF;");
                 _context.Database.ExecuteSqlRaw("SET IDENTITY_INSERT dbo.GroupType OFF;");
             }
+        }
+        public async Task<bool> AddServiceEndorsement(ContractService contractService, CustomerDivision customerDivision, long loggedInUser)
+        {
+            try
+            {
+                var salesVoucherName = _configuration.GetSection("VoucherTypes:SalesInvoiceVoucher").Value;
+                var financialVoucherType = await _context.FinanceVoucherTypes
+                                .FirstOrDefaultAsync(x => x.VoucherType.ToLower() == salesVoucherName.ToLower());
+
+
+                var contract = await _context.Contracts.Where(x => x.Id == contractService.ContractId).FirstOrDefaultAsync();
+                contractService.Contract = contract;
+                await GenerateInvoices(contractService, customerDivision.Id, contractService.Service.ServiceCode, loggedInUser, null);
+
+                await GenerateAmortizations(contractService, customerDivision, (double)contractService?.BillableAmount);
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+
+            return true;
         }
 
         private async Task<Customer> ConvertLeadToCustomer(Lead lead, HalobizContext context)

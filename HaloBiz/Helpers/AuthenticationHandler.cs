@@ -167,12 +167,15 @@ namespace HaloBiz.Helpers
             if (actionVerb == "get") 
                 return true; 
 
-            var exemptedList = _configuration.GetSection("AuthorizationExemption").Get<List<AuthorizationExemption>>();
-            var exemptions = exemptedList.Where(x => x.Controller.ToLower().Contains(controller.ToLower())).FirstOrDefault() ?? new AuthorizationExemption();           
-            if (exemptions.ActionVerbs.Contains(actionVerb, StringComparer.OrdinalIgnoreCase) || exemptions.Endpoints.Contains(actionName.ToLower(), StringComparer.OrdinalIgnoreCase))
+            var exemptedList = _configuration.GetSection("AuthorizationExemption")?.Get<List<AuthorizationExemption>>();
+            if (exemptedList.Any())
             {
-                return true;
-            }
+                var exemptions = exemptedList.Where(x => x.Controller.ToLower().Contains(controller.ToLower())).FirstOrDefault() ?? new AuthorizationExemption();
+                if (exemptions.ActionVerbs.Contains(actionVerb, StringComparer.OrdinalIgnoreCase) || exemptions.Endpoints.Contains(actionName.ToLower(), StringComparer.OrdinalIgnoreCase))
+                {
+                    return true;
+                }
+            }           
 
             var permissionEnum = $"{controller}_{actionVerb}";           
 
