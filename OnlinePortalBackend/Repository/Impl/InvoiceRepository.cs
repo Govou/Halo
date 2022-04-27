@@ -133,13 +133,13 @@ namespace OnlinePortalBackend.Repository.Impl
            return contractInvoiceDTO;
         }
 
-        public async Task<InvoiceDetailDTO> GetInvoice(string invoiceNumber)
+        public async Task<InvoiceDetailDTO> GetInvoice(string invoiceNumber, DateTime invoiceDate)
         {
             var invoiceDetailsInfo = new List<InvoiceDetailInfo>();
 
             if (!invoiceNumber.StartsWith("G"))
             {
-                var invoice = _context.Invoices.Include(x => x.Contract).Include(x => x.ContractService).Include(x => x.Receipts).FirstOrDefault(x => x.InvoiceNumber == invoiceNumber);
+                var invoice = _context.Invoices.Include(x => x.Contract).Include(x => x.ContractService).Include(x => x.Receipts).FirstOrDefault(x => x.InvoiceNumber == invoiceNumber && x.StartDate.Date == invoiceDate);
 
                 if (invoice == null)
                 {
@@ -171,7 +171,7 @@ namespace OnlinePortalBackend.Repository.Impl
 
                 return invDetailDTO;
             }
-            var invoices = _context.Invoices.Include(x => x.Contract).Include(x => x.ContractService).Include(x => x.Receipts).Where(x => x.InvoiceNumber == invoiceNumber);
+            var invoices = _context.Invoices.Include(x => x.Contract).Include(x => x.ContractService).Include(x => x.Receipts).Where(x => x.InvoiceNumber == invoiceNumber && x.StartDate.Date == invoiceDate);
            // var receipt = _context.Receipts.FirstOrDefault(x => x.)
 
             foreach (var item in invoices)
@@ -384,5 +384,15 @@ namespace OnlinePortalBackend.Repository.Impl
             return contractInvoice?.ContractServiceInvoices;
         }
 
+        public async Task<bool> CheckIfInvoiceHasBeenPaid(string invoiceNumber, string sessionId, int userId)
+        {
+            var userProfileId = _context.OnlineProfiles.FirstOrDefault(x => x.CustomerDivisionId == userId).Id;
+            var transaction = _context.OnlineTransactions.FirstOrDefault(x => x.SessionId == sessionId && x.PaymentReferenceInternal == invoiceNumber && x.ProfileId == userProfileId);
+
+            if (transaction == null)
+                return false;
+            else
+                return true;
+        }
     }
 }

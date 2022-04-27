@@ -11,5 +11,6 @@ namespace OnlinePortalBackend.MyServices
         Task<ApiCommonResponse> CreateComplaint(ComplaintDTO complaint);
         Task<ApiCommonResponse> TrackComplaint(ComplaintTrackingDTO model);
         Task<ApiCommonResponse> GetAllComplaints(int userId);
+        Task<ApiCommonResponse> GetResolvedComplaintsPercentage(int userId); 
     }
 }

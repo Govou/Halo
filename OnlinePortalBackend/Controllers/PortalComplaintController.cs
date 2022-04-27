@@ -73,6 +73,13 @@ namespace HaloBiz.Controllers
             return Ok(response);
         }
 
+        [HttpGet]
+        public async Task<ActionResult> GetResolvedComplaintsPercentage(int userId)
+        {
+            var response = await _portalComplaintService.GetAllComplaints(userId);
+            return Ok(response);
+        }
+
         //[HttpPut("{id}")]
         //public async Task<IActionResult> UpdateById(long id, PortalComplaintReceivingDTO portalComplaintReceiving)
         //{

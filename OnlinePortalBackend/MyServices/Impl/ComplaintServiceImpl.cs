@@ -139,6 +139,7 @@ namespace OnlinePortalBackend.MyServices.Impl
             var result = new ComplaintTrackingDetailDTO
             {
                 TrackingId = complaint.TrackingId,
+                ComplaintType = complaint.ComplaintType.Caption,
                 RegisteredDate = complaint.CreatedAt,
                 ComplaintAssessment = new ComplaintAssessmentTracking
                 {
@@ -205,6 +206,22 @@ namespace OnlinePortalBackend.MyServices.Impl
             }
 
             return CommonResponse.Send(ResponseCodes.SUCCESS, result);
+        }
+
+        public async Task<ApiCommonResponse> GetResolvedComplaintsPercentage(int userId)
+        {
+            var complaints = await _complaintRepository.GetAllComplaints(userId);
+
+            if (complaints == null)
+            {
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);
+            }
+
+            double resolvedComplaints = complaints.Where(x => x.IsResolved.Value == true).Count();
+
+            double percentageResolved = (resolvedComplaints / complaints.Count()) * 100;
+
+            return CommonResponse.Send(ResponseCodes.SUCCESS, percentageResolved + "%");
         }
     }
 }
