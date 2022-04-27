@@ -68,7 +68,7 @@ namespace HaloBiz.Repository.Impl
         {
             var services = new List<ArmedEscortDTSMaster>();
             var services2 = new List<ArmedEscortDTSMaster>();
-            var resources = new List<ArmedEscortProfile>();
+            var eligibleArmedEscorts = new List<ArmedEscortProfile>();
             var services_ = new List<ArmedEscortSMORoutesResourceTie>();
             var services2_ = new List<ArmedEscortSMORoutesResourceTie>();
             var services3_ = new List<ArmedEscortSMORoutesResourceTie>();
@@ -84,7 +84,17 @@ namespace HaloBiz.Repository.Impl
             var getAllResourceDetails = await _serviceAssignmentDetailsRepository.FindAllEscortServiceAssignmentDetails();
             var AEscortAssignmentSorted = getAllResourceDetails.Where(x => x.IsTemporarilyHeld != true && x.DateTemporarilyHeld != pickupDate && (pickupDate >= x.RecoveryDateTime || x.RecoveryDateTime == null)).OrderBy(x => x.DateTemporarilyHeld).DistinctBy(y => y.ArmedEscortResourceId);
             var AEscortWithAssignment = getAllResourceDetails.Where(x => x.DateTemporarilyHeld == pickupDate || x.IsTemporarilyHeld == true );
-            var eligibleArmedEscorts = getResources.Where(x => !AEscortWithAssignment.Any(y => y.ArmedEscortResourceId == x.Id)).OrderBy(x => x.CreatedAt).ToList();
+            //var eligibleArmedEscorts = getResources.Where(x => !AEscortWithAssignment.Any(y => y.ArmedEscortResourceId == x.Id)).OrderBy(x => x.CreatedAt).ToList();
+
+            foreach (var items in getResources)
+            {
+                var getDetail = await _serviceAssignmentDetailsRepository.FindEscortServiceAssignmentDetailByResourceId2(items.Id);
+                if (getDetail == null)
+                {
+                    eligibleArmedEscorts.Add(items);
+                }
+
+            }
 
             //check for route
             eligibleArmedEscorts = eligibleArmedEscorts.Where(x => query.Any(y => y.ResourceId == x.Id && y.SMORouteId == RouteId)).ToList();
@@ -205,7 +215,7 @@ namespace HaloBiz.Repository.Impl
 
             var services = new List<CommanderDTSMaster>();
             var services2 = new List<CommanderDTSMaster>();
-            var resources = new List<CommanderProfile>();
+            var eligibleCommanders = new List<CommanderProfile>();
             var services_ = new List<CommanderSMORoutesResourceTie>();
             var services2_ = new List<CommanderSMORoutesResourceTie>();
             var services3_ = new List<CommanderSMORoutesResourceTie>();
@@ -220,7 +230,17 @@ namespace HaloBiz.Repository.Impl
             var getAllResourceDetails = await _serviceAssignmentDetailsRepository.FindAllCommanderServiceAssignmentDetails();
             var commanderAssignmentSorted = getAllResourceDetails.Where(x => x.IsTemporarilyHeld != true && x.DateTemporarilyHeld != pickupDate && (pickupDate >= x.RecoveryDateTime || x.RecoveryDateTime == null)).OrderBy(x => x.DateTemporarilyHeld).DistinctBy(y => y.CommanderResourceId);
             var commanderWithAssignment = getAllResourceDetails.Where(x => x.DateTemporarilyHeld == pickupDate || x.IsTemporarilyHeld == true );
-            var eligibleCommanders = getResources.Where(x => !commanderWithAssignment.Any(y => y.CommanderResourceId == x.Id)).OrderBy(x => x.CreatedAt).ToList();
+            //var eligibleCommanders = getResources.Where(x => !commanderWithAssignment.Any(y => y.CommanderResourceId == x.Id)).OrderBy(x => x.CreatedAt).ToList();
+
+            foreach (var items in getResources)
+            {
+                var getDetail = await _serviceAssignmentDetailsRepository.FindCommanderServiceAssignmentDetailByResourceId2(items.Id);
+                if (getDetail == null)
+                {
+                    eligibleCommanders.Add(items);
+                }
+
+            }
 
             //check for route
             eligibleCommanders = eligibleCommanders.Where(x => query.Any(y => y.ResourceId == x.Id && y.SMORouteId == RouteId)).ToList();
@@ -340,14 +360,14 @@ namespace HaloBiz.Repository.Impl
         {
             var services = new List<PilotDTSMaster>();
             var services2 = new List<PilotDTSMaster>();
-            var resources = new List<PilotProfile>();
+            var eligiblePilots = new List<PilotProfile>();
             var services_ = new List<PilotSMORoutesResourceTie>();
             var services2_ = new List<PilotSMORoutesResourceTie>();
             var services3_ = new List<PilotSMORoutesResourceTie>();
             var servicesType_ = new List<PilotResourceRequiredPerService>();
             //var servicesDetail_ = new List<VehicleServiceAssignmentDetail>();
             var query = _context.PilotSMORoutesResourceTies.Where
-                         (ct => ct.SMORouteId == RouteId && ct.IsDeleted == false);
+                         (ct => ct.SMORouteId == RouteId && ct.IsDeleted == false).ToList();
             var getResources = _context.PilotProfiles.Where(r => r.IsDeleted == false)
             .Include(s => s.MeansOfIdentification).Include(t => t.PilotType)
             .Include(office => office.Rank)
@@ -356,11 +376,20 @@ namespace HaloBiz.Repository.Impl
             var pilotAssignmentSorted = getAllResourceDetails.Where(x => x.IsTemporarilyHeld != true && x.DateTemporarilyHeld != pickupDate && (pickupDate >= x.RecoveryDateTime || x.RecoveryDateTime == null)).OrderBy(x => x.DateTemporarilyHeld).DistinctBy(y => y.PilotResourceId);
             var pilotWithAssignment = getAllResourceDetails.Where(x => x.DateTemporarilyHeld == pickupDate || x.IsTemporarilyHeld == true );
 
-            var eligiblePilots = getResources.Where(x => !pilotWithAssignment.Any(y => y.PilotResourceId == x.Id)).OrderBy(x => x.CreatedAt).ToList();
+            //var eligiblePilots = getResources.Where(x => !pilotWithAssignment.Any(y => y.PilotResourceId == x.Id)).OrderBy(x => x.CreatedAt).ToList();
             // resources.OrderBy(x=>x.CreatedAt).ToList();
+            foreach (var items in getResources)
+            {
+                var getDetail = await _serviceAssignmentDetailsRepository.FindPilotServiceAssignmentDetailByResourceId2(items.Id);
+                if (getDetail == null)
+                {
+                    eligiblePilots.Add(items);
+                }
+
+            }
 
             //check for route
-            eligiblePilots = eligiblePilots.Where(x => query.Any(y => y.ResourceId == x.Id && y.SMORouteId == RouteId)).ToList();
+            eligiblePilots = eligiblePilots.Where(x => query.Any(y => y.ResourceId == x.Id &&  y.SMORouteId == RouteId)).ToList();
 
 
             //type check
@@ -613,7 +642,7 @@ namespace HaloBiz.Repository.Impl
         {
             var services = new List<VehicleDTSMaster>();
             var services2 = new List<VehicleDTSMaster>();
-            var resources = new List<Vehicle>();
+            var eligibleVehicles = new List<Vehicle>();
             var services_ = new List<VehicleSMORoutesResourceTie>();
             var services2_ = new List<VehicleSMORoutesResourceTie>();
             var services3_ = new List<VehicleSMORoutesResourceTie>();
@@ -634,8 +663,16 @@ namespace HaloBiz.Repository.Impl
             var vehicleWithAssignment = getAllResourceDetails.Where(x => x.DateTemporarilyHeld == pickupDate || x.IsTemporarilyHeld == true );
 
             //var vehiclesWithoutAssignment = getResources.Where(x => vehicleAssignmentSorted.Any(y => y.VehicleResourceId == x.Id)).ToList();
-            var eligibleVehicles = getResources.Where(x => !vehicleWithAssignment.Any(y => y.VehicleResourceId == x.Id)).OrderBy(x=>x.CreatedAt).ToList();
-            // resources.OrderBy(x=>x.CreatedAt).ToList();
+            //var eligibleVehicles = getResources.Where(x => !vehicleWithAssignment.Any(y => y.VehicleResourceId == x.Id)).OrderBy(x=>x.CreatedAt).ToList();
+            foreach (var items in getResources)
+            {
+                var getDetail = await _serviceAssignmentDetailsRepository.FindVehicleServiceAssignmentDetailByResourceId2(items.Id);
+                if (getDetail == null)
+                {
+                    eligibleVehicles.Add(items);
+                }
+
+            }
 
             //check for route
             eligibleVehicles = eligibleVehicles.Where(x => query.Any(y => y.ResourceId == x.Id && y.SMORouteId == RouteId)).OrderBy(x=>x.CreatedAt).ToList();
