@@ -10,5 +10,7 @@ namespace OnlinePortalBackend.Repository
     {
         Task<ContractInvoiceDTO> GetInvoices(long userId);
         Task<InvoiceDetailDTO> GetInvoice(string invoiceNumber, DateTime invoiceDate);
+        Task<bool> CheckIfInvoiceHasBeenPaid(string invoiceNumber, string sessionId, int userId);
+        
     }
 }

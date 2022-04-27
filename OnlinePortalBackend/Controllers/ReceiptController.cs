@@ -47,5 +47,11 @@ namespace OnlinePortalBackend.Controllers
             return await _invoiceService.GetInvoice(invoiceNumber, invoiceDate);
         }
 
+        [HttpGet("CheckIfInvoiceHasBeenPaid")]
+        public async Task<ApiCommonResponse> CheckIfInvoiceHasBeenPaid(string invoiceNumber, string sessionId, int userId)
+        {
+            return await _invoiceService.CheckIfInvoiceHasBeenPaid(invoiceNumber, sessionId, userId);
+        }
+
     }
 }

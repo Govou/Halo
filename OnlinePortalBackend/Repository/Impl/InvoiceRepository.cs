@@ -384,5 +384,15 @@ namespace OnlinePortalBackend.Repository.Impl
             return contractInvoice?.ContractServiceInvoices;
         }
 
+        public async Task<bool> CheckIfInvoiceHasBeenPaid(string invoiceNumber, string sessionId, int userId)
+        {
+            var userProfileId = _context.OnlineProfiles.FirstOrDefault(x => x.CustomerDivisionId == userId).Id;
+            var transaction = _context.OnlineTransactions.FirstOrDefault(x => x.SessionId == sessionId && x.PaymentReferenceInternal == invoiceNumber && x.ProfileId == userProfileId);
+
+            if (transaction == null)
+                return false;
+            else
+                return true;
+        }
     }
 }

@@ -8,5 +8,7 @@ namespace OnlinePortalBackend.MyServices
     {
         Task<ApiCommonResponse> GetInvoices(int userId);
         Task<ApiCommonResponse> GetInvoice(string invoiceNumber, DateTime invoiceDate);
+        Task<ApiCommonResponse> CheckIfInvoiceHasBeenPaid(string invoiceNumber, string sessionId, int userId);
+        
     }
 }
