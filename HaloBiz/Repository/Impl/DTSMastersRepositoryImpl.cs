@@ -18,6 +18,8 @@ namespace HaloBiz.Repository.Impl
         private readonly ILogger<DTSMastersRepositoryImpl> _logger;
         private readonly IServiceAssignmentDetailsRepository _serviceAssignmentDetailsRepository;
         private readonly IServiceRegistrationRepository _serviceRegistrationRepository;
+       // private readonly IVehicleRegistrationRepository _vehiclesRepository;
+        //private readonly IPilotRegistrationRepository _pilotProfileRepository;
         public DTSMastersRepositoryImpl(HalobizContext context, ILogger<DTSMastersRepositoryImpl> logger, IServiceAssignmentDetailsRepository serviceAssignmentDetailsRepository, IServiceRegistrationRepository serviceRegistrationRepository)
         {
             this._logger = logger;
@@ -80,8 +82,8 @@ namespace HaloBiz.Repository.Impl
                                   .ToList();
 
             var getAllResourceDetails = await _serviceAssignmentDetailsRepository.FindAllEscortServiceAssignmentDetails();
-            var AEscortAssignmentSorted = getAllResourceDetails.Where(x => x.IsTemporarilyHeld != true && x.DateTemporarilyHeld.Date != pickupDate.Date && (pickupDate >= x.RecoveryDateTime || x.RecoveryDateTime == null)).OrderBy(x => x.DateTemporarilyHeld).DistinctBy(y => y.ArmedEscortResourceId);
-            var AEscortWithAssignment = getAllResourceDetails.Where(x => x.DateTemporarilyHeld.Date == pickupDate.Date || x.IsTemporarilyHeld == true );
+            var AEscortAssignmentSorted = getAllResourceDetails.Where(x => x.IsTemporarilyHeld != true && x.DateTemporarilyHeld != pickupDate && (pickupDate >= x.RecoveryDateTime || x.RecoveryDateTime == null)).OrderBy(x => x.DateTemporarilyHeld).DistinctBy(y => y.ArmedEscortResourceId);
+            var AEscortWithAssignment = getAllResourceDetails.Where(x => x.DateTemporarilyHeld == pickupDate || x.IsTemporarilyHeld == true );
             var eligibleArmedEscorts = getResources.Where(x => !AEscortWithAssignment.Any(y => y.ArmedEscortResourceId == x.Id)).OrderBy(x => x.CreatedAt).ToList();
 
             //check for route
@@ -216,8 +218,8 @@ namespace HaloBiz.Repository.Impl
             .Include(office => office.Rank)
                                   .ToList();
             var getAllResourceDetails = await _serviceAssignmentDetailsRepository.FindAllCommanderServiceAssignmentDetails();
-            var commanderAssignmentSorted = getAllResourceDetails.Where(x => x.IsTemporarilyHeld != true && x.DateTemporarilyHeld.Date != pickupDate.Date && (pickupDate >= x.RecoveryDateTime || x.RecoveryDateTime == null)).OrderBy(x => x.DateTemporarilyHeld).DistinctBy(y => y.CommanderResourceId);
-            var commanderWithAssignment = getAllResourceDetails.Where(x => x.DateTemporarilyHeld.Date == pickupDate.Date || x.IsTemporarilyHeld == true );
+            var commanderAssignmentSorted = getAllResourceDetails.Where(x => x.IsTemporarilyHeld != true && x.DateTemporarilyHeld != pickupDate && (pickupDate >= x.RecoveryDateTime || x.RecoveryDateTime == null)).OrderBy(x => x.DateTemporarilyHeld).DistinctBy(y => y.CommanderResourceId);
+            var commanderWithAssignment = getAllResourceDetails.Where(x => x.DateTemporarilyHeld == pickupDate || x.IsTemporarilyHeld == true );
             var eligibleCommanders = getResources.Where(x => !commanderWithAssignment.Any(y => y.CommanderResourceId == x.Id)).OrderBy(x => x.CreatedAt).ToList();
 
             //check for route
@@ -351,8 +353,8 @@ namespace HaloBiz.Repository.Impl
             .Include(office => office.Rank)
                                   .ToList();
             var getAllResourceDetails = await _serviceAssignmentDetailsRepository.FindAllPilotServiceAssignmentDetails();
-            var pilotAssignmentSorted = getAllResourceDetails.Where(x => x.IsTemporarilyHeld != true && x.DateTemporarilyHeld.Date != pickupDate.Date && (pickupDate >= x.RecoveryDateTime || x.RecoveryDateTime == null)).OrderBy(x => x.DateTemporarilyHeld).DistinctBy(y => y.PilotResourceId);
-            var pilotWithAssignment = getAllResourceDetails.Where(x => x.DateTemporarilyHeld.Date == pickupDate.Date || x.IsTemporarilyHeld == true );
+            var pilotAssignmentSorted = getAllResourceDetails.Where(x => x.IsTemporarilyHeld != true && x.DateTemporarilyHeld != pickupDate && (pickupDate >= x.RecoveryDateTime || x.RecoveryDateTime == null)).OrderBy(x => x.DateTemporarilyHeld).DistinctBy(y => y.PilotResourceId);
+            var pilotWithAssignment = getAllResourceDetails.Where(x => x.DateTemporarilyHeld == pickupDate || x.IsTemporarilyHeld == true );
 
             var eligiblePilots = getResources.Where(x => !pilotWithAssignment.Any(y => y.PilotResourceId == x.Id)).OrderBy(x => x.CreatedAt).ToList();
             // resources.OrderBy(x=>x.CreatedAt).ToList();
