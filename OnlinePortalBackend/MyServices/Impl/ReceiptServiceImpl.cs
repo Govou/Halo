@@ -116,6 +116,7 @@ namespace OnlinePortalBackend.MyServices.Impl
         public async Task<ApiCommonResponse> PostPaymentDetails(PaymentDetailsDTO paymentDetails)
         {
             var profileId = _context.OnlineProfiles.FirstOrDefault(x => x.CustomerDivisionId == paymentDetails.userId).Id;
+            var inv = _context.Invoices.Include(x => x.ContractService).FirstOrDefault(x => x.InvoiceNumber == paymentDetails.PaymentReferenceInternal);
             _context.OnlineTransactions.Add(new OnlineTransaction
             {
                 ConvenienceFee = paymentDetails.ConvenienceFee,
@@ -124,7 +125,7 @@ namespace OnlinePortalBackend.MyServices.Impl
                 PaymentGatewayResponseDescription = paymentDetails.PaymentGatewayResponseDescription,
                 PaymentConfirmation = paymentDetails.PaymentConfirmation,
                 PaymentReferenceGateway = paymentDetails.PaymentReferenceGateway,
-                VAT = paymentDetails.VAT,
+                VAT = Convert.ToDecimal(inv.ContractService.Vat.Value) ,
                 PaymentGateway = paymentDetails.PaymentGateway,
                 Value = paymentDetails.Value,
                 TotalValue = paymentDetails.Value + paymentDetails.ConvenienceFee,
