@@ -110,26 +110,28 @@ namespace OnlinePortalBackend.Repository.Impl
             }
         }
 
-        public async Task<ServiceRating> SaveAppRating(AppRating rating)
+        public async Task<AppRating> SaveAppRating(AppRating rating)
         {
-            rating.UpdatedAt = DateTime.Now;
-            rating.CustomerDivisionId = rating.CustomerDivisionId;
             rating.CreatedById = _context.UserProfiles.FirstOrDefault(x => x.FirstName.ToLower() == "seeder").Id;
-            rating.CreatedAt = DateTime.Now;
-           // var addedRating = await _context.AppRatings.AddAsync(rating);
-
-            //if (await SaveChanges())
-            //{
-            //    return addedRating.Entity;
-            //}
+            var addedRating = await _context.AppRatings.AddAsync(rating);
+             
+            if (await SaveChanges())
+            {
+                return addedRating.Entity;
+            }
             return null;
         }
 
-        //public async Task<IEnumerable<AppRating>> FindAllAppRatings()
-        //{
-        //    //return await _context.AppRatings
-        //    //  .Where(user => user.IsDeleted == false)
-        //    //  .ToListAsync();
-        //}
+        public async Task<IEnumerable<AppRating>> FindAllAppRatings()
+        {
+            return await _context.AppRatings.Include(x => x.Application).Include(x => x.CustomerDivision)
+              .Where(user => user.IsDeleted == false)
+              .ToListAsync();
+        }
+
+        public async Task<IEnumerable<Application>> FindAllApplications()
+        {
+            return await _context.Applications.ToListAsync();
+        }
     }
 }
