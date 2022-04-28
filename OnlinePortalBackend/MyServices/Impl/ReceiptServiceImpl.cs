@@ -117,6 +117,17 @@ namespace OnlinePortalBackend.MyServices.Impl
         {
             var profileId = _context.OnlineProfiles.FirstOrDefault(x => x.CustomerDivisionId == paymentDetails.userId).Id;
             var inv = _context.Invoices.Include(x => x.ContractService).FirstOrDefault(x => x.InvoiceNumber == paymentDetails.PaymentReferenceInternal);
+            double calcVAT = 0;
+            double calcValue = 0;
+            if (inv.ContractService.Vat.Value > 0)
+            {
+               calcVAT = Convert.ToDouble(paymentDetails.TotalValue) * 0.075;
+               calcValue = Convert.ToDouble(paymentDetails.TotalValue) - calcVAT;
+            }
+            else
+            {
+                calcValue = Convert.ToDouble(paymentDetails.TotalValue);
+            }
             _context.OnlineTransactions.Add(new OnlineTransaction
             {
                 ConvenienceFee = paymentDetails.ConvenienceFee,
@@ -125,9 +136,9 @@ namespace OnlinePortalBackend.MyServices.Impl
                 PaymentGatewayResponseDescription = paymentDetails.PaymentGatewayResponseDescription,
                 PaymentConfirmation = paymentDetails.PaymentConfirmation,
                 PaymentReferenceGateway = paymentDetails.PaymentReferenceGateway,
-                VAT = Convert.ToDecimal(inv.ContractService.Vat.Value) ,
+                VAT = Convert.ToDecimal(calcVAT),
                 PaymentGateway = paymentDetails.PaymentGateway,
-                Value = paymentDetails.Value,
+                Value = Convert.ToDecimal(calcValue),
                 TotalValue = paymentDetails.Value + paymentDetails.ConvenienceFee,
                 TransactionType = paymentDetails.TransactionType,
                 PaymentReferenceInternal = paymentDetails.PaymentReferenceInternal,
