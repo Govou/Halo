@@ -100,8 +100,9 @@ namespace OnlinePortalBackend.Repository.Impl
             {
                 foreach (var item in fInv.Invoices)
                 {
-                    var sessionId = item.InvoiceNumber + item.InvoiceStartDate + userId;
+                    var sessionId = item.InvoiceNumber + userId + item.InvoiceStartDate.Date;
                     sessionId = sessionId.Replace('/', '0');
+                    sessionId = sessionId.Replace('-', '0');
                     var trx = _context.OnlineTransactions.FirstOrDefault(x => x.PaymentReferenceInternal == item.InvoiceNumber && x.SessionId == sessionId && !string.IsNullOrEmpty(x.PaymentReferenceGateway) && x.PaymentConfirmation != true);
                     if (trx != null)
                         item.IsToBeReceipted = true;
@@ -144,8 +145,9 @@ namespace OnlinePortalBackend.Repository.Impl
                 {
                     foreach (var item in indInv.Invoices)
                     {
-                        var sessionId = item.InvoiceNumber + item.InvoiceStartDate + userId;
+                        var sessionId = item.InvoiceNumber + userId + item.InvoiceStartDate.Date;
                         sessionId = sessionId.Replace('/', '0');
+                        sessionId = sessionId.Replace('-', '0');
                         var trx = _context.OnlineTransactions.FirstOrDefault(x => x.PaymentReferenceInternal == item.InvoiceNumber && x.SessionId == sessionId && !string.IsNullOrEmpty(x.PaymentReferenceGateway) && x.PaymentConfirmation != true);
                         if (trx != null)
                             item.IsToBeReceipted = true;
