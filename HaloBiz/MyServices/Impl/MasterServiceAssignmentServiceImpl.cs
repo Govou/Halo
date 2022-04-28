@@ -83,7 +83,7 @@ namespace HaloBiz.MyServices.Impl
             {
                 master.CreatedById = context.GetLoggedInUserId();
                 master.PickoffTime = pickofftime;
-                master.CreatedAt = DateTime.UtcNow;
+                master.CreatedAt = DateTime.Now;
                 master.TripTypeId = 1;
                 master.SAExecutionStatus = 0;
                 master.AssignmentStatus = "Open";
@@ -497,7 +497,7 @@ namespace HaloBiz.MyServices.Impl
             
             master.CreatedById = context.GetLoggedInUserId();
             master.PickoffTime = pickofftime;
-            master.CreatedAt = DateTime.UtcNow;
+            master.CreatedAt = DateTime.Now;
             master.TripTypeId = 1;
             master.SAExecutionStatus = 0;
             master.AssignmentStatus = "Open";
