@@ -134,7 +134,7 @@ namespace OnlinePortalBackend.MyServices.Impl
                 PaymentFulfilment = paymentDetails.PaymentFulfilment,
                 TransactionSource = paymentDetails.TransactionSource,
                 ProfileId = profileId,
-                CreatedById = paymentDetails.CreatedById,
+                CreatedById = profileId,
                 SessionId = paymentDetails.SessionId,
                 UpdatedAt = DateTime.Now,
             });

@@ -212,14 +212,15 @@ namespace OnlinePortalBackend.MyServices.Impl
         {
             var complaints = await _complaintRepository.GetAllComplaints(userId);
 
-            if (complaints == null)
+            if (complaints.ToList().Count == 0)
             {
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);
             }
 
-            double resolvedComplaints = complaints.Where(x => x.IsResolved.Value == true).Count();
-
-            double percentageResolved = (resolvedComplaints / complaints.Count()) * 100;
+            var resolvedComplaints = complaints.Where(x => x.IsResolved == true).ToList();
+            var resolvedComplaintsCount = resolvedComplaints.Count;
+           
+            double percentageResolved = (resolvedComplaintsCount / complaints.Count()) * 100;
 
             return CommonResponse.Send(ResponseCodes.SUCCESS, percentageResolved + "%");
         }
