@@ -8,6 +8,7 @@ namespace OnlinePortalBackend.DTOs.ReceivingDTOs
         public long CustomerDivisionId { get; set; }
         public long ServiceId { get; set; }
         public long Rating { get; set; }
+        public int Recommendation { get; set; }
         public string Review { get; set; }
     }
 
