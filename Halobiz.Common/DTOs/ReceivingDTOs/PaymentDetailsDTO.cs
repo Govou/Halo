@@ -18,7 +18,7 @@ namespace Halobiz.Common.DTOs.ReceivingDTOs
         public decimal Value { get; set; }
         public decimal VAT { get; set; }
         public decimal ConvenienceFee { get; set; }
-        public int TotalValue { get; set; }
+        public decimal TotalValue { get; set; }
         public string TransactionSource { get; set; }
         public string TransactionType { get; set; }
         public bool PaymentConfirmation { get; set; }
