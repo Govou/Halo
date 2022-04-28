@@ -88,7 +88,7 @@ namespace OnlinePortalBackend.MyServices
                 var codeModel = new UsersCodeVerification
                 {
                     Email = Email,
-                    CodeExpiryTime = DateTime.Now.AddMinutes(10),
+                    CodeExpiryTime = DateTime.UtcNow.AddHours(1).AddMinutes(10),
                     Code = code,
                     Purpose = CodePurpose.Onboarding
                 };

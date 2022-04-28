@@ -37,11 +37,20 @@ namespace OnlinePortalBackend.Repository.Impl
         public async Task<ContractServiceDTO> GetContractService(int id)
         {
             var contractService = _context.ContractServices.Include(x => x.Contract).Include(x => x.Service).FirstOrDefault(x => x.Id == id);
-            
+            var servEndorsements = new List<ServiceEndorsement>();
             if (contractService == null)
                 return null;
             var service = _context.Services.Include(x => x.ServiceType).Include(x => x.ServiceCategory).Include(x => x.AdminRelationship).FirstOrDefault(x => x.Id == contractService.ServiceId);
-
+            var endorsementHistory = _context.ContractServiceForEndorsements.Include(x => x.EndorsementType).Where(x => x.ContractId == contractService.ContractId && x.ServiceId == contractService.ServiceId && x.UniqueTag == contractService.UniqueTag && x.IsApproved == true);
+            foreach (var item in endorsementHistory)
+            {
+                servEndorsements.Add(new ServiceEndorsement
+                {
+                    Date = item.CreatedAt,
+                    Description = item.EndorsementDescription,
+                    Type = item.EndorsementType.Caption
+                });
+            }
             var result = new ContractServiceDTO
             {
                 ContractServiceId = (int)contractService.Id,
@@ -58,7 +67,8 @@ namespace OnlinePortalBackend.Repository.Impl
                 HasAdminComponent = service.AdminRelationship?.AdminServiceId != null && service.AdminRelationship?.DirectService != null ? true : false,
                 TotalContractValue = (int)contractService.Quantity * service.UnitPrice,
                 ContractId = (int)contractService.Contract.Id,
-                ServiceId = (int)service.Id
+                ServiceId = (int)service.Id,
+                EndorsementHistory = servEndorsements
             };
 
             return result;
@@ -304,13 +314,15 @@ namespace OnlinePortalBackend.Repository.Impl
         public async Task<EndorsementTrackingDTO> TrackEndorsement(long endorsementId)
         {
             var contractServiceEndorsement = _context.ContractServiceForEndorsements.FirstOrDefault(x => x.Id == endorsementId);
-            var approvals = _context.Approvals.Include(x => x.ContractServiceForEndorsement).Where(x => x.ContractServiceId == contractServiceEndorsement.PreviousContractServiceId && !x.IsDeleted).ToList();
+            var approvals = _context.Approvals.Include(x => x.ContractServiceForEndorsement).Where(x => x.ContractServiceForEndorsementId == endorsementId && !x.IsDeleted).ToList();
             var serviceName = string.Empty;
-            var requestExecution = 0;
+            double requestExecution = 0;
             var approvalStatus = string.Empty;
             if (approvals.Count() > 0)
             {
-                requestExecution = approvals.Where(x => x.IsApproved && !x.IsDeleted).Count() / approvals.Count() * 100;
+                double approvedCount = approvals.Where(x => x.IsApproved == true).Count();
+                requestExecution = (approvedCount / approvals.Count()) * 100;
+                requestExecution = Math.Round(requestExecution, 2);
                 var service = approvals.FirstOrDefault()?.ContractServiceForEndorsement?.ServiceId;
                 if (service != null)
                    serviceName = _context.Services.FirstOrDefault(x => x.Id == service.Value)?.Name;
@@ -318,10 +330,12 @@ namespace OnlinePortalBackend.Repository.Impl
                 if (contractServiceEndorsement.IsDeclined)
                 {
                     approvalStatus = "Request Declined";
+                    requestExecution = 100;
                 }
                 else if (contractServiceEndorsement.IsApproved)
                 {
                     approvalStatus = "Request Approved";
+                    requestExecution = 100;
                 }
                 else
                 {
