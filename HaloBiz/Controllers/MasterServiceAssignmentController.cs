@@ -34,6 +34,13 @@ namespace HaloBiz.Controllers
            
         }
 
+        [HttpGet("GetAllScheduledServiceAssignmentMasters")]
+        public async Task<ApiCommonResponse> GetAllScheduledServiceAssignmentMasters()
+        {
+            return await _masterServiceAssignmentService.GetAllScheduledMasterServiceAssignments();
+
+        }
+
         [HttpGet("GetAllCustomerDivisions")]
         public async Task<ApiCommonResponse> GetCustomerDivisions()
         {
@@ -66,10 +73,17 @@ namespace HaloBiz.Controllers
              return await _masterServiceAssignmentService.AddMasterServiceAssignment(HttpContext, ReceivingDTO);
 
         }
-        [HttpPost("AddNewAutoServiceAssignmentMaster")]
+        [HttpPost("AddNewAutoServiceAssignmentMaster")] 
         public async Task<ApiCommonResponse> AddNewAutoServiceAssignmentMaster(MasterServiceAssignmentReceivingDTO ReceivingDTO)
         {
              return await _masterServiceAssignmentService.AddMasterAutoServiceAssignment(HttpContext, ReceivingDTO);
+
+        }
+
+        [HttpGet("AllocateResourceForScheduledServiceAssignmentByAssignmentId/{id}")]
+        public async Task<ApiCommonResponse> AllocateResourceForScheduledServiceAssignmentByAssignmentId(long id)
+        {
+            return await _masterServiceAssignmentService.AllocateResourceForScheduledServiceAssignment(HttpContext, id);
 
         }
 

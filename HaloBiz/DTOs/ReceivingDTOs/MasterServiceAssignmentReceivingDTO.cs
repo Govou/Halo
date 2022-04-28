@@ -1,6 +1,7 @@
 ﻿using HalobizMigrations.Models.Armada;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -9,11 +10,15 @@ namespace HaloBiz.DTOs.ReceivingDTOs
     public class MasterServiceAssignmentReceivingDTO
     {
 
-
+        [Required]
         public long ContractServiceId { get; set; }
+        [Required]
         public long? CustomerDivisionId { get; set; }
+        [Required]
         public long ServiceRegistrationId { get; set; }
+        [Required]
         public long SMORouteId { get; set; }
+        [Required]
         public long? SMORegionId { get; set; }
         //public DateTime ReadinessTime { get; set; }
         public string DropoffLocation { get; set; }
@@ -32,6 +37,7 @@ namespace HaloBiz.DTOs.ReceivingDTOs
         public string DropOffLocationGeometry { get; set; }
         public double DistanceInKM { get; set; }
         public long?[] SecondaryServiceRegistrationId { get; set; }
+        [Required]
         public bool InhouseAssignment { get; set; }
         //public SecondaryServiceAssignmentReceivingDTO SecondaryServiceAssignmentReceivingDTO { get; set; }
     }
