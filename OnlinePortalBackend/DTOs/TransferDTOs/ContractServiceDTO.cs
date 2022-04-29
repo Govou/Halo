@@ -21,6 +21,7 @@ namespace OnlinePortalBackend.DTOs.TransferDTOs
         public double TotalContractValue { get; set; }
         public int ContractId { get; set; }
         public int ServiceId { get; set; }
+        public string UniqueTag { get; set; }
         public IEnumerable<ServiceEndorsement> EndorsementHistory { get; set; }
     }
 
