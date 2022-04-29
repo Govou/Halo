@@ -43,7 +43,7 @@ namespace OnlinePortalBackend.Repository.Impl
 
         public async Task<ServiceRatingsDTO> FindServiceRatingById(long Id)
         {
-            var averageRatings = 0.0;
+            decimal averageRatings = 0;
             var ratings = _context.ServiceRatings.Where(x => x.ServiceId == Id && x.IsDeleted == false).Select(
                 x => new ServiceRatingsDetailDTO
                 {
