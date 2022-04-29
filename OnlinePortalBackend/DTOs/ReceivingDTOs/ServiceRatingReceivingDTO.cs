@@ -27,7 +27,7 @@ namespace OnlinePortalBackend.DTOs.ReceivingDTOs
         public string ApplicationName { get; set; }
         public DateTime DateRated { get; set; }
         public long ApplicationId { get; set; }
-        public long Rating { get; set; }
+        public decimal Rating { get; set; }
         public string Review { get; set; }
     }
 }

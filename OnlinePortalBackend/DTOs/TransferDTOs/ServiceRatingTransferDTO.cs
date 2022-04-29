@@ -17,13 +17,13 @@ namespace OnlinePortalBackend.DTOs.TransferDTOs
 
     public class ServiceRatingsDTO
     {
-        public double AverageRating { get; set; }
+        public decimal AverageRating { get; set; }
         public IEnumerable<ServiceRatingsDetailDTO> Details { get; set; }
     }
 
     public class ServiceRatingsDetailDTO
     {
-        public long Rating { get; set; }
+        public decimal Rating { get; set; }
         public string Review { get; set; }
         public DateTime DatePosted { get; set; }
     }
