@@ -29,6 +29,12 @@ namespace OnlinePortalBackend.Controllers
             return await _receiptService.AddNewReceipt(receiptReceiving);
         }
 
+        [HttpPost("PostPaymentDetails")]
+        public async Task<ApiCommonResponse> PostPaymentDetails(PaymentDetailsDTO paymentDetails)
+        {
+            return await _receiptService.PostPaymentDetails(paymentDetails);
+        }
+
         [HttpGet("GetInvoices")]
         public async Task<ApiCommonResponse> GetInvoices(int userId)
         {
@@ -36,15 +42,16 @@ namespace OnlinePortalBackend.Controllers
         }
 
         [HttpGet("GetInvoice")]
-        public async Task<ApiCommonResponse> GetInvoice(string invoiceNumber)
+        public async Task<ApiCommonResponse> GetInvoice(string invoiceNumber, DateTime invoiceDate)
         {
-            return await _invoiceService.GetInvoice(invoiceNumber);
+            return await _invoiceService.GetInvoice(invoiceNumber, invoiceDate);
         }
 
-        //public async Task<ApiCommonResponse> CompletePaymentForReceipt(ReceiptReceivingDTO request)
-        //{
-            
-        //}
+        [HttpGet("CheckIfInvoiceHasBeenPaid")]
+        public async Task<ApiCommonResponse> CheckIfInvoiceHasBeenPaid(string invoiceNumber, string sessionId, int userId)
+        {
+            return await _invoiceService.CheckIfInvoiceHasBeenPaid(invoiceNumber, sessionId, userId);
+        }
 
     }
 }

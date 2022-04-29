@@ -55,6 +55,7 @@ namespace OnlinePortalBackend.DTOs.TransferDTOs
         public double? InvoiceValueBalanceAfterReceipt { get; set; }
         public int ContractId { get; set; }
         public int ContractServiceId { get; set; }
+        public bool IsToBeReceipted { get; set; }
     }
 
     public class InvoiceDetailDTO

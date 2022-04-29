@@ -17,6 +17,7 @@ namespace OnlinePortalBackend.Helpers
         public AutoMapping() 
         {            
             CreateMap<ServiceRatingReceivingDTO, ServiceRating>();
+            CreateMap<AppRatingTransferDTO, AppRating>();
             CreateMap<ServiceRating, ServiceRatingTransferDTO>();
             CreateMap<SecurityQuestionReceivingDTO, SecurityQuestion>();
             CreateMap<SecurityQuestion, SecurityQuestionTransferDTO>();

@@ -96,6 +96,18 @@ namespace OnlinePortalBackend.Repository.Impl
               //  finalInvoices.Add(cIncoince);
             }
             var contractServiceIdividualInvoiceDTOs = new List<ContractServiceIdividualInvoiceDTO>();
+            foreach (var fInv in finalInvoices)
+            {
+                foreach (var item in fInv.Invoices)
+                {
+                    var sessionId = item.InvoiceNumber + userId + item.InvoiceStartDate.Date;
+                    sessionId = sessionId.Replace('/', '0');
+                    sessionId = sessionId.Replace('-', '0');
+                    var trx = _context.OnlineTransactions.FirstOrDefault(x => x.PaymentReferenceInternal == item.InvoiceNumber && x.SessionId == sessionId && !string.IsNullOrEmpty(x.PaymentReferenceGateway) && x.PaymentConfirmation != true);
+                    if (trx != null)
+                        item.IsToBeReceipted = true;
+                }
+            }
             contractInvoiceDTO.ContractServiceInvoices = finalInvoices;
 
             foreach (var item in indContrServInvs)
@@ -127,19 +139,35 @@ namespace OnlinePortalBackend.Repository.Impl
     
             }
 
-          
+            foreach (var fInv in contractServiceIdividualInvoiceDTOs)
+            {
+                foreach (var indInv in fInv.IndividualInvoices)
+                {
+                    foreach (var item in indInv.Invoices)
+                    {
+                        var sessionId = item.InvoiceNumber + userId + item.InvoiceStartDate.Date;
+                        sessionId = sessionId.Replace('/', '0');
+                        sessionId = sessionId.Replace('-', '0');
+                        var trx = _context.OnlineTransactions.FirstOrDefault(x => x.PaymentReferenceInternal == item.InvoiceNumber && x.SessionId == sessionId && !string.IsNullOrEmpty(x.PaymentReferenceGateway) && x.PaymentConfirmation != true);
+                        if (trx != null)
+                            item.IsToBeReceipted = true;
+                    }
+                  
+                }
+            }
+
             contractInvoiceDTO.IndividualContractServiceInvoices = contractServiceIdividualInvoiceDTOs;
 
            return contractInvoiceDTO;
         }
 
-        public async Task<InvoiceDetailDTO> GetInvoice(string invoiceNumber)
+        public async Task<InvoiceDetailDTO> GetInvoice(string invoiceNumber, DateTime invoiceDate)
         {
             var invoiceDetailsInfo = new List<InvoiceDetailInfo>();
 
             if (!invoiceNumber.StartsWith("G"))
             {
-                var invoice = _context.Invoices.Include(x => x.Contract).Include(x => x.ContractService).Include(x => x.Receipts).FirstOrDefault(x => x.InvoiceNumber == invoiceNumber);
+                var invoice = _context.Invoices.Include(x => x.Contract).Include(x => x.ContractService).Include(x => x.Receipts).FirstOrDefault(x => x.InvoiceNumber == invoiceNumber && x.StartDate.Date == invoiceDate);
 
                 if (invoice == null)
                 {
@@ -171,7 +199,7 @@ namespace OnlinePortalBackend.Repository.Impl
 
                 return invDetailDTO;
             }
-            var invoices = _context.Invoices.Include(x => x.Contract).Include(x => x.ContractService).Include(x => x.Receipts).Where(x => x.InvoiceNumber == invoiceNumber);
+            var invoices = _context.Invoices.Include(x => x.Contract).Include(x => x.ContractService).Include(x => x.Receipts).Where(x => x.InvoiceNumber == invoiceNumber && x.StartDate.Date == invoiceDate);
            // var receipt = _context.Receipts.FirstOrDefault(x => x.)
 
             foreach (var item in invoices)
@@ -384,5 +412,15 @@ namespace OnlinePortalBackend.Repository.Impl
             return contractInvoice?.ContractServiceInvoices;
         }
 
+        public async Task<bool> CheckIfInvoiceHasBeenPaid(string invoiceNumber, string sessionId, int userId)
+        {
+            var userProfileId = _context.OnlineProfiles.FirstOrDefault(x => x.CustomerDivisionId == userId).Id;
+            var transaction = _context.OnlineTransactions.FirstOrDefault(x => x.SessionId == sessionId && x.PaymentReferenceInternal == invoiceNumber && x.ProfileId == userProfileId);
+
+            if (transaction == null)
+                return false;
+            else
+                return true;
+        }
     }
 }
