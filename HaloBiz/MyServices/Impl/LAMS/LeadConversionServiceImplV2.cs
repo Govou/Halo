@@ -1134,7 +1134,17 @@ namespace HaloBiz.MyServices.Impl.LAMS
             }
             else
             {
-                totalContractBillable = invoice.Value; totalVAT = invoice.Value * 0.075; 
+
+                totalContractBillable = invoice.Value;                
+
+                if (contractService?.Service?.IsVatable == true)
+                {                    
+                    totalContractBillable = invoice.Value - totalVAT;
+                    totalVAT = invoice.Value * (7.5 / 107.5);
+                    //make it 2dp
+                    var vatString = totalVAT.ToString("#.##");
+                    totalVAT = double.Parse(vatString);
+                }
             }            
             
             var totalAfterTax = totalContractBillable - totalVAT;
