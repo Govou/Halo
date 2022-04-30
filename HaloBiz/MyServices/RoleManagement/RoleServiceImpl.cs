@@ -14,6 +14,8 @@ using Halobiz.Repository.RoleManagement;
 using Halobiz.Common.DTOs.TransferDTOs.RoleManagement;
 using Halobiz.Common.Helpers;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using HaloBiz.Model;
 
 namespace Halobiz.Common.MyServices.RoleManagement
 {
@@ -39,15 +41,18 @@ namespace Halobiz.Common.MyServices.RoleManagement
         private readonly IMapper _mapper;
         private readonly IRoleRepository _roleRepo;
         private readonly HalobizContext _context;
+        private readonly IConfiguration _configuration;
 
         public RoleServiceImpl(
             IRoleRepository roleRepo,
             HalobizContext dataContext,
+            IConfiguration configuration,
             IMapper mapper)
         {
             _mapper = mapper;
             _context = dataContext;
             _roleRepo = roleRepo;
+            _configuration = configuration;
         }
 
         public async Task<ApiCommonResponse> AddRole(HttpContext context, RoleReceivingDTO roleReceivingDto)
@@ -162,6 +167,13 @@ namespace Halobiz.Common.MyServices.RoleManagement
                 if (role == null)
                 {
                     return CommonResponse.Send(ResponseCodes.FAILURE, null, $"Role {roleReceivingDto.Name} does not exists.");
+                }
+
+                //check if this is the admin role
+                var adminInfo = _configuration.GetSection("AdminRoleInformation")?.Get<AdminRole>();
+                if (adminInfo.RoleName.ToLower() == roleReceivingDto.Name.ToLower())
+                {
+                    return CommonResponse.Send(ResponseCodes.FAILURE, null, $"You cannot edit this super role '{adminInfo.RoleName}'");
                 }
 
                 List<Permissions> initialPermissions = new List<Permissions>();
