@@ -682,7 +682,7 @@ namespace HaloBiz.MyServices.Impl
 
             try
             {
-                var approval = await _context.Approvals.Where(x=>x.Id==dto.approvalId)
+                var approval = await _context.Approvals.Where(x=>x.Id==dto.approvalId)                  
                     .Include(x=>x.ContractServiceForEndorsement)
                         .ThenInclude(x=>x.EndorsementType)
                     .FirstOrDefaultAsync();
@@ -709,14 +709,35 @@ namespace HaloBiz.MyServices.Impl
                         {
                             var contractServiceId = (long) approval.ContractServiceForEndorsement.PreviousContractServiceId;
                             var userId = context.GetLoggedInUserId();
-                            if (await ProcessAdditionService(contractServiceId, (long) approval.ContractId, userId, approval.ContractServiceForEndorsement)){                                
-                                transaction.Commit();
-                                return CommonResponse.Send(ResponseCodes.REFRESH_APPROVALS, null, "Approval successful and accounts created");
+                            var endorsement = approval.ContractServiceForEndorsement;
+
+                            //check if is not adhoc invoice
+                            if (approval?.ContractService?.InvoicingInterval != (int)TimeCycle.Adhoc)
+                            {
+                                var contractService = await GetContractService(contractServiceId);
+                                if (await ProcessAdditionService(contractService, (long)approval.ContractId, userId, endorsement))
+                                {
+                                    transaction.Commit();
+                                    return CommonResponse.Send(ResponseCodes.REFRESH_APPROVALS, null, "Approval successful and accounts created");
+                                }
+                                else
+                                {
+                                    return CommonResponse.Send(ResponseCodes.FAILURE, null, "Could not create accounts after approval");
+                                }
                             }
                             else
                             {
-                                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Could not create accounts after approval");
+                                var contractService = await GetContractService(contractServiceId);
+
+                                contractService.Version = (int)VersionType.Latest;
+                                _context.ContractServices.Update(contractService);
+
+                                endorsement.IsApproved = true;
+                                endorsement.IsConvertedToContractService = true;
+                                _context.ContractServiceForEndorsements.Update(endorsement);
+                                await _context.SaveChangesAsync(); return CommonResponse.Send(ResponseCodes.REFRESH_APPROVALS, null, "Adhoc contract service approved");
                             }
+
                         }
                     }
 
@@ -736,9 +757,12 @@ namespace HaloBiz.MyServices.Impl
                         long userId = context.GetLoggedInUserId();
                         foreach (var item in contract.ContractServices)
                         {
-                            var issuccess = await _leadConversionService.AccountsForContractServices(item, customerDivision, userId);
-                            if (!issuccess)
-                                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Could not create accounts after approval");
+                            if (item.InvoicingInterval != (int)TimeCycle.Adhoc)
+                            {
+                                var issuccess = await _leadConversionService.AccountsForContractServices(item, customerDivision, userId);
+                                if (!issuccess)
+                                    return CommonResponse.Send(ResponseCodes.FAILURE, null, "Could not create accounts after approval");
+                            }                           
 
                         }
 
@@ -777,13 +801,16 @@ namespace HaloBiz.MyServices.Impl
             return CommonResponse.Send(ResponseCodes.SUCCESS);
         }
 
-        private async Task<bool> ProcessAdditionService(long contractServiceId, long contractId, long userId, ContractServiceForEndorsement endorsement)
+        private async Task<ContractService> GetContractService(long previousContractServiceId)
         {
-            var contractService = await _context.ContractServices.AsNoTracking()
-                .Where(x=>x.Id== contractServiceId)
-                .Include(x=>x.Service)
-                .FirstOrDefaultAsync();
+            return await _context.ContractServices.AsNoTracking()
+               .Where(x => x.Id == previousContractServiceId)
+               .Include(x => x.Service)
+               .FirstOrDefaultAsync();
+        }
 
+        private async Task<bool> ProcessAdditionService(ContractService contractService, long contractId, long userId, ContractServiceForEndorsement endorsement)
+        {
             var contract = await _context.Contracts.AsNoTracking()
                                 .Where(x => x.Id == contractId)
                                 .Include(x => x.CustomerDivision)
