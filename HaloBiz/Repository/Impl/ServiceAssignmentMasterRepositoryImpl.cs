@@ -62,7 +62,7 @@ namespace HaloBiz.Repository.Impl
 
         public async Task<IEnumerable<MasterServiceAssignment>> FindAllServiceAssignments()
         {
-            return await _context.MasterServiceAssignments.Where(type => type.IsDeleted == false)
+            return await _context.MasterServiceAssignments.Where(type => type.IsDeleted == false && type.IsScheduled == false)
                .Include(ct => ct.ContractService).Include(t=>t.CustomerDivision).Include(t=>t.SMORegion).Include(t=>t.SMORegion)
                .Include(sec=>sec.SecondaryServiceAssignments.Where(x=>x.IsDeleted == false))
                .Include(t=>t.SMORoute).Include(t=>t.SourceType).Include(t=>t.TripType).Include(t=>t.CreatedBy).Include(t=>t.ServiceRegistration)
@@ -76,7 +76,7 @@ namespace HaloBiz.Repository.Impl
 
         public async Task<IEnumerable<MasterServiceAssignment>> FindAllScheduledServiceAssignments()
         {
-            return await _context.MasterServiceAssignments.Where(type => type.IsDeleted == false)
+            return await _context.MasterServiceAssignments.Where(type => type.IsDeleted == false && type.IsScheduled == true)
                .Include(ct => ct.ContractService).Include(t => t.CustomerDivision).Include(t => t.SMORegion).Include(t => t.SMORegion)
                .Include(sec => sec.SecondaryServiceAssignments.Where(x => x.IsDeleted == false))
                .Include(t => t.SMORoute).Include(t => t.SourceType).Include(t => t.TripType).Include(t => t.CreatedBy).Include(t => t.ServiceRegistration)

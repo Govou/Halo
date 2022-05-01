@@ -39,6 +39,7 @@ namespace HaloBiz.DTOs.ReceivingDTOs
         public long?[] SecondaryServiceRegistrationId { get; set; }
         [Required]
         public bool InhouseAssignment { get; set; }
+        public bool IsScheduled { get; set; }
         //public SecondaryServiceAssignmentReceivingDTO SecondaryServiceAssignmentReceivingDTO { get; set; }
     }
 

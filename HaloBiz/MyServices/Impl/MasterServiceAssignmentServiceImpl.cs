@@ -921,28 +921,29 @@ namespace HaloBiz.MyServices.Impl
 
                 }
 
-                transaction.Commit();
-                if(itemToUpdate.InhouseAssignment == true)
+              
+
+                itemToUpdate.UpdatedAt = DateTime.Now;
+                itemToUpdate.IsScheduled = false;
+                var updatedItem = await _serviceAssignmentMasterRepository.UpdateServiceAssignment(itemToUpdate);
+                if (updatedItem == null)
                 {
-                    await _serviceAssignmentDetailsService.UpdateServiceDetailsHeldForActionAndReadyStatusByAssignmentId(id);
+                    transaction.Rollback();
+                    return CommonResponse.Send(ResponseCodes.FAILURE, null, ResponseMessage.InternalServer500);
                 }
+                transaction.Commit();
                
-                //itemToUpdate.UpdatedAt = DateTime.Now;
-                //var updatedItem = await _serviceAssignmentMasterRepository.UpdateServiceAssignment(itemToUpdate);
-                //if (updatedItem == null)
-                //{
-                //    transaction.Rollback();
-                //    return CommonResponse.Send(ResponseCodes.FAILURE, null, ResponseMessage.InternalServer500);
-                //}
+                    await _serviceAssignmentDetailsService.UpdateServiceDetailsHeldForActionAndReadyStatusByAssignmentId(id);
+                
 
                 //var TransferDTOs = _mapper.Map<MasterServiceAssignmentTransferDTO>(updatedItem);
-                
+
                 return CommonResponse.Send(ResponseCodes.SUCCESS, "Resource Allocation Successful", ResponseMessage.Success200);
             }
             catch (Exception ex)
             {
-                return CommonResponse.Send(ResponseCodes.SYSTEM_ERROR_OCCURRED, ex.StackTrace);
-            }
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, ex.StackTrace);
+            } 
         }
 
         public async Task<ApiCommonResponse> DeleteMasterServiceAssignment(long id)
