@@ -33,6 +33,8 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Include="Model\AdminRole.cs" />
+    <Compile Include="Model\AuthExemptedEndponts.cs" />
     <Compile Include="Model\ContactDTO.cs" />
     <Compile Include="Model\IValidation.cs" />
     <Compile Include="Model\LAMS\LeadContact.cs" />
@@ -84,7 +86,6 @@
     <Folder Include="Log\" />
     <Folder Include="DTOs\ContactDTO\" />
     <Folder Include="MyServices\Impl\RoleManagement\" />
-    <Folder Include="MyServices\RoleManagement\" />
     <Folder Include="wwwroot\" />
     <Folder Include="wwwroot\MigrationsLog\" />
   </ItemGroup>

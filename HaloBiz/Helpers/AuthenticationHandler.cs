@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Halobiz.Common.Auths.PermissionParts;
 using Halobiz.Common.DTOs.ApiDTOs;
+using HaloBiz.Model;
 using HaloBiz.Models;
 using HalobizMigrations.Data;
 using HalobizMigrations.Models;
@@ -28,16 +29,18 @@ namespace HaloBiz.Helpers
         private readonly RequestDelegate _next;
         private readonly IJwtHelper _jwtHelper;
         private readonly ILogger<AuthenticationHandler> _logger;
+        private readonly IConfiguration _configuration;
        
 
 
         public AuthenticationHandler(RequestDelegate next, IJwtHelper jwtHelper,
-            ILogger<AuthenticationHandler> logger           
+            ILogger<AuthenticationHandler> logger, IConfiguration configuration      
             )
         {
             _next = next;
             _jwtHelper = jwtHelper;
             _logger = logger;
+            _configuration = configuration;
         }
 
         public async Task Invoke(HttpContext context)
@@ -68,6 +71,7 @@ namespace HaloBiz.Helpers
                 if (token != null)
                 {
                     //validate the token
+                    
                     if (token.ToLower() != "null")
                     {
                         var (isValid, isExpired, authUser) = _jwtHelper.ValidateToken(token);
@@ -102,7 +106,7 @@ namespace HaloBiz.Helpers
                             }
 
                             //get a replacement token for this guy
-                            var (newToken, lifeSPan) = _jwtHelper.GenerateToken(authUser.Email, authUser.Id, authUser.permissionString);
+                            var (newToken, lifeSPan) = _jwtHelper.GenerateToken(authUser.Email, authUser.Id, authUser.permissionString, authUser.hasAdminRole);
                             //indicate that this guy has received access token
                             _jwtHelper.AddRefreshTokenToTracker(authUser.Id, refreshToken);
                             
@@ -111,7 +115,7 @@ namespace HaloBiz.Helpers
                             context.Response.Headers.Add("Access-Control-Expose-Headers", "x-Token");
                             context.Response.Headers.Add("x-Token", newToken);
 
-                            if (!CheckAuthorization(context, controllerName, actionName, permissionsList))
+                            if (!authUser.hasAdminRole && !CheckAuthorization(context, controllerName, actionName, permissionsList))
                             {
                                 //use 200 ok here so that the user can know that he does not have access to
                                 context.Response.StatusCode = StatusCodes.Status200OK;
@@ -122,7 +126,7 @@ namespace HaloBiz.Helpers
                         else if(isValid && !isExpired)
                         {
                             //test for the authorization
-                            if (!CheckAuthorization(context, controllerName, actionName, permissionsList))
+                            if (!authUser.hasAdminRole && !CheckAuthorization(context, controllerName, actionName, permissionsList))
                             {
                                 //use 200 ok here so that the user can know that he does not have access to
                                 context.Response.StatusCode = StatusCodes.Status200OK;
@@ -155,16 +159,25 @@ namespace HaloBiz.Helpers
             await _next(context);
         }
 
-       
+      
 
         private bool CheckAuthorization(HttpContext context, string controller,string actionName, List<int> permisssions)
         {
-            var actionVerb = context.Request.Method;
+            var actionVerb = context.Request.Method.ToLower();
+            if (actionVerb == "get") 
+                return true; 
 
-            var permissionEnum = $"{controller}_{actionVerb}";
+            var exemptedList = _configuration.GetSection("AuthorizationExemption")?.Get<List<AuthorizationExemption>>();
+            if (exemptedList.Any())
+            {
+                var exemptions = exemptedList.Where(x => x.Controller.ToLower().Contains(controller.ToLower())).FirstOrDefault() ?? new AuthorizationExemption();
+                if (exemptions.ActionVerbs.Contains(actionVerb, StringComparer.OrdinalIgnoreCase) || exemptions.Endpoints.Contains(actionName.ToLower(), StringComparer.OrdinalIgnoreCase))
+                {
+                    return true;
+                }
+            }           
 
-            if ((controller.ToLower() == "auth" && actionName.ToLower()=="createuser") || controller.ToLower()=="user" || controller.ToLower() == "auth")
-                return true;
+            var permissionEnum = $"{controller}_{actionVerb}";           
 
             if (!Enum.TryParse(typeof(Permissions), permissionEnum, true, out var permission))
             {

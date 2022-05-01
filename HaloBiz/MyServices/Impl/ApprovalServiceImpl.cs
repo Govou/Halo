@@ -32,6 +32,8 @@ namespace HaloBiz.MyServices.Impl
         private readonly IMailAdapter _mailAdapter;
         private readonly ILeadConversionService _leadConversionService;
 
+
+
         private readonly IMapper _mapper;
 
         public ApprovalServiceImpl(IModificationHistoryRepository historyRepo, 
@@ -680,7 +682,10 @@ namespace HaloBiz.MyServices.Impl
 
             try
             {
-                var approval = await _context.Approvals.Where(x=>x.Id==dto.approvalId).FirstOrDefaultAsync();
+                var approval = await _context.Approvals.Where(x=>x.Id==dto.approvalId)                  
+                    .Include(x=>x.ContractServiceForEndorsement)
+                        .ThenInclude(x=>x.EndorsementType)
+                    .FirstOrDefaultAsync();
                 if (approval == null)
                 {
                     return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE, null, "This approval was not found");
@@ -696,6 +701,45 @@ namespace HaloBiz.MyServices.Impl
                     approval.IsApproved = true;
                     _context.Approvals.Update(approval);
                     await _context.SaveChangesAsync();
+
+                    //check if this is just endorsement for addition service
+                    var endorsementType = approval?.ContractServiceForEndorsement?.EndorsementType;
+                    if (endorsementType != null) { 
+                        if(endorsementType.Caption.ToLower().Contains("service addition"))
+                        {
+                            var contractServiceId = (long) approval.ContractServiceForEndorsement.PreviousContractServiceId;
+                            var userId = context.GetLoggedInUserId();
+                            var endorsement = approval.ContractServiceForEndorsement;
+
+                            //check if is not adhoc invoice
+                            if (approval?.ContractService?.InvoicingInterval != (int)TimeCycle.Adhoc)
+                            {
+                                var contractService = await GetContractService(contractServiceId);
+                                if (await ProcessAdditionService(contractService, (long)approval.ContractId, userId, endorsement))
+                                {
+                                    transaction.Commit();
+                                    return CommonResponse.Send(ResponseCodes.REFRESH_APPROVALS, null, "Approval successful and accounts created");
+                                }
+                                else
+                                {
+                                    return CommonResponse.Send(ResponseCodes.FAILURE, null, "Could not create accounts after approval");
+                                }
+                            }
+                            else
+                            {
+                                var contractService = await GetContractService(contractServiceId);
+
+                                contractService.Version = (int)VersionType.Latest;
+                                _context.ContractServices.Update(contractService);
+
+                                endorsement.IsApproved = true;
+                                endorsement.IsConvertedToContractService = true;
+                                _context.ContractServiceForEndorsements.Update(endorsement);
+                                await _context.SaveChangesAsync(); return CommonResponse.Send(ResponseCodes.REFRESH_APPROVALS, null, "Adhoc contract service approved");
+                            }
+
+                        }
+                    }
 
                     //check if this is the last approval needed
                     var allApprovals = await _context.Approvals.Where(x => x.ContractId == dto.contractId).ToListAsync();
@@ -713,9 +757,12 @@ namespace HaloBiz.MyServices.Impl
                         long userId = context.GetLoggedInUserId();
                         foreach (var item in contract.ContractServices)
                         {
-                            var issuccess = await _leadConversionService.AccountsForContractServices(item, customerDivision, userId);
-                            if (!issuccess)
-                                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Could not create accounts after approval");
+                            if (item.InvoicingInterval != (int)TimeCycle.Adhoc)
+                            {
+                                var issuccess = await _leadConversionService.AccountsForContractServices(item, customerDivision, userId);
+                                if (!issuccess)
+                                    return CommonResponse.Send(ResponseCodes.FAILURE, null, "Could not create accounts after approval");
+                            }                           
 
                         }
 
@@ -754,6 +801,38 @@ namespace HaloBiz.MyServices.Impl
             return CommonResponse.Send(ResponseCodes.SUCCESS);
         }
 
+        private async Task<ContractService> GetContractService(long previousContractServiceId)
+        {
+            return await _context.ContractServices.AsNoTracking()
+               .Where(x => x.Id == previousContractServiceId)
+               .Include(x => x.Service)
+               .FirstOrDefaultAsync();
+        }
+
+        private async Task<bool> ProcessAdditionService(ContractService contractService, long contractId, long userId, ContractServiceForEndorsement endorsement)
+        {
+            var contract = await _context.Contracts.AsNoTracking()
+                                .Where(x => x.Id == contractId)
+                                .Include(x => x.CustomerDivision)
+                                 .FirstOrDefaultAsync();
+
+            var customerDivision = contract.CustomerDivision;
+
+            if(await _leadConversionService.AddServiceEndorsement(contractService, customerDivision, userId))
+            {
+                contractService.Version = (int) VersionType.Latest;
+                _context.ContractServices.Update(contractService);
+
+                endorsement.IsApproved = true;
+                endorsement.IsConvertedToContractService = true;
+                _context.ContractServiceForEndorsements.Update(endorsement);
+                await _context.SaveChangesAsync();
+                return true;
+            }            
+
+            return false;
+            
+        }
         public  async Task<ApiCommonResponse> UpdateApproval(HttpContext context, long id, ApprovalReceivingDTO approvalReceivingDTO)
         {
             var approvalToUpdate = await _approvalRepo.FindApprovalById(id);

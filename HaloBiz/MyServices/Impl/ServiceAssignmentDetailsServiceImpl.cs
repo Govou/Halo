@@ -1828,7 +1828,7 @@ namespace HaloBiz.MyServices.Impl
             }
 
             try {
-
+               
                 if (escortToUpdate.Count() > 0)
                 {
                     foreach (var item in escortToUpdate)
@@ -1878,9 +1878,12 @@ namespace HaloBiz.MyServices.Impl
                         }
                     }
                 }
+                if (!await _serviceAssignmentMasterRepository.UpdateReadyStatus(itemToUpdate))
+                {
+                    return CommonResponse.Send(ResponseCodes.FAILURE, null, ResponseMessage.InternalServer500);
+                }
 
 
-                
 
             }//end try
             catch (Exception ex)

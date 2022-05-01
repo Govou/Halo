@@ -62,6 +62,7 @@ namespace HaloBiz.Controllers
         [HttpPost("AddNewProfile")]
         public async Task<ApiCommonResponse> AddNewProfile(PilotProfileReceivingDTO pilotReceivingDTO)
         {
+            //te
             return await _pilotService.AddPilot(HttpContext, pilotReceivingDTO);
         }
 
