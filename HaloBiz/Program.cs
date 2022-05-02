@@ -33,9 +33,11 @@ namespace HaloBiz
 
             try
             {
-                (await BuildWebHostAsync(args)).Run();
+                //(await BuildWebHostAsync(args)).Run();
+                CreateHostBuilder(args).Build().Run();
+
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 Log.Fatal(ex, "Host terminated unexpectedly");
                 Console.WriteLine(ex.Message);
