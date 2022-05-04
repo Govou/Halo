@@ -35,6 +35,12 @@ namespace HaloBiz.Controllers
         {
             return await _priceRegisterService.GetAllPriceRegistersByRouteId(routeId);
         }
+
+        [HttpGet("GetAllPriceRegistersByServiceCategoryId/{categoryId}")]
+        public async Task<ApiCommonResponse> GetAllPriceRegistersByServiceCategoryId(long categoryId)
+        {
+            return await _priceRegisterService.GetAllPriceRegistersByServiceCategoryId(categoryId);
+        }
         [HttpGet("GetPriceRegisterById/{id}")]
         public async Task<ApiCommonResponse> GetPriceRegisterById(long id)
         {
