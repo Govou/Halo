@@ -53,7 +53,9 @@ namespace HaloBiz.Helpers
 
             var controllerName = controllerActionDescriptor?.ControllerName;
             var actionName = controllerActionDescriptor?.ActionName;
-            var actionVerb = context.Request.Method;   
+            var actionVerb = context.Request.Method;
+
+            context.Response.Headers.Add("Access-Control-Allow-Origin", "*");
 
             if (string.IsNullOrEmpty(controllerName) || string.IsNullOrEmpty(actionName))
             {
@@ -109,7 +111,7 @@ namespace HaloBiz.Helpers
                             var (newToken, lifeSPan) = _jwtHelper.GenerateToken(authUser.Email, authUser.Id, authUser.permissionString, authUser.hasAdminRole);
                             //indicate that this guy has received access token
                             _jwtHelper.AddRefreshTokenToTracker(authUser.Id, refreshToken);
-                            
+
 
                             //check the refresh token and use it to refresh the jwt at this point
                             context.Response.Headers.Add("Access-Control-Expose-Headers", "x-Token");
