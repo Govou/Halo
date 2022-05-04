@@ -19,6 +19,15 @@ using System.Linq;
 using System.Threading.Tasks;
 using HaloBiz.DTOs;
 using Task = HalobizMigrations.Models.ProjectManagement.Task;
+using Google.Apis.Calendar.v3;
+using Google.Apis.Auth.OAuth2;
+using System.IO;
+using System.Threading;
+using DocumentFormat.OpenXml.Spreadsheet;
+using Google.Apis.Calendar.v3.Data;
+using Google.Apis.Services;
+using Google.Apis.Util.Store;
+using Microsoft.AspNetCore.Hosting;
 
 namespace HaloBiz.MyServices.Impl
 {
@@ -29,14 +38,16 @@ namespace HaloBiz.MyServices.Impl
         private readonly ILogger<ProjectAllocationServiceImpl> _logger;
         private readonly IProjectAllocationRepositoryImpl _projectAllocationRepository;
         private readonly IMapper _mapper;
+        private IWebHostEnvironment _hostEnvironment;
 
-        public ProjectAllocationServiceImpl(IProjectResolver projectResolver, HalobizContext context, IProjectAllocationRepositoryImpl projectAllocationRepository, ILogger<ProjectAllocationServiceImpl> logger, IMapper mapper)
+        public ProjectAllocationServiceImpl(IWebHostEnvironment environment,IProjectResolver projectResolver, HalobizContext context, IProjectAllocationRepositoryImpl projectAllocationRepository, ILogger<ProjectAllocationServiceImpl> logger, IMapper mapper)
         {
             this._mapper = mapper;
             this._projectAllocationRepository = projectAllocationRepository;
             this._logger = logger;
             this._context = context;
             this._projectResolver = projectResolver;
+            _hostEnvironment = environment;
         }
 
 
@@ -4608,9 +4619,169 @@ namespace HaloBiz.MyServices.Impl
                }
                return CommonResponse.Send(ResponseCodes.FAILURE,null, "Could not retrieve Customerdivision");
            }
-           
+
 
            
+           public async Task<ApiCommonResponse> PushEventToGoogleCalender(CalenderRequestDTO calenderRequestDto,HttpContext httpContext)
+           {
+               string[] scopes = { "https://www.googleapis.com/auth/calendar" };
+               string applicationName = "HalobizCalender";
+               //var credentials = Path.Combine("Files", "credential.json");
+
+               UserCredential credential;
+
+               using (var stream =
+                      new FileStream("Files/credential.json", FileMode.Open, FileAccess.Read))
+               {
+                   // The file token.json stores the user's access and refresh tokens, and is created
+                   // automatically when the authorization flow completes for the first time.
+                   string credPath = Path.Combine("Files", "token.json");
+                   credential = GoogleWebAuthorizationBroker.AuthorizeAsync(
+                       GoogleClientSecrets.Load(stream).Secrets,
+                       scopes,
+                       "user",
+                       CancellationToken.None,
+                       new FileDataStore(credPath, true)).Result;
+                   Console.WriteLine("Credential file saved to: " + credPath);
+               }
+               var initializer = new BaseClientService.Initializer()
+               {
+                   HttpClientInitializer = credential,
+                   ApplicationName = "HalobizCalenderEvent",
+               };
+               var service = new CalendarService(initializer);
+               
+               var response = await  CreateEvent(service,calenderRequestDto,httpContext);
+
+               if (response.responseCode == "00")
+               {
+                   return CommonResponse.Send(ResponseCodes.SUCCESS,null, "The event was successfully created");
+               }
+               return CommonResponse.Send(ResponseCodes.FAILURE,null, "The event could not be created");
+           }
+
+
+           // public async Task<ApiCommonResponse> GetAllEvent()
+           // {
+           //     
+           // }
+           // public async Task<ApiCommonResponse> SaveEvents(Event insertedEvent)
+           // {
+           //     var insertedEventsToSave = new Calen
+           // }
+           
+           public async Task<ApiCommonResponse> CreateEvent(CalendarService service,CalenderRequestDTO request,HttpContext httpContext)
+           {
+               var users = await _context.UserProfiles.Where(x => x.IsDeleted == false).ToListAsync();
+               var contacts = await _context.Contacts.Where(x => x.IsDeleted == false).ToListAsync();
+               var attenders = new List<EventAttendee>();
+               var eventToCreate = new Event(){
+                           Summary = request?.Reason,
+                           Location = "Halobiz Meeting",
+                           Description = request?.Description,
+                           Start = new EventDateTime()
+                           {
+                               DateTime = request?.StartDate,
+                           },
+                           End = new EventDateTime()
+                           {
+                               DateTime = request?.EndDate,
+                           },
+               };
+
+               if (request.StaffsInvolved.Any())
+               {
+                   foreach (var staff in request.StaffsInvolved)
+                   {
+                       var attendee = new EventAttendee();
+                       var addedStaff = users.FirstOrDefault(x => x.Id == staff.StaffId);
+                       attendee.Email = addedStaff?.Email ?? "example@mail.com";
+                       attendee.DisplayName = addedStaff?.LastName + " " + addedStaff?.FirstName;
+                       attenders.Add(attendee);
+                   }
+               }
+               
+               if (request.ContactsInvolved.Any())
+               {
+                   foreach (var contact in request.ContactsInvolved)
+                   {
+                       var attendee = new EventAttendee();
+                       var addedContact = contacts.FirstOrDefault(x => x.Id == contact.ContactId);
+                       attendee.Email = addedContact?.Email ?? "example@mail.com";
+                       attendee.DisplayName = addedContact?.LastName + " " + addedContact?.FirstName;
+                       attenders.Add(attendee);
+                   }
+               }
+               eventToCreate.Attendees = attenders;
+               var creatorId = httpContext.GetLoggedInUserId();
+               var creator = users.FirstOrDefault(x => x.Id == creatorId);
+              
+               if (creator != null)
+               {
+                   try
+                   {
+                       var calCreator = new Event.CreatorData
+                       {
+                           Email = creator?.Email,
+                           DisplayName = creator?.LastName + " " + creator?.FirstName
+                       };
+                       eventToCreate.Creator = calCreator; 
+                       var insertedEvent = service.Events.Insert(eventToCreate, "primary");
+                       insertedEvent.SendNotifications = true;
+                       var insertEventResult = await insertedEvent.ExecuteAsync();
+                       //await SaveEvents(insertedEvent);
+                       return CommonResponse.Send(ResponseCodes.SUCCESS,insertedEvent, "");
+                   }
+                   catch (Exception e)
+                   {
+                       Console.WriteLine(e);
+                   }
+                 
+               }
+            
+               return CommonResponse.Send(ResponseCodes.FAILURE,null, "An error occurreed while creating event");
+           }
+
+
+           // public async Task<ApiCommonResponse> PushEventToGoogleCalender(CalenderRequestDTO request, HttpContext httpContext)
+           // {
+           //     string clientId = "995912706561-aq3kc2avkjjvooe23qv23e6832p2v7p8.apps.googleusercontent.com";//From Google Developer console https://console.developers.google.com
+           //     string clientSecret = "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";//From Google Developer console https://console.developers.google.com
+           //     string userName = "developers@halogen-group.com";//  A string used to identify a user.
+           //     string[] scopes = new string[] {
+           //         CalendarService.Scope.Calendar, // Manage your calendars
+           //         CalendarService.Scope.CalendarReadonly // View your Calendars
+           //     };
+           //     string ApplicationName = "Blazor Calendar Scheduler";
+           //     CalendarService service;
+           //     UserCredential credential;
+           //     try
+           //     {
+           //         using (FileStream stream = new FileStream("client_secret.apps.googleusercontent.com.json", FileMode.Open, FileAccess.Read))
+           //         {
+           //              credential = GoogleWebAuthorizationBroker.AuthorizeAsync(new ClientSecrets {
+           //                 ClientId = clientId, ClientSecret = clientSecret
+           //             }, scopes, userName, CancellationToken.None, new FileDataStore("store")).Result;
+           //         }
+           //         service = new CalendarService(new BaseClientService.Initializer() { HttpClientInitializer = credential, ApplicationName = ApplicationName });
+           //         var response = await  CreateEvent(service,request,httpContext);
+           //     }
+           //     catch (Exception e)
+           //     {
+           //         Console.WriteLine(e);
+           //         throw;
+           //     }
+           //
+           //     return null;
+           //
+           // }
+           
+           
+           
+           
+           
+
+
     }
     
     

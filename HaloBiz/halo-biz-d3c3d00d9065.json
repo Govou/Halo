@@ -1,0 +1,12 @@
+{
+  "type": "service_account",
+  "project_id": "halo-biz",
+  "private_key_id": "43ce2d1d469e759413c3f0ebe86f4976011e61bf",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQDHVq6ajrrKwoUg\nmMU/H2eWsR03+ftj+4rDEg7sRpNT1h0H+mGJrJlo7mt1QeVu2RVo4Uc/UYOwl0pn\n1XizAtYJ72BBtHFDyECsuJNqzSuCoABEtRTTXMERn3FQCDi/eDKAct3GwpA0t5w/\nP3XaM8T4SBnaRSNqrII6jfKbIqXpelW1xNlV8rAxiqm8CH8VrysxlHHCNiktj9WQ\n7ksdz0dsuo5CugzrlJt7OKG83eQ7m5MC/py1SOX8HTIcgRZCTrxl8DdBjK4s1WCk\nyUkC3JEjid0RrlIy4JsMuigllxLKMbdNitq6kSmKgZu9g9eHaGvw9n1iaP70LMk5\n/Hxw+E6/AgMBAAECggEAIW9cJQd4tEaxTrjhKMfLN77ocDmpXWlVKogOYboqvv6k\navCnyJBfQPbwpj/RzGh0C13x9eBlzsppjAYF0zzQCuWQRyUNdHmTw4TIETttp2DP\n+rZG0nb12U9dkbd3UUJHcj0SDuMWjgkYF5G84kcZrC1nzLEZEizyQQELJtNGceUr\ndlYOzeecbRnqE3qTe5NwhS4myevP/HEG2VSXvt2EMB7/VLAW6K/0x/M2UEvhNcs5\nrTOc8HL+j/CfIf/T7wSHCMasAsgG/b7c5rvvstEf+Pb4BRGUMmDWTbpHxqP5fbw5\nLVZV4FgqvXYL/M/RRIuW0FkTj9KKiicXzaGFkIgXUQKBgQD4tT4140m77kapZgxn\nQ4dHVk493yaiAP78QKHkzs0n5l/Z1DkjikbUYbYojV9CkWGmnB+h9ywC9HX1m814\ni81xHWyYUlHt0SfsvUy9WraPsXg6sbQXU2NgxhdWUkrgEBmXHbGVcju2B+e7i+zx\nOfad7KXOavpDVd3hccrVklju7wKBgQDNLuGlpkf5AjlpmlVQBkEWCmsC0+uzXrS0\n4cihhVidpBzi5lZBnTqB1HKMqo8MwOkuur/0rKvVAAKkddOmrsA3+0jJgdST87h5\n+vWl2cHemo63vcgbUWSYgAdhNxVfq0cW2MW3Ah4dkn0mhFaiAwpxCd8/LAQNDduI\n4C9vUzadMQKBgBzsx01xH7QxpBozeiHQYr1TNkpP16hjwUQJKEr6GjYXvvIQkoyl\nmlM9Afh5aKjPS7Ia2jr2CjJVyBpGgoEQkVYke+rDODAWcTRBV9l14WGY3EjHPhCw\nbBBnOXOaooaomLFQjMS6wmMLTFItleMAQMRhL29wVabbJ7D+kP6BxMIVAoGBALM9\nyCswJmGWGtdw1iQxQnxhn3f570ZjblMxhlXrqi0UJ5PjieiJ1ImEMIlHme2XPFzx\nES1KBlXtS2Gl+L38nLiK0NwPicexui79F8jJgL3YoOJMbNnIcaty9H9tYkOP2WtQ\n9O9ZbzuAM8oJA7FGHMIA0MBb0DIjL+vThDypIeWRAoGBAMvFLZBPDRZcOCZBn0dQ\n91macQNV7UUGPSf7jWqKeL3KeCpmzxoLmRtN6lEFaPKfsquGlUNQhTgMWzgIOEne\na+JkHjo6NRQxxl1LYqYWY23iEw9Y/qZ0e/tynDfFaCf2h2rQ4BfTKkHqnueRs2+6\nsg+CMThoqkTVHitO3Ef+w4Et\n-----END PRIVATE KEY-----\n",
+  "client_email": "halobizcalendar@halo-biz.iam.gserviceaccount.com",
+  "client_id": "101030728855822460188",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/halobizcalendar%40halo-biz.iam.gserviceaccount.com"
+}

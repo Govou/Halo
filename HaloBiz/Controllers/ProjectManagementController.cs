@@ -778,6 +778,12 @@ namespace HaloBiz.Controllers
 
         }
         
+        [HttpPost("CreateEvent")]
+        public async Task<ApiCommonResponse> CreateCalenderEvent(CalenderRequestDTO calenderRequestDto)
+        {
+            return await _projectAllocationService.PushEventToGoogleCalender(calenderRequestDto,HttpContext);
+        }
+        
 
     }
 }
