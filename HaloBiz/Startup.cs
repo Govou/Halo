@@ -216,10 +216,10 @@ namespace HaloBiz
                 }
             });
 
-            app.UseCors(cors => cors.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
 
             app.UseHttpsRedirection();
             app.UseRouting();
+            app.UseCors(cors => cors.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
 
             app.UseMiddleware<AuthenticationHandler>();
 
