@@ -4661,14 +4661,63 @@ namespace HaloBiz.MyServices.Impl
            }
 
 
-           // public async Task<ApiCommonResponse> GetAllEvent()
-           // {
-           //     
-           // }
-           // public async Task<ApiCommonResponse> SaveEvents(Event insertedEvent)
-           // {
-           //     var insertedEventsToSave = new Calen
-           // }
+           public async Task<ApiCommonResponse> GetAllEvent()
+           {
+               string[] scopes = { "https://www.googleapis.com/auth/calendar" };
+               string applicationName = "HalobizCalender";
+               //var credentials = Path.Combine("Files", "credential.json");
+
+               UserCredential credential;
+
+               using (var stream =
+                      new FileStream("Files/credential.json", FileMode.Open, FileAccess.Read))
+               {
+                   // The file token.json stores the user's access and refresh tokens, and is created
+                   // automatically when the authorization flow completes for the first time.
+                   string credPath = Path.Combine("Files", "token.json");
+                   credential = GoogleWebAuthorizationBroker.AuthorizeAsync(
+                       GoogleClientSecrets.Load(stream).Secrets,
+                       scopes,
+                       "user",
+                       CancellationToken.None,
+                       new FileDataStore(credPath, true)).Result;
+                   Console.WriteLine("Credential file saved to: " + credPath);
+               }
+               var initializer = new BaseClientService.Initializer()
+               {
+                   HttpClientInitializer = credential,
+                   ApplicationName = "HalobizCalenderEvent",
+               };
+               var service = new CalendarService(initializer);
+               
+               EventsResource.ListRequest request = service.Events.List("primary");  
+               request.TimeMin = DateTime.Now;  
+               request.ShowDeleted = false;  
+               request.SingleEvents = true; 
+               request.MaxResults = 100;  
+               request.OrderBy = EventsResource.ListRequest.OrderByEnum.StartTime;
+               var listedEvents = await request.ExecuteAsync();
+               if (listedEvents.Items.Any())
+               {
+                   return CommonResponse.Send(ResponseCodes.SUCCESS,listedEvents, "The event was successfully retrieved");
+               }
+               return CommonResponse.Send(ResponseCodes.FAILURE,null, "No Event was found");
+           }
+
+           public async Task<ApiCommonResponse> PersistEvent(Event insertedEvent,CalenderRequestDTO request, HttpContext httpContext)
+           {
+               var eventToBeSaved = new CalenderEvent()
+               {
+                   IsActive = true,
+                   CreatedById = httpContext.GetLoggedInUserId(),
+                   CreatedAt = DateTime.Now,
+                   MeetingId = request.Id,
+                   CalenderId = Convert.ToInt32(insertedEvent.Id)
+               };
+               await _context.CalenderEvents.AddAsync(eventToBeSaved);
+               await _context.SaveChangesAsync();
+               return CommonResponse.Send(ResponseCodes.SUCCESS,null, "");
+           }
            
            public async Task<ApiCommonResponse> CreateEvent(CalendarService service,CalenderRequestDTO request,HttpContext httpContext)
            {
@@ -4729,7 +4778,7 @@ namespace HaloBiz.MyServices.Impl
                        var insertedEvent = service.Events.Insert(eventToCreate, "primary");
                        insertedEvent.SendNotifications = true;
                        var insertEventResult = await insertedEvent.ExecuteAsync();
-                       //await SaveEvents(insertedEvent);
+                       await PersistEvent(insertEventResult, request, httpContext);
                        return CommonResponse.Send(ResponseCodes.SUCCESS,insertedEvent, "");
                    }
                    catch (Exception e)
@@ -4743,38 +4792,8 @@ namespace HaloBiz.MyServices.Impl
            }
 
 
-           // public async Task<ApiCommonResponse> PushEventToGoogleCalender(CalenderRequestDTO request, HttpContext httpContext)
-           // {
-           //     string clientId = "995912706561-aq3kc2avkjjvooe23qv23e6832p2v7p8.apps.googleusercontent.com";//From Google Developer console https://console.developers.google.com
-           //     string clientSecret = "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";//From Google Developer console https://console.developers.google.com
-           //     string userName = "developers@halogen-group.com";//  A string used to identify a user.
-           //     string[] scopes = new string[] {
-           //         CalendarService.Scope.Calendar, // Manage your calendars
-           //         CalendarService.Scope.CalendarReadonly // View your Calendars
-           //     };
-           //     string ApplicationName = "Blazor Calendar Scheduler";
-           //     CalendarService service;
-           //     UserCredential credential;
-           //     try
-           //     {
-           //         using (FileStream stream = new FileStream("client_secret.apps.googleusercontent.com.json", FileMode.Open, FileAccess.Read))
-           //         {
-           //              credential = GoogleWebAuthorizationBroker.AuthorizeAsync(new ClientSecrets {
-           //                 ClientId = clientId, ClientSecret = clientSecret
-           //             }, scopes, userName, CancellationToken.None, new FileDataStore("store")).Result;
-           //         }
-           //         service = new CalendarService(new BaseClientService.Initializer() { HttpClientInitializer = credential, ApplicationName = ApplicationName });
-           //         var response = await  CreateEvent(service,request,httpContext);
-           //     }
-           //     catch (Exception e)
-           //     {
-           //         Console.WriteLine(e);
-           //         throw;
-           //     }
-           //
-           //     return null;
-           //
-           // }
+           
+           
            
            
            

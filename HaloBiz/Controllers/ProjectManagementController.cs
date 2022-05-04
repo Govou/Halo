@@ -784,6 +784,12 @@ namespace HaloBiz.Controllers
             return await _projectAllocationService.PushEventToGoogleCalender(calenderRequestDto,HttpContext);
         }
         
+        [HttpGet("ListEvent")]
+        public async Task<ApiCommonResponse> ListGoogleEvent()
+        {
+            return await _projectAllocationService.GetAllEvent();
+        }
+        
 
     }
 }
