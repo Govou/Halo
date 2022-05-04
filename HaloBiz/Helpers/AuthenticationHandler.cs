@@ -55,7 +55,7 @@ namespace HaloBiz.Helpers
             var actionName = controllerActionDescriptor?.ActionName;
             var actionVerb = context.Request.Method;
 
-            context.Response.Headers.Add("Access-Control-Allow-Origin", "*");
+           // context.Response.Headers.Add("Access-Control-Allow-Origin", "*");
 
             if (string.IsNullOrEmpty(controllerName) || string.IsNullOrEmpty(actionName))
             {
