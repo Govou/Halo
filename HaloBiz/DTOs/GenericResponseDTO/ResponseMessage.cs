@@ -22,13 +22,16 @@ namespace HaloBiz.DTOs.GenericResponseDTO
         public const string TimeCheck441 = "Please check your Opening or Closing Time";
         public const string DaysAvailability442 = "All Available days can't be false";
         public const string NoResourceOnRoute443 = "Sorry, this resource is not allowed on this route";
-        public const string Held444 = "Sorry, this item is temporarily held for action";
+        public const string Held444 = "Sorry, this item is temporarily held for action or pickup date is less than recovery time";
         public const string MaxQuantity445 = "Sorry, maximum quantity required exceeded";
         public const string NoApplicableType446 = "Sorry, applicableType is not attached to this service";
         public const string NoSchedule447 = "Sorry, this resource has no schedule";
         public const string ScheduleTimeMismatch448 = "Sorry, scheduling Date/time and assignment date/time mismatch";
         public const string NoGenericDay449 = "Sorry, resource is not scheduled or available for this day and time ";
-        public const string ResourceNotAvailble450 = "Sorry, Resource not available to complete this transaction, try again later)";
+        public const string ResourceNotAvailble450Veh = "Sorry, Vehicle resource not available to complete this transaction, try again later)";
+        public const string ResourceNotAvailble450Pi = "Sorry, Pilot resource not available to complete this transaction, try again later)";
+        public const string ResourceNotAvailble450Com = "Sorry, Commander resource not available to complete this transaction, try again later)";
+        public const string ResourceNotAvailble450Arm = "Sorry, Armed Escort resource not available to complete this transaction, try again later)";
         public const string CannotReplaceSameResource451 = "Sorry, Cannot replace the same resource)";
 
 

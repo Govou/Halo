@@ -15,9 +15,23 @@ namespace OnlinePortalBackend.DTOs.TransferDTOs
         public int ContractId { get; set; }
     }
 
+    public class IdividualInvoiceDTO
+    {
+        public IEnumerable<InvoiceDTO> Invoices { get; set; }
+    }
+    public class ContractServiceIdividualInvoiceDTO
+    {
+
+        public List<IdividualInvoiceDTO> IndividualInvoices { get; set; }
+        public int ContractId { get; set; }
+        public int PaymentsDue { get; set; }
+        public int PaymentsOverDue { get; set; }
+    }
+
     public class ContractInvoiceDTO
     {
         public IEnumerable<ContractServiceInvoiceDTO> ContractServiceInvoices { get; set; }
+        public IEnumerable<ContractServiceIdividualInvoiceDTO> IndividualContractServiceInvoices { get; set; }
     }
 
     public class InvoiceDTO
@@ -41,6 +55,7 @@ namespace OnlinePortalBackend.DTOs.TransferDTOs
         public double? InvoiceValueBalanceAfterReceipt { get; set; }
         public int ContractId { get; set; }
         public int ContractServiceId { get; set; }
+        public bool IsToBeReceipted { get; set; }
     }
 
     public class InvoiceDetailDTO

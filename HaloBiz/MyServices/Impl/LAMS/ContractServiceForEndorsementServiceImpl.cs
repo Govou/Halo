@@ -15,6 +15,7 @@ using System.Linq;
 using System;
 using Microsoft.AspNetCore.Http;
 using HaloBiz.Helpers;
+using HalobizMigrations.Models.Shared;
 
 namespace HaloBiz.MyServices.Impl.LAMS
 {
@@ -48,6 +49,21 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
         public async Task<ApiCommonResponse> GetNewContractAdditionEndorsement(long customerDivisionId)
         {
+            var contractServices = new List<ContractService>();
+            var allContracts = await _context.Contracts.Where(x => x.CustomerDivisionId == customerDivisionId && x.IsApproved)
+                               .Include(x => x.ContractServices.Where(x => x.Version == (int)VersionType.Draft))
+                                   .ThenInclude(x => x.Service)
+                               .Include(x => x.ContractServices.Where(x => x.Version == (int)VersionType.Draft))
+                                   .ThenInclude(x => x.SbutoContractServiceProportions)
+                                       .ThenInclude(x => x.UserInvolved)
+                               .ToListAsync();
+
+
+            foreach (var item in allContracts)
+            {
+                contractServices.AddRange(item.ContractServices);
+            }
+
             var contract =  await _context.Contracts.Where(x => x.CustomerDivisionId == customerDivisionId && !x.IsApproved)
                                 .Include(x => x.ContractServices)
                                     .ThenInclude(x=>x.Service)
@@ -55,12 +71,18 @@ namespace HaloBiz.MyServices.Impl.LAMS
                                     .ThenInclude(x=>x.SbutoContractServiceProportions)
                                         .ThenInclude(x=>x.UserInvolved)
                                 .FirstOrDefaultAsync();
-            if (contract == null)
+
+            if(contract != null)
+            {
+                contractServices.AddRange(contract.ContractServices);
+            }
+
+            if (!contractServices.Any())
             {
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);
             }
 
-            return CommonResponse.Send(ResponseCodes.SUCCESS, contract);
+            return CommonResponse.Send(ResponseCodes.SUCCESS, contractServices);
         }
 
         public async Task<ApiCommonResponse> AddNewRetentionContractServiceForEndorsement(HttpContext httpContext, List<ContractServiceForEndorsementReceivingDto> contractServiceForEndorsementDtos)
@@ -68,12 +90,12 @@ namespace HaloBiz.MyServices.Impl.LAMS
             if (!contractServiceForEndorsementDtos.Any())
             {
                 return CommonResponse.Send(ResponseCodes.FAILURE, null, "No contract service specified");
-            }
+            }          
 
-            using var transaction = await _context.Database.BeginTransactionAsync();
+            using var transaction = await _context.Database.BeginTransactionAsync();           
 
             var id = httpContext.GetLoggedInUserId();
-            bool createNewContract = contractServiceForEndorsementDtos.Any(x=>x.ContractId==0 && x.PreviousContractServiceId==0);
+            bool createNewContract = contractServiceForEndorsementDtos.All(x=>x.ContractId==0 && x.PreviousContractServiceId==0);
             Contract newContract = null;
             List<ContractService> newContractServices = new List<ContractService>();
 
@@ -104,21 +126,35 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 newContract = entity.Entity;
             }
 
+            //validate the admin direct pairs
+            var (isValid, errorMessage) = await ValidateEndorsementRequest(createNewContract, contractServiceForEndorsementDtos);
+            if(!isValid)
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, errorMessage);
+
+
             foreach (var item in contractServiceForEndorsementDtos)
             {              
 
-                bool alreadyExists = false;              
                 if(item.ContractId != 0)
                 {
-                    alreadyExists = await _context.ContractServiceForEndorsements
-                       .AnyAsync(x => x.ContractId == item.ContractId && x.PreviousContractServiceId == item.PreviousContractServiceId
-                                   && x.CustomerDivisionId == item.CustomerDivisionId && x.ServiceId == item.ServiceId
-                                   && !x.IsApproved && !x.IsDeclined && x.IsConvertedToContractService != true && !x.IsDeleted);
-                }
+                    ContractServiceForEndorsement alreadyExists = null;
+                   if (item.PreviousContractServiceId > 0)
+                    {
+                       alreadyExists = await _context.ContractServiceForEndorsements
+                      .Where(x => x.ContractId == item.ContractId && x.PreviousContractServiceId == item.PreviousContractServiceId
+                                  && x.CustomerDivisionId == item.CustomerDivisionId && x.ServiceId == item.ServiceId
+                                  && !x.IsApproved && !x.IsDeclined && x.IsConvertedToContractService != true && !x.IsDeleted).FirstOrDefaultAsync();
+                    }
 
-                if (alreadyExists)
+                    if (alreadyExists != null)
+                    {
+                        return CommonResponse.Send(ResponseCodes.FAILURE, null, $"There is already an endorsement request for the contract service with id {alreadyExists.Id}");
+                    }
+                }
+               
+                if(item.QuoteServiceId == 0)
                 {
-                    return CommonResponse.Send(ResponseCodes.FAILURE, null, $"There is already an endorsement request for the contract service with id {item.ContractId}");
+                    item.QuoteServiceId = null;
                 }
 
                 //check if this is nenewal and the previous contract has not
@@ -162,6 +198,20 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 {
                     foreach (var item in entityToSaveList)
                     {
+                        //check if it addition endorsement
+                        var endorsementType = await _context.EndorsementTypes.Where(x => x.Id == item.EndorsementTypeId).FirstOrDefaultAsync();
+                        if (endorsementType.Caption.ToLower().Contains("addition"))
+                        {
+                            //create a new contract service at draft stage
+                            var contractService = _mapper.Map<ContractService>(item);
+                            contractService.Version = (int)VersionType.Draft;
+                            var entity = _context.ContractServices.Add(contractService);
+                            await _context.SaveChangesAsync();
+                            item.PreviousContractServiceId = entity.Entity.Id;
+                            item.IsConvertedToContractService = true;
+                            item.IsRequestedForApproval = false;
+                        }
+
                         var savedEntity = await _cntServiceForEndorsemntRepo.SaveContractServiceForEndorsement(item);
                         if (savedEntity == null)
                         {
@@ -198,65 +248,63 @@ namespace HaloBiz.MyServices.Impl.LAMS
             }
         }
 
-        private bool ValidateAdminAccompaniesDirectService(List<ContractServiceForEndorsementReceivingDto> ContractServices)
+     
+
+        private async Task<(bool, string)> ValidateEndorsementRequest(bool isToCreateNewContract, List<ContractServiceForEndorsementReceivingDto> contractServices)
         {
-            var isValidCount = 0;
-            var adminServiceCount = 0;
+            if (contractServices.Count == 1)
+                return (true, null);
 
-            foreach (var contractService in ContractServices)
+            try
             {
-                var directServiceExist = false;
-                var adminServiceExist = false;
-                var adminDirectService = _context.ServiceRelationships.FirstOrDefault(x => x.DirectServiceId == contractService.ServiceId || x.AdminServiceId == contractService.ServiceId);
-                foreach (var item in ContractServices)
+                //get the list of all services
+                var services = await _context.Services.AsNoTracking().ToListAsync();
+
+                //add this to indicate the type of services
+                foreach (var item in contractServices)
                 {
-                    if (item.ServiceId == adminDirectService.AdminServiceId)
+                    var service = services.Where(x => x.Id == item.ServiceId).FirstOrDefault();
+                    if (service == null) 
+                        return (false, $"Invalid service specified for contract service with tag '{item.UniqueTag}'");
+
+                    item.ServiceRelationshipEnum = service.ServiceRelationshipEnum;
+
+                    if (!isToCreateNewContract && item.EndorsementTypeId != 2)
                     {
-                        adminServiceExist = true;
-                        adminServiceCount++;
+                        //check that the previous contract Id specified is valid
+                        if(item.PreviousContractServiceId == 0)
+                            return (false, $"Invalid PreviousContractServiceId specified for contract service with tag '{item.UniqueTag}'");
+
+                        //check that PreviousContractServiceId is latest
+                        if(!_context.ContractServices.Any(x=>x.Id==item.PreviousContractServiceId && x.Version == (int) VersionType.Latest))
+                        {
+                            return (false, $"PreviousContractServiceId specified for contract service with tag '{item.UniqueTag}' is not latest");
+                        }
                     }
-                    if (item.ServiceId == adminDirectService.DirectServiceId)
-                    {
-                        directServiceExist = true;
-                    }
                 }
-                if (directServiceExist && adminServiceExist)
+
+                //get all the directs
+                var directs = contractServices.Where(x => x.ServiceRelationshipEnum == ServiceRelationshipEnum.Direct).ToList();
+                foreach (var item in directs)
                 {
-                    isValidCount++;
+                    //get the admin of this guy
+                    var admin = contractServices.Where(x => x.AdminDirectTie == item.AdminDirectTie && x.ServiceRelationshipEnum == ServiceRelationshipEnum.Admin).FirstOrDefault();
+                    if (admin == null) return (false, $"There is no admin matching pair for contract service with tag '{item.UniqueTag}'");
+
+                    //check qty etc
+                    if(item.Quantity != admin.Quantity) 
+                        return (false, $"No matching quantity with admin for contract service with tag '{item.UniqueTag}'");
+                    if (item.ServiceId == admin.ServiceId)
+                        return (false, $"Direct and admin cannot have the same service Id for contract service with tag '{item.UniqueTag}'");
                 }
             }
-
-            if (isValidCount == adminServiceCount)
+            catch (Exception ex)
             {
-                return true;
-            }
-            return false;
-        }
-
-        private async Task<bool> ValidateContractToRenew(ContractServiceForEndorsement contractServiceForEndorsement)
-        {
-            if (contractServiceForEndorsement.PreviousContractServiceId == null || contractServiceForEndorsement.PreviousContractServiceId == 0)
-            {
-                return false;
+                return (false, ex.Message);
             }
 
-            if(contractServiceForEndorsement.PreviousContractServiceId != null && contractServiceForEndorsement.PreviousContractServiceId > 0)
-            {
-                var contractService = await _context.ContractServices
-                        .FirstOrDefaultAsync(x => x.Id == contractServiceForEndorsement.PreviousContractServiceId);
-
-                if (contractService == null)
-                {
-                    return false;
-                }
-                if (contractService.ContractEndDate >= contractServiceForEndorsement.ContractStartDate)
-                {
-                    return false;
-                }
-            }
-
-            return true;
-        }
+            return (true, null);
+        }       
 
         public async Task<ApiCommonResponse> GetUnApprovedContractServiceForEndorsement()
         {
@@ -274,6 +322,33 @@ namespace HaloBiz.MyServices.Impl.LAMS
             return CommonResponse.Send(ResponseCodes.SUCCESS,contractServiceToEndorseTransferDto);
         }
 
+        public async Task<ApiCommonResponse> GetEndorsementServiceAddition(long endorsementId)
+        {
+            //get the endorsement first
+            var endorsement = await _context.ContractServiceForEndorsements.FindAsync(endorsementId);
+            if (endorsement == null)
+            {
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE, null, $"No endorsement with ID: {endorsementId}"); 
+            }
+
+            var contracts = await _context.Contracts.Where(x =>x.Id==endorsement.ContractId)
+                    .Include(x => x.CustomerDivision)
+                    .Include(x => x.ContractServices.Where(x=>x.Id==endorsement.PreviousContractServiceId))
+                        .ThenInclude(x => x.Service)
+                            .ThenInclude(x => x.OperatingEntity)
+                    .Include(x => x.ContractServices)
+                        .ThenInclude(x => x.SbutoContractServiceProportions)
+                    .ToListAsync();
+
+            if (!contracts.Any())
+            {
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE); ;
+            }
+
+            //var contractTransferDTOs = _mapper.Map<IEnumerable<ContractTransferDTO>>(contracts);
+            return CommonResponse.Send(ResponseCodes.SUCCESS, contracts);
+        }
+       
         public async Task<ApiCommonResponse> GetEndorsementHistory(long contractServiceId)
         {
             var possibleDates = await _cntServiceForEndorsemntRepo.GetEndorsementHistory(contractServiceId);
@@ -327,21 +402,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                        
                     }
 
-                    //var entityToApprove = await _cntServiceForEndorsemntRepo.FindContractServiceForEndorsementById(Id);
-                    //if (entityToApprove == null)
-                    //{
-                    //    return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
-                    //}
-                    //entityToApprove.IsApproved = isApproved;
-                    //var approvedEntity = await _cntServiceForEndorsemntRepo.UpdateContractServiceForEndorsement(entityToApprove);
-                    //if (approvedEntity == null)
-                    //{
-                    //    return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
-                    //}
-
-                    //var contractServiceToEndorseTransferDto = _mapper.Map<ContractServiceForEndorsementTransferDto>(approvedEntity);
-
-                    await transaction.CommitAsync();
+                   await transaction.CommitAsync();
                     return CommonResponse.Send(ResponseCodes.SUCCESS, null, "The approval was successful");
                 }
                 catch (Exception ex)
@@ -372,7 +433,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
             }
         }
 
-        private async Task<ApiCommonResponse> ConvertContractServiceForEndorsement(HttpContext httpContext, long Id)
+        public async Task<ApiCommonResponse> ConvertContractServiceForEndorsement(HttpContext httpContext, long Id)
         {
             
             try
@@ -392,67 +453,63 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 var contractServiceToSave = _mapper.Map<ContractService>(contractServiceForEndorsement);
                 contractServiceToSave.Id = 0;
 
-
-                var contractServiceEntity = await _context.ContractServices.AddAsync(contractServiceToSave);
-                await _context.SaveChangesAsync();
-
-
-                var contractService = await _context.ContractServices
-                    .Where(x => x.Id == contractServiceToSave.Id)
-                    .Include(x => x.Service)
-                    .FirstOrDefaultAsync(); //contractServiceEntity.Entity;
-
-
                 var contract = await _context.Contracts
-                            .Include(x => x.CustomerDivision)
-                            .FirstOrDefaultAsync(x => x.Id == contractService.ContractId);
+                               .Include(x => x.CustomerDivision)
+                               .FirstOrDefaultAsync(x => x.Id == contractServiceForEndorsement.ContractId);
 
                 var customerDivision = contract.CustomerDivision;
 
                 var service = await _context.Services
                             .FirstOrDefaultAsync(x => x.Id == contractServiceForEndorsement.ServiceId);
 
-                string endorsementType = contractServiceForEndorsement.EndorsementType.Caption;
+                string endorsementType = contractServiceForEndorsement.EndorsementType.Caption.ToLower();
 
-                if (endorsementType.ToLower().Contains("addition"))
+               
+                if (endorsementType.Contains("topup") || endorsementType.Contains("reduction") || endorsementType.Contains("retention"))
                 {
-                    await AddServiceEndorsement(contractService, contractServiceForEndorsement, service, customerDivision);
+                    var contractServiceEntity = await _context.ContractServices.AddAsync(contractServiceToSave);
+                    await _context.SaveChangesAsync();
 
-                }
-                else if (endorsementType.ToLower().Contains("topup"))
-                {
-                    //this new contract would have the same start and end date as the on to retire
-                    await RetainContractValues(contractService, contractServiceToRetire);
 
-                    await ServiceTopUpGoingForwardEndorsement(contractServiceToRetire,
-                                                                contractService,
-                                                                customerDivision,
-                                                                service,
-                                                                contractServiceForEndorsement
-                                                                );
-                }
-                else if (endorsementType.ToLower().Contains("reduction"))
-                {
+                    var contractService = await _context.ContractServices
+                        .Where(x => x.Id == contractServiceToSave.Id)
+                        .Include(x => x.Service)
+                        .FirstOrDefaultAsync();
 
                     //this new contract would have the same start and end date as the on to retire
-                    await RetainContractValues(contractService, contractServiceToRetire);
+                    if (endorsementType.Contains("topup"))
+                    {
+                        await RetainContractValues(contractService, contractServiceToRetire);
 
-                    await ServiceReductionGoingForwardEndorsement(contractServiceToRetire,
-                                                                contractService,
-                                                                customerDivision,
-                                                                service,
-                                                                contractServiceForEndorsement
-                                                                );
-                }
-                else if (endorsementType.ToLower().Contains("retention"))
-                {
-                    await RetainSbuInfo(contractService, contractServiceToRetire, true);
+                        await ServiceTopUpGoingForwardEndorsement(contractServiceToRetire,
+                                                                    contractService,
+                                                                    customerDivision,
+                                                                    service,
+                                                                    contractServiceForEndorsement
+                                                                    );
+                    }else if (endorsementType.Contains("reduction"))
+                    {
+                        //this new contract would have the same start and end date as the on to retire
+                        await RetainContractValues(contractService, contractServiceToRetire);
 
-                    await ServiceRenewalEndorsement(contractService,
-                                                    service,
-                                                    customerDivision);
+                        await ServiceReductionGoingForwardEndorsement(contractServiceToRetire,
+                                                                    contractService,
+                                                                    customerDivision,
+                                                                    service,
+                                                                    contractServiceForEndorsement
+                                                                    );
+                    }else if (endorsementType.Contains("retention"))
+                    {
+                        await RetainSbuInfo(contractService, contractServiceToRetire, true);
+
+                        await ServiceRenewalEndorsement(contractService,
+                                                        service,
+                                                        customerDivision);
+                    }
+
+
                 }
-                else if (endorsementType.ToLower().Contains("credit"))
+                else if (endorsementType.Contains("credit"))
                 {
                     var currentContractService = await _context.ContractServices
                         .FirstOrDefaultAsync(x => x.Id == contractServiceForEndorsement.PreviousContractServiceId);
@@ -462,7 +519,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                                                 service,
                                                 contractServiceForEndorsement);
                 }
-                else if (endorsementType.ToLower().Contains("debit"))
+                else if (endorsementType.Contains("debit"))
                 {
                     var currentContractService = await _context.ContractServices
                         .FirstOrDefaultAsync(x => x.Id == contractServiceForEndorsement.PreviousContractServiceId);
@@ -491,7 +548,6 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 _logger.LogError(e.StackTrace);
                 return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }
-
         }
        
 
@@ -709,46 +765,8 @@ namespace HaloBiz.MyServices.Impl.LAMS
         //    }
         //}
 
-        private async Task<bool> AddServiceEndorsement(ContractService contractService, ContractServiceForEndorsement contractServiceForEndorsement, Service service, CustomerDivision customerDivision)
-        {
-            var salesVoucherName = this._configuration.GetSection("VoucherTypes:SalesInvoiceVoucher").Value;
-            var financialVoucherType = await _context.FinanceVoucherTypes
-                            .FirstOrDefaultAsync(x => x.VoucherType.ToLower() == salesVoucherName.ToLower());
-
-          
-            var contract = await _context.Contracts.Where(x => x.Id == contractService.ContractId).FirstOrDefaultAsync();
-            contractService.Contract = contract;
-            await _leadConversionService.GenerateInvoices(contractService, customerDivision.Id, service.ServiceCode, this.loggedInUserId);
-
-            await _leadConversionService.GenerateAmortizations(contractService, customerDivision, (double)contractService?.BillableAmount);
-
-            return true;
-
-        }
-
-        private async Task<bool> TerminateContractService(ContractService contractServiceToTerminate, ContractServiceForEndorsement contractServiceForEndorsement)
-        {
-            throw new Exception("this method is not mentained");
-            ////to check
-            //if (string.IsNullOrWhiteSpace(contractServiceToTerminate.Contract.GroupInvoiceNumber))
-            //{
-            //    await UpdateInvoices(contractServiceToTerminate, contractServiceForEndorsement, false, false);
-            //}
-            //else
-            //{
-            //    await UpdateInvoices(contractServiceToTerminate, contractServiceForEndorsement, false, true);
-            //}
-
-            //var terminatedContractServiceToNegateAmmortization = _mapper.Map<ContractService>(contractServiceToTerminate);
-
-            ////terminatedContractServiceToNegateAmmortization.BillableAmount *= -1;
-            // terminatedContractServiceToNegateAmmortization.ContractStartDate = contractServiceForEndorsement.DateForNewContractToTakeEffect;
-            //terminatedContractServiceToNegateAmmortization.BillableAmount = contractServiceToTerminate.BillableAmount;
-
-            //await _leadConversionService.GenerateAmortizations(terminatedContractServiceToNegateAmmortization, contractServiceToTerminate.Contract.CustomerDivision);
-
-            //return true;
-        }
+       
+        
 
         private async Task<bool> ServiceTopUpGoingForwardEndorsement(ContractService retiredContractService,
                                                                     ContractService newContractService,
@@ -971,7 +989,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                     invoices = invoicesToUpdate
                                    .Where(x => x.StartDate >= contractServiceForEndorsement.DateForNewContractToTakeEffect && !x.IsDeleted);
 
-                    var billbalbleForInvoicingPeriod = CalculateTotalBillableForPeriod(contractService);
+                    var (interval,billbalbleForInvoicingPeriod, tax) = _leadConversionService.CalculateTotalBillableForPeriod(contractService);
 
                     foreach (var invoice in invoices)
                     {
@@ -1096,50 +1114,6 @@ namespace HaloBiz.MyServices.Impl.LAMS
             return amountToPay;
         }
 
-        private double CalculateTotalBillableForPeriod(ContractService contractService)
-        {
-            int interval = 0;
-
-            try
-            {
-                DateTime startDate = (DateTime)contractService.ContractStartDate;
-                DateTime endDate = (DateTime)contractService.ContractEndDate;
-                TimeCycle cycle = (TimeCycle)contractService.InvoicingInterval;
-                double amount = (double) contractService.BillableAmount;
-
-                switch (cycle)
-                {                   
-                    case TimeCycle.Monthly:
-                        interval = 1;
-                        break;
-                    case TimeCycle.BiMonthly:
-                        interval = 2;
-                        break;
-                    case TimeCycle.Quarterly:
-                        interval = 3;
-                        break;
-                    case TimeCycle.BiAnnually:
-                        interval = 6;
-                        break;
-                    case TimeCycle.Annually:
-                        interval = 12;
-                        break;                    
-                }
-
-               if (cycle == TimeCycle.OneTime)
-                {
-                    return amount;
-                }
-                else
-                {
-                    return amount * (double)interval;
-                }
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex.StackTrace);
-                throw;
-            }
-        }
+       
     }
 }

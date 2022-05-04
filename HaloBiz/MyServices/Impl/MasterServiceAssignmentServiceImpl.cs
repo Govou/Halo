@@ -83,7 +83,7 @@ namespace HaloBiz.MyServices.Impl
             {
                 master.CreatedById = context.GetLoggedInUserId();
                 master.PickoffTime = pickofftime;
-                master.CreatedAt = DateTime.UtcNow;
+                master.CreatedAt = DateTime.Now;
                 master.TripTypeId = 1;
                 master.SAExecutionStatus = 0;
                 master.AssignmentStatus = "Open";
@@ -210,7 +210,7 @@ namespace HaloBiz.MyServices.Impl
                         else
                         {
                             transaction.Rollback();
-                            return CommonResponse.Send(ResponseCodes.FAILURE, null, ResponseMessage.ResourceNotAvailble450);
+                            return CommonResponse.Send(ResponseCodes.FAILURE, null, ResponseMessage.ResourceNotAvailble450Veh);
                         }
                     }
 
@@ -272,7 +272,7 @@ namespace HaloBiz.MyServices.Impl
                                 //pilot.TiedVehicleResourceId = TiedVehicleId;
                                 pilot.RequiredCount = resourceCount++;
                                 pilot.CreatedById = context.GetLoggedInUserId();
-                                pilot.CreatedAt = DateTime.UtcNow;
+                                pilot.CreatedAt = DateTime.Now;
                                 pilot.ServiceAssignmentId = getId;
                                 var savedItem = await _serviceAssignmentDetailsRepository.SavePilotServiceAssignmentdetail(pilot);
                                 if (savedItem == null)
@@ -302,7 +302,7 @@ namespace HaloBiz.MyServices.Impl
                         else
                         {
                             transaction.Rollback();
-                            return CommonResponse.Send(ResponseCodes.FAILURE, null, ResponseMessage.ResourceNotAvailble450);
+                            return CommonResponse.Send(ResponseCodes.FAILURE, null, ResponseMessage.ResourceNotAvailble450Pi);
                         }
                     }
 
@@ -390,7 +390,7 @@ namespace HaloBiz.MyServices.Impl
                         else
                         {
                             transaction.Rollback();
-                            return CommonResponse.Send(ResponseCodes.FAILURE, null, ResponseMessage.ResourceNotAvailble450);
+                            return CommonResponse.Send(ResponseCodes.FAILURE, null, ResponseMessage.ResourceNotAvailble450Com);
                         }
                     }
 
@@ -459,7 +459,7 @@ namespace HaloBiz.MyServices.Impl
                         else
                         {
                             transaction.Rollback();
-                            return CommonResponse.Send(ResponseCodes.FAILURE, null, ResponseMessage.ResourceNotAvailble450);
+                            return CommonResponse.Send(ResponseCodes.FAILURE, null, ResponseMessage.ResourceNotAvailble450Arm);
                         }
                     }
 
@@ -475,8 +475,12 @@ namespace HaloBiz.MyServices.Impl
 
             // var typeTransferDTO = _mapper.Map<MasterServiceAssignmentTransferDTO>(master);
             transaction.Commit();
-            await _serviceAssignmentDetailsService.UpdateServiceDetailsHeldForActionAndReadyStatusByAssignmentId(getId);
-            return CommonResponse.Send(ResponseCodes.SUCCESS, null, "Auto Assignment Successful");
+            if(masterReceivingDTO.InhouseAssignment == true)
+            {
+                await _serviceAssignmentDetailsService.UpdateServiceDetailsHeldForActionAndReadyStatusByAssignmentId(getId);
+            }
+           
+            return CommonResponse.Send(ResponseCodes.SUCCESS, null, "Auto Service Assignment Successful");
         }
 
 
@@ -493,7 +497,7 @@ namespace HaloBiz.MyServices.Impl
             
             master.CreatedById = context.GetLoggedInUserId();
             master.PickoffTime = pickofftime;
-            master.CreatedAt = DateTime.UtcNow;
+            master.CreatedAt = DateTime.Now;
             master.TripTypeId = 1;
             master.SAExecutionStatus = 0;
             master.AssignmentStatus = "Open";

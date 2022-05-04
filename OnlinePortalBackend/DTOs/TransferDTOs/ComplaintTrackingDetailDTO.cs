@@ -6,6 +6,7 @@ namespace OnlinePortalBackend.DTOs.TransferDTOs
     public class ComplaintTrackingDetailDTO
     {
         public string TrackingId { get; set; }
+        public string ComplaintType { get; set; }
         public DateTime RegisteredDate { get; set; }
         public ComplaintRegistrationTracking ComplaintRegistration { get; set; }
         public ComplaintAssessmentTracking ComplaintAssessment { get; set; }

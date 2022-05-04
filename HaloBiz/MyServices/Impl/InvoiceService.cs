@@ -1615,6 +1615,7 @@ namespace HaloBiz.MyServices.Impl
                 {
                     serviceName = theInvoice.VehicleResource.SupplierService.ServiceName,
                     IdentificationNumber = theInvoice.VehicleResource.SupplierService.IdentificationNumber,
+                    FrontViewImage = theInvoice.VehicleResource.SupplierService.FrontViewImage,
                 });
 
             }
@@ -1682,6 +1683,7 @@ namespace HaloBiz.MyServices.Impl
             {
                 Name = serviceAss.CustomerDivision.DivisionName,
                 Email = serviceAss.CustomerDivision.Email,
+                Address = serviceAss.CustomerDivision.Address,
                 Street = serviceAss.CustomerDivision.Street,
                 State = serviceAss.CustomerDivision.State != null ? serviceAss.CustomerDivision.State.Name : "No State Provided",
                 LGA = serviceAss.CustomerDivision.Lga != null ? serviceAss.CustomerDivision.Lga.Name : "No LGA Provided"
@@ -1704,6 +1706,7 @@ namespace HaloBiz.MyServices.Impl
                 DropoffLocation = invoice.DropoffLocation,
                 CreatedBy = invoice.CreatedBy.FirstName + " " +invoice.CreatedBy.LastName,
                 CreatedByMobile = invoice.CreatedBy.MobileNumber,
+                CreatedByPic = invoice.CreatedBy.ImageUrl,
                 //Subject = $"JMP {invoice.InvoiceNumber} for {keyServiceName} due {invoice.EndDate.ToString("dddd, dd MMMM yyyy")}",
                 Subject = $"Journey Management Plan",
                 Recepients = recepients.ToArray(),
@@ -1871,7 +1874,7 @@ namespace HaloBiz.MyServices.Impl
 
 
             List<string> recepients = new List<string>();
-            
+
 
             //send to detailing officer
             //if (serviceAss.CreatedBy.Email != null)
@@ -1882,7 +1885,7 @@ namespace HaloBiz.MyServices.Impl
             //    if (item.CommanderResource.Profile.Email != null)
             //        recepients.Add(item.CommanderResource.Profile.Email);
             //}
-       
+            //recepients.Add("ybyusbash@gmail.com");
 
             //send to client company
             if (serviceAss.CustomerDivision.Email != null)

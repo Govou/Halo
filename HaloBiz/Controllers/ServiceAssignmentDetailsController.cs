@@ -3,6 +3,7 @@ using Halobiz.Common.DTOs.ApiDTOs;
 using HaloBiz.DTOs.ReceivingDTOs;
 using HaloBiz.MyServices;
 using HaloBiz.MyServices.LAMS;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -40,7 +41,7 @@ namespace HaloBiz.Controllers
             //var cType = ((ApiOkResponse)response).Result;
             //return Ok(cType);
         }
-
+        [AllowAnonymous]
         [HttpGet("GetAllArmedEscortDetailsByAssignmentId/{id}")]
         public async Task<ApiCommonResponse> GetAllArmedEscortDetailsByAssignmentId(long id)
         {
@@ -98,7 +99,7 @@ namespace HaloBiz.Controllers
             //var cType = ((ApiOkResponse)response).Result;
             //return Ok(cType);
         }
-
+        [AllowAnonymous]
         [HttpGet("GetAllCommanderDetailsByAssignmentId/{id}")]
         public async Task<ApiCommonResponse> GetAllCommanderDetailsByAssignmentId(long id)
         {
@@ -166,7 +167,7 @@ namespace HaloBiz.Controllers
             //var cType = ((ApiOkResponse)response).Result;
             //return Ok(cType);
         }
-
+        [AllowAnonymous]
         [HttpGet("GetAllPilotDetailsByAssignmentId/{id}")]
         public async Task<ApiCommonResponse> GetAllPilotDetailsByAssignmentId(long id)
         {
@@ -224,7 +225,7 @@ namespace HaloBiz.Controllers
             //var cType = ((ApiOkResponse)response).Result;
             //return Ok(cType);
         }
-
+        [AllowAnonymous]
         [HttpGet("GetAllVehicleDetailsByAssignmentId/{id}")]
         public async Task<ApiCommonResponse> GetAllVehicleDetailsByAssignmentId(long id)
         {
@@ -286,7 +287,7 @@ namespace HaloBiz.Controllers
             //var cType = ((ApiOkResponse)response).Result;
             //return Ok(cType);
         }
-
+        [AllowAnonymous]
         [HttpGet("GetAllPassengersByAssignmentId/{id}")]
         public async Task<ApiCommonResponse> GetAllPassengersByAssignmentId(long id)
         {

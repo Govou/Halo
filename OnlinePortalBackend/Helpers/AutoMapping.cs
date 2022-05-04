@@ -17,6 +17,7 @@ namespace OnlinePortalBackend.Helpers
         public AutoMapping() 
         {            
             CreateMap<ServiceRatingReceivingDTO, ServiceRating>();
+            CreateMap<AppRatingTransferDTO, AppRating>();
             CreateMap<ServiceRating, ServiceRatingTransferDTO>();
             CreateMap<SecurityQuestionReceivingDTO, SecurityQuestion>();
             CreateMap<SecurityQuestion, SecurityQuestionTransferDTO>();
@@ -62,7 +63,11 @@ namespace OnlinePortalBackend.Helpers
             CreateMap<ComplaintReassignment, ComplaintReassignmentTransferDTO>();
             //CreateMap<CartItemsReceiving, CartItemsReceivingDTO>();
             //CreateMap<CompletePaymentReceiving, CompletePaymentReceivingDTO>();
-
+            CreateMap<Receipt, ReceiptTransferDTO>();
+            CreateMap<Receipt, ReceiptTransferDTO>();
+            CreateMap<Receipt, Receipt>();
+            CreateMap<Invoice, InvoiceTransferDTO>().ForMember(dest => dest.TotalAmountReceipted,
+                            opt => opt.MapFrom(src => src.Receipts.Sum(x => x.ReceiptValue)));
 
         }
     }

@@ -154,11 +154,11 @@ namespace HaloBiz.MyServices.Impl
                         }
                         if (getEscortDetail != null)
                             {
-                                if (getEscortDetail.IsTemporarilyHeld == true || getEscortDetail.IsHeldForAction == true)
+                                if (getEscortDetail.IsTemporarilyHeld == true || getEscortDetail.IsHeldForAction == true || getServiceAssignment.PickupDate < getEscortDetail.RecoveryDateTime)
                                 {
                                     //return new ApiResponse(444);
                                 return CommonResponse.Send(ResponseCodes.FAILURE, null, ResponseMessage.Held444);
-                            }
+                                }
                             }
                            
                             if (getEscortDetailListById.Count() == 0)
@@ -505,7 +505,7 @@ namespace HaloBiz.MyServices.Impl
                         }
                         if (getCommanderDetail != null)
                         {
-                            if (getCommanderDetail.IsTemporarilyHeld == true || getCommanderDetail.IsHeldForAction == true)
+                            if (getCommanderDetail.IsTemporarilyHeld == true || getCommanderDetail.IsHeldForAction == true || getServiceAssignment.PickupDate < getCommanderDetail.RecoveryDateTime)
                             {
                                 //return new ApiResponse(444);
                                 return CommonResponse.Send(ResponseCodes.FAILURE, null, ResponseMessage.Held444);
@@ -843,7 +843,7 @@ namespace HaloBiz.MyServices.Impl
                         }
                         if (getPilotDetail != null)
                         {
-                            if (getPilotDetail.IsTemporarilyHeld == true || getPilotDetail.IsHeldForAction == true)
+                            if (getPilotDetail.IsTemporarilyHeld == true || getPilotDetail.IsHeldForAction == true || getServiceAssignment.PickupDate < getPilotDetail.RecoveryDateTime)
                             {
                                 return CommonResponse.Send(ResponseCodes.FAILURE, null, ResponseMessage.Held444);
                             }
@@ -1157,7 +1157,7 @@ namespace HaloBiz.MyServices.Impl
                         }
                         if (getVehicleDetail != null)
                         {
-                            if (getVehicleDetail.IsTemporarilyHeld == true || getVehicleDetail.IsHeldForAction == true)
+                            if (getVehicleDetail.IsTemporarilyHeld == true || getVehicleDetail.IsHeldForAction == true || getServiceAssignment.PickupDate < getVehicleDetail.RecoveryDateTime)
                             {
                                 return CommonResponse.Send(ResponseCodes.FAILURE, null, ResponseMessage.Held444);
                             }
@@ -1828,7 +1828,7 @@ namespace HaloBiz.MyServices.Impl
             }
 
             try {
-
+               
                 if (escortToUpdate.Count() > 0)
                 {
                     foreach (var item in escortToUpdate)
@@ -1878,18 +1878,12 @@ namespace HaloBiz.MyServices.Impl
                         }
                     }
                 }
-
-               
-
                 if (!await _serviceAssignmentMasterRepository.UpdateReadyStatus(itemToUpdate))
                 {
-                    transaction.Rollback();
                     return CommonResponse.Send(ResponseCodes.FAILURE, null, ResponseMessage.InternalServer500);
                 }
 
 
-                await _invoiceService.SendJourneyManagementPlan(id);
-                await _invoiceService.SendJourneyConfirmation(id);
 
             }//end try
             catch (Exception ex)
@@ -1900,6 +1894,8 @@ namespace HaloBiz.MyServices.Impl
 
 
             transaction.Commit();
+            await _invoiceService.SendJourneyManagementPlan(id);
+            await _invoiceService.SendJourneyConfirmation(id);
             return CommonResponse.Send(ResponseCodes.SUCCESS, null, ResponseMessage.Success200);
         }
 

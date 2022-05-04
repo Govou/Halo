@@ -23,6 +23,7 @@ namespace OnlinePortalBackend.MyServices.Impl
     {
         Task<bool> PostAccounts(long loggedInUserId, Receipt receipt, Invoice invoice, long bankAccountId);
         Task<ApiCommonResponse> AddNewReceipt(ReceiptReceivingDTO receivingDTO);
+        Task<ApiCommonResponse> PostPaymentDetails(PaymentDetailsDTO paymentDetails);
     }
 
     public class ReceiptServiceImpl : IReceiptService
@@ -111,6 +112,57 @@ namespace OnlinePortalBackend.MyServices.Impl
                                        true, accountMaster.Id, (long)invoice.CustomerDivision.ReceivableAccountId, amount, branch.Id, office.Id);
             return true;
         }
+
+        public async Task<ApiCommonResponse> PostPaymentDetails(PaymentDetailsDTO paymentDetails)
+        {
+            var profileId = _context.OnlineProfiles.FirstOrDefault(x => x.CustomerDivisionId == paymentDetails.userId).Id;
+            var inv = _context.Invoices.Include(x => x.ContractService).FirstOrDefault(x => x.InvoiceNumber == paymentDetails.PaymentReferenceInternal);
+            double calcVAT = 0;
+            double calcValue = 0;
+            if (inv.ContractService.Vat.Value > 0)
+            {
+               calcVAT = Convert.ToDouble(paymentDetails.TotalValue) * 0.075;
+               calcValue = Convert.ToDouble(paymentDetails.TotalValue) - calcVAT;
+            }
+            else
+            {
+                calcValue = Convert.ToDouble(paymentDetails.TotalValue);
+            }
+            _context.OnlineTransactions.Add(new OnlineTransaction
+            {
+                ConvenienceFee = paymentDetails.ConvenienceFee,
+                CreatedAt = DateTime.Now,
+                PaymentGatewayResponseCode = paymentDetails.PaymentGatewayResponseCode,
+                PaymentGatewayResponseDescription = paymentDetails.PaymentGatewayResponseDescription,
+                PaymentConfirmation = paymentDetails.PaymentConfirmation,
+                PaymentReferenceGateway = paymentDetails.PaymentReferenceGateway,
+                VAT = Convert.ToDecimal(calcVAT),
+                PaymentGateway = paymentDetails.PaymentGateway,
+                Value = Convert.ToDecimal(calcValue),
+                TotalValue = paymentDetails.Value + paymentDetails.ConvenienceFee,
+                TransactionType = paymentDetails.TransactionType,
+                PaymentReferenceInternal = paymentDetails.PaymentReferenceInternal,
+                PaymentFulfilment = paymentDetails.PaymentFulfilment,
+                TransactionSource = paymentDetails.TransactionSource,
+                ProfileId = profileId,
+                CreatedById = profileId,
+                SessionId = paymentDetails.SessionId,
+                UpdatedAt = DateTime.Now,
+            });
+
+            try
+            {
+                _context.SaveChanges();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.StackTrace);
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+            }
+            return CommonResponse.Send(ResponseCodes.SUCCESS);
+
+        }
+
 
         private async Task<AccountMaster> CreateAccountMaster(Receipt receipt,
                                                         long accountVoucherTypeId,
@@ -400,7 +452,27 @@ namespace OnlinePortalBackend.MyServices.Impl
                 {
                     try
                     {
-                        var receipt = _mapper.Map<Receipt>(receiptReceivingDTO);
+                        // var receipt = _mapper.Map<Receipt>(receiptReceivingDTO);
+                        var receipt = new Receipt
+                        {
+                            CreatedAt = DateTime.Now,
+                            DateAndTimeOfFundsReceived = DateTime.Now,
+                            InvoiceValueBalanceAfterReceipting = receiptReceivingDTO.InvoiceValueBalanceAfterReceipting,
+                            UpdatedAt = DateTime.Now,
+                            Caption = receiptReceivingDTO.Caption,
+                            CreatedById = LoggedInUserId,
+                            EvidenceOfPaymentUrl = receiptReceivingDTO.EvidenceOfPaymentUrl,
+                            InvoiceId = receiptReceivingDTO.InvoiceId,
+                            ValueOfWht = receiptReceivingDTO.ValueOfWHT,
+                            ReceiptValue = receiptReceivingDTO.ReceiptValue,
+                            InvoiceNumber = receiptReceivingDTO.InvoiceNumber,
+                            InvoiceValueBalanceBeforeReceipting = receiptReceivingDTO.InvoiceValueBalanceBeforeReceipting,
+                            InvoiceValue = receiptReceivingDTO.InvoiceValue,
+                            Depositor = receiptReceivingDTO.Depositor,
+                            IsTaskWitheld = receiptReceivingDTO.IsTaskWitheld
+                        };
+
+                       
                         var invoice = await FindInvoiceById(receipt.InvoiceId);
                         foreach (var item in invoice.Receipts)
                         {
@@ -556,5 +628,6 @@ namespace OnlinePortalBackend.MyServices.Impl
                 .FirstOrDefaultAsync(x => x.IsDeleted == false && x.VoucherType.ToUpper().Trim() == name);
         }
 
+       
     }
 }

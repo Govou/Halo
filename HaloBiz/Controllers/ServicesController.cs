@@ -2,6 +2,7 @@ using Halobiz.Common.Auths;
 using Halobiz.Common.DTOs.ApiDTOs;
 using HaloBiz.DTOs.ReceivingDTOs;
 using HaloBiz.MyServices;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 
@@ -24,6 +25,7 @@ namespace HaloBiz.Controllers
         {
             return await _servicesService.GetAllServices();
         }
+        [AllowAnonymous]
         [HttpGet("AllSecuredMobilityServices")]
         public  ApiCommonResponse AllSecuredMobilityServices()
         {
