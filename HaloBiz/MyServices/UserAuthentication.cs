@@ -155,9 +155,17 @@ namespace HaloBiz.MyServices
 
         private async Task<bool> UserHasAdminRole(long userId)
         {
-            var adminInfo = _configuration.GetSection("AdminRoleInformation")?.Get<AdminRole>();
-            var adminRole = await _context.Roles.Where(x => x.Name == adminInfo.RoleName).FirstOrDefaultAsync();
-            return _context.UserRoles.Any(x => x.UserId == userId && x.RoleId == adminRole.Id);
+            try
+            {
+                var adminInfo = _configuration.GetSection("AdminRoleInformation")?.Get<AdminRole>();
+                var adminRole = await _context.Roles.Where(x => x.Name == adminInfo.RoleName).FirstOrDefaultAsync();
+                return _context.UserRoles.Any(x => x.UserId == userId && x.RoleId == adminRole.Id);
+            }
+            catch (Exception ex)
+            {
+                var p = ex.Message;
+                return false;
+            }
 
         }
         private async Task<ApiCommonResponse> CreateNewProfile(string email)
