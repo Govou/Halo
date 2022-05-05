@@ -59,7 +59,7 @@ namespace HaloBiz.Controllers
             return await _priceRegisterService.UpdatePriceRegister(HttpContext, id, Receiving);
         }
 
-        [HttpDelete("DeletePriceRegisterById/{id}")] //{id}
+        [HttpDelete("DeletePriceRegisterById/{id}")] 
         public async Task<ApiCommonResponse> DeletePriceRegisterById(int id)
         {
             return await _priceRegisterService.DeletePriceRegister(id);
