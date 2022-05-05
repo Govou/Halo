@@ -109,7 +109,8 @@ namespace OnlinePortalBackend.Repository.Impl
                     HasAdminComponent = service.AdminRelationship?.AdminServiceId != null && service.AdminRelationship?.DirectService != null ? true : false,
                     TotalContractValue = (int)contractService.Quantity * service.UnitPrice,
                     ContractId = (int)contractService.ContractId,
-                    ServiceId = (int)service.Id
+                    ServiceId = (int)service.Id,
+                    UniqueTag = contractService.UniqueTag
                 };
 
                 contractServiceDTOs.Add(result);

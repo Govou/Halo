@@ -53,7 +53,9 @@ namespace HaloBiz.Helpers
 
             var controllerName = controllerActionDescriptor?.ControllerName;
             var actionName = controllerActionDescriptor?.ActionName;
-            var actionVerb = context.Request.Method;   
+            var actionVerb = context.Request.Method;
+
+           // context.Response.Headers.Add("Access-Control-Allow-Origin", "*");
 
             if (string.IsNullOrEmpty(controllerName) || string.IsNullOrEmpty(actionName))
             {
@@ -106,16 +108,16 @@ namespace HaloBiz.Helpers
                             }
 
                             //get a replacement token for this guy
-                            var (newToken, lifeSPan) = _jwtHelper.GenerateToken(authUser.Email, authUser.Id, authUser.permissionString);
+                            var (newToken, lifeSPan) = _jwtHelper.GenerateToken(authUser.Email, authUser.Id, authUser.permissionString, authUser.hasAdminRole);
                             //indicate that this guy has received access token
                             _jwtHelper.AddRefreshTokenToTracker(authUser.Id, refreshToken);
-                            
+
 
                             //check the refresh token and use it to refresh the jwt at this point
                             context.Response.Headers.Add("Access-Control-Expose-Headers", "x-Token");
                             context.Response.Headers.Add("x-Token", newToken);
 
-                            if (!CheckAuthorization(context, controllerName, actionName, permissionsList))
+                            if (!authUser.hasAdminRole && !CheckAuthorization(context, controllerName, actionName, permissionsList))
                             {
                                 //use 200 ok here so that the user can know that he does not have access to
                                 context.Response.StatusCode = StatusCodes.Status200OK;
@@ -126,7 +128,7 @@ namespace HaloBiz.Helpers
                         else if(isValid && !isExpired)
                         {
                             //test for the authorization
-                            if (!CheckAuthorization(context, controllerName, actionName, permissionsList))
+                            if (!authUser.hasAdminRole && !CheckAuthorization(context, controllerName, actionName, permissionsList))
                             {
                                 //use 200 ok here so that the user can know that he does not have access to
                                 context.Response.StatusCode = StatusCodes.Status200OK;
@@ -159,7 +161,7 @@ namespace HaloBiz.Helpers
             await _next(context);
         }
 
-       
+      
 
         private bool CheckAuthorization(HttpContext context, string controller,string actionName, List<int> permisssions)
         {

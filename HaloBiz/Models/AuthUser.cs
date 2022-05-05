@@ -10,5 +10,6 @@ namespace HaloBiz.Models
         public string Email { get; set; }
         public string Id { get; set; }
         public string permissionString { get; set; }
+        public bool hasAdminRole { get; set; }
     }
 }

@@ -22,9 +22,9 @@ namespace HaloBiz.Helpers
 {
     public interface IJwtHelper
     {
-        (string, double) GenerateToken(UserProfile userProfile, IEnumerable<Permissions> permissions);
+        (string, double) GenerateToken(UserProfile userProfile, IEnumerable<Permissions> permissions, bool hasAdminRole);
         (bool, bool, AuthUser) ValidateToken(string token);
-        (string, double) GenerateToken(string email, string id, string permissionsString);
+        (string, double) GenerateToken(string email, string id, string permissionsString, bool hasAdminRole);
         bool IsDbRefreshTokenActive(string Id, string token);
         bool GrantToGetNewToken(string token, string id);
         bool AddRefreshTokenToTracker(string id, string token);
@@ -54,25 +54,25 @@ namespace HaloBiz.Helpers
             _jwtExpiryLifespan = double.Parse(parameterExpiry ?? "20");
         }
 
-        public (string, double) GenerateToken(UserProfile userProfile, IEnumerable<Permissions> permissions)
+        public (string, double) GenerateToken(UserProfile userProfile, IEnumerable<Permissions> permissions, bool hasAdminrole)
         {
             //get the permissions for this guy
             var permissionStr = JsonConvert.SerializeObject(permissions);
-            return GeneratTokenInternal(userProfile.Email, userProfile.Id.ToString(), permissionStr);
+            return GeneratTokenInternal(userProfile.Email, userProfile.Id.ToString(), permissionStr, hasAdminrole);
         }
 
-        public (string, double) GenerateToken(string email, string id, string permissionsString)
+        public (string, double) GenerateToken(string email, string id, string permissionsString, bool hasAdmin)
         {
             //get the permissions for this guy
-            return GeneratTokenInternal(email, id, permissionsString);
+            return GeneratTokenInternal(email, id, permissionsString, hasAdmin);
         }
 
-        private (string, double) GeneratTokenInternal(string email, string id, string permissionStr)
+        private (string, double) GeneratTokenInternal(string email, string id, string permissionStr, bool hasAdmin)
         {
             List<Claim> claims = new List<Claim>()
             {
                 new Claim(ClaimTypes.NameIdentifier, id),
-                new Claim(ClaimTypes.Name, "israelosp"),
+                new Claim("hasadmin", hasAdmin.ToString()),
                 new Claim(ClaimTypes.Email, email),
                 new Claim("Permissions", permissionStr)
             };
@@ -125,9 +125,11 @@ namespace HaloBiz.Helpers
                 var permssionsStr = jwtToken.Claims.First(x => x.Type == "Permissions").Value;
                 var email = jwtToken.Claims.First(x => x.Type == "email").Value;
                 var id = jwtToken.Claims.First(x => x.Type == "nameid").Value;
+                var hasAdminRoleStr = jwtToken.Claims.First(x => x.Type == "hasadmin").Value;
+                bool hasAdminRole = bool.Parse(hasAdminRoleStr);
 
                 var tokenExpiry = validatedToken.ValidTo;
-                var authUser = new AuthUser { Id = id, Email = email, permissionString = permssionsStr };
+                var authUser = new AuthUser { Id = id, Email = email, permissionString = permssionsStr, hasAdminRole = hasAdminRole };
                 if (tokenExpiry < DateTime.UtcNow)
                 {
                     return (true, true, authUser); //(isValid, isEXpired, permissions)
