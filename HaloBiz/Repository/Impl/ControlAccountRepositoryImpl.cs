@@ -33,7 +33,25 @@ namespace HaloBiz.Repository.Impl
                     
                     if(lastSavedControl == null || lastSavedControl.AccountNumber < 100000000)
                     {
-                        controlAccount.Id = controlAccount.AccountNumber + 100000000;
+                        var accountClass = await _context.AccountClasses.Where(x => x.Id == controlAccount.AccountClassId).FirstOrDefaultAsync();
+                        var num = accountClass.AccountNumber.ToString(); // = controlAccount.AccountNumber + 100000000;
+                        var nums = num.ToCharArray();
+                        int counter = 0;
+                        string account = string.Empty;
+                        foreach (var item in num)
+                        {
+                            if (counter == 1)
+                            {
+                                account += 1;
+                            }
+                            else
+                            {
+                                account += item;
+                            }
+
+                            ++counter;
+                        }
+                        controlAccount.AccountNumber = long.Parse(account);
                     }else{
                         var num = lastSavedControl.AccountNumber;
                         var firstCharacter = num.ToString()[0];
