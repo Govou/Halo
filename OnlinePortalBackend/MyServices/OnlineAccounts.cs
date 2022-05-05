@@ -3,8 +3,6 @@ using Halobiz.Common.DTOs.ApiDTOs;
 using Halobiz.Common.DTOs.ReceivingDTO;
 using Halobiz.Common.DTOs.ReceivingDTOs;
 using Halobiz.Common.DTOs.TransferDTOs;
-using Halobiz.Common.MyServices;
-using Halobiz.Common.MyServices.RoleManagement;
 using OnlinePortalBackend.Helpers;
 using HalobizMigrations.Data;
 using HalobizMigrations.Models;
