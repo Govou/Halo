@@ -34,7 +34,6 @@ namespace HaloBiz
             try
             {
                 (await BuildWebHostAsync(args)).Run();
-               // CreateHostBuilder(args).Build().Run();
 
             }
             catch (Exception ex)
