@@ -1057,6 +1057,14 @@ namespace Halobiz.Common.Auths.PermissionParts
         JobTypes_Put = 0x58,
         [Display(ShortName = "Employment", GroupName = "JobTypes", Name = "Delete", Description = "Can delete job types")]
         JobTypes_Delete = 0x59,
+        [Display(ShortName = "SecuredMobility", GroupName = "OnlineLocationFavorite", Name = "Get", Description = "Can view online location favorite")]
+        OnlineLocationFavorite_Get = 0x2251,
+        [Display(ShortName = "SecuredMobility", GroupName = "OnlineLocationFavorite", Name = "Post", Description = "Can create online location favorite")]
+        OnlineLocationFavorite_Post = 0x2252,
+        [Display(ShortName = "SecuredMobility", GroupName = "OnlineLocationFavorite", Name = "Put", Description = "Can update online location favorite")]
+        OnlineLocationFavorite_Put = 0x2253,
+        [Display(ShortName = "SecuredMobility", GroupName = "OnlineLocationFavorite", Name = "Delete", Description = "Can delete online location favorite")]
+        OnlineLocationFavorite_Delete = 0x2254,
 
     }
 
