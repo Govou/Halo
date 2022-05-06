@@ -20,7 +20,7 @@ namespace OnlinePortalBackend.MyServices.SecureMobilitySales
 
             if (result)
             {
-                var authResult = await _authService.SendConfirmCodeToClient(request.AccountLogin.Email);
+                var authResult = await _authService.SendConfirmCodeToClient_v2(request.AccountLogin.Email);
                 return authResult;
             }
             return CommonResponse.Send(ResponseCodes.FAILURE, null, "Registration failed. Please try again");
@@ -32,7 +32,7 @@ namespace OnlinePortalBackend.MyServices.SecureMobilitySales
 
             if (result)
             {
-                var authResult = await _authService.SendConfirmCodeToClient(request.AccountLogin.Email);
+                var authResult = await _authService.SendConfirmCodeToClient_v2(request.AccountLogin.Email);
                 return authResult;
             }
             return CommonResponse.Send(ResponseCodes.FAILURE, null, "Registration failed. Please try again");
