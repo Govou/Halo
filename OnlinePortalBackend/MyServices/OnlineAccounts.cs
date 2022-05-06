@@ -3,8 +3,6 @@ using Halobiz.Common.DTOs.ApiDTOs;
 using Halobiz.Common.DTOs.ReceivingDTO;
 using Halobiz.Common.DTOs.ReceivingDTOs;
 using Halobiz.Common.DTOs.TransferDTOs;
-using Halobiz.Common.MyServices;
-using Halobiz.Common.MyServices.RoleManagement;
 using OnlinePortalBackend.Helpers;
 using HalobizMigrations.Data;
 using HalobizMigrations.Models;
@@ -29,6 +27,7 @@ namespace OnlinePortalBackend.MyServices
     public interface IOnlineAccounts
     {
         Task<ApiCommonResponse> SendConfirmCodeToClient(string Email);
+        Task<ApiCommonResponse> SendConfirmCodeToClient_v2(string Email);
         Task<ApiCommonResponse> CreateAccount(CreatePasswordDTO user);
         Task<ApiCommonResponse> Login(LoginDTO user);
         Task<ApiCommonResponse> VerifyCode(CodeVerifyModel model);
@@ -110,7 +109,62 @@ namespace OnlinePortalBackend.MyServices
                 };
 
                 var mailresponse = await _mailService.ConfirmCodeSending(request);
-                mailresponse.responseData = $"Code for {Email} is: {code}";
+                mailresponse.responseData = $"Verification Code has been sent to {Email}";
+                return mailresponse;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.StackTrace);
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, ex.Message);
+            }          
+        }
+        public async Task<ApiCommonResponse> SendConfirmCodeToClient_v2(string Email)
+        {
+            try
+            {
+                var response = await _context.OnlineProfiles.Where(x=>x.Email==Email).FirstOrDefaultAsync();
+
+               
+
+                //check if this customer division has an email
+                if (!_context.CustomerDivisions.Any(x => x.Email == Email))
+                {
+                    return CommonResponse.Send(ResponseCodes.EMAIL_NOT_EXIST, null, $"This email {Email} does not exist for a customer");
+                }
+
+                if (_context.UsersCodeVerifications.Any(x => x.Email == Email && x.CodeExpiryTime >= DateTime.Now && x.CodeUsedTime == null))
+                {
+                    return CommonResponse.Send(ResponseCodes.DUPLICATE_REQUEST, null, $"The code for {Email} has not been used");
+                }
+
+                //save security code for this guy
+                var code = await GenerateCode();
+                var codeModel = new UsersCodeVerification
+                {
+                    Email = Email,
+                    CodeExpiryTime = DateTime.UtcNow.AddHours(1).AddMinutes(10),
+                    Code = code,
+                    Purpose = CodePurpose.Onboarding
+                };
+
+                var entity = await _context.UsersCodeVerifications.AddAsync(codeModel);
+                await _context.SaveChangesAsync();
+
+                List<string> detail = new List<string>();
+                detail.Add($"Your verification code for the online portal is <strong>{code}</strong>. Please note that it expires it 10 minutes");
+
+                //send email with the code
+                var request = new OnlinePortalDTO
+                {
+                    Recepients = new string[] { Email },
+                    Name = "",
+                    Salutation = "Hi",
+                    Subject = "Confirmation code for Account Creation",
+                    DetailsInPara = detail
+                };
+
+                var mailresponse = await _mailService.ConfirmCodeSending(request);
+                mailresponse.responseData = $"Verfication Code has been sent to {Email}";
                 return mailresponse;
             }
             catch (Exception ex)
@@ -131,6 +185,10 @@ namespace OnlinePortalBackend.MyServices
                 }
 
                 codModel.CodeUsedTime = DateTime.Now;
+                await _context.SaveChangesAsync();
+
+                var profile = _context.OnlineProfiles.FirstOrDefault(x => x.Email == codModel.Email);
+                profile.EmailConfirmed = true;
                 await _context.SaveChangesAsync();
 
                 return CommonResponse.Send(ResponseCodes.SUCCESS, null, $"You have successfully used code for {model.Email}");
@@ -255,6 +313,11 @@ namespace OnlinePortalBackend.MyServices
                 if (profile == null)
                 {
                     return CommonResponse.Send(ResponseCodes.FAILURE, null, "No user with this email");
+                }
+
+                if (!profile.EmailConfirmed)
+                {
+                    return CommonResponse.Send(ResponseCodes.FAILURE, null, "User yet to verify email");
                 }
 
                 //check if this account is locked
