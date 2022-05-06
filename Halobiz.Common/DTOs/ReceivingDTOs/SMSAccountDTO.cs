@@ -16,7 +16,7 @@ namespace Halobiz.Common.DTOs.ReceivingDTOs
         public int StateId { get; set; }
         public int LGAId { get; set; }
         public string Address { get; set; }
-        public string LogoUrl { get; set; }
+        public string ImageUrl { get; set; }
         public SMSLoginDTO AccountLogin { get; set; }
     }
 
