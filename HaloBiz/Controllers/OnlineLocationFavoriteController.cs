@@ -13,7 +13,7 @@ namespace HaloBiz.Controllers
 {
     [Route("api/v1/[controller]")]
     [ApiController]
-    [ModuleName(HalobizModules.Setups, 125)]
+    [ModuleName(HalobizModules.SecuredMobility, 125)]
     public class OnlineLocationFavoriteController : ControllerBase
     {
         private readonly IOnlineLocationFavoriteService  _onlineLocationFavoriteService;
