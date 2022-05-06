@@ -15,6 +15,7 @@ namespace HaloBiz.Repository
         Task<MasterServiceAssignment> FindServiceAssignmentById(long Id);
 
         Task<IEnumerable<MasterServiceAssignment>> FindAllServiceAssignments();
+        Task<IEnumerable<MasterServiceAssignment>> FindAllScheduledServiceAssignments();
         Task<IEnumerable<object>> FindAllCustomerDivision();
 
         //MasterServiceAssignment GetName(string name);

@@ -511,6 +511,9 @@ namespace HaloBiz.Helpers
             CreateMap<VehicleFeedbackReceivingDTO, VehicleFeedbackDetail>();
             CreateMap<VehicleFeedbackDetail, VehicleFeedbackTransferDTO>();
             //CreateMap<CommanderType, SMORegionTransferDTO>();
+            //OnlineLocationFav
+            CreateMap<OnlineLocationFavoriteReceivingDTO, OnlineLocationFavourite>();
+            CreateMap<OnlineLocationFavourite, OnlineLocationFavoriteTransferDTO>();
         }
     }
 }
