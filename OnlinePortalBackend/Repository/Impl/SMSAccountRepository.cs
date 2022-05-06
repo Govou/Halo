@@ -284,6 +284,18 @@ namespace OnlinePortalBackend.Repository.Impl
                 Rcnumber = "NULL"
             };
 
+            var leadContact = new LeadContact
+            {
+                CreatedAt = DateTime.UtcNow.AddHours(1),
+                UpdatedAt = DateTime.UtcNow.AddHours(1),
+                CreatedById = createdBy,
+                Email = accountDTO.AccountLogin.Email,
+                FirstName = accountDTO.FirstName,
+                LastName = accountDTO.LastName,
+                Gender = accountDTO.Gender,
+                MobileNumber = accountDTO.PhoneNumber,
+                Type = (int)leadtype
+            };
 
             var custDivision = new CustomerDivision
             {
@@ -329,6 +341,11 @@ namespace OnlinePortalBackend.Repository.Impl
                 lead.CustomerId = customer.Id;
 
                 _context.Leads.Add(lead);
+                await _context.SaveChangesAsync();
+
+                leadContact.LeadId = lead.Id;
+
+                _context.LeadContacts.Add(leadContact);
                 await _context.SaveChangesAsync();
 
                 leadReference.ReferenceNo = leadReference.ReferenceNo + 1;
