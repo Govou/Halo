@@ -18,12 +18,12 @@ namespace OnlinePortalBackend.Controllers.SecureMobilitySales
             _authService = authService;
         }
 
-        [AllowAnonymous]
-        [HttpGet("SendCode")]
-        public async Task<ApiCommonResponse> SendCode(string email)
-        {
-            return await _authService.SendConfirmCodeToClient(email);
-        }
+        //[AllowAnonymous]
+        //[HttpGet("SendCode")]
+        //public async Task<ApiCommonResponse> SendCode(string email)
+        //{
+        //    return await _authService.SendConfirmCodeToClient(email);
+        //}
 
 
         [AllowAnonymous]

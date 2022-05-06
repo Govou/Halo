@@ -131,6 +131,10 @@ namespace OnlinePortalBackend.MyServices
                 codModel.CodeUsedTime = DateTime.Now;
                 await _context.SaveChangesAsync();
 
+                var profile = _context.OnlineProfiles.FirstOrDefault(x => x.Email == codModel.Email);
+                profile.EmailConfirmed = true;
+                await _context.SaveChangesAsync();
+
                 return CommonResponse.Send(ResponseCodes.SUCCESS, null, $"You have successfully used code for {model.Email}");
             }
             catch (Exception ex)

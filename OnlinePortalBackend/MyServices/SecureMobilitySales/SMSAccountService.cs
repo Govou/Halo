@@ -26,9 +26,16 @@ namespace OnlinePortalBackend.MyServices.SecureMobilitySales
             return CommonResponse.Send(ResponseCodes.FAILURE, null, "Registration failed. Please try again");
         }
 
-        public Task<ApiCommonResponse> CreateIndividualAccount(SMSIndividualAccountDTO request)
+        public async Task<ApiCommonResponse> CreateIndividualAccount(SMSIndividualAccountDTO request)
         {
-            throw new System.NotImplementedException();
+            var result = await _accountRepository.CreateIndividualAccount(request);
+
+            if (result)
+            {
+                var authResult = await _authService.SendConfirmCodeToClient(request.AccountLogin.Email);
+                return authResult;
+            }
+            return CommonResponse.Send(ResponseCodes.FAILURE, null, "Registration failed. Please try again");
         }
     }
 }

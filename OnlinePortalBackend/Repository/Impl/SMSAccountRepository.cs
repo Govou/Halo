@@ -13,6 +13,7 @@ using System.Threading.Tasks;
 using System.Security.Cryptography;
 using Microsoft.EntityFrameworkCore;
 using OnlinePortalBackend.Helpers;
+using HalobizMigrations.Models.Shared;
 
 namespace OnlinePortalBackend.Repository.Impl
 {
@@ -39,14 +40,7 @@ namespace OnlinePortalBackend.Repository.Impl
             //var receivableAcctId = 0;
 
             using var transaction = await _context.Database.BeginTransactionAsync();
-            //var primaryContact = new Contact
-            //{
-            //    CreatedAt = DateTime.UtcNow.AddHours(1),
-            //    UpdatedAt = DateTime.UtcNow.AddHours(1),
-            //    CreatedById = createdBy,
-            //    Email = accountDTO.AccountLogin.Email,
-            //    n
-            //}
+           
             var suspect = new Suspect
             {
                 Address = accountDTO.Address,
@@ -201,7 +195,176 @@ namespace OnlinePortalBackend.Repository.Impl
 
         public async Task<bool> CreateIndividualAccount(SMSIndividualAccountDTO accountDTO)
         {
-            throw new System.NotImplementedException();
+            var createdBy = _context.UserProfiles.FirstOrDefault(x => x.Email.ToLower().Contains("online")).Id;
+            var grouptype = _context.GroupTypes.FirstOrDefault(x => x.Caption.ToLower() == "individual").Id;
+            var leadOrigin = _context.LeadOrigins.FirstOrDefault(x => x.Caption.ToLower() == "email").Id;
+            var branchId = _context.Branches.FirstOrDefault(x => x.Name.ToLower().Contains("hq")).Id;
+            var leadtype = _context.LeadTypes.FirstOrDefault(x => x.Caption.ToLower() == "rfq").Id;
+            //var receivableAcctId = 0;
+
+            using var transaction = await _context.Database.BeginTransactionAsync();
+            var gender = accountDTO.Gender == "M" ? Gender.Male : Gender.Female;
+            var contact = new Contact
+            {
+                CreatedAt = DateTime.UtcNow.AddHours(1),
+                UpdatedAt = DateTime.UtcNow.AddHours(1),
+                CreatedById = createdBy,
+                Email = accountDTO.AccountLogin.Email,
+                FirstName = accountDTO.FirstName,
+                LastName = accountDTO.LastName,
+                Gender = gender,
+                ProfilePicture = accountDTO.ImageUrl
+            };
+
+            var suspect = new Suspect
+            {
+                Address = accountDTO.Address,
+                CreatedAt = DateTime.UtcNow.AddHours(1),
+                UpdatedAt = DateTime.UtcNow.AddHours(1),
+                BranchId = branchId,
+                CreatedById = createdBy,
+                Email = accountDTO.AccountLogin.Email,
+                GroupTypeId = grouptype,
+                ImageUrl = accountDTO.ImageUrl,
+                MobileNumber = accountDTO.PhoneNumber,
+                LeadOriginId = leadOrigin,
+                LeadTypeId = leadtype,
+                LgaId = accountDTO.LGAId,
+                //  OfficeId = office,
+                StateId = accountDTO.StateId,
+                FirstName = accountDTO.FirstName,
+                LastName= accountDTO.LastName
+            };
+
+            var leadReference = await GetReferenceNumber();
+            var leadReferenceNum = leadReference.ReferenceNo;
+            var leadNextReference = leadReferenceNum.GenerateReferenceNumber();
+
+            var lead = new Lead
+            {
+                ReferenceNo = leadNextReference,
+                CreatedAt = DateTime.UtcNow.AddHours(1),
+                UpdatedAt = DateTime.UtcNow.AddHours(1),
+                CreatedById = createdBy,
+                CustomerId = 0,
+                GroupName = accountDTO.FirstName + " " + accountDTO.LastName,
+                GroupTypeId = grouptype,
+                LeadOriginId = leadOrigin,
+                LeadTypeId = leadtype,
+                LogoUrl = accountDTO.ImageUrl
+            };
+
+            var leadDivision = new LeadDivision
+            {
+                Address = accountDTO.Address,
+                CreatedAt = DateTime.UtcNow.AddHours(1),
+                UpdatedAt = DateTime.UtcNow.AddHours(1),
+                BranchId = branchId,
+                CreatedById = createdBy,
+                DivisionName = accountDTO.FirstName + " " + accountDTO.LastName,
+                Email = accountDTO.AccountLogin.Email,
+                LeadOriginId = leadOrigin,
+                LeadTypeId = leadtype,
+                StateId = accountDTO.StateId,
+                Lgaid = accountDTO.LGAId,
+                LogoUrl = accountDTO.ImageUrl,
+                PhoneNumber = accountDTO.PhoneNumber
+            };
+
+            var customer = new Customer
+            {
+                CreatedAt = DateTime.UtcNow.AddHours(1),
+                CreatedById = createdBy,
+                Email = accountDTO.AccountLogin.Email,
+                UpdatedAt = DateTime.UtcNow.AddHours(1),
+                LogoUrl = accountDTO.ImageUrl,
+                GroupName = accountDTO.FirstName + " " + accountDTO.LastName,
+                PhoneNumber = accountDTO.PhoneNumber,
+                GroupTypeId = grouptype,
+                Rcnumber = "NULL"
+            };
+
+
+            var custDivision = new CustomerDivision
+            {
+                Address = accountDTO.Address,
+                CreatedAt = DateTime.UtcNow.AddHours(1),
+                UpdatedAt = DateTime.UtcNow.AddHours(1),
+                // ReceivableAccountId = receivableAcctId,
+                Lgaid = accountDTO.LGAId,
+                CreatedById = createdBy,
+                Email = accountDTO.AccountLogin.Email,
+                PhoneNumber = accountDTO.PhoneNumber,
+                LogoUrl = accountDTO.ImageUrl,
+                StateId = accountDTO.StateId,
+                DivisionName = accountDTO.FirstName + " " + accountDTO.LastName
+            };
+
+            var (salt, hashed) = HashPassword(new byte[] { }, accountDTO.AccountLogin.Password);
+
+            var onlinProfile = new OnlineProfile
+            {
+                Email = accountDTO.AccountLogin.Email,
+                EmailConfirmed = true,
+                NormalizedEmail = accountDTO.AccountLogin.Email.ToUpper(),
+                PasswordHash = hashed,
+                SecurityStamp = Convert.ToBase64String(salt),
+                Name = accountDTO.FirstName + " " + accountDTO.LastName,
+                CustomerDivisionId = customer.Id,
+                CreatedAt = DateTime.UtcNow.AddHours(1)
+            };
+
+            try
+            {
+                _context.Contacts.Add(contact);
+                await _context.SaveChangesAsync();
+
+                _context.Suspects.Add(suspect);
+                await _context.SaveChangesAsync();
+
+                _context.Customers.Add(customer);
+                await _context.SaveChangesAsync();
+
+                lead.SuspectId = suspect.Id;
+                lead.CustomerId = customer.Id;
+
+                _context.Leads.Add(lead);
+                await _context.SaveChangesAsync();
+
+                leadReference.ReferenceNo = leadReference.ReferenceNo + 1;
+                await UpdateReferenceNumber(leadReference);
+
+                leadDivision.LeadId = lead.Id;
+                leadDivision.PrimaryContactId = contact.Id;
+
+                _context.LeadDivisions.Add(leadDivision);
+                await _context.SaveChangesAsync();
+
+                customer.CustomerLeadId = leadDivision.Id;
+
+                custDivision.CustomerId = customer.Id;
+                custDivision.LeadDivisionId = leadDivision.Id;
+
+                _context.CustomerDivisions.Add(custDivision);
+                await _context.SaveChangesAsync();
+
+                onlinProfile.CustomerDivisionId = custDivision.Id;
+
+                _context.OnlineProfiles.Add(onlinProfile);
+                await _context.SaveChangesAsync();
+
+                await transaction.CommitAsync();
+
+                return true;
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e.Message);
+                _logger.LogError(e.StackTrace);
+                await transaction.RollbackAsync();
+                return false;
+            }
+
         }
 
         private static (byte[], string) HashPassword(byte[] salt, string password)
