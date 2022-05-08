@@ -38,9 +38,23 @@ namespace OnlinePortalBackend.Repository.Impl
             var branchId = _context.Branches.FirstOrDefault(x => x.Name.ToLower().Contains("hq")).Id;
             var leadtype = _context.LeadTypes.FirstOrDefault(x => x.Caption.ToLower() == "rfq").Id;
             //var receivableAcctId = 0;
+            var gender = accountDTO.ContactPerson.Gender == "M" ? Gender.Male : Gender.Female;
 
             using var transaction = await _context.Database.BeginTransactionAsync();
-           
+
+            var contact = new Contact
+            {
+                CreatedAt = DateTime.UtcNow.AddHours(1),
+                UpdatedAt = DateTime.UtcNow.AddHours(1),
+                CreatedById = createdBy,
+                Email = accountDTO.AccountLogin.Email,
+                FirstName = accountDTO.ContactPerson.FirstName,
+                LastName = accountDTO.ContactPerson.LastName,
+                Gender = gender,
+                Mobile = accountDTO.ContactPerson.PhoneNumber
+            };
+
+
             var suspect = new Suspect
             {
                 Address = accountDTO.Address,
@@ -80,6 +94,19 @@ namespace OnlinePortalBackend.Repository.Impl
                 LogoUrl = accountDTO.LogoUrl
             };
 
+            var leadContact = new LeadContact
+            {
+                CreatedAt = DateTime.UtcNow.AddHours(1),
+                UpdatedAt = DateTime.UtcNow.AddHours(1),
+                CreatedById = createdBy,
+                Email = accountDTO.AccountLogin.Email,
+                FirstName = accountDTO.ContactPerson.FirstName,
+                LastName = accountDTO.ContactPerson.LastName,
+                Gender = accountDTO.ContactPerson.Gender,
+                MobileNumber = accountDTO.ContactPerson.PhoneNumber,
+                Type = (int)leadtype
+            };
+
             var leadDivision = new LeadDivision
             {
                 Address = accountDTO.Address,
@@ -98,37 +125,6 @@ namespace OnlinePortalBackend.Repository.Impl
                 PhoneNumber = accountDTO.PhoneNumber,
             };
 
-            var customer = new Customer
-            {
-                CreatedAt = DateTime.UtcNow.AddHours(1),
-                CreatedById = createdBy,
-                Email = accountDTO.AccountLogin.Email,
-                UpdatedAt = DateTime.UtcNow.AddHours(1),
-                LogoUrl = accountDTO.LogoUrl,
-                GroupName = accountDTO.CompanyName,
-                PhoneNumber = accountDTO.PhoneNumber,
-                GroupTypeId = grouptype,
-                Industry = accountDTO.Industry,
-                Rcnumber = "NULL"
-            };
-
-
-            var custDivision = new CustomerDivision
-            {
-                Address = accountDTO.Address,
-                CreatedAt = DateTime.UtcNow.AddHours(1),
-                UpdatedAt = DateTime.UtcNow.AddHours(1),
-               // ReceivableAccountId = receivableAcctId,
-                Lgaid = accountDTO.LGAId,
-                Industry = accountDTO.Industry,
-                CreatedById = createdBy,
-                Email = accountDTO.AccountLogin.Email,
-                PhoneNumber = accountDTO.PhoneNumber,
-                LogoUrl = accountDTO.LogoUrl,
-                StateId = accountDTO.StateId,
-                DivisionName = accountDTO.CompanyName
-            };
-
             var (salt, hashed) = HashPassword(new byte[] { }, accountDTO.AccountLogin.Password);
 
             var onlinProfile = new OnlineProfile
@@ -139,41 +135,37 @@ namespace OnlinePortalBackend.Repository.Impl
                 PasswordHash = hashed,
                 SecurityStamp = Convert.ToBase64String(salt),
                 Name = accountDTO.CompanyName,
-                CustomerDivisionId = customer.Id,
                 CreatedAt = DateTime.UtcNow.AddHours(1),
             }; 
 
             try
             {
+                _context.Contacts.Add(contact);
+                await _context.SaveChangesAsync();
+
                 _context.Suspects.Add(suspect);
                 await _context.SaveChangesAsync();
 
-                _context.Customers.Add(customer);
-                await _context.SaveChangesAsync();
-
                 lead.SuspectId = suspect.Id;
-                lead.CustomerId = customer.Id;
 
                 _context.Leads.Add(lead);
+                await _context.SaveChangesAsync();
+
+                leadContact.LeadId = lead.Id;
+
+                _context.LeadContacts.Add(leadContact);
                 await _context.SaveChangesAsync();
 
                 leadReference.ReferenceNo = leadReference.ReferenceNo + 1;
                 await UpdateReferenceNumber(leadReference);
 
                 leadDivision.LeadId = lead.Id;
+                leadDivision.PrimaryContactId = contact.Id;
 
                 _context.LeadDivisions.Add(leadDivision);
                 await _context.SaveChangesAsync();
 
-                customer.CustomerLeadId = leadDivision.Id;
-
-                custDivision.CustomerId = customer.Id;
-                custDivision.LeadDivisionId = leadDivision.Id;
-
-                _context.CustomerDivisions.Add(custDivision);
-                await _context.SaveChangesAsync();
-
-                onlinProfile.CustomerDivisionId = custDivision.Id;
+                onlinProfile.LeadDivisionId = leadDivision.Id;
 
                 _context.OnlineProfiles.Add(onlinProfile);
                 await _context.SaveChangesAsync();
@@ -189,8 +181,6 @@ namespace OnlinePortalBackend.Repository.Impl
                 await transaction.RollbackAsync();
                 return false;
             }
-
-
         }
 
         public async Task<bool> CreateIndividualAccount(SMSIndividualAccountDTO accountDTO)
@@ -213,7 +203,8 @@ namespace OnlinePortalBackend.Repository.Impl
                 FirstName = accountDTO.FirstName,
                 LastName = accountDTO.LastName,
                 Gender = gender,
-                ProfilePicture = accountDTO.ImageUrl
+                ProfilePicture = accountDTO.ImageUrl,
+                Mobile = accountDTO.PhoneNumber
             };
 
             var suspect = new Suspect
@@ -271,19 +262,6 @@ namespace OnlinePortalBackend.Repository.Impl
                 PhoneNumber = accountDTO.PhoneNumber
             };
 
-            var customer = new Customer
-            {
-                CreatedAt = DateTime.UtcNow.AddHours(1),
-                CreatedById = createdBy,
-                Email = accountDTO.AccountLogin.Email,
-                UpdatedAt = DateTime.UtcNow.AddHours(1),
-                LogoUrl = accountDTO.ImageUrl,
-                GroupName = accountDTO.FirstName + " " + accountDTO.LastName,
-                PhoneNumber = accountDTO.PhoneNumber,
-                GroupTypeId = grouptype,
-                Rcnumber = "NULL"
-            };
-
             var leadContact = new LeadContact
             {
                 CreatedAt = DateTime.UtcNow.AddHours(1),
@@ -322,7 +300,6 @@ namespace OnlinePortalBackend.Repository.Impl
                 PasswordHash = hashed,
                 SecurityStamp = Convert.ToBase64String(salt),
                 Name = accountDTO.FirstName + " " + accountDTO.LastName,
-                CustomerDivisionId = customer.Id,
                 CreatedAt = DateTime.UtcNow.AddHours(1)
             };
 
@@ -334,11 +311,7 @@ namespace OnlinePortalBackend.Repository.Impl
                 _context.Suspects.Add(suspect);
                 await _context.SaveChangesAsync();
 
-                _context.Customers.Add(customer);
-                await _context.SaveChangesAsync();
-
                 lead.SuspectId = suspect.Id;
-                lead.CustomerId = customer.Id;
 
                 _context.Leads.Add(lead);
                 await _context.SaveChangesAsync();
@@ -357,15 +330,7 @@ namespace OnlinePortalBackend.Repository.Impl
                 _context.LeadDivisions.Add(leadDivision);
                 await _context.SaveChangesAsync();
 
-                customer.CustomerLeadId = leadDivision.Id;
-
-                custDivision.CustomerId = customer.Id;
-                custDivision.LeadDivisionId = leadDivision.Id;
-
-                _context.CustomerDivisions.Add(custDivision);
-                await _context.SaveChangesAsync();
-
-                onlinProfile.CustomerDivisionId = custDivision.Id;
+                onlinProfile.LeadDivisionId = leadDivision.Id;
 
                 _context.OnlineProfiles.Add(onlinProfile);
                 await _context.SaveChangesAsync();

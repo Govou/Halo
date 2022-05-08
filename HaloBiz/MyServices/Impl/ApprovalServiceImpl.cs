@@ -32,8 +32,6 @@ namespace HaloBiz.MyServices.Impl
         private readonly IMailAdapter _mailAdapter;
         private readonly ILeadConversionService _leadConversionService;
 
-
-
         private readonly IMapper _mapper;
 
         public ApprovalServiceImpl(IModificationHistoryRepository historyRepo, 
@@ -116,7 +114,6 @@ namespace HaloBiz.MyServices.Impl
             return CommonResponse.Send(ResponseCodes.SUCCESS,approvalTransferDTO);
         }
         
-
         public async Task<ApiCommonResponse> GetApprovalsByQuoteId(long quoteId)
         {
             var approval = await _approvalRepo.GetApprovalsByQuoteId(quoteId);
@@ -160,8 +157,6 @@ namespace HaloBiz.MyServices.Impl
             var approvalTransferDTO = _mapper.Map<IEnumerable<ApprovalTransferDTO>>(app);
             return CommonResponse.Send(ResponseCodes.SUCCESS, approvalTransferDTO);
         }
-
-
 
         public async Task<ApiCommonResponse> GetPendingApprovalsByServiceId(long serviceId)
         {
@@ -919,3 +914,4 @@ namespace HaloBiz.MyServices.Impl
         }
     }
 }
+
