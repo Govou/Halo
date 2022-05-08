@@ -18,7 +18,7 @@ namespace OnlinePortalBackend.Controllers.SecureMobilitySales
             _contractsService = contractsService;
         }
 
-        [HttpPost("CreateContract")]
+        [HttpPost("CreateNewContract")]
         public async Task<ApiCommonResponse> CreateContract(SMSContractDTO request)
         {
             return await _contractsService.CreateContract(request);
