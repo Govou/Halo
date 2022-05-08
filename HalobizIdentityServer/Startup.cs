@@ -1,6 +1,4 @@
 using AutoMapper;
-using Halobiz.Common.MyServices;
-using Halobiz.Common.MyServices.RoleManagement;
 using Halobiz.Common.Repository;
 using Halobiz.Repository.RoleManagement;
 using HalobizIdentityServer.Helpers;
