@@ -40,7 +40,7 @@ namespace OnlinePortalBackend.Repository.Impl
         public async Task<bool> AddNewContract(SMSContractDTO contractDTO)
         {
             var service = _context.Services.FirstOrDefault(x => x.Id == contractDTO.ServiceId);
-            var createdBy = 0;
+            var createdBy = _context.UserProfiles.FirstOrDefault(x => x.Email.ToLower().Contains("online")).Id;
 
             CustomerDivision customerDivision = new CustomerDivision();
             long contractId = 0;
