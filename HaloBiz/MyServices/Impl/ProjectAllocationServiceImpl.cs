@@ -4824,13 +4824,23 @@ namespace HaloBiz.MyServices.Impl
            }
 
 
-           // public async Task<ApiCommonResponse> SendEmail(MailRequest mailRequest)
+           // public async Task<ApiCommonResponse> SendEmail(MailRequest mailRequest,HttpContext htttHttpContext)
            // {
            //     _emailService.Send(mailRequest.EmailSender, mailRequest.EmailReceiver,
            //         mailRequest.EmailSubject, mailRequest.EmailBody);
-           //     
-           // }
            //
+           //     var auditEmail = new SentMail()
+           //     {
+           //         IsActive = true,
+           //         SenderId = htttHttpContext.GetLoggedInUserId(),
+           //         SentFrom = mailRequest.EmailSender,
+           //         SentTo = mailRequest.EmailReceiver,
+           //         CreatedById = htttHttpContext.GetLoggedInUserId(),
+           //         HasAttachment = 
+           //     };
+           //
+           // }
+           
            
            
            
