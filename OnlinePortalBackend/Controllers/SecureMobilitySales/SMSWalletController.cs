@@ -1,6 +1,8 @@
 ﻿using Halobiz.Common.DTOs.ApiDTOs;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using OnlinePortalBackend.DTOs.ReceivingDTOs;
+using OnlinePortalBackend.MyServices.SecureMobilitySales;
 using System.Threading.Tasks;
 
 namespace OnlinePortalBackend.Controllers.SecureMobilitySales
@@ -9,16 +11,16 @@ namespace OnlinePortalBackend.Controllers.SecureMobilitySales
     [ApiController]
     public class SMSWalletController : ControllerBase
     {
-        private readonly IWalletService _walletService;
-        public SMSWalletController(IWalletService walletService)
+        private readonly ISMSWalletService _walletService;
+        public SMSWalletController(ISMSWalletService walletService)
         {
             _walletService = walletService;
         }
 
         [HttpPost("ActivateWallet")]
-        public async Task<ApiCommonResponse> ActivateWallet(int profileId)
+        public async Task<ApiCommonResponse> ActivateWallet(ActivateWalletDTO request)
         {
-            return await _authService.VerifyCode(model);
+            return await _walletService.ActivateWallet(request);
         }
     }
 }

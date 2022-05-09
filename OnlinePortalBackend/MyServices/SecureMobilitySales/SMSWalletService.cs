@@ -1,4 +1,5 @@
 ﻿using Halobiz.Common.DTOs.ApiDTOs;
+using OnlinePortalBackend.DTOs.ReceivingDTOs;
 using OnlinePortalBackend.Repository;
 using System.Threading.Tasks;
 
@@ -11,9 +12,15 @@ namespace OnlinePortalBackend.MyServices.SecureMobilitySales
         {
             _walletRepository = walletRepository;
         }
-        public Task<ApiCommonResponse> ActivateWallet()
+        public async Task<ApiCommonResponse> ActivateWallet(ActivateWalletDTO request)
         {
-            throw new System.NotImplementedException();
+            var result = await _walletRepository.ActivateWallet(request);
+            if (!result.isSuccess)
+            {
+               return  CommonResponse.Send(ResponseCodes.FAILURE, result.message);
+            }
+           
+            return CommonResponse.Send(ResponseCodes.SUCCESS, result.message);
         }
 
         public Task<ApiCommonResponse> LoadWallet()

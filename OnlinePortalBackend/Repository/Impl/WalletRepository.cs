@@ -20,7 +20,7 @@ namespace OnlinePortalBackend.Repository.Impl
             _context = context;
             _logger = logger;
         }
-        public async Task<(bool, string)> ActivateWallet(ActivateWalletDTO request)
+        public async Task<(bool isSuccess, string message)> ActivateWallet(ActivateWalletDTO request)
         {
             var checkExit = _context.WalletMasters.FirstOrDefault(x => x.OnlineProfileId == request.ProfileId);
             if (checkExit != null)
