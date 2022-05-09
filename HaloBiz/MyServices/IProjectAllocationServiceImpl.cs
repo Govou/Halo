@@ -142,7 +142,7 @@ namespace HaloBiz.MyServices
 
         Task<ApiCommonResponse> FetchAmortizationDetails();
          Task<ApiCommonResponse> RetrieveCustomerDivision();
-         Task<ApiCommonResponse> GetAllEvent();
+         Task<ApiCommonResponse> DeleteEvent(string eventId);
          Task<ApiCommonResponse> PushEventToGoogleCalender(CalenderRequestDTO calenderRequestDto,HttpContext httpContext);
     }
 }

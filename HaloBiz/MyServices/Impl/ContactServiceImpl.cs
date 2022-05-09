@@ -279,7 +279,7 @@ namespace HaloBiz.MyServices.Impl
             var meetings = await _context.Meetings.Where(x => x.IsActive == true && x.SuspectId == suspectId)
                                                               .Include(x => x.ContactsInvolved.Where(x => x.IsActive == true))
                                                               .Include(x => x.StaffsInvolved.Where(x => x.IsActive == true))
-                                                              .Include(x=>x.CalenderEvent)
+                                                              .Include(x=>x.CalenderEvents.Where(x=>x.IsActive))
                                                               .ToListAsync();
 
 

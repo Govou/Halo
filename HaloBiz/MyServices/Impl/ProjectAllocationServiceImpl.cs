@@ -28,6 +28,7 @@ using Google.Apis.Calendar.v3.Data;
 using Google.Apis.Services;
 using Google.Apis.Util.Store;
 using Microsoft.AspNetCore.Hosting;
+using ConferenceSolution = HaloBiz.DTOs.ConferenceSolution;
 
 namespace HaloBiz.MyServices.Impl
 {
@@ -39,13 +40,15 @@ namespace HaloBiz.MyServices.Impl
         private readonly IProjectAllocationRepositoryImpl _projectAllocationRepository;
         private readonly IMapper _mapper;
         private IWebHostEnvironment _hostEnvironment;
+        private EmailService _emailService;
 
-        public ProjectAllocationServiceImpl(IWebHostEnvironment environment,IProjectResolver projectResolver, HalobizContext context, IProjectAllocationRepositoryImpl projectAllocationRepository, ILogger<ProjectAllocationServiceImpl> logger, IMapper mapper)
+        public ProjectAllocationServiceImpl(EmailService emailService, IWebHostEnvironment environment,IProjectResolver projectResolver, HalobizContext context, IProjectAllocationRepositoryImpl projectAllocationRepository, ILogger<ProjectAllocationServiceImpl> logger, IMapper mapper)
         {
             this._mapper = mapper;
             this._projectAllocationRepository = projectAllocationRepository;
             this._logger = logger;
             this._context = context;
+            _emailService = emailService;
             this._projectResolver = projectResolver;
             _hostEnvironment = environment;
         }
@@ -4661,7 +4664,7 @@ namespace HaloBiz.MyServices.Impl
            }
 
 
-           public async Task<ApiCommonResponse> GetAllEvent()
+           public async Task<ApiCommonResponse> DeleteEvent(string eventId)
            {
                string[] scopes = { "https://www.googleapis.com/auth/calendar" };
                string applicationName = "HalobizCalender";
@@ -4690,33 +4693,42 @@ namespace HaloBiz.MyServices.Impl
                };
                var service = new CalendarService(initializer);
                
-               EventsResource.ListRequest request = service.Events.List("primary");  
-               request.TimeMin = DateTime.Now;  
-               request.ShowDeleted = false;  
-               request.SingleEvents = true; 
-               request.MaxResults = 100;  
-               request.OrderBy = EventsResource.ListRequest.OrderByEnum.StartTime;
+               EventsResource.DeleteRequest request = service.Events.Delete("primary",eventId);  
                var listedEvents = await request.ExecuteAsync();
-               if (listedEvents.Items.Any())
-               {
-                   return CommonResponse.Send(ResponseCodes.SUCCESS,listedEvents, "The event was successfully retrieved");
-               }
-               return CommonResponse.Send(ResponseCodes.FAILURE,null, "No Event was found");
+               var meeting = await _context.CalenderEvents.FirstOrDefaultAsync(x => x.CalenderId == eventId && x.IsActive == true);
+               meeting.IsActive = false;
+               _context.CalenderEvents.Update(meeting);
+               await _context.SaveChangesAsync();
+               return CommonResponse.Send(ResponseCodes.SUCCESS,listedEvents, "The event was successfully retrieved");
+               
            }
 
            public async Task<ApiCommonResponse> PersistEvent(Event insertedEvent,CalenderRequestDTO request, HttpContext httpContext)
            {
-               var eventToBeSaved = new CalenderEvent()
+               var meeting = await _context.CalenderEvents.Where(x => x.MeetingId == request.Id && x.IsActive == true).FirstOrDefaultAsync();
+               if (meeting == null)
                {
-                   IsActive = true,
-                   CreatedById = httpContext.GetLoggedInUserId(),
-                   CreatedAt = DateTime.Now,
-                   MeetingId = request.Id,
-                   CalenderId = Convert.ToInt32(insertedEvent.Id)
-               };
-               await _context.CalenderEvents.AddAsync(eventToBeSaved);
-               await _context.SaveChangesAsync();
-               return CommonResponse.Send(ResponseCodes.SUCCESS,null, "");
+                   var eventToBeSaved = new CalenderEvent()
+                   {
+                       IsActive = true,
+                       CreatedById = httpContext.GetLoggedInUserId(),
+                       CreatedAt = DateTime.Now,
+                       MeetingId = request.Id,
+                       CalenderId = insertedEvent.Id
+                   };
+                   await _context.CalenderEvents.AddAsync(eventToBeSaved);
+                   await _context.SaveChangesAsync();
+                   return CommonResponse.Send(ResponseCodes.SUCCESS,null, ""); 
+               }
+               else
+               {
+                   meeting.CalenderId = insertedEvent.Id;
+                   meeting.CreatedById = httpContext.GetLoggedInUserId();
+                   _context.CalenderEvents.Update(meeting);
+                   await _context.SaveChangesAsync();
+                   return CommonResponse.Send(ResponseCodes.SUCCESS,null, ""); 
+               }
+           
            }
            
            public async Task<ApiCommonResponse> CreateEvent(CalendarService service,CalenderRequestDTO request,HttpContext httpContext)
@@ -4724,20 +4736,37 @@ namespace HaloBiz.MyServices.Impl
                var users = await _context.UserProfiles.Where(x => x.IsDeleted == false).ToListAsync();
                var contacts = await _context.Contacts.Where(x => x.IsDeleted == false).ToListAsync();
                var attenders = new List<EventAttendee>();
+               
                var eventToCreate = new Event(){
-                           Summary = request?.Reason,
-                           Location = "Halobiz Meeting",
+                           Summary = request?.Caption,
                            Description = request?.Description,
                            Start = new EventDateTime()
                            {
                                DateTime = request?.StartDate,
+                               TimeZone = "Africa/Lagos"
                            },
                            End = new EventDateTime()
                            {
                                DateTime = request?.EndDate,
+                               TimeZone = "Africa/Lagos"
                            },
                };
-
+               eventToCreate.ConferenceData = new ConferenceData()
+               {
+                   CreateRequest = new CreateConferenceRequest()
+                   {
+                       RequestId = "event" + request?.Id,
+                       ConferenceSolutionKey = new ConferenceSolutionKey()
+                       {
+                           Type = "hangoutsMeet"
+                       },
+                       Status = new ConferenceRequestStatus
+                       {
+                           StatusCode = "success"
+                       },
+                   },
+                  
+               };
                if (request.StaffsInvolved.Any())
                {
                    foreach (var staff in request.StaffsInvolved)
@@ -4774,9 +4803,12 @@ namespace HaloBiz.MyServices.Impl
                            Email = creator?.Email,
                            DisplayName = creator?.LastName + " " + creator?.FirstName
                        };
-                       eventToCreate.Creator = calCreator; 
+                       eventToCreate.Creator = calCreator;
+                       eventToCreate.Visibility = "public";
+                       eventToCreate.Transparency = "transparent";
                        var insertedEvent = service.Events.Insert(eventToCreate, "primary");
                        insertedEvent.SendNotifications = true;
+                       insertedEvent.ConferenceDataVersion= 1;
                        var insertEventResult = await insertedEvent.ExecuteAsync();
                        await PersistEvent(insertEventResult, request, httpContext);
                        return CommonResponse.Send(ResponseCodes.SUCCESS,insertedEvent, "");
@@ -4792,7 +4824,13 @@ namespace HaloBiz.MyServices.Impl
            }
 
 
-           
+           // public async Task<ApiCommonResponse> SendEmail(MailRequest mailRequest)
+           // {
+           //     _emailService.Send(mailRequest.EmailSender, mailRequest.EmailReceiver,
+           //         mailRequest.EmailSubject, mailRequest.EmailBody);
+           //     
+           // }
+           //
            
            
            

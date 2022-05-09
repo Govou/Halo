@@ -784,10 +784,10 @@ namespace HaloBiz.Controllers
             return await _projectAllocationService.PushEventToGoogleCalender(calenderRequestDto,HttpContext);
         }
         
-        [HttpGet("ListEvent")]
-        public async Task<ApiCommonResponse> ListGoogleEvent()
+        [HttpDelete("DeleteEvent/{eventId}")]
+        public async Task<ApiCommonResponse> ListGoogleEvent(string eventId)
         {
-            return await _projectAllocationService.GetAllEvent();
+            return await _projectAllocationService.DeleteEvent(eventId);
         }
         
 
