@@ -9,4 +9,9 @@ namespace OnlinePortalBackend.Helpers
     {
         NotReceipted, PartlyReceipted, CompletelyReceipted
     }
+
+    public enum InvoiceType
+    {
+        New, Supplementary, Renewal, AdHoc
+    }
 }

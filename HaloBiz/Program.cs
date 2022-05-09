@@ -33,8 +33,8 @@ namespace HaloBiz
 
             try
             {
+                CreatePermissions();
                 (await BuildWebHostAsync(args)).Run();
-                //CreateHostBuilder(args).Build().Run();
 
             }
             catch (Exception ex)
@@ -54,66 +54,65 @@ namespace HaloBiz
                 .UseStartup<Startup>()
                 .Build();
 
-            await webHost.Services.AddAdminRole();
-
+            //await webHost.Services.AddAdminRole();
             return webHost;
         }
 
-        private void CreatePermissions()
+        private static void CreatePermissions()
         {
-            //int counter = 0;// Enum.GetValues(typeof(Permissions)).GetUpperBound(0);
+            int counter = 0;// Enum.GetValues(typeof(Permissions)).GetUpperBound(0);
 
 
-            //Assembly asm = Assembly.GetExecutingAssembly();
-            //var controlleractionlist = asm.GetTypes()
-            //        .Where(type => typeof(ControllerBase).IsAssignableFrom(type))
-            //        .ToList();
+            Assembly asm = Assembly.GetExecutingAssembly();
+            var controlleractionlist = asm.GetTypes()
+                    .Where(type => typeof(ControllerBase).IsAssignableFrom(type))
+                    .ToList();
 
-            //List<int> controllerIdList = new List<int>();
-            //foreach (var item in controlleractionlist)
-            //{
+            List<int> controllerIdList = new List<int>();
+            foreach (var item in controlleractionlist)
+            {
 
-            //    var name = item.Name.Replace("Controller", "");                   
+                var name = item.Name.Replace("Controller", "");
 
-            //    var splitName = SplitCamelCase(name);
-            //    var module = (ModuleName)item.GetCustomAttributes<ModuleName>().FirstOrDefault();
-            //    if (module == null)
-            //        throw new Exception($"{name} controller does not have module specified");
+                var splitName = SplitCamelCase(name);
+                var module = (ModuleName)item.GetCustomAttributes<ModuleName>().FirstOrDefault();
+                if (module == null)
+                    throw new Exception($"{name} controller does not have module specified");
 
-            //    var (moduleName, controllerId) = module.GetModuleAndControllerId();
-            //    if(controllerIdList.Contains(controllerId))
-            //    {
-            //        throw new Exception($"Duplicate controller ID: {controllerId} in {item.Name}");
-            //    }
+                var (moduleName, controllerId) = module.GetModuleAndControllerId();
+                if (controllerIdList.Contains(controllerId))
+                {
+                    throw new Exception($"Duplicate controller ID: {controllerId} in {item.Name}");
+                }
 
-            //    controllerIdList.Add(controllerId);
+                controllerIdList.Add(controllerId);
 
-            //    var isFourAdded = Enum.TryParse(typeof(Permissions), string.Concat(name, "_get"), true, out var permission)
-            //                    && Enum.TryParse(typeof(Permissions), string.Concat(name, "_post"), true, out var permission2)
-            //                    && Enum.TryParse(typeof(Permissions), string.Concat(name, "_put"), true, out var permission3)
-            //                    && Enum.TryParse(typeof(Permissions), string.Concat(name, "_delete"), true, out var permission4);
+                var isFourAdded = Enum.TryParse(typeof(Permissions), string.Concat(name, "_get"), true, out var permission)
+                                && Enum.TryParse(typeof(Permissions), string.Concat(name, "_post"), true, out var permission2)
+                                && Enum.TryParse(typeof(Permissions), string.Concat(name, "_put"), true, out var permission3)
+                                && Enum.TryParse(typeof(Permissions), string.Concat(name, "_delete"), true, out var permission4);
 
-            //    //check that this controller with its 4 permissions do not exist
-            //    if (isFourAdded) continue;  //no problem
+                //check that this controller with its 4 permissions do not exist
+                if (isFourAdded) continue;  //no problem
 
-            //    counter = (controllerId * 10) + 1000;
+                counter = (controllerId * 10) + 1000;
 
-            //    //read
-            //    Console.WriteLine($"[Display(ShortName=\"{moduleName}\",GroupName = \"{name}\", Name = \"Get\", Description = \"Can view {splitName.ToLower()}\")]");
-            //    Console.WriteLine($"{name}_Get = 0x{++counter},");
+                //read
+                Console.WriteLine($"[Display(ShortName=\"{moduleName}\",GroupName = \"{name}\", Name = \"Get\", Description = \"Can view {splitName.ToLower()}\")]");
+                Console.WriteLine($"{name}_Get = 0x{++counter},");
 
-            //    //write
-            //    Console.WriteLine($"[Display(ShortName=\"{moduleName}\",GroupName = \"{name}\", Name = \"Post\", Description = \"Can create {splitName.ToLower()}\")]");
-            //    Console.WriteLine($"{name}_Post = 0x{++counter},");
+                //write
+                Console.WriteLine($"[Display(ShortName=\"{moduleName}\",GroupName = \"{name}\", Name = \"Post\", Description = \"Can create {splitName.ToLower()}\")]");
+                Console.WriteLine($"{name}_Post = 0x{++counter},");
 
-            //    //update
-            //    Console.WriteLine($"[Display(ShortName=\"{moduleName}\",GroupName = \"{name}\", Name = \"Put\", Description = \"Can update {splitName.ToLower()}\")]");
-            //    Console.WriteLine($"{name}_Put = 0x{++counter},");
+                //update
+                Console.WriteLine($"[Display(ShortName=\"{moduleName}\",GroupName = \"{name}\", Name = \"Put\", Description = \"Can update {splitName.ToLower()}\")]");
+                Console.WriteLine($"{name}_Put = 0x{++counter},");
 
-            //    //delete
-            //    Console.WriteLine($"[Display(ShortName=\"{moduleName}\",GroupName = \"{name}\", Name = \"Delete\", Description = \"Can delete {splitName.ToLower()}\")]");
-            //    Console.WriteLine($"{name}_Delete = 0x{++counter},\n");
-            //}
+                //delete
+                Console.WriteLine($"[Display(ShortName=\"{moduleName}\",GroupName = \"{name}\", Name = \"Delete\", Description = \"Can delete {splitName.ToLower()}\")]");
+                Console.WriteLine($"{name}_Delete = 0x{++counter},\n");
+            }
         }
 
         static string SplitCamelCase(string source)
