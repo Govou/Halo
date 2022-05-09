@@ -14,6 +14,17 @@ namespace OnlinePortalBackend.MyServices.Impl
             _utilityRepository = utilityRepository;
         }
 
+        public async Task<ApiCommonResponse> GetBusinessTypes()
+        {
+            var result = _utilityRepository.GetBusinessTypes();
+
+            if (result == null)
+            {
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE); ;
+            }
+            return CommonResponse.Send(ResponseCodes.SUCCESS, result);
+        }
+
         public async Task<ApiCommonResponse> GetLocalGovtAreas(int stateId)
         {
             var result =  _utilityRepository.GetLocalGovtAreas(stateId);

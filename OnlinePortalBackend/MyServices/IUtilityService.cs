@@ -8,5 +8,6 @@ namespace OnlinePortalBackend.MyServices
     {
         Task<ApiCommonResponse> GetStates();
         Task<ApiCommonResponse> GetLocalGovtAreas(int stateId);
+        Task<ApiCommonResponse> GetBusinessTypes();
     }
 }
