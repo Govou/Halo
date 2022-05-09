@@ -1,4 +1,5 @@
 ﻿using Halobiz.Common.DTOs.ApiDTOs;
+using OnlinePortalBackend.Repository;
 using System.Threading.Tasks;
 
 namespace OnlinePortalBackend.MyServices.SecureMobilitySales
