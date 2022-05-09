@@ -78,6 +78,7 @@ namespace OnlinePortalBackend
             services.AddScoped<IComplaintRepository, ComplaintRepository > ();
             services.AddScoped<ISMSAccountRepository, SMSAccountRepository>();
             services.AddScoped<ISMSContractsRepository, SMSContractsRepository>();  
+            services.AddScoped<IUtilityRepository, UtilityRepository> ();
 
             services.AddScoped<IPaymentAdapter, PaymentAdapter>();
             services.AddScoped<IApiInterceptor, ApiInterceptor>();
@@ -97,6 +98,7 @@ namespace OnlinePortalBackend
             services.AddScoped<IComplaintService, MyServices.Impl.ComplaintServiceImpl>();
             services.AddScoped<ISMSAccountService, SMSAccountService>();
             services.AddScoped<ISMSContractsService, SMSContractsService>();
+            services.AddScoped<IUtilityService, UtilityService>();
 
             services.AddAutoMapper(typeof(Startup));
 
