@@ -6,7 +6,7 @@ namespace OnlinePortalBackend.Repository
     public interface IWalletRepository
     {
         Task<(bool isSuccess, string message)> ActivateWallet(ActivateWalletDTO request);
-        Task<bool> LoadWallet();
-        Task<bool> SpendWallet();
+        Task<(bool isSuccess, string message)> LoadWallet(LoadWalletDTO request);
+        Task<(bool isSuccess, string message)> SpendWallet(SpendWalletDTO request);
     }
 }
