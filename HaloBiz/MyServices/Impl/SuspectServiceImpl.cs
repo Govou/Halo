@@ -144,6 +144,19 @@ namespace HaloBiz.MyServices.Impl
             return CommonResponse.Send(ResponseCodes.SUCCESS, suspect);
         }
 
+        public async Task<ApiCommonResponse> GetSuspectByPhone(string phone)
+        {
+            var suspect = await _context.Suspects.Where(x => x.MobileNumber.ToLower() == phone.ToLower())
+                .FirstOrDefaultAsync();
+
+            if (suspect == null)
+            {
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE); ;
+            }
+
+            return CommonResponse.Send(ResponseCodes.SUCCESS, suspect);
+        }
+
         public async Task<ApiCommonResponse> GetSuspectById(long id)
         {
             var suspect = await _suspectRepo.FindSuspectById(id);

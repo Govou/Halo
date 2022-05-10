@@ -76,6 +76,11 @@ namespace HaloBiz.Controllers
         {
             return await _SuspectService.GetSuspectByEmail(email);
         }
+        [HttpGet("GetSuspectByPhone/{phone}")]
+        public async Task<ApiCommonResponse> GetSuspectByPhone(string phone)
+        {
+            return await _SuspectService.GetSuspectByPhone(phone);
+        }
 
         [HttpPost("ConvertSuspect/{suspectId}")]
         public async Task<ApiCommonResponse> ConvertSuspect(long suspectId)
