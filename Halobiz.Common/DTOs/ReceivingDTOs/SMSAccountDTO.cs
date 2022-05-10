@@ -37,6 +37,16 @@ namespace Halobiz.Common.DTOs.ReceivingDTOs
         public string Address { get; set; }
         public string LogoUrl { get; set; }
         public SMSLoginDTO AccountLogin { get; set; }
-
+        public SMSContactPerson ContactPerson { get; set; }
     }
+
+    public class SMSContactPerson
+    {
+        public string FirstName { get; set; }
+        public string LastName { get; set; }
+        public DateTime DateOfBirth { get; set; }
+        public string PhoneNumber { get; set; }
+        public string Gender { get; set; }
+    }
+
 }
