@@ -18,6 +18,7 @@ using HaloBiz.DTOs.TransferDTOs.LAMS;
 using HalobizMigrations.Data;
 using HaloBiz.Repository.LAMS;
 using HalobizMigrations.Models.Shared;
+using Microsoft.EntityFrameworkCore;
 
 namespace HaloBiz.MyServices.Impl
 {
@@ -98,6 +99,49 @@ namespace HaloBiz.MyServices.Impl
             }
             var suspectTransferDTO = _mapper.Map<IEnumerable<SuspectTransferDTO>>(suspects);
             return CommonResponse.Send(ResponseCodes.SUCCESS,suspectTransferDTO);
+        }
+
+        public async Task<ApiCommonResponse> GetSuspectByEmail(string email)
+        {
+            var suspect = await _context.Suspects.Where(x => x.Email.ToLower() == email.ToLower()).FirstOrDefaultAsync();
+            if (suspect == null)
+            {
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE); ;
+            }
+            return CommonResponse.Send(ResponseCodes.SUCCESS, suspect);
+        }
+
+        public async Task<ApiCommonResponse> GetSuspectByRC(string rc)
+        {
+            var suspect = await _context.Suspects.Where(x => x.RCNumber.ToLower() == rc.ToLower()).FirstOrDefaultAsync();
+            if (suspect == null)
+            {
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE); ;
+            }
+            return CommonResponse.Send(ResponseCodes.SUCCESS, suspect);
+        }
+
+        public async Task<ApiCommonResponse> GetSuspectByBusinessName(string businessname)
+        {
+            var suspect = await _context.Suspects.Where(x => x.BusinessName.ToLower() == businessname.ToLower()).FirstOrDefaultAsync();
+            if (suspect == null)
+            {
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE); ;
+            }
+            return CommonResponse.Send(ResponseCodes.SUCCESS, suspect);
+        }       
+
+        public async Task<ApiCommonResponse> GetSuspectByNames(string firstname, string  lastname)
+        {
+            var suspect = await _context.Suspects.Where(x => x.FirstName.ToLower() == firstname.ToLower() && x.LastName.ToLower()==lastname.ToLower())
+                .FirstOrDefaultAsync();
+           
+            if (suspect == null)
+            {
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE); ;
+            }
+
+            return CommonResponse.Send(ResponseCodes.SUCCESS, suspect);
         }
 
         public async Task<ApiCommonResponse> GetSuspectById(long id)

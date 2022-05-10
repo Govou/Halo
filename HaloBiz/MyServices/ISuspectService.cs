@@ -18,5 +18,10 @@ namespace HaloBiz.MyServices
         Task<ApiCommonResponse> UpdateSuspect(HttpContext context, long id, SuspectReceivingDTO suspectReceivingDTO);
         Task<ApiCommonResponse> DeleteSuspect(long id);
         Task<ApiCommonResponse> ConvertSuspect(HttpContext context, long suspectId);
+
+        Task<ApiCommonResponse> GetSuspectByNames(string firstname, string lastname);
+        Task<ApiCommonResponse> GetSuspectByBusinessName(string businessname);
+        Task<ApiCommonResponse> GetSuspectByRC(string rc);
+        Task<ApiCommonResponse> GetSuspectByEmail(string email);
     }
 }
