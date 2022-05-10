@@ -23,5 +23,6 @@ namespace HaloBiz.MyServices
         Task<ApiCommonResponse> GetSuspectByBusinessName(string businessname);
         Task<ApiCommonResponse> GetSuspectByRC(string rc);
         Task<ApiCommonResponse> GetSuspectByEmail(string email);
+        Task<ApiCommonResponse> GetSuspectByPhone(string phone);
     }
 }
