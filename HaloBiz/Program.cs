@@ -33,7 +33,7 @@ namespace HaloBiz
 
             try
             {
-                CreatePermissions();
+               // CreatePermissions();
                 (await BuildWebHostAsync(args)).Run();
 
             }
