@@ -554,7 +554,7 @@ namespace HaloBiz.MyServices.Impl
             return CommonResponse.Send(ResponseCodes.SUCCESS, null, ResponseMessage.Success200);
         }
 
-      
+        
 
         public async Task<ApiCommonResponse> AddSecondaryServiceAssignment(HttpContext context, SecondaryServiceAssignmentReceivingDTO secondaryReceivingDTO)
         {
@@ -575,6 +575,375 @@ namespace HaloBiz.MyServices.Impl
             }
             var TransferDTO = _mapper.Map<SecondaryServiceAssignmentTransferDTO>(addItem);
             return CommonResponse.Send(ResponseCodes.SUCCESS, TransferDTO);
+        }
+
+        public async Task<ApiCommonResponse> AllocateResourceForScheduledServiceAssignment(HttpContext context, long id)
+        {
+            var vehicle = new VehicleServiceAssignmentDetail();
+            var commander = new CommanderServiceAssignmentDetail();
+            var armedEscort = new ArmedEscortServiceAssignmentDetail();
+            var pilot = new PilotServiceAssignmentDetail();
+            List<long?> VehicleResourceIdsToTie = new List<long?>();
+            List<long?> VehicleResourceIdsToTieComm = new List<long?>();
+
+            try
+            {
+                var transaction = _context.Database.BeginTransaction();
+                var itemToUpdate = await _serviceAssignmentMasterRepository.FindServiceAssignmentById(id);
+                if (itemToUpdate == null)
+                {
+                    return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);
+                }
+                //For Vehicle
+                if (id > 0)
+                {
+                    var getVehicleServiceRegistration = await _serviceRegistrationRepository.FindServiceById((long)itemToUpdate.ServiceRegistrationId);
+                    //var getVehicleDetailNoneHeld = await _serviceAssignmentDetailsRepository.FindAllNoneHeldVehicleServiceAssignmentDetails();
+                    //var getVehicleDetailListById = await _serviceAssignmentDetailsRepository.FindAllVehicleServiceAssignmentDetailsByAssignmentId(getId);
+                    long? getVehicleResourceId = 0;
+                    long? getTypeId = 0;
+                    long count = 0;
+                    var getResourceTypePerServiceForVehicle = await _serviceRegistrationRepository.FindVehicleResourceByServiceRegId((long)itemToUpdate.ServiceRegistrationId);
+                    var RouteExistsForVehicle = _vehicleRegistrationRepository.GetAllVehiclesOnRouteByResourceAndRouteId(itemToUpdate.SMORouteId);
+
+                    if (getVehicleServiceRegistration.RequiresVehicle == true)
+                    {
+
+                        var getAllResourceSchedule = await _dTSMastersRepository.FindAllVehicleMastersForAutoAssignmentByPickupDate((long)itemToUpdate.ServiceRegistrationId, (long)itemToUpdate.SMORouteId, itemToUpdate.PickupDate, itemToUpdate.PickoffTime);
+
+                        var result = getAllResourceSchedule.eligibleVehiclesWithoutAssignment.Concat(getAllResourceSchedule.eligibleVehiclesWithAssignment).ToList();
+
+
+                        if (result.Count() >= getVehicleServiceRegistration.VehicleQuantityRequired)
+                        {
+                            int countSchedule = 0;
+                            int resourceCount = 0;
+
+
+                            //var _lastItem = getAllResourceSchedule.Last();
+                            foreach (var schedule in result)
+                            {
+                                //var breakOut = false;
+                                //var innerLoopBreak = false;
+
+                                getVehicleResourceId = schedule.VehicleResourceId;
+
+                                vehicle.Id = 0;
+                                vehicle.IsTemporarilyHeld = true;
+                                vehicle.DateTemporarilyHeld = DateTime.UtcNow;
+                                //vehicle.IsHeldForAction = true;
+                                //vehicle.DateHeldForAction = DateTime.UtcNow;
+                                vehicle.VehicleResourceId = getVehicleResourceId;
+                                vehicle.RequiredCount = resourceCount++;
+                                vehicle.CreatedById = context.GetLoggedInUserId();
+                                vehicle.CreatedAt = DateTime.Now;
+                                vehicle.ServiceAssignmentId = id;
+                                var savedItem = await _serviceAssignmentDetailsRepository.SaveVehicleServiceAssignmentdetail(vehicle);
+                                if (savedItem == null)
+                                {
+                                    transaction.Rollback();
+                                    return CommonResponse.Send(ResponseCodes.FAILURE, null, ResponseMessage.InternalServer500);
+                                }
+                                else
+                                {
+                                    VehicleResourceIdsToTie.Add(getVehicleResourceId);
+                                    VehicleResourceIdsToTieComm.Add(getVehicleResourceId);
+                                    countSchedule++;
+                                    if (countSchedule == getVehicleServiceRegistration.VehicleQuantityRequired)
+                                    {
+                                        //TiedVehicleId = getVehicleResourceId;
+                                        break;
+                                    }
+                                    else
+                                    {
+                                        continue;
+                                    }
+
+                                }
+
+                            }
+                        }
+                        else
+                        {
+                            transaction.Rollback();
+                            return CommonResponse.Send(ResponseCodes.FAILURE, null, ResponseMessage.ResourceNotAvailble450Veh);
+                        }
+                    }
+
+                }
+
+                //For Pilot
+                if (id > 0)
+                {
+                    var getVehicleServiceRegistration = await _serviceRegistrationRepository.FindServiceById((long)itemToUpdate.ServiceRegistrationId);
+                    //var getVehicleDetail = await _serviceAssignmentDetailsRepository.FindAllVehicleServiceAssignmentDetails();
+                    //var getVehicleDetailNoneHeld = await _serviceAssignmentDetailsRepository.FindAllNoneHeldVehicleServiceAssignmentDetails();
+                    var getVehicleDetailListById = await _serviceAssignmentDetailsRepository.FindAllVehicleServiceAssignmentDetailsByAssignmentId(id);
+                    long? getResourceId = 0;
+                    long? getTypeId = 0;
+                    long count = 0;
+                    var getResourceTypePerServiceForVehicle = await _serviceRegistrationRepository.FindPilotResourceByServiceRegId((long)itemToUpdate.ServiceRegistrationId);
+                    //var getResourceTypePerServiceForVehicle = await _serviceRegistrationRepository.FindAllVehicleResourceByServiceRegId(itemToUpdate.ServiceRegistrationId);
+                    //var getAllResourceSchedule = await _dTSMastersRepository.FindAllVehicleMastersForAutoAssignment();
+                    var RouteExists = _pilotRegistrationRepository.GetAllPilotsOnRouteByResourceAndRouteId(itemToUpdate.SMORouteId);
+
+
+                    if (getVehicleServiceRegistration.RequiresPilot == true)
+                    {
+                        var getAllResourceSchedule = await _dTSMastersRepository.FindAllPilotMastersForAutoAssignmentByPickupDate((long)itemToUpdate.ServiceRegistrationId, (long)itemToUpdate.SMORouteId, itemToUpdate.PickupDate, itemToUpdate.PickoffTime);
+                        var result = getAllResourceSchedule.eligiblePilotsWithoutAssignment.Concat(getAllResourceSchedule.eligiblePilotsWithAssignment).ToList();
+                        if (result.Count() >= getVehicleServiceRegistration.PilotQuantityRequired)
+                        {
+                            int countSchedule = 0;
+                            int resourceCount = 0;
+
+                            var _lastItem = result.Last();
+                            var _lastItemTie = VehicleResourceIdsToTie.Last();
+                            foreach (var schedule in result)
+                            {
+
+                                getResourceId = schedule.PilotResourceId;
+
+
+                                //Add
+
+                                pilot.Id = 0;
+                                pilot.IsTemporarilyHeld = true;
+                                pilot.DateTemporarilyHeld = DateTime.UtcNow;
+                                pilot.PilotResourceId = getResourceId;
+                                foreach (var item in VehicleResourceIdsToTie)
+                                {
+                                    if (_lastItemTie.Equals(item))
+                                    {
+                                        pilot.TiedVehicleResourceId = item;
+                                        break;
+                                    }
+                                    else
+                                    {
+                                        pilot.TiedVehicleResourceId = item;
+                                        VehicleResourceIdsToTie.Remove(item);
+                                        break;
+                                    }
+                                }
+                                //pilot.TiedVehicleResourceId = TiedVehicleId;
+                                pilot.RequiredCount = resourceCount++;
+                                pilot.CreatedById = context.GetLoggedInUserId();
+                                pilot.CreatedAt = DateTime.Now;
+                                pilot.ServiceAssignmentId = id;
+                                var savedItem = await _serviceAssignmentDetailsRepository.SavePilotServiceAssignmentdetail(pilot);
+                                if (savedItem == null)
+                                {
+                                    transaction.Rollback();
+                                    return CommonResponse.Send(ResponseCodes.FAILURE, null, ResponseMessage.InternalServer500);
+                                }
+                                else
+                                {
+                                    //TiedVehicleId = savedItem.Id;
+                                    countSchedule++;
+                                    if (countSchedule == getVehicleServiceRegistration.PilotQuantityRequired)
+                                    {
+                                        break;
+                                    }
+                                    else
+                                    {
+                                        continue;
+                                    }
+
+                                }
+
+                            }
+
+
+                        }
+                        else
+                        {
+                            transaction.Rollback();
+                            return CommonResponse.Send(ResponseCodes.FAILURE, null, ResponseMessage.ResourceNotAvailble450Pi);
+                        }
+                    }
+
+                }
+
+                //For Commander
+                if (id > 0)
+                {
+                    var getVehicleServiceRegistration = await _serviceRegistrationRepository.FindServiceById((long)itemToUpdate.ServiceRegistrationId);
+                    //var getVehicleDetail = await _serviceAssignmentDetailsRepository.FindAllVehicleServiceAssignmentDetails();
+                    //var getVehicleDetailNoneHeld = await _serviceAssignmentDetailsRepository.FindAllNoneHeldVehicleServiceAssignmentDetails();
+                    var getVehicleDetailListById = await _serviceAssignmentDetailsRepository.FindAllVehicleServiceAssignmentDetailsByAssignmentId(id);
+                    long? getResourceId = 0;
+                    long? getTypeId = 0;
+                    long count = 0;
+                    var getResourceTypePerServiceForVehicle = await _serviceRegistrationRepository.FindCommanderResourceByServiceRegId((long)itemToUpdate.ServiceRegistrationId);
+                    //var getResourceTypePerServiceForVehicle = await _serviceRegistrationRepository.FindAllVehicleResourceByServiceRegId(itemToUpdate.ServiceRegistrationId);
+                    //var getAllResourceSchedule = await _dTSMastersRepository.FindAllVehicleMastersForAutoAssignment();
+                    var RouteExists = _commanderRegistrationRepository.GetAllCommanderssOnRouteByResourceAndRouteId(itemToUpdate.SMORouteId);
+
+
+                    if (getVehicleServiceRegistration.RequiresCommander == true)
+                    {
+                        var getAllResourceSchedule = await _dTSMastersRepository.FindAllCommanderMastersForAutoAssignmentByPickupDate((long)itemToUpdate.ServiceRegistrationId, (long)itemToUpdate.SMORouteId, itemToUpdate.PickupDate, itemToUpdate.PickoffTime);
+                        var result = getAllResourceSchedule.eligibleCommandersWithoutAssignment.Concat(getAllResourceSchedule.eligibleCommandersWithAssignment).ToList();
+
+                        if (result.Count() >= getVehicleServiceRegistration.CommanderQuantityRequired)
+                        {
+                            int countSchedule = 0;
+                            int resourceCount = 0;
+
+                            var _lastItem = result.Last();
+                            var _lastItemTie = VehicleResourceIdsToTie.Last();
+                            foreach (var schedule in result)
+                            {
+                                var breakOut = false;
+                                getResourceId = schedule.CommanderResourceId;
+                                //Add
+
+                                commander.Id = 0;
+                                commander.IsTemporarilyHeld = true;
+                                commander.DateTemporarilyHeld = DateTime.UtcNow;
+                                commander.CommanderResourceId = getResourceId;
+                                //commander.TiedVehicleResourceId = TiedVehicleId;
+                                foreach (var item in VehicleResourceIdsToTieComm)
+                                {
+                                    if (_lastItemTie.Equals(item))
+                                    {
+                                        commander.TiedVehicleResourceId = item;
+                                        break;
+                                    }
+                                    else
+                                    {
+                                        commander.TiedVehicleResourceId = item;
+                                        VehicleResourceIdsToTieComm.Remove(item);
+                                        break;
+                                    }
+                                }
+                                commander.RequiredCount = resourceCount++;
+                                commander.CreatedById = context.GetLoggedInUserId();
+                                commander.CreatedAt = DateTime.UtcNow;
+                                commander.ServiceAssignmentId = id;
+                                var savedItem = await _serviceAssignmentDetailsRepository.SaveCommanderServiceAssignmentdetail(commander);
+                                if (savedItem == null)
+                                {
+                                    transaction.Rollback();
+                                    return CommonResponse.Send(ResponseCodes.FAILURE, null, ResponseMessage.InternalServer500);
+                                }
+                                else
+                                {
+                                    //TiedVehicleId = savedItem.Id;
+                                    countSchedule++;
+                                    if (countSchedule == getVehicleServiceRegistration.CommanderQuantityRequired)
+                                    {
+                                        break;
+                                    }
+                                    else
+                                    {
+                                        continue;
+                                    }
+
+                                }
+                            }
+                        }
+                        else
+                        {
+                            transaction.Rollback();
+                            return CommonResponse.Send(ResponseCodes.FAILURE, null, ResponseMessage.ResourceNotAvailble450Com);
+                        }
+                    }
+
+                }
+
+                //For ArmedEscort
+                if (id > 0)
+                {
+                    var getVehicleServiceRegistration = await _serviceRegistrationRepository.FindServiceById((long)itemToUpdate.ServiceRegistrationId);
+
+                    var getVehicleDetailListById = await _serviceAssignmentDetailsRepository.FindAllVehicleServiceAssignmentDetailsByAssignmentId(id);
+                    long? getResourceId = 0;
+                    long? getTypeId = 0;
+                    long count = 0;
+                    //var getResourceTypePerServiceForVehicle = await _serviceRegistrationRepository.FindCommanderResourceByServiceRegId(itemToUpdate.ServiceRegistrationId);
+
+                    var RouteExists = _commanderRegistrationRepository.GetAllCommanderssOnRouteByResourceAndRouteId(itemToUpdate.SMORouteId);
+
+                    if (getVehicleServiceRegistration.RequiresArmedEscort == true)
+                    {
+                        var getAllResourceSchedule = await _dTSMastersRepository.FindAllArmedEscortMastersForAutoAssignmentByPickupDate((long)itemToUpdate.ServiceRegistrationId, (long)itemToUpdate.SMORouteId, itemToUpdate.PickupDate, itemToUpdate.PickoffTime);
+                        var result = getAllResourceSchedule.eligibleArmedEscortsWithoutAssignment.Concat(getAllResourceSchedule.eligibleArmedEscortsWithAssignment).ToList();
+
+                        if (result.Count() >= getVehicleServiceRegistration.ArmedEscortQuantityRequired)
+                        {
+                            int countSchedule = 0;
+                            int resourceCount = 0;
+
+                            var _lastItem = result.Last();
+                            foreach (var schedule in result)
+                            {
+                                var breakOut = false;
+                                getResourceId = schedule.ArmedEscortResourceId;
+
+                                //Add
+                                armedEscort.Id = 0;
+                                armedEscort.IsTemporarilyHeld = true;
+                                armedEscort.DateTemporarilyHeld = DateTime.UtcNow;
+                                armedEscort.ArmedEscortResourceId = getResourceId;
+                                armedEscort.RequiredCount = resourceCount++;
+                                armedEscort.CreatedById = context.GetLoggedInUserId();
+                                armedEscort.CreatedAt = DateTime.UtcNow;
+                                armedEscort.ServiceAssignmentId = id;
+                                var savedItem = await _serviceAssignmentDetailsRepository.SaveEscortServiceAssignmentdetail(armedEscort);
+                                if (savedItem == null)
+                                {
+                                    transaction.Rollback();
+                                    return CommonResponse.Send(ResponseCodes.FAILURE, null, ResponseMessage.InternalServer500);
+                                }
+                                else
+                                {
+                                    //TiedVehicleId = savedItem.Id;
+                                    countSchedule++;
+                                    if (countSchedule == getVehicleServiceRegistration.ArmedEscortQuantityRequired)
+                                    {
+                                        break;
+                                    }
+                                    else
+                                    {
+                                        continue;
+                                    }
+
+                                }
+                            }
+                        }
+                        else
+                        {
+                            transaction.Rollback();
+                            return CommonResponse.Send(ResponseCodes.FAILURE, null, ResponseMessage.ResourceNotAvailble450Arm);
+                        }
+                    }
+
+                }
+
+              
+
+                itemToUpdate.UpdatedAt = DateTime.Now;
+                itemToUpdate.IsScheduled = false;
+                var updatedItem = await _serviceAssignmentMasterRepository.UpdateServiceAssignment(itemToUpdate);
+                if (updatedItem == null)
+                {
+                    transaction.Rollback();
+                    return CommonResponse.Send(ResponseCodes.FAILURE, null, ResponseMessage.InternalServer500);
+                }
+                transaction.Commit();
+               
+                    await _serviceAssignmentDetailsService.UpdateServiceDetailsHeldForActionAndReadyStatusByAssignmentId(id);
+                
+
+                //var TransferDTOs = _mapper.Map<MasterServiceAssignmentTransferDTO>(updatedItem);
+
+                return CommonResponse.Send(ResponseCodes.SUCCESS, "Resource Allocation Successful", ResponseMessage.Success200);
+            }
+            catch (Exception ex)
+            {
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, ex.StackTrace);
+            } 
         }
 
         public async Task<ApiCommonResponse> DeleteMasterServiceAssignment(long id)
@@ -676,6 +1045,17 @@ namespace HaloBiz.MyServices.Impl
         public async Task<ApiCommonResponse> GetAllMasterServiceAssignments()
         {
             var master = await _serviceAssignmentMasterRepository.FindAllServiceAssignments();
+            if (master == null)
+            {
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);
+            }
+            var TransferDTO = _mapper.Map<IEnumerable<MasterServiceAssignmentTransferDTO>>(master);
+            return CommonResponse.Send(ResponseCodes.SUCCESS, TransferDTO, ResponseMessage.Success200);
+        }
+
+        public async Task<ApiCommonResponse> GetAllScheduledMasterServiceAssignments()
+        {
+            var master = await _serviceAssignmentMasterRepository.FindAllScheduledServiceAssignments();
             if (master == null)
             {
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);

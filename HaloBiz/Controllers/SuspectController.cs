@@ -53,6 +53,30 @@ namespace HaloBiz.Controllers
             return await _SuspectService.GetSuspectById(id); 
         }
 
+        [HttpGet("GetSuspectByNames/{firstname}/{lastname}")]
+        public async Task<ApiCommonResponse> GetSuspectByNames(string firstname, string lastname)
+        {
+            return await _SuspectService.GetSuspectByNames(firstname, lastname);
+        }
+
+        [HttpGet("GetSuspectByBusinessName/{businessname}")]
+        public async Task<ApiCommonResponse> GetSuspectByBusinessName(string businessname)
+        {
+            return await _SuspectService.GetSuspectByBusinessName(businessname);
+        }
+
+        [HttpGet("GetSuspectByRC/{rc}")]
+        public async Task<ApiCommonResponse> GetSuspectByRC(string rc)
+        {
+            return await _SuspectService.GetSuspectByRC(rc);
+        }
+
+        [HttpGet("GetSuspectByEmail/{email}")]
+        public async Task<ApiCommonResponse> GetSuspectByEmail(string email)
+        {
+            return await _SuspectService.GetSuspectByEmail(email);
+        }
+
         [HttpPost("ConvertSuspect/{suspectId}")]
         public async Task<ApiCommonResponse> ConvertSuspect(long suspectId)
         {
