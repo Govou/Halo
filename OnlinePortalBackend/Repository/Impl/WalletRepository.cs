@@ -79,6 +79,17 @@ namespace OnlinePortalBackend.Repository.Impl
             return (false, "Activation Failed");
         }
 
+        public async Task<(bool isSuccess, object message)> GetWalletBalance(int profileId)
+        {
+           var balance = _context.WalletMasters.FirstOrDefault(x => x.OnlineProfileId == profileId);
+            if (balance == null)
+            {
+                return (false, "User does not exist");
+            }
+
+            return (true, balance.WalletBalance);
+
+        }
 
         public async Task<(bool isSuccess, string message)> LoadWallet(LoadWalletDTO request)
         {
@@ -217,6 +228,10 @@ namespace OnlinePortalBackend.Repository.Impl
             var walletMaster = _context.WalletMasters.FirstOrDefault(x => x.OnlineProfileId == request.ProfileId);
             if (walletMaster == null)
                 return (false, "User does not have a wallet");
+
+            if (double.Parse(walletMaster.WalletBalance) < request.Amount)
+                return (false, "Insufficient funds in wallet");
+            
 
             var profile = _context.OnlineProfiles.FirstOrDefault(x => x.Id == request.ProfileId);
             var office = _context.Offices.FirstOrDefault(x => x.Name.ToLower().Contains("office")).Id;

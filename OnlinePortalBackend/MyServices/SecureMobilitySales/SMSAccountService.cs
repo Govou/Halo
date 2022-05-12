@@ -1,5 +1,7 @@
-﻿using Halobiz.Common.DTOs.ApiDTOs;
+﻿using AutoMapper;
+using Halobiz.Common.DTOs.ApiDTOs;
 using Halobiz.Common.DTOs.ReceivingDTOs;
+using OnlinePortalBackend.DTOs.TransferDTOs;
 using OnlinePortalBackend.Repository;
 using System.Threading.Tasks;
 
@@ -9,7 +11,8 @@ namespace OnlinePortalBackend.MyServices.SecureMobilitySales
     {
         private readonly ISMSAccountRepository _accountRepository;
         private readonly IOnlineAccounts _authService;
-        public SMSAccountService(ISMSAccountRepository accountRepository, IOnlineAccounts authService)
+        private readonly IMapper _mapper;
+        public SMSAccountService(ISMSAccountRepository accountRepository, IOnlineAccounts authService, IMapper mapper)
         {
             _accountRepository = accountRepository;
             _authService = authService;
@@ -36,6 +39,25 @@ namespace OnlinePortalBackend.MyServices.SecureMobilitySales
                 return authResult;
             }
             return CommonResponse.Send(ResponseCodes.FAILURE, null, "Registration failed. Please try again");
+        }
+
+        public async Task<ApiCommonResponse> GetCustomerProfile(int profileId)
+        {
+            var result = await _accountRepository.GetCustomerProfile(profileId);
+
+            if (result == null)
+            {
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Profile does not exist");
+            }
+            var profile = new OnlineProfileDTO
+            {
+                CreatedAt = result.CreatedAt,
+                Email = result.Email,
+                Name = result.Name,
+                Id = result.Id
+            };
+
+            return CommonResponse.Send(ResponseCodes.SUCCESS, profile, "Success");
         }
     }
 }
