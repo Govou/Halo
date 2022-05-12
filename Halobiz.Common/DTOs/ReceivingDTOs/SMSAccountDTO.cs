@@ -32,6 +32,7 @@ namespace Halobiz.Common.DTOs.ReceivingDTOs
         public int IndustryId { get; set; }
         public string Industry { get; set; }
         public string PhoneNumber { get; set; }
+        public string RCNumber { get; set; }
         public int StateId { get; set; }
         public int LGAId { get; set; }
         public string Address { get; set; }

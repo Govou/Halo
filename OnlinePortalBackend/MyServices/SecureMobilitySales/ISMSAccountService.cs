@@ -8,5 +8,6 @@ namespace OnlinePortalBackend.MyServices.SecureMobilitySales
     {
         Task<ApiCommonResponse> CreateIndividualAccount(SMSIndividualAccountDTO request);
         Task<ApiCommonResponse> CreateBusinessAccount(SMSBusinessAccountDTO request);
+        Task<ApiCommonResponse> GetCustomerProfile(int profileId);
     }
 }
