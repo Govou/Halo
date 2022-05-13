@@ -25,6 +25,7 @@
     <None Remove="Google.Apis, Version=1.8.1.31687, Culture=neutral, PublicKeyToken=null" />
     <None Remove="Google.Apis" />
     <Content Remove="halo-biz-d3c3d00d9065.json" />
+    <None Include="wwwroot\Files\token.json\Google.Apis.Auth.OAuth2.Responses.TokenResponse-user" />
   </ItemGroup>
 
   <ItemGroup>
@@ -91,7 +92,6 @@
     <Folder Include="DTOs\ContactDTO\" />
     <Folder Include="MyServices\Impl\RoleManagement\" />
     <Folder Include="wwwroot\" />
-     <Folder Include="Files\" />
     <Folder Include="wwwroot\MigrationsLog\" />
   </ItemGroup>
 
@@ -103,6 +103,10 @@
     <Reference Include="HalobizMigrations">
       <HintPath>..\Halobiz.Common\HalobizMigrations.dll</HintPath>
     </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <_ContentIncludedByDefault Remove="Files\credential.json" />
   </ItemGroup>
    
 

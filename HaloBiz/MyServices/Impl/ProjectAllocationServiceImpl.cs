@@ -4668,16 +4668,14 @@ namespace HaloBiz.MyServices.Impl
            {
                string[] scopes = { "https://www.googleapis.com/auth/calendar" };
                string applicationName = "HalobizCalender";
-               //var credentials = Path.Combine("Files", "credential.json");
+               string path = Path.Combine(_hostEnvironment.WebRootPath, "wwwroot/Files/credential.json");
 
                UserCredential credential;
 
                using (var stream =
-                      new FileStream("Files/credential.json", FileMode.Open, FileAccess.Read))
+                      new FileStream(path, FileMode.Open, FileAccess.Read))
                {
-                   // The file token.json stores the user's access and refresh tokens, and is created
-                   // automatically when the authorization flow completes for the first time.
-                   string credPath = Path.Combine("Files", "token.json");
+                   string credPath = Path.Combine(_hostEnvironment.WebRootPath, "wwwroot/Files/token.json");
                    credential = GoogleWebAuthorizationBroker.AuthorizeAsync(
                        GoogleClientSecrets.Load(stream).Secrets,
                        scopes,
