@@ -54,7 +54,7 @@ namespace HaloBiz
                 .UseStartup<Startup>()
                 .Build();
 
-            //await webHost.Services.AddAdminRole();
+            await webHost.Services.AddAdminRole();
             return webHost;
         }
 
