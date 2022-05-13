@@ -2,6 +2,7 @@
 using HalobizMigrations.Models;
 using HalobizMigrations.Models.OnlinePortal;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using OnlinePortalBackend.DTOs.ReceivingDTOs;
 using System;
@@ -15,10 +16,12 @@ namespace OnlinePortalBackend.Repository.Impl
     {
         private readonly HalobizContext _context;
         private readonly ILogger<WalletRepository> _logger;
-        public WalletRepository(HalobizContext context, ILogger<WalletRepository> logger)
+        private readonly IConfiguration _configuration;
+        public WalletRepository(HalobizContext context, ILogger<WalletRepository> logger, IConfiguration configuration)
         {
             _context = context;
             _logger = logger;
+            _configuration = configuration;
         }
         public async Task<(bool isSuccess, string message)> ActivateWallet(ActivateWalletDTO request)
         {
@@ -63,6 +66,8 @@ namespace OnlinePortalBackend.Repository.Impl
                 _context.WalletMasters.Add(walletUser);
                 _context.SaveChanges();
 
+                await trx.CommitAsync();
+
                 return (true, "Success");
             }
             catch (Exception ex)
@@ -71,17 +76,283 @@ namespace OnlinePortalBackend.Repository.Impl
                 await trx.RollbackAsync();
             }
 
-            return (false, "Failed");
+            return (false, "Activation Failed");
         }
 
-        public Task<bool> LoadWallet()
+        public async Task<(bool isSuccess, object message)> GetWalletBalance(int profileId)
         {
-            throw new System.NotImplementedException();
+           var balance = _context.WalletMasters.FirstOrDefault(x => x.OnlineProfileId == profileId);
+            if (balance == null)
+            {
+                return (false, "User does not exist");
+            }
+
+            return (true, balance.WalletBalance);
+
         }
 
-        public Task<bool> SpendWallet()
+        public async Task<(bool isSuccess, string message)> LoadWallet(LoadWalletDTO request)
         {
-            throw new System.NotImplementedException();
+            var createdBy = _context.UserProfiles.FirstOrDefault(x => x.Email.ToLower().Contains("online")).Id;
+            var walletMaster = _context.WalletMasters.FirstOrDefault(x => x.OnlineProfileId == request.ProfileId);
+            if (walletMaster == null)
+                return (false, "User does not have a wallet");
+
+            var profile = _context.OnlineProfiles.FirstOrDefault(x => x.Id == request.ProfileId);
+            var office = _context.Offices.FirstOrDefault(x => x.Name.ToLower().Contains("office")).Id;
+            var branchId = _context.Branches.FirstOrDefault(x => x.Name.ToLower().Contains("head")).Id;
+            using var trx = await _context.Database.BeginTransactionAsync();
+
+            var balance = 0d;
+
+            try
+            {
+
+                var accountMaster = _context.AccountMasters.FirstOrDefault(x => x.CustomerDivisionId == profile.CustomerDivisionId);
+                if (accountMaster == null)
+                {
+                    var voucher = _context.FinanceVoucherTypes.FirstOrDefault(x => x.VoucherType.ToLower() == "wallet topup").Id;
+                    accountMaster = new AccountMaster
+                    {
+                        CreatedAt = DateTime.UtcNow.AddHours(1),
+                        UpdatedAt = DateTime.UtcNow.AddHours(1),
+                        CreatedById = createdBy,
+                        CustomerDivisionId = profile.CustomerDivisionId,
+                        VoucherId = voucher,
+                        Value = request.Amount,
+                        OfficeId = office,
+                        BranchId = branchId,
+                    };
+
+                    _context.AccountMasters.Add(accountMaster);
+                    _context.SaveChanges();
+                }
+
+                var debitCashBook = _configuration["WalletDebitCashBookID"] ?? _configuration.GetSection("AppSettings:WalletDebitCashBookID").Value;
+
+                var accountDetail1 = new AccountDetail
+                {
+                    VoucherId = accountMaster.VoucherId,
+                    AccountMasterId = accountMaster.Id,
+                    CreatedById = createdBy,
+                    CreatedAt = DateTime.UtcNow.AddHours(1),
+                    UpdatedAt = DateTime.UtcNow.AddHours(1),
+                    BranchId = branchId,
+                    OfficeId = office,
+                    TransactionDate = DateTime.UtcNow.AddHours(1),
+                    Debit = request.Amount,
+                    AccountId = int.Parse(debitCashBook),
+                    Description = $"Wallet loaded for {profile.Id}",
+                };
+
+                var accountDetail2 = new AccountDetail
+                {
+                    VoucherId = accountMaster.VoucherId,
+                    AccountMasterId = accountMaster.Id,
+                    CreatedById = createdBy,
+                    CreatedAt = DateTime.UtcNow.AddHours(1),
+                    UpdatedAt = DateTime.UtcNow.AddHours(1),
+                    BranchId = branchId,
+                    OfficeId = office,
+                    TransactionDate = DateTime.UtcNow.AddHours(1),
+                    Credit = request.Amount,
+                    AccountId = walletMaster.WalletLiabilityAccountId.Value,
+                    Description = $"Wallet loaded for {profile.Id}",
+                };
+
+                _context.AccountDetails.Add(accountDetail1);
+                _context.SaveChanges();
+
+                _context.AccountDetails.Add(accountDetail2);
+                _context.SaveChanges();
+
+                var debitCashAccount = _context.AccountDetails.Include(x => x.AccountMasterId).FirstOrDefault(x => x.AccountId == int.Parse(debitCashBook));
+
+                var acctToDebit = _context.AccountMasters.FirstOrDefault(x => x.Id == debitCashAccount.AccountMasterId);
+
+                acctToDebit.Value = acctToDebit.Value - request.Amount;
+                _context.SaveChanges();
+
+                var transactions = _context.WalletDetails.Where(x => x.WalletMasterId == walletMaster.Id);
+
+                var creditTransactions = transactions.Where(x => x.TransactionType == (int)WalletTransactionType.Load);
+                var totalCreditAmt = 0d;
+                if (creditTransactions.Count() > 0)
+                {
+                    totalCreditAmt = creditTransactions.Select(x => int.Parse(x.TransactionValue)).Sum();
+                }
+                var debitTransactions = transactions.Where(x => x.TransactionType == (int)WalletTransactionType.Spend);
+                var totalDebitAmt = 0d;
+                if (debitTransactions.Count() > 0)
+                {
+                    totalDebitAmt = debitTransactions.Select(x => int.Parse(x.TransactionValue)).Sum();
+                }
+
+                balance = (totalCreditAmt + request.Amount) - totalDebitAmt;
+                
+                var walletDetail = new WalletDetail
+                {
+                    CreatedAt = DateTime.UtcNow.AddHours(1),
+                    CreatedById = createdBy,
+                    UpdatedAt = DateTime.UtcNow.AddHours(1),
+                    WalletMasterId = walletMaster.Id,
+                    TransactionValue = request.Amount.ToString(),
+                    MovingBalance = balance.ToString(),
+                    Platform = request.Platform,
+                    TransactionType = (int)WalletTransactionType.Load
+                };
+
+                _context.WalletDetails.Add(walletDetail);
+
+                walletMaster.WalletBalance = balance.ToString();
+
+                _context.SaveChanges();
+
+                await trx.CommitAsync();
+
+                return (true, "Success");
+
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.Message);
+                await trx.RollbackAsync();
+                return (false, "Wallet loading Failed");
+            }
+            
+        }
+
+        public async Task<(bool isSuccess, string message)> SpendWallet(SpendWalletDTO request)
+        {
+            var createdBy = _context.UserProfiles.FirstOrDefault(x => x.Email.ToLower().Contains("online")).Id;
+            var walletMaster = _context.WalletMasters.FirstOrDefault(x => x.OnlineProfileId == request.ProfileId);
+            if (walletMaster == null)
+                return (false, "User does not have a wallet");
+
+            if (double.Parse(walletMaster.WalletBalance) < request.Amount)
+                return (false, "Insufficient funds in wallet");
+            
+
+            var profile = _context.OnlineProfiles.FirstOrDefault(x => x.Id == request.ProfileId);
+            var office = _context.Offices.FirstOrDefault(x => x.Name.ToLower().Contains("office")).Id;
+            var branchId = _context.Branches.FirstOrDefault(x => x.Name.ToLower().Contains("head")).Id;
+            using var trx = await _context.Database.BeginTransactionAsync();
+
+            var balance = 0d;
+
+            try
+            {
+
+                var accountMaster = _context.AccountMasters.FirstOrDefault(x => x.CustomerDivisionId == profile.CustomerDivisionId);
+                if (accountMaster == null)
+                {
+                    var voucher = _context.FinanceVoucherTypes.FirstOrDefault(x => x.VoucherType.ToLower() == "wallet reduction").Id;
+                    accountMaster = new AccountMaster
+                    {
+                        CreatedAt = DateTime.UtcNow.AddHours(1),
+                        UpdatedAt = DateTime.UtcNow.AddHours(1),
+                        CreatedById = createdBy,
+                        CustomerDivisionId = profile.CustomerDivisionId,
+                        VoucherId = voucher,
+                        Value = request.Amount,
+                        OfficeId = office,
+                        BranchId = branchId,
+                    };
+
+                    _context.AccountMasters.Add(accountMaster);
+                    _context.SaveChanges();
+                }
+
+                var creditCashBook = _configuration["WalletCreditCashBookID"] ?? _configuration.GetSection("AppSettings:WalletCreditCashBookID").Value;
+
+                var accountDetail1 = new AccountDetail
+                {
+                    VoucherId = accountMaster.VoucherId,
+                    AccountMasterId = accountMaster.Id,
+                    CreatedById = createdBy,
+                    CreatedAt = DateTime.UtcNow.AddHours(1),
+                    UpdatedAt = DateTime.UtcNow.AddHours(1),
+                    BranchId = branchId,
+                    OfficeId = office,
+                    TransactionDate = DateTime.UtcNow.AddHours(1),
+                    Credit = request.Amount,
+                    AccountId = int.Parse(creditCashBook),
+                    Description = $"Wallet spent for {profile.Id}",
+                };
+
+                var accountDetail2 = new AccountDetail
+                {
+                    VoucherId = accountMaster.VoucherId,
+                    AccountMasterId = accountMaster.Id,
+                    CreatedById = createdBy,
+                    CreatedAt = DateTime.UtcNow.AddHours(1),
+                    UpdatedAt = DateTime.UtcNow.AddHours(1),
+                    BranchId = branchId,
+                    OfficeId = office,
+                    TransactionDate = DateTime.UtcNow.AddHours(1),
+                    Debit = request.Amount,
+                    AccountId = walletMaster.WalletLiabilityAccountId.Value,
+                    Description = $"Wallet loaded for {profile.Id}",
+                };
+
+                _context.AccountDetails.Add(accountDetail1);
+                _context.SaveChanges();
+
+                _context.AccountDetails.Add(accountDetail2);
+                _context.SaveChanges();
+
+                var creditCashAccount = _context.AccountDetails.Include(x => x.AccountMasterId).FirstOrDefault(x => x.AccountId == int.Parse(creditCashBook));
+
+                var acctToCredit = _context.AccountMasters.FirstOrDefault(x => x.Id == creditCashAccount.AccountMasterId);
+
+                acctToCredit.Value = acctToCredit.Value + request.Amount;
+                _context.SaveChanges();
+
+
+                var transactions = _context.WalletDetails.Where(x => x.WalletMasterId == walletMaster.Id);
+                var creditTransactions = transactions.Where(x => x.TransactionType == (int)WalletTransactionType.Load);
+                var totalCreditAmt = 0d;
+                if (creditTransactions.Count() > 0)
+                {
+                    totalCreditAmt = creditTransactions.Select(x => int.Parse(x.TransactionValue)).Sum();
+                }
+                var debitTransactions = transactions.Where(x => x.TransactionType == (int)WalletTransactionType.Spend);
+                var totalDebitAmt = 0d;
+                if (debitTransactions.Count() > 0)
+                {
+                    totalDebitAmt = debitTransactions.Select(x => int.Parse(x.TransactionValue)).Sum();
+                }
+
+                balance = totalCreditAmt - (totalDebitAmt + request.Amount);
+
+                var walletDetail = new WalletDetail
+                {
+                    CreatedAt = DateTime.UtcNow.AddHours(1),
+                    CreatedById = createdBy,
+                    UpdatedAt = DateTime.UtcNow.AddHours(1),
+                    WalletMasterId = walletMaster.Id,
+                    TransactionValue = request.Amount.ToString(),
+                    MovingBalance = balance.ToString(),
+                    TransactionType = (int)WalletTransactionType.Spend
+                };
+
+                _context.WalletDetails.Add(walletDetail);
+
+                walletMaster.WalletBalance = balance.ToString();
+
+                _context.SaveChanges();
+
+                await trx.CommitAsync();
+
+                return (true, "Success");
+
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.Message);
+                await trx.RollbackAsync();
+                return (false, "Wallet loading Failed");
+            }
         }
 
         private async Task<long> SaveAccount(Account account)

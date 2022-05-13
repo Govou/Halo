@@ -23,14 +23,37 @@ namespace OnlinePortalBackend.MyServices.SecureMobilitySales
             return CommonResponse.Send(ResponseCodes.SUCCESS, result.message);
         }
 
-        public Task<ApiCommonResponse> LoadWallet()
+        public async Task<ApiCommonResponse> GetWalletBalance(int profileId)
         {
-            throw new System.NotImplementedException();
+            var result = await _walletRepository.GetWalletBalance(profileId);
+            if (!result.isSuccess)
+            {
+                return CommonResponse.Send(ResponseCodes.FAILURE, result.message);
+            }
+
+            return CommonResponse.Send(ResponseCodes.SUCCESS, result.message);
         }
 
-        public Task<ApiCommonResponse> SpendWallet()
+        public async Task<ApiCommonResponse> LoadWallet(LoadWalletDTO request)
         {
-            throw new System.NotImplementedException();
+            var result = await _walletRepository.LoadWallet(request);
+            if (!result.isSuccess)
+            {
+                return CommonResponse.Send(ResponseCodes.FAILURE, result.message);
+            }
+
+            return CommonResponse.Send(ResponseCodes.SUCCESS, result.message);
+        }
+
+        public async Task<ApiCommonResponse> SpendWallet(SpendWalletDTO request)
+        {
+            var result = await _walletRepository.SpendWallet(request);
+            if (!result.isSuccess)
+            {
+                return CommonResponse.Send(ResponseCodes.FAILURE, result.message);
+            }
+
+            return CommonResponse.Send(ResponseCodes.SUCCESS, result.message);
         }
     }
 }

@@ -22,5 +22,23 @@ namespace OnlinePortalBackend.Controllers.SecureMobilitySales
         {
             return await _walletService.ActivateWallet(request);
         }
+
+        [HttpPost("LoadWallet")]
+        public async Task<ApiCommonResponse> LoadWallet(LoadWalletDTO request)
+        {
+            return await _walletService.LoadWallet(request);
+        }
+
+        [HttpPost("SpendWallet")]
+        public async Task<ApiCommonResponse> SpendWallet(SpendWalletDTO request)
+        {
+            return await _walletService.SpendWallet(request);
+        }
+
+        [HttpPost("GetWalletBalance")]
+        public async Task<ApiCommonResponse> GetWalletBalance(int profileId)
+        {
+            return await _walletService.GetWalletBalance(profileId);
+        }
     }
 }

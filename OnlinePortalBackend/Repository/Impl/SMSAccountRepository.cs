@@ -14,6 +14,7 @@ using System.Security.Cryptography;
 using Microsoft.EntityFrameworkCore;
 using OnlinePortalBackend.Helpers;
 using HalobizMigrations.Models.Shared;
+using OnlinePortalBackend.DTOs.TransferDTOs;
 
 namespace OnlinePortalBackend.Repository.Impl
 {
@@ -30,13 +31,20 @@ namespace OnlinePortalBackend.Repository.Impl
             _context = context;
             _mapper = mapper;
         }
-        public async Task<bool> CreateBusinessAccount(SMSBusinessAccountDTO accountDTO)
+        public async Task<(bool success, string message)> CreateBusinessAccount(SMSBusinessAccountDTO accountDTO)
         {
+            var exist = _context.LeadDivisions.Any(x => x.Email.ToLower() == accountDTO.AccountLogin.Email.ToLower());
+
+            if (exist)
+            return (false, "User already exists");
+
             var createdBy = _context.UserProfiles.FirstOrDefault(x => x.Email.ToLower().Contains("online")).Id;
             var grouptype = _context.GroupTypes.FirstOrDefault(x => x.Caption.ToLower() == "sme").Id;
             var leadOrigin = _context.LeadOrigins.FirstOrDefault(x => x.Caption.ToLower() == "email").Id;
             var branchId = _context.Branches.FirstOrDefault(x => x.Name.ToLower().Contains("hq")).Id;
             var leadtype = _context.LeadTypes.FirstOrDefault(x => x.Caption.ToLower() == "rfq").Id;
+            var office = _context.Offices.FirstOrDefault(x => x.Name.ToLower().Contains("office")).Id;
+
             //var receivableAcctId = 0;
             var gender = accountDTO.ContactPerson.Gender == "M" ? Gender.Male : Gender.Female;
 
@@ -73,8 +81,9 @@ namespace OnlinePortalBackend.Repository.Impl
                 LeadOriginId = leadOrigin,
                 LeadTypeId = leadtype,
                 LgaId = accountDTO.LGAId,
-              //  OfficeId = office,
+                OfficeId = office,
                 StateId = accountDTO.StateId,
+                RCNumber = accountDTO.RCNumber
             };
 
             var leadReference = await GetReferenceNumber();
@@ -92,7 +101,8 @@ namespace OnlinePortalBackend.Repository.Impl
                 Industry = accountDTO.Industry,
                 LeadOriginId = leadOrigin,
                 LeadTypeId = leadtype,
-                LogoUrl = accountDTO.LogoUrl
+                LogoUrl = accountDTO.LogoUrl,
+                Rcnumber = accountDTO.RCNumber,
             };
 
             var leadContact = new LeadContact
@@ -124,6 +134,8 @@ namespace OnlinePortalBackend.Repository.Impl
                 Lgaid = accountDTO.LGAId,
                 LogoUrl = accountDTO.LogoUrl,
                 PhoneNumber = accountDTO.PhoneNumber,
+                OfficeId = office,
+                Rcnumber = accountDTO.RCNumber
             };
 
             var (salt, hashed) = HashPassword(new byte[] { }, accountDTO.AccountLogin.Password);
@@ -136,7 +148,7 @@ namespace OnlinePortalBackend.Repository.Impl
                 PasswordHash = hashed,
                 SecurityStamp = Convert.ToBase64String(salt),
                 Name = accountDTO.CompanyName,
-                CreatedAt = DateTime.UtcNow.AddHours(1),
+                CreatedAt = DateTime.UtcNow.AddHours(1)
             }; 
 
             try
@@ -173,24 +185,30 @@ namespace OnlinePortalBackend.Repository.Impl
 
                 await transaction.CommitAsync();
 
-                return true;
+                return (true, "success");
             }
             catch (Exception e)
             {
                 _logger.LogError(e.Message);
                 _logger.LogError(e.StackTrace);
                 await transaction.RollbackAsync();
-                return false;
+                return (false, "An error has occured");
             }
         }
 
-        public async Task<bool> CreateIndividualAccount(SMSIndividualAccountDTO accountDTO)
+        public async Task<(bool success, string message)> CreateIndividualAccount(SMSIndividualAccountDTO accountDTO)
         {
+            var exist = _context.LeadDivisions.Any(x => x.Email.ToLower() == accountDTO.AccountLogin.Email.ToLower());
+
+            if (exist)
+                return (false, "User already exists");
+
             var createdBy = _context.UserProfiles.FirstOrDefault(x => x.Email.ToLower().Contains("online")).Id;
             var grouptype = _context.GroupTypes.FirstOrDefault(x => x.Caption.ToLower() == "individual").Id;
             var leadOrigin = _context.LeadOrigins.FirstOrDefault(x => x.Caption.ToLower() == "email").Id;
             var branchId = _context.Branches.FirstOrDefault(x => x.Name.ToLower().Contains("hq")).Id;
             var leadtype = _context.LeadTypes.FirstOrDefault(x => x.Caption.ToLower() == "rfq").Id;
+            var office = _context.Offices.FirstOrDefault(x => x.Name.ToLower().Contains("office")).Id;
             //var receivableAcctId = 0;
 
             using var transaction = await _context.Database.BeginTransactionAsync();
@@ -222,7 +240,7 @@ namespace OnlinePortalBackend.Repository.Impl
                 LeadOriginId = leadOrigin,
                 LeadTypeId = leadtype,
                 LgaId = accountDTO.LGAId,
-                //  OfficeId = office,
+                OfficeId = office,
                 StateId = accountDTO.StateId,
                 FirstName = accountDTO.FirstName,
                 LastName= accountDTO.LastName
@@ -259,7 +277,8 @@ namespace OnlinePortalBackend.Repository.Impl
                 StateId = accountDTO.StateId,
                 Lgaid = accountDTO.LGAId,
                 LogoUrl = accountDTO.ImageUrl,
-                PhoneNumber = accountDTO.PhoneNumber
+                PhoneNumber = accountDTO.PhoneNumber,
+                OfficeId = office
             };
 
             var leadContact = new LeadContact
@@ -350,14 +369,14 @@ namespace OnlinePortalBackend.Repository.Impl
 
                 await transaction.CommitAsync();
 
-                return true;
+                return (true, "success");
             }
             catch (Exception e)
             {
                 _logger.LogError(e.Message);
                 _logger.LogError(e.StackTrace);
                 await transaction.RollbackAsync();
-                return false;
+                return (false, "An error has occured");
             }
 
         }
@@ -397,6 +416,12 @@ namespace OnlinePortalBackend.Repository.Impl
         {
             _context.ReferenceNumbers.Update(refNumber);
             return await _context.SaveChangesAsync() > 0;
+        }
+
+        public async Task<OnlineProfile> GetCustomerProfile(int profileId)
+        {
+            return _context.OnlineProfiles.FirstOrDefault(x => x.Id == profileId);
+            
         }
     }
 }
