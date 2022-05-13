@@ -21,6 +21,10 @@
     <None Remove="Model\**" />
     <None Remove="ScaffoldContext\**" />
     <None Remove="ScaffoldModels\**" />
+    <None Remove="Google.Apis.Calendar.v3" />
+    <None Remove="Google.Apis, Version=1.8.1.31687, Culture=neutral, PublicKeyToken=null" />
+    <None Remove="Google.Apis" />
+    <Content Remove="halo-biz-d3c3d00d9065.json" />
   </ItemGroup>
 
   <ItemGroup>
@@ -48,10 +52,10 @@
     <PackageReference Include="EFCore.BulkExtensions" Version="5.0.0" />
     <PackageReference Include="Flurl" Version="3.0.1" />
     <PackageReference Include="Flurl.Http" Version="3.0.1" />
-    <PackageReference Include="Google.Apis.Auth" Version="1.49.0" />
     <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="8.1.0" />
-    <PackageReference Include="Google.Apis.Auth" Version="1.49.0" />
+    <PackageReference Include="Google.Apis.Calendar.v3" Version="1.50.0.2237" />
     <PackageReference Include="GoogleMaps.LocationServices" Version="1.2.0.5" />
+    <PackageReference Include="MailKit" Version="3.2.0" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="5.0.0" NoWarn="NU1605" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="5.0.0" NoWarn="NU1605" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="5.0.0" />

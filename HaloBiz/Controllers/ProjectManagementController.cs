@@ -10,6 +10,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using HaloBiz.DTOs.TransferDTOs;
 using RestSharp;
 
 namespace HaloBiz.Controllers
@@ -778,6 +779,35 @@ namespace HaloBiz.Controllers
 
         }
         
+        [HttpPost("CreateEvent")]
+        public async Task<ApiCommonResponse> CreateCalenderEvent(CalenderRequestDTO calenderRequestDto)
+        {
+            return await _projectAllocationService.PushEventToGoogleCalender(calenderRequestDto,HttpContext);
+        }
+        
+        [HttpDelete("DeleteEvent/{eventId}")]
+        public async Task<ApiCommonResponse> ListGoogleEvent(string eventId)
+        {
+            return await _projectAllocationService.DeleteEvent(eventId);
+        }
+        
+        [HttpPost("SendMail")]
+        public async Task<ApiCommonResponse> SendMail(MailRequest mailRequest)
+        {
+            return await _projectAllocationService.SendEmail(mailRequest,HttpContext);
+        }
+        
+        [HttpGet("GetAllMail")]
+        public async Task<ApiCommonResponse> GetAllMail()
+        {
+            return await _projectAllocationService.GetAllConcernedMail(HttpContext);
+        }
+        
+        [HttpDelete("DisableMail/{emailId}")]
+        public async Task<ApiCommonResponse> DisableMail(long emailId)
+        {
+            return await _projectAllocationService.DisableMail(emailId);
+        }
 
     }
 }

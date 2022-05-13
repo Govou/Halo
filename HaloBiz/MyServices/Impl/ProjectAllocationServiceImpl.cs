@@ -19,6 +19,16 @@ using System.Linq;
 using System.Threading.Tasks;
 using HaloBiz.DTOs;
 using Task = HalobizMigrations.Models.ProjectManagement.Task;
+using Google.Apis.Calendar.v3;
+using Google.Apis.Auth.OAuth2;
+using System.IO;
+using System.Threading;
+using DocumentFormat.OpenXml.Spreadsheet;
+using Google.Apis.Calendar.v3.Data;
+using Google.Apis.Services;
+using Google.Apis.Util.Store;
+using Microsoft.AspNetCore.Hosting;
+using ConferenceSolution = HaloBiz.DTOs.ConferenceSolution;
 
 namespace HaloBiz.MyServices.Impl
 {
@@ -29,14 +39,18 @@ namespace HaloBiz.MyServices.Impl
         private readonly ILogger<ProjectAllocationServiceImpl> _logger;
         private readonly IProjectAllocationRepositoryImpl _projectAllocationRepository;
         private readonly IMapper _mapper;
+        private IWebHostEnvironment _hostEnvironment;
+        private readonly IEmailService _emailService;
 
-        public ProjectAllocationServiceImpl(IProjectResolver projectResolver, HalobizContext context, IProjectAllocationRepositoryImpl projectAllocationRepository, ILogger<ProjectAllocationServiceImpl> logger, IMapper mapper)
+        public ProjectAllocationServiceImpl(IEmailService emailService, IWebHostEnvironment environment,IProjectResolver projectResolver, HalobizContext context, IProjectAllocationRepositoryImpl projectAllocationRepository, ILogger<ProjectAllocationServiceImpl> logger, IMapper mapper)
         {
             this._mapper = mapper;
             this._projectAllocationRepository = projectAllocationRepository;
             this._logger = logger;
             this._context = context;
+            _emailService = emailService;
             this._projectResolver = projectResolver;
+            _hostEnvironment = environment;
         }
 
 
@@ -4608,9 +4622,271 @@ namespace HaloBiz.MyServices.Impl
                }
                return CommonResponse.Send(ResponseCodes.FAILURE,null, "Could not retrieve Customerdivision");
            }
-           
+
 
            
+           public async Task<ApiCommonResponse> PushEventToGoogleCalender(CalenderRequestDTO calenderRequestDto,HttpContext httpContext)
+           {
+               string[] scopes = { "https://www.googleapis.com/auth/calendar" };
+               string applicationName = "HalobizCalender";
+               //var credentials = Path.Combine("Files", "credential.json");
+
+               UserCredential credential;
+
+               using (var stream =
+                      new FileStream("Files/credential.json", FileMode.Open, FileAccess.Read))
+               {
+                   // The file token.json stores the user's access and refresh tokens, and is created
+                   // automatically when the authorization flow completes for the first time.
+                   string credPath = Path.Combine("Files", "token.json");
+                   credential = GoogleWebAuthorizationBroker.AuthorizeAsync(
+                       GoogleClientSecrets.Load(stream).Secrets,
+                       scopes,
+                       "user",
+                       CancellationToken.None,
+                       new FileDataStore(credPath, true)).Result;
+                   Console.WriteLine("Credential file saved to: " + credPath);
+               }
+               var initializer = new BaseClientService.Initializer()
+               {
+                   HttpClientInitializer = credential,
+                   ApplicationName = "HalobizCalenderEvent",
+               };
+               var service = new CalendarService(initializer);
+               
+               var response = await  CreateEvent(service,calenderRequestDto,httpContext);
+
+               if (response.responseCode == "00")
+               {
+                   return CommonResponse.Send(ResponseCodes.SUCCESS,null, "The event was successfully created");
+               }
+               return CommonResponse.Send(ResponseCodes.FAILURE,null, "The event could not be created");
+           }
+
+
+           public async Task<ApiCommonResponse> DeleteEvent(string eventId)
+           {
+               string[] scopes = { "https://www.googleapis.com/auth/calendar" };
+               string applicationName = "HalobizCalender";
+               //var credentials = Path.Combine("Files", "credential.json");
+
+               UserCredential credential;
+
+               using (var stream =
+                      new FileStream("Files/credential.json", FileMode.Open, FileAccess.Read))
+               {
+                   // The file token.json stores the user's access and refresh tokens, and is created
+                   // automatically when the authorization flow completes for the first time.
+                   string credPath = Path.Combine("Files", "token.json");
+                   credential = GoogleWebAuthorizationBroker.AuthorizeAsync(
+                       GoogleClientSecrets.Load(stream).Secrets,
+                       scopes,
+                       "user",
+                       CancellationToken.None,
+                       new FileDataStore(credPath, true)).Result;
+                   Console.WriteLine("Credential file saved to: " + credPath);
+               }
+               var initializer = new BaseClientService.Initializer()
+               {
+                   HttpClientInitializer = credential,
+                   ApplicationName = "HalobizCalenderEvent",
+               };
+               var service = new CalendarService(initializer);
+               
+               EventsResource.DeleteRequest request = service.Events.Delete("primary",eventId);  
+               var listedEvents = await request.ExecuteAsync();
+               var meeting = await _context.CalenderEvents.FirstOrDefaultAsync(x => x.CalenderId == eventId && x.IsActive == true);
+               meeting.IsActive = false;
+               _context.CalenderEvents.Update(meeting);
+               await _context.SaveChangesAsync();
+               return CommonResponse.Send(ResponseCodes.SUCCESS,listedEvents, "The event was successfully retrieved");
+               
+           }
+
+           public async Task<ApiCommonResponse> PersistEvent(Event insertedEvent,CalenderRequestDTO request, HttpContext httpContext)
+           {
+               var meeting = await _context.CalenderEvents.Where(x => x.MeetingId == request.Id && x.IsActive == true).FirstOrDefaultAsync();
+               if (meeting == null)
+               {
+                   var eventToBeSaved = new CalenderEvent()
+                   {
+                       IsActive = true,
+                       CreatedById = httpContext.GetLoggedInUserId(),
+                       CreatedAt = DateTime.Now,
+                       MeetingId = request.Id,
+                       CalenderId = insertedEvent.Id
+                   };
+                   await _context.CalenderEvents.AddAsync(eventToBeSaved);
+                   await _context.SaveChangesAsync();
+                   return CommonResponse.Send(ResponseCodes.SUCCESS,null, ""); 
+               }
+               else
+               {
+                   meeting.CalenderId = insertedEvent.Id;
+                   meeting.CreatedById = httpContext.GetLoggedInUserId();
+                   _context.CalenderEvents.Update(meeting);
+                   await _context.SaveChangesAsync();
+                   return CommonResponse.Send(ResponseCodes.SUCCESS,null, ""); 
+               }
+           
+           }
+           
+           public async Task<ApiCommonResponse> CreateEvent(CalendarService service,CalenderRequestDTO request,HttpContext httpContext)
+           {
+               var users = await _context.UserProfiles.Where(x => x.IsDeleted == false).ToListAsync();
+               var contacts = await _context.Contacts.Where(x => x.IsDeleted == false).ToListAsync();
+               var attenders = new List<EventAttendee>();
+               
+               var eventToCreate = new Event(){
+                           Summary = request?.Caption,
+                           Description = request?.Description,
+                           Start = new EventDateTime()
+                           {
+                               DateTime = request?.StartDate,
+                               TimeZone = "Africa/Lagos"
+                           },
+                           End = new EventDateTime()
+                           {
+                               DateTime = request?.EndDate,
+                               TimeZone = "Africa/Lagos"
+                           },
+               };
+               eventToCreate.ConferenceData = new ConferenceData()
+               {
+                   CreateRequest = new CreateConferenceRequest()
+                   {
+                       RequestId = "event" + request?.Id,
+                       ConferenceSolutionKey = new ConferenceSolutionKey()
+                       {
+                           Type = "hangoutsMeet"
+                       },
+                       Status = new ConferenceRequestStatus
+                       {
+                           StatusCode = "success"
+                       },
+                   },
+                  
+               };
+               if (request.StaffsInvolved.Any())
+               {
+                   foreach (var staff in request.StaffsInvolved)
+                   {
+                       var attendee = new EventAttendee();
+                       var addedStaff = users.FirstOrDefault(x => x.Id == staff.StaffId);
+                       attendee.Email = addedStaff?.Email ?? "example@mail.com";
+                       attendee.DisplayName = addedStaff?.LastName + " " + addedStaff?.FirstName;
+                       attenders.Add(attendee);
+                   }
+               }
+               
+               if (request.ContactsInvolved.Any())
+               {
+                   foreach (var contact in request.ContactsInvolved)
+                   {
+                       var attendee = new EventAttendee();
+                       var addedContact = contacts.FirstOrDefault(x => x.Id == contact.ContactId);
+                       attendee.Email = addedContact?.Email ?? "example@mail.com";
+                       attendee.DisplayName = addedContact?.LastName + " " + addedContact?.FirstName;
+                       attenders.Add(attendee);
+                   }
+               }
+               eventToCreate.Attendees = attenders;
+               var creatorId = httpContext.GetLoggedInUserId();
+               var creator = users.FirstOrDefault(x => x.Id == creatorId);
+              
+               if (creator != null)
+               {
+                   try
+                   {
+                       var calCreator = new Event.CreatorData
+                       {
+                           Email = creator?.Email,
+                           DisplayName = creator?.LastName + " " + creator?.FirstName
+                       };
+                       eventToCreate.Creator = calCreator;
+                       eventToCreate.Visibility = "public";
+                       eventToCreate.Transparency = "transparent";
+                       var insertedEvent = service.Events.Insert(eventToCreate, "primary");
+                       insertedEvent.SendNotifications = true;
+                       insertedEvent.ConferenceDataVersion= 1;
+                       var insertEventResult = await insertedEvent.ExecuteAsync();
+                       await PersistEvent(insertEventResult, request, httpContext);
+                       return CommonResponse.Send(ResponseCodes.SUCCESS,insertedEvent, "");
+                   }
+                   catch (Exception e)
+                   {
+                       Console.WriteLine(e);
+                   }
+                 
+               }
+            
+               return CommonResponse.Send(ResponseCodes.FAILURE,null, "An error occurreed while creating event");
+           }
+
+
+           public async Task<ApiCommonResponse> SendEmail(MailRequest mailRequest,HttpContext httpContext)
+           {
+               _emailService.Send(mailRequest);
+
+               string sentToList;
+               List<string> recipientArray = new List<string>();
+               foreach (var recipient in mailRequest.EmailReceivers)
+               {
+                   recipientArray.Add(recipient);
+               }
+           
+               sentToList = string.Join(",", recipientArray);
+               var auditEmail = new SentMail()
+               {
+                   IsActive = true,
+                   SenderId = httpContext.GetLoggedInUserId(),
+                   SentFrom = mailRequest.EmailSender,
+                   SentTo = sentToList,
+                   CreatedById = httpContext.GetLoggedInUserId(),
+                   HasAttachment = mailRequest.Attachments.Any() ? true : false,
+                   Attachment = mailRequest.Attachments.ToString(),
+                   CreatedAt = DateTime.Now,
+                   MailContent = mailRequest.EmailBody,
+                   Subject = mailRequest.EmailSubject,
+                   ReceiverId = mailRequest.DestinationId
+               };
+
+               await _context.SentMails.AddAsync(auditEmail);
+               await _context.SaveChangesAsync();
+               return CommonResponse.Send(ResponseCodes.SUCCESS,auditEmail, "SuccessFully saved");
+           }
+
+           public async Task<ApiCommonResponse> GetAllConcernedMail(HttpContext httpContext)
+           {
+
+               var getAllConcernedMail = await _context.SentMails.Where(x =>
+                       x.SenderId == httpContext.GetLoggedInUserId() && x.IsActive == true || x.ReceiverId == httpContext.GetLoggedInUserId() && x.IsActive == true)
+                   .OrderByDescending(x=>x.CreatedAt).ToListAsync();
+               if (getAllConcernedMail.Any())
+               {
+                   return CommonResponse.Send(ResponseCodes.SUCCESS,getAllConcernedMail, "SuccessFully Found");
+               }
+               return CommonResponse.Send(ResponseCodes.FAILURE,null, "Could not be  Found");
+           }
+           
+           public async Task<ApiCommonResponse> DisableMail(long emailId)
+           {
+               var getConcernedMail = await _context.SentMails.Where(x => x.Id == emailId).FirstOrDefaultAsync();
+               if (getConcernedMail != null)
+               {
+                   getConcernedMail.IsActive = false;
+                   _context.SentMails.Update(getConcernedMail);
+                   await _context.SaveChangesAsync();
+                   return CommonResponse.Send(ResponseCodes.SUCCESS,null, "SuccessFully Found");
+               }
+               return CommonResponse.Send(ResponseCodes.FAILURE,null, "Could not be  Found");
+           }
+           
+           
+           
+           
+
+
     }
     
     
