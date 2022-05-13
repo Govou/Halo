@@ -91,6 +91,7 @@
     <Folder Include="DTOs\ContactDTO\" />
     <Folder Include="MyServices\Impl\RoleManagement\" />
     <Folder Include="wwwroot\" />
+     <Folder Include="Files\" />
     <Folder Include="wwwroot\MigrationsLog\" />
   </ItemGroup>
 
@@ -103,5 +104,6 @@
       <HintPath>..\Halobiz.Common\HalobizMigrations.dll</HintPath>
     </Reference>
   </ItemGroup>
+   
 
 </Project>
