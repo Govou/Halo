@@ -1,7 +1,5 @@
 ﻿using Halobiz.Common.DTOs.ApiDTOs;
 using Halobiz.Common.DTOs.ReceivingDTOs;
-using HalobizMigrations.Data;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using OnlinePortalBackend.MyServices.SecureMobilitySales;
 using System.Threading.Tasks;

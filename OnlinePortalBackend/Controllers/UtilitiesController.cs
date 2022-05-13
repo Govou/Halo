@@ -28,5 +28,11 @@ namespace OnlinePortalBackend.Controllers
         {
             return await _utilityService.GetLocalGovtAreas(stateId);
         }
+
+        [HttpGet("GetBusinessTypes")]
+        public async Task<ApiCommonResponse> GetBusinessTypes()
+        {
+            return await _utilityService.GetBusinessTypes();
+        }
     }
 }

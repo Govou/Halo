@@ -46,7 +46,7 @@ namespace HalobizIdentityServer
             services.AddSingleton<JwtHelper>();
            // services.AddScoped<IUserProfileService, UserProfileServiceImpl>();
             services.AddScoped<IUserProfileRepository, UserProfileRepositoryImpl>();
-            services.AddTransient<IRoleService, RoleServiceImpl>();
+          //  services.AddTransient<IRoleService, RoleServiceImpl>();
             services.AddTransient<IRoleRepository, RoleRepositoryImpl>();
             services.AddScoped<IMailService, MailService>();
             services.AddScoped<IOnlineAccounts, OnlineAccounts>();

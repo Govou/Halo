@@ -25,32 +25,34 @@ namespace OnlinePortalBackend.Repository.Impl
         private readonly string ReceivableControlAccount = "Receivable";
         private readonly string VatControlAccount = "VAT";
 
-        private readonly string SALESINVOICEVOUCHER = "Sales Invoice";
+        private readonly string SALESINVOICEVOUCHER = "Wallet Topup";
 
         private readonly string RETAIL_RECEIVABLE_ACCOUNT = "RETAIL RECEIVABLE ACCOUNT";
         private readonly string RETAIL_VAT_ACCOUNT = "RETAIL VAT ACCOUNT";
 
         private readonly string RETAIL = "RETAIL";
 
-        public SMSContractsRepository(HalobizContext context)
+        public SMSContractsRepository(HalobizContext context, ILogger<SMSContractsRepository> logger)
         {
             _context = context;
+            _logger = logger;
         }
 
         public async Task<bool> AddNewContract(SMSContractDTO contractDTO)
         {
-            var service = _context.Services.FirstOrDefault(x => x.Id == contractDTO.ServiceId);
+          //  var service = _context.Services.FirstOrDefault(x => x.Id == contractDTO.ServiceId);
             var createdBy = _context.UserProfiles.FirstOrDefault(x => x.Email.ToLower().Contains("online")).Id;
 
-            CustomerDivision customerDivision = new CustomerDivision();
-            long contractId = 0;
-            LeadDivision leadDivision = new LeadDivision();
+            var leadDiv = _context.LeadDivisions.FirstOrDefault(x => x.Email == contractDTO.Email);
+
+            var contractServices = new List<ContractService>();
+
+            if (leadDiv == null)
+                return false;
+            using var trx = await _context.Database.BeginTransactionAsync();
 
             try
             {
-                var leadDiv = _context.LeadDivisions.FirstOrDefault(x => x.Email == contractDTO.Email);
-                if (leadDiv == null)
-                    return false;
 
                 var suspect = _context.Suspects.FirstOrDefault(x => x.Email == contractDTO.Email);
 
@@ -64,9 +66,9 @@ namespace OnlinePortalBackend.Repository.Impl
                     CustomerLeadId = leadDiv.LeadId,
                     Industry = leadDiv.Industry,
                     GroupTypeId = suspect.GroupTypeId,
-                    Rcnumber = leadDiv.Rcnumber,
+                    Rcnumber = leadDiv.Rcnumber ?? "NULL",
                     PhoneNumber = leadDiv.PhoneNumber,
-                    LogoUrl = leadDiv.LogoUrl,
+                    LogoUrl = leadDiv.LogoUrl
                 };
 
                 _context.Customers.Add(customer);
@@ -84,7 +86,7 @@ namespace OnlinePortalBackend.Repository.Impl
                     Email = leadDiv.Email,
                     LeadDivisionId = leadDiv.Id,
                     Lgaid = leadDiv.Lgaid,
-                    LogoUrl = leadDiv.LogoUrl,
+                    LogoUrl = leadDiv.LogoUrl,                                                                               
                     StateId = leadDiv.StateId,
                     PhoneNumber = leadDiv.PhoneNumber,
                     Rcnumber = leadDiv.Rcnumber,
@@ -108,63 +110,74 @@ namespace OnlinePortalBackend.Repository.Impl
                 await _context.SaveChangesAsync();
 
 
-                var contractServiceToSave = new ContractService()
+                foreach (var item in contractDTO.SMSContractServices)
                 {
-                    UnitPrice = contractDTO.UnitPrice,
-                    Quantity = contractDTO.Quantity,
-                    Discount = contractDTO.Discount,
-                    Vat = contractDTO.Vat,
-                    BillableAmount = contractDTO.BillableAmount,
-                    ContractStartDate = contractDTO.ContractStartDate,
-                    ContractEndDate = contractDTO.ContractEndDate,
-                    PaymentCycle = contractDTO.PaymentCycle,
-                    FirstInvoiceSendDate = contractDTO.FirstInvoiceSendDate,
-                    InvoicingInterval = contractDTO.InvoicingInterval,
-                    ActivationDate = contractDTO.ActivationDate,
-                    FulfillmentStartDate = contractDTO.FulfillmentStartDate,
-                    FulfillmentEndDate = contractDTO.FulfillmentEndDate,
-                    ContractId = contract.Id,
-                    CreatedById = createdBy,
-                    ServiceId = contractDTO.ServiceId,
-                    OfficeId = contractDTO.OfficeId,
-                    BranchId = contractDTO.BranchId,
-                    UniqueTag = contractDTO.UniqueTag,
-                };
+                    contractServices.Add(new ContractService
+                    {
+                        UnitPrice = item.UnitPrice,
+                        Quantity = item.Quantity,
+                        Discount = item.Discount,
+                        Vat = item.Vat,
+                        BillableAmount = item.BillableAmount,
+                        ContractStartDate = contractDTO.ContractStartDate,
+                        ContractEndDate = contractDTO.ContractEndDate,
+                        PaymentCycle = item.PaymentCycle,
+                        FirstInvoiceSendDate = contractDTO.FirstInvoiceSendDate,
+                        InvoicingInterval = contractDTO.InvoicingInterval,
+                        ActivationDate = contractDTO.ActivationDate,
+                        FulfillmentStartDate = contractDTO.FulfillmentStartDate,
+                        FulfillmentEndDate = contractDTO.FulfillmentEndDate,
+                        ContractId = contract.Id,
+                        CreatedById = createdBy,
+                        ServiceId = item.ServiceId,
+                        OfficeId = contractDTO.OfficeId,
+                        BranchId = contractDTO.BranchId,
+                        UniqueTag = item.UniqueTag,
+                    });
+                }
 
-                await _context.ContractServices.AddAsync(contractServiceToSave);
+                await _context.ContractServices.AddRangeAsync(contractServices);
                 await _context.SaveChangesAsync();
                 _context.ChangeTracker.Clear();
 
-                var contractService = await _context.ContractServices
-                            .Where(x => x.Id == contractServiceToSave.Id)
-                            .Include(x => x.Contract)
-                            .Include(x => x.Service)
-                            .AsNoTracking()
-                            .FirstOrDefaultAsync();
+                foreach (var item in contractServices)
+                {
+                    var service = _context.Services.FirstOrDefault(x => x.Id == item.ServiceId);
+
+                    var contractService = await _context.ContractServices
+                           .Where(x => x.Id == item.Id)
+                           .Include(x => x.Contract)
+                           .Include(x => x.Service)
+                           .AsNoTracking()
+                           .FirstOrDefaultAsync();
 
 
-                FinanceVoucherType accountVoucherType = await _context.FinanceVoucherTypes
-                      .FirstOrDefaultAsync(x => x.VoucherType == SALESINVOICEVOUCHER);
+                    FinanceVoucherType accountVoucherType = await _context.FinanceVoucherTypes
+                          .FirstOrDefaultAsync(x => x.VoucherType == SALESINVOICEVOUCHER);
 
-                var (createSuccess, createMsg) = await CreateAccounts(
-                                      contractService,
-                                      customerDivision,
-                                      (long)leadDivision.BranchId,
-                                     (long)leadDivision.OfficeId,
-                                     service,
-                                     accountVoucherType,
-                                     null,
-                                     createdBy,
-                                     false, null);
+                    var (createSuccess, createMsg) = await CreateAccounts(
+                                          contractService,
+                                          customerDiv,
+                                          (long)leadDiv.BranchId,
+                                         (long)leadDiv.OfficeId,
+                                         service,
+                                         accountVoucherType,
+                                         null,
+                                         createdBy,
+                                         false, null);
 
-                var _serviceCode = service?.ServiceCode ?? contractService.Service?.ServiceCode;
-                var (invoiceSuccess, invoiceMsg) = await GenerateInvoices(contractService, customerDivision.Id, _serviceCode, LoggedInUserId, "");
-                var (amoSuccess, amoMsg) = await GenerateAmortizations(contractService, customerDivision, (double)contractService.BillableAmount);
+                    var _serviceCode = service?.ServiceCode ?? contractService.Service?.ServiceCode;
+                    var (invoiceSuccess, invoiceMsg) = await GenerateInvoices(contractService, customerDiv.Id, _serviceCode, LoggedInUserId, "");
+                    var (amoSuccess, amoMsg) = await GenerateAmortizations(contractService, customerDiv, (double)contractService.BillableAmount);
+
+                }
+                await trx.CommitAsync();
 
             }
             catch (Exception ex)
             {
                 _logger.LogError("Error converting", ex);
+                await trx.RollbackAsync();
                 throw;
             }
 

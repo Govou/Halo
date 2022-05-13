@@ -12,4 +12,10 @@
         public int LGAId { get; set; }
         public int StateId { get; set; }
     }
+
+    public class CommonResposeDTO
+    {
+        public string Name { get; set; }
+        public int Id { get; set; }
+    }
 }

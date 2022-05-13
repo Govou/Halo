@@ -59,6 +59,7 @@ namespace OnlinePortalBackend.MyServices
             _memoryCache = memoryCache;
 
         }
+      
 
         public async Task<ApiCommonResponse> SendConfirmCodeToClient(string Email)
         {
@@ -386,6 +387,8 @@ namespace OnlinePortalBackend.MyServices
 
             return (salt, hashed);
         }
+
+       
     }
 
     

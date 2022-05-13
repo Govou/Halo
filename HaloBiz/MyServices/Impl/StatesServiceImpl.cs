@@ -6,6 +6,7 @@ using HaloBiz.DTOs.TransferDTOs;
 using HalobizMigrations.Models;
 using HaloBiz.Repository;
 using Microsoft.Extensions.Logging;
+using System.Linq;
 
 namespace HaloBiz.MyServices.Impl
 {
@@ -48,12 +49,9 @@ namespace HaloBiz.MyServices.Impl
         public async Task<ApiCommonResponse> GetAllStates()
         {
             var states = await _stateRepo.FindAllStates();
-            if (states == null)
-            {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
-            }
+           
             var statesTransferDto = _mapper.Map<IEnumerable<StateTransferDTO>>(states);
-            return CommonResponse.Send(ResponseCodes.SUCCESS,statesTransferDto);
+            return CommonResponse.Send(ResponseCodes.SUCCESS, statesTransferDto);
         }
 
         public async Task<ApiCommonResponse> GetAllLgas()

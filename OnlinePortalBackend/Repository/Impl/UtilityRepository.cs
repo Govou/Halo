@@ -14,6 +14,15 @@ namespace OnlinePortalBackend.Repository.Impl
             _context = context;
         }
 
+        public async Task<IEnumerable<CommonResposeDTO>> GetBusinessTypes()
+        {
+            return _context.Industries.Select(x => new CommonResposeDTO
+            {
+                Name = x.Caption,
+                Id = (int)x.Id
+            });
+        }
+
         public async Task<IEnumerable<LocalGovtAreaDTO>> GetLocalGovtAreas(int stateId)
         {
             return _context.Lgas.Where(x => x.StateId == stateId).Select(x => new LocalGovtAreaDTO
