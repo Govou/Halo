@@ -21,24 +21,25 @@ namespace OnlinePortalBackend.MyServices.SecureMobilitySales
         {
             var result = await _accountRepository.CreateBusinessAccount(request);
 
-            if (result)
+            if (result.success)
             {
                 var authResult = await _authService.SendConfirmCodeToClient_v2(request.AccountLogin.Email);
                 return authResult;
             }
-            return CommonResponse.Send(ResponseCodes.FAILURE, null, "Registration failed. Please try again");
+            return CommonResponse.Send(ResponseCodes.FAILURE, null, result.message);
         }
 
         public async Task<ApiCommonResponse> CreateIndividualAccount(SMSIndividualAccountDTO request)
         {
+
             var result = await _accountRepository.CreateIndividualAccount(request);
 
-            if (result)
+            if (result.success)
             {
                 var authResult = await _authService.SendConfirmCodeToClient_v2(request.AccountLogin.Email);
                 return authResult;
             }
-            return CommonResponse.Send(ResponseCodes.FAILURE, null, "Registration failed. Please try again");
+            return CommonResponse.Send(ResponseCodes.FAILURE, null, result.message);
         }
 
         public async Task<ApiCommonResponse> GetCustomerProfile(int profileId)
