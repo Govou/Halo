@@ -43,7 +43,7 @@ namespace OnlinePortalBackend.Repository.Impl
             var leadOrigin = _context.LeadOrigins.FirstOrDefault(x => x.Caption.ToLower() == "email").Id;
             var branchId = _context.Branches.FirstOrDefault(x => x.Name.ToLower().Contains("hq")).Id;
             var leadtype = _context.LeadTypes.FirstOrDefault(x => x.Caption.ToLower() == "rfq").Id;
-            var office = _context.Offices.FirstOrDefault(x => x.Name.ToLower() == "office").Id;
+            var office = _context.Offices.FirstOrDefault(x => x.Name.ToLower().Contains("office")).Id;
 
             //var receivableAcctId = 0;
             var gender = accountDTO.ContactPerson.Gender == "M" ? Gender.Male : Gender.Female;
@@ -208,7 +208,7 @@ namespace OnlinePortalBackend.Repository.Impl
             var leadOrigin = _context.LeadOrigins.FirstOrDefault(x => x.Caption.ToLower() == "email").Id;
             var branchId = _context.Branches.FirstOrDefault(x => x.Name.ToLower().Contains("hq")).Id;
             var leadtype = _context.LeadTypes.FirstOrDefault(x => x.Caption.ToLower() == "rfq").Id;
-            var office = _context.Offices.FirstOrDefault(x => x.Name.ToLower() == "office").Id;
+            var office = _context.Offices.FirstOrDefault(x => x.Name.ToLower().Contains("office")).Id;
             //var receivableAcctId = 0;
 
             using var transaction = await _context.Database.BeginTransactionAsync();
