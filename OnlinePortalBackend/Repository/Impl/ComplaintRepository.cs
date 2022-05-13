@@ -146,7 +146,8 @@ namespace OnlinePortalBackend.Repository.Impl
                 DateCreated = x.DateCreated,
                 Description = x.ComplaintDescription,
                 Id = (int)x.Id,
-                TrackingId = x.TrackingId
+                TrackingId = x.TrackingId,
+                IsResolved = x.IsResolved
             });
         }
     }

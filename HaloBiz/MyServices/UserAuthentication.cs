@@ -1,8 +1,10 @@
 ﻿using AutoMapper;
 using Google.Apis.Auth;
+using Halobiz.Common.Auths.PermissionParts;
 using Halobiz.Common.DTOs.ApiDTOs;
 using Halobiz.Common.DTOs.ReceivingDTO;
 using Halobiz.Common.DTOs.ReceivingDTOs;
+using Halobiz.Common.DTOs.ReceivingDTOs.RoleManagement;
 using Halobiz.Common.DTOs.TransferDTOs;
 using Halobiz.Common.Model;
 using Halobiz.Common.MyServices;
@@ -11,6 +13,7 @@ using Halobiz.MyServices;
 using HaloBiz.DTOs.ReceivingDTOs;
 using HaloBiz.DTOs.TransferDTOs;
 using HaloBiz.Helpers;
+using HaloBiz.Model;
 using HaloBiz.Models;
 using HalobizMigrations.Data;
 using HalobizMigrations.Models;
@@ -57,6 +60,7 @@ namespace HaloBiz.MyServices
         private readonly HalobizContext _context;
         private readonly IMemoryCache _memoryCache;
         private readonly List<string> _allowedDomains;
+        private readonly IConfiguration _configuration;
 
 
         public UserAuthentication(IUserProfileService userProfileService,
@@ -75,6 +79,7 @@ namespace HaloBiz.MyServices
             _roleService = roleService;            
             _context = context;
             _memoryCache = cache;
+            _configuration = config;
             _allowedDomains = config.GetSection("AllowedLoginDomains").Get<List<string>>();
         }
 
@@ -116,11 +121,13 @@ namespace HaloBiz.MyServices
                 {
                     return await CreateNewProfile(email);
                 }
-                
+                              
 
                 //get the permissions of the user
                 var (permissions, roleList) = await _roleService.GetPermissionEnumsOnUser(userProfile.Id);
-                var (jwtToken, jwtLifespan) = _jwttHelper.GenerateToken(new UserProfile { Id = userProfile.Id, Email = userProfile.Email }, permissions);
+                var hasAdminRole = await UserHasAdminRole(userProfile.Id);
+
+                var (jwtToken, jwtLifespan) = _jwttHelper.GenerateToken(new UserProfile { Id = userProfile.Id, Email = userProfile.Email }, permissions, hasAdminRole);
                
                 //get a refresh token for this user
                 var refreshToken = GenerateRefreshToken(userProfile.Id);
@@ -146,6 +153,21 @@ namespace HaloBiz.MyServices
             }
         }
 
+        private async Task<bool> UserHasAdminRole(long userId)
+        {
+            try
+            {
+                var adminInfo = _configuration.GetSection("AdminRoleInformation")?.Get<AdminRole>();
+                var adminRole = await _context.Roles.Where(x => x.Name == adminInfo.RoleName).FirstOrDefaultAsync();
+                return _context.UserRoles.Any(x => x.UserId == userId && x.RoleId == adminRole.Id);
+            }
+            catch (Exception ex)
+            {
+                var p = ex.Message;
+                return false;
+            }
+
+        }
         private async Task<ApiCommonResponse> CreateNewProfile(string email)
         {
             var names = email.Split('@')[0].Split('.');
@@ -176,10 +198,13 @@ namespace HaloBiz.MyServices
             var user = response.responseData;
             var userProfile = (UserProfileTransferDTO)user;
 
+            await CreateAdminRoleAssignment(userProfile.Id);
+
             //get the permissions of the user
             var (permissions, roleList) = await _roleService.GetPermissionEnumsOnUser(userProfile.Id);
+            var hasAdminRole = await UserHasAdminRole(userProfile.Id);
 
-            var (jwtToken, jwtLifespan) = _jwttHelper.GenerateToken(new UserProfile { Id = userProfile.Id, Email = userProfile.Email }, permissions);
+            var (jwtToken, jwtLifespan) = _jwttHelper.GenerateToken(new UserProfile { Id = userProfile.Id, Email = userProfile.Email }, permissions, hasAdminRole);
 
             //get a refresh token for this user
             var refreshToken = GenerateRefreshToken(userProfile.Id);
@@ -191,6 +216,53 @@ namespace HaloBiz.MyServices
                 Roles = roleList,
                 UserProfile = userProfile
             });
+        }
+
+        private async Task<bool> CreateAdminRoleAssignment(long userProfileId)
+        {
+            try
+            {
+                var userProfile = await _context.UserProfiles.FindAsync(userProfileId);
+
+                var adminInfo = _configuration.GetSection("AdminRoleInformation")?.Get<AdminRole>();
+
+                //check if this user is whitelisted for admin privilege
+                if (!adminInfo.RoleAssignees.Contains(userProfile.Email, StringComparer.OrdinalIgnoreCase))
+                    return false;
+
+                //get seeder profile
+                var seeder = await _context.UserProfiles.Where(x => x.Email.ToLower().Contains("seeder")).FirstOrDefaultAsync();
+                if (seeder == null)
+                    throw new Exception("No seeder profile created");
+
+                //check if the role exist
+                var adminRole = await _context.Roles.Where(x => x.Name == adminInfo.RoleName).FirstOrDefaultAsync();
+                if (adminRole == null)
+                {
+                    List<Permissions> initialPermissions = new List<Permissions>() { Permissions.NotSet };
+                    var role = new RoleTemp(adminInfo.RoleName, adminInfo.RoleDescription, initialPermissions);
+                    var roleEntity = await _context.Roles.AddAsync(role);
+                    await _context.SaveChangesAsync();
+                    adminRole = roleEntity.Entity;
+                }
+
+                await _context.UserRoles.AddAsync(new UserRole
+                {
+                    RoleId = adminRole.Id,
+                    UserId = userProfile.Id,
+                    CreatedAt = DateTime.Now,
+                    UpdatedAt = DateTime.Now,
+                    CreatedById = seeder.Id
+                });
+
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+
+            return true;
         }
 
         /// <summary>
@@ -241,7 +313,9 @@ namespace HaloBiz.MyServices
 
                 //get the permissions of the user
                 var (permissions, roleList) = await _roleService.GetPermissionEnumsOnUser(userProfile.Id);
-                var (jwtToken, jwtLifespan) = _jwttHelper.GenerateToken(userProfile, permissions);
+                var hasAdminRole = await UserHasAdminRole(userProfile.Id);
+
+                var (jwtToken, jwtLifespan) = _jwttHelper.GenerateToken(userProfile, permissions, hasAdminRole);
 
                 //get a refresh token for this user
                 var refreshToken = GenerateRefreshToken(userProfile.Id);
@@ -472,7 +546,8 @@ namespace HaloBiz.MyServices
 
                 //get the permissions of the user
                 var (permissions, roles) = await _roleService.GetPermissionEnumsOnUser(profile.Id);
-                var (jwtToken, jwtLifespan) = _jwttHelper.GenerateToken(profile, permissions);
+                var hasAdminRole = await UserHasAdminRole(profile.Id);
+                var (jwtToken, jwtLifespan) = _jwttHelper.GenerateToken(profile, permissions, hasAdminRole);
 
                 //get a refresh token for this user
                 var refreshToken = GenerateRefreshToken(profile.Id);

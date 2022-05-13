@@ -69,7 +69,7 @@ namespace HaloBiz.DTOs.ReceivingDTOs.LAMS
         public string DocumentUrl { get; set; }
         public string AdminDirectTie { get; set; }
         public string UniqueTag { get; set; }
-        public string QuoteServiceId { get; set; }
+        public long? QuoteServiceId { get; set; }
         public long CreatedById { get; set; }
         public GroupContractCategory GroupContractCategory { get; set; } = GroupContractCategory.IndividualContract;
         public string GroupInvoiceNumber { get; set; }

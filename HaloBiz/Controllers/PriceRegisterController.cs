@@ -35,6 +35,12 @@ namespace HaloBiz.Controllers
         {
             return await _priceRegisterService.GetAllPriceRegistersByRouteId(routeId);
         }
+
+        [HttpGet("GetAllPriceRegistersByServiceCategoryId/{categoryId}")]
+        public async Task<ApiCommonResponse> GetAllPriceRegistersByServiceCategoryId(long categoryId)
+        {
+            return await _priceRegisterService.GetAllPriceRegistersByServiceCategoryId(categoryId);
+        }
         [HttpGet("GetPriceRegisterById/{id}")]
         public async Task<ApiCommonResponse> GetPriceRegisterById(long id)
         {
@@ -53,7 +59,7 @@ namespace HaloBiz.Controllers
             return await _priceRegisterService.UpdatePriceRegister(HttpContext, id, Receiving);
         }
 
-        [HttpDelete("DeletePriceRegisterById/{id}")] //{id}
+        [HttpDelete("DeletePriceRegisterById/{id}")] 
         public async Task<ApiCommonResponse> DeletePriceRegisterById(int id)
         {
             return await _priceRegisterService.DeletePriceRegister(id);

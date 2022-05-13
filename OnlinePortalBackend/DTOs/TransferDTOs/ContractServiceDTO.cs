@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 
 namespace OnlinePortalBackend.DTOs.TransferDTOs
@@ -20,6 +21,15 @@ namespace OnlinePortalBackend.DTOs.TransferDTOs
         public double TotalContractValue { get; set; }
         public int ContractId { get; set; }
         public int ServiceId { get; set; }
+        public string UniqueTag { get; set; }
+        public IEnumerable<ServiceEndorsement> EndorsementHistory { get; set; }
+    }
+
+    public class ServiceEndorsement
+    {
+        public DateTime Date { get; set; }
+        public string Type { get; set; }
+        public string Description { get; set; }
     }
 
     public class ContractDTO

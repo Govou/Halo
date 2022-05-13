@@ -8,6 +8,6 @@ namespace Halobiz.Common.Helpers
 {
     public enum TimeCycle
     {
-        Monthly, BiMonthly, Quarterly, Annually, BiAnnually, OneTime, Adhoc
+        Monthly, BiMonthly, Quarterly, Annually, BiAnnually, OneTime, Adhoc, MonthlyProrata
     }
 }

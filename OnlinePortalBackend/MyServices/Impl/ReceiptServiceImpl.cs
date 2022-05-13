@@ -23,6 +23,8 @@ namespace OnlinePortalBackend.MyServices.Impl
     {
         Task<bool> PostAccounts(long loggedInUserId, Receipt receipt, Invoice invoice, long bankAccountId);
         Task<ApiCommonResponse> AddNewReceipt(ReceiptReceivingDTO receivingDTO);
+        Task<ApiCommonResponse> AddNewReceipt_v2(ReceiptReceivingDTO receivingDTO);
+        Task<ApiCommonResponse> PostPaymentDetails(PaymentDetailsDTO paymentDetails);
     }
 
     public class ReceiptServiceImpl : IReceiptService
@@ -111,6 +113,57 @@ namespace OnlinePortalBackend.MyServices.Impl
                                        true, accountMaster.Id, (long)invoice.CustomerDivision.ReceivableAccountId, amount, branch.Id, office.Id);
             return true;
         }
+
+        public async Task<ApiCommonResponse> PostPaymentDetails(PaymentDetailsDTO paymentDetails)
+        {
+            var profileId = _context.OnlineProfiles.FirstOrDefault(x => x.CustomerDivisionId == paymentDetails.userId).Id;
+            var inv = _context.Invoices.Include(x => x.ContractService).FirstOrDefault(x => x.InvoiceNumber == paymentDetails.PaymentReferenceInternal);
+            double calcVAT = 0;
+            double calcValue = 0;
+            if (inv.ContractService.Vat.Value > 0)
+            {
+               calcVAT = Convert.ToDouble(paymentDetails.TotalValue) * 0.075;
+               calcValue = Convert.ToDouble(paymentDetails.TotalValue) - calcVAT;
+            }
+            else
+            {
+                calcValue = Convert.ToDouble(paymentDetails.TotalValue);
+            }
+            _context.OnlineTransactions.Add(new OnlineTransaction
+            {
+                ConvenienceFee = paymentDetails.ConvenienceFee,
+                CreatedAt = DateTime.Now,
+                PaymentGatewayResponseCode = paymentDetails.PaymentGatewayResponseCode,
+                PaymentGatewayResponseDescription = paymentDetails.PaymentGatewayResponseDescription,
+                PaymentConfirmation = paymentDetails.PaymentConfirmation,
+                PaymentReferenceGateway = paymentDetails.PaymentReferenceGateway,
+                VAT = Convert.ToDecimal(calcVAT),
+                PaymentGateway = paymentDetails.PaymentGateway,
+                Value = Convert.ToDecimal(calcValue),
+                TotalValue = paymentDetails.Value + paymentDetails.ConvenienceFee,
+                TransactionType = paymentDetails.TransactionType,
+                PaymentReferenceInternal = paymentDetails.PaymentReferenceInternal,
+                PaymentFulfilment = paymentDetails.PaymentFulfilment,
+                TransactionSource = paymentDetails.TransactionSource,
+                ProfileId = profileId,
+                CreatedById = profileId,
+                SessionId = paymentDetails.SessionId,
+                UpdatedAt = DateTime.Now,
+            });
+
+            try
+            {
+                _context.SaveChanges();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.StackTrace);
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+            }
+            return CommonResponse.Send(ResponseCodes.SUCCESS);
+
+        }
+
 
         private async Task<AccountMaster> CreateAccountMaster(Receipt receipt,
                                                         long accountVoucherTypeId,
@@ -459,6 +512,176 @@ namespace OnlinePortalBackend.MyServices.Impl
             }
         }
 
+        public async Task<ApiCommonResponse> AddNewReceipt_v2(ReceiptReceivingDTO receiptReceivingDTO)
+        {
+         
+            LoggedInUserId = (long)_context.UserProfiles.FirstOrDefault(x => x.Email.ToLower().Contains("online.portal")).Id;
+
+            var accountId = _configuration["AccountId"] ?? _configuration.GetSection("AppSettings:AccountId").Value;
+            if (accountId != null)
+            {
+                receiptReceivingDTO.AccountId = long.Parse(accountId);
+            }
+
+            if (receiptReceivingDTO.InvoiceNumber.ToUpper().Contains("GINV"))
+            {
+                // do special receipting for group invoice.            
+                var singleInvoice = await FindInvoiceById(receiptReceivingDTO.InvoiceId);
+
+                var invoicesGrouped = await _context.Invoices
+                    .Include(x => x.Receipts)
+                    .Include(x => x.CustomerDivision)
+                    .Where(x => x.GroupInvoiceNumber == singleInvoice.GroupInvoiceNumber
+                            && x.StartDate == singleInvoice.StartDate && !x.IsDeleted)
+                    .ToListAsync();
+
+                var totalReceiptAmount = receiptReceivingDTO.ReceiptValue;
+
+                using var trx = await _context.Database.BeginTransactionAsync();
+                foreach (var invoice in invoicesGrouped)
+                {
+                    if (invoice.IsReceiptedStatus == (int)InvoiceStatus.CompletelyReceipted) continue;
+
+                    try
+                    {
+                        var totalAmoutReceipted = invoice.Receipts.Sum(x => x.ReceiptValue);
+                        var invoiceValueBeforeReceipting = invoice.Value - totalAmoutReceipted;
+
+                        // var receipt = _mapper.Map<Receipt>(receiptReceivingDTO);
+                        var receipt = new Receipt
+                        {
+                            CreatedAt = DateTime.Now,
+                            DateAndTimeOfFundsReceived = DateTime.Now,
+                            InvoiceValueBalanceAfterReceipting = receiptReceivingDTO.InvoiceValueBalanceAfterReceipting,
+                            UpdatedAt = DateTime.Now,
+                            Caption = receiptReceivingDTO.Caption,
+                            CreatedById = LoggedInUserId,
+                            EvidenceOfPaymentUrl = receiptReceivingDTO.EvidenceOfPaymentUrl,
+                            InvoiceId = receiptReceivingDTO.InvoiceId,
+                            ValueOfWht = receiptReceivingDTO.ValueOfWHT,
+                            ReceiptValue = receiptReceivingDTO.ReceiptValue,
+                            InvoiceNumber = receiptReceivingDTO.InvoiceNumber,
+                            InvoiceValueBalanceBeforeReceipting = receiptReceivingDTO.InvoiceValueBalanceBeforeReceipting,
+                            InvoiceValue = receiptReceivingDTO.InvoiceValue,
+                            Depositor = receiptReceivingDTO.Depositor,
+                            IsTaskWitheld = receiptReceivingDTO.IsTaskWitheld
+                        };
+
+                        receipt.InvoiceId = invoice.Id;
+                        receipt.TransactionId = invoice.TransactionId;
+                        receipt.ReceiptNumber = $"{invoice.InvoiceNumber.Replace("INV", "RCP")}/{invoice.Receipts.Count + 1}";
+                        receipt.InvoiceValueBalanceBeforeReceipting = invoiceValueBeforeReceipting;
+                        receipt.CreatedById = LoggedInUserId;
+
+                        if (totalReceiptAmount < invoiceValueBeforeReceipting)
+                        {
+                            receipt.InvoiceValueBalanceAfterReceipting = receipt.InvoiceValueBalanceBeforeReceipting - totalReceiptAmount;
+                            receipt.ReceiptValue = totalReceiptAmount;
+                            var savedReceipt = await SaveReceipt(receipt);
+                            invoice.IsReceiptedStatus = (int)InvoiceStatus.PartlyReceipted;
+                            await UpdateInvoice(invoice);
+                            await PostAccounts(receipt, invoice, receiptReceivingDTO.AccountId);
+                            break;
+                        }
+                        else if (totalReceiptAmount == invoiceValueBeforeReceipting)
+                        {
+                            receipt.InvoiceValueBalanceAfterReceipting = 0;
+                            receipt.ReceiptValue = invoiceValueBeforeReceipting;
+                            var savedReceipt = await SaveReceipt(receipt);
+                            invoice.IsReceiptedStatus = (int)InvoiceStatus.CompletelyReceipted;
+                            await UpdateInvoice(invoice);
+                            await PostAccounts(receipt, invoice, receiptReceivingDTO.AccountId);
+                            break;
+                        }
+                        else
+                        {
+                            receipt.InvoiceValueBalanceAfterReceipting = 0;
+                            receipt.ReceiptValue = invoiceValueBeforeReceipting;
+                            var savedReceipt = await SaveReceipt(receipt);
+                            invoice.IsReceiptedStatus = (int)InvoiceStatus.CompletelyReceipted;
+                            await UpdateInvoice(invoice);
+                            totalReceiptAmount -= invoiceValueBeforeReceipting;
+                            await PostAccounts(receipt, invoice, receiptReceivingDTO.AccountId);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        await trx.RollbackAsync();
+                        _logger.LogError(ex.Message);
+                        _logger.LogError(ex.StackTrace);
+                        return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+                    }
+                }
+
+                await trx.CommitAsync();
+                return CommonResponse.Send(ResponseCodes.SUCCESS);
+            }
+            else
+            {
+                int count = 1;
+                using (var transaction = await _context.Database.BeginTransactionAsync())
+                {
+                    try
+                    {
+                        // var receipt = _mapper.Map<Receipt>(receiptReceivingDTO);
+                        var receipt = new Receipt
+                        {
+                            CreatedAt = DateTime.Now,
+                            DateAndTimeOfFundsReceived = DateTime.Now,
+                            InvoiceValueBalanceAfterReceipting = receiptReceivingDTO.InvoiceValueBalanceAfterReceipting,
+                            UpdatedAt = DateTime.Now,
+                            Caption = receiptReceivingDTO.Caption,
+                            CreatedById = LoggedInUserId,
+                            EvidenceOfPaymentUrl = receiptReceivingDTO.EvidenceOfPaymentUrl,
+                            InvoiceId = receiptReceivingDTO.InvoiceId,
+                            ValueOfWht = receiptReceivingDTO.ValueOfWHT,
+                            ReceiptValue = receiptReceivingDTO.ReceiptValue,
+                            InvoiceNumber = receiptReceivingDTO.InvoiceNumber,
+                            InvoiceValueBalanceBeforeReceipting = receiptReceivingDTO.InvoiceValueBalanceBeforeReceipting,
+                            InvoiceValue = receiptReceivingDTO.InvoiceValue,
+                            Depositor = receiptReceivingDTO.Depositor,
+                            IsTaskWitheld = receiptReceivingDTO.IsTaskWitheld
+                        };
+
+
+                        var invoice = await FindInvoiceById(receipt.InvoiceId);
+                        foreach (var item in invoice.Receipts)
+                        {
+                            count++;
+                        }
+                        receipt.TransactionId = invoice.TransactionId;
+                        receipt.ReceiptNumber = $"{invoice.InvoiceNumber.Replace("INV", "RCP")}/{count}";
+                        receipt.InvoiceValueBalanceAfterReceipting = receipt.InvoiceValueBalanceBeforeReceipting - receipt.ReceiptValue;
+                        receipt.CreatedById = LoggedInUserId;
+                        var savedReceipt = await SaveReceipt(receipt);
+                        var receiptTransferDTO = _mapper.Map<ReceiptTransferDTO>(savedReceipt);
+
+                        if (receipt.InvoiceValueBalanceAfterReceipting == 0)
+                        {
+                            invoice.IsReceiptedStatus = (int)InvoiceStatus.CompletelyReceipted;
+                            await UpdateInvoice(invoice);
+                        }
+                        else if (receipt.InvoiceValueBalanceAfterReceipting > 0)
+                        {
+                            invoice.IsReceiptedStatus = (int)InvoiceStatus.PartlyReceipted;
+                            await UpdateInvoice(invoice);
+                        }
+
+                        await PostAccounts(receipt, invoice, receiptReceivingDTO.AccountId);
+                        await transaction.CommitAsync();
+                        return CommonResponse.Send(ResponseCodes.SUCCESS, receiptTransferDTO);
+                    }
+                    catch (Exception e)
+                    {
+                        _logger.LogError(e.Message);
+                        _logger.LogError(e.StackTrace);
+                        await transaction.RollbackAsync();
+                        return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+                    }
+                }
+            }
+        }
+
         private async Task<Invoice> FindInvoiceById(long Id)
         {
             return await _context.Invoices
@@ -576,5 +799,6 @@ namespace OnlinePortalBackend.MyServices.Impl
                 .FirstOrDefaultAsync(x => x.IsDeleted == false && x.VoucherType.ToUpper().Trim() == name);
         }
 
+       
     }
 }

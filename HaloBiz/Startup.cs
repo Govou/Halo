@@ -33,6 +33,7 @@ using Halobiz.Repository.RoleManagement;
 using Halobiz.Common.MyServices;
 using Halobiz.Common.Repository;
 using Halobiz.Common.MyServices.RoleManagement;
+using HaloBiz.DTOs;
 using Halobiz.MyServices;
 
 namespace HaloBiz
@@ -93,7 +94,8 @@ namespace HaloBiz
 
             // singletons
             //services.AddSingleton(Configuration.GetSection("AppSettings").Get<AppSettings>());
-
+            services.Configure<MailSettings>(Configuration.GetSection("MailSettings"));
+            services.AddScoped<IEmailService,EmailService>();
             services.AddHealthChecks().AddAsyncCheck("Http", async () =>
             {
                 using (System.Net.Http.HttpClient client = new System.Net.Http.HttpClient())
@@ -216,10 +218,10 @@ namespace HaloBiz
                 }
             });
 
-            app.UseCors(cors => cors.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
 
             app.UseHttpsRedirection();
             app.UseRouting();
+            app.UseCors(cors => cors.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
 
             app.UseMiddleware<AuthenticationHandler>();
 

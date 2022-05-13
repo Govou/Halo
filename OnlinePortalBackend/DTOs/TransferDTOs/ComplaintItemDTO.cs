@@ -8,5 +8,6 @@ namespace OnlinePortalBackend.DTOs.TransferDTOs
         public DateTime DateCreated { get; set; }
         public string Description { get; set; }
         public string TrackingId { get; set; }
+        public bool? IsResolved { get; set; }
     }
 }
