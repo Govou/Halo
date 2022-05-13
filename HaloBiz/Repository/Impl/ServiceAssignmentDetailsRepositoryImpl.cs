@@ -1,4 +1,5 @@
-﻿using HalobizMigrations.Data;
+﻿using HaloBiz.Helpers;
+using HalobizMigrations.Data;
 using HalobizMigrations.Models;
 using HalobizMigrations.Models.Armada;
 using Microsoft.EntityFrameworkCore;
@@ -244,6 +245,42 @@ namespace HaloBiz.Repository.Impl
               .Include(t => t.TempReleaseType).Include(t => t.CreatedBy).Include(t => t.PilotResource.PilotType)
               .OrderByDescending(x => x.Id)
               .ToListAsync();
+        }
+
+        public async Task<IEnumerable<CommanderServiceAssignmentDetail>> FindAllUniqueCommanderServiceAssignmentDetails()
+        {
+            return _context.CommanderServiceAssignmentDetails.Where(type => type.IsDeleted == false)
+              .Include(ct => ct.CommanderResource).Include(t => t.CommanderResource.Profile).Include(t => t.TiedVehicleResource).Include(t => t.ServiceAssignment)
+              .Include(t => t.TempReleaseType).Include(t => t.CreatedBy).Include(t => t.ActionReleaseType).Include(t => t.CommanderResource.CommanderType)
+              .OrderByDescending(x => x.Id).DistinctBy(y => y.CommanderResourceId).ToList();
+            
+        }
+
+        public async Task<IEnumerable<ArmedEscortServiceAssignmentDetail>> FindAllUniqueEscortServiceAssignmentDetails()
+        {
+            return  _context.ArmedEscortServiceAssignmentDetails.Where(type => type.IsDeleted == false)
+             .Include(ct => ct.ArmedEscortResource).Include(t => t.ActionReleaseType).Include(t => t.TempReleaseType).Include(t => t.ServiceAssignment)
+             .Include(t => t.TempReleaseType).Include(t => t.CreatedBy).Include(t => t.ArmedEscortResource.ArmedEscortType)
+             .OrderByDescending(x => x.Id).DistinctBy(c=>c.ArmedEscortResourceId)
+             .ToList();
+        }
+
+        public async Task<IEnumerable<PilotServiceAssignmentDetail>> FindAllUniquePilotServiceAssignmentDetails()
+        {
+            return  _context.PilotServiceAssignmentDetails.Where(type => type.IsDeleted == false)
+             .Include(ct => ct.PilotResource).Include(t => t.ActionReleaseType).Include(t => t.TempReleaseType).Include(t => t.ServiceAssignment)
+             .Include(t => t.TempReleaseType).Include(t => t.CreatedBy).Include(t => t.PilotResource.PilotType)
+             .OrderByDescending(x => x.Id).DistinctBy(c=>c.PilotResourceId)
+             .ToList();
+        }
+
+        public async Task<IEnumerable<VehicleServiceAssignmentDetail>> FindAllUniqueVehicleServiceAssignmentDetails()
+        {
+            return  _context.VehicleServiceAssignmentDetails.Where(type => type.IsDeleted == false)
+           .Include(ct => ct.VehicleResource).Include(t => t.ActionReleaseType).Include(t => t.TempReleaseType).Include(t => t.ServiceAssignment)
+           .Include(t => t.TempReleaseType).Include(t => t.CreatedBy).Include(t => t.VehicleResource.SupplierService).Include(t => t.VehicleResource.VehicleType)
+           .OrderByDescending(x => x.Id).DistinctBy(c=>c.VehicleResourceId)
+           .ToList();
         }
 
         public async Task<IEnumerable<VehicleServiceAssignmentDetail>> FindAllVehicleServiceAssignmentDetails()
