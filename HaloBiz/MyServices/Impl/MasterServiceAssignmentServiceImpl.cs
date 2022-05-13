@@ -1013,6 +1013,23 @@ namespace HaloBiz.MyServices.Impl
             return CommonResponse.Send(ResponseCodes.SUCCESS, null, ResponseMessage.Success200);
         }
 
+        public async Task<ApiCommonResponse> DeleteMasterServiceAssignmentSchedule(long id)
+        {
+            var itemToDelete = await _serviceAssignmentMasterRepository.FindServiceAssignmentById(id);
+
+            if (itemToDelete == null)
+            {
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE); ;
+            }
+
+            if (!await _serviceAssignmentMasterRepository.DeleteServiceAssignment(itemToDelete))
+            {
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+            }
+
+            return CommonResponse.Send(ResponseCodes.SUCCESS);
+        }
+
         public async Task<ApiCommonResponse> DeleteSecondaryServiceAssignment(long id)
         {
             var itemToDelete = await _serviceAssignmentMasterRepository.FindSecondaryServiceAssignmentById(id);

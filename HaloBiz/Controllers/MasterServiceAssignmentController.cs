@@ -107,6 +107,13 @@ namespace HaloBiz.Controllers
             //return StatusCode(response.StatusCode);
         }
 
+        [HttpDelete("DeleteServiceAssignmentMasterScheduleById/{id}")]
+        public async Task<ApiCommonResponse> DeleteServiceAssignmentMasterScheduleById(int id)
+        {
+            return await _masterServiceAssignmentService.DeleteMasterServiceAssignmentSchedule(id);
+            //return StatusCode(response.StatusCode);
+        }
+
         [HttpDelete("DeleteSecondaryServiceAssignmentById/{id}")]
         public async Task<ApiCommonResponse> DeleteSecondaryServiceAssignmentById(int id)
         {
