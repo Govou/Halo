@@ -41,7 +41,13 @@ namespace HaloBiz.Controllers
             //var cType = ((ApiOkResponse)response).Result;
             //return Ok(cType);
         }
-        [AllowAnonymous]
+
+        [HttpGet("GetAllDistinctArmedEscortDetails")]
+        public async Task<ApiCommonResponse> GetAllDistinctArmedEscortDetails()
+        {
+            return await _serviceAssignmentDetailsService.GetAllUniqueArmedEscortDetails();
+        }
+
         [HttpGet("GetAllArmedEscortDetailsByAssignmentId/{id}")]
         public async Task<ApiCommonResponse> GetAllArmedEscortDetailsByAssignmentId(long id)
         {
@@ -99,7 +105,13 @@ namespace HaloBiz.Controllers
             //var cType = ((ApiOkResponse)response).Result;
             //return Ok(cType);
         }
-        [AllowAnonymous]
+
+        [HttpGet("GetAllDistinctCommanderDetails")]
+        public async Task<ApiCommonResponse> GetAllDistinctCommanderDetails()
+        {
+            return await _serviceAssignmentDetailsService.GetAllUniqueCommanderDetails();
+        }
+
         [HttpGet("GetAllCommanderDetailsByAssignmentId/{id}")]
         public async Task<ApiCommonResponse> GetAllCommanderDetailsByAssignmentId(long id)
         {
@@ -167,6 +179,13 @@ namespace HaloBiz.Controllers
             //var cType = ((ApiOkResponse)response).Result;
             //return Ok(cType);
         }
+
+        [HttpGet("GetAllDistinctPilotDetails")]
+        public async Task<ApiCommonResponse> GetAllDistinctPilotDetails()
+        {
+            return await _serviceAssignmentDetailsService.GetAllUniquePilotDetails();
+          
+        }
         [AllowAnonymous]
         [HttpGet("GetAllPilotDetailsByAssignmentId/{id}")]
         public async Task<ApiCommonResponse> GetAllPilotDetailsByAssignmentId(long id)
@@ -220,6 +239,16 @@ namespace HaloBiz.Controllers
         public async Task<ApiCommonResponse> GetAllVehicleDetails()
         {
             return await _serviceAssignmentDetailsService.GetAllVehicleDetails();
+            //if (response.StatusCode >= 400)
+            //    return StatusCode(response.StatusCode, response);
+            //var cType = ((ApiOkResponse)response).Result;
+            //return Ok(cType);
+        }
+
+        [HttpGet("GetAllDistinctVehicleDetails")]
+        public async Task<ApiCommonResponse> GetAllDistinctVehicleDetails()
+        {
+            return await _serviceAssignmentDetailsService.GetAllUniqueVehicleDetails();
             //if (response.StatusCode >= 400)
             //    return StatusCode(response.StatusCode, response);
             //var cType = ((ApiOkResponse)response).Result;

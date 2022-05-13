@@ -29,7 +29,7 @@ namespace HaloBiz.Repository.Impl
         public async Task<IEnumerable<PriceRegister>> FindAllPriceRegisters()
         {
             return await _context.PriceRegisters.Where(price => price.IsDeleted == false)
-               .Include(ct => ct.ServiceRegistration).Include(ct=>ct.ServiceRegistration.Service)
+               .Include(ct => ct.ServiceRegistration).Include(ct=>ct.ServiceRegistration.Service).Include(x=>x.ServiceRegistration.Service.ServiceCategory)
                .Include(ct=>ct.SMORegion).Include(ct=>ct.SMORoute).Include(ct=>ct.CreatedBy).OrderByDescending(x => x.Id)
                .ToListAsync();
         }

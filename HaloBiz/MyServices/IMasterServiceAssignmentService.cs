@@ -18,6 +18,7 @@ namespace HaloBiz.MyServices
         Task<ApiCommonResponse> UpdateMasterServiceAssignment(HttpContext context, long id, MasterServiceAssignmentReceivingDTO masterReceivingDTO);
         Task<ApiCommonResponse> AllocateResourceForScheduledServiceAssignment(HttpContext context, long id);
         Task<ApiCommonResponse> DeleteMasterServiceAssignment(long id);
+        Task<ApiCommonResponse> DeleteMasterServiceAssignmentSchedule(long id);
         Task<ApiCommonResponse> UpdateReadyStatus(long id);
         Task<ApiCommonResponse> GetAllCustomerDivisions();
 
