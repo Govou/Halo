@@ -3,6 +3,7 @@ using Halobiz.Common.Helpers;
 using HalobizMigrations.Data;
 using HalobizMigrations.Models;
 using HalobizMigrations.Models.Halobiz;
+using HalobizMigrations.Models.Shared;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
@@ -36,6 +37,11 @@ namespace OnlinePortalBackend.Repository.Impl
         {
             _context = context;
             _logger = logger;
+        }
+
+        public SMSContractsRepository()
+        {
+
         }
 
         public async Task<bool> AddNewContract(SMSContractDTO contractDTO)
@@ -103,7 +109,9 @@ namespace OnlinePortalBackend.Repository.Impl
                     IsApproved = true,
                     CustomerDivisionId = customerDiv.Id,
                     CreatedById = createdBy,
-                    HasAddedSBU = true
+                    HasAddedSBU = true,
+                    GroupInvoiceNumber = await GenerateGroupInvoiceNumber(),
+                    GroupContractCategory = GroupContractCategory.GroupContractWithSameDetails,
                 };
 
                 await _context.Contracts.AddAsync(contract);
@@ -1189,8 +1197,35 @@ namespace OnlinePortalBackend.Repository.Impl
             }
 
         }
-
+        private async Task<string> GenerateGroupInvoiceNumber()
+        {
+            try
+            {
+                var tracker = _context.GroupInvoiceTrackers.OrderBy(x => x.Id).FirstOrDefault();
+                long newNumber = 0;
+                if (tracker == null)
+                {
+                    newNumber = 1;
+                    _context.GroupInvoiceTrackers.Add(new GroupInvoiceTracker() { Number = newNumber + 1 });
+                    await _context.SaveChangesAsync();
+                    return $"GINV{newNumber.ToString().PadLeft(7, '0')}";
+                }
+                else
+                {
+                    newNumber = tracker.Number;
+                    tracker.Number = tracker.Number + 1;
+                    _context.GroupInvoiceTrackers.Update(tracker);
+                    await _context.SaveChangesAsync();
+                    return $"GINV{newNumber.ToString().PadLeft(7, '0')}";
+                }
+            }
+            catch (System.Exception ex)
+            {
+                throw;
+            }
+        }
     }
+
 
     public class MonthsAndYears
     {

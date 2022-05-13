@@ -6,9 +6,9 @@ namespace OnlinePortalBackend.Repository
 {
     public interface ISMSAccountRepository
     {
-        Task<bool> CreateIndividualAccount(SMSIndividualAccountDTO accountDTO);
+        Task<(bool success, string message)> CreateIndividualAccount(SMSIndividualAccountDTO accountDTO);
 
-        Task<bool> CreateBusinessAccount(SMSBusinessAccountDTO accountDTO);
+        Task<(bool success, string message)> CreateBusinessAccount(SMSBusinessAccountDTO accountDTO);
 
         Task<OnlineProfile> GetCustomerProfile(int profileId);
     }
