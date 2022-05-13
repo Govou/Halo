@@ -1,7 +1,11 @@
+using System.Collections.Generic;
+using HaloBiz.DTOs.TransferDTOs;
+using Microsoft.AspNetCore.Http;
+
 namespace HaloBiz.MyServices
 {
     public interface IEmailService
     {
-        void Send(string from, string to, string subject, string html);
+        void Send(MailRequest mailRequest);
     }
 }

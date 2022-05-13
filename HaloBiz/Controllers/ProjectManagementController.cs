@@ -10,6 +10,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using HaloBiz.DTOs.TransferDTOs;
 using RestSharp;
 
 namespace HaloBiz.Controllers
@@ -790,6 +791,23 @@ namespace HaloBiz.Controllers
             return await _projectAllocationService.DeleteEvent(eventId);
         }
         
+        [HttpPost("SendMail")]
+        public async Task<ApiCommonResponse> SendMail(MailRequest mailRequest)
+        {
+            return await _projectAllocationService.SendEmail(mailRequest,HttpContext);
+        }
+        
+        [HttpGet("GetAllMail")]
+        public async Task<ApiCommonResponse> GetAllMail()
+        {
+            return await _projectAllocationService.GetAllConcernedMail(HttpContext);
+        }
+        
+        [HttpDelete("DisableMail/{emailId}")]
+        public async Task<ApiCommonResponse> DisableMail(long emailId)
+        {
+            return await _projectAllocationService.DisableMail(emailId);
+        }
 
     }
 }

@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using HaloBiz.DTOs.TransferDTOs;
 using Task = HalobizMigrations.Models.ProjectManagement.Task;
 
 namespace HaloBiz.MyServices
@@ -144,5 +145,8 @@ namespace HaloBiz.MyServices
          Task<ApiCommonResponse> RetrieveCustomerDivision();
          Task<ApiCommonResponse> DeleteEvent(string eventId);
          Task<ApiCommonResponse> PushEventToGoogleCalender(CalenderRequestDTO calenderRequestDto,HttpContext httpContext);
+         Task<ApiCommonResponse> SendEmail(MailRequest mailRequest, HttpContext htttHttpContext);
+         Task<ApiCommonResponse> GetAllConcernedMail(HttpContext httpContext);
+         Task<ApiCommonResponse> DisableMail(long emailId);
     }
 }

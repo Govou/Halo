@@ -95,7 +95,7 @@ namespace HaloBiz
             // singletons
             //services.AddSingleton(Configuration.GetSection("AppSettings").Get<AppSettings>());
             services.Configure<MailSettings>(Configuration.GetSection("MailSettings"));
-            services.AddTransient<IEmailService,EmailService>();
+            services.AddScoped<IEmailService,EmailService>();
             services.AddHealthChecks().AddAsyncCheck("Http", async () =>
             {
                 using (System.Net.Http.HttpClient client = new System.Net.Http.HttpClient())

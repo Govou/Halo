@@ -40,9 +40,9 @@ namespace HaloBiz.MyServices.Impl
         private readonly IProjectAllocationRepositoryImpl _projectAllocationRepository;
         private readonly IMapper _mapper;
         private IWebHostEnvironment _hostEnvironment;
-        private EmailService _emailService;
+        private readonly IEmailService _emailService;
 
-        public ProjectAllocationServiceImpl(EmailService emailService, IWebHostEnvironment environment,IProjectResolver projectResolver, HalobizContext context, IProjectAllocationRepositoryImpl projectAllocationRepository, ILogger<ProjectAllocationServiceImpl> logger, IMapper mapper)
+        public ProjectAllocationServiceImpl(IEmailService emailService, IWebHostEnvironment environment,IProjectResolver projectResolver, HalobizContext context, IProjectAllocationRepositoryImpl projectAllocationRepository, ILogger<ProjectAllocationServiceImpl> logger, IMapper mapper)
         {
             this._mapper = mapper;
             this._projectAllocationRepository = projectAllocationRepository;
@@ -4824,25 +4824,63 @@ namespace HaloBiz.MyServices.Impl
            }
 
 
-           // public async Task<ApiCommonResponse> SendEmail(MailRequest mailRequest,HttpContext htttHttpContext)
-           // {
-           //     _emailService.Send(mailRequest.EmailSender, mailRequest.EmailReceiver,
-           //         mailRequest.EmailSubject, mailRequest.EmailBody);
-           //
-           //     var auditEmail = new SentMail()
-           //     {
-           //         IsActive = true,
-           //         SenderId = htttHttpContext.GetLoggedInUserId(),
-           //         SentFrom = mailRequest.EmailSender,
-           //         SentTo = mailRequest.EmailReceiver,
-           //         CreatedById = htttHttpContext.GetLoggedInUserId(),
-           //         HasAttachment = 
-           //     };
-           //
-           // }
+           public async Task<ApiCommonResponse> SendEmail(MailRequest mailRequest,HttpContext httpContext)
+           {
+               _emailService.Send(mailRequest);
+
+               string sentToList;
+               List<string> recipientArray = new List<string>();
+               foreach (var recipient in mailRequest.EmailReceivers)
+               {
+                   recipientArray.Add(recipient);
+               }
            
+               sentToList = string.Join(",", recipientArray);
+               var auditEmail = new SentMail()
+               {
+                   IsActive = true,
+                   SenderId = httpContext.GetLoggedInUserId(),
+                   SentFrom = mailRequest.EmailSender,
+                   SentTo = sentToList,
+                   CreatedById = httpContext.GetLoggedInUserId(),
+                   HasAttachment = mailRequest.Attachments.Any() ? true : false,
+                   Attachment = mailRequest.Attachments.ToString(),
+                   CreatedAt = DateTime.Now,
+                   MailContent = mailRequest.EmailBody,
+                   Subject = mailRequest.EmailSubject,
+                   ReceiverId = mailRequest.DestinationId
+               };
+
+               await _context.SentMails.AddAsync(auditEmail);
+               await _context.SaveChangesAsync();
+               return CommonResponse.Send(ResponseCodes.SUCCESS,auditEmail, "SuccessFully saved");
+           }
+
+           public async Task<ApiCommonResponse> GetAllConcernedMail(HttpContext httpContext)
+           {
+
+               var getAllConcernedMail = await _context.SentMails.Where(x =>
+                       x.SenderId == httpContext.GetLoggedInUserId() && x.IsActive == true || x.ReceiverId == httpContext.GetLoggedInUserId() && x.IsActive == true)
+                   .OrderByDescending(x=>x.CreatedAt).ToListAsync();
+               if (getAllConcernedMail.Any())
+               {
+                   return CommonResponse.Send(ResponseCodes.SUCCESS,getAllConcernedMail, "SuccessFully Found");
+               }
+               return CommonResponse.Send(ResponseCodes.FAILURE,null, "Could not be  Found");
+           }
            
-           
+           public async Task<ApiCommonResponse> DisableMail(long emailId)
+           {
+               var getConcernedMail = await _context.SentMails.Where(x => x.Id == emailId).FirstOrDefaultAsync();
+               if (getConcernedMail != null)
+               {
+                   getConcernedMail.IsActive = false;
+                   _context.SentMails.Update(getConcernedMail);
+                   await _context.SaveChangesAsync();
+                   return CommonResponse.Send(ResponseCodes.SUCCESS,null, "SuccessFully Found");
+               }
+               return CommonResponse.Send(ResponseCodes.FAILURE,null, "Could not be  Found");
+           }
            
            
            
