@@ -4630,7 +4630,7 @@ namespace HaloBiz.MyServices.Impl
                string[] scopes = { "https://www.googleapis.com/auth/calendar" };
                string applicationName = "HalobizCalender";
                //var credentials = Path.Combine("Files", "credential.json");
-               string path = Path.Combine(_hostEnvironment.WebRootPath, "Files/credential.json");
+               string path = Path.GetFullPath($"wwwroot/Files/credential.json");
                UserCredential credential;
 
                using (var stream =
@@ -4638,7 +4638,8 @@ namespace HaloBiz.MyServices.Impl
                {
                    // The file token.json stores the user's access and refresh tokens, and is created
                    // automatically when the authorization flow completes for the first time.
-                   string credPath = Path.Combine(_hostEnvironment.WebRootPath, "Files/token.json");
+                   //string credPath = Path.Combine(_hostEnvironment.WebRootPath, "Files/token.json");
+                   string credPath = Path.GetFullPath($"wwwroot/Files/token.json");
                    credential = GoogleWebAuthorizationBroker.AuthorizeAsync(
                        GoogleClientSecrets.Load(stream).Secrets,
                        scopes,
@@ -4668,14 +4669,14 @@ namespace HaloBiz.MyServices.Impl
            {
                string[] scopes = { "https://www.googleapis.com/auth/calendar" };
                string applicationName = "HalobizCalender";
-               string path = Path.Combine(_hostEnvironment.WebRootPath, "Files/credential.json");
+               string path = Path.GetFullPath($"wwwroot/Files/credential.json");
 
                UserCredential credential;
 
                using (var stream =
                       new FileStream(path, FileMode.Open, FileAccess.Read))
                {
-                   string credPath = Path.Combine(_hostEnvironment.WebRootPath, "Files/token.json");
+                   string credPath = Path.GetFullPath($"wwwroot/Files/token.json");
                    credential = GoogleWebAuthorizationBroker.AuthorizeAsync(
                        GoogleClientSecrets.Load(stream).Secrets,
                        scopes,
