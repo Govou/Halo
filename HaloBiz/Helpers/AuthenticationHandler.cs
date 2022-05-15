@@ -67,7 +67,11 @@ namespace HaloBiz.Helpers
             bool isExempted = (controllerName.ToLower() == "auth" && (actionName.ToLower() == "login" || actionName.ToLower() == "googlelogin"));
             if (!isExempted)
             {
-                var token = context.Request?.Headers["Authorization"].FirstOrDefault()?.Split(" ")?.Last();
+                var token = context.Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").Last()
+                    ?? context.Request.Headers["X-Token"].FirstOrDefault()
+                    ?? context.Request.Query["Token"].FirstOrDefault()
+                    ?? context.Request.Cookies["Token"];
+
                 var refreshToken = context.Request?.Headers["xr-token"].FirstOrDefault();
 
                 _logger.LogInformation($"For action: {actionName}; Token supplied: {token}");
