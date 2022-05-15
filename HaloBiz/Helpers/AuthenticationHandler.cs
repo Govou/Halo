@@ -70,6 +70,8 @@ namespace HaloBiz.Helpers
                 var token = context.Request?.Headers["Authorization"].FirstOrDefault()?.Split(" ")?.Last();
                 var refreshToken = context.Request?.Headers["xr-token"].FirstOrDefault();
 
+                _logger.LogInformation($"For action: {actionName}; Token supplied: {token}");
+
                 if (token != null)
                 {
                     //validate the token
