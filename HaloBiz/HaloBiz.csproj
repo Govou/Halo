@@ -89,6 +89,8 @@
     <Folder Include="DTOs\ContactDTO\" />
     <Folder Include="MyServices\Impl\RoleManagement\" />
     <Folder Include="wwwroot\MigrationsLog\" />
+    <Folder Include="wwwroot\Files\token.json" />
+    <Folder Include="wwwroot\Files\" />
   </ItemGroup>
 
   <ItemGroup>
@@ -100,9 +102,9 @@
       <HintPath>..\Halobiz.Common\HalobizMigrations.dll</HintPath>
     </Reference>
   </ItemGroup>
-  <ItemGroup>
+  <!-- <ItemGroup>
     <_ContentIncludedByDefault Remove="Files\credential.json" />
-  </ItemGroup>
+  </ItemGroup> -->
 <!--<ItemGroup>-->
 <!--    <Content Include="Files\**">-->
 <!--      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>-->
