@@ -8,31 +8,21 @@ namespace Halobiz.Common.DTOs.ReceivingDTOs
 {
     public class SMSContractDTO
     {
-       
-      
-        public DateTime ContractStartDate { get; set; }
-        public DateTime ContractEndDate { get; set; }
-        public DateTime FirstInvoiceSendDate { get; set; }
-        public int InvoicingInterval { get; set; }
-        public DateTime ActivationDate { get; set; }
-        public DateTime FulfillmentStartDate { get; set; }
-        public DateTime FulfillmentEndDate { get; set; }
-        public int OfficeId { get; set; }
-        public int BranchId { get; set; }
+        public int profileId { get; set; }
         public string Email { get; set; }
+
         public List<SMSContractService> SMSContractServices { get; set; }
     }
 
     public class SMSContractService
     {
         public int ServiceId { get; set; }
-        public double Vat { get; set; }
-        public double BillableAmount { get; set; }
-        public double? UnitPrice { get; set; }
         public int Quantity { get; set; }
-        public double Discount { get; set; }
-        public string UniqueTag { get; set; }
-        public int PaymentCycle { get; set; }
-        public int ContractId { get; set; }
+        public DateTime ServiceStartDate { get; set; }
+        public DateTime ServiceEndDate { get; set; }
+        public string DropLocation { get; set; }
+        public DateTime DropoffDateTime { get; set; }
+        public string PickupLocation { get; set; }
+        public DateTime PickupTime { get; set; }
     }
 }
