@@ -237,7 +237,7 @@ namespace OnlinePortalBackend.Repository.Impl
 
             var profile = _context.OnlineProfiles.FirstOrDefault(x => x.Id == request.ProfileId);
             var office = _context.Offices.FirstOrDefault(x => x.Name.ToLower().Contains("office")).Id;
-            var branchId = _context.Branches.FirstOrDefault(x => x.Name.ToLower().Contains("head")).Id;
+            var branchId = _context.Branches.FirstOrDefault(x => x.Name.ToLower().Contains("hq")).Id;
             using var trx = await _context.Database.BeginTransactionAsync();
 
             var balance = 0d;
@@ -266,7 +266,7 @@ namespace OnlinePortalBackend.Repository.Impl
                 }
 
                 var creditCashBook = _configuration["WalletCreditCashBookID"] ?? _configuration.GetSection("AppSettings:WalletCreditCashBookID").Value;
-
+                var transactionId = "SM" + new Random().Next(100_000_000, 1_000_000_000);
                 var accountDetail1 = new AccountDetail
                 {
                     VoucherId = accountMaster.VoucherId,
@@ -280,6 +280,7 @@ namespace OnlinePortalBackend.Repository.Impl
                     Credit = request.Amount,
                     AccountId = int.Parse(creditCashBook),
                     Description = $"Wallet spent for {profile.Id}",
+                    TransactionId = transactionId,
                 };
 
                 var accountDetail2 = new AccountDetail
@@ -295,6 +296,7 @@ namespace OnlinePortalBackend.Repository.Impl
                     Debit = request.Amount,
                     AccountId = walletMaster.WalletLiabilityAccountId.Value,
                     Description = $"Wallet loaded for {profile.Id}",
+                    TransactionId= transactionId,
                 };
 
                 _context.AccountDetails.Add(accountDetail1);
@@ -303,7 +305,7 @@ namespace OnlinePortalBackend.Repository.Impl
                 _context.AccountDetails.Add(accountDetail2);
                 _context.SaveChanges();
 
-                var creditCashAccount = _context.AccountDetails.Include(x => x.AccountMasterId).FirstOrDefault(x => x.AccountId == int.Parse(creditCashBook));
+                var creditCashAccount = _context.AccountDetails.Include(x => x.AccountMaster).FirstOrDefault(x => x.AccountId == int.Parse(creditCashBook));
 
                 var acctToCredit = _context.AccountMasters.FirstOrDefault(x => x.Id == creditCashAccount.AccountMasterId);
 
@@ -316,13 +318,21 @@ namespace OnlinePortalBackend.Repository.Impl
                 var totalCreditAmt = 0d;
                 if (creditTransactions.Count() > 0)
                 {
-                    totalCreditAmt = creditTransactions.Select(x => int.Parse(x.TransactionValue)).Sum();
+                    var trxs = creditTransactions.Select(x => x.TransactionValue);
+                    foreach (var item in trxs)
+                    {
+                        totalCreditAmt += double.Parse(item);
+                    }
                 }
                 var debitTransactions = transactions.Where(x => x.TransactionType == (int)WalletTransactionType.Spend);
                 var totalDebitAmt = 0d;
                 if (debitTransactions.Count() > 0)
                 {
-                    totalDebitAmt = debitTransactions.Select(x => int.Parse(x.TransactionValue)).Sum();
+                    var trxs = debitTransactions.Select(x => x.TransactionValue);
+                    foreach (var item in trxs)
+                    {
+                        totalDebitAmt += double.Parse(item);
+                    }
                 }
 
                 balance = totalCreditAmt - (totalDebitAmt + request.Amount);
@@ -353,7 +363,7 @@ namespace OnlinePortalBackend.Repository.Impl
             {
                 _logger.LogError(ex.Message);
                 await trx.RollbackAsync();
-                return (false, "Wallet loading Failed");
+                return (false, "Wallet spending Failed");
             }
         }
 
