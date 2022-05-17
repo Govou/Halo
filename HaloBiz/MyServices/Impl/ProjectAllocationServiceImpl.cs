@@ -4632,13 +4632,14 @@ namespace HaloBiz.MyServices.Impl
                    string[] scopes = { "https://www.googleapis.com/auth/calendar" };
                    string applicationName = "HalobizCalender";
                    //var credentials = Path.Combine("Files", "credential.json");
-                   string path = $"wwwroot/Files/credential.json";
+                   //string path = $"wwwroot/Files/credential.json";
+                   string path = Path.Combine(_hostEnvironment.WebRootPath,"Files/credential.json");
                    UserCredential credential;
 
                    using (var stream =
                           new FileStream(path, FileMode.Open, FileAccess.Read))
                    {
-                       string credPath = $"wwwroot/Files/token.json";
+                       string credPath = Path.Combine(_hostEnvironment.WebRootPath,"Files/token.json");
                        credential = GoogleWebAuthorizationBroker.AuthorizeAsync(
                            GoogleClientSecrets.Load(stream).Secrets,
                            scopes,
@@ -4675,14 +4676,14 @@ namespace HaloBiz.MyServices.Impl
                {
                    string[] scopes = { "https://www.googleapis.com/auth/calendar" };
                    string applicationName = "HalobizCalender";
-                   string path = $"wwwroot/Files/credential.json";
+                   string path = Path.Combine(_hostEnvironment.WebRootPath,"Files/credential.json");
 
                    UserCredential credential;
 
                    using (var stream =
                           new FileStream(path, FileMode.Open, FileAccess.Read))
                    {
-                       string credPath = $"wwwroot/Files/token.json";
+                       string credPath = Path.Combine(_hostEnvironment.WebRootPath,"Files/token.json");
                        credential = GoogleWebAuthorizationBroker.AuthorizeAsync(
                            GoogleClientSecrets.Load(stream).Secrets,
                            scopes,
