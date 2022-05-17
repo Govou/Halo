@@ -45,7 +45,7 @@ namespace HaloBiz.Controllers
 
         private HttpSender sender;
         List<Customero> customers = new List<Customero>();
-        long userIdToUse = 31;
+        long userIdToUse = 0;
         List<ServiceTypes> _serviceTypes = new List<ServiceTypes>();
 
         public ServiceCustomerMigrationsController(ILogger<ServiceCustomerMigrationsController> logger,
@@ -80,14 +80,18 @@ namespace HaloBiz.Controllers
                 _states = _context.States.Include(x => x.Lgas).ToList();
                 _services = _context.Services.ToList();
                 MigrationService = _context.Services.Where(x => x.Name == "Migrations").FirstOrDefault();
+
+                //get the userId
+                var user = await _context.UserProfiles.Where(x => x.Email.ToLower().Contains("seeder")).FirstOrDefaultAsync();
+                userIdToUse = user.Id;
                 
                 if (MigrationService == null)
                     return CommonResponse.Send(ResponseCodes.FAILURE, null, "No service with name: Migrations");
 
                 var cb = await sender.getServiceContract(page);
-                var contracts =  cb.Items.Take(150).ToList();//cb.Items.Where(x => x.ContractNumber == "11/01/079-01").ToList();
+                var contracts =  cb.Items.ToList();//cb.Items.Where(x => x.ContractNumber == "11/01/079-01").ToList();
 
-                if (contracts.Count == 0)
+                if (!contracts.Any())
                 {
                     return CommonResponse.Send(ResponseCodes.FAILURE, null, $"No contract fetched for page {page}");
                 }
@@ -201,12 +205,7 @@ namespace HaloBiz.Controllers
                     {
                         ++previouslySaved;
                         continue;
-                    }
-
-                    if(_contract.ContractNumber== "11/01/079-01")
-                    {
-                        var p = "start tracking";
-                    }
+                    }                 
 
                     //11/01/079-01
                     var contractServiceDetails = await sender.getServiceContractDetail(_contract.ContractNumber);//
@@ -251,7 +250,7 @@ namespace HaloBiz.Controllers
                         AsAtDate = cutOffDate
                     };
 
-                    var migrationContractSaved = await setCutOffMigration(startDate, lastDate, _contract.ContractNumber, customer.customerDivision, input, customer.CustomerNumber, _context, defaultOffice, cutOffDate);
+                    var migrationContractSaved = await setCutOffMigration(_contract.ContractNumber, customer.customerDivision, input, customer.CustomerNumber, _context, defaultOffice, cutOffDate);
                     //create contract
                     if (!migrationContractSaved)
                     {
@@ -483,8 +482,8 @@ namespace HaloBiz.Controllers
                 }
             }
 
-            if(allContractServiceItems.Count > 0)
-                await saveToExcel(allContractServiceItems, page);
+            //if(allContractServiceItems.Count > 0)
+            //    await saveToExcel(allContractServiceItems, page);
 
             _logger.LogInformation($"Total contracts: {contracts.Count}, Saved to db: {totalSaved}; Skipped for duplicate: {previouslySaved}; With error {errorLaden}");
 
@@ -589,7 +588,7 @@ namespace HaloBiz.Controllers
             return true;
         }
 
-        private async Task<bool> setCutOffMigration(DateTime startdate, DateTime enddate, string contractNo, CustomerDivision division, AccountBalanceInput input, string customerNumber, HalobizContext _context, Office defaultOffice, DateTime cutOffDate)
+        private async Task<bool> setCutOffMigration(string contractNo, CustomerDivision division, AccountBalanceInput input, string customerNumber, HalobizContext _context, Office defaultOffice, DateTime cutOffDate)
         {
             //first check if a cut off migration exist for this customer previously on this contract
             var caption = customerNumber + "_Migration";
@@ -635,11 +634,11 @@ namespace HaloBiz.Controllers
                     {
                         ServiceId = MigrationService.Id,
                         BillableAmount = Math.Abs(customerInput.Amount),
-                        ActivationDate = startdate,
-                        ContractStartDate = startdate,
-                        ContractEndDate = enddate,
+                        ActivationDate = cutOffDate,
+                        ContractStartDate = cutOffDate,
+                        ContractEndDate = cutOffDate,
                         ContractId = (long)contractId,
-                        UnitPrice = customerInput.Amount,
+                        UnitPrice = Math.Abs(customerInput.Amount),
                         Vat = 0,
                         Quantity = 1,
                         InvoicingInterval = (int)TimeCycle.OneTime,
@@ -647,7 +646,7 @@ namespace HaloBiz.Controllers
                         BranchId = defaultOffice.BranchId,
                         OfficeId = defaultOffice.Id,
                         CreatedById = userIdToUse,
-                        FirstInvoiceSendDate = cutOffDate.AddDays(15)
+                        FirstInvoiceSendDate = cutOffDate.AddDays(1)
                     });
 
                    // System.Threading.Thread.Sleep(3000);
