@@ -100,7 +100,7 @@ namespace OnlinePortalBackend.Repository.Impl
 
             var profile = _context.OnlineProfiles.FirstOrDefault(x => x.Id == request.ProfileId);
             var office = _context.Offices.FirstOrDefault(x => x.Name.ToLower().Contains("office")).Id;
-            var branchId = _context.Branches.FirstOrDefault(x => x.Name.ToLower().Contains("head")).Id;
+            var branchId = _context.Branches.FirstOrDefault(x => x.Name.ToLower().Contains("hq")).Id;
             using var trx = await _context.Database.BeginTransactionAsync();
 
             var balance = 0d;
@@ -129,7 +129,7 @@ namespace OnlinePortalBackend.Repository.Impl
                 }
 
                 var debitCashBook = _configuration["WalletDebitCashBookID"] ?? _configuration.GetSection("AppSettings:WalletDebitCashBookID").Value;
-
+                var transactionId = "SM" + new Random().Next(100_000_000, 1_000_000_000);
                 var accountDetail1 = new AccountDetail
                 {
                     VoucherId = accountMaster.VoucherId,
@@ -143,6 +143,7 @@ namespace OnlinePortalBackend.Repository.Impl
                     Debit = request.Amount,
                     AccountId = int.Parse(debitCashBook),
                     Description = $"Wallet loaded for {profile.Id}",
+                   TransactionId = transactionId,
                 };
 
                 var accountDetail2 = new AccountDetail
@@ -158,6 +159,7 @@ namespace OnlinePortalBackend.Repository.Impl
                     Credit = request.Amount,
                     AccountId = walletMaster.WalletLiabilityAccountId.Value,
                     Description = $"Wallet loaded for {profile.Id}",
+                    TransactionId= transactionId,
                 };
 
                 _context.AccountDetails.Add(accountDetail1);
@@ -166,7 +168,7 @@ namespace OnlinePortalBackend.Repository.Impl
                 _context.AccountDetails.Add(accountDetail2);
                 _context.SaveChanges();
 
-                var debitCashAccount = _context.AccountDetails.Include(x => x.AccountMasterId).FirstOrDefault(x => x.AccountId == int.Parse(debitCashBook));
+                var debitCashAccount = _context.AccountDetails.Include(x => x.AccountMaster).FirstOrDefault(x => x.AccountId == int.Parse(debitCashBook));
 
                 var acctToDebit = _context.AccountMasters.FirstOrDefault(x => x.Id == debitCashAccount.AccountMasterId);
 

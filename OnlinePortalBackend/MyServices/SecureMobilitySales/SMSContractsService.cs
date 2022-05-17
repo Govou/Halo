@@ -18,11 +18,12 @@ namespace OnlinePortalBackend.MyServices.SecureMobilitySales
         {
            var result = await _contractsRepo.AddNewContract(contractDTO);
 
-            if (!result)
+            if (!result.isSuccess)
             {
                 return CommonResponse.Send(ResponseCodes.FAILURE); ;
             }
             return CommonResponse.Send(ResponseCodes.SUCCESS, result);
         }
+
     }
 }
