@@ -17,6 +17,7 @@ using Microsoft.AspNetCore.Http;
 using HaloBiz.Helpers;
 using HalobizMigrations.Models.Shared;
 using Halobiz.Common.DTOs.ReceivingDTOs;
+using Halobiz.Common.Helpers;
 
 namespace HaloBiz.MyServices.Impl.LAMS
 {
@@ -52,9 +53,9 @@ namespace HaloBiz.MyServices.Impl.LAMS
         {
             var contractServices = new List<ContractService>();
             var allContracts = await _context.Contracts.Where(x => x.CustomerDivisionId == customerDivisionId && x.IsApproved)
-                               .Include(x => x.ContractServices.Where(x => x.Version == (int)Halobiz.Common.DTOs.ReceivingDTOs.VersionType.Draft))
+                               .Include(x => x.ContractServices.Where(x => x.Version == (int)VersionType.Draft))
                                    .ThenInclude(x => x.Service)
-                               .Include(x => x.ContractServices.Where(x => x.Version == (int)Halobiz.Common.DTOs.ReceivingDTOs.VersionType.Draft))
+                               .Include(x => x.ContractServices.Where(x => x.Version == (int)VersionType.Draft))
                                    .ThenInclude(x => x.SbutoContractServiceProportions)
                                        .ThenInclude(x => x.UserInvolved)
                                .ToListAsync();
@@ -114,7 +115,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                     CreatedAt = DateTime.Now,
                     CreatedById = id,
                     CustomerDivisionId = contractDetail.CustomerDivisionId,
-                    Version = (int)Halobiz.Common.DTOs.ReceivingDTOs.VersionType.Latest,
+                    Version = (int) VersionType.Latest,
                    GroupContractCategory =  contractDetail.GroupContractCategory,
                    GroupInvoiceNumber = contractDetail.GroupInvoiceNumber,
                    IsApproved = false,
@@ -172,7 +173,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 item.CreatedById = id;
                 if (createNewContract)
                 {
-                    if (item.InvoicingInterval == Halobiz.Common.Helpers.TimeCycle.MonthlyProrata)
+                    if (item.InvoicingInterval == TimeCycle.MonthlyProrata)
                     {
                         if (item.ContractEndDate.Value.AddDays(1).Day != 1)
                         {
@@ -205,7 +206,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                         {
                             //create a new contract service at draft stage
                             var contractService = _mapper.Map<ContractService>(item);
-                            contractService.Version = (int)Halobiz.Common.DTOs.ReceivingDTOs.VersionType.Draft;
+                            contractService.Version = (int)VersionType.Draft;
                             var entity = _context.ContractServices.Add(contractService);
                             await _context.SaveChangesAsync();
                             item.PreviousContractServiceId = entity.Entity.Id;
@@ -277,7 +278,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                             return (false, $"Invalid PreviousContractServiceId specified for contract service with tag '{item.UniqueTag}'");
 
                         //check that PreviousContractServiceId is latest
-                        if(!_context.ContractServices.Any(x=>x.Id==item.PreviousContractServiceId && x.Version == (int)Halobiz.Common.DTOs.ReceivingDTOs.VersionType.Latest))
+                        if(!_context.ContractServices.Any(x=>x.Id==item.PreviousContractServiceId && x.Version == (int) VersionType.Latest))
                         {
                             return (false, $"PreviousContractServiceId specified for contract service with tag '{item.UniqueTag}' is not latest");
                         }
@@ -955,7 +956,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 };
 
                 await _context.EndorsementTypeTrackers.AddAsync(tracker);
-                retiredContractService.Version = (int)Halobiz.Common.DTOs.ReceivingDTOs.VersionType.Previous;
+                retiredContractService.Version = (int)VersionType.Previous;
                                
 
                 _context.ContractServices.Update(retiredContractService);

@@ -1,3 +1,4 @@
+using Halobiz.Common.DTOs.ReceivingDTOs;
 using HaloBiz.Helpers;
 using HalobizMigrations.Models;
 
