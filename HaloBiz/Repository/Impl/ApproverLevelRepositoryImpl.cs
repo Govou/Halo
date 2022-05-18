@@ -72,7 +72,7 @@ namespace HaloBiz.Repository.Impl
 
         public async Task<ApprovingLevelOffice> GetLastApprovingLevelOffice()
         {
-            return await _context.ApprovingLevelOffices.LastOrDefaultAsync(x => x.IsDeleted == false);
+            return await _context.ApprovingLevelOffices.OrderByDescending(x => x.Id).FirstOrDefaultAsync(x => x.IsDeleted == false);
         }
 
         public async Task<bool> SaveApprovingLevelOffice(ApprovingLevelOffice approvingLevelOffice)

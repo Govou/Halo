@@ -50,14 +50,14 @@ namespace HaloBiz.Controllers
             return await _approverLevelService.DeleteApproverLevel(id);
         }
 
-        [HttpPost("CreateApprovingOffice")]
+        [HttpPost("CreateApprovingLevelOffice")]
         public async Task<ApiCommonResponse> CreateApprovingLevelOffice(ApprovingLevelOfficeReceivingDTO model)
         {
             return await _approverLevelService.CreateApprovingLevelOffice(HttpContext, model);
         }
 
-        [HttpGet("GetApprovingLevelOffices")]
-        public async Task<ApiCommonResponse> GetApprovingLevelOffices()
+        [HttpGet("GetAllApprovingLevelOffices")]
+        public async Task<ApiCommonResponse> GetAllApprovingLevelOffices()
         {
             return await _approverLevelService.GetAllApprovingLevelOffices();
         }
