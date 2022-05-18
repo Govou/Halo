@@ -79,6 +79,15 @@ namespace OnlinePortalBackend.Repository.Impl
             return (false, "Activation Failed");
         }
 
+        public async Task<(bool isSuccess, bool status)> GetWalletActivationStatus(int profileId)
+        {
+            var profile = _context.WalletMasters.FirstOrDefault(x => x.OnlineProfileId == profileId);
+            if (profile == null)
+                return (true, false);
+
+            return(true, true);
+        }
+
         public async Task<(bool isSuccess, object message)> GetWalletBalance(int profileId)
         {
            var balance = _context.WalletMasters.FirstOrDefault(x => x.OnlineProfileId == profileId);

@@ -35,10 +35,16 @@ namespace OnlinePortalBackend.Controllers.SecureMobilitySales
             return await _walletService.SpendWallet(request);
         }
 
-        [HttpPost("GetWalletBalance")]
+        [HttpGet("GetWalletBalance")]
         public async Task<ApiCommonResponse> GetWalletBalance(int profileId)
         {
             return await _walletService.GetWalletBalance(profileId);
+        }
+
+        [HttpGet("GetWalletActivationStatus")]
+        public async Task<ApiCommonResponse> GetWalletActivationStatus(int profileId)
+        {
+            return await _walletService.GetWalletActivationStatus(profileId);
         }
     }
 }

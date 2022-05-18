@@ -31,7 +31,7 @@ namespace HalobizIdentityServer.MyServices
     public class OnlineAccounts : IOnlineAccounts
     {
         private readonly IMailService _mailService;
-       // private IUserProfileService _userProfileService;
+        // private IUserProfileService _userProfileService;
         private readonly HalobizContext _context;
         private readonly ILogger<OnlineAccounts> _logger;
         private readonly JwtHelper _jwttHelper;
@@ -40,7 +40,7 @@ namespace HalobizIdentityServer.MyServices
 
 
         public OnlineAccounts(IMailService mailService,
-             // IUserProfileService userProfileService,
+            // IUserProfileService userProfileService,
             JwtHelper jwtHelper,
             IMapper mapper,
             IRoleService roleService,
@@ -49,7 +49,7 @@ namespace HalobizIdentityServer.MyServices
          )
         {
             _mailService = mailService;
-           // _userProfileService = userProfileService;
+            // _userProfileService = userProfileService;
             _logger = logger;
             _mapper = mapper;
             _roleService = roleService;
@@ -115,14 +115,14 @@ namespace HalobizIdentityServer.MyServices
             {
                 _logger.LogError(ex.StackTrace);
                 return CommonResponse.Send(ResponseCodes.FAILURE, null, ex.Message);
-            }          
+            }
         }
 
         public async Task<ApiCommonResponse> VerifyCode(CodeVerifyModel model)
         {
             try
             {
-                var codModel = _context.UsersCodeVerifications.Where(x => x.Email == model.Email && x.CodeExpiryTime >= DateTime.Now && x.Code == model.Code && x.Purpose==CodePurpose.Onboarding).FirstOrDefault();
+                var codModel = _context.UsersCodeVerifications.Where(x => x.Email == model.Email && x.CodeExpiryTime >= DateTime.Now && x.Code == model.Code && x.Purpose == CodePurpose.Onboarding).FirstOrDefault();
                 if (codModel == null)
                 {
                     return CommonResponse.Send(ResponseCodes.FAILURE, null, $"The code for {model.Email} is invalid or expired");
@@ -232,7 +232,7 @@ namespace HalobizIdentityServer.MyServices
                 {
                     return CommonResponse.Send(ResponseCodes.FAILURE, null, "Invalid username or password");
                 }
-                
+
                 //get the permissions of the user
                 var permissions = await _roleService.GetPermissionEnumsOnUser(profile.Id);
 
@@ -252,7 +252,7 @@ namespace HalobizIdentityServer.MyServices
             }
         }
 
-       
+
         private static (byte[], string) HashPassword(byte[] salt, string password)
         {
             // generate a 128-bit salt using a cryptographically strong random sequence of nonzero values
@@ -277,5 +277,5 @@ namespace HalobizIdentityServer.MyServices
         }
     }
 
-    
+
 }
