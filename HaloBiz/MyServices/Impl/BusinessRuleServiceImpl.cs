@@ -78,7 +78,54 @@ namespace HaloBiz.MyServices.Impl
             return CommonResponse.Send(ResponseCodes.SUCCESS,"Records Added");
         }
 
+        public async Task<ApiCommonResponse> CheckIfServiceCanBePairedById(BRPairableCheckReceivingDTO businessRuleCheck)
+        {
+            //var rule =  _businessRulesRepository.GetRegServiceId(serviceRegId);
+            //if (rule == null)
+            //{
+            //    return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE); ;
+            //}
+            //if (!rule.IsPairingRequired)
+            //{
+            //    return CommonResponse.Send(ResponseCodes.FAILURE, null, "Service can not be paired with any other service"); 
+            //}
 
+            //int pairedCount = 0;
+            if (businessRuleCheck.ServiceRegistrationId.Length > 0)
+            {
+                var pairCheck = _businessRulesRepository.FindAllPairablesCheckByRuleId(businessRuleCheck.BusinessRuleId);
+                var lastPair = pairCheck.Last();
+              
+                foreach (var item in businessRuleCheck.ServiceRegistrationId)
+                {
+                    foreach (var check in pairCheck)
+                    {
+                        if (item.Equals(check.ServiceRegistrationId))
+                        {
+                            //return CommonResponse.Send(ResponseCodes.SUCCESS, null, "Pairing allowed");
+                            break;
+                        }
+                        else
+                        {
+                            if (!check.Equals(lastPair))
+                            {
+                                continue;
+                            }
+                            else
+                            {
+                                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Item cannot be paired with one/more services in cart");
+                            }
+                           
+                        }
+                    }
+                   
+                }
+            }
+          
+           
+            //var TransferDTO = _mapper.Map<BusinessRuleTransferDTO>(rule);
+            return CommonResponse.Send(ResponseCodes.SUCCESS, null, "Pairing allowed");
+        }
 
         public async Task<ApiCommonResponse> DeleteBusinessRule(long id)
         {

@@ -1,4 +1,5 @@
-﻿using HalobizMigrations.Data;
+﻿using HaloBiz.DTOs.TransferDTOs;
+using HalobizMigrations.Data;
 using HalobizMigrations.Models.Armada;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -53,14 +54,11 @@ namespace HaloBiz.Repository.Impl
         public async Task<IEnumerable<BRPairable>> FindAllPairables()
         {
             return await _context.BRPairables.Where(s => s.IsDeleted == false)
-                                             .Include(s => s.BusinessRule).Include(s => s.BusinessRule.ServiceRegistration)
+                .Include(s => s.BusinessRule).Include(s => s.BusinessRule.ServiceRegistration)
                 .Include(s => s.BusinessRule.ServiceRegistration.Service)
                .Include(s => s.ServiceRegistration).Include(s => s.ServiceRegistration.Service)
-                                   .Include(s => s.CreatedBy)
-                                   .Include(s => s.ServiceRegistration.Service.ServiceType)
-
-                                   .Include(s=>s.CreatedBy)
-                                                        .ToListAsync();
+                .Include(s => s.CreatedBy).Include(s => s.ServiceRegistration.Service.ServiceType)
+               .Include(s=>s.CreatedBy) .ToListAsync();
         }
 
         public async Task<IEnumerable<BusinessRule>> FindAllRules()
@@ -86,9 +84,15 @@ namespace HaloBiz.Repository.Impl
         {
             return await _context.BusinessRules.Where(s => s.IsDeleted == false)
                 .Include(s => s.ServiceRegistration).Include(s => s.ServiceRegistration.Service)
-                                    .Include(s => s.CreatedBy).Include(s => s.ServiceRegistration.Service.ServiceCategory)
-                                    
-                 .FirstOrDefaultAsync(ae => ae.Id == Id && ae.IsDeleted == false);
+                .Include(s => s.CreatedBy).Include(s => s.ServiceRegistration.Service.ServiceCategory)
+                .FirstOrDefaultAsync(ae => ae.Id == Id && ae.IsDeleted == false);
+        }
+
+        public List<BRPairableCheckDTO> FindAllPairablesCheckByRuleId(long? BusinessRuleId)
+        {
+            return _context.BRPairables.Where(s => s.IsDeleted == false && s.BusinessRuleId == BusinessRuleId).Select(x=> new BRPairableCheckDTO { ServiceRegistrationId = x.ServiceRegistrationId }).ToList();
+                                 //.Include(s => s.ServiceRegistration).Include(s => s.ServiceRegistration.Service)
+                                 //.Include(s => s.CreatedBy).ToListAsync();
         }
 
         public BRPairable GetBusinessAndRegServiceId(long? BusinessRuleId, long RegServiceId)
