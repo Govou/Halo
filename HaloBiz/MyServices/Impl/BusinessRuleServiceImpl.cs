@@ -121,10 +121,7 @@ namespace HaloBiz.MyServices.Impl
                    
                 }
             }
-            else
-            {
-
-            }
+          
            
             //var TransferDTO = _mapper.Map<BusinessRuleTransferDTO>(rule);
             return CommonResponse.Send(ResponseCodes.SUCCESS, null, "Pairing allowed");
