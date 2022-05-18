@@ -69,5 +69,24 @@ namespace HaloBiz.Repository.Impl
                return false;
            }
         }
+
+        public async Task<ApprovingLevelOffice> GetLastApprovingLevelOffice()
+        {
+            return await _context.ApprovingLevelOffices.LastOrDefaultAsync(x => x.IsDeleted == false);
+        }
+
+        public async Task<bool> SaveApprovingLevelOffice(ApprovingLevelOffice approvingLevelOffice)
+        {
+            try
+            {
+                await _context.ApprovingLevelOffices.AddAsync(approvingLevelOffice);
+                return true;
+            }
+            catch(Exception error)
+            {
+                _logger.LogError(error.Message);
+                return false;
+            }
+        }
     }
 }

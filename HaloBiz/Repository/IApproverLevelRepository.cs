@@ -11,5 +11,7 @@ namespace HaloBiz.Repository
         Task<ApproverLevel> UpdateApproverLevel(ApproverLevel approverLevel);
         Task<bool> DeleteApproverLevel(ApproverLevel approverLevel);
         Task<ApproverLevel> FindApproverLevelById(long Id);
+        Task<ApprovingLevelOffice> GetLastApprovingLevelOffice();
+        Task<bool> SaveApprovingLevelOffice(ApprovingLevelOffice approvingLevelOffice);
     }
 }

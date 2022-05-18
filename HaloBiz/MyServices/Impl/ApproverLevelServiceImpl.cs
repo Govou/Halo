@@ -39,6 +39,34 @@ namespace HaloBiz.MyServices.Impl
             return CommonResponse.Send(ResponseCodes.SUCCESS,approverLevelTransferDTO);
         }
 
+        public async Task<ApiCommonResponse> CreateApprovingLevelOffice(HttpContext context, ApprovingLevelOfficeReceivingDTO model)
+        {
+            long userProfileID = context.GetLoggedInUserId();
+            if (model.OfficersIds.Count <= 0) return CommonResponse.Send(ResponseCodes.SYSTEM_ERROR_OCCURRED, "Err: you must assign at least one approvong officer when creating an approving office");
+            var lastOffice = await _approverLevelRepo.GetLastApprovingLevelOffice();
+            ApprovingLevelOffice approvingLevelOffice = new()
+            {
+                ApproverLevelId = model.ApprovingLevelId,
+                CreatedById = userProfileID,
+                CreatedAt = System.DateTime.Now,
+                ApprovingOfficers = new List<ApprovingLevelOfficer>()
+            };
+            foreach (var officerId in model.OfficersIds)
+                approvingLevelOffice.ApprovingOfficers.Add(new ApprovingLevelOfficer()
+                {
+                    UserId = officerId,
+                    CreatedById = userProfileID,
+                    CreatedAt = System.DateTime.Now
+                });
+
+            var savedApprovingLevelOffice = await _approverLevelRepo.SaveApprovingLevelOffice(approvingLevelOffice);
+            if (!savedApprovingLevelOffice)
+            {
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+            }
+            return CommonResponse.Send(ResponseCodes.SUCCESS, true);
+        }
+
         public async Task<ApiCommonResponse> DeleteApproverLevel(long id)
         {
             var approverLevelToDelete = await _approverLevelRepo.FindApproverLevelById(id);

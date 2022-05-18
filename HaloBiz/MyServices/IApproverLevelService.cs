@@ -11,5 +11,6 @@ namespace HaloBiz.MyServices
         Task<ApiCommonResponse> GetAllApproverLevel();
         Task<ApiCommonResponse> UpdateApproverLevel(HttpContext context, long id, ApproverLevelReceivingDTO approverLevelReceivingDTO);
         Task<ApiCommonResponse> DeleteApproverLevel(long id);
+        Task<ApiCommonResponse> CreateApprovingLevelOffice(HttpContext context, ApprovingLevelOfficeReceivingDTO model);
     }
 }
