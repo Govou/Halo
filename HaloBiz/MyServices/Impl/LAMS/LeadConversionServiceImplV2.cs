@@ -15,6 +15,7 @@ using HaloBiz.MyServices.LAMS;
 using HalobizMigrations.Models.Halobiz;
 using HaloBiz.Model;
 using Microsoft.Extensions.Configuration;
+using Halobiz.Common.Helpers;
 
 namespace HaloBiz.MyServices.Impl.LAMS
 {

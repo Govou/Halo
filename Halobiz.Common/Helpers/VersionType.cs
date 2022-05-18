@@ -1,7 +1,7 @@
 namespace HaloBiz.Helpers
 {
-    public enum VersionType
-    {
-        Latest, Previous, Draft
-    }
+    //public enum VersionType
+    //{
+    //    Latest, Previous, Draft
+    //}
 }

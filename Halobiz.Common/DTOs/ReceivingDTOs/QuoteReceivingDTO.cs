@@ -1,7 +1,10 @@
 ﻿using Halobiz.Common.Helpers;
+using HalobizMigrations.Models;
 using HalobizMigrations.Models.Shared;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -33,6 +36,7 @@ namespace Halobiz.Common.DTOs.ReceivingDTOs
         public double? BillableAmount { get; set; }
         public double? Budget { get; set; }
 
+        [DataType(DataType.Date)]
         public DateTime? ContractStartDate { get; set; }
         public DateTime? ContractEndDate { get; set; }
         public TimeCycle? PaymentCycle { get; set; }
@@ -65,6 +69,9 @@ namespace Halobiz.Common.DTOs.ReceivingDTOs
 
         public long BranchId { get; set; }
         public long OfficeId { get; set; }
+
+        [ForeignKey("BranchId")]
+        public Branch Branch { get; set; }
         public string UniqueTag { get; set; }
         public string AdminDirectTie { get; set; }
     }

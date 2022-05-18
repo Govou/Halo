@@ -3,6 +3,7 @@ using HaloBiz.DTOs.ReceivingDTOs.LAMS;
 using Halobiz.Common.DTOs.ApiDTOs;
 using Microsoft.AspNetCore.Http;
 using System.Collections.Generic;
+using Halobiz.Common.DTOs.ReceivingDTOs;
 
 namespace HaloBiz.MyServices.LAMS
 {
