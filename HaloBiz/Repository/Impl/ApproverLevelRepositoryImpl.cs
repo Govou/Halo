@@ -80,6 +80,7 @@ namespace HaloBiz.Repository.Impl
             try
             {
                 await _context.ApprovingLevelOffices.AddAsync(approvingLevelOffice);
+                await _context.SaveChangesAsync();
                 return true;
             }
             catch(Exception error)
@@ -103,6 +104,79 @@ namespace HaloBiz.Repository.Impl
                 _logger.LogError(error.Message);
                 return new List<ApprovingLevelOffice>();
             }
+        }
+
+        public async Task<bool> DeleteApprovingLevelOffice(long approvingLevelOfficeId)
+        {
+            try
+            {
+                var office = await _context.ApprovingLevelOffices.FirstOrDefaultAsync(x => x.Id == approvingLevelOfficeId && x.IsDeleted == false);
+                office.UpdatedAt = DateTime.Now;
+                office.IsDeleted = true;
+                _context.ApprovingLevelOffices.Update(office);
+                await _context.SaveChangesAsync();
+                return true;
+            }
+            catch (Exception error)
+            {
+                _logger.LogError(error.Message);
+                return false;
+            }
+        }
+
+        public async Task<bool> UpdateApprovingLevelOffice(ApprovingLevelOffice approverLevel)
+        {
+            try
+            {
+                _context.ApprovingLevelOffices.Update(approverLevel);
+                await _context.SaveChangesAsync();
+                return true;
+            }
+            catch (Exception error)
+            {
+                _logger.LogError(error.Message);
+                return false;
+            }
+        }
+
+        public async Task<bool> RemoveApprovingLevelOfficers(List<ApprovingLevelOfficer> approvingLevelOfficers)
+        {
+            try
+            {
+                _context.ApprovingLevelOfficers.RemoveRange(approvingLevelOfficers);
+                await _context.SaveChangesAsync();
+                return true;
+            }
+            catch (Exception error)
+            {
+                _logger.LogError(error.Message);
+                return false;
+            }
+        }
+
+        public async Task<bool> SaveApprovingLevelOfficers(List<ApprovingLevelOfficer> approvingLevelOfficers)
+        {
+            try
+            {
+                await _context.ApprovingLevelOfficers.AddRangeAsync(approvingLevelOfficers);
+                await _context.SaveChangesAsync();
+                return true;
+            }
+            catch (Exception error)
+            {
+                _logger.LogError(error.Message);
+                return false;
+            }
+        }
+
+        public async Task<ApprovingLevelOffice> FindApprovingLevelOfficeByID(long Id)
+        {
+            return await _context.ApprovingLevelOffices.FirstOrDefaultAsync(x => x.Id == Id && x.IsDeleted == false);
+        }
+
+        public async Task<List<ApprovingLevelOfficer>> FindApprovingLevelOfficersByOfficeID(long Id)
+        {
+            return await _context.ApprovingLevelOfficers.Where(x => x.ApprovingLevelOfficeId == Id).ToListAsync();
         }
     }
 }

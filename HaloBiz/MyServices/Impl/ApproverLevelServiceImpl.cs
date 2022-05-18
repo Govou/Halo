@@ -9,6 +9,7 @@ using HalobizMigrations.Models;
 using HaloBiz.Repository;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
+using System.Linq;
 
 namespace HaloBiz.MyServices.Impl
 {
@@ -132,6 +133,58 @@ namespace HaloBiz.MyServices.Impl
             var approvingLevelOffices = await _approverLevelRepo.GetApprovingLevelOffices();
             var approvingLevelTransferDTO = _mapper.Map<IEnumerable<ApprovingLevelOfficeTransferDTO>>(approvingLevelOffices);
             return CommonResponse.Send(ResponseCodes.SUCCESS, approvingLevelTransferDTO);
+        }
+
+        public async Task<ApiCommonResponse> DeleteApprovingLevelOffice(long id)
+        {
+            var isDeleted = await _approverLevelRepo.DeleteApprovingLevelOffice(id);
+            if (!isDeleted)
+            {
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE); ;
+            }
+            return CommonResponse.Send(ResponseCodes.SUCCESS);
+        }
+
+        public async Task<ApiCommonResponse> UpdateApprovingLevelOffice(HttpContext context, long id, ApprovingLevelOfficeReceivingDTO model)
+        {
+            long userProfileID = context.GetLoggedInUserId();
+            if (model.OfficersIds.Count <= 0) return CommonResponse.Send(ResponseCodes.FAILURE, "Err: you must assign at least one approving officer when updating an approving office");
+            ApprovingLevelOffice approvingOffice = await _approverLevelRepo.FindApprovingLevelOfficeByID(id);
+            if (approvingOffice == null) return CommonResponse.Send(ResponseCodes.FAILURE, "Err: Approving Office does not exists");
+            List<ApprovingLevelOfficer> approvingOfficers = await _approverLevelRepo.FindApprovingLevelOfficersByOfficeID(approvingOffice.Id);
+            List<ApprovingLevelOfficer> officersToRemove = new();
+            foreach (var appOfficer in approvingOfficers)
+            {
+                if (!model.OfficersIds.Any(x => x == appOfficer.UserId))
+                {
+                    officersToRemove.Add(appOfficer);
+                }
+                else
+                {
+                    var officerIdToRemove = model.OfficersIds.Single(x => x == appOfficer.UserId);
+                    model.OfficersIds.Remove(officerIdToRemove);
+                }
+            }
+            if (officersToRemove.Count > 0)
+                await _approverLevelRepo.RemoveApprovingLevelOfficers(officersToRemove);
+
+            List<ApprovingLevelOfficer> newOfficers = new();
+            foreach (var officerId in model.OfficersIds)
+            {
+                ApprovingLevelOfficer approvingOfficer = new()
+                {
+                    UserId = officerId,
+                    CreatedById = userProfileID,
+                    CreatedAt = System.DateTime.Now,
+                    ApprovingLevelOfficeId = approvingOffice.Id
+                };
+                newOfficers.Add(approvingOfficer);
+            }
+            await _approverLevelRepo.SaveApprovingLevelOfficers(newOfficers);
+            approvingOffice.ApproverLevelId = model.ApprovingLevelId;
+            approvingOffice.UpdatedAt = System.DateTime.Now;
+            await _approverLevelRepo.UpdateApprovingLevelOffice(approvingOffice);
+            return CommonResponse.Send(ResponseCodes.SUCCESS, true);
         }
     }
 }

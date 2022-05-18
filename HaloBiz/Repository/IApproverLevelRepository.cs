@@ -14,5 +14,11 @@ namespace HaloBiz.Repository
         Task<ApprovingLevelOffice> GetLastApprovingLevelOffice();
         Task<bool> SaveApprovingLevelOffice(ApprovingLevelOffice approvingLevelOffice);
         Task<IEnumerable<ApprovingLevelOffice>> GetApprovingLevelOffices();
+        Task<bool> DeleteApprovingLevelOffice(long approvingLevelOfficeId);
+        Task<bool> UpdateApprovingLevelOffice(ApprovingLevelOffice approverLevel);
+        Task<bool> RemoveApprovingLevelOfficers(List<ApprovingLevelOfficer> approvingLevelOfficers);
+        Task<bool> SaveApprovingLevelOfficers(List<ApprovingLevelOfficer> approvingLevelOfficers);
+        Task<ApprovingLevelOffice> FindApprovingLevelOfficeByID(long Id);
+        Task<List<ApprovingLevelOfficer>> FindApprovingLevelOfficersByOfficeID(long Id);
     }
 }
