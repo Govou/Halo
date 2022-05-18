@@ -75,6 +75,7 @@ namespace HaloBiz.Helpers
                 var refreshToken = context.Request?.Headers["xr-token"].FirstOrDefault();
 
                 _logger.LogInformation($"For action: {actionName}; Token supplied: {token}");
+                _logger.LogInformation($"For context; Token supplied: {context.Request.Headers}");
 
                 if (token != null)
                 {

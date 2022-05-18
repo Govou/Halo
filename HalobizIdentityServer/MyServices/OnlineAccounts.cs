@@ -36,14 +36,14 @@ namespace HalobizIdentityServer.MyServices
         private readonly ILogger<OnlineAccounts> _logger;
         private readonly JwtHelper _jwttHelper;
         private readonly IMapper _mapper;
-        private readonly IRoleService _roleService;
+      //  private readonly IRoleService _roleService;
 
 
         public OnlineAccounts(IMailService mailService,
              // IUserProfileService userProfileService,
             JwtHelper jwtHelper,
             IMapper mapper,
-            IRoleService roleService,
+         //   IRoleService roleService,
             ILogger<OnlineAccounts> logger,
             HalobizContext context
          )
@@ -52,7 +52,7 @@ namespace HalobizIdentityServer.MyServices
            // _userProfileService = userProfileService;
             _logger = logger;
             _mapper = mapper;
-            _roleService = roleService;
+          //  _roleService = roleService;
             _jwttHelper = jwtHelper;
             _context = context;
 
@@ -234,9 +234,9 @@ namespace HalobizIdentityServer.MyServices
                 }
                 
                 //get the permissions of the user
-                var permissions = await _roleService.GetPermissionEnumsOnUser(profile.Id);
+             //   var permissions = await _roleService.GetPermissionEnumsOnUser(profile.Id);
 
-                var jwtToken = _jwttHelper.GenerateToken(null, permissions);
+                var jwtToken = _jwttHelper.GenerateToken(null, null);
 
                 var mappedProfile = _mapper.Map<UserProfileTransferDTO>(profile);
                 return CommonResponse.Send(ResponseCodes.SUCCESS, new UserAuthTransferDTO
