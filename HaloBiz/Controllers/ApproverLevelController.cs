@@ -56,5 +56,11 @@ namespace HaloBiz.Controllers
             return await _approverLevelService.CreateApprovingLevelOffice(HttpContext, model);
         }
 
+        [HttpGet("GetApprovingLevelOffices")]
+        public async Task<ApiCommonResponse> GetApprovingLevelOffices()
+        {
+            return await _approverLevelService.GetAllApprovingLevelOffices();
+        }
+
     }
 }

@@ -126,5 +126,12 @@ namespace HaloBiz.MyServices.Impl
             var approverLevelTransferDTOs = _mapper.Map<ApproverLevelTransferDTO>(updatedApproverLevel);
             return CommonResponse.Send(ResponseCodes.SUCCESS,approverLevelTransferDTOs);
         }
+
+        public async Task<ApiCommonResponse> GetAllApprovingLevelOffices()
+        {
+            var approvingLevelOffices = await _approverLevelRepo.GetApprovingLevelOffices();
+            var approvingLevelTransferDTO = _mapper.Map<IEnumerable<ApprovingLevelOfficeTransferDTO>>(approvingLevelOffices);
+            return CommonResponse.Send(ResponseCodes.SUCCESS, approvingLevelTransferDTO);
+        }
     }
 }

@@ -88,5 +88,21 @@ namespace HaloBiz.Repository.Impl
                 return false;
             }
         }
+
+        public async Task<IEnumerable<ApprovingLevelOffice>> GetApprovingLevelOffices()
+        {
+            try
+            {
+                return await _context.ApprovingLevelOffices
+                    .Include(x => x.ApprovingOfficers)
+                    .Where(x => x.IsDeleted == false)
+                    .ToListAsync();
+            }
+            catch(Exception error)
+            {
+                _logger.LogError(error.Message);
+                return new List<ApprovingLevelOffice>();
+            }
+        }
     }
 }
