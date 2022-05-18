@@ -133,5 +133,11 @@ namespace OnlinePortalBackend.Repository.Impl
         {
             return await _context.Applications.ToListAsync();
         }
+
+        public Task<string> GetServiceReviews(int serviceId, int pageSIze = 10)
+        {
+           // var reviews = _context.ServiceRatings.Where(x => x.ServiceId == serviceId && !String.IsNullOrEmpty(x.Review)).Select(x => new )
+           throw new NotImplementedException();
+        }
     }
 }

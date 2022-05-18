@@ -125,6 +125,11 @@ namespace OnlinePortalBackend.Repository.Impl
 
                 customerDivisionId = (int)customerDiv.Id;
 
+                var onlineProfile = _context.OnlineProfiles.FirstOrDefault(x => x.Email.ToLower() == contractDTO.Email.ToLower());
+                onlineProfile.CustomerDivisionId = onlineProfile.Id;
+
+                await _context.SaveChangesAsync();
+
 
                 foreach (var item in contractDTO.SMSContractServices)
                 {

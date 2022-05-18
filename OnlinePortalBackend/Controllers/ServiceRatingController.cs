@@ -66,23 +66,17 @@ namespace HaloBiz.Controllers
             return Ok(response);
         }
 
-       
+        [HttpGet("GetServiceReviews")]
+        public async Task<ActionResult> GetServiceReviews(int serviceId, int pageSIze = 10)
+        {
+            var response = await _serviceRatingService.GetServiceReviews(serviceId, pageSIze);
+            if (response.StatusCode >= 400)
+                return StatusCode(response.StatusCode, response);
+            var serviceRating = ((ApiOkResponse)response).Result;
+            return Ok(serviceRating);
+        }
 
-        //[HttpPut("{id}")]
-        //public async Task<IActionResult> UpdateById(long id, ServiceRatingReceivingDTO serviceRatingReceiving)
-        //{
-        //    var response = await _serviceRatingService.UpdateServiceRating(HttpContext, id, serviceRatingReceiving);
-        //    if (response.StatusCode >= 400)
-        //        return StatusCode(response.StatusCode, response);
-        //    var serviceRating = ((ApiOkResponse)response).Result;
-        //    return Ok((ServiceRatingTransferDTO)serviceRating);
-        //}
 
-        //[HttpDelete("{id}")]
-        //public async Task<ActionResult> DeleteById(int id)
-        //{
-        //    var response = await _serviceRatingService.DeleteServiceRating(id);
-        //    return StatusCode(response.StatusCode);
-        //}
+
     }
 }

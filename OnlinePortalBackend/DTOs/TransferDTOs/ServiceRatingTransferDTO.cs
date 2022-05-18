@@ -27,4 +27,12 @@ namespace OnlinePortalBackend.DTOs.TransferDTOs
         public string Review { get; set; }
         public DateTime DatePosted { get; set; }
     }
+
+    public class ServiceReviewDTO
+    {
+        public DateTime ReviewDate { get; set; }
+        public int Rating { get; set; }
+        public string Review { get; set; }
+
+    }
 }
