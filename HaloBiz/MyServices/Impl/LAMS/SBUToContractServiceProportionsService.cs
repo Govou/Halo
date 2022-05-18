@@ -18,6 +18,7 @@ using Microsoft.Extensions.Logging;
 using HaloBiz.Repository.Impl.LAMS;
 using Microsoft.EntityFrameworkCore;
 using HaloBiz.DTOs.TransferDTOs;
+using Halobiz.Common.DTOs.ReceivingDTOs;
 
 namespace HaloBiz.MyServices.Impl.LAMS
 {
@@ -180,7 +181,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
             foreach (var entity in entities) 
             {
-                if(entity.Status == (int)ProportionStatusType.LeadGeneratorAndClosure)
+                if(entity.Status == (int)Helpers.ProportionStatusType.LeadGeneratorAndClosure)
                 {
                     sumRatio += 2;
                 }else
@@ -192,7 +193,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
             foreach (var entity in entities)
             {
-                if(entity.Status == (int)ProportionStatusType.LeadGeneratorAndClosure)
+                if(entity.Status == (int)Helpers.ProportionStatusType.LeadGeneratorAndClosure)
                 {
                     entity.Proportion = Math.Round(2.0/sumRatio * 100.00, 2);
                 }else
@@ -217,11 +218,11 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
             foreach (var entity in entities) 
             {
-                if(entity.Status == (int)ProportionStatusType.LeadGeneratorAndClosure)
+                if(entity.Status == (int)Helpers.ProportionStatusType.LeadGeneratorAndClosure)
                 {
                     closureRatio += 1;
                     generationRation += 1;
-                }else if(entity.Status == (int)ProportionStatusType.LeadClosure)
+                }else if(entity.Status == (int)Helpers.ProportionStatusType.LeadClosure)
                 {
                     closureRatio += 1;
                 }else{
@@ -234,10 +235,10 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
             foreach (var entity in entities)
             {
-                if(entity.Status == (int)ProportionStatusType.LeadGeneratorAndClosure)
+                if(entity.Status == (int)Helpers.ProportionStatusType.LeadGeneratorAndClosure)
                 {
                     entity.Proportion = percentageClosurePerUser + percentageGenerationPerUser;
-                }else if(entity.Status == (int)ProportionStatusType.LeadClosure)
+                }else if(entity.Status == (int)Helpers.ProportionStatusType.LeadClosure)
                 {
                     entity.Proportion = percentageClosurePerUser;
                 }else{

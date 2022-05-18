@@ -18,6 +18,7 @@ using HaloBiz.Repository.LAMS;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using Halobiz.Common.DTOs.ReceivingDTOs;
 
 namespace HaloBiz.MyServices.Impl.LAMS
 {
