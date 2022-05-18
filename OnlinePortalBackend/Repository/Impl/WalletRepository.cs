@@ -224,15 +224,15 @@ namespace OnlinePortalBackend.Repository.Impl
             
         }
 
-        public async Task<(bool isSuccess, string message)> SpendWallet(SpendWalletDTO request)
+        public async Task<(bool isSuccess, SpendWalletResponseDTO message)> SpendWallet(SpendWalletDTO request)
         {
             var createdBy = _context.UserProfiles.FirstOrDefault(x => x.Email.ToLower().Contains("online")).Id;
             var walletMaster = _context.WalletMasters.FirstOrDefault(x => x.OnlineProfileId == request.ProfileId);
             if (walletMaster == null)
-                return (false, "User does not have a wallet");
+                return (false, new SpendWalletResponseDTO { Message = "User does not have a wallet" });
 
             if (double.Parse(walletMaster.WalletBalance) < request.Amount)
-                return (false, "Insufficient funds in wallet");
+                return (false, new SpendWalletResponseDTO { Message = "Insufficient funds in wallet" });
             
 
             var profile = _context.OnlineProfiles.FirstOrDefault(x => x.Id == request.ProfileId);
@@ -356,14 +356,14 @@ namespace OnlinePortalBackend.Repository.Impl
 
                 await trx.CommitAsync();
 
-                return (true, "Success");
+                return (true, new SpendWalletResponseDTO { TransactionReference = transactionId, Message = "Success" });
 
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex.Message);
                 await trx.RollbackAsync();
-                return (false, "Wallet spending Failed");
+                return (false, new SpendWalletResponseDTO { Message = "Wallet spending Failed" });
             }
         }
 
