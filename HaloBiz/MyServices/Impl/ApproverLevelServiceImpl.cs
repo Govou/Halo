@@ -42,7 +42,7 @@ namespace HaloBiz.MyServices.Impl
         public async Task<ApiCommonResponse> CreateApprovingLevelOffice(HttpContext context, ApprovingLevelOfficeReceivingDTO model)
         {
             long userProfileID = context.GetLoggedInUserId();
-            if (model.OfficersIds.Count <= 0) return CommonResponse.Send(ResponseCodes.SYSTEM_ERROR_OCCURRED, "Err: you must assign at least one approvong officer when creating an approving office");
+            if (model.OfficersIds.Count <= 0) return CommonResponse.Send(ResponseCodes.SYSTEM_ERROR_OCCURRED, "Err: you must assign at least one approving officer when creating an approving office");
             var lastOffice = await _approverLevelRepo.GetLastApprovingLevelOffice();
             ApprovingLevelOffice approvingLevelOffice = new()
             {
