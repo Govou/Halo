@@ -28,5 +28,11 @@ namespace OnlinePortalBackend.Controllers.SecureMobilitySales
         {
             return _accountService.CreateBusinessAccount(request);
         }
+
+        [HttpGet("GetCustomerProfile")]
+        public Task<ApiCommonResponse> GetCustomerProfile(int profileId)
+        {
+            return _accountService.GetCustomerProfile(profileId);
+        }
     }
 }

@@ -14,6 +14,7 @@ using System.Security.Cryptography;
 using Microsoft.EntityFrameworkCore;
 using OnlinePortalBackend.Helpers;
 using HalobizMigrations.Models.Shared;
+using OnlinePortalBackend.DTOs.TransferDTOs;
 
 namespace OnlinePortalBackend.Repository.Impl
 {
@@ -30,17 +31,40 @@ namespace OnlinePortalBackend.Repository.Impl
             _context = context;
             _mapper = mapper;
         }
-        public async Task<bool> CreateBusinessAccount(SMSBusinessAccountDTO accountDTO)
+        public async Task<(bool success, string message)> CreateBusinessAccount(SMSBusinessAccountDTO accountDTO)
         {
+            var exist = _context.LeadDivisions.Any(x => x.Email.ToLower() == accountDTO.AccountLogin.Email.ToLower());
+
+            if (exist)
+            return (false, "User already exists");
+
             var createdBy = _context.UserProfiles.FirstOrDefault(x => x.Email.ToLower().Contains("online")).Id;
             var grouptype = _context.GroupTypes.FirstOrDefault(x => x.Caption.ToLower() == "sme").Id;
             var leadOrigin = _context.LeadOrigins.FirstOrDefault(x => x.Caption.ToLower() == "email").Id;
             var branchId = _context.Branches.FirstOrDefault(x => x.Name.ToLower().Contains("hq")).Id;
             var leadtype = _context.LeadTypes.FirstOrDefault(x => x.Caption.ToLower() == "rfq").Id;
+            var office = _context.Offices.FirstOrDefault(x => x.Name.ToLower().Contains("office")).Id;
+
             //var receivableAcctId = 0;
+            var gender = accountDTO.ContactPerson.Gender == "M" ? Gender.Male : Gender.Female;
 
             using var transaction = await _context.Database.BeginTransactionAsync();
-           
+
+            
+
+            var leadDivisionContact = new LeadDivisionContact
+            {
+                CreatedAt = DateTime.UtcNow.AddHours(1),
+                UpdatedAt = DateTime.UtcNow.AddHours(1),
+                CreatedById = createdBy,
+                Email = accountDTO.AccountLogin.Email,
+                FirstName = accountDTO.ContactPerson.FirstName,
+                LastName = accountDTO.ContactPerson.LastName,
+                Gender = accountDTO.ContactPerson.Gender,
+                Type = (int)leadtype,
+                MobileNumber = accountDTO.PhoneNumber
+            };
+
             var suspect = new Suspect
             {
                 Address = accountDTO.Address,
@@ -57,8 +81,9 @@ namespace OnlinePortalBackend.Repository.Impl
                 LeadOriginId = leadOrigin,
                 LeadTypeId = leadtype,
                 LgaId = accountDTO.LGAId,
-              //  OfficeId = office,
+                OfficeId = office,
                 StateId = accountDTO.StateId,
+                RCNumber = accountDTO.RCNumber
             };
 
             var leadReference = await GetReferenceNumber();
@@ -71,13 +96,26 @@ namespace OnlinePortalBackend.Repository.Impl
                 CreatedAt = DateTime.UtcNow.AddHours(1),
                 UpdatedAt = DateTime.UtcNow.AddHours(1),
                 CreatedById = createdBy,
-                CustomerId = 0,
                 GroupName = accountDTO.CompanyName,
                 GroupTypeId = grouptype,
                 Industry = accountDTO.Industry,
                 LeadOriginId = leadOrigin,
                 LeadTypeId = leadtype,
-                LogoUrl = accountDTO.LogoUrl
+                LogoUrl = accountDTO.LogoUrl,
+                Rcnumber = accountDTO.RCNumber,
+            };
+
+            var leadContact = new LeadContact
+            {
+                CreatedAt = DateTime.UtcNow.AddHours(1),
+                UpdatedAt = DateTime.UtcNow.AddHours(1),
+                CreatedById = createdBy,
+                Email = accountDTO.AccountLogin.Email,
+                FirstName = accountDTO.ContactPerson.FirstName,
+                LastName = accountDTO.ContactPerson.LastName,
+                Gender = accountDTO.ContactPerson.Gender,
+                MobileNumber = accountDTO.ContactPerson.PhoneNumber,
+                Type = (int)leadtype
             };
 
             var leadDivision = new LeadDivision
@@ -96,37 +134,8 @@ namespace OnlinePortalBackend.Repository.Impl
                 Lgaid = accountDTO.LGAId,
                 LogoUrl = accountDTO.LogoUrl,
                 PhoneNumber = accountDTO.PhoneNumber,
-            };
-
-            var customer = new Customer
-            {
-                CreatedAt = DateTime.UtcNow.AddHours(1),
-                CreatedById = createdBy,
-                Email = accountDTO.AccountLogin.Email,
-                UpdatedAt = DateTime.UtcNow.AddHours(1),
-                LogoUrl = accountDTO.LogoUrl,
-                GroupName = accountDTO.CompanyName,
-                PhoneNumber = accountDTO.PhoneNumber,
-                GroupTypeId = grouptype,
-                Industry = accountDTO.Industry,
-                Rcnumber = "NULL"
-            };
-
-
-            var custDivision = new CustomerDivision
-            {
-                Address = accountDTO.Address,
-                CreatedAt = DateTime.UtcNow.AddHours(1),
-                UpdatedAt = DateTime.UtcNow.AddHours(1),
-               // ReceivableAccountId = receivableAcctId,
-                Lgaid = accountDTO.LGAId,
-                Industry = accountDTO.Industry,
-                CreatedById = createdBy,
-                Email = accountDTO.AccountLogin.Email,
-                PhoneNumber = accountDTO.PhoneNumber,
-                LogoUrl = accountDTO.LogoUrl,
-                StateId = accountDTO.StateId,
-                DivisionName = accountDTO.CompanyName
+                OfficeId = office,
+                Rcnumber = accountDTO.RCNumber
             };
 
             var (salt, hashed) = HashPassword(new byte[] { }, accountDTO.AccountLogin.Password);
@@ -139,82 +148,83 @@ namespace OnlinePortalBackend.Repository.Impl
                 PasswordHash = hashed,
                 SecurityStamp = Convert.ToBase64String(salt),
                 Name = accountDTO.CompanyName,
-                CustomerDivisionId = customer.Id,
-                CreatedAt = DateTime.UtcNow.AddHours(1),
+                CreatedAt = DateTime.UtcNow.AddHours(1)
             }; 
 
             try
             {
+                _context.LeadDivisionContacts.Add(leadDivisionContact);
+                await _context.SaveChangesAsync();
+
                 _context.Suspects.Add(suspect);
                 await _context.SaveChangesAsync();
 
-                _context.Customers.Add(customer);
-                await _context.SaveChangesAsync();
-
                 lead.SuspectId = suspect.Id;
-                lead.CustomerId = customer.Id;
 
                 _context.Leads.Add(lead);
+                await _context.SaveChangesAsync();
+
+                leadContact.LeadId = lead.Id;
+
+                _context.LeadContacts.Add(leadContact);
                 await _context.SaveChangesAsync();
 
                 leadReference.ReferenceNo = leadReference.ReferenceNo + 1;
                 await UpdateReferenceNumber(leadReference);
 
                 leadDivision.LeadId = lead.Id;
+                leadDivision.PrimaryContactId = leadDivisionContact.Id;
 
                 _context.LeadDivisions.Add(leadDivision);
                 await _context.SaveChangesAsync();
 
-                customer.CustomerLeadId = leadDivision.Id;
-
-                custDivision.CustomerId = customer.Id;
-                custDivision.LeadDivisionId = leadDivision.Id;
-
-                _context.CustomerDivisions.Add(custDivision);
-                await _context.SaveChangesAsync();
-
-                onlinProfile.CustomerDivisionId = custDivision.Id;
+                onlinProfile.LeadDivisionId = leadDivision.Id;
 
                 _context.OnlineProfiles.Add(onlinProfile);
                 await _context.SaveChangesAsync();
 
                 await transaction.CommitAsync();
 
-                return true;
+                return (true, "success");
             }
             catch (Exception e)
             {
                 _logger.LogError(e.Message);
                 _logger.LogError(e.StackTrace);
                 await transaction.RollbackAsync();
-                return false;
+                return (false, "An error has occured");
             }
-
-
         }
 
-        public async Task<bool> CreateIndividualAccount(SMSIndividualAccountDTO accountDTO)
+        public async Task<(bool success, string message)> CreateIndividualAccount(SMSIndividualAccountDTO accountDTO)
         {
+            var exist = _context.LeadDivisions.Any(x => x.Email.ToLower() == accountDTO.AccountLogin.Email.ToLower());
+
+            if (exist)
+                return (false, "User already exists");
+
             var createdBy = _context.UserProfiles.FirstOrDefault(x => x.Email.ToLower().Contains("online")).Id;
             var grouptype = _context.GroupTypes.FirstOrDefault(x => x.Caption.ToLower() == "individual").Id;
             var leadOrigin = _context.LeadOrigins.FirstOrDefault(x => x.Caption.ToLower() == "email").Id;
             var branchId = _context.Branches.FirstOrDefault(x => x.Name.ToLower().Contains("hq")).Id;
             var leadtype = _context.LeadTypes.FirstOrDefault(x => x.Caption.ToLower() == "rfq").Id;
+            var office = _context.Offices.FirstOrDefault(x => x.Name.ToLower().Contains("office")).Id;
             //var receivableAcctId = 0;
 
             using var transaction = await _context.Database.BeginTransactionAsync();
             var gender = accountDTO.Gender == "M" ? Gender.Male : Gender.Female;
-            var contact = new Contact
-            {
-                CreatedAt = DateTime.UtcNow.AddHours(1),
-                UpdatedAt = DateTime.UtcNow.AddHours(1),
-                CreatedById = createdBy,
-                Email = accountDTO.AccountLogin.Email,
-                FirstName = accountDTO.FirstName,
-                LastName = accountDTO.LastName,
-                Gender = gender,
-                ProfilePicture = accountDTO.ImageUrl
-            };
+            //var contact = new Contact
+            //{
+            //    CreatedAt = DateTime.UtcNow.AddHours(1),
+            //    UpdatedAt = DateTime.UtcNow.AddHours(1),
+            //    CreatedById = createdBy,
+            //    Email = accountDTO.AccountLogin.Email,
+            //    FirstName = accountDTO.FirstName,
+            //    LastName = accountDTO.LastName,
+            //    Gender = gender,
+            //    ProfilePicture = accountDTO.ImageUrl,
+            //    Mobile = accountDTO.PhoneNumber
+            //};
 
             var suspect = new Suspect
             {
@@ -230,7 +240,7 @@ namespace OnlinePortalBackend.Repository.Impl
                 LeadOriginId = leadOrigin,
                 LeadTypeId = leadtype,
                 LgaId = accountDTO.LGAId,
-                //  OfficeId = office,
+                OfficeId = office,
                 StateId = accountDTO.StateId,
                 FirstName = accountDTO.FirstName,
                 LastName= accountDTO.LastName
@@ -246,7 +256,6 @@ namespace OnlinePortalBackend.Repository.Impl
                 CreatedAt = DateTime.UtcNow.AddHours(1),
                 UpdatedAt = DateTime.UtcNow.AddHours(1),
                 CreatedById = createdBy,
-                CustomerId = 0,
                 GroupName = accountDTO.FirstName + " " + accountDTO.LastName,
                 GroupTypeId = grouptype,
                 LeadOriginId = leadOrigin,
@@ -268,20 +277,8 @@ namespace OnlinePortalBackend.Repository.Impl
                 StateId = accountDTO.StateId,
                 Lgaid = accountDTO.LGAId,
                 LogoUrl = accountDTO.ImageUrl,
-                PhoneNumber = accountDTO.PhoneNumber
-            };
-
-            var customer = new Customer
-            {
-                CreatedAt = DateTime.UtcNow.AddHours(1),
-                CreatedById = createdBy,
-                Email = accountDTO.AccountLogin.Email,
-                UpdatedAt = DateTime.UtcNow.AddHours(1),
-                LogoUrl = accountDTO.ImageUrl,
-                GroupName = accountDTO.FirstName + " " + accountDTO.LastName,
                 PhoneNumber = accountDTO.PhoneNumber,
-                GroupTypeId = grouptype,
-                Rcnumber = "NULL"
+                OfficeId = office
             };
 
             var leadContact = new LeadContact
@@ -297,20 +294,33 @@ namespace OnlinePortalBackend.Repository.Impl
                 Type = (int)leadtype
             };
 
-            var custDivision = new CustomerDivision
+            var leadDivisionContact = new LeadDivisionContact
             {
-                Address = accountDTO.Address,
                 CreatedAt = DateTime.UtcNow.AddHours(1),
                 UpdatedAt = DateTime.UtcNow.AddHours(1),
-                // ReceivableAccountId = receivableAcctId,
-                Lgaid = accountDTO.LGAId,
                 CreatedById = createdBy,
                 Email = accountDTO.AccountLogin.Email,
-                PhoneNumber = accountDTO.PhoneNumber,
-                LogoUrl = accountDTO.ImageUrl,
-                StateId = accountDTO.StateId,
-                DivisionName = accountDTO.FirstName + " " + accountDTO.LastName
+                FirstName = accountDTO.FirstName,
+                LastName = accountDTO.LastName,
+                Gender = accountDTO.Gender,
+                Type = (int)leadtype,
+                MobileNumber = accountDTO.PhoneNumber
             };
+
+            //var custDivision = new CustomerDivision
+            //{
+            //    Address = accountDTO.Address,
+            //    CreatedAt = DateTime.UtcNow.AddHours(1),
+            //    UpdatedAt = DateTime.UtcNow.AddHours(1),
+            //    // ReceivableAccountId = receivableAcctId,
+            //    Lgaid = accountDTO.LGAId,
+            //    CreatedById = createdBy,
+            //    Email = accountDTO.AccountLogin.Email,
+            //    PhoneNumber = accountDTO.PhoneNumber,
+            //    LogoUrl = accountDTO.ImageUrl,
+            //    StateId = accountDTO.StateId,
+            //    DivisionName = accountDTO.FirstName + " " + accountDTO.LastName
+            //};
 
             var (salt, hashed) = HashPassword(new byte[] { }, accountDTO.AccountLogin.Password);
 
@@ -322,23 +332,18 @@ namespace OnlinePortalBackend.Repository.Impl
                 PasswordHash = hashed,
                 SecurityStamp = Convert.ToBase64String(salt),
                 Name = accountDTO.FirstName + " " + accountDTO.LastName,
-                CustomerDivisionId = customer.Id,
                 CreatedAt = DateTime.UtcNow.AddHours(1)
             };
 
             try
             {
-                _context.Contacts.Add(contact);
+                _context.LeadDivisionContacts.Add(leadDivisionContact);
                 await _context.SaveChangesAsync();
 
                 _context.Suspects.Add(suspect);
                 await _context.SaveChangesAsync();
 
-                _context.Customers.Add(customer);
-                await _context.SaveChangesAsync();
-
                 lead.SuspectId = suspect.Id;
-                lead.CustomerId = customer.Id;
 
                 _context.Leads.Add(lead);
                 await _context.SaveChangesAsync();
@@ -352,34 +357,26 @@ namespace OnlinePortalBackend.Repository.Impl
                 await UpdateReferenceNumber(leadReference);
 
                 leadDivision.LeadId = lead.Id;
-                leadDivision.PrimaryContactId = contact.Id;
+                leadDivision.PrimaryContactId = leadDivisionContact.Id;
 
                 _context.LeadDivisions.Add(leadDivision);
                 await _context.SaveChangesAsync();
 
-                customer.CustomerLeadId = leadDivision.Id;
-
-                custDivision.CustomerId = customer.Id;
-                custDivision.LeadDivisionId = leadDivision.Id;
-
-                _context.CustomerDivisions.Add(custDivision);
-                await _context.SaveChangesAsync();
-
-                onlinProfile.CustomerDivisionId = custDivision.Id;
+                onlinProfile.LeadDivisionId = leadDivision.Id;
 
                 _context.OnlineProfiles.Add(onlinProfile);
                 await _context.SaveChangesAsync();
 
                 await transaction.CommitAsync();
 
-                return true;
+                return (true, "success");
             }
             catch (Exception e)
             {
                 _logger.LogError(e.Message);
                 _logger.LogError(e.StackTrace);
                 await transaction.RollbackAsync();
-                return false;
+                return (false, "An error has occured");
             }
 
         }
@@ -419,6 +416,12 @@ namespace OnlinePortalBackend.Repository.Impl
         {
             _context.ReferenceNumbers.Update(refNumber);
             return await _context.SaveChangesAsync() > 0;
+        }
+
+        public async Task<OnlineProfile> GetCustomerProfile(int profileId)
+        {
+            return _context.OnlineProfiles.FirstOrDefault(x => x.Id == profileId);
+            
         }
     }
 }

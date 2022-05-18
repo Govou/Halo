@@ -59,6 +59,7 @@ namespace OnlinePortalBackend.MyServices
             _memoryCache = memoryCache;
 
         }
+      
 
         public async Task<ApiCommonResponse> SendConfirmCodeToClient(string Email)
         {
@@ -127,9 +128,9 @@ namespace OnlinePortalBackend.MyServices
                
 
                 //check if this customer division has an email
-                if (!_context.CustomerDivisions.Any(x => x.Email == Email))
+                if (!_context.LeadDivisions.Any(x => x.Email == Email))
                 {
-                    return CommonResponse.Send(ResponseCodes.EMAIL_NOT_EXIST, null, $"This email {Email} does not exist for a customer");
+                    return CommonResponse.Send(ResponseCodes.EMAIL_NOT_EXIST, null, $"This email {Email} does not exist for a lead");
                 }
 
                 if (_context.UsersCodeVerifications.Any(x => x.Email == Email && x.CodeExpiryTime >= DateTime.Now && x.CodeUsedTime == null))
@@ -188,8 +189,11 @@ namespace OnlinePortalBackend.MyServices
                 await _context.SaveChangesAsync();
 
                 var profile = _context.OnlineProfiles.FirstOrDefault(x => x.Email == codModel.Email);
-                profile.EmailConfirmed = true;
-                await _context.SaveChangesAsync();
+                if (profile != null)
+                {
+                    profile.EmailConfirmed = true;
+                    await _context.SaveChangesAsync();
+                }
 
                 return CommonResponse.Send(ResponseCodes.SUCCESS, null, $"You have successfully used code for {model.Email}");
             }
@@ -386,6 +390,8 @@ namespace OnlinePortalBackend.MyServices
 
             return (salt, hashed);
         }
+
+       
     }
 
     

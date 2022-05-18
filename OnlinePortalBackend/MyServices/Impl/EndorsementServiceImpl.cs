@@ -20,6 +20,8 @@ using Halobiz.Common.Helpers;
 using HalobizMigrations.Models;
 using HaloBiz.Helpers;
 using TimeCycle = Halobiz.Common.Helpers.TimeCycle;
+using Halobiz.Common.DTOs.ReceivingDTOs;
+using VersionType = Halobiz.Common.DTOs.ReceivingDTOs.VersionType;
 
 namespace OnlinePortalBackend.MyServices.Impl
 {
