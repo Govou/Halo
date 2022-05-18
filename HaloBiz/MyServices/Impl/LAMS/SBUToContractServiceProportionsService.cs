@@ -181,7 +181,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
             foreach (var entity in entities) 
             {
-                if(entity.Status == (int)Helpers.ProportionStatusType.LeadGeneratorAndClosure)
+                if(entity.Status == (int)ProportionStatusType.LeadGeneratorAndClosure)
                 {
                     sumRatio += 2;
                 }else
@@ -193,7 +193,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
             foreach (var entity in entities)
             {
-                if(entity.Status == (int)Helpers.ProportionStatusType.LeadGeneratorAndClosure)
+                if(entity.Status == (int)ProportionStatusType.LeadGeneratorAndClosure)
                 {
                     entity.Proportion = Math.Round(2.0/sumRatio * 100.00, 2);
                 }else
@@ -218,11 +218,11 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
             foreach (var entity in entities) 
             {
-                if(entity.Status == (int)Helpers.ProportionStatusType.LeadGeneratorAndClosure)
+                if(entity.Status == (int)ProportionStatusType.LeadGeneratorAndClosure)
                 {
                     closureRatio += 1;
                     generationRation += 1;
-                }else if(entity.Status == (int)Helpers.ProportionStatusType.LeadClosure)
+                }else if(entity.Status == (int)ProportionStatusType.LeadClosure)
                 {
                     closureRatio += 1;
                 }else{
@@ -235,10 +235,10 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
             foreach (var entity in entities)
             {
-                if(entity.Status == (int)Helpers.ProportionStatusType.LeadGeneratorAndClosure)
+                if(entity.Status == (int)ProportionStatusType.LeadGeneratorAndClosure)
                 {
                     entity.Proportion = percentageClosurePerUser + percentageGenerationPerUser;
-                }else if(entity.Status == (int)Helpers.ProportionStatusType.LeadClosure)
+                }else if(entity.Status == (int)ProportionStatusType.LeadClosure)
                 {
                     entity.Proportion = percentageClosurePerUser;
                 }else{
