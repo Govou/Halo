@@ -21,4 +21,9 @@ namespace HaloBiz.DTOs.TransferDTOs
         public DateTime UpdatedAt { get; set; }
         public bool IsDeleted { get; set; }
     }
+
+    public class BRPairableCheckDTO
+    {
+        public long? ServiceRegistrationId { get; set; }
+    }
 }

@@ -473,14 +473,14 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.FAILURE, null, ex.Message);
             }
 
-            // var typeTransferDTO = _mapper.Map<MasterServiceAssignmentTransferDTO>(master);
+            
             transaction.Commit();
             if(masterReceivingDTO.InhouseAssignment == true)
             {
                 await _serviceAssignmentDetailsService.UpdateServiceDetailsHeldForActionAndReadyStatusByAssignmentId(getId);
             }
-           
-            return CommonResponse.Send(ResponseCodes.SUCCESS, null, "Auto Service Assignment Successful");
+             var typeTransferDTO = _mapper.Map<MasterServiceAssignmentTransferDTO>(master);
+            return CommonResponse.Send(ResponseCodes.SUCCESS, typeTransferDTO, "Auto Service Assignment Successful");
         }
 
 
@@ -551,7 +551,7 @@ namespace HaloBiz.MyServices.Impl
                
             }
             var typeTransferDTO = _mapper.Map<MasterServiceAssignmentTransferDTO>(master);
-            return CommonResponse.Send(ResponseCodes.SUCCESS, null, ResponseMessage.Success200);
+            return CommonResponse.Send(ResponseCodes.SUCCESS, typeTransferDTO, ResponseMessage.Success200);
         }
 
         
