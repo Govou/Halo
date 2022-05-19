@@ -186,17 +186,27 @@ namespace OnlinePortalBackend.Repository.Impl
 
                 var transactions = _context.WalletDetails.Where(x => x.WalletMasterId == walletMaster.Id);
 
-                var creditTransactions = transactions.Where(x => x.TransactionType == (int)WalletTransactionType.Load);
+                var creditTransactions = transactions.Where(x => x.TransactionType == (int)WalletTransactionType.Load).ToList();
                 var totalCreditAmt = 0d;
                 if (creditTransactions.Count() > 0)
                 {
                     totalCreditAmt = creditTransactions.Select(x => int.Parse(x.TransactionValue)).Sum();
+
+                    var trxs = creditTransactions.Select(x => x.TransactionValue);
+                    foreach (var item in trxs)
+                    {
+                        totalCreditAmt += double.Parse(item);
+                    }
                 }
                 var debitTransactions = transactions.Where(x => x.TransactionType == (int)WalletTransactionType.Spend);
                 var totalDebitAmt = 0d;
                 if (debitTransactions.Count() > 0)
                 {
-                    totalDebitAmt = debitTransactions.Select(x => int.Parse(x.TransactionValue)).Sum();
+                    var trxs = debitTransactions.Select(x => x.TransactionValue);
+                    foreach (var item in trxs)
+                    {
+                        totalDebitAmt += double.Parse(item);
+                    }
                 }
 
                 balance = (totalCreditAmt + request.Amount) - totalDebitAmt;
