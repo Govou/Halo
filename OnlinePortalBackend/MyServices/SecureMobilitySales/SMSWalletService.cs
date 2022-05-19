@@ -23,6 +23,17 @@ namespace OnlinePortalBackend.MyServices.SecureMobilitySales
             return CommonResponse.Send(ResponseCodes.SUCCESS, result.message);
         }
 
+        public async Task<ApiCommonResponse> GetWalletActivationStatus(int profileId)
+        {
+            var result = await _walletRepository.GetWalletActivationStatus(profileId);
+            if (result.isSuccess)
+            {
+                return CommonResponse.Send(ResponseCodes.SUCCESS, result.status);
+            }
+
+            return CommonResponse.Send(ResponseCodes.FAILURE, "Failed");
+        }
+
         public async Task<ApiCommonResponse> GetWalletBalance(int profileId)
         {
             var result = await _walletRepository.GetWalletBalance(profileId);

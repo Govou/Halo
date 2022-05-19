@@ -1,4 +1,5 @@
-﻿using HalobizMigrations.Models.Armada;
+﻿using HaloBiz.DTOs.TransferDTOs;
+using HalobizMigrations.Models.Armada;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -38,6 +39,7 @@ namespace HaloBiz.Repository
         Task<IEnumerable<BRPairable>> FindAllActivePairables();
 
         BRPairable GetBusinessAndRegServiceId(long? BusinessRuleId, long RegServiceId);
+        List<BRPairableCheckDTO> FindAllPairablesCheckByRuleId(long? BusinessRuleId);
 
         Task<BRPairable> UpdatePairable(BRPairable bRPairable);
 

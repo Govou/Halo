@@ -19,5 +19,6 @@ namespace OnlinePortalBackend.Repository
         Task<IEnumerable<Application>> FindAllApplications();
         Task<ServiceRating> UpdateServiceRating(ServiceRating serviceRating);
         Task<bool> RemoveServiceRating(ServiceRating serviceRating);
+        Task<IEnumerable<ServiceReviewDTO>> GetServiceReviews(int serviceId, int pageSIze = 10);
     }
 }

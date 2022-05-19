@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Halobiz.Common.Auths;
 using Halobiz.Common.DTOs.ApiDTOs;
+using Halobiz.Common.DTOs.ReceivingDTOs;
 using HaloBiz.DTOs.ReceivingDTOs;
 using HaloBiz.DTOs.TransferDTOs.LAMS;
 using HaloBiz.MyServices.LAMS;

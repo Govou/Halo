@@ -79,6 +79,15 @@ namespace OnlinePortalBackend.Repository.Impl
             return (false, "Activation Failed");
         }
 
+        public async Task<(bool isSuccess, bool status)> GetWalletActivationStatus(int profileId)
+        {
+            var profile = _context.WalletMasters.FirstOrDefault(x => x.OnlineProfileId == profileId);
+            if (profile == null)
+                return (true, false);
+
+            return(true, true);
+        }
+
         public async Task<(bool isSuccess, object message)> GetWalletBalance(int profileId)
         {
            var balance = _context.WalletMasters.FirstOrDefault(x => x.OnlineProfileId == profileId);
@@ -100,7 +109,7 @@ namespace OnlinePortalBackend.Repository.Impl
 
             var profile = _context.OnlineProfiles.FirstOrDefault(x => x.Id == request.ProfileId);
             var office = _context.Offices.FirstOrDefault(x => x.Name.ToLower().Contains("office")).Id;
-            var branchId = _context.Branches.FirstOrDefault(x => x.Name.ToLower().Contains("head")).Id;
+            var branchId = _context.Branches.FirstOrDefault(x => x.Name.ToLower().Contains("hq")).Id;
             using var trx = await _context.Database.BeginTransactionAsync();
 
             var balance = 0d;
@@ -129,7 +138,7 @@ namespace OnlinePortalBackend.Repository.Impl
                 }
 
                 var debitCashBook = _configuration["WalletDebitCashBookID"] ?? _configuration.GetSection("AppSettings:WalletDebitCashBookID").Value;
-
+                var transactionId = "SM" + new Random().Next(100_000_000, 1_000_000_000);
                 var accountDetail1 = new AccountDetail
                 {
                     VoucherId = accountMaster.VoucherId,
@@ -143,6 +152,7 @@ namespace OnlinePortalBackend.Repository.Impl
                     Debit = request.Amount,
                     AccountId = int.Parse(debitCashBook),
                     Description = $"Wallet loaded for {profile.Id}",
+                   TransactionId = transactionId,
                 };
 
                 var accountDetail2 = new AccountDetail
@@ -158,6 +168,7 @@ namespace OnlinePortalBackend.Repository.Impl
                     Credit = request.Amount,
                     AccountId = walletMaster.WalletLiabilityAccountId.Value,
                     Description = $"Wallet loaded for {profile.Id}",
+                    TransactionId= transactionId,
                 };
 
                 _context.AccountDetails.Add(accountDetail1);
@@ -166,7 +177,7 @@ namespace OnlinePortalBackend.Repository.Impl
                 _context.AccountDetails.Add(accountDetail2);
                 _context.SaveChanges();
 
-                var debitCashAccount = _context.AccountDetails.Include(x => x.AccountMasterId).FirstOrDefault(x => x.AccountId == int.Parse(debitCashBook));
+                var debitCashAccount = _context.AccountDetails.Include(x => x.AccountMaster).FirstOrDefault(x => x.AccountId == int.Parse(debitCashBook));
 
                 var acctToDebit = _context.AccountMasters.FirstOrDefault(x => x.Id == debitCashAccount.AccountMasterId);
 
@@ -222,20 +233,20 @@ namespace OnlinePortalBackend.Repository.Impl
             
         }
 
-        public async Task<(bool isSuccess, string message)> SpendWallet(SpendWalletDTO request)
+        public async Task<(bool isSuccess, SpendWalletResponseDTO message)> SpendWallet(SpendWalletDTO request)
         {
             var createdBy = _context.UserProfiles.FirstOrDefault(x => x.Email.ToLower().Contains("online")).Id;
             var walletMaster = _context.WalletMasters.FirstOrDefault(x => x.OnlineProfileId == request.ProfileId);
             if (walletMaster == null)
-                return (false, "User does not have a wallet");
+                return (false, new SpendWalletResponseDTO { Message = "User does not have a wallet" });
 
             if (double.Parse(walletMaster.WalletBalance) < request.Amount)
-                return (false, "Insufficient funds in wallet");
+                return (false, new SpendWalletResponseDTO { Message = "Insufficient funds in wallet" });
             
 
             var profile = _context.OnlineProfiles.FirstOrDefault(x => x.Id == request.ProfileId);
             var office = _context.Offices.FirstOrDefault(x => x.Name.ToLower().Contains("office")).Id;
-            var branchId = _context.Branches.FirstOrDefault(x => x.Name.ToLower().Contains("head")).Id;
+            var branchId = _context.Branches.FirstOrDefault(x => x.Name.ToLower().Contains("hq")).Id;
             using var trx = await _context.Database.BeginTransactionAsync();
 
             var balance = 0d;
@@ -264,7 +275,7 @@ namespace OnlinePortalBackend.Repository.Impl
                 }
 
                 var creditCashBook = _configuration["WalletCreditCashBookID"] ?? _configuration.GetSection("AppSettings:WalletCreditCashBookID").Value;
-
+                var transactionId = "SM" + new Random().Next(100_000_000, 1_000_000_000);
                 var accountDetail1 = new AccountDetail
                 {
                     VoucherId = accountMaster.VoucherId,
@@ -278,6 +289,7 @@ namespace OnlinePortalBackend.Repository.Impl
                     Credit = request.Amount,
                     AccountId = int.Parse(creditCashBook),
                     Description = $"Wallet spent for {profile.Id}",
+                    TransactionId = transactionId,
                 };
 
                 var accountDetail2 = new AccountDetail
@@ -293,6 +305,7 @@ namespace OnlinePortalBackend.Repository.Impl
                     Debit = request.Amount,
                     AccountId = walletMaster.WalletLiabilityAccountId.Value,
                     Description = $"Wallet loaded for {profile.Id}",
+                    TransactionId= transactionId,
                 };
 
                 _context.AccountDetails.Add(accountDetail1);
@@ -301,7 +314,7 @@ namespace OnlinePortalBackend.Repository.Impl
                 _context.AccountDetails.Add(accountDetail2);
                 _context.SaveChanges();
 
-                var creditCashAccount = _context.AccountDetails.Include(x => x.AccountMasterId).FirstOrDefault(x => x.AccountId == int.Parse(creditCashBook));
+                var creditCashAccount = _context.AccountDetails.Include(x => x.AccountMaster).FirstOrDefault(x => x.AccountId == int.Parse(creditCashBook));
 
                 var acctToCredit = _context.AccountMasters.FirstOrDefault(x => x.Id == creditCashAccount.AccountMasterId);
 
@@ -314,13 +327,21 @@ namespace OnlinePortalBackend.Repository.Impl
                 var totalCreditAmt = 0d;
                 if (creditTransactions.Count() > 0)
                 {
-                    totalCreditAmt = creditTransactions.Select(x => int.Parse(x.TransactionValue)).Sum();
+                    var trxs = creditTransactions.Select(x => x.TransactionValue);
+                    foreach (var item in trxs)
+                    {
+                        totalCreditAmt += double.Parse(item);
+                    }
                 }
                 var debitTransactions = transactions.Where(x => x.TransactionType == (int)WalletTransactionType.Spend);
                 var totalDebitAmt = 0d;
                 if (debitTransactions.Count() > 0)
                 {
-                    totalDebitAmt = debitTransactions.Select(x => int.Parse(x.TransactionValue)).Sum();
+                    var trxs = debitTransactions.Select(x => x.TransactionValue);
+                    foreach (var item in trxs)
+                    {
+                        totalDebitAmt += double.Parse(item);
+                    }
                 }
 
                 balance = totalCreditAmt - (totalDebitAmt + request.Amount);
@@ -344,14 +365,14 @@ namespace OnlinePortalBackend.Repository.Impl
 
                 await trx.CommitAsync();
 
-                return (true, "Success");
+                return (true, new SpendWalletResponseDTO { TransactionReference = transactionId, Message = "Success" });
 
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex.Message);
                 await trx.RollbackAsync();
-                return (false, "Wallet loading Failed");
+                return (false, new SpendWalletResponseDTO { Message = "Wallet spending Failed" });
             }
         }
 
