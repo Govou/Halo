@@ -38,8 +38,8 @@ namespace HalobizIdentityServer.Helpers
             {
                 new Claim(ClaimTypes.NameIdentifier, userProfile.Id.ToString()),
                 new Claim(ClaimTypes.Email, userProfile.Email),
-                new Claim(ClaimTypes.Role, userProfile.Role?.Name ?? string.Empty),
-                new Claim("RoleId", userProfile.RoleId.ToString()),
+                //new Claim(ClaimTypes.Role, userProfile.Role?.Name ?? string.Empty),
+                //new Claim("RoleId", userProfile.RoleId.ToString()),
                new Claim("Permissions", permissionStr)
             };
 

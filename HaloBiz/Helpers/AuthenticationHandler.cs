@@ -30,11 +30,11 @@ namespace HaloBiz.Helpers
         private readonly IJwtHelper _jwtHelper;
         private readonly ILogger<AuthenticationHandler> _logger;
         private readonly IConfiguration _configuration;
-       
+
 
 
         public AuthenticationHandler(RequestDelegate next, IJwtHelper jwtHelper,
-            ILogger<AuthenticationHandler> logger, IConfiguration configuration      
+            ILogger<AuthenticationHandler> logger, IConfiguration configuration
             )
         {
             _next = next;
@@ -44,7 +44,7 @@ namespace HaloBiz.Helpers
         }
 
         public async Task Invoke(HttpContext context)
-        {          
+        {
 
             var controllerActionDescriptor = context?
                         .GetEndpoint()?
@@ -55,7 +55,7 @@ namespace HaloBiz.Helpers
             var actionName = controllerActionDescriptor?.ActionName;
             var actionVerb = context.Request.Method;
 
-           // context.Response.Headers.Add("Access-Control-Allow-Origin", "*");
+            // context.Response.Headers.Add("Access-Control-Allow-Origin", "*");
 
             if (string.IsNullOrEmpty(controllerName) || string.IsNullOrEmpty(actionName))
             {
@@ -63,7 +63,7 @@ namespace HaloBiz.Helpers
                 await context.Response.WriteAsync("Path not found");
                 return;
             }
-            
+
             bool isExempted = (controllerName.ToLower() == "auth" && (actionName.ToLower() == "login" || actionName.ToLower() == "googlelogin"));
             if (!isExempted)
             {
@@ -79,12 +79,12 @@ namespace HaloBiz.Helpers
                 if (token != null)
                 {
                     //validate the token
-                    
+
                     if (token.ToLower() != "null")
                     {
                         var (isValid, isExpired, authUser) = _jwtHelper.ValidateToken(token);
                         var permissionsList = new List<int>();
-                        if(authUser != null)
+                        if (authUser != null)
                         {
                             permissionsList = JsonConvert.DeserializeObject<List<int>>(authUser.permissionString);
                         }
@@ -100,9 +100,9 @@ namespace HaloBiz.Helpers
                             }
 
                             //get memory refreshtoken
-                            if(!_jwtHelper.GrantToGetNewToken(refreshToken, authUser.Id))
+                            if (!_jwtHelper.GrantToGetNewToken(refreshToken, authUser.Id))
                             {
-                                context.Response.StatusCode = (int) AppDefinedHttpStatusCodes.LOGIN_AGAIN;
+                                context.Response.StatusCode = (int)AppDefinedHttpStatusCodes.LOGIN_AGAIN;
                                 await context.Response.WriteAsync("Access token given previously. Use it please");
                                 return;
                             }
@@ -131,7 +131,7 @@ namespace HaloBiz.Helpers
                                 return;
                             }
                         }
-                        else if(isValid && !isExpired)
+                        else if (isValid && !isExpired)
                         {
                             //test for the authorization
                             if (!authUser.hasAdminRole && !CheckAuthorization(context, controllerName, actionName, permissionsList))
@@ -140,7 +140,7 @@ namespace HaloBiz.Helpers
                                 context.Response.StatusCode = StatusCodes.Status200OK;
                                 await context.Response.WriteAsJsonAsync(CommonResponse.Send(ResponseCodes.UNAUTHORIZED, null, $"You do not have permission for {actionVerb} in {controllerName}"));
                                 return;
-                            }                           
+                            }
                         }
                         else
                         {
@@ -158,7 +158,7 @@ namespace HaloBiz.Helpers
                 }
                 else
                 {
-                    context.Response.StatusCode = (int) AppDefinedHttpStatusCodes.NO_ACCESS_TOKEN_SUPPLIED;
+                    context.Response.StatusCode = (int)AppDefinedHttpStatusCodes.NO_ACCESS_TOKEN_SUPPLIED;
                     await context.Response.WriteAsync("Unauthorized user. No access token");
                     return;
                 }
@@ -167,13 +167,13 @@ namespace HaloBiz.Helpers
             await _next(context);
         }
 
-      
 
-        private bool CheckAuthorization(HttpContext context, string controller,string actionName, List<int> permisssions)
+
+        private bool CheckAuthorization(HttpContext context, string controller, string actionName, List<int> permisssions)
         {
             var actionVerb = context.Request.Method.ToLower();
-            if (actionVerb == "get") 
-                return true; 
+            if (actionVerb == "get")
+                return true;
 
             var exemptedList = _configuration.GetSection("AuthorizationExemption")?.Get<List<AuthorizationExemption>>();
             if (exemptedList.Any())
@@ -183,9 +183,9 @@ namespace HaloBiz.Helpers
                 {
                     return true;
                 }
-            }           
+            }
 
-            var permissionEnum = $"{controller}_{actionVerb}";           
+            var permissionEnum = $"{controller}_{actionVerb}";
 
             if (!Enum.TryParse(typeof(Permissions), permissionEnum, true, out var permission))
             {
@@ -199,7 +199,7 @@ namespace HaloBiz.Helpers
             return permisssions.Contains(permissionInt);
         }
 
-       
-    }    
+
+    }
 }
 

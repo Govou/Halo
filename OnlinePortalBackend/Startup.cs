@@ -101,6 +101,7 @@ namespace OnlinePortalBackend
             services.AddScoped<ISMSContractsService, SMSContractsService>();
             services.AddScoped<IUtilityService, UtilityService>();
             services.AddScoped<ISMSWalletService, SMSWalletService>();
+            services.AddScoped<ISMSInvoiceRepository, SMSInvoiceRepository>();
 
             services.AddAutoMapper(typeof(Startup));
 

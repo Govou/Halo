@@ -5,6 +5,6 @@ namespace OnlinePortalBackend.Repository
 {
     public interface ISMSContractsRepository
     {
-        Task<bool> AddNewContract(SMSContractDTO contractDTO);
+        Task<(bool isSuccess, string message)> AddNewContract(SMSContractDTO contractDTO);
     }
 }

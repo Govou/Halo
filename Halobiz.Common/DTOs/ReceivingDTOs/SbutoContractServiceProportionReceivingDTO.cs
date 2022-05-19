@@ -1,7 +1,10 @@
-using HaloBiz.Helpers;
-using HalobizMigrations.Models;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
-namespace HaloBiz.DTOs.ReceivingDTOs.LAMS
+namespace Halobiz.Common.DTOs.ReceivingDTOs
 {
     public class SbutoContractServiceProportionReceivingDTO
     {

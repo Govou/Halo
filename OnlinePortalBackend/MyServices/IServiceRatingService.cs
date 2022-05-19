@@ -11,6 +11,7 @@ namespace OnlinePortalBackend.MyServices
         Task<ApiCommonResponse> AddServiceRating(ServiceRatingReceivingDTO serviceRating);
         Task<ApiCommonResponse> AddAppRating(AppRatingReceivingDTO appRating);
         Task<ApiResponse> FindServiceRatingById(long id);
+        Task<ApiResponse> GetServiceReviews(int serviceId, int pageSIze = 10);
         Task<ApiResponse> GetReviewHistoryByServiceId(long contractServiceId);
         Task<ApiResponse> FindAllServiceRatings();
         Task<ApiResponse> FindAllAppRatings(int appId);

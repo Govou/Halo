@@ -5,6 +5,7 @@ using Flurl.Http.Configuration;
 using GoogleMaps.LocationServices;
 using Halobiz.Common.Auths;
 using Halobiz.Common.DTOs.ApiDTOs;
+using Halobiz.Common.Helpers;
 using HaloBiz.Helpers;
 using HaloBiz.MigrationsHelpers;
 using HaloBiz.MyServices.LAMS;
