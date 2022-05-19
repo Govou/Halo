@@ -522,16 +522,18 @@ namespace HaloBiz.Controllers
                 var r = ex.ToString();
             }
 
+            var amount = Math.Abs(contractService.Amount);
+            amount = Math.Round(amount, 2);
             var service = new ContractService();
             service.AdminDirectTie = contractService.AdminDirectTie;
             service.ServiceId = contractService.ApiContractService.ServiceId;
-            service.BillableAmount = contractService.Amount;
+            service.BillableAmount = amount;
             service.ActivationDate = contractService.StartDate;
             service.ContractStartDate = contractService.StartDate;
             service.ContractEndDate = contractService.EndDate;
             service.ContractId = contractService.ContractId;
             service.UnitPrice = contractService.UnitPrice;
-            service.Vat = contractService.Taxable == 1 ? 0.075 * contractService.Amount : 0;
+            service.Vat = Math.Round(contractService.Taxable == 1 ? 0.075 * amount : 0, 2);
             service.Quantity = contractService.Quantity;
             service.UniqueTag = $"{contractService.Description}@{contractService.ContractId}";
             service.BranchId = defaultOffice.BranchId;
@@ -629,16 +631,18 @@ namespace HaloBiz.Controllers
                 long contractId = 0;
                 if (afftected > 0)
                 {
+                    var amount = Math.Abs(customerInput.Amount);
+                    amount = Math.Round(amount, 2);
                     contractId = entity.Entity.Id;
                     var saveContractEntity = _context.ContractServices.Add(new ContractService
                     {
                         ServiceId = MigrationService.Id,
-                        BillableAmount = Math.Abs(customerInput.Amount),
+                        BillableAmount = amount,
                         ActivationDate = cutOffDate,
                         ContractStartDate = cutOffDate,
                         ContractEndDate = cutOffDate,
                         ContractId = (long)contractId,
-                        UnitPrice = Math.Abs(customerInput.Amount),
+                        UnitPrice = amount,
                         Vat = 0,
                         Quantity = 1,
                         InvoicingInterval = (int)TimeCycle.OneTime,
