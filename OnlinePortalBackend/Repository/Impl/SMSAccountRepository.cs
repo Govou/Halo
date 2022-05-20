@@ -50,7 +50,19 @@ namespace OnlinePortalBackend.Repository.Impl
 
             using var transaction = await _context.Database.BeginTransactionAsync();
 
-            
+            var contact = new Contact
+            {
+                CreatedAt = DateTime.UtcNow.AddHours(1),
+                UpdatedAt = DateTime.UtcNow.AddHours(1),
+                CreatedById = createdBy,
+                Email = accountDTO.AccountLogin.Email,
+                FirstName = accountDTO.ContactPerson.FirstName,
+                LastName = accountDTO.ContactPerson.LastName,
+                Gender = gender,
+                Mobile = accountDTO.ContactPerson.PhoneNumber,
+                DateOfBirth = accountDTO.ContactPerson.DateOfBirth,
+                
+            };
 
             var leadDivisionContact = new LeadDivisionContact
             {
@@ -105,17 +117,11 @@ namespace OnlinePortalBackend.Repository.Impl
                 Rcnumber = accountDTO.RCNumber,
             };
 
-            var leadContact = new LeadContact
+            var suspectContact = new SuspectContact
             {
-                CreatedAt = DateTime.UtcNow.AddHours(1),
-                UpdatedAt = DateTime.UtcNow.AddHours(1),
-                CreatedById = createdBy,
-                Email = accountDTO.AccountLogin.Email,
-                FirstName = accountDTO.ContactPerson.FirstName,
-                LastName = accountDTO.ContactPerson.LastName,
-                Gender = accountDTO.ContactPerson.Gender,
-                MobileNumber = accountDTO.ContactPerson.PhoneNumber,
-                Type = (int)leadtype
+                ContactDesignation = ContactDesignation.Admin,
+                ContactPriority = ContactPriority.PrimaryContact,
+                ContactQualification = ContactQualification.DecisionMaker
             };
 
             var leadDivision = new LeadDivision
@@ -164,9 +170,13 @@ namespace OnlinePortalBackend.Repository.Impl
                 _context.Leads.Add(lead);
                 await _context.SaveChangesAsync();
 
-                leadContact.LeadId = lead.Id;
+                _context.Contacts.Add(contact);
+                await _context.SaveChangesAsync();
 
-                _context.LeadContacts.Add(leadContact);
+                suspectContact.ContactId = contact.Id;
+                suspectContact.SuspectId = suspect.Id;
+
+                _context.SuspectContacts.Add(suspectContact);
                 await _context.SaveChangesAsync();
 
                 leadReference.ReferenceNo = leadReference.ReferenceNo + 1;
@@ -213,18 +223,18 @@ namespace OnlinePortalBackend.Repository.Impl
 
             using var transaction = await _context.Database.BeginTransactionAsync();
             var gender = accountDTO.Gender == "M" ? Gender.Male : Gender.Female;
-            //var contact = new Contact
-            //{
-            //    CreatedAt = DateTime.UtcNow.AddHours(1),
-            //    UpdatedAt = DateTime.UtcNow.AddHours(1),
-            //    CreatedById = createdBy,
-            //    Email = accountDTO.AccountLogin.Email,
-            //    FirstName = accountDTO.FirstName,
-            //    LastName = accountDTO.LastName,
-            //    Gender = gender,
-            //    ProfilePicture = accountDTO.ImageUrl,
-            //    Mobile = accountDTO.PhoneNumber
-            //};
+            var contact = new Contact
+            {
+                CreatedAt = DateTime.UtcNow.AddHours(1),
+                UpdatedAt = DateTime.UtcNow.AddHours(1),
+                CreatedById = createdBy,
+                Email = accountDTO.AccountLogin.Email,
+                FirstName = accountDTO.FirstName,
+                LastName = accountDTO.LastName,
+                Gender = gender,
+                ProfilePicture = accountDTO.ImageUrl,
+                Mobile = accountDTO.PhoneNumber
+            };
 
             var suspect = new Suspect
             {
@@ -281,17 +291,11 @@ namespace OnlinePortalBackend.Repository.Impl
                 OfficeId = office
             };
 
-            var leadContact = new LeadContact
+            var suspectContact = new SuspectContact
             {
-                CreatedAt = DateTime.UtcNow.AddHours(1),
-                UpdatedAt = DateTime.UtcNow.AddHours(1),
-                CreatedById = createdBy,
-                Email = accountDTO.AccountLogin.Email,
-                FirstName = accountDTO.FirstName,
-                LastName = accountDTO.LastName,
-                Gender = accountDTO.Gender,
-                MobileNumber = accountDTO.PhoneNumber,
-                Type = (int)leadtype
+                ContactDesignation = ContactDesignation.Self,
+                ContactQualification = ContactQualification.DecisionMaker,
+                ContactPriority = ContactPriority.PrimaryContact,
             };
 
             var leadDivisionContact = new LeadDivisionContact
@@ -348,9 +352,13 @@ namespace OnlinePortalBackend.Repository.Impl
                 _context.Leads.Add(lead);
                 await _context.SaveChangesAsync();
 
-                leadContact.LeadId = lead.Id;
+                _context.Contacts.Add(contact);
+                await _context.SaveChangesAsync();
 
-                _context.LeadContacts.Add(leadContact);
+                suspectContact.ContactId = contact.Id;
+                suspectContact.SuspectId = suspect.Id;
+
+                _context.SuspectContacts.Add(suspectContact);
                 await _context.SaveChangesAsync();
 
                 leadReference.ReferenceNo = leadReference.ReferenceNo + 1;
