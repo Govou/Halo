@@ -13,6 +13,12 @@
         public double Amount { get; set; }
     }
 
+    public class SpendWalletResponseDTO
+    {
+        public string TransactionReference { get; set; }
+        public string Message { get; set; }
+    }
+
     public enum WalletTransactionType
     {
         Load = 1, 

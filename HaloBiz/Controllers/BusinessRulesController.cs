@@ -61,6 +61,12 @@ namespace HaloBiz.Controllers
             return await _businessRuleService.GetPairableById(id);
         }
 
+        [HttpPost("CheckIfServiceCanBePairedWithOtherServiceByServiceRuleId")]
+        public async Task<ApiCommonResponse> CheckIfServiceCanBePairedWithOtherServiceByServiceRuleId(BRPairableCheckReceivingDTO businessRuleCheck)
+        {
+            return await _businessRuleService.CheckIfServiceCanBePairedById(businessRuleCheck);
+        }
+
         [HttpPost("AddNewRule")]
         public async Task<ApiCommonResponse> AddNewRule(BusinessRuleReceivingDTO ReceivingDTO)
         {

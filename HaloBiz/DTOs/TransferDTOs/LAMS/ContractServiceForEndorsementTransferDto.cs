@@ -1,6 +1,7 @@
 using System;
 using System.ComponentModel.DataAnnotations;
 using Halobiz.Common.DTOs.TransferDTOs;
+using Halobiz.Common.Helpers;
 using HaloBiz.Helpers;
 using HalobizMigrations.Models;
 

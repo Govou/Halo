@@ -514,6 +514,8 @@ namespace HaloBiz.Helpers
             //OnlineLocationFav
             CreateMap<OnlineLocationFavoriteReceivingDTO, OnlineLocationFavourite>();
             CreateMap<OnlineLocationFavourite, OnlineLocationFavoriteTransferDTO>();
+            CreateMap<ApprovingLevelOffice, ApprovingLevelOfficeTransferDTO>();
+            CreateMap<ApprovingLevelOfficer, ApprovingLevelOfficerTransferDTO>();
         }
     }
 }

@@ -110,5 +110,11 @@ namespace HaloBiz.Controllers
             return await _approvalService.DeleteApproval(id);
         }
 
+        [HttpGet("GetApprovingLevelOfficeData")]
+        public async Task<ApiCommonResponse> GetApprovingLevelOfficeData()
+        {
+            return await _approvalService.GetApprovingLevelOfficeData(HttpContext);
+        }
+
     }
 }

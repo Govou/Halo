@@ -20,6 +20,7 @@ namespace HaloBiz.Repository
         Task<ArmedEscortServiceAssignmentDetail> FindEscortServiceAssignmentDetailByResourceId2(long? resourceId);
 
         Task<IEnumerable<ArmedEscortServiceAssignmentDetail>> FindAllEscortServiceAssignmentDetails();
+        Task<IEnumerable<ArmedEscortServiceAssignmentDetail>> FindAllUniqueEscortServiceAssignmentDetails();
         Task<IEnumerable<ArmedEscortServiceAssignmentDetail>> FindAllNoneHeldEscortServiceAssignmentDetails();
 
         //MasterServiceAssignment GetName(string name);
@@ -44,6 +45,7 @@ namespace HaloBiz.Repository
         Task<CommanderServiceAssignmentDetail> FindCommanderServiceAssignmentDetailByResourceId2(long? resourceId);
 
         Task<IEnumerable<CommanderServiceAssignmentDetail>> FindAllCommanderServiceAssignmentDetails();
+        Task<IEnumerable<CommanderServiceAssignmentDetail>> FindAllUniqueCommanderServiceAssignmentDetails();
         Task<IEnumerable<CommanderServiceAssignmentDetail>> FindAllNoneHeldCommanderServiceAssignmentDetails();
         Task<IEnumerable<CommanderServiceAssignmentDetail>> FindAllCommanderServiceAssignmentDetailsByAssignmentId(long assignmentId);
         Task<IEnumerable<CommanderServiceAssignmentDetail>> FindAllCommanderServiceAssignmentDetailsByProfileId(long profileId);
@@ -70,6 +72,7 @@ namespace HaloBiz.Repository
         Task<PilotServiceAssignmentDetail> FindPilotServiceAssignmentDetailByResourceId2(long? resourceId);
 
         Task<IEnumerable<PilotServiceAssignmentDetail>> FindAllPilotServiceAssignmentDetails();
+        Task<IEnumerable<PilotServiceAssignmentDetail>> FindAllUniquePilotServiceAssignmentDetails();
         Task<IEnumerable<PilotServiceAssignmentDetail>> FindAllNoneHeldPilotServiceAssignmentDetails();
 
         //MasterServiceAssignment GetName(string name);
@@ -96,6 +99,7 @@ namespace HaloBiz.Repository
         Task<VehicleServiceAssignmentDetail> FindVehicleServiceAssignmentDetailByResourceId2(long? resourceId);
 
         Task<IEnumerable<VehicleServiceAssignmentDetail>> FindAllVehicleServiceAssignmentDetails();
+        Task<IEnumerable<VehicleServiceAssignmentDetail>> FindAllUniqueVehicleServiceAssignmentDetails();
         Task<IEnumerable<VehicleServiceAssignmentDetail>> FindAllNoneHeldVehicleServiceAssignmentDetails();
         List<VehicleServiceAssignmentDetail> FindAllNoneHeldVehicleServiceAssignmentDetails2();
         Task<IEnumerable<VehicleServiceAssignmentDetail>> FindAllVehicleServiceAssignmentDetailsByAssignmentId(long assignmentId);

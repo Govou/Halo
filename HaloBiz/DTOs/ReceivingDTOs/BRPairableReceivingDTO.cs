@@ -16,4 +16,11 @@ namespace HaloBiz.DTOs.ReceivingDTOs
         //public List<ServiceRegistration> ServiceRegistrationId { get; set; }
         //public ServiceRegistration[] ServiceRegistrationId { get; set; }
     }
+
+    public class BRPairableCheckReceivingDTO
+    {
+        public long? BusinessRuleId { get; set; }
+     
+        public long[] ServiceRegistrationId { get; set; }
+    }
 }

@@ -20,6 +20,7 @@ using Microsoft.Extensions.Logging;
 using HalobizMigrations.Models.Shared;
 using HaloBiz.MyServices.LAMS;
 using HalobizMigrations.Models.Armada;
+using Halobiz.Common.Helpers;
 
 namespace HaloBiz.MyServices.Impl
 {
@@ -386,8 +387,11 @@ namespace HaloBiz.MyServices.Impl
                         var service = await _context.Services
                                         .FirstOrDefaultAsync(x => x.Id == contractService.ServiceId);
 
-                        await _leadConversionService.CreateAccounts(contractService, customerDivision, (long)contractService?.BranchId, (long)contractService?.OfficeId,
+                        var (success, msg) = await _leadConversionService.CreateAccounts(contractService, customerDivision, (long)contractService?.BranchId, (long)contractService?.OfficeId,
                             service, accountVoucherType, null, LoggedInUserId, false, invoice);
+                        if(!success)
+                            return CommonResponse.Send(ResponseCodes.FAILURE, null, $"Account posting issue. {msg}");
+
 
                         invoice.IsFinalInvoice = true;
                         invoice.AdhocGroupingId = adhocGroupingId;
