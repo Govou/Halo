@@ -84,7 +84,7 @@ namespace HaloBiz.Repository.Impl
                .Include(t => t.ServiceRegistration.ApplicableCommanderTypes.Where(t => t.IsDeleted == false))
                .Include(t => t.ServiceRegistration.ApplicablePilotTypes.Where(t => t.IsDeleted == false))
                .Include(t => t.ServiceRegistration.ApplicableVehicleTypes.Where(t => t.IsDeleted == false))
-               .OrderByDescending(x => x.Id)
+               .OrderBy(x => x.PickupDate)
                .ToListAsync();
         }
 

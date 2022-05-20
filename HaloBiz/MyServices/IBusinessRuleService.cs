@@ -14,6 +14,7 @@ namespace HaloBiz.MyServices
         Task<ApiCommonResponse> GetAllBusinessRules();
         Task<ApiCommonResponse> GetAllPairableBusinessRules();
         Task<ApiCommonResponse> GetBusinessRuleById(long id);
+     
         Task<ApiCommonResponse> UpdateBusinessRule(HttpContext context, long id, BusinessRuleReceivingDTO businessRuleReceivingDTO);
         Task<ApiCommonResponse> DeleteBusinessRule(long id);
 
@@ -23,6 +24,7 @@ namespace HaloBiz.MyServices
         Task<ApiCommonResponse> GetAllPairables();
         Task<ApiCommonResponse> GetAllActivePairables();
         Task<ApiCommonResponse> GetPairableById(long id);
+        Task<ApiCommonResponse> CheckIfServiceCanBePairedById(BRPairableCheckReceivingDTO businessRuleCheck);
         Task<ApiCommonResponse> UpdatePairable(HttpContext context, long id, BRPairableReceivingDTO bRPairableReceivingDTO);
         Task<ApiCommonResponse> DeletePairable(long id);
     }

@@ -18,6 +18,7 @@ using Microsoft.Extensions.Logging;
 using HaloBiz.Repository.Impl.LAMS;
 using Microsoft.EntityFrameworkCore;
 using HaloBiz.DTOs.TransferDTOs;
+using Halobiz.Common.DTOs.ReceivingDTOs;
 
 namespace HaloBiz.MyServices.Impl.LAMS
 {

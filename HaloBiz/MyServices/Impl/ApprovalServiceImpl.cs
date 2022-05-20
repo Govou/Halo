@@ -18,6 +18,8 @@ using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using HaloBiz.DTOs.ReceivingDTOs.LAMS;
 using HaloBiz.MyServices.LAMS;
+using Halobiz.Common.DTOs.ReceivingDTOs;
+using Halobiz.Common.Helpers;
 
 namespace HaloBiz.MyServices.Impl
 {
@@ -812,20 +814,21 @@ namespace HaloBiz.MyServices.Impl
                                  .FirstOrDefaultAsync();
 
             var customerDivision = contract.CustomerDivision;
-
-            if(await _leadConversionService.AddServiceEndorsement(contractService, customerDivision, userId))
+            if(contractService.InvoicingInterval != (int)TimeCycle.Adhoc)
             {
-                contractService.Version = (int) VersionType.Latest;
-                _context.ContractServices.Update(contractService);
-
-                endorsement.IsApproved = true;
-                endorsement.IsConvertedToContractService = true;
-                _context.ContractServiceForEndorsements.Update(endorsement);
-                await _context.SaveChangesAsync();
-                return true;
+                var success = await _leadConversionService.AddServiceEndorsement(contractService, customerDivision, userId);
+                    if(!success)
+                        return false;
             }            
 
-            return false;
+            contractService.Version = (int)VersionType.Latest;
+            _context.ContractServices.Update(contractService);
+
+            endorsement.IsApproved = true;
+            endorsement.IsConvertedToContractService = true;
+            _context.ContractServiceForEndorsements.Update(endorsement);
+            await _context.SaveChangesAsync();
+            return true;
             
         }
         public  async Task<ApiCommonResponse> UpdateApproval(HttpContext context, long id, ApprovalReceivingDTO approvalReceivingDTO)
@@ -910,6 +913,45 @@ namespace HaloBiz.MyServices.Impl
                 };
 
                 action.RunAsTask();
+            }
+        }
+
+        public async Task<ApiCommonResponse> GetApprovingLevelOfficeData(HttpContext context)
+        {
+            try
+            {
+                var userProfileId = context.GetLoggedInUserId();
+
+                var allApprovingLevelOffices = await _context.ApprovingLevelOffices
+                    .Include(x => x.ApproverLevel)
+                    .Where(x => x.IsDeleted == false)
+                    .ToListAsync();
+
+                var officerProfiles = await _context.ApprovingLevelOfficers
+                    .Include(x => x.ApprovingLevelOffice)
+                    .Where(x => x.UserId == userProfileId && x.IsDeleted == false)
+                    .ToListAsync();
+
+                ApprovingLevelBackUp resultObject = new()
+                {
+                    CurrentUserId = userProfileId,
+                    BackUpInfos = new List<ApprovingLevelBackUpInfo>()
+                };
+
+                foreach (var office in allApprovingLevelOffices)
+                {
+                    ApprovingLevelBackUpInfo info = new();
+                    info.Level = office.ApproverLevel.Caption;
+                    info.CanApprove = officerProfiles.Any(x => x.ApprovingLevelOfficeId == office.Id);
+                    resultObject.BackUpInfos.Add(info);
+                }
+
+                return CommonResponse.Send(ResponseCodes.SUCCESS, resultObject);
+            }
+            catch(Exception error)
+            {
+                _logger.LogError(error.Message);
+                return CommonResponse.Send(ResponseCodes.FAILURE, error.Message);
             }
         }
     }

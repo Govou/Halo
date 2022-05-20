@@ -7,5 +7,7 @@ namespace OnlinePortalBackend.MyServices.SecureMobilitySales
     public interface ISMSContractsService
     {
         Task<ApiCommonResponse> CreateContract(SMSContractDTO contractDTO);
+        Task<ApiCommonResponse> GetInvoice(int profileId);
+        Task<ApiCommonResponse> ReceiptInvoice(SMSReceiptReceivingDTO request);
     }
 }

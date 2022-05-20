@@ -189,8 +189,11 @@ namespace OnlinePortalBackend.MyServices
                 await _context.SaveChangesAsync();
 
                 var profile = _context.OnlineProfiles.FirstOrDefault(x => x.Email == codModel.Email);
-                profile.EmailConfirmed = true;
-                await _context.SaveChangesAsync();
+                if (profile != null)
+                {
+                    profile.EmailConfirmed = true;
+                    await _context.SaveChangesAsync();
+                }
 
                 return CommonResponse.Send(ResponseCodes.SUCCESS, null, $"You have successfully used code for {model.Email}");
             }

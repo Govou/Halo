@@ -4627,38 +4627,44 @@ namespace HaloBiz.MyServices.Impl
            
            public async Task<ApiCommonResponse> PushEventToGoogleCalender(CalenderRequestDTO calenderRequestDto,HttpContext httpContext)
            {
-               string[] scopes = { "https://www.googleapis.com/auth/calendar" };
-               string applicationName = "HalobizCalender";
-               //var credentials = Path.Combine("Files", "credential.json");
-
-               UserCredential credential;
-
-               using (var stream =
-                      new FileStream("Files/credential.json", FileMode.Open, FileAccess.Read))
+               try
                {
-                   // The file token.json stores the user's access and refresh tokens, and is created
-                   // automatically when the authorization flow completes for the first time.
-                   string credPath = Path.Combine("Files", "token.json");
-                   credential = GoogleWebAuthorizationBroker.AuthorizeAsync(
-                       GoogleClientSecrets.Load(stream).Secrets,
-                       scopes,
-                       "user",
-                       CancellationToken.None,
-                       new FileDataStore(credPath, true)).Result;
-                   Console.WriteLine("Credential file saved to: " + credPath);
-               }
-               var initializer = new BaseClientService.Initializer()
-               {
-                   HttpClientInitializer = credential,
-                   ApplicationName = "HalobizCalenderEvent",
-               };
-               var service = new CalendarService(initializer);
+                   string[] scopes = { "https://www.googleapis.com/auth/calendar" };
+                   string applicationName = "HalobizCalender";
+                   //var credentials = Path.Combine("Files", "credential.json");
+                   //string path = $"wwwroot/Files/credential.json";
+                   string path = Path.Combine(_hostEnvironment.WebRootPath,"Files/credential.json");
+                   UserCredential credential;
+
+                   using (var stream =
+                          new FileStream(path, FileMode.Open, FileAccess.Read))
+                   {
+                       string credPath = Path.Combine(_hostEnvironment.WebRootPath,"Files/token.json");
+                       credential = GoogleWebAuthorizationBroker.AuthorizeAsync(
+                           GoogleClientSecrets.Load(stream).Secrets,
+                           scopes,
+                           "user",
+                           CancellationToken.None,
+                           new FileDataStore(credPath, true)).Result;
+                       Console.WriteLine("Credential file saved to: " + credPath);
+                   }
+                   var initializer = new BaseClientService.Initializer()
+                   {
+                       HttpClientInitializer = credential,
+                       ApplicationName = "HalobizCalenderEvent",
+                   };
+                   var service = new CalendarService(initializer);
                
-               var response = await  CreateEvent(service,calenderRequestDto,httpContext);
+                   var response = await  CreateEvent(service,calenderRequestDto,httpContext);
 
-               if (response.responseCode == "00")
+                   if (response.responseCode == "00")
+                   {
+                       return CommonResponse.Send(ResponseCodes.SUCCESS,null, "The event was successfully created");
+                   }
+               }
+               catch (Exception e)
                {
-                   return CommonResponse.Send(ResponseCodes.SUCCESS,null, "The event was successfully created");
+                   return CommonResponse.Send(ResponseCodes.FAILURE,e, "An unspecified error occured");
                }
                return CommonResponse.Send(ResponseCodes.FAILURE,null, "The event could not be created");
            }
@@ -4666,39 +4672,46 @@ namespace HaloBiz.MyServices.Impl
 
            public async Task<ApiCommonResponse> DeleteEvent(string eventId)
            {
-               string[] scopes = { "https://www.googleapis.com/auth/calendar" };
-               string applicationName = "HalobizCalender";
-               string path = Path.Combine(_hostEnvironment.WebRootPath, "wwwroot/Files/credential.json");
-
-               UserCredential credential;
-
-               using (var stream =
-                      new FileStream(path, FileMode.Open, FileAccess.Read))
+               try
                {
-                   string credPath = Path.Combine(_hostEnvironment.WebRootPath, "wwwroot/Files/token.json");
-                   credential = GoogleWebAuthorizationBroker.AuthorizeAsync(
-                       GoogleClientSecrets.Load(stream).Secrets,
-                       scopes,
-                       "user",
-                       CancellationToken.None,
-                       new FileDataStore(credPath, true)).Result;
-                   Console.WriteLine("Credential file saved to: " + credPath);
+                   string[] scopes = { "https://www.googleapis.com/auth/calendar" };
+                   string applicationName = "HalobizCalender";
+                   string path = Path.Combine(_hostEnvironment.WebRootPath,"Files/credential.json");
+
+                   UserCredential credential;
+
+                   using (var stream =
+                          new FileStream(path, FileMode.Open, FileAccess.Read))
+                   {
+                       string credPath = Path.Combine(_hostEnvironment.WebRootPath,"Files/token.json");
+                       credential = GoogleWebAuthorizationBroker.AuthorizeAsync(
+                           GoogleClientSecrets.Load(stream).Secrets,
+                           scopes,
+                           "user",
+                           CancellationToken.None,
+                           new FileDataStore(credPath, true)).Result;
+                       Console.WriteLine("Credential file saved to: " + credPath);
+                   }
+                   var initializer = new BaseClientService.Initializer()
+                   {
+                       HttpClientInitializer = credential,
+                       ApplicationName = "HalobizCalenderEvent",
+                   };
+                   var service = new CalendarService(initializer);
+               
+                   EventsResource.DeleteRequest request = service.Events.Delete("primary",eventId);  
+                   var listedEvents = await request.ExecuteAsync();
+                   var meeting = await _context.CalenderEvents.FirstOrDefaultAsync(x => x.CalenderId == eventId && x.IsActive == true);
+                   meeting.IsActive = false;
+                   _context.CalenderEvents.Update(meeting);
+                   await _context.SaveChangesAsync();
+                   return CommonResponse.Send(ResponseCodes.SUCCESS,listedEvents, "The event was successfully retrieved");
                }
-               var initializer = new BaseClientService.Initializer()
+               catch (Exception e)
                {
-                   HttpClientInitializer = credential,
-                   ApplicationName = "HalobizCalenderEvent",
-               };
-               var service = new CalendarService(initializer);
-               
-               EventsResource.DeleteRequest request = service.Events.Delete("primary",eventId);  
-               var listedEvents = await request.ExecuteAsync();
-               var meeting = await _context.CalenderEvents.FirstOrDefaultAsync(x => x.CalenderId == eventId && x.IsActive == true);
-               meeting.IsActive = false;
-               _context.CalenderEvents.Update(meeting);
-               await _context.SaveChangesAsync();
-               return CommonResponse.Send(ResponseCodes.SUCCESS,listedEvents, "The event was successfully retrieved");
-               
+                   return CommonResponse.Send(ResponseCodes.FAILURE,e, "An unspecified error occurred");
+               }
+       
            }
 
            public async Task<ApiCommonResponse> PersistEvent(Event insertedEvent,CalenderRequestDTO request, HttpContext httpContext)
@@ -4846,7 +4859,6 @@ namespace HaloBiz.MyServices.Impl
                    CreatedAt = DateTime.Now,
                    MailContent = mailRequest.EmailBody,
                    Subject = mailRequest.EmailSubject,
-                   ReceiverId = mailRequest.DestinationId
                };
 
                await _context.SentMails.AddAsync(auditEmail);

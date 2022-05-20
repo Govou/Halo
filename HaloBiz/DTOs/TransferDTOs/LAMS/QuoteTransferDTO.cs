@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Halobiz.Common.DTOs.ReceivingDTOs;
 using HaloBiz.Helpers;
 using HalobizMigrations.Models;
 using HalobizMigrations.Models.Shared;

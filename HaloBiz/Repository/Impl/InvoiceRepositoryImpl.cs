@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
+using Halobiz.Common.Helpers;
 using HaloBiz.Helpers;
 using halobiz_backend.Helpers;
 using HalobizMigrations.Data;

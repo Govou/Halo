@@ -1,7 +1,7 @@
 namespace HaloBiz.Helpers
 {
-    public enum ProportionStatusType
-    {
-        LeadGenerator, LeadClosure, LeadGeneratorAndClosure
-    }
+    //public enum ProportionStatusType
+    //{
+    //    LeadGenerator, LeadClosure, LeadGeneratorAndClosure
+    //}
 }

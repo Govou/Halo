@@ -15,6 +15,7 @@ using HaloBiz.MyServices.LAMS;
 using HalobizMigrations.Models.Halobiz;
 using HaloBiz.Model;
 using Microsoft.Extensions.Configuration;
+using Halobiz.Common.Helpers;
 
 namespace HaloBiz.MyServices.Impl.LAMS
 {
@@ -96,7 +97,9 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
                     foreach (var quoteService in quote.QuoteServices)
                     {
-                        await ConvertQuoteServiceToContractService(quoteService, _context, customerDivision, contract.Id, leadDivision);
+                        var success = await ConvertQuoteServiceToContractService(quoteService, _context, customerDivision, contract.Id, leadDivision);
+                        if (!success)
+                            return (false, "Error occurred in converting one quote service to contract service");
                     }
                 }
 
@@ -461,6 +464,8 @@ namespace HaloBiz.MyServices.Impl.LAMS
                                         quoteService,
                                         LoggedInUserId,
                                         false, null);
+                    if (!createSuccess)
+                        return false;
 
                  var _serviceCode = quoteService?.Service?.ServiceCode ?? contractService.Service?.ServiceCode;
                  var (invoiceSuccess, invoiceMsg) =   await GenerateInvoices(contractService, customerDivision.Id, _serviceCode, LoggedInUserId,"");
@@ -495,6 +500,8 @@ namespace HaloBiz.MyServices.Impl.LAMS
                                          null,
                                          userId,
                                          false, null);
+                    if (!createSuccess)
+                        return false;
 
                     var _serviceCode = contractService.Service?.ServiceCode;
                     var (invoiceSuccess, invoiceMsg) = await GenerateInvoices(contractService, customerDivision.Id, _serviceCode, userId, "");
@@ -534,6 +541,8 @@ namespace HaloBiz.MyServices.Impl.LAMS
                                          null,
                                          LoggedInUserId,
                                          false, null);
+                    if (!createSuccess)
+                        return false;
 
                     var _serviceCode = contractService.Service?.ServiceCode;
                     var (invoiceSuccess, invoiceMsg) = await GenerateInvoices(contractService, customerDivision.Id, _serviceCode, LoggedInUserId, startDate);
@@ -1180,20 +1189,22 @@ namespace HaloBiz.MyServices.Impl.LAMS
                                     isReversal
                                    );
 
+                if (!isSuccesReceivable) return (false, "Receivable was not created");
 
                 var (isSuccessVat, messageVat) = await PostVATAccountDetails(
-                                          service,
-                                          contractService,
-                                          customerDivision,
-                                          branchId,
-                                          officeId,
-                                          accountVoucherType,
-                                          savedAccountMasterId,
-                                          totalVAT,
-                                         loggedInUserId,
-                                         !isReversal
-                                         );
-                await PostIncomeAccount(
+                                            service,
+                                            contractService,
+                                            customerDivision,
+                                            branchId,
+                                            officeId,
+                                            accountVoucherType,
+                                            savedAccountMasterId,
+                                            totalVAT,
+                                           loggedInUserId,
+                                           !isReversal
+                                           );
+                if (!isSuccessVat) return (false, "VAT creaton was not successful");
+                bool isIncomeSuccessful = await PostIncomeAccount(
                                         service,
                                         contractService,
                                         customerDivision,
@@ -1205,12 +1216,14 @@ namespace HaloBiz.MyServices.Impl.LAMS
                                         loggedInUserId,
                                         !isReversal
                                                 );
+                if (!isIncomeSuccessful) return (false, "Creating income account not successful");
+
 
             }
             catch (Exception ex)
             {
                 _logger.LogError("CreateAccounts", ex);
-                throw;
+                return (false, $"Creating accounts not successful. {ex.Message}");
             }
 
             return (true,"success");
