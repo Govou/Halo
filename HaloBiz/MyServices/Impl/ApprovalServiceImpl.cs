@@ -915,6 +915,45 @@ namespace HaloBiz.MyServices.Impl
                 action.RunAsTask();
             }
         }
+
+        public async Task<ApiCommonResponse> GetApprovingLevelOfficeData(HttpContext context)
+        {
+            try
+            {
+                var userProfileId = context.GetLoggedInUserId();
+
+                var allApprovingLevelOffices = await _context.ApprovingLevelOffices
+                    .Include(x => x.ApproverLevel)
+                    .Where(x => x.IsDeleted == false)
+                    .ToListAsync();
+
+                var officerProfiles = await _context.ApprovingLevelOfficers
+                    .Include(x => x.ApprovingLevelOffice)
+                    .Where(x => x.UserId == userProfileId && x.IsDeleted == false)
+                    .ToListAsync();
+
+                ApprovingLevelBackUp resultObject = new()
+                {
+                    CurrentUserId = userProfileId,
+                    BackUpInfos = new List<ApprovingLevelBackUpInfo>()
+                };
+
+                foreach (var office in allApprovingLevelOffices)
+                {
+                    ApprovingLevelBackUpInfo info = new();
+                    info.Level = office.ApproverLevel.Caption;
+                    info.CanApprove = officerProfiles.Any(x => x.ApprovingLevelOfficeId == office.Id);
+                    resultObject.BackUpInfos.Add(info);
+                }
+
+                return CommonResponse.Send(ResponseCodes.SUCCESS, resultObject);
+            }
+            catch(Exception error)
+            {
+                _logger.LogError(error.Message);
+                return CommonResponse.Send(ResponseCodes.FAILURE, error.Message);
+            }
+        }
     }
 }
 

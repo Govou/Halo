@@ -37,4 +37,17 @@ namespace HaloBiz.DTOs.TransferDTOs
         public UserProfile CreatedBy { get; set; }
 
     }
+
+    public class ApprovingLevelBackUp
+    {
+        public long CurrentUserId { get; set; }
+        public System.Collections.Generic.List<ApprovingLevelBackUpInfo> BackUpInfos { get; set; }
+
+    }
+
+    public class ApprovingLevelBackUpInfo
+    {
+        public string Level { get; set; }
+        public bool CanApprove { get; set; }
+    }
 }
