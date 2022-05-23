@@ -814,20 +814,21 @@ namespace HaloBiz.MyServices.Impl
                                  .FirstOrDefaultAsync();
 
             var customerDivision = contract.CustomerDivision;
-
-            if(await _leadConversionService.AddServiceEndorsement(contractService, customerDivision, userId))
+            if(contractService.InvoicingInterval != (int)TimeCycle.Adhoc)
             {
-                contractService.Version = (int) VersionType.Latest;
-                _context.ContractServices.Update(contractService);
-
-                endorsement.IsApproved = true;
-                endorsement.IsConvertedToContractService = true;
-                _context.ContractServiceForEndorsements.Update(endorsement);
-                await _context.SaveChangesAsync();
-                return true;
+                var success = await _leadConversionService.AddServiceEndorsement(contractService, customerDivision, userId);
+                    if(!success)
+                        return false;
             }            
 
-            return false;
+            contractService.Version = (int)VersionType.Latest;
+            _context.ContractServices.Update(contractService);
+
+            endorsement.IsApproved = true;
+            endorsement.IsConvertedToContractService = true;
+            _context.ContractServiceForEndorsements.Update(endorsement);
+            await _context.SaveChangesAsync();
+            return true;
             
         }
         public  async Task<ApiCommonResponse> UpdateApproval(HttpContext context, long id, ApprovalReceivingDTO approvalReceivingDTO)
