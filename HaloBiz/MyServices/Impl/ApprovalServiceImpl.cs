@@ -922,7 +922,7 @@ namespace HaloBiz.MyServices.Impl
                 var userProfileId = context.GetLoggedInUserId();
 
                 var allApprovingLevelOffices = await _context.ApprovingLevelOffices
-                    .Include(x => x.ApproverLevel)
+                    //.Include(x => x.User)
                     .Where(x => x.IsDeleted == false)
                     .ToListAsync();
 
@@ -940,7 +940,8 @@ namespace HaloBiz.MyServices.Impl
                 foreach (var office in allApprovingLevelOffices)
                 {
                     ApprovingLevelBackUpInfo info = new();
-                    info.Level = office.ApproverLevel.Caption;
+                    info.UserId = office.UserId;
+                    //info.Username = office.User.LastName,
                     info.CanApprove = officerProfiles.Any(x => x.ApprovingLevelOfficeId == office.Id);
                     resultObject.BackUpInfos.Add(info);
                 }
