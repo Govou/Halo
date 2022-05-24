@@ -160,14 +160,11 @@ namespace HaloBiz.Repository.Impl
 
         public async Task<IEnumerable<MasterServiceAssignment>> FindAllServiceAssignmentsByClientId(long clientId)
         {
-            return await _context.MasterServiceAssignments.Where(aer => aer.CustomerDivisionId == clientId && aer.IsDeleted == false && aer.ReadyStatus == true)
+            return await _context.MasterServiceAssignments.Where(aer => aer.CustomerDivisionId == clientId && aer.IsDeleted == false && aer.ReadyStatus == true && aer.IsAddedToCart == true)
               .Include(ct => ct.ContractService).Include(t => t.SMORegion).Include(t => t.SMORegion)
               .Include(sec => sec.SecondaryServiceAssignments.Where(x => x.IsDeleted == false))
-              .Include(t => t.SMORoute).Include(t => t.SourceType).Include(t => t.TripType).Include(t => t.CreatedBy).Include(t => t.ServiceRegistration)
-              .Include(t => t.ServiceRegistration.Service).Include(t => t.ServiceRegistration.ApplicableArmedEscortTypes.Where(t => t.IsDeleted == false))
-              .Include(t => t.ServiceRegistration.ApplicableCommanderTypes.Where(t => t.IsDeleted == false))
-              .Include(t => t.ServiceRegistration.ApplicablePilotTypes.Where(t => t.IsDeleted == false))
-              .Include(t => t.ServiceRegistration.ApplicableVehicleTypes.Where(t => t.IsDeleted == false)).ToListAsync();
+              .Include(t => t.SMORoute).Include(t => t.CreatedBy).Include(t => t.ServiceRegistration)
+              .Include(t => t.ServiceRegistration.Service).ToListAsync();
               
         }
     }

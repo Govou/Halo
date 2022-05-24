@@ -1070,6 +1070,17 @@ namespace HaloBiz.MyServices.Impl
             return CommonResponse.Send(ResponseCodes.SUCCESS, TransferDTO, ResponseMessage.Success200);
         }
 
+        public async Task<ApiCommonResponse> GetAllMasterServiceAssignmentsByClientId(long clientId)
+        {
+            var master = await _serviceAssignmentMasterRepository.FindAllServiceAssignmentsByClientId(clientId);
+            if (master == null)
+            {
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);
+            }
+            var TransferDTO = _mapper.Map<IEnumerable<MasterServiceAssignmentTransferDTO>>(master);
+            return CommonResponse.Send(ResponseCodes.SUCCESS, TransferDTO, ResponseMessage.Success200);
+        }
+
         public async Task<ApiCommonResponse> GetAllScheduledMasterServiceAssignments()
         {
             var master = await _serviceAssignmentMasterRepository.FindAllScheduledServiceAssignments();
