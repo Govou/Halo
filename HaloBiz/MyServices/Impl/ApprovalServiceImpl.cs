@@ -921,12 +921,6 @@ namespace HaloBiz.MyServices.Impl
             try
             {
                 var userProfileId = context.GetLoggedInUserId();
-
-                var allApprovingLevelOffices = await _context.ApprovingLevelOffices
-                    .Include(x => x.ApproverLevel)
-                    .Where(x => x.IsDeleted == false)
-                    .ToListAsync();
-
                 var officerProfiles = await _context.ApprovingLevelOfficers
                     .Include(x => x.ApprovingLevelOffice)
                     .Where(x => x.UserId == userProfileId && x.IsDeleted == false)
@@ -938,13 +932,13 @@ namespace HaloBiz.MyServices.Impl
                     BackUpInfos = new List<ApprovingLevelBackUpInfo>()
                 };
 
-                foreach (var office in allApprovingLevelOffices)
-                {
-                    ApprovingLevelBackUpInfo info = new();
-                    info.Level = office.ApproverLevel.Caption;
-                    info.CanApprove = officerProfiles.Any(x => x.ApprovingLevelOfficeId == office.Id);
-                    resultObject.BackUpInfos.Add(info);
-                }
+                foreach (var office in officerProfiles)
+                    if (office.ApprovingLevelOffice.IsDeleted == false && !resultObject.BackUpInfos.Any(x => x.UserId == office.ApprovingLevelOffice.UserId))
+                        resultObject.BackUpInfos.Add(new ApprovingLevelBackUpInfo()
+                        {
+                            UserId = office.ApprovingLevelOffice.UserId,
+                            CanApprove = true
+                        });
 
                 return CommonResponse.Send(ResponseCodes.SUCCESS, resultObject);
             }
