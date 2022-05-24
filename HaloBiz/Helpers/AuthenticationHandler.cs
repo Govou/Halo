@@ -19,6 +19,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.IdentityModel.Tokens.Jwt;
 using System.IO;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace HaloBiz.Helpers
@@ -55,6 +56,8 @@ namespace HaloBiz.Helpers
             var actionName = controllerActionDescriptor?.ActionName;
             var actionVerb = context.Request.Method;
 
+            var userId = string.Empty;
+
             // context.Response.Headers.Add("Access-Control-Allow-Origin", "*");
 
             if (string.IsNullOrEmpty(controllerName) || string.IsNullOrEmpty(actionName))
@@ -83,9 +86,11 @@ namespace HaloBiz.Helpers
                     if (token.ToLower() != "null")
                     {
                         var (isValid, isExpired, authUser) = _jwtHelper.ValidateToken(token);
+                       
                         var permissionsList = new List<int>();
                         if (authUser != null)
                         {
+                            userId = authUser.Id;
                             permissionsList = JsonConvert.DeserializeObject<List<int>>(authUser.permissionString);
                         }
 
@@ -163,7 +168,11 @@ namespace HaloBiz.Helpers
                     return;
                 }
             }
-
+            var claim = new System.Security.Claims.Claim(ClaimTypes.NameIdentifier, userId);
+            var claims = new List<System.Security.Claims.Claim>();
+            claims.Add(claim);
+            var claimsIdentity = new ClaimsIdentity(claims);
+            context.User.AddIdentity(claimsIdentity);
             await _next(context);
         }
 
