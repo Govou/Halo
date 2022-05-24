@@ -4859,7 +4859,6 @@ namespace HaloBiz.MyServices.Impl
                    CreatedAt = DateTime.Now,
                    MailContent = mailRequest.EmailBody,
                    Subject = mailRequest.EmailSubject,
-                   ReceiverId = mailRequest.DestinationId
                };
 
                await _context.SentMails.AddAsync(auditEmail);

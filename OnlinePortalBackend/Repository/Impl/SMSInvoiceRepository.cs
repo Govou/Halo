@@ -1,4 +1,5 @@
 ﻿using Halobiz.Common.DTOs.ReceivingDTOs;
+using Halobiz.Common.DTOs.TransferDTOs;
 using HalobizMigrations.Data;
 using HalobizMigrations.Models;
 using Microsoft.EntityFrameworkCore;
@@ -7,6 +8,7 @@ using Microsoft.Extensions.Logging;
 using OnlinePortalBackend.DTOs.TransferDTOs;
 using OnlinePortalBackend.Helpers;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -457,5 +459,35 @@ namespace OnlinePortalBackend.Repository.Impl
                 .FirstOrDefaultAsync(x => x.IsDeleted == false && x.VoucherType.ToUpper().Trim() == name);
         }
 
+        public async Task<SendReceiptDTO> GetReceiptDetail(string invoiceNumber)
+        {
+            var invoice = _context.Invoices.FirstOrDefault(x => x.InvoiceNumber == invoiceNumber);
+            var customer = _context.CustomerDivisions.FirstOrDefault(x => x.Id == invoice.CustomerDivisionId);
+            var contractServices = _context.ContractServices.Include(x => x.Service).Where(x => x.ContractId == invoice.ContractId);
+
+            var receiptDetails = new List<SendReceiptDetailDTO>();
+
+            foreach (var item in contractServices)
+            {
+                receiptDetails.Add(new SendReceiptDetailDTO
+                {
+                    Amount = item.UnitPrice.ToString(),
+                    Description = item.Service.Description,
+                    ServiceName = item.Service.Name,
+                    Quantity = item.Quantity.ToString(),
+                    Total = (item.Quantity * item.UnitPrice).ToString(),
+                });
+            }
+
+            var result = new SendReceiptDTO
+            {
+                Amount = invoice.Value.ToString(),
+                CustomerName = customer.DivisionName,
+                SendReceiptDetailDTOs = receiptDetails,
+                Email = customer.Email
+            };
+
+            return result;
+        }
     }
 }

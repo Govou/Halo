@@ -59,6 +59,9 @@ namespace OnlinePortalBackend.Repository.Impl
             var customerDivisionId = 0; 
             var leadDivisionId = _context.LeadDivisions.FirstOrDefault(x => x.Email == contractDTO.Email).Id;
 
+            var suspectId = _context.Suspects.FirstOrDefault(x => x.Email == contractDTO.Email).Id;
+            var contactId = _context.SuspectContacts.FirstOrDefault(x => x.SuspectId == suspectId).ContactId;
+
             var branchId = int.Parse(branch);
             var officeId = int.Parse(office);
             var endorsementType = _context.EndorsementTypes.FirstOrDefault(x => x.Caption.ToLower() == "service addition").Id;
@@ -83,6 +86,7 @@ namespace OnlinePortalBackend.Repository.Impl
 
                 var suspect = _context.Suspects.FirstOrDefault(x => x.Email == contractDTO.Email);
 
+               
                 var customer = new Customer
                 {
                     CreatedAt = DateTime.UtcNow.AddHours(1),
@@ -100,6 +104,19 @@ namespace OnlinePortalBackend.Repository.Impl
 
                 _context.Customers.Add(customer);
                 await _context.SaveChangesAsync();
+
+                var customerContact = new CustomerContact
+                {
+                    ContactDesignation = ContactDesignation.Self,
+                    ContactPriority = ContactPriority.PrimaryContact,
+                    ContactQualification = ContactQualification.DecisionMaker,
+                    ContactId = contactId,
+                    CustomerId = customer.Id
+                };
+
+                _context.CustomerContacts.Add(customerContact);
+                await _context.SaveChangesAsync();
+
 
                 var customerDiv = new CustomerDivision
                 {
@@ -168,9 +185,9 @@ namespace OnlinePortalBackend.Repository.Impl
                         GroupInvoiceNumber = groupInvoiceNumber,
                         ServiceId = service.Id,
                         ContractId = contractId,
-                        InvoicingInterval = TimeCycle.Monthly,
+                        InvoicingInterval = TimeCycle.OneTime,
                         Quantity = item.Quantity,
-                        PaymentCycle = TimeCycle.Monthly,
+                        PaymentCycle = TimeCycle.OneTime,
                         EndorsementTypeId = endorsementType,
                         PickupLocation = item.PickupLocation,
                         PickupDateTime = item.PickupTime,
@@ -194,9 +211,9 @@ namespace OnlinePortalBackend.Repository.Impl
                         Dropofflocation = item.DropLocation,
                         DropoffDateTime = item.DropoffDateTime,
                         ServiceId = service.Id,
-                        InvoicingInterval = (int)TimeCycle.Monthly,
+                        InvoicingInterval = TimeCycle.OneTime,
                         Quantity = item.Quantity,
-                        PaymentCycle = (int)TimeCycle.Monthly,
+                        PaymentCycle = TimeCycle.OneTime,
                         PickupLocation = item.PickupLocation,
                         PickupDateTime = item.PickupTime,
                         VAT = vat,
@@ -428,8 +445,8 @@ namespace OnlinePortalBackend.Repository.Impl
                     Version = (int)VersionType.Latest,
                     GroupContractCategory = contractDetail.GroupContractCategory,
                     GroupInvoiceNumber = contractDetail.GroupInvoiceNumber,
-                    IsApproved = false,
-                    HasAddedSBU = false,
+                    IsApproved = true,
+                    HasAddedSBU = true,
                     Caption = contractDetail.DocumentUrl
                 };
 
