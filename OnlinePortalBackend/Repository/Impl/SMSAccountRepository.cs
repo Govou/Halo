@@ -77,9 +77,12 @@ namespace OnlinePortalBackend.Repository.Impl
                 MobileNumber = accountDTO.PhoneNumber
             };
 
+            var lga = _context.Lgas.FirstOrDefault(x => x.Id == accountDTO.LGAId).Name;
+            var state = _context.States.FirstOrDefault(x => x.Id == accountDTO.StateId).Name;
+
             var suspect = new Suspect
             {
-                Address = accountDTO.Address,
+                Address = accountDTO.Address + ", " + lga + ", " + state,
                 BusinessName = accountDTO.CompanyName,
                 CreatedAt = DateTime.UtcNow.AddHours(1),
                 UpdatedAt = DateTime.UtcNow.AddHours(1),
@@ -126,7 +129,7 @@ namespace OnlinePortalBackend.Repository.Impl
 
             var leadDivision = new LeadDivision
             {
-                Address = accountDTO.Address,
+                Address = accountDTO.Address + ", " + lga + ", " + state,
                 CreatedAt = DateTime.UtcNow.AddHours(1),
                 UpdatedAt = DateTime.UtcNow.AddHours(1),
                 BranchId = branchId,
@@ -149,7 +152,6 @@ namespace OnlinePortalBackend.Repository.Impl
             var onlinProfile = new OnlineProfile
             {
                 Email = accountDTO.AccountLogin.Email,
-                EmailConfirmed = true,
                 NormalizedEmail = accountDTO.AccountLogin.Email.ToUpper(),
                 PasswordHash = hashed,
                 SecurityStamp = Convert.ToBase64String(salt),
@@ -233,12 +235,15 @@ namespace OnlinePortalBackend.Repository.Impl
                 LastName = accountDTO.LastName,
                 Gender = gender,
                 ProfilePicture = accountDTO.ImageUrl,
-                Mobile = accountDTO.PhoneNumber
+                Mobile = accountDTO.PhoneNumber,
+                
             };
+            var lga = _context.Lgas.FirstOrDefault(x => x.Id == accountDTO.LGAId).Name;
+            var state = _context.States.FirstOrDefault(x => x.Id == accountDTO.StateId).Name;
 
             var suspect = new Suspect
             {
-                Address = accountDTO.Address,
+                Address = accountDTO.Address + ", " + lga + ", " + state,
                 CreatedAt = DateTime.UtcNow.AddHours(1),
                 UpdatedAt = DateTime.UtcNow.AddHours(1),
                 BranchId = branchId,
@@ -253,7 +258,8 @@ namespace OnlinePortalBackend.Repository.Impl
                 OfficeId = office,
                 StateId = accountDTO.StateId,
                 FirstName = accountDTO.FirstName,
-                LastName= accountDTO.LastName
+                LastName= accountDTO.LastName,
+                Street = accountDTO.Address
             };
 
             var leadReference = await GetReferenceNumber();
@@ -275,7 +281,7 @@ namespace OnlinePortalBackend.Repository.Impl
 
             var leadDivision = new LeadDivision
             {
-                Address = accountDTO.Address,
+                Address = accountDTO.Address + ", " + lga + ", " + state,
                 CreatedAt = DateTime.UtcNow.AddHours(1),
                 UpdatedAt = DateTime.UtcNow.AddHours(1),
                 BranchId = branchId,
@@ -331,7 +337,6 @@ namespace OnlinePortalBackend.Repository.Impl
             var onlinProfile = new OnlineProfile
             {
                 Email = accountDTO.AccountLogin.Email,
-                EmailConfirmed = true,
                 NormalizedEmail = accountDTO.AccountLogin.Email.ToUpper(),
                 PasswordHash = hashed,
                 SecurityStamp = Convert.ToBase64String(salt),
