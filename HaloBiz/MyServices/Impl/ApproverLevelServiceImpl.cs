@@ -47,7 +47,7 @@ namespace HaloBiz.MyServices.Impl
             var lastOffice = await _approverLevelRepo.GetLastApprovingLevelOffice();
             ApprovingLevelOffice approvingLevelOffice = new()
             {
-                ApproverLevelId = model.ApprovingLevelId,
+                UserId = model.UserId,
                 CreatedById = userProfileID,
                 CreatedAt = System.DateTime.Now,
                 ApprovingOfficers = new List<ApprovingLevelOfficer>()
@@ -181,7 +181,7 @@ namespace HaloBiz.MyServices.Impl
                 newOfficers.Add(approvingOfficer);
             }
             await _approverLevelRepo.SaveApprovingLevelOfficers(newOfficers);
-            approvingOffice.ApproverLevelId = model.ApprovingLevelId;
+            approvingOffice.UserId = model.UserId;
             approvingOffice.UpdatedAt = System.DateTime.Now;
             await _approverLevelRepo.UpdateApprovingLevelOffice(approvingOffice);
             return CommonResponse.Send(ResponseCodes.SUCCESS, true);

@@ -23,6 +23,22 @@ namespace OnlinePortalBackend.Repository.Impl
             });
         }
 
+        public async Task<LocalGovtAreaDTO> GetLocalGovtAreaById(int id)
+        {
+            LocalGovtAreaDTO lgaDTO = null;
+            var lga = _context.Lgas.FirstOrDefault(x => x.Id == id);
+            if (lga != null)
+            {
+                lgaDTO = new LocalGovtAreaDTO
+                {
+                    LGAId = (int)lga.Id,
+                    LGAName = lga.Name,
+                    StateId = (int)lga.StateId
+                };
+            }
+            return lgaDTO;
+        }
+
         public async Task<IEnumerable<LocalGovtAreaDTO>> GetLocalGovtAreas(int stateId)
         {
             return _context.Lgas.Where(x => x.StateId == stateId).Select(x => new LocalGovtAreaDTO
@@ -31,6 +47,21 @@ namespace OnlinePortalBackend.Repository.Impl
                 LGAName = x.Name,
                 StateId = (int)x.StateId
             });
+        }
+
+        public async Task<StateDTO> GetStateById(int id)
+        {
+            StateDTO stateDTO = null;
+            var state = _context.States.FirstOrDefault(x => x.Id == id);
+            if (state != null)
+            {
+                stateDTO = new StateDTO
+                {
+                    StateId = (int)state.Id,
+                    StateName = state.Name
+                };
+            }
+            return stateDTO;
         }
 
         public async Task<IEnumerable<StateDTO>> GetStates()

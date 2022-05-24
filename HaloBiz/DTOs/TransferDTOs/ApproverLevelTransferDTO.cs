@@ -8,8 +8,8 @@ namespace HaloBiz.DTOs.TransferDTOs
     public class ApprovingLevelOfficeTransferDTO
     {
         public long Id { get; set; }
-        public long? ApproverLevelId { get; set; }
-        public ApproverLevelTransferDTO ApproverLevel { get; set; }
+        public long? UserId { get; set; }
+        public Halobiz.Common.DTOs.TransferDTOs.UserProfileTransferDTO User { get; set; }
         public System.Collections.Generic.ICollection<ApprovingLevelOfficerTransferDTO> ApprovingOfficers { get; set; }
         public long CreatedById { get; set; }
         public bool IsDeleted { get; set; }

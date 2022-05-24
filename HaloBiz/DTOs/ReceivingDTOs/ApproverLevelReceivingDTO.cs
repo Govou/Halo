@@ -11,7 +11,7 @@ namespace HaloBiz.DTOs.ReceivingDTOs
     public class ApprovingLevelOfficeReceivingDTO
     {
         [Required]
-        public long ApprovingLevelId { get; set; }
+        public long UserId { get; set; }
         [Required]
         public List<int> OfficersIds { get; set; }
     }

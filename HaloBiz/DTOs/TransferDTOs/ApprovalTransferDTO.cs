@@ -47,7 +47,8 @@ namespace HaloBiz.DTOs.TransferDTOs
 
     public class ApprovingLevelBackUpInfo
     {
-        public string Level { get; set; }
+        public long? UserId { get; set; }
+        public string Username { get; set; }
         public bool CanApprove { get; set; }
     }
 }
