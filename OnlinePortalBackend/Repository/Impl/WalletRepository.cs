@@ -1,4 +1,5 @@
-﻿using HalobizMigrations.Data;
+﻿using Halobiz.Common.Utility;
+using HalobizMigrations.Data;
 using HalobizMigrations.Models;
 using HalobizMigrations.Models.OnlinePortal;
 using Microsoft.EntityFrameworkCore;
@@ -31,21 +32,22 @@ namespace OnlinePortalBackend.Repository.Impl
 
             var profile = _context.OnlineProfiles.FirstOrDefault(x => x.Id == request.ProfileId);
             var createdBy = _context.UserProfiles.FirstOrDefault(x => x.Email.ToLower().Contains("online")).Id;
-            var controlAccount = _context.ControlAccounts.FirstOrDefault(x => x.Caption.ToLower().Contains("wallet")).Id;
+            var controlAccount = _configuration["WalletControlAccountID"] ?? _configuration.GetSection("AppSettings:WalletControlAccountID").Value;
+            var controlAccountId = int.Parse(controlAccount);
 
             using var trx = await _context.Database.BeginTransactionAsync();
 
             try
             {
                 var account = new Account {
-                    ControlAccountId = controlAccount,
+                    ControlAccountId = controlAccountId,
                     UpdatedAt = DateTime.UtcNow.AddHours(1),
                     CreatedAt = DateTime.UtcNow.AddHours(1),
                     CreatedById = createdBy,
                     IsActive = true,
                     Description = $"Liability Account for {profile.Name.ToUpper()}",
                     Name = profile.Name,
-                    IsDebitBalance = true
+                    IsDebitBalance = false
                 };
 
                 await SaveAccount(account);
@@ -59,8 +61,8 @@ namespace OnlinePortalBackend.Repository.Impl
                     CreatedById = createdBy,
                     OnlineProfileId = profile.Id,
                     WalletLiabilityAccountId = account.Id,
-                    WalletPin = request.WalletPin.ToString()
-
+                    WalletPin = request.WalletPin.ToString(),
+                    WalletBalance = new AesCryptoUtil().Encrypt(0.ToString()),
                 };
 
                 _context.WalletMasters.Add(walletUser);
@@ -96,7 +98,7 @@ namespace OnlinePortalBackend.Repository.Impl
                 return (false, "User does not exist");
             }
 
-            return (true, balance.WalletBalance);
+            return (true, new AesCryptoUtil().Decrypt(balance.WalletBalance));
 
         }
 
@@ -116,29 +118,28 @@ namespace OnlinePortalBackend.Repository.Impl
 
             try
             {
+                var transactionId = "SM" + new Random().Next(100_000_000, 1_000_000_000);
 
-                var accountMaster = _context.AccountMasters.FirstOrDefault(x => x.CustomerDivisionId == profile.CustomerDivisionId);
-                if (accountMaster == null)
+
+                var voucher = _context.FinanceVoucherTypes.FirstOrDefault(x => x.VoucherType.ToLower() == "wallet topup").Id;
+                var accountMaster = new AccountMaster
                 {
-                    var voucher = _context.FinanceVoucherTypes.FirstOrDefault(x => x.VoucherType.ToLower() == "wallet topup").Id;
-                    accountMaster = new AccountMaster
-                    {
-                        CreatedAt = DateTime.UtcNow.AddHours(1),
-                        UpdatedAt = DateTime.UtcNow.AddHours(1),
-                        CreatedById = createdBy,
-                        CustomerDivisionId = profile.CustomerDivisionId,
-                        VoucherId = voucher,
-                        Value = request.Amount,
-                        OfficeId = office,
-                        BranchId = branchId,
-                    };
+                    CreatedAt = DateTime.UtcNow.AddHours(1),
+                    UpdatedAt = DateTime.UtcNow.AddHours(1),
+                    CreatedById = createdBy,
+                    CustomerDivisionId = profile.CustomerDivisionId,
+                    VoucherId = voucher,
+                    Value = request.Amount,
+                    OfficeId = office,
+                    BranchId = branchId,
+                    TransactionId = transactionId,
+                };
 
-                    _context.AccountMasters.Add(accountMaster);
-                    _context.SaveChanges();
-                }
+                _context.AccountMasters.Add(accountMaster);
+                _context.SaveChanges();
+
 
                 var debitCashBook = _configuration["WalletDebitCashBookID"] ?? _configuration.GetSection("AppSettings:WalletDebitCashBookID").Value;
-                var transactionId = "SM" + new Random().Next(100_000_000, 1_000_000_000);
                 var accountDetail1 = new AccountDetail
                 {
                     VoucherId = accountMaster.VoucherId,
@@ -151,7 +152,7 @@ namespace OnlinePortalBackend.Repository.Impl
                     TransactionDate = DateTime.UtcNow.AddHours(1),
                     Debit = request.Amount,
                     AccountId = int.Parse(debitCashBook),
-                    Description = $"Wallet loaded for {profile.Id}",
+                    Description = $"Top up of {profile.Id}",
                    TransactionId = transactionId,
                 };
 
@@ -190,12 +191,10 @@ namespace OnlinePortalBackend.Repository.Impl
                 var totalCreditAmt = 0d;
                 if (creditTransactions.Count() > 0)
                 {
-                    totalCreditAmt = creditTransactions.Select(x => int.Parse(x.TransactionValue)).Sum();
-
                     var trxs = creditTransactions.Select(x => x.TransactionValue);
                     foreach (var item in trxs)
                     {
-                        totalCreditAmt += double.Parse(item);
+                        totalCreditAmt +=  double.Parse(new AesCryptoUtil().Decrypt(item));
                     }
                 }
                 var debitTransactions = transactions.Where(x => x.TransactionType == (int)WalletTransactionType.Spend);
@@ -205,7 +204,7 @@ namespace OnlinePortalBackend.Repository.Impl
                     var trxs = debitTransactions.Select(x => x.TransactionValue);
                     foreach (var item in trxs)
                     {
-                        totalDebitAmt += double.Parse(item);
+                        totalDebitAmt += double.Parse(new AesCryptoUtil().Decrypt(item));
                     }
                 }
 
@@ -217,15 +216,15 @@ namespace OnlinePortalBackend.Repository.Impl
                     CreatedById = createdBy,
                     UpdatedAt = DateTime.UtcNow.AddHours(1),
                     WalletMasterId = walletMaster.Id,
-                    TransactionValue = request.Amount.ToString(),
-                    MovingBalance = balance.ToString(),
+                    TransactionValue = new AesCryptoUtil().Encrypt(request.Amount.ToString()),
+                    MovingBalance = new AesCryptoUtil().Encrypt(balance.ToString()),
                     Platform = request.Platform,
                     TransactionType = (int)WalletTransactionType.Load
                 };
 
                 _context.WalletDetails.Add(walletDetail);
 
-                walletMaster.WalletBalance = balance.ToString();
+                walletMaster.WalletBalance = new AesCryptoUtil().Encrypt(balance.ToString());
 
                 _context.SaveChanges();
 
@@ -250,7 +249,7 @@ namespace OnlinePortalBackend.Repository.Impl
             if (walletMaster == null)
                 return (false, new SpendWalletResponseDTO { Message = "User does not have a wallet" });
 
-            if (double.Parse(walletMaster.WalletBalance) < request.Amount)
+            if (double.Parse(new AesCryptoUtil().Decrypt(walletMaster.WalletBalance)) < request.Amount)
                 return (false, new SpendWalletResponseDTO { Message = "Insufficient funds in wallet" });
             
 
@@ -264,28 +263,27 @@ namespace OnlinePortalBackend.Repository.Impl
             try
             {
 
-                var accountMaster = _context.AccountMasters.FirstOrDefault(x => x.CustomerDivisionId == profile.CustomerDivisionId);
-                if (accountMaster == null)
-                {
-                    var voucher = _context.FinanceVoucherTypes.FirstOrDefault(x => x.VoucherType.ToLower() == "wallet reduction").Id;
-                    accountMaster = new AccountMaster
-                    {
-                        CreatedAt = DateTime.UtcNow.AddHours(1),
-                        UpdatedAt = DateTime.UtcNow.AddHours(1),
-                        CreatedById = createdBy,
-                        CustomerDivisionId = profile.CustomerDivisionId,
-                        VoucherId = voucher,
-                        Value = request.Amount,
-                        OfficeId = office,
-                        BranchId = branchId,
-                    };
+                var transactionId = "SM" + new Random().Next(100_000_000, 1_000_000_000);
 
-                    _context.AccountMasters.Add(accountMaster);
-                    _context.SaveChanges();
-                }
+                var voucher = _context.FinanceVoucherTypes.FirstOrDefault(x => x.VoucherType.ToLower() == "wallet reduction").Id;
+                var accountMaster = new AccountMaster
+                {
+                    CreatedAt = DateTime.UtcNow.AddHours(1),
+                    UpdatedAt = DateTime.UtcNow.AddHours(1),
+                    CreatedById = createdBy,
+                    CustomerDivisionId = profile.CustomerDivisionId,
+                    VoucherId = voucher,
+                    Value = request.Amount,
+                    OfficeId = office,
+                    BranchId = branchId,
+                    TransactionId = transactionId,
+                };
+
+                _context.AccountMasters.Add(accountMaster);
+                _context.SaveChanges();
+                
 
                 var creditCashBook = _configuration["WalletCreditCashBookID"] ?? _configuration.GetSection("AppSettings:WalletCreditCashBookID").Value;
-                var transactionId = "SM" + new Random().Next(100_000_000, 1_000_000_000);
                 var accountDetail1 = new AccountDetail
                 {
                     VoucherId = accountMaster.VoucherId,
@@ -340,7 +338,7 @@ namespace OnlinePortalBackend.Repository.Impl
                     var trxs = creditTransactions.Select(x => x.TransactionValue);
                     foreach (var item in trxs)
                     {
-                        totalCreditAmt += double.Parse(item);
+                        totalCreditAmt += double.Parse(new AesCryptoUtil().Decrypt(item));
                     }
                 }
                 var debitTransactions = transactions.Where(x => x.TransactionType == (int)WalletTransactionType.Spend);
@@ -350,7 +348,7 @@ namespace OnlinePortalBackend.Repository.Impl
                     var trxs = debitTransactions.Select(x => x.TransactionValue);
                     foreach (var item in trxs)
                     {
-                        totalDebitAmt += double.Parse(item);
+                        totalDebitAmt += double.Parse(new AesCryptoUtil().Decrypt(item));
                     }
                 }
 
@@ -369,7 +367,7 @@ namespace OnlinePortalBackend.Repository.Impl
 
                 _context.WalletDetails.Add(walletDetail);
 
-                walletMaster.WalletBalance = balance.ToString();
+                walletMaster.WalletBalance = new AesCryptoUtil().Encrypt(balance.ToString());
 
                 _context.SaveChanges();
 

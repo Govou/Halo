@@ -7,6 +7,7 @@ using HalobizMigrations.Models.OnlinePortal;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using OnlinePortalBackend.DTOs.TransferDTOs;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,6 +18,7 @@ namespace OnlinePortalBackend.MyServices
     public interface IMailService
     {
         Task<ApiCommonResponse> ConfirmCodeSending(OnlinePortalDTO request);
+        Task<ApiCommonResponse> SendInvoiceReceipt(ReceiptSendDTO request);
     }
     public class MailService : IMailService
     {
@@ -35,6 +37,22 @@ namespace OnlinePortalBackend.MyServices
         public async Task<ApiCommonResponse> ConfirmCodeSending(OnlinePortalDTO request)
         {
             var baseUrl = $"{_mailBaseUrl}/Mail/OnlinePortalNotice";
+            try
+            {
+                var response = await baseUrl.AllowAnyHttpStatus()
+                   .PostJsonAsync(request).ReceiveJson();
+                return CommonResponse.Send(ResponseCodes.SUCCESS);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogInformation(ex.Message);
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, ex.Message);
+            }
+        }
+
+        public async Task<ApiCommonResponse> SendInvoiceReceipt(ReceiptSendDTO request)
+        {
+            var baseUrl = $"{_mailBaseUrl}/Mail/SendCustomerInvoiceReceipt";
             try
             {
                 var response = await baseUrl.AllowAnyHttpStatus()

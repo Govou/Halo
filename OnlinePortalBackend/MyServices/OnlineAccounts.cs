@@ -125,8 +125,6 @@ namespace OnlinePortalBackend.MyServices
             {
                 var response = await _context.OnlineProfiles.Where(x=>x.Email==Email).FirstOrDefaultAsync();
 
-               
-
                 //check if this customer division has an email
                 if (!_context.LeadDivisions.Any(x => x.Email == Email))
                 {
