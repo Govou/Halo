@@ -1,4 +1,5 @@
 ﻿using Halobiz.Common.DTOs.ApiDTOs;
+using Halobiz.Common.DTOs.ReceivingDTOs;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using OnlinePortalBackend.DTOs.ReceivingDTOs;
@@ -23,11 +24,19 @@ namespace OnlinePortalBackend.Controllers.SecureMobilitySales
             return await _walletService.ActivateWallet(request);
         }
 
+      
         [HttpPost("LoadWallet")]
         public async Task<ApiCommonResponse> LoadWallet(LoadWalletDTO request)
         {
             return await _walletService.LoadWallet(request);
         }
+
+        [HttpPost("WalletLogin")]
+        public async Task<ApiCommonResponse> WalletLogin(WalletLoginDTO request)
+        {
+            return await _walletService.WalletLogin(request);
+        }
+
 
         [HttpPost("SpendWallet")]
         public async Task<ApiCommonResponse> SpendWallet(SpendWalletDTO request)

@@ -1,4 +1,5 @@
-﻿using Halobiz.Common.Utility;
+﻿using Halobiz.Common.DTOs.ReceivingDTOs;
+using Halobiz.Common.Utility;
 using HalobizMigrations.Data;
 using HalobizMigrations.Models;
 using HalobizMigrations.Models.OnlinePortal;
@@ -69,7 +70,7 @@ namespace OnlinePortalBackend.Repository.Impl
                     CreatedById = createdBy,
                     OnlineProfileId = profile.Id,
                     WalletLiabilityAccountId = account.Id,
-                    WalletPin = request.WalletPin.ToString(),
+                    WalletPin = new AesCryptoUtil().Encrypt(request.WalletPin.ToString()),
                     WalletBalance = new AesCryptoUtil().Encrypt(0.ToString()),
                 };
 
@@ -88,8 +89,6 @@ namespace OnlinePortalBackend.Repository.Impl
 
             return (false, "Activation Failed");
         }
-
-        
 
         public async Task<(bool isSuccess, bool status)> GetWalletActivationStatus(int profileId)
         {
@@ -251,7 +250,6 @@ namespace OnlinePortalBackend.Repository.Impl
             
         }
 
-   
         public async Task<(bool isSuccess, SpendWalletResponseDTO message)> SpendWallet(SpendWalletDTO request)
         {
             var createdBy = _context.UserProfiles.FirstOrDefault(x => x.Email.ToLower().Contains("online")).Id;
@@ -394,6 +392,12 @@ namespace OnlinePortalBackend.Repository.Impl
             }
         }
 
+        public async Task<bool> WalletLogin(WalletLoginDTO request)
+        {
+            var encryptedPIN = new AesCryptoUtil().Encrypt(request.PIN);
+            return _context.WalletMasters.Any(x => x.OnlineProfileId == request.ProfileId && x.WalletPin == encryptedPIN);
+        }
+
         private object ConvertDateToLongString(DateTime dateTime)
         {
             var dateStr = dateTime.ToString("dd/MM/yyyy/HH/mm/ss");
@@ -415,7 +419,6 @@ namespace OnlinePortalBackend.Repository.Impl
             }
             return initials;
         }
-
 
         private async Task<long> SaveAccount(Account account)
         {
@@ -451,5 +454,6 @@ namespace OnlinePortalBackend.Repository.Impl
             }
 
         }
+      
     }
 }
