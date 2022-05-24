@@ -82,7 +82,7 @@ namespace HaloBiz.MyServices.Impl
         public async Task<ApiCommonResponse> AddSMORoute(HttpContext context, SMORouteReceivingDTO sMORouteReceivingDTO)
         {
             var addItem = _mapper.Map<SMORoute>(sMORouteReceivingDTO);
-            //check for route pattern to be "soutename - routename"
+            //check for route pattern to be "routename - routename"
             var NameExist = _sMORouteAndRegionRepository.GetRouteName(sMORouteReceivingDTO.RouteName);
             if (NameExist != null)
             {
