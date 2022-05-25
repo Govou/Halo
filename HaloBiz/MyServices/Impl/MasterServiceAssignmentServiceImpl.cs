@@ -82,7 +82,7 @@ namespace HaloBiz.MyServices.Impl
             try
             {
                 master.CreatedById = context.GetLoggedInUserId();
-                master.PickoffTime = pickofftime;
+                //master.PickoffTime = pickofftime;
                 master.CreatedAt = DateTime.Now;
                 master.TripTypeId = 1;
                 master.SAExecutionStatus = 0;
@@ -505,7 +505,7 @@ namespace HaloBiz.MyServices.Impl
 
             
             master.CreatedById = context.GetLoggedInUserId();
-            master.PickoffTime = pickofftime;
+            //master.PickoffTime = pickofftime;
             master.CreatedAt = DateTime.Now;
             master.TripTypeId = 1;
             master.SAExecutionStatus = 0;
