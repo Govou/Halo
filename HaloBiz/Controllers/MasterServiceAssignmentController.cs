@@ -104,8 +104,20 @@ namespace HaloBiz.Controllers
         public async Task<ApiCommonResponse> UpdateServiceAssignmentMasterById(long id, MasterServiceAssignmentReceivingDTO ReceivingDTO)
         {
             return await _masterServiceAssignmentService.UpdateMasterServiceAssignment(HttpContext, id, ReceivingDTO);
-           
         }
+
+        [HttpPut("UpdateisAddedToCartStatusById/{id}")]
+        public async Task<ApiCommonResponse> UpdateisAddedToCartStatusById(long id)
+        {
+            return await _masterServiceAssignmentService.UpdateisAddedToCartStatus(id);
+        }
+
+        [HttpPut("UpdateisPaidForStatusById/{id}")]
+        public async Task<ApiCommonResponse> UpdateisPaidForStatusById(long id)
+        {
+            return await _masterServiceAssignmentService.UpdateisPaidForStatus(id);
+        }
+
 
         [HttpDelete("DeleteServiceAssignmentMasterById/{id}")]
         public async Task<ApiCommonResponse> DeleteServiceAssignmentMasterById(int id)

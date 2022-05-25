@@ -118,6 +118,16 @@ namespace HaloBiz.Repository.Impl
             return null;
         }
 
+        public async Task<MasterServiceAssignment> UpdateServiceAssignment(MasterServiceAssignment serviceAssignment)
+        {
+            var updatedEntity = _context.MasterServiceAssignments.Update(serviceAssignment);
+            if (await SaveChanges())
+            {
+                return updatedEntity.Entity;
+            }
+            return null;
+        }
+
         public async Task<MasterServiceAssignment> SaveServiceAssignment(MasterServiceAssignment serviceAssignment)
         {
             var savedEntity = await _context.MasterServiceAssignments.AddAsync(serviceAssignment);
@@ -135,15 +145,21 @@ namespace HaloBiz.Repository.Impl
             return await SaveChanges();
         }
 
-        public async Task<MasterServiceAssignment> UpdateServiceAssignment(MasterServiceAssignment serviceAssignment)
+        public async Task<bool> UpdateisAddedToCartStatus(MasterServiceAssignment serviceAssignment)
         {
-            var updatedEntity = _context.MasterServiceAssignments.Update(serviceAssignment);
-            if (await SaveChanges())
-            {
-                return updatedEntity.Entity;
-            }
-            return null;
+            serviceAssignment.IsAddedToCart = true;
+            _context.MasterServiceAssignments.Update(serviceAssignment);
+            return await SaveChanges();
         }
+
+        public async Task<bool> UpdateisPaidForStatus(MasterServiceAssignment serviceAssignment)
+        {
+            serviceAssignment.IsPaidFor = true;
+            _context.MasterServiceAssignments.Update(serviceAssignment);
+            return await SaveChanges();
+        }
+
+     
 
         private async Task<bool> SaveChanges()
         {
@@ -167,5 +183,7 @@ namespace HaloBiz.Repository.Impl
               .Include(t => t.ServiceRegistration.Service).ToListAsync();
               
         }
+
+      
     }
 }
