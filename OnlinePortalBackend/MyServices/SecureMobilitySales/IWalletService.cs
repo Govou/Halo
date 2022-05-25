@@ -1,4 +1,5 @@
 ﻿using Halobiz.Common.DTOs.ApiDTOs;
+using Halobiz.Common.DTOs.ReceivingDTOs;
 using HalobizMigrations.Models;
 using HalobizMigrations.Models.OnlinePortal;
 using OnlinePortalBackend.DTOs.ReceivingDTOs;
@@ -12,6 +13,7 @@ namespace OnlinePortalBackend.MyServices.SecureMobilitySales
     {
         Task<ApiCommonResponse> ActivateWallet(ActivateWalletDTO request);
         Task<ApiCommonResponse> LoadWallet(LoadWalletDTO request);
+        Task<ApiCommonResponse> WalletLogin(WalletLoginDTO request);
         Task<ApiCommonResponse> SpendWallet(SpendWalletDTO request);
         Task<ApiCommonResponse> GetWalletBalance(int profileId);
         Task<ApiCommonResponse> GetWalletActivationStatus(int profileId);

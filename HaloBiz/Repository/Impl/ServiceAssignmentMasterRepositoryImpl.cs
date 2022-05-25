@@ -118,6 +118,16 @@ namespace HaloBiz.Repository.Impl
             return null;
         }
 
+        public async Task<MasterServiceAssignment> UpdateServiceAssignment(MasterServiceAssignment serviceAssignment)
+        {
+            var updatedEntity = _context.MasterServiceAssignments.Update(serviceAssignment);
+            if (await SaveChanges())
+            {
+                return updatedEntity.Entity;
+            }
+            return null;
+        }
+
         public async Task<MasterServiceAssignment> SaveServiceAssignment(MasterServiceAssignment serviceAssignment)
         {
             var savedEntity = await _context.MasterServiceAssignments.AddAsync(serviceAssignment);
@@ -135,15 +145,21 @@ namespace HaloBiz.Repository.Impl
             return await SaveChanges();
         }
 
-        public async Task<MasterServiceAssignment> UpdateServiceAssignment(MasterServiceAssignment serviceAssignment)
+        public async Task<bool> UpdateisAddedToCartStatus(MasterServiceAssignment serviceAssignment)
         {
-            var updatedEntity = _context.MasterServiceAssignments.Update(serviceAssignment);
-            if (await SaveChanges())
-            {
-                return updatedEntity.Entity;
-            }
-            return null;
+            serviceAssignment.IsAddedToCart = true;
+            _context.MasterServiceAssignments.Update(serviceAssignment);
+            return await SaveChanges();
         }
+
+        public async Task<bool> UpdateisPaidForStatus(MasterServiceAssignment serviceAssignment)
+        {
+            serviceAssignment.IsPaidFor = true;
+            _context.MasterServiceAssignments.Update(serviceAssignment);
+            return await SaveChanges();
+        }
+
+     
 
         private async Task<bool> SaveChanges()
         {
@@ -157,5 +173,17 @@ namespace HaloBiz.Repository.Impl
                 return false;
             }
         }
+
+        public async Task<IEnumerable<MasterServiceAssignment>> FindAllServiceAssignmentsByClientId(long clientId)
+        {
+            return await _context.MasterServiceAssignments.Where(aer => aer.CustomerDivisionId == clientId && aer.IsDeleted == false && aer.ReadyStatus == true && aer.IsPaidFor == false && aer.IsAddedToCart == true)
+              .Include(ct => ct.ContractService).Include(t => t.SMORegion).Include(t => t.SMORegion)
+              .Include(sec => sec.SecondaryServiceAssignments.Where(x => x.IsDeleted == false))
+              .Include(t => t.SMORoute).Include(t => t.CreatedBy).Include(t => t.ServiceRegistration)
+              .Include(t => t.ServiceRegistration.Service).ToListAsync();
+              
+        }
+
+      
     }
 }

@@ -34,6 +34,17 @@ namespace OnlinePortalBackend.MyServices.SecureMobilitySales
             return CommonResponse.Send(ResponseCodes.SUCCESS, result);
         }
 
+        public async Task<ApiCommonResponse> GenerateInvoice(SMSCreateInvoiceDTO request)
+        {
+            var result = await _contractsRepo.GenerateInvoiceForContract(request);
+
+            if (!result.isSuccess)
+            {
+                return CommonResponse.Send(ResponseCodes.FAILURE); ;
+            }
+            return CommonResponse.Send(ResponseCodes.SUCCESS, result);
+        }
+
         public async Task<ApiCommonResponse> GetInvoice(int profileId)
         {
             var result = await _invoiceRepo.GetInvoice(profileId);

@@ -10,7 +10,10 @@ namespace HaloBiz.DTOs.TransferDTOs
     public class OnlineLocationFavoriteTransferDTO
     {
         
-        public UserProfile CreatedBy { get; set; }
+
+        public long Id { get; set; }
+        public long? OnlineProfileId { get; set; }
+        public long? ClientId { get; set; }
         public long CreatedById { get; set; }
         public bool IsDeleted { get; set; }
         public string LocationGeometry { get; set; }
@@ -26,12 +29,10 @@ namespace HaloBiz.DTOs.TransferDTOs
         public long? LocationStateId { get; set; }
        
         public OnlineProfile OnlineProfile { get; set; }
-        public long? OnlineProfileId { get; set; }
+       
       
         public CustomerDivision Client { get; set; }
-        public long? ClientId { get; set; }
-      
-        public long Id { get; set; }
+        public UserProfile CreatedBy { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }
     }

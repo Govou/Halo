@@ -30,7 +30,7 @@ namespace OnlinePortalBackend.Controllers.SecureMobilitySales
         [HttpPost("Login")]
         public async Task<ApiCommonResponse> Login(LoginDTO login)
         {
-            return await _authService.Login(login);
+            return await _authService.Login_v2(login);
         }
 
         [AllowAnonymous]
