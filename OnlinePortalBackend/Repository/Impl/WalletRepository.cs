@@ -227,7 +227,8 @@ namespace OnlinePortalBackend.Repository.Impl
                     TransactionValue = new AesCryptoUtil().Encrypt(request.Amount.ToString()),
                     MovingBalance = new AesCryptoUtil().Encrypt(balance.ToString()),
                     Platform = request.Platform,
-                    TransactionType = (int)WalletTransactionType.Load
+                    TransactionType = (int)WalletTransactionType.Load,
+                    AccountMasterId = accountMaster.Id,
                 };
 
                 _context.WalletDetails.Add(walletDetail);
@@ -306,6 +307,7 @@ namespace OnlinePortalBackend.Repository.Impl
                     AccountId = int.Parse(creditCashBook),
                     Description = $"Spend from {profile.Name}'s wallet with reference number {transactionId} on {ConvertDateToLongString(DateTime.UtcNow.AddHours(1))}",
                     TransactionId = transactionId,
+                    
                 };
 
                 var accountDetail2 = new AccountDetail
@@ -370,7 +372,8 @@ namespace OnlinePortalBackend.Repository.Impl
                     WalletMasterId = walletMaster.Id,
                     TransactionValue = request.Amount.ToString(),
                     MovingBalance = balance.ToString(),
-                    TransactionType = (int)WalletTransactionType.Spend
+                    TransactionType = (int)WalletTransactionType.Spend,
+                    AccountMasterId = accountMaster.Id,
                 };
 
                 _context.WalletDetails.Add(walletDetail);
