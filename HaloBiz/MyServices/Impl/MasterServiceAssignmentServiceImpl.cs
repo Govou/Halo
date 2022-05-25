@@ -105,11 +105,11 @@ namespace HaloBiz.MyServices.Impl
                     master.DropoffLocation = masterReceivingDTO.PickoffLocation;
                     master.TripTypeId = 2;
                     master.SAExecutionStatus = 0;
-                    master.PickoffTime = pickofftime;
+                    //master.PickoffTime = pickofftime;
                     master.AssignmentStatus = "open";
                     master.PrimaryTripAssignmentId = getId;
                     master.CreatedById = context.GetLoggedInUserId();
-                    master.CreatedAt = DateTime.UtcNow;
+                    master.CreatedAt = DateTime.Now;
                     var savedItem = await _serviceAssignmentMasterRepository.SaveServiceAssignment(master);
                     if (savedItem == null)
                     {
@@ -510,6 +510,10 @@ namespace HaloBiz.MyServices.Impl
             master.TripTypeId = 1;
             master.SAExecutionStatus = 0;
             master.AssignmentStatus = "Open";
+            if (masterReceivingDTO.InhouseAssignment == false)
+            {
+                master.IsAddedToCart = true;
+            }
             var savedRank = await _serviceAssignmentMasterRepository.SaveServiceAssignment(master);
           
             if (savedRank == null)
@@ -528,11 +532,11 @@ namespace HaloBiz.MyServices.Impl
                 master.DropoffLocation = masterReceivingDTO.PickoffLocation;
                 master.TripTypeId = 2;
                 master.SAExecutionStatus = 0;
-                master.PickoffTime = pickofftime;
+                //master.PickoffTime = pickofftime;
                 master.AssignmentStatus = "open";
                 master.PrimaryTripAssignmentId = getId ;
                 master.CreatedById = context.GetLoggedInUserId();
-                master.CreatedAt = DateTime.UtcNow;
+                master.CreatedAt = DateTime.Now;
                  var savedItem = await _serviceAssignmentMasterRepository.SaveServiceAssignment(master);
                 if (savedItem == null)
                 {
@@ -559,6 +563,8 @@ namespace HaloBiz.MyServices.Impl
                 }
                
             }
+
+
             var typeTransferDTO = _mapper.Map<MasterServiceAssignmentTransferDTO>(master);
             return CommonResponse.Send(ResponseCodes.SUCCESS, typeTransferDTO, ResponseMessage.Success200);
         }
