@@ -29,19 +29,20 @@ namespace HaloBiz.Repository.Impl
         public async Task<IEnumerable<OnlineLocationFavourite>> FindAllLocationFavorites()
         {
             return await _context.OnlineLocationFavourites.Where(online => online.IsDeleted == false)
-                .Include(ct => ct.Client).Include(on=>on.OnlineProfile).OrderByDescending(x => x.Id)
+                .Include(ct => ct.Client).Include(on=>on.OnlineProfile).Include(online => online.LocationLGA).Include(online => online.LocationState).OrderByDescending(x => x.Id)
                 .ToListAsync();
         }
 
-        public async Task<OnlineLocationFavourite> FindAllLocationFavoritesByClientId(long clientId)
+        public async Task<IEnumerable<OnlineLocationFavourite>> FindAllLocationFavoritesByClientId(long clientId)
         {
-            return await _context.OnlineLocationFavourites.Include(r => r.Client).Include(x=>x.OnlineProfile)
-                 .FirstOrDefaultAsync(aer => aer.ClientId == clientId && aer.IsDeleted == false);
+            return await _context.OnlineLocationFavourites
+                 .Where(aer => aer.ClientId == clientId && aer.IsDeleted == false).Include(online => online.LocationLGA).Include(online => online.LocationState)
+                 .Include(r => r.Client).Include(x => x.OnlineProfile).ToListAsync();
         }
 
         public async Task<OnlineLocationFavourite> FindLocationFavoriteById(long Id)
         {
-            return await _context.OnlineLocationFavourites.Include(r => r.Client).Include(x => x.OnlineProfile)
+            return await _context.OnlineLocationFavourites.Include(r => r.Client).Include(x => x.OnlineProfile).Include(online => online.LocationLGA).Include(online => online.LocationState)
                 .FirstOrDefaultAsync(aer => aer.Id == Id && aer.IsDeleted == false);
         }
 

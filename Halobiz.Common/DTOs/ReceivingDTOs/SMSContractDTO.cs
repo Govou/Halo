@@ -25,4 +25,10 @@ namespace Halobiz.Common.DTOs.ReceivingDTOs
         public string PickupLocation { get; set; }
         public DateTime PickupTime { get; set; }
     }
+
+    public class SMSCreateInvoiceDTO
+    {
+        public int ProfileId { get; set; }
+        public int ContractId { get; set; }
+    }
 }

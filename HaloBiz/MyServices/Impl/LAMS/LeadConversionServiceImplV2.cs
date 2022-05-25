@@ -16,6 +16,7 @@ using HalobizMigrations.Models.Halobiz;
 using HaloBiz.Model;
 using Microsoft.Extensions.Configuration;
 using Halobiz.Common.Helpers;
+using HaloBiz.Repository;
 
 namespace HaloBiz.MyServices.Impl.LAMS
 {
@@ -43,13 +44,15 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
         private readonly List<string> groupInvoiceNumbers = new List<string>();
         private readonly IConfiguration _configuration;
+        private readonly IAccountRepository _accountRepository;
 
         public LeadConversionServiceImplV2(
                                         HalobizContext context,
                                         ILogger<LeadConversionServiceImplV2> logger,
                                         IMapper mapper,
                                         IMailAdapter mailAdapter,
-                                        IConfiguration configuration
+                                        IConfiguration configuration,
+                                        IAccountRepository accountRepository
                                         )
         {
             _context = context;
@@ -1598,7 +1601,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
         {
             try
             {
-                
+
                 var lastSavedAccount = await _context.Accounts.Where(x => x.ControlAccountId == account.ControlAccountId)
                     .OrderBy(x => x.Id).LastOrDefaultAsync();
                 if (lastSavedAccount == null || lastSavedAccount?.AccountNumber < 1000000000)
@@ -1616,10 +1619,18 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 //remove exception throwing
                 account.Alias = account.Alias ?? "";
 
+                var controlAccount = await _context.ControlAccounts
+                        .Include(x => x.AccountClass).FirstOrDefaultAsync(x => x.Id == account.ControlAccountId);
+                account.IsDebitBalance = controlAccount.AccountClass.Caption.ToLower().Contains("asset") || controlAccount.AccountClass.Caption.ToLower().Contains("expense");
+
                 var savedAccount = await _context.Accounts.AddAsync(account);
                 await _context.SaveChangesAsync();
                 _context.ChangeTracker.Clear();
                 return savedAccount.Entity.Id;
+
+                //var accountSaved = await _accountRepository.SaveAccount(account);
+                // return accountSaved.Id;
+
             }
             catch (Exception ex)
             {                                                                                                                                                                                                                                                                                                            
@@ -1628,6 +1639,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
             }
 
         }
+
 
         public async Task<long> CreateAccountMaster(Service service,
                                                         ContractService contractService,

@@ -8,6 +8,8 @@ namespace OnlinePortalBackend.Repository
     {
         Task<IEnumerable<StateDTO>> GetStates();
         Task<IEnumerable<LocalGovtAreaDTO>> GetLocalGovtAreas(int stateId);
+        Task<StateDTO> GetStateById(int id);
+        Task<LocalGovtAreaDTO> GetLocalGovtAreaById(int id);
         Task<IEnumerable<CommonResposeDTO>> GetBusinessTypes();
 
     }

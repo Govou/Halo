@@ -1,4 +1,5 @@
 ﻿using Halobiz.Common.DTOs.ApiDTOs;
+using Halobiz.Common.DTOs.ReceivingDTOs;
 using OnlinePortalBackend.DTOs.ReceivingDTOs;
 using OnlinePortalBackend.Repository;
 using System.Threading.Tasks;
@@ -65,6 +66,17 @@ namespace OnlinePortalBackend.MyServices.SecureMobilitySales
             }
 
             return CommonResponse.Send(ResponseCodes.SUCCESS, result.message);
+        }
+
+        public async Task<ApiCommonResponse> WalletLogin(WalletLoginDTO request)
+        {
+            var result = await _walletRepository.WalletLogin(request);
+            if (!result)
+            {
+                return CommonResponse.Send(ResponseCodes.FAILURE, "Login failed");
+            }
+
+            return CommonResponse.Send(ResponseCodes.SUCCESS, "success");
         }
     }
 }

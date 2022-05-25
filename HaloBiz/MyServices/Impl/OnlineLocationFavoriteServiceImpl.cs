@@ -36,6 +36,7 @@ namespace HaloBiz.MyServices.Impl
            
             //favoriteReceivingDTO.cre = DateTime.Now;
             onlineLocation.CreatedById = context.GetLoggedInUserId();
+            //onlineLocation.CreatedById = favoriteReceivingDTO.ClientId;
             onlineLocation.CreatedAt = DateTime.Now;
             var savedRank = await _onlineLocationFavoriteRepository.SaveLocationFavorite(onlineLocation);
             if (savedRank == null)
