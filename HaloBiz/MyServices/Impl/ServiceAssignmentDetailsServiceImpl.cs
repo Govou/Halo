@@ -1813,6 +1813,7 @@ namespace HaloBiz.MyServices.Impl
             return CommonResponse.Send(ResponseCodes.SUCCESS, null, ResponseMessage.Success200);
         }
 
+        //For when client makes payment
         public async Task<ApiCommonResponse> UpdateServiceDetailsHeldForActionAndReadyStatusByAssignmentId(long id)
         {
             var transaction = _context.Database.BeginTransaction();
@@ -1874,14 +1875,21 @@ namespace HaloBiz.MyServices.Impl
                         if (!await _serviceAssignmentDetailsRepository.UpdateVehicleServiceAssignmentDetailHeldByAssignmentId(item))
                         {
                             transaction.Rollback();
-                            return CommonResponse.Send(ResponseCodes.FAILURE, null, ResponseMessage.InternalServer500);
+                            return CommonResponse.Send(ResponseCodes.FAILURE, null, "Vehicle held Status couldn't be updated");
                         }
                     }
                 }
                 if (!await _serviceAssignmentMasterRepository.UpdateReadyStatus(itemToUpdate))
                 {
-                    return CommonResponse.Send(ResponseCodes.FAILURE, null, ResponseMessage.InternalServer500);
+                    transaction.Rollback();
+                    return CommonResponse.Send(ResponseCodes.FAILURE, null, "Ready Status couldn't be updated");
                 }
+                if (!await _serviceAssignmentMasterRepository.UpdateisPaidForStatus(itemToUpdate))
+                {
+                    transaction.Rollback();
+                    return CommonResponse.Send(ResponseCodes.FAILURE, null, "is paid For Status couldn't be updated");
+                }
+
 
 
 

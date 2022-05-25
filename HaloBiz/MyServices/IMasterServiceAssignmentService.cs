@@ -21,6 +21,8 @@ namespace HaloBiz.MyServices
         Task<ApiCommonResponse> DeleteMasterServiceAssignment(long id);
         Task<ApiCommonResponse> DeleteMasterServiceAssignmentSchedule(long id);
         Task<ApiCommonResponse> UpdateReadyStatus(long id);
+        Task<ApiCommonResponse> UpdateisAddedToCartStatus(long id);
+        Task<ApiCommonResponse> UpdateisPaidForStatus(long id);
         Task<ApiCommonResponse> GetAllCustomerDivisions();
 
         //Secondary
