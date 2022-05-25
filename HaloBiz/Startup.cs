@@ -219,7 +219,6 @@ namespace HaloBiz
             });
 
 
-           // app.UseHttpsRedirection(); //causing issues on Azure
             app.UseRouting();
             app.UseCors(cors => cors.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
 

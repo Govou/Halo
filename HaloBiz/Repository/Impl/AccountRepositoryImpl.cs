@@ -72,10 +72,7 @@ namespace HaloBiz.Repository.Impl
 
         public async Task<Account> SaveAccount(Account account)
         {
-            await _context.Database.OpenConnectionAsync();
-            using(var transaction = await _context.Database.BeginTransactionAsync()){
             try{
-              //  await _context.Database.ExecuteSqlRawAsync("SET IDENTITY_INSERT dbo.Accounts ON");
 
                 var  lastSavedAccount = await _context.Accounts.Where(x => x.ControlAccountId == account.ControlAccountId)
                     .OrderBy(x => x.Id).LastOrDefaultAsync();
@@ -92,20 +89,13 @@ namespace HaloBiz.Repository.Impl
                 account.IsDebitBalance = controlAccount.AccountClass.Caption.ToLower().Contains("asset") || controlAccount.AccountClass.Caption.ToLower().Contains("expense");
                 var savedAccount = await _context.Accounts.AddAsync(account);
                 await _context.SaveChangesAsync();
-                await transaction.CommitAsync();
                 return savedAccount.Entity;
             }catch(Exception e)
             {
-                await transaction.RollbackAsync();
                 _logger.LogError(e.Message);
                 _logger.LogError(e.StackTrace);
-                return null;
-            }finally{
-                
-              //  await _context.Database.ExecuteSqlRawAsync("SET IDENTITY_INSERT dbo.Accounts OFF");
-                await _context.Database.CloseConnectionAsync();
-            }
-            }
+                throw;
+            }           
            
         }
 
