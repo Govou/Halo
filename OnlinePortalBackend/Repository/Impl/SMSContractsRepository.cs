@@ -50,7 +50,7 @@ namespace OnlinePortalBackend.Repository.Impl
         }
 
 
-        public async Task<(bool isSuccess, string message)> AddNewContract(SMSContractDTO contractDTO)
+        public async Task<(bool isSuccess, object message)> AddNewContract(SMSContractDTO contractDTO)
         {
             var groupInvoiceNumber = await GenerateGroupInvoiceNumber();
             var branch = _configuration["OnlineBranchID"] ?? _configuration.GetSection("AppSettings:OnlineBranchID").Value;
@@ -246,15 +246,13 @@ namespace OnlinePortalBackend.Repository.Impl
                 if (!quoteResult.isSuccess)
                     throw new Exception(quoteResult.message.ToString());
                 
-
-                var contractCreate = await CreateContract(contractId);
-
-                if (!contractCreate.isSuccess)
-                    throw new Exception(contractCreate.message.ToString());
-
                 await transaction.CommitAsync();
 
-                return (true, "success");
+                return (true, new
+                {
+                    CustomerDivisionId = customerDivisionId,
+                    ContractId = contractId
+                });
 
             }
             catch (Exception ex)
@@ -268,117 +266,6 @@ namespace OnlinePortalBackend.Repository.Impl
 
 
         }
-
-        private async Task<(bool isSuccess, string message)> CreateAccount(int contractId)
-        {
-            var contract = await _context.Contracts.AsNoTracking()
-                                .Where(x => x.Id == contractId)
-                                .Include(x => x.CustomerDivision)
-                                .Include(x => x.ContractServices)
-                                    .ThenInclude(x => x.Service)
-                                 .FirstOrDefaultAsync();
-
-            var customerDivision = contract.CustomerDivision;
-            long userId = _context.UserProfiles.FirstOrDefault(x => x.Email.ToLower().Contains("online")).Id;
-            foreach (var item in contract.ContractServices)
-            {
-                if (item.InvoicingInterval != (int)TimeCycle.Adhoc)
-                {
-                    var issuccess = await AccountsForContractServices(item, customerDivision, userId);
-                    if (!issuccess)
-                        return (false, "Could not create accounts after approval");
-                }
-
-            }
-
-            //update the contract
-            var contractToUpdate = await _context.Contracts.Where(x => x.Id == contractId).FirstOrDefaultAsync();
-            contractToUpdate.IsApproved = true;
-            _context.Update(contractToUpdate);
-            await _context.SaveChangesAsync();
-            return (true, "success");
-
-        }
-
-        public async Task<(bool isSuccess, string message)> SaveSBUToQuoteProp(IEnumerable<SbutoContractServiceProportionReceivingDTO> entities)
-        {
-            var entitiesToSave = _mapper.Map<IEnumerable<SbutoContractServiceProportion>>(entities);
-            var defaultService = entities.FirstOrDefault();
-
-            //group according the quote service id
-            var filtered = from e in entitiesToSave
-                           group e by e.ContractServiceId into g
-                           select new
-                           {
-                               ContractServiceId = g.Key,
-                               Members = g.Select(x => new SbutoContractServiceProportion
-                               {
-                                   StrategicBusinessUnitId = x.StrategicBusinessUnitId,
-                                   UserInvolvedId = x.UserInvolvedId,
-                                   Status = x.Status,
-                                   ContractServiceId = x.ContractServiceId
-
-                               }).ToList()
-                           };
-
-            List<SbutoContractServiceProportion> entitiesToSaveFiltered = new List<SbutoContractServiceProportion>();
-
-            foreach (var item in filtered)
-            {
-                var toSave = await SetProportionValue(item.Members);
-                entitiesToSaveFiltered.AddRange(toSave);
-            }
-
-            var savedEntities = await SaveSbutoContractServiceProportion(entitiesToSaveFiltered);
-            if (savedEntities == null)
-            {
-                return (false, "No data exist") ;
-            }
-
-            var sbuToQuoteProportionTransferDTOs = _mapper
-                                        .Map<IEnumerable<SbutoContractServiceProportionTransferDTO>>(savedEntities);
-
-            //get the contract this contract service belongs to
-            var contractService = await _context.ContractServices.FindAsync(defaultService.ContractServiceId);
-            var contract = await _context.Contracts.Where(x => x.Id == contractService.ContractId)
-                                .Include(x => x.ContractServices)
-                                    .ThenInclude(x => x.SbutoContractServiceProportions)
-                                .FirstOrDefaultAsync();
-
-            //check for addition
-            if (contract.IsApproved && contract.HasAddedSBU)
-            {
-                //update for each endorsement service
-                foreach (var item in entities)
-                {
-                    var _contractService = await _context.ContractServices.FindAsync(item.ContractServiceId);
-
-                    //find the endorsement this belongs to
-                    var endorsement = await _context.ContractServiceForEndorsements.Where(x => x.PreviousContractServiceId == _contractService.Id && x.EndorsementTypeId == 2).FirstOrDefaultAsync();
-                    endorsement.IsRequestedForApproval = true;
-                    _context.ContractServiceForEndorsements.Update(endorsement);
-                }
-
-                await _context.SaveChangesAsync();
-                return (true, "success");
-            }
-            else
-            {
-                var isSbuComplete = IsSBUComplete(contract);
-                if (isSbuComplete)
-                {
-                    //add aapprovals and update contract that SBU has been added
-                    contract.HasAddedSBU = true;
-                    _context.Contracts.Update(contract);
-                    await _context.SaveChangesAsync();
-
-                }
-
-                return (true, "success");
-            }
-
-        }
-
 
         private async Task<string> GenerateGroupInvoiceNumber()
         {
@@ -406,11 +293,6 @@ namespace OnlinePortalBackend.Repository.Impl
             {
                 throw;
             }
-        }
-
-        public Task<bool> AddNewContract_v2(SMSContractDTO contractDTO)
-        {
-            throw new NotImplementedException();
         }
 
         public async Task<(bool isSuccess, object message)> AddNewRetentionContractServiceForEndorsement(List<ContractServiceForEndorsementReceivingDto> contractServiceForEndorsementDtos)
@@ -664,137 +546,6 @@ namespace OnlinePortalBackend.Repository.Impl
             }
 
             return (true, null);
-        }
-
-
-        private async Task<IEnumerable<SbutoContractServiceProportion>> SetProportionValue(IEnumerable<SbutoContractServiceProportion> entities)
-        {
-            var quoteServiceId = entities.Select(x => x.ContractServiceId).First();
-            var quoteService = await _context.ContractServices.Where(x => x.Id == quoteServiceId)
-                                .Include(x => x.Service)
-                                .FirstOrDefaultAsync();
-
-            var sbuProportion = await FindSbuproportionByOperatingEntityId(quoteService.Service.OperatingEntityId);
-
-            if (sbuProportion != null)
-            {
-                return SetProportionValueFromOperatingEntity(entities, sbuProportion);
-            }
-
-            int sumRatio = 0;
-            var loggedInUserId = _context.UserProfiles.FirstOrDefault(x => x.Email.ToLower().Contains("online")).Id;
-
-            foreach (var entity in entities)
-            {
-                if (entity.Status == (int)ProportionStatusType.LeadGeneratorAndClosure)
-                {
-                    sumRatio += 2;
-                }
-                else
-                {
-                    sumRatio += 1;
-                }
-
-            }
-
-            foreach (var entity in entities)
-            {
-                if (entity.Status == (int)ProportionStatusType.LeadGeneratorAndClosure)
-                {
-                    entity.Proportion = Math.Round(2.0 / sumRatio * 100.00, 2);
-                }
-                else
-                {
-                    entity.Proportion = Math.Round(1.0 / sumRatio * 100.00, 2);
-                }
-
-                entity.CreatedById = loggedInUserId;
-            }
-
-            return entities;
-        }
-
-        private bool IsSBUComplete(Contract contract)
-        {
-            //check how many have been enttered again how many are available
-
-            foreach (var item in contract.ContractServices)
-            {
-                if (!item.SbutoContractServiceProportions.Any())
-                {
-                    return false;
-                }
-            }
-
-            return true;
-        }
-
-        private IEnumerable<SbutoContractServiceProportion> SetProportionValueFromOperatingEntity(IEnumerable<SbutoContractServiceProportion> entities, Sbuproportion sbuProportion)
-        {
-            var loggedInUserId = _context.UserProfiles.FirstOrDefault(x => x.Email.ToLower().Contains("online")).Id;
-            var closure = sbuProportion.LeadClosureProportion;
-            var generation = sbuProportion.LeadGenerationProportion;
-
-            var closureRatio = 0.0;
-            var generationRation = 0.0;
-
-            foreach (var entity in entities)
-            {
-                if (entity.Status == (int)ProportionStatusType.LeadGeneratorAndClosure)
-                {
-                    closureRatio += 1;
-                    generationRation += 1;
-                }
-                else if (entity.Status == (int)ProportionStatusType.LeadClosure)
-                {
-                    closureRatio += 1;
-                }
-                else
-                {
-                    generationRation += 1;
-                }
-            }
-
-            var percentageClosurePerUser = Math.Round(closure / closureRatio, 2);
-            var percentageGenerationPerUser = Math.Round(generation / generationRation, 2);
-
-            foreach (var entity in entities)
-            {
-                if (entity.Status == (int)ProportionStatusType.LeadGeneratorAndClosure)
-                {
-                    entity.Proportion = percentageClosurePerUser + percentageGenerationPerUser;
-                }
-                else if (entity.Status == (int)ProportionStatusType.LeadClosure)
-                {
-                    entity.Proportion = percentageClosurePerUser;
-                }
-                else
-                {
-                    entity.Proportion = percentageGenerationPerUser;
-                }
-                entity.CreatedById = loggedInUserId;
-            }
-            return entities;
-        }
-
-        public async Task<IEnumerable<SbutoContractServiceProportion>> SaveSbutoContractServiceProportion(IEnumerable<SbutoContractServiceProportion> entities)
-        {
-            if (entities.Count() == 0)
-            {
-                return null;
-            }
-
-            //var quoteServiceId = entities.First().QuoteServiceId;
-            await _context.SbutoContractServiceProportions.AddRangeAsync(entities);
-            await _context.SaveChangesAsync();
-
-            return entities;
-        }
-
-        private async Task<Sbuproportion> FindSbuproportionByOperatingEntityId(long Id)
-        {
-            return await _context.Sbuproportions
-                .FirstOrDefaultAsync(x => x.OperatingEntityId == Id && x.IsDeleted == false);
         }
 
         private async Task<(bool isSuccess, object message)> CreateContract(int contractId)
@@ -1952,6 +1703,27 @@ namespace OnlinePortalBackend.Repository.Impl
 
         }
 
+        public async Task<(bool isSuccess, string message)> GenerateInvoiceForContract(SMSCreateInvoiceDTO request)
+        {
+            using var transaction = await _context.Database.BeginTransactionAsync();
+            try
+            {
+                var contractCreate = await CreateContract(request.ContractId);
+
+                if (!contractCreate.isSuccess)
+                    throw new Exception(contractCreate.message.ToString());
+
+                await transaction.CommitAsync();
+                return (true, "success");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.Message);
+                _logger.LogError(ex.StackTrace);
+                transaction.Rollback();
+            }
+            return (false, "failed to generate invoice");
+        }
     }
 
     public enum VersionType
