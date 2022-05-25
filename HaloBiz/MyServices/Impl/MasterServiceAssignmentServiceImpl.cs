@@ -82,7 +82,7 @@ namespace HaloBiz.MyServices.Impl
             try
             {
                 master.CreatedById = context.GetLoggedInUserId();
-                master.PickoffTime = pickofftime;
+                //master.PickoffTime = pickofftime;
                 master.CreatedAt = DateTime.Now;
                 master.TripTypeId = 1;
                 master.SAExecutionStatus = 0;
@@ -479,7 +479,16 @@ namespace HaloBiz.MyServices.Impl
             {
                 await _serviceAssignmentDetailsService.UpdateServiceDetailsHeldForActionAndReadyStatusByAssignmentId(getId);
             }
-             var typeTransferDTO = _mapper.Map<MasterServiceAssignmentTransferDTO>(master);
+            if (masterReceivingDTO.InhouseAssignment == false)
+            {
+                var itemToUpdate = await _serviceAssignmentMasterRepository.FindServiceAssignmentById(getId);
+                if (!await _serviceAssignmentMasterRepository.UpdateisAddedToCartStatus(itemToUpdate))
+                {
+                    transaction.Rollback();
+                    return CommonResponse.Send(ResponseCodes.FAILURE, null, "Added to cart Status couldn't be updated");
+                }
+            }
+            var typeTransferDTO = _mapper.Map<MasterServiceAssignmentTransferDTO>(master);
             return CommonResponse.Send(ResponseCodes.SUCCESS, typeTransferDTO, "Auto Service Assignment Successful");
         }
 
@@ -496,7 +505,7 @@ namespace HaloBiz.MyServices.Impl
 
             
             master.CreatedById = context.GetLoggedInUserId();
-            master.PickoffTime = pickofftime;
+            //master.PickoffTime = pickofftime;
             master.CreatedAt = DateTime.Now;
             master.TripTypeId = 1;
             master.SAExecutionStatus = 0;
@@ -1113,6 +1122,40 @@ namespace HaloBiz.MyServices.Impl
             throw new NotImplementedException();
         }
 
+        public async Task<ApiCommonResponse> UpdateisAddedToCartStatus(long id)
+        {
+            var itemToUpdate = await _serviceAssignmentMasterRepository.FindServiceAssignmentById(id);
+
+            if (itemToUpdate == null)
+            {
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);
+            }
+
+            if (!await _serviceAssignmentMasterRepository.UpdateisAddedToCartStatus(itemToUpdate))
+            {
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, ResponseMessage.InternalServer500);
+            }
+
+            return CommonResponse.Send(ResponseCodes.SUCCESS, null, ResponseMessage.Success200);
+        }
+
+        public async Task<ApiCommonResponse> UpdateisPaidForStatus(long id)
+        {
+            var itemToUpdate = await _serviceAssignmentMasterRepository.FindServiceAssignmentById(id);
+
+            if (itemToUpdate == null)
+            {
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);
+            }
+
+            if (!await _serviceAssignmentMasterRepository.UpdateisPaidForStatus(itemToUpdate))
+            {
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, ResponseMessage.InternalServer500);
+            }
+
+            return CommonResponse.Send(ResponseCodes.SUCCESS, null, ResponseMessage.Success200);
+        }
+
         public async Task<ApiCommonResponse> UpdateMasterServiceAssignment(HttpContext context, long id, MasterServiceAssignmentReceivingDTO masterReceivingDTO)
         {
             var itemToUpdate = await _serviceAssignmentMasterRepository.FindServiceAssignmentById(id);
@@ -1157,7 +1200,7 @@ namespace HaloBiz.MyServices.Impl
 
             if (!await _serviceAssignmentMasterRepository.UpdateReadyStatus(itemToUpdate))
             {
-                return CommonResponse.Send(ResponseCodes.FAILURE, null, ResponseMessage.InternalServer500);
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, ResponseMessage.InternalServer500 );
             }
 
             return CommonResponse.Send(ResponseCodes.SUCCESS, null, ResponseMessage.Success200);
