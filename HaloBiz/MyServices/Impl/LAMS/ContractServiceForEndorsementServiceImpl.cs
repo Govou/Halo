@@ -888,7 +888,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
             contractServiceDifference.BillableAmount = contractServiceForEndorsement.BillableAmount;
             contractServiceDifference.Vat = contractServiceForEndorsement.Vat;
 
-            await _leadConversionService.CreateAccounts(
+            var (success, msg) = await _leadConversionService.CreateAccounts(
                                             contractServiceDifference,
                                             customerDivision,
                                             (long)contractServiceForEndorsement.BranchId,
@@ -900,7 +900,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                                             true,
                                             null);
 
-            return true;
+            return success;
         }
 
         private async Task<bool> DebitNoteEndorsement(ContractService currentContractService,
@@ -918,7 +918,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
             contractServiceDifference.BillableAmount = contractServiceForEndorsement.BillableAmount;
             contractServiceDifference.Vat = contractServiceForEndorsement.Vat;
 
-            await _leadConversionService.CreateAccounts(
+           var (success, msg) = await _leadConversionService.CreateAccounts(
                                             contractServiceDifference,
                                             customerDivision,
                                             (long)contractServiceForEndorsement.BranchId,
@@ -929,7 +929,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                                             loggedInUserId,
                                             false, null);
 
-            return true;
+            return success;
         }
 
         private ContractService GetContractServiceDifference(ContractService retiredContractService, ContractService newContractService)

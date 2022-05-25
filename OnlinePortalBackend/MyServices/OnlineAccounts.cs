@@ -479,9 +479,6 @@ namespace OnlinePortalBackend.MyServices
 
             return (salt, hashed);
         }
-
        
     }
-
-    
 }

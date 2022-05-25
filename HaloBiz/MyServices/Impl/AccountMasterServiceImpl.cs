@@ -257,8 +257,14 @@ namespace HaloBiz.MyServices.Impl
                                     .FirstOrDefaultAsync(x => x.VoucherType == this.SALES_INVOICE_VOUCHER);
 
                             
-                            await _leadConversionService.CreateAccounts(contractService, customerDivision, (long)contractService.BranchId
+                           var (success, message) =  await _leadConversionService.CreateAccounts(contractService, customerDivision, (long)contractService.BranchId
                                 , (long)contractService.OfficeId, contractService.Service, accountVoucherType, null, LoggedInUserId, false, invoice);
+
+                        if (!success) {
+                            _logger.LogError($"Error ocurred posting account for invoice with id {invoice.Id}. Message: {message}");
+
+                            continue;
+                        }
 
                             invoice.IsAccountPosted = true;
                             invoice.DatePosted = DateTime.Now;

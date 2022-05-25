@@ -9,5 +9,7 @@ namespace OnlinePortalBackend.MyServices.SecureMobilitySales
         Task<ApiCommonResponse> CreateContract(SMSContractDTO contractDTO);
         Task<ApiCommonResponse> GetInvoice(int profileId);
         Task<ApiCommonResponse> ReceiptInvoice(SMSReceiptReceivingDTO request);
+        Task<ApiCommonResponse> GenerateInvoice(SMSCreateInvoiceDTO request);
+        
     }
 }
