@@ -176,7 +176,7 @@ namespace HaloBiz.Repository.Impl
 
         public async Task<IEnumerable<MasterServiceAssignment>> FindAllServiceAssignmentsByClientId(long clientId)
         {
-            return await _context.MasterServiceAssignments.Where(aer => aer.CustomerDivisionId == clientId && aer.IsDeleted == false && aer.ReadyStatus == false  && aer.IsPaidFor == false && aer.IsAddedToCart == true)
+            return await _context.MasterServiceAssignments.Where(aer => aer.CustomerDivisionId == clientId && aer.IsDeleted == false && aer.ReadyStatus == false && aer.IsScheduled == false && aer.IsPaidFor == false && aer.IsAddedToCart == true)
               .Include(ct => ct.ContractService).Include(t => t.SMORegion).Include(t => t.SMORegion)
               .Include(sec => sec.SecondaryServiceAssignments.Where(x => x.IsDeleted == false))
               .Include(t => t.SMORoute).Include(t => t.CreatedBy).Include(t => t.ServiceRegistration)
