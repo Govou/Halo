@@ -79,11 +79,11 @@ namespace HaloBiz.Controllers
         //    //return Ok(items);
         //}
 
-        //[HttpGet("GetAllSMORoutesWithReturnRoute")]
-        //public async Task<ApiCommonResponse> GetAllSMORoutesWithReturnRoute()
-        //{
-        //    return await _sMORoutesAndRegionServices.GetAllSMORoutesWithReturnRoute(); 
-        //}
+        [HttpGet("GetAllSMORoutesWithReturnRoute")]
+        public async Task<ApiCommonResponse> GetAllSMORoutesWithReturnRoute()
+        {
+            return await _sMORoutesAndRegionServices.GetAllSMORoutesWithReturnRoute();
+        }
 
         [HttpGet("GetRegionById/{id}")]
         public async Task<ApiCommonResponse> GetRegionById(long id)
