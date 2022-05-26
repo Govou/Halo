@@ -14,6 +14,12 @@ namespace Halobiz.Common.DTOs.ReceivingDTOs
         public List<SMSContractService> SMSContractServices { get; set; }
     }
 
+    public class SMSContractServiceDTO
+    {
+        public int ContractId { get; set; }
+        public List<SMSContractService> SMSContractServices { get; set; }
+    }
+
     public class SMSContractService
     {
         public int ServiceId { get; set; }
