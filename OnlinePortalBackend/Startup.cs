@@ -80,6 +80,8 @@ namespace OnlinePortalBackend
             services.AddScoped<ISMSContractsRepository, SMSContractsRepository>();  
             services.AddScoped<IUtilityRepository, UtilityRepository> ();
             services.AddScoped<IWalletRepository, WalletRepository>();
+            services.AddScoped<ISMSInvoiceRepository, SMSInvoiceRepository>();
+            services.AddScoped<ICustomerInfoRepository, CustomerInfoRepository>();
 
             services.AddScoped<IPaymentAdapter, PaymentAdapter>();
             services.AddScoped<IApiInterceptor, ApiInterceptor>();
@@ -101,7 +103,7 @@ namespace OnlinePortalBackend
             services.AddScoped<ISMSContractsService, SMSContractsService>();
             services.AddScoped<IUtilityService, UtilityService>();
             services.AddScoped<ISMSWalletService, SMSWalletService>();
-            services.AddScoped<ISMSInvoiceRepository, SMSInvoiceRepository>();
+            services.AddScoped<ICustomerInfoService, CustomerInfoService>();
 
             services.AddAutoMapper(typeof(Startup));
 
