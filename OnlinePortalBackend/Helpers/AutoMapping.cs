@@ -47,7 +47,7 @@ namespace OnlinePortalBackend.Helpers
                  opt => opt.MapFrom(src => src.Receipts.Sum(x => x.ReceiptValue)));
           //  CreateMap<InvoiceReceivingDTO, Invoice>();
             CreateMap<Invoice, Invoice>();
-
+            CreateMap<ContractServiceForEndorsement, ContractService>();
             //   CreateMap<ComplaintReceivingDTO, Complaint>();
             CreateMap<Complaint, ComplaintTransferDTO>();
             CreateMap<ComplaintTransferDTO, Complaint>();
@@ -75,8 +75,8 @@ namespace OnlinePortalBackend.Helpers
             CreateMap<QuoteReceivingDTO, Quote>();
             CreateMap<QuoteService, QuoteServiceReceivingDTO>();
             CreateMap<QuoteServiceReceivingDTO, QuoteService>();
-
-
+            CreateMap<InvoiceReceivingDTO, Invoice>();
+            CreateMap<Invoice, InvoiceTransferDTO>();
         }
     }
 }

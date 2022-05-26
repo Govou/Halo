@@ -23,15 +23,37 @@ namespace OnlinePortalBackend.MyServices.SecureMobilitySales
             _invoiceRepo = invoiceRepository;
             _mailService = mailService;
         }
-        public async Task<ApiCommonResponse> CreateContract(SMSContractDTO contractDTO)
+
+        public async Task<ApiCommonResponse> AddServiceToContract(SMSContractServiceDTO request)
         {
-           var result = await _contractsRepo.AddNewContract(contractDTO);
+            var result = await _contractsRepo.AddServiceToContract(request);
 
             if (!result.isSuccess)
             {
-                return CommonResponse.Send(ResponseCodes.FAILURE); ;
+                return CommonResponse.Send(ResponseCodes.FAILURE); 
             }
             return CommonResponse.Send(ResponseCodes.SUCCESS, result);
+        }
+
+ 
+
+        public async Task<ApiCommonResponse> CreateContract(SMSContractDTO contractDTO)
+        {
+            try
+            {
+                var result = await _contractsRepo.AddNewContract(contractDTO);
+
+                if (!result.isSuccess)
+                {
+                    return CommonResponse.Send(ResponseCodes.FAILURE); 
+                }
+                return CommonResponse.Send(ResponseCodes.SUCCESS, result);
+            }
+            catch (Exception)
+            {
+                return CommonResponse.Send(ResponseCodes.FAILURE);
+            }
+          
         }
 
         public async Task<ApiCommonResponse> GenerateInvoice(SMSCreateInvoiceDTO request)
