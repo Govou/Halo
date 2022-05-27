@@ -14,8 +14,8 @@ namespace HaloBiz.DTOs.TransferDTOs
         public string RouteDescription { get; set; }
         public long? SMORegionId { get; set; }
 
-        //public SMORegion SMORegion { get; set; }
-        public SMORegionTransferDTO_ SMORegion { get; set; }
+        public SMORegion SMORegion { get; set; }
+        //public SMORegionTransferDTO_ SMORegion { get; set; }
         public int RRecoveryTime { get; set; }
         public bool IsReturnRouteRequired { get; set; }
         public DateTime CreatedAt { get; set; }
@@ -62,7 +62,8 @@ namespace HaloBiz.DTOs.TransferDTOs
         public long Id { get; set; }
         public string RegionName { get; set; }
         public string RegionDescription { get; set; }
-      
+        public List<SMORoute> SMORoutes { get; set; }
+
     }
 
     public class SMORouteTransferDTO_

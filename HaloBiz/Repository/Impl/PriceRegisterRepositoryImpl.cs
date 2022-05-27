@@ -44,6 +44,10 @@ namespace HaloBiz.Repository.Impl
 
         public async Task<IEnumerable<PriceRegister>> FindAllPriceRegistersWithByServiceCategoryId(long categoryId)
         {
+            //return await _context.PriceRegisters.Where(price => price.IsDeleted == false && price.ServiceRegistrationId == categoryId)
+            // .Include(price => price.ServiceRegistration)
+            // .OrderByDescending(x => x.Id)
+            // .ToListAsync();
             return await _context.PriceRegisters.Where(price => price.IsDeleted == false && price.ServiceRegistration.Service.ServiceCategoryId == categoryId)
                .Include(price => price.ServiceRegistration).Include(price => price.ServiceRegistration.Service)
                .OrderByDescending(x => x.Id)
