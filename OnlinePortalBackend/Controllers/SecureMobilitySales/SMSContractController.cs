@@ -22,10 +22,10 @@ namespace OnlinePortalBackend.Controllers.SecureMobilitySales
             return await _contractsService.CreateContract(request);
         }
 
-        [HttpGet("GetInvoice")]
-        public async Task<ApiCommonResponse> GetInvoice(int profileId)
+        [HttpPost("AddServiceToContract")]
+        public async Task<ApiCommonResponse> AddServiceToContract(SMSContractServiceDTO request)
         {
-            return await _contractsService.GetInvoice(profileId);
+            return await _contractsService.AddServiceToContract(request);
         }
 
         [HttpPost("GenerateInvoice")]

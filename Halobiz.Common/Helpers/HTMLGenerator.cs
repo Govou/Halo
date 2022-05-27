@@ -10,7 +10,7 @@ namespace Halobiz.Common.Helpers
     {
         public static string GenerateReceiptDetail()
         {
-            return "<tr><td class=\"item-service borderless\">{{ServiceName}}</td><td class=\"item-description borderless\">{{ServiceDescription}}</td><td class=\"item-qty borderless\">{{Quantity}}</td><td class=\"item-price borderless\">{{Amount}}</td> <td class=\"item-price borderlessleft\">{{Total}}</td></tr>";
+            return "<tr><td class=\"item-service \">{{ServiceName}}</td><td class=\"item-description \">{{ServiceDescription}}</td><td class=\"item-qty \">{{Quantity}}</td><td class=\"item-price \">{{Amount}}</td> <td class=\"item-price left\">{{Total}}</td></tr>";
         }
 
         public static string GenerateReceiptSummary()
