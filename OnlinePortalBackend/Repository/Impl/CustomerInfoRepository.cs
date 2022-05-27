@@ -48,7 +48,7 @@ namespace OnlinePortalBackend.Repository.Impl
 
                 var approvedContracts = _context.Contracts.Where(x => x.IsApproved == true && x.CustomerDivisionId == customerDiv && x.IsDeleted == false).ToList();
 
-                foreach (var item in pendingContracts)
+                foreach (var item in approvedContracts)
                 {
                     var conServices = _context.ContractServices.Where(x => x.ContractId == item.Id).Count();
                     completedOrders += conServices;
@@ -88,6 +88,8 @@ namespace OnlinePortalBackend.Repository.Impl
 
                 paymentsOverDue = _context.Invoices.Where(x => x.IsFinalInvoice == true && x.IsReceiptedStatus == 0 && x.CustomerDivisionId == customerDiv && x.EndDate < DateTime.Today && x.IsReceiptedStatus == 0).Count();
                 paymentsDue = _context.Invoices.Where(x => x.DateToBeSent < DateTime.Today && x.CustomerDivisionId == customerDiv && x.IsReceiptedStatus == 0).Count();
+               
+                
                 paymentsDueNextCycle = _context.Invoices.Where(x => x.StartDate > DateTime.Today && x.CustomerDivisionId == customerDiv && x.CustomerDivisionId == customerDiv && x.CustomerDivisionId == customerDiv && x.CustomerDivisionId == customerDiv && x.IsReceiptedStatus == 0).Count();
                     
 
