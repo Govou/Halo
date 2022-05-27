@@ -10,6 +10,7 @@ namespace HaloBiz.MyServices
         Task<ApiCommonResponse> AddService(HttpContext context, ServiceReceivingDTO servicesReceivingDTO);
         Task<ApiCommonResponse> GetAllServices();
         ApiCommonResponse GetAllSecuredMobilityServices();
+        ApiCommonResponse GetAllSecuredMobilityCategoryServices();
         Task<ApiCommonResponse> GetOnlinePortalServices();
         Task<ApiCommonResponse> GetServiceById(long id);
         Task<ApiCommonResponse> GetServiceByName(string name);

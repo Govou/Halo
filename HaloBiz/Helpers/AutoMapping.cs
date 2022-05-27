@@ -45,6 +45,7 @@ namespace HaloBiz.Helpers
         {
             CreateMap<ServiceRelationship, ServiceRelationshipDTO>();
             CreateMap<Service, ServicesLeanformatDTO>();
+            CreateMap<Service, ServiceCategoryForRetailTransferDTO>();
             CreateMap<State, StateTransferDTO>();    
             CreateMap<Lga, LGATransferDTO>();
            
@@ -85,6 +86,7 @@ namespace HaloBiz.Helpers
             CreateMap<ServiceCategoryReceivingDTO, ServiceCategory>();
             CreateMap<ServiceCategory, ServiceCategoryTransferDTO>();
             CreateMap<ServiceCategory, ServiceCategoryWithoutServiceTransferDTO>();
+            CreateMap<ServiceCategory, serviceCategoryTransferDTO>();
             CreateMap<Service, ServiceTransferDTO>()
                 .ForMember(dest => dest.RequiredServiceDocument, opt => 
                 opt.MapFrom(src => src.ServiceRequiredServiceDocuments.GetListOfRequiredDocuments()))
