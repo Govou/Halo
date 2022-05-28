@@ -489,5 +489,52 @@ namespace OnlinePortalBackend.Repository.Impl
 
             return result;
         }
+
+        public async Task<(bool isSuccess, string message)> ReceiptAllInvoicesForContract(SMSReceiptInvoiceForContractDTO request)
+        {
+            var invoices = _context.Invoices.Where(x => x.ContractId == request.ContractId);
+            var inv = invoices.OrderByDescending(x => x.Id).FirstOrDefault();
+
+            var validInvoices = invoices.Where(x => x.AdhocGroupingId == inv.AdhocGroupingId);
+
+            var receiptsRequests = new List<SMSReceiptReceivingDTO>();
+
+            try
+            {
+                foreach (var item in validInvoices)
+                {
+                    var receiptInv = new SMSReceiptReceivingDTO
+                    {
+                        Caption = request.Caption,
+                        InvoiceId = item.Id,
+                        InvoiceNumber = item.InvoiceNumber,
+                        InvoiceValue = item.Value,
+                        PaymentGateway = request.PaymentGateway,
+                        PaymentReference = request.PaymentReference,
+                    };
+
+                    receiptsRequests.Add(receiptInv);
+                }
+
+                foreach (var item in receiptsRequests)
+                {
+                    var result = await ReceiptInvoice(item);
+
+                    if (!result.isSuccess)
+                    {
+                        throw new Exception("Receipting invoice failed");
+                    }
+                }
+
+                return (true, "success");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.Message);
+                _logger.LogError(ex.StackTrace);
+            }
+
+            return (false, "failed");
+        }
     }
 }
