@@ -151,7 +151,7 @@ namespace OnlinePortalBackend.Repository.Impl
                     customerDivisionId = (int)customerDiv.Id;
                 }
 
-                if (!onlineProfileExists && !customerExists)
+                if (onlineProfileExists && !customerExists)
                 {
                     var onlineProfile = _context.OnlineProfiles.FirstOrDefault(x => x.Email.ToLower() == contractDTO.Email.ToLower());
                     onlineProfile.CustomerDivisionId = customerDivisionId;
@@ -159,7 +159,7 @@ namespace OnlinePortalBackend.Repository.Impl
                     await _context.SaveChangesAsync();
                 }
 
-                if (!onlineProfileExists && customerExists)
+                if (onlineProfileExists && customerExists)
                 {
                     customerDivisionId = _context.CustomerDivisions.FirstOrDefault(x => x.Email.ToLower() == contractDTO.Email.ToLower()).Id;
                     var onlineProfile = _context.OnlineProfiles.FirstOrDefault(x => x.Email.ToLower() == contractDTO.Email.ToLower());
@@ -1727,7 +1727,7 @@ namespace OnlinePortalBackend.Repository.Impl
         public async Task<(bool isSuccess, string message, List<InvoiceResult> invoiceResults)> GenerateInvoiceForContract(SMSCreateInvoiceDTO request)
         {
 
-                using (var transaction = await _context.Database.BeginTransactionAsync())
+         using (var transaction = await _context.Database.BeginTransactionAsync())
                 {
 
                     try
@@ -1768,9 +1768,8 @@ namespace OnlinePortalBackend.Repository.Impl
                     }
 
                 }
-            
            
-            }
+        }
 
         public async Task<(bool isSuccess, string message, long result)> AddInvoice(InvoiceReceivingDTO invoiceReceivingDTO)
         {

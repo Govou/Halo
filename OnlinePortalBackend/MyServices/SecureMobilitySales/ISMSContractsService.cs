@@ -11,6 +11,9 @@ namespace OnlinePortalBackend.MyServices.SecureMobilitySales
         Task<ApiCommonResponse> GetInvoice(int profileId);
         Task<ApiCommonResponse> ReceiptInvoice(SMSReceiptReceivingDTO request);
         Task<ApiCommonResponse> GenerateInvoice(SMSCreateInvoiceDTO request);
-        
+        Task<ApiCommonResponse> ReceiptAllInvoicesForContract(SMSReceiptInvoiceForContractDTO request);
+
+
+
     }
 }
