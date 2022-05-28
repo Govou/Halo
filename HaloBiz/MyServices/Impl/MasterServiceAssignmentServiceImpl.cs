@@ -75,6 +75,7 @@ namespace HaloBiz.MyServices.Impl
             var getRegService = await _serviceRegistrationRepository.FindServiceById(masterReceivingDTO.ServiceRegistrationId);
             long getId = 0;
             long? TiedVehicleId = 0;
+            var assignmentId  = new List<long>();
             List<long?> VehicleResourceIdsToTie = new List<long?>();
             List<long?> VehicleResourceIdsToTieComm = new List<long?>();
             //var RouteExistsForVehicle = _vehicleRegistrationRepository.GetAllVehiclesOnRouteByResourceAndRouteId(masterReceivingDTO.SMORouteId);
@@ -96,6 +97,7 @@ namespace HaloBiz.MyServices.Impl
                 else
                 {
                     getId = savedRank.Id;
+                    assignmentId.Add(savedRank.Id);
                 }
 
                 if (masterReceivingDTO.IsReturnJourney == true)
@@ -477,7 +479,14 @@ namespace HaloBiz.MyServices.Impl
             transaction.Commit();
             if(masterReceivingDTO.InhouseAssignment == true)
             {
+                //long[] ids = assignmentId.ToArray();
+                //for (int i = 0; i < ids.Length; i++)
+                //{
+                //    await _serviceAssignmentDetailsService.UpdateServiceDetailsHeldForActionAndReadyStatusByAssignmentId(ids[i]);
+                //}
                 await _serviceAssignmentDetailsService.UpdateServiceDetailsHeldForActionAndReadyStatusByAssignmentId(getId);
+
+
             }
             if (masterReceivingDTO.InhouseAssignment == false)
             {
@@ -485,6 +494,7 @@ namespace HaloBiz.MyServices.Impl
                 if (!await _serviceAssignmentMasterRepository.UpdateisAddedToCartStatus(itemToUpdate))
                 {
                     transaction.Rollback();
+                    //string resp = "But Added to cart Status couldn't be updated";
                     return CommonResponse.Send(ResponseCodes.FAILURE, null, "Added to cart Status couldn't be updated");
                 }
             }

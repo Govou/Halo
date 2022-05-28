@@ -180,7 +180,7 @@ namespace HaloBiz.Repository.Impl
               .Include(ct => ct.ContractService).Include(t => t.SMORegion).Include(t => t.SMORegion)
               .Include(sec => sec.SecondaryServiceAssignments.Where(x => x.IsDeleted == false))
               .Include(t => t.SMORoute).Include(t => t.CreatedBy).Include(t => t.ServiceRegistration)
-              .Include(t => t.ServiceRegistration.Service).ToListAsync();
+              .Include(t => t.ServiceRegistration.Service).ThenInclude(x=>x.ServiceCategory).ToListAsync();
               
         }
 
@@ -190,7 +190,7 @@ namespace HaloBiz.Repository.Impl
               .Include(ct => ct.ContractService).Include(t => t.SMORegion).Include(t => t.SMORegion)
               .Include(sec => sec.SecondaryServiceAssignments.Where(x => x.IsDeleted == false))
               .Include(t => t.SMORoute).Include(t => t.CreatedBy).Include(t => t.ServiceRegistration)
-              .Include(t => t.ServiceRegistration.Service).ToListAsync();
+              .Include(t => t.ServiceRegistration.Service).ThenInclude(x=>x.ServiceCategory).ToListAsync();
         }
     }
 }

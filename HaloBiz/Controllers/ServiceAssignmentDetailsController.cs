@@ -306,6 +306,12 @@ namespace HaloBiz.Controllers
         {
             return await _serviceAssignmentDetailsService.UpdateServiceDetailsHeldForActionAndReadyStatusByAssignmentId( id);
         }
+
+        [HttpPut("UpdateServiceDetailsHeldForActionAndReadyStatusForOnlineByAssignmentId/{id}")]
+        public async Task<ApiCommonResponse> UpdateServiceDetailsHeldForActionAndReadyStatusForOnlineByAssignmentId(long[] id)
+        {
+            return await _serviceAssignmentDetailsService.UpdateServiceDetailsHeldForActionAndReadyStatusForOnlineByAssignmentId(id);
+        }
         //Passenger
         [HttpGet("GetAllPassengers")]
         public async Task<ApiCommonResponse> GetAllPassengers()
