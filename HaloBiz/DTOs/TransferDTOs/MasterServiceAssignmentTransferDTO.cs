@@ -63,4 +63,28 @@ namespace HaloBiz.DTOs.TransferDTOs
         public UserProfile CreatedBy { get; set; }
         public DateTime CreatedAt { get; set; }
     }
+
+
+    public class MasterServiceAssignmentWithRegisterTransferDTO
+    {
+        public long Id { get; set; }
+
+        public bool ReadyStatus { get; set; }
+        public bool IsScheduled { get; set; }
+        public bool InhouseAssignment { get; set; }
+        public bool IsPaidFor { get; set; }
+        public string AssignmentStatus { get; set; }
+      
+        public long? SMORouteId { get; set; }
+        public string RouteName { get; set; }
+        public string PickoffLocation { get; set; }
+        public string DropoffLocation { get; set; }
+        public long? ContractServiceId { get; set; }
+        public ServiceRegistration ServiceRegistration { get; set; }
+        public decimal SellingPrice { get; set; }
+        public decimal CostPrice { get; set; }
+        public decimal MarkupPrice { get; set; }
+        public ServiceCategory ServiceCategory { get; set; }
+
+    }
 }
