@@ -110,7 +110,7 @@ namespace HaloBiz.MyServices.Impl
                     var receipents = escalationMatrix.ComplaintAttendants.Select(x => x.UserProfile.Email);
                     GenericMailRequest mailRequestHandler = new GenericMailRequest()
                     {
-                        subject = "Upon Suucessful Registration",
+                        subject = "Suucessful Registration",
                         message = "A new complaint has just been registered under the complaint type <b>#"
                         + complaintType.Caption
                         + "</b> with Ticket number <b>#"
@@ -133,7 +133,7 @@ namespace HaloBiz.MyServices.Impl
                             };
                             GenericMailRequest mailRequestStaff = new ()
                             {
-                                subject = "Upon Suucessful Registration",
+                                subject = "Suucessful Registration",
                                 message = "A new complaint has just been registered under the complaint type <b>#"
                                 + complaintType.Caption
                                 + "</b> with Ticket number <b>#"
@@ -157,7 +157,7 @@ namespace HaloBiz.MyServices.Impl
                             };
                             GenericMailRequest mailRequestClient = new ()
                             {
-                                subject = "Upon Suucessful Registration",
+                                subject = "Suucessful Registration",
                                 message = "A new complaint has just been registered under the complaint type <b>#"
                                 + complaintType.Caption
                                 + "</b> with Ticket number <b>#"
@@ -179,7 +179,7 @@ namespace HaloBiz.MyServices.Impl
                             };
                             GenericMailRequest mailRequestSupplier = new ()
                             {
-                                subject = "Upon Suucessful Registration",
+                                subject = "Suucessful Registration",
                                 message = "A new complaint has just been registered under the complaint type <b>#"
                                 + complaintType.Caption
                                 + "</b> with Ticket number <b>#"

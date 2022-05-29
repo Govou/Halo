@@ -366,7 +366,7 @@ namespace HaloBiz.MyServices.Impl
                                     };
                                     GenericMailRequest mailRequestStaff = new ()
                                     {
-                                        subject = "Upon Sucessful Capture Of Assessment Details",
+                                        subject = "Sucessful Capture Of Assessment Details",
                                         message = "Assesment of complaint with ticket number <b>#"
                                         + complaint.TrackingId
                                         + "</b> has just been completed, it has now been moved to the next stage which is the investigation stage. Here we would determine the root cause of the reported incident.<br /> <br />You may view or track the resolution process and the details by going to the complaint tracking module of the complaint managment application or click on the link below <br /> <br />"
@@ -388,7 +388,7 @@ namespace HaloBiz.MyServices.Impl
                                     };
                                     GenericMailRequest mailRequestClient = new ()
                                     {
-                                        subject = "Upon Sucessful Capture Of Assessment Details",
+                                        subject = "Sucessful Capture Of Assessment Details",
                                         message = "Assesment of complaint with ticket number <b>#"
                                         + complaint.TrackingId
                                         + "</b> has just been completed, it has now been moved to the next stage which is the investigation stage. Here we would determin the root cause of the reported incident.<br /> <br /> You may view or track the resolution process and the details by going complaint tracking menu on your app.<br /> <br />",
@@ -408,7 +408,7 @@ namespace HaloBiz.MyServices.Impl
                                     };
                                     GenericMailRequest mailRequestSupplier = new()
                                     {
-                                        subject = "Upon Sucessful Capture Of Assessment Details",
+                                        subject = "Sucessful Capture Of Assessment Details",
                                         message = "Assesment of complaint with ticket number <b>#"
                                         + complaint.TrackingId
                                         + "</b> has just been completed, it has now been moved to the next stage which is the investigation stage. Here we would determin the root cause of the reported incident.<br /> <br /> You may view or track the resolution process and the details by going complaint tracking menu on your app.<br /> <br />",
@@ -430,7 +430,7 @@ namespace HaloBiz.MyServices.Impl
                                     };
                                     GenericMailRequest mailRequestStaff = new()
                                     {
-                                        subject = "Upon Sucessful Capture Of Investigation Details",
+                                        subject = "Sucessful Capture Of Investigation Details",
                                         message = "Investigation of complaint with ticket number <b>#"
                                         + complaint.TrackingId
                                         + "</b> has just been completed, it has now been moved to the next stage which is the resolution stage. Here we would profer a solution to the root cause detected so as to prevent a reoccurence.<br /> <br />You may view or track the resolution process and the details by going to the complaint tracking module of the complaint managment application or click on the link below <br /> <br />"
@@ -452,7 +452,7 @@ namespace HaloBiz.MyServices.Impl
                                     };
                                     GenericMailRequest mailRequestClient = new()
                                     {
-                                        subject = "Upon Sucessful Capture Of Investigation Details",
+                                        subject = "Sucessful Capture Of Investigation Details",
                                         message = "Investigation of complaint with ticket number <b>#"
                                         + complaint.TrackingId
                                         + "</b> has just been completed, it has now been moved to the next stage which is the resolution stage. Here we would profer a solution to the root cause detected so as to prevent a reoccurence.<br /> <br /> You may view or track the resolution process and the details by going complaint tracking menu on your app.<br /> <br />",
@@ -472,7 +472,7 @@ namespace HaloBiz.MyServices.Impl
                                     };
                                     GenericMailRequest mailRequestSupplier = new()
                                     {
-                                        subject = "Upon Sucessful Capture Of Investigation Details",
+                                        subject = "Sucessful Capture Of Investigation Details",
                                         message = "Investigation of complaint with ticket number <b>#"
                                         + complaint.TrackingId
                                         + "</b> has just been completed, it has now been moved to the next stage which is the resolution stage. Here we would profer a solution to the root cause detected so as to prevent a reoccurence.<br /> <br /> You may view or track the resolution process and the details by going complaint tracking menu on your app.<br /> <br />",
@@ -494,7 +494,7 @@ namespace HaloBiz.MyServices.Impl
                                     };
                                     GenericMailRequest mailRequestStaff = new()
                                     {
-                                        subject = "Upon Sucessful Capture Of Resolution Details",
+                                        subject = "Sucessful Capture Of Resolution Details",
                                         message = "Resolution of complaint with ticket number <b>#"
                                         + complaint.TrackingId
                                         + "</b> has just been completed, it has now been moved to the next stage which is the complaint closure stage. Here we have completed the resolution process and validated the root cause detected.<br /> <br />You may view or track the resolution process and the details by going to the complaint tracking module of the complaint managment application or click on the link below <br /> <br />"
@@ -516,7 +516,7 @@ namespace HaloBiz.MyServices.Impl
                                     };
                                     GenericMailRequest mailRequestClient = new()
                                     {
-                                        subject = "Upon Sucessful Capture Of Resolution Details",
+                                        subject = "Sucessful Capture Of Resolution Details",
                                         message = "Resolution of complaint with ticket number <b>#"
                                         + complaint.TrackingId
                                         + "</b> has just been completed, it has now been moved to the next stage which is the complaint closure stage. Here we have completed the resolution process and validated the root cause detected.<br /> <br /> You may view or track the resolution process and the details by going complaint tracking menu on your app.<br /> <br />",
@@ -536,7 +536,7 @@ namespace HaloBiz.MyServices.Impl
                                     };
                                     GenericMailRequest mailRequestSupplier = new()
                                     {
-                                        subject = "Upon Sucessful Capture Of Resolution Details",
+                                        subject = "Sucessful Capture Of Resolution Details",
                                         message = "Resolution of complaint with ticket number <b>#"
                                         + complaint.TrackingId
                                         + "</b> has just been completed, it has now been moved to the next stage which is the complaint closure stage. Here we have completed the resolution process and validated the root cause detected.<br /> <br /> You may view or track the resolution process and the details by going complaint tracking menu on your app.<br /> <br />",
@@ -558,7 +558,7 @@ namespace HaloBiz.MyServices.Impl
                                     };
                                     GenericMailRequest mailRequestStaff = new()
                                     {
-                                        subject = "Upon Sucessful Capture Of Closure Details",
+                                        subject = "Sucessful Capture Of Closure Details",
                                         message = "Complaint with ticket number <b>#"
                                         + complaint.TrackingId
                                         + "</b> has has now been closed, a separate notification has been sent to you to confirm complaint has been resolved. <br /> <br />You may view or track the resolution process and the details by going to the complaint tracking module of the complaint managment application or click on the link below <br /> <br />"
@@ -580,7 +580,7 @@ namespace HaloBiz.MyServices.Impl
                                     };
                                     GenericMailRequest mailRequestClient = new()
                                     {
-                                        subject = "Upon Sucessful Capture Of Closure Details",
+                                        subject = "Sucessful Capture Of Closure Details",
                                         message = "Complaint with ticket number <b>#"
                                         + complaint.TrackingId
                                         + "</b> has has now been closed, a separate notification has been sent to you to confirm complaint has been resolved. <br /> <br /> You may view or track the resolution process and the details by going complaint tracking menu on your app.<br /> <br />",
@@ -600,7 +600,7 @@ namespace HaloBiz.MyServices.Impl
                                     };
                                     GenericMailRequest mailRequestSupplier = new()
                                     {
-                                        subject = "Upon Sucessful Capture Of Closure Details",
+                                        subject = "Sucessful Capture Of Closure Details",
                                         message = "Complaint with ticket number <b>#"
                                         + complaint.TrackingId
                                         + "</b> has has now been closed, a separate notification has been sent to you to confirm complaint has been resolved. <br /> <br /> You may view or track the resolution process and the details by going complaint tracking menu on your app.<br /> <br />",
