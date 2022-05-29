@@ -85,6 +85,12 @@ namespace HaloBiz.DTOs.TransferDTOs
         public decimal CostPrice { get; set; }
         public decimal MarkupPrice { get; set; }
         public ServiceCategory ServiceCategory { get; set; }
-
+        public double PickupLocationLongitude { get; set; }
+        public double PickupLocationLatitude { get; set; }
+        public double DropoffLocationLongitude { get; set; }
+        public double DropoffLocationLatitude { get; set; }
+        public DateTime DropoffDate { get; set; }
+        public DateTime PickupDate { get; set; }
+        public DateTime PickoffTime { get; set; }
     }
 }
