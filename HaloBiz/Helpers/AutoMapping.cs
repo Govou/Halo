@@ -386,6 +386,7 @@ namespace HaloBiz.Helpers
 
             CreateMap<PriceRegisterReceivingDTO, PriceRegister>();
             CreateMap<PriceRegister, PriceRegisterTransferDTO>();
+            CreateMap<PriceRegister, MasterServiceAssignmentWithRegisterTransferDTO>();
 
             CreateMap<RegServicesResourceTypesReceivingDTO.CommanderTypeRegReceivingDTO, CommanderResourceRequiredPerService>();
             CreateMap<RegServicesResourceTypesReceivingDTO.PilotTypeRegReceivingDTO, PilotResourceRequiredPerService>();
@@ -449,6 +450,7 @@ namespace HaloBiz.Helpers
             CreateMap<MasterServiceAssignmentReceivingDTO, MasterServiceAssignment>();
             CreateMap<MasterServiceAssignmentForAutoReceivingDTO, MasterServiceAssignment>();
             CreateMap<MasterServiceAssignment, MasterServiceAssignmentTransferDTO>();
+            CreateMap<MasterServiceAssignment, MasterServiceAssignmentWithRegisterTransferDTO>();
             CreateMap<SecondaryServiceAssignmentReceivingDTO, SecondaryServiceAssignment>();
             CreateMap<SecondaryServiceAssignment, SecondaryServiceAssignmentTransferDTO>();
 

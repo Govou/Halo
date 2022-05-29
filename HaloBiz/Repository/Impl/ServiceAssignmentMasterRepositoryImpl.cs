@@ -1,4 +1,5 @@
-﻿using HalobizMigrations.Data;
+﻿using HaloBiz.DTOs.TransferDTOs;
+using HalobizMigrations.Data;
 using HalobizMigrations.Models;
 using HalobizMigrations.Models.Armada;
 using Microsoft.EntityFrameworkCore;
@@ -174,14 +175,42 @@ namespace HaloBiz.Repository.Impl
             }
         }
 
-        public async Task<IEnumerable<MasterServiceAssignment>> FindAllServiceAssignmentsByClientId(long clientId)
+        public async Task<IEnumerable<MasterServiceAssignmentWithRegisterTransferDTO>> FindAllServiceAssignmentsByClientId(long clientId)
         {
-            return await _context.MasterServiceAssignments.Where(aer => aer.CustomerDivisionId == clientId && aer.IsDeleted == false && aer.ReadyStatus == false && aer.IsScheduled == false && aer.IsPaidFor == false && aer.IsAddedToCart == true)
-              .Include(ct => ct.ContractService).Include(t => t.SMORegion).Include(t => t.SMORegion)
-              .Include(sec => sec.SecondaryServiceAssignments.Where(x => x.IsDeleted == false))
-              .Include(t => t.SMORoute).Include(t => t.CreatedBy).Include(t => t.ServiceRegistration)
-              .Include(t => t.ServiceRegistration.Service).ThenInclude(x=>x.ServiceCategory).ToListAsync();
-              
+            //return await _context.MasterServiceAssignments.Where(aer => aer.CustomerDivisionId == clientId && aer.IsDeleted == false && aer.ReadyStatus == false && aer.IsScheduled == false && aer.IsPaidFor == false && aer.IsAddedToCart == true)
+            //  .Include(ct => ct.ContractService).Include(t => t.SMORegion).Include(t => t.SMORegion)
+            //  .Include(sec => sec.SecondaryServiceAssignments.Where(x => x.IsDeleted == false))
+            //  .Include(t => t.SMORoute).Include(t => t.CreatedBy).Include(t => t.ServiceRegistration)
+            //  .Include(t => t.ServiceRegistration.Service).ThenInclude(x=>x.ServiceCategory).ToListAsync();
+
+            var q =  await (from pd in _context.MasterServiceAssignments
+                     //join od in _context.PriceRegisters on pd.ServiceRegistrationId equals od.ServiceRegistrationId
+                     join od in _context.PriceRegisters on
+                     new { pd1 = pd.ServiceRegistrationId, pd2 = pd.SMORouteId } equals
+                     new { pd1 = od.ServiceRegistrationId, pd2 = od.SMORouteId }
+                     where pd.CustomerDivisionId == clientId && pd.IsDeleted == false && pd.ReadyStatus == false && pd.IsScheduled == false && pd.IsPaidFor == false && pd.IsAddedToCart == true
+                     select new MasterServiceAssignmentWithRegisterTransferDTO
+                     {
+                        Id = pd.Id,
+                        SMORouteId = pd.SMORouteId,
+                        RouteName = pd.SMORoute.RouteName,
+                        PickoffLocation = pd.PickoffLocation,
+                         DropoffLocation = pd.DropoffLocation,
+                         AssignmentStatus = pd.AssignmentStatus,
+                         IsPaidFor = pd.IsPaidFor,
+                         InhouseAssignment = pd.InhouseAssignment,
+                         IsScheduled = pd.IsScheduled,
+                         ContractServiceId = pd.ContractServiceId,
+                         ServiceRegistration = pd.ServiceRegistration,
+                         ReadyStatus = pd.ReadyStatus,
+                         SellingPrice = od.SellingPrice,
+                         CostPrice = od.CostPrice,
+                         MarkupPrice = od.MarkupPrice,
+                         ServiceCategory = od.ServiceRegistration.Service.ServiceCategory,
+                     }).ToListAsync();
+
+            return  q;
+
         }
 
         public async Task<IEnumerable<MasterServiceAssignment>> FindAllServiceAssignmentsForScheduleCartByClientId(long clientId)

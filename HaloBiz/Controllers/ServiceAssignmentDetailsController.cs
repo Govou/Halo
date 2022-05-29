@@ -301,13 +301,13 @@ namespace HaloBiz.Controllers
             return await _serviceAssignmentDetailsService.DeleteVehicleDetail(id);
             //return StatusCode(response.StatusCode);
         }
-        [HttpPut("UpdateServiceDetailsHeldForActionAndReadyStatusByAssignmentId/{id}")]
+        [HttpGet("UpdateServiceDetailsHeldForActionAndReadyStatusByAssignmentId/{id}")]
         public async Task<ApiCommonResponse> UpdateServiceDetailsHeldForActionAndReadyStatusByAssignmentId(long id)
         {
             return await _serviceAssignmentDetailsService.UpdateServiceDetailsHeldForActionAndReadyStatusByAssignmentId( id);
         }
 
-        [HttpPut("UpdateServiceDetailsHeldForActionAndReadyStatusForOnlineByAssignmentId/{id}")]
+        [HttpGet("UpdateServiceDetailsHeldForActionAndReadyStatusForOnlineByAssignmentId")]
         public async Task<ApiCommonResponse> UpdateServiceDetailsHeldForActionAndReadyStatusForOnlineByAssignmentId(long[] id)
         {
             return await _serviceAssignmentDetailsService.UpdateServiceDetailsHeldForActionAndReadyStatusForOnlineByAssignmentId(id);
