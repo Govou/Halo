@@ -366,7 +366,7 @@ namespace HaloBiz.MyServices.Impl
                                     };
                                     GenericMailRequest mailRequestStaff = new ()
                                     {
-                                        subject = "Upon Suucessful Capture Of Assessment Details",
+                                        subject = "Upon Sucessful Capture Of Assessment Details",
                                         message = "Assesment of complaint with ticket number <b>#"
                                         + complaint.TrackingId
                                         + "</b> has just been completed, it has now been moved to the next stage which is the investigation stage. Here we would determine the root cause of the reported incident.<br /> <br />You may view or track the resolution process and the details by going to the complaint tracking module of the complaint managment application or click on the link below <br /> <br />"
@@ -388,7 +388,7 @@ namespace HaloBiz.MyServices.Impl
                                     };
                                     GenericMailRequest mailRequestClient = new ()
                                     {
-                                        subject = "Upon Suucessful Capture Of Assessment Details",
+                                        subject = "Upon Sucessful Capture Of Assessment Details",
                                         message = "Assesment of complaint with ticket number <b>#"
                                         + complaint.TrackingId
                                         + "</b> has just been completed, it has now been moved to the next stage which is the investigation stage. Here we would determin the root cause of the reported incident.<br /> <br /> You may view or track the resolution process and the details by going complaint tracking menu on your app.<br /> <br />",
@@ -408,7 +408,7 @@ namespace HaloBiz.MyServices.Impl
                                     };
                                     GenericMailRequest mailRequestSupplier = new()
                                     {
-                                        subject = "Upon Suucessful Capture Of Assessment Details",
+                                        subject = "Upon Sucessful Capture Of Assessment Details",
                                         message = "Assesment of complaint with ticket number <b>#"
                                         + complaint.TrackingId
                                         + "</b> has just been completed, it has now been moved to the next stage which is the investigation stage. Here we would determin the root cause of the reported incident.<br /> <br /> You may view or track the resolution process and the details by going complaint tracking menu on your app.<br /> <br />",
@@ -419,10 +419,196 @@ namespace HaloBiz.MyServices.Impl
                             }
                             break;
                         case ComplaintStage.Assesment:
+                            if (complaint.ComplaintOrigin.Caption.ToLower() == "staff")
+                            {
+                                var complainant = await _context.UserProfiles.FirstOrDefaultAsync(x => x.Id == complaint.ComplainantId);
+                                if (complainant != null)
+                                {
+                                    var staffReceipents = new List<string>()
+                                    {
+                                        complainant.Email
+                                    };
+                                    GenericMailRequest mailRequestStaff = new()
+                                    {
+                                        subject = "Upon Sucessful Capture Of Investigation Details",
+                                        message = "Investigation of complaint with ticket number <b>#"
+                                        + complaint.TrackingId
+                                        + "</b> has just been completed, it has now been moved to the next stage which is the resolution stage. Here we would profer a solution to the root cause detected so as to prevent a reoccurence.<br /> <br />You may view or track the resolution process and the details by going to the complaint tracking module of the complaint managment application or click on the link below <br /> <br />"
+                                        + model.applicationUrl
+                                        + "/#/home/complaint-management/complaint-tracking",
+                                        recipients = staffReceipents.ToArray(),
+                                    };
+                                    await _mailAdapter.SendNotificationMail(mailRequestStaff);
+                                }
+                            }
+                            else if (complaint.ComplaintOrigin.Caption.ToLower() == "client")
+                            {
+                                var complainant = await _context.CustomerDivisions.FirstOrDefaultAsync(x => x.Id == complaint.ComplainantId);
+                                if (complainant != null)
+                                {
+                                    var clientReceipents = new List<string>()
+                                    {
+                                        complainant.Email
+                                    };
+                                    GenericMailRequest mailRequestClient = new()
+                                    {
+                                        subject = "Upon Sucessful Capture Of Investigation Details",
+                                        message = "Investigation of complaint with ticket number <b>#"
+                                        + complaint.TrackingId
+                                        + "</b> has just been completed, it has now been moved to the next stage which is the resolution stage. Here we would profer a solution to the root cause detected so as to prevent a reoccurence.<br /> <br /> You may view or track the resolution process and the details by going complaint tracking menu on your app.<br /> <br />",
+                                        recipients = clientReceipents.ToArray(),
+                                    };
+                                    await _mailAdapter.SendNotificationMail(mailRequestClient);
+                                }
+                            }
+                            else if (complaint.ComplaintOrigin.Caption.ToLower() == "supplier")
+                            {
+                                var complainant = await _context.Suppliers.FirstOrDefaultAsync(x => x.Id == complaint.ComplainantId);
+                                if (complainant != null)
+                                {
+                                    var supplierReceipents = new List<string>()
+                                    {
+                                        complainant.SupplierEmail
+                                    };
+                                    GenericMailRequest mailRequestSupplier = new()
+                                    {
+                                        subject = "Upon Sucessful Capture Of Investigation Details",
+                                        message = "Investigation of complaint with ticket number <b>#"
+                                        + complaint.TrackingId
+                                        + "</b> has just been completed, it has now been moved to the next stage which is the resolution stage. Here we would profer a solution to the root cause detected so as to prevent a reoccurence.<br /> <br /> You may view or track the resolution process and the details by going complaint tracking menu on your app.<br /> <br />",
+                                        recipients = supplierReceipents.ToArray(),
+                                    };
+                                    await _mailAdapter.SendNotificationMail(mailRequestSupplier);
+                                }
+                            }
                             break;
                         case ComplaintStage.Investigation:
+                            if (complaint.ComplaintOrigin.Caption.ToLower() == "staff")
+                            {
+                                var complainant = await _context.UserProfiles.FirstOrDefaultAsync(x => x.Id == complaint.ComplainantId);
+                                if (complainant != null)
+                                {
+                                    var staffReceipents = new List<string>()
+                                    {
+                                        complainant.Email
+                                    };
+                                    GenericMailRequest mailRequestStaff = new()
+                                    {
+                                        subject = "Upon Sucessful Capture Of Resolution Details",
+                                        message = "Resolution of complaint with ticket number <b>#"
+                                        + complaint.TrackingId
+                                        + "</b> has just been completed, it has now been moved to the next stage which is the complaint closure stage. Here we have completed the resolution process and validated the root cause detected.<br /> <br />You may view or track the resolution process and the details by going to the complaint tracking module of the complaint managment application or click on the link below <br /> <br />"
+                                        + model.applicationUrl
+                                        + "/#/home/complaint-management/complaint-tracking",
+                                        recipients = staffReceipents.ToArray(),
+                                    };
+                                    await _mailAdapter.SendNotificationMail(mailRequestStaff);
+                                }
+                            }
+                            else if (complaint.ComplaintOrigin.Caption.ToLower() == "client")
+                            {
+                                var complainant = await _context.CustomerDivisions.FirstOrDefaultAsync(x => x.Id == complaint.ComplainantId);
+                                if (complainant != null)
+                                {
+                                    var clientReceipents = new List<string>()
+                                    {
+                                        complainant.Email
+                                    };
+                                    GenericMailRequest mailRequestClient = new()
+                                    {
+                                        subject = "Upon Sucessful Capture Of Resolution Details",
+                                        message = "Resolution of complaint with ticket number <b>#"
+                                        + complaint.TrackingId
+                                        + "</b> has just been completed, it has now been moved to the next stage which is the complaint closure stage. Here we have completed the resolution process and validated the root cause detected.<br /> <br /> You may view or track the resolution process and the details by going complaint tracking menu on your app.<br /> <br />",
+                                        recipients = clientReceipents.ToArray(),
+                                    };
+                                    await _mailAdapter.SendNotificationMail(mailRequestClient);
+                                }
+                            }
+                            else if (complaint.ComplaintOrigin.Caption.ToLower() == "supplier")
+                            {
+                                var complainant = await _context.Suppliers.FirstOrDefaultAsync(x => x.Id == complaint.ComplainantId);
+                                if (complainant != null)
+                                {
+                                    var supplierReceipents = new List<string>()
+                                    {
+                                        complainant.SupplierEmail
+                                    };
+                                    GenericMailRequest mailRequestSupplier = new()
+                                    {
+                                        subject = "Upon Sucessful Capture Of Resolution Details",
+                                        message = "Resolution of complaint with ticket number <b>#"
+                                        + complaint.TrackingId
+                                        + "</b> has just been completed, it has now been moved to the next stage which is the complaint closure stage. Here we have completed the resolution process and validated the root cause detected.<br /> <br /> You may view or track the resolution process and the details by going complaint tracking menu on your app.<br /> <br />",
+                                        recipients = supplierReceipents.ToArray(),
+                                    };
+                                    await _mailAdapter.SendNotificationMail(mailRequestSupplier);
+                                }
+                            }
                             break;
                         case ComplaintStage.Resolution:
+                            if (complaint.ComplaintOrigin.Caption.ToLower() == "staff")
+                            {
+                                var complainant = await _context.UserProfiles.FirstOrDefaultAsync(x => x.Id == complaint.ComplainantId);
+                                if (complainant != null)
+                                {
+                                    var staffReceipents = new List<string>()
+                                    {
+                                        complainant.Email
+                                    };
+                                    GenericMailRequest mailRequestStaff = new()
+                                    {
+                                        subject = "Upon Sucessful Capture Of Closure Details",
+                                        message = "Complaint with ticket number <b>#"
+                                        + complaint.TrackingId
+                                        + "</b> has has now been closed, a separate notification has been sent to you to confirm complaint has been resolved. <br /> <br />You may view or track the resolution process and the details by going to the complaint tracking module of the complaint managment application or click on the link below <br /> <br />"
+                                        + model.applicationUrl
+                                        + "/#/home/complaint-management/complaint-tracking",
+                                        recipients = staffReceipents.ToArray(),
+                                    };
+                                    await _mailAdapter.SendNotificationMail(mailRequestStaff);
+                                }
+                            }
+                            else if (complaint.ComplaintOrigin.Caption.ToLower() == "client")
+                            {
+                                var complainant = await _context.CustomerDivisions.FirstOrDefaultAsync(x => x.Id == complaint.ComplainantId);
+                                if (complainant != null)
+                                {
+                                    var clientReceipents = new List<string>()
+                                    {
+                                        complainant.Email
+                                    };
+                                    GenericMailRequest mailRequestClient = new()
+                                    {
+                                        subject = "Upon Sucessful Capture Of Closure Details",
+                                        message = "Complaint with ticket number <b>#"
+                                        + complaint.TrackingId
+                                        + "</b> has has now been closed, a separate notification has been sent to you to confirm complaint has been resolved. <br /> <br /> You may view or track the resolution process and the details by going complaint tracking menu on your app.<br /> <br />",
+                                        recipients = clientReceipents.ToArray(),
+                                    };
+                                    await _mailAdapter.SendNotificationMail(mailRequestClient);
+                                }
+                            }
+                            else if (complaint.ComplaintOrigin.Caption.ToLower() == "supplier")
+                            {
+                                var complainant = await _context.Suppliers.FirstOrDefaultAsync(x => x.Id == complaint.ComplainantId);
+                                if (complainant != null)
+                                {
+                                    var supplierReceipents = new List<string>()
+                                    {
+                                        complainant.SupplierEmail
+                                    };
+                                    GenericMailRequest mailRequestSupplier = new()
+                                    {
+                                        subject = "Upon Sucessful Capture Of Closure Details",
+                                        message = "Complaint with ticket number <b>#"
+                                        + complaint.TrackingId
+                                        + "</b> has has now been closed, a separate notification has been sent to you to confirm complaint has been resolved. <br /> <br /> You may view or track the resolution process and the details by going complaint tracking menu on your app.<br /> <br />",
+                                        recipients = supplierReceipents.ToArray(),
+                                    };
+                                    await _mailAdapter.SendNotificationMail(mailRequestSupplier);
+                                }
+                            }
                             break;
                         default:
                             break;
