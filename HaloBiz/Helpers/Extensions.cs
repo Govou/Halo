@@ -225,5 +225,6 @@ namespace HaloBiz.Helpers
             HashSet<TKey> seenKeys = new HashSet<TKey>();
             return source.Where(element => seenKeys.Add(keySelector(element)));
         }
+
     }
 }

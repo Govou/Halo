@@ -9,6 +9,7 @@ using HaloBiz.DTOs.TransferDTOs.LAMS;
 using HaloBiz.MyServices;
 using HaloBiz.MyServices.LAMS;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 
 namespace HaloBiz.Controllers
 {
@@ -19,10 +20,12 @@ namespace HaloBiz.Controllers
     public class ComplaintController : ControllerBase
     {
         private readonly IComplaintService _ComplaintService;
+        private readonly IConfiguration _configuration;
 
-        public ComplaintController(IComplaintService serviceTypeService)
+        public ComplaintController(IComplaintService serviceTypeService, IConfiguration configuration)
         {
             this._ComplaintService = serviceTypeService;
+            _configuration = configuration;
         }
 
         [HttpGet("")]
@@ -56,7 +59,8 @@ namespace HaloBiz.Controllers
         [HttpPost("")]
         public async Task<ApiCommonResponse> AddNewComplaint(ComplaintReceivingDTO ComplaintReceiving)
         {
-            return await _ComplaintService.AddComplaint(HttpContext, ComplaintReceiving);
+            string emailBaseUrl = _configuration.GetSection("AppSettings:MailServiceBaseUrl").Value;
+            return await _ComplaintService.AddComplaint(HttpContext, ComplaintReceiving, emailBaseUrl);
         }
 
         [HttpPut("{id}")]

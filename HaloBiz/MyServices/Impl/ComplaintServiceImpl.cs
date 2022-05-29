@@ -25,13 +25,14 @@ namespace HaloBiz.MyServices.Impl
         private readonly IEvidenceRepository _evidenceRepository;
         private readonly HalobizContext _context;
         private readonly IMapper _mapper;
+        private readonly Adapters.IMailAdapter _mailAdapter;
 
         public ComplaintServiceImpl(IModificationHistoryRepository historyRepo,
             IComplaintRepository complaintRepo,
             IEvidenceRepository evidenceRepo,
             HalobizContext context,
             ILogger<ComplaintServiceImpl> logger, 
-            IMapper mapper)
+            IMapper mapper, Adapters.IMailAdapter mailAdapter)
         {
             this._mapper = mapper;
             this._historyRepo = historyRepo;
@@ -39,9 +40,10 @@ namespace HaloBiz.MyServices.Impl
             _evidenceRepository = evidenceRepo;
             _context = context;
             this._logger = logger;
+            _mailAdapter = mailAdapter;
         }
 
-        public async Task<ApiCommonResponse> AddComplaint(HttpContext context, ComplaintReceivingDTO complaintReceivingDTO)
+        public async Task<ApiCommonResponse> AddComplaint(HttpContext context, ComplaintReceivingDTO complaintReceivingDTO, string emailBaseUrl)
         {         
             using var transaction = await _context.Database.BeginTransactionAsync();
             try
@@ -97,6 +99,33 @@ namespace HaloBiz.MyServices.Impl
                 await transaction.CommitAsync();
 
                 var complaintTransferDTO = _mapper.Map<ComplaintTransferDTO>(complaint);
+
+                try 
+                {
+                    //Send Notification
+                    var escalationMatrix = await _context.EscalationMatrices
+                        .Include(x => x.ComplaintAttendants)
+                            .ThenInclude(x => x.UserProfile)
+                        .FirstOrDefaultAsync(x => x.ComplaintTypeId == complaint.ComplaintTypeId);
+                    var receipents = escalationMatrix.ComplaintAttendants.Select(x => x.UserProfile.Email);
+                    GenericMailRequest mailRequest = new GenericMailRequest()
+                    {
+                        subject = "Upon Suucessful Registration",
+                        message = "A new complaint has just been registered under the complaint type <b>#"
+                        + complaintType.Caption
+                        + "</b> with Ticket number <b>#"
+                        + complaint.TrackingId
+                        + "</b> <br /> <br /> As one of the handlers of this complaint type, you are expected to go to the general work bench and take ownership of complaints into your personal workbench to commence the resolution process. please go to the complaint handling module on the complaint management application or click on the link below to view general workbench.<br /> <br />"
+                        + emailBaseUrl 
+                        + "/#/home/complaint-management/complaint-handling",
+                        recipients = receipents.ToArray(),
+                    };
+                    await _mailAdapter.SendNotificationMail(mailRequest);
+                }
+                catch (Exception notifyErr)
+                {
+                    _logger.LogError("Exception occurred in  AddComplaint - Notification" + notifyErr);
+                }
                 return CommonResponse.Send(ResponseCodes.SUCCESS,complaintTransferDTO);
             }
             catch (Exception ex)
