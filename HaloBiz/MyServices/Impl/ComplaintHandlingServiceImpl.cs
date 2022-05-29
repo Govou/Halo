@@ -348,6 +348,90 @@ namespace HaloBiz.MyServices.Impl
 
                 _context.Complaints.Update(complaint);
                 await _context.SaveChangesAsync();
+
+                try
+                {
+                    //Send Notifications
+                    switch (currentComplaintStage)
+                    {
+                        case ComplaintStage.Registration:
+                            if (complaint.ComplaintOrigin.Caption.ToLower() == "staff")
+                            {
+                                var complainant = await _context.UserProfiles.FirstOrDefaultAsync(x => x.Id == complaint.ComplainantId);
+                                if (complainant != null)
+                                {
+                                    var staffReceipents = new List<string>()
+                                    {
+                                        complainant.Email
+                                    };
+                                    GenericMailRequest mailRequestStaff = new ()
+                                    {
+                                        subject = "Upon Suucessful Capture Of Assessment Details",
+                                        message = "Assesment of complaint with ticket number <b>#"
+                                        + complaint.TrackingId
+                                        + "</b> has just been completed, it has now been moved to the next stage which is the investigation stage. Here we would determine the root cause of the reported incident.<br /> <br />You may view or track the resolution process and the details by going to the complaint tracking module of the complaint managment application or click on the link below <br /> <br />"
+                                        + model.applicationUrl
+                                        + "/#/home/complaint-management/complaint-tracking",
+                                        recipients = staffReceipents.ToArray(),
+                                    };
+                                    await _mailAdapter.SendNotificationMail(mailRequestStaff);
+                                }
+                            }
+                            else if (complaint.ComplaintOrigin.Caption.ToLower() == "client")
+                            {
+                                var complainant = await _context.CustomerDivisions.FirstOrDefaultAsync(x => x.Id == complaint.ComplainantId);
+                                if (complainant != null)
+                                {
+                                    var clientReceipents = new List<string>()
+                                    {
+                                        complainant.Email
+                                    };
+                                    GenericMailRequest mailRequestClient = new ()
+                                    {
+                                        subject = "Upon Suucessful Capture Of Assessment Details",
+                                        message = "Assesment of complaint with ticket number <b>#"
+                                        + complaint.TrackingId
+                                        + "</b> has just been completed, it has now been moved to the next stage which is the investigation stage. Here we would determin the root cause of the reported incident.<br /> <br /> You may view or track the resolution process and the details by going complaint tracking menu on your app.<br /> <br />",
+                                        recipients = clientReceipents.ToArray(),
+                                    };
+                                    await _mailAdapter.SendNotificationMail(mailRequestClient);
+                                }
+                            }
+                            else if (complaint.ComplaintOrigin.Caption.ToLower() == "supplier")
+                            {
+                                var complainant = await _context.Suppliers.FirstOrDefaultAsync(x => x.Id == complaint.ComplainantId);
+                                if (complainant != null)
+                                {
+                                    var supplierReceipents = new List<string>()
+                                    {
+                                        complainant.SupplierEmail
+                                    };
+                                    GenericMailRequest mailRequestSupplier = new()
+                                    {
+                                        subject = "Upon Suucessful Capture Of Assessment Details",
+                                        message = "Assesment of complaint with ticket number <b>#"
+                                        + complaint.TrackingId
+                                        + "</b> has just been completed, it has now been moved to the next stage which is the investigation stage. Here we would determin the root cause of the reported incident.<br /> <br /> You may view or track the resolution process and the details by going complaint tracking menu on your app.<br /> <br />",
+                                        recipients = supplierReceipents.ToArray(),
+                                    };
+                                    await _mailAdapter.SendNotificationMail(mailRequestSupplier);
+                                }
+                            }
+                            break;
+                        case ComplaintStage.Assesment:
+                            break;
+                        case ComplaintStage.Investigation:
+                            break;
+                        case ComplaintStage.Resolution:
+                            break;
+                        default:
+                            break;
+                    }
+                }
+                catch (Exception errNo)
+                {
+                    _logger.LogError("Exception occurred in  MoveComplaintToNextStage - Notification" + errNo);
+                }
                 return CommonResponse.Send(ResponseCodes.SUCCESS);
             }
             catch(Exception error)
