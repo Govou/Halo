@@ -59,8 +59,8 @@ namespace HaloBiz.Controllers
         [HttpPost("")]
         public async Task<ApiCommonResponse> AddNewComplaint(ComplaintReceivingDTO ComplaintReceiving)
         {
-            string emailBaseUrl = _configuration.GetSection("AppSettings:MailServiceBaseUrl").Value;
-            return await _ComplaintService.AddComplaint(HttpContext, ComplaintReceiving, emailBaseUrl);
+            string applicationBaseUrl = _configuration.GetSection("AppSettings:ApplicationURL").Value;
+            return await _ComplaintService.AddComplaint(HttpContext, ComplaintReceiving, applicationBaseUrl);
         }
 
         [HttpPut("{id}")]

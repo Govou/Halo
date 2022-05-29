@@ -43,7 +43,7 @@ namespace HaloBiz.MyServices.Impl
             _mailAdapter = mailAdapter;
         }
 
-        public async Task<ApiCommonResponse> AddComplaint(HttpContext context, ComplaintReceivingDTO complaintReceivingDTO, string emailBaseUrl)
+        public async Task<ApiCommonResponse> AddComplaint(HttpContext context, ComplaintReceivingDTO complaintReceivingDTO, string applicationBaseUrl)
         {         
             using var transaction = await _context.Database.BeginTransactionAsync();
             try
@@ -102,13 +102,13 @@ namespace HaloBiz.MyServices.Impl
 
                 try 
                 {
-                    //Send Notification
+                    //Send Notifications
                     var escalationMatrix = await _context.EscalationMatrices
                         .Include(x => x.ComplaintAttendants)
                             .ThenInclude(x => x.UserProfile)
                         .FirstOrDefaultAsync(x => x.ComplaintTypeId == complaint.ComplaintTypeId);
                     var receipents = escalationMatrix.ComplaintAttendants.Select(x => x.UserProfile.Email);
-                    GenericMailRequest mailRequest = new GenericMailRequest()
+                    GenericMailRequest mailRequestHandler = new GenericMailRequest()
                     {
                         subject = "Upon Suucessful Registration",
                         message = "A new complaint has just been registered under the complaint type <b>#"
@@ -116,11 +116,80 @@ namespace HaloBiz.MyServices.Impl
                         + "</b> with Ticket number <b>#"
                         + complaint.TrackingId
                         + "</b> <br /> <br /> As one of the handlers of this complaint type, you are expected to go to the general work bench and take ownership of complaints into your personal workbench to commence the resolution process. please go to the complaint handling module on the complaint management application or click on the link below to view general workbench.<br /> <br />"
-                        + emailBaseUrl 
+                        + applicationBaseUrl
                         + "/#/home/complaint-management/complaint-handling",
                         recipients = receipents.ToArray(),
                     };
-                    await _mailAdapter.SendNotificationMail(mailRequest);
+                    await _mailAdapter.SendNotificationMail(mailRequestHandler);
+
+                    if(complaintOrigin.Caption.ToLower() == "staff")
+                    {
+                        var complainant = await _context.UserProfiles.FirstOrDefaultAsync(x => x.Id == complaint.ComplainantId);
+                        if(complainant != null)
+                        {
+                            var staffReceipents = new List<string>()
+                            {
+                                complainant.Email
+                            };
+                            GenericMailRequest mailRequestStaff = new GenericMailRequest()
+                            {
+                                subject = "Upon Suucessful Registration",
+                                message = "A new complaint has just been registered under the complaint type <b>#"
+                                + complaintType.Caption
+                                + "</b> with Ticket number <b>#"
+                                + complaint.TrackingId
+                                + "</b> <br /> <br /> You may view or track the resolution process and the details by going to the complaint tracking module of the complaint managment application or click on the link below.<br /> <br />"
+                                + applicationBaseUrl
+                                + "/#/home/complaint-management/complaint-tracking",
+                                        recipients = receipents.ToArray(),
+                             };
+                            await _mailAdapter.SendNotificationMail(mailRequestStaff);
+                        }
+                    }
+                    else if(complaintOrigin.Caption.ToLower() == "client")
+                    {
+                        var complainant = await _context.CustomerDivisions.FirstOrDefaultAsync(x => x.Id == complaint.ComplainantId);
+                        if (complainant != null)
+                        {
+                            var staffReceipents = new List<string>()
+                            {
+                                complainant.Email
+                            };
+                            GenericMailRequest mailRequestStaff = new GenericMailRequest()
+                            {
+                                subject = "Upon Suucessful Registration",
+                                message = "A new complaint has just been registered under the complaint type <b>#"
+                                + complaintType.Caption
+                                + "</b> with Ticket number <b>#"
+                                + complaint.TrackingId
+                                + "</b> <br /> <br /> You may view or track the resolution process and the details by going complaint tracking menu on your app.<br /> <br />",
+                                recipients = receipents.ToArray(),
+                            };
+                            await _mailAdapter.SendNotificationMail(mailRequestStaff);
+                        }
+                    }
+                    else if (complaintOrigin.Caption.ToLower() == "supplier")
+                    {
+                        var complainant = await _context.Suppliers.FirstOrDefaultAsync(x => x.Id == complaint.ComplainantId);
+                        if (complainant != null)
+                        {
+                            var staffReceipents = new List<string>()
+                            {
+                                complainant.SupplierEmail
+                            };
+                            GenericMailRequest mailRequestStaff = new GenericMailRequest()
+                            {
+                                subject = "Upon Suucessful Registration",
+                                message = "A new complaint has just been registered under the complaint type <b>#"
+                                + complaintType.Caption
+                                + "</b> with Ticket number <b>#"
+                                + complaint.TrackingId
+                                + "</b> <br /> <br /> You may view or track the resolution process and the details by going complaint tracking menu on your app.<br /> <br />",
+                                recipients = receipents.ToArray(),
+                            };
+                            await _mailAdapter.SendNotificationMail(mailRequestStaff);
+                        }
+                    }
                 }
                 catch (Exception notifyErr)
                 {
