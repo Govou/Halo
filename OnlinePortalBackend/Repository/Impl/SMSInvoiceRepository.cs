@@ -2,9 +2,11 @@
 using Halobiz.Common.DTOs.TransferDTOs;
 using HalobizMigrations.Data;
 using HalobizMigrations.Models;
+using HalobizMigrations.Models.OnlinePortal;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using OnlinePortalBackend.DTOs.ReceivingDTOs;
 using OnlinePortalBackend.DTOs.TransferDTOs;
 using OnlinePortalBackend.Helpers;
 using System;
@@ -535,6 +537,39 @@ namespace OnlinePortalBackend.Repository.Impl
             }
 
             return (false, "failed");
+        }
+
+        public async Task<bool> PostTransactions(PostTransactionDTO request)
+        {
+            _context.OnlineTransactions.Add(new OnlineTransaction
+            {
+                CreatedAt = DateTime.UtcNow.AddHours(1),
+                UpdatedAt = DateTime.UtcNow.AddHours(1),
+                VAT = request.VAT,
+                Value = request.Value,
+                CreatedById = request.ProfileId,
+                TransactionType = request.TransactionType,
+                PaymentGateway = request?.PaymentGateway,
+                PaymentGatewayResponseDescription = request.PaymentGatewayResponseDescription,
+                PaymentGatewayResponseCode = request.PaymentGatewayResponseCode,
+                PaymentReferenceInternal = request.PaymentReferenceInternal,
+                PaymentReferenceGateway = request.PaymentReferenceGateway,
+                TotalValue = request.Value + request.VAT,
+                SessionId = request.SessionId,
+                ProfileId = request.ProfileId
+            });
+
+            try
+            {
+                await _context.SaveChangesAsync();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.Message);
+                _logger.LogError(ex.StackTrace);
+                return false;
+            }
         }
     }
 }

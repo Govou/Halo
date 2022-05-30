@@ -31,6 +31,7 @@ namespace OnlinePortalBackend.Controllers.SecureMobilitySales
             return await _walletService.LoadWallet(request);
         }
 
+
         [HttpPost("WalletLogin")]
         public async Task<ApiCommonResponse> WalletLogin(WalletLoginDTO request)
         {
@@ -54,6 +55,13 @@ namespace OnlinePortalBackend.Controllers.SecureMobilitySales
         public async Task<ApiCommonResponse> GetWalletActivationStatus(int profileId)
         {
             return await _walletService.GetWalletActivationStatus(profileId);
+        }
+
+
+        [HttpGet("GetWalletTransactionHistory")]
+        public async Task<ApiCommonResponse> GetWalletTransactionHistory(int profileId)
+        {
+            return await _walletService.GetWalletTransactionHistory(profileId);
         }
     }
 }

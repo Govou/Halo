@@ -3,6 +3,7 @@ using Halobiz.Common.DTOs.ReceivingDTOs;
 using Halobiz.Common.DTOs.TransferDTOs;
 using Halobiz.Common.Helpers;
 using HalobizMigrations.Models;
+using OnlinePortalBackend.DTOs.ReceivingDTOs;
 using OnlinePortalBackend.DTOs.TransferDTOs;
 using OnlinePortalBackend.Helpers;
 using OnlinePortalBackend.Repository;
@@ -72,6 +73,17 @@ namespace OnlinePortalBackend.MyServices.SecureMobilitySales
             var result = await _invoiceRepo.GetInvoice(profileId);
 
             if (!result.isSuccess)
+            {
+                return CommonResponse.Send(ResponseCodes.FAILURE); ;
+            }
+            return CommonResponse.Send(ResponseCodes.SUCCESS, result);
+        }
+
+        public async Task<ApiCommonResponse> PostTransactions(PostTransactionDTO request)
+        {
+            var result = await _invoiceRepo.PostTransactions(request);
+
+            if (!result)
             {
                 return CommonResponse.Send(ResponseCodes.FAILURE); ;
             }
