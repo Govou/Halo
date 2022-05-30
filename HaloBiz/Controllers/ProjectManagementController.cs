@@ -358,7 +358,7 @@ namespace HaloBiz.Controllers
 
         public async Task<ApiCommonResponse> GetAllWorkspaceForProjectCreator()
         {
-            return await _projectAllocationService.getWorkByProjectCreatorId(HttpContext);
+            return await _projectAllocationService.getAllProjectCreatorsWorkspacesRevamped(HttpContext);
 
         }
 
@@ -669,6 +669,13 @@ namespace HaloBiz.Controllers
         public async Task<ActionResult> GetAllMileStoneTask()
         {
             var response = await _projectAllocationService.getAllMilestoneTaskForWatcher(HttpContext);
+            return Ok(response);
+        }
+        
+        [HttpGet("GetAllMileStoneTaskDueToday")]
+        public async Task<ActionResult> GetAllMileStoneTaskDueToday()
+        {
+            var response = await _projectAllocationService.getAllMilestoneTaskDueTodayForWatcher(HttpContext);
             return Ok(response);
         }
 
