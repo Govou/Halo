@@ -372,6 +372,7 @@ namespace HaloBiz.Helpers
 
             CreateMap<ServiceRegistrationReceivingDTO, ServiceRegistration>();
             CreateMap<ServiceRegistration, ServiceRegistrationTransferDTO>();
+            CreateMap<ServiceRegistration, BusinessRuleServiceRegTransferDTO>();
 
             CreateMap<BusinessRuleReceivingDTO, BusinessRule>();
             CreateMap<BusinessRule, BusinessRuleTransferDTO>();

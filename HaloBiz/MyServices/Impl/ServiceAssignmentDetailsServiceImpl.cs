@@ -852,9 +852,9 @@ namespace HaloBiz.MyServices.Impl
                         if (getPilotDetailListById.Count() == 0)
                         {
                             master.IsTemporarilyHeld = true;
-                            master.DateTemporarilyHeld = DateTime.UtcNow;
+                            master.DateTemporarilyHeld = DateTime.Now;
                             master.IsHeldForAction = true;
-                            master.DateHeldForAction = DateTime.UtcNow;
+                            master.DateHeldForAction = DateTime.Now;
                             master.RequiredCount = getPilotDetailListById.Count() + 1;
                             //master.RequiredCount = (int)getPilotDetail.ServiceAssignment.ServiceRegistration.PilotQuantityRequired;
                             master.CreatedById = context.GetLoggedInUserId();
