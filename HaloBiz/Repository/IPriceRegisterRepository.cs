@@ -1,4 +1,5 @@
-﻿using HalobizMigrations.Models.Armada;
+﻿using HalobizMigrations.Models;
+using HalobizMigrations.Models.Armada;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,6 +16,7 @@ namespace HaloBiz.Repository
         Task<IEnumerable<PriceRegister>> FindAllPriceRegisters();
 
         Task<IEnumerable<PriceRegister>> FindAllPriceRegistersWithByRouteId(long routeId);
+        Task<IEnumerable<PriceRegister>> FindAllPriceRegistersWithByRouteId_(long? routeId, long? categoryId);
         Task<IEnumerable<PriceRegister>> FindAllPriceRegistersWithByServiceCategoryId(long categoryId);
 
         //PriceRegister GetServiceRegIdRegionAndRoute(long regServiceId, long RouteId, long RegionId);

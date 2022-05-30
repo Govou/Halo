@@ -30,6 +30,7 @@ namespace HaloBiz.MyServices
         Task<ApiCommonResponse> GetApprovalsByContractId(long contractId);
         Task<ApiCommonResponse> GetPendingApprovalsByContractId(long contractId);
         Task<ApiCommonResponse> ApprovalOrDispproveContractService(HttpContext context, ContractApprovalDTO dto);
+        Task<ApiCommonResponse> GetApprovingLevelOfficeData(HttpContext context);
 
     }
 }

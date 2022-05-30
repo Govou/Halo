@@ -20,6 +20,7 @@ namespace HaloBiz.MyServices
         Task<ApiCommonResponse> UpdateArmedEscortDetail(HttpContext context, long id, ArmedEscortServiceAssignmentDetailsReceivingDTO armedEscortReceivingDTO);
         Task<ApiCommonResponse> DeleteArmedEscortDetail(long id);
         Task<ApiCommonResponse> UpdateArmedEscortDetailHeldForActionByAssignmentId(long id);
+        Task<ApiCommonResponse> UpdateServiceDetailsHeldForActionAndReadyStatusForOnlineByAssignmentId(long[] id);
         Task<ApiCommonResponse> UpdateServiceDetailsHeldForActionAndReadyStatusByAssignmentId(long id);
 
         //Commander

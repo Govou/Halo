@@ -22,7 +22,7 @@ namespace HaloBiz.MyServices
         Task<ApiCommonResponse> GetAllSMORoutesByName(string routeName);
 
         //Task<ApiCommonResponse> GetAllSMORouteAndRegions();
-      //  Task<ApiCommonResponse> GetAllSMORoutesWithReturnRoute();
+        Task<ApiCommonResponse> GetAllSMORoutesWithReturnRoute();
         Task<ApiCommonResponse> DeleteSMORoute(long id);
 
         ////Region

@@ -30,6 +30,7 @@ namespace OnlinePortalBackend.MyServices
         Task<ApiCommonResponse> SendConfirmCodeToClient_v2(string Email);
         Task<ApiCommonResponse> CreateAccount(CreatePasswordDTO user);
         Task<ApiCommonResponse> Login(LoginDTO user);
+        Task<ApiCommonResponse> Login_v2(LoginDTO user);
         Task<ApiCommonResponse> VerifyCode(CodeVerifyModel model);
     }
 
@@ -57,7 +58,6 @@ namespace OnlinePortalBackend.MyServices
             _jwttHelper = jwtHelper;
             _context = context;
             _memoryCache = memoryCache;
-
         }
       
 
@@ -124,8 +124,6 @@ namespace OnlinePortalBackend.MyServices
             try
             {
                 var response = await _context.OnlineProfiles.Where(x=>x.Email==Email).FirstOrDefaultAsync();
-
-               
 
                 //check if this customer division has an email
                 if (!_context.LeadDivisions.Any(x => x.Email == Email))
@@ -367,7 +365,102 @@ namespace OnlinePortalBackend.MyServices
             }
         }
 
-       
+        public async Task<ApiCommonResponse> Login_v2(LoginDTO user)
+        {
+            try
+            {
+                var profile = await _context.OnlineProfiles.Where(x => x.Email == user.Email).FirstOrDefaultAsync();
+                if (profile == null)
+                {
+                    return CommonResponse.Send(ResponseCodes.FAILURE, null, "No user with this email");
+                }
+
+                if (!profile.EmailConfirmed)
+                {
+                    return CommonResponse.Send(ResponseCodes.FAILURE, null, "User yet to verify email");
+                }
+
+                //check if this account is locked
+                var (isLocked, timeLeft) = IsAccountLocked(user.Email);
+                if (isLocked)
+                {
+                    return CommonResponse.Send(ResponseCodes.FAILURE, null, $"Account locked. Please try again in {timeLeft.ToString("#.##")} minutes");
+                }
+
+                var byteSalt = Convert.FromBase64String(profile.SecurityStamp);
+                var (salt, hashed) = HashPassword(byteSalt, user.Password);
+                if (!_context.OnlineProfiles.Any(x => x.Email == user.Email && x.PasswordHash == hashed))
+                {
+                    profile.AccessFailedCount = ++profile.AccessFailedCount;
+                    if (profile.AccessFailedCount >= 3)
+                    {
+                        LockAccount(user.Email);
+                    }
+
+                    await _context.SaveChangesAsync();
+
+                    return CommonResponse.Send(ResponseCodes.FAILURE, null, "Username or password is incorrect");
+                }
+
+                var jwtToken = _jwttHelper.GenerateToken(profile);
+
+                var mappedProfile = new OnlineProfileTransferDetailDTO
+                {
+                    AccessFailedCount = profile.AccessFailedCount,
+                    CustomerDivisionId = profile.CustomerDivisionId,
+                    Email = user.Email,
+                    LockoutEnabled = profile.LockoutEnabled,
+                    Name = profile.Name,
+                    Id = profile.Id,
+                    
+                };
+                var contract = _context.Contracts.Where(x => x.CustomerDivisionId == profile.CustomerDivisionId).OrderByDescending(x => x.Id).FirstOrDefault();
+                var profileContractDetails = new List<ProfileContractDetail>();
+
+                if (contract != null)
+                {
+                    var profileContractDetail = new ProfileContractDetail { ContractId = contract.Id };
+                    var profileContractServiceDetails = new List<ProfileContractServiceDetail>();
+                    var contratcServices = _context.ContractServices.Where(x => x.ContractId == contract.Id).ToList();
+
+                    foreach (var item in contratcServices)
+                    {
+                        profileContractServiceDetails.Add(new ProfileContractServiceDetail
+                        {
+                            ContractServiceId = item.Id,
+                            ServiceId = item.ServiceId,
+                        });
+                    }
+                    profileContractDetails.Add(new ProfileContractDetail
+                    {
+                        ContractId = contract.Id,
+                        ContractServices = profileContractServiceDetails
+                    });
+
+                }
+
+
+
+
+                mappedProfile.ProfileContractDetail = profileContractDetails;
+                //reset the access failed count
+                profile.AccessFailedCount = 0;
+                await _context.SaveChangesAsync();
+
+                return CommonResponse.Send(ResponseCodes.SUCCESS, new
+                {
+                    Token = jwtToken,
+                    UserProfile = mappedProfile
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.StackTrace);
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, ex.Message);
+            }
+        }
+
+
         private static (byte[], string) HashPassword(byte[] salt, string password)
         {
             // generate a 128-bit salt using a cryptographically strong random sequence of nonzero values
@@ -390,9 +483,6 @@ namespace OnlinePortalBackend.MyServices
 
             return (salt, hashed);
         }
-
        
     }
-
-    
 }

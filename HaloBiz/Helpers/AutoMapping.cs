@@ -45,6 +45,7 @@ namespace HaloBiz.Helpers
         {
             CreateMap<ServiceRelationship, ServiceRelationshipDTO>();
             CreateMap<Service, ServicesLeanformatDTO>();
+            CreateMap<Service, ServiceCategoryForRetailTransferDTO>();
             CreateMap<State, StateTransferDTO>();    
             CreateMap<Lga, LGATransferDTO>();
            
@@ -85,6 +86,7 @@ namespace HaloBiz.Helpers
             CreateMap<ServiceCategoryReceivingDTO, ServiceCategory>();
             CreateMap<ServiceCategory, ServiceCategoryTransferDTO>();
             CreateMap<ServiceCategory, ServiceCategoryWithoutServiceTransferDTO>();
+            CreateMap<ServiceCategory, serviceCategoryTransferDTO>();
             CreateMap<Service, ServiceTransferDTO>()
                 .ForMember(dest => dest.RequiredServiceDocument, opt => 
                 opt.MapFrom(src => src.ServiceRequiredServiceDocuments.GetListOfRequiredDocuments()))
@@ -322,12 +324,15 @@ namespace HaloBiz.Helpers
             CreateMap<Lga, LgasTransferDTO>();
 
             //yus
+            //SMO
             CreateMap<SMORouteReceivingDTO, SMORoute>();
             CreateMap<SMORoute, SMORouteTransferDTO>();
+            CreateMap<SMORoute, SMORouteTransferDTO_>();
             CreateMap<SMOReturnRouteReceivingDTO, SMOReturnRoute>();
             CreateMap<SMOReturnRoute, SMOReturnRouteTransferDTO>();
             CreateMap<SMORegionReceivingDTO, SMORegion>();
             CreateMap<SMORegion, SMORegionTransferDTO>();
+            CreateMap<SMORegion, SMORegionTransferDTO_>();
 
             CreateMap<SMORegion, SMORouteRegionTransferDTO>();
             CreateMap<SMORoute, SMORouteRegionTransferDTO>();
@@ -381,6 +386,7 @@ namespace HaloBiz.Helpers
 
             CreateMap<PriceRegisterReceivingDTO, PriceRegister>();
             CreateMap<PriceRegister, PriceRegisterTransferDTO>();
+            CreateMap<PriceRegister, MasterServiceAssignmentWithRegisterTransferDTO>();
 
             CreateMap<RegServicesResourceTypesReceivingDTO.CommanderTypeRegReceivingDTO, CommanderResourceRequiredPerService>();
             CreateMap<RegServicesResourceTypesReceivingDTO.PilotTypeRegReceivingDTO, PilotResourceRequiredPerService>();
@@ -444,6 +450,7 @@ namespace HaloBiz.Helpers
             CreateMap<MasterServiceAssignmentReceivingDTO, MasterServiceAssignment>();
             CreateMap<MasterServiceAssignmentForAutoReceivingDTO, MasterServiceAssignment>();
             CreateMap<MasterServiceAssignment, MasterServiceAssignmentTransferDTO>();
+            CreateMap<MasterServiceAssignment, MasterServiceAssignmentWithRegisterTransferDTO>();
             CreateMap<SecondaryServiceAssignmentReceivingDTO, SecondaryServiceAssignment>();
             CreateMap<SecondaryServiceAssignment, SecondaryServiceAssignmentTransferDTO>();
 
@@ -514,6 +521,8 @@ namespace HaloBiz.Helpers
             //OnlineLocationFav
             CreateMap<OnlineLocationFavoriteReceivingDTO, OnlineLocationFavourite>();
             CreateMap<OnlineLocationFavourite, OnlineLocationFavoriteTransferDTO>();
+            CreateMap<ApprovingLevelOffice, ApprovingLevelOfficeTransferDTO>();
+            CreateMap<ApprovingLevelOfficer, ApprovingLevelOfficerTransferDTO>();
         }
     }
 }

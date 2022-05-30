@@ -206,6 +206,23 @@ namespace HaloBiz.Repository.Impl
 
         }
 
+        public IEnumerable<Service> FindAllSecuredMobilityCategoryServices()
+        {
+
+            List<Service> services = new List<Service>();
+            var _agencies = _configuration.GetSection("AppSettings:ServiceCodes").Get<string[]>().ToList();
+            var quuery = _context.Services
+            .Include(service => service.ServiceCategory)
+             .Where(service => service.IsDeleted == false && service.PublishedApprovedStatus == true);
+
+            foreach (var items in _agencies)
+            {
+                services.AddRange(quuery.Where(x => x.ServiceCode.Contains(items)));
+            }
+            return services.DistinctBy(x=>x.ServiceCategoryId).ToList();
+
+        }
+
         public async Task<IEnumerable<Service>> FindOnlinePortalServices()
         {
             var services = await _context.Services.Where(x => !x.IsDeleted.Value && x.CanBeSoldOnline == true).ToListAsync();

@@ -34,6 +34,20 @@ namespace HaloBiz.Controllers
            
         }
 
+        [HttpGet("GetAllServiceAssignmentMastersAddedToCartByClientId/{clientId}")]
+        public async Task<ApiCommonResponse> GetAllServiceAssignmentMastersAddedToCartByClientId(long clientId)
+        {
+            return await _masterServiceAssignmentService.GetAllMasterServiceAssignmentsByClientId(clientId);
+
+        }
+
+        [HttpGet("GetAllServiceAssignmentMastersScheduleAddedToCartByClientId/{clientId}")]
+        public async Task<ApiCommonResponse> GetAllServiceAssignmentMastersScheduleAddedToCartByClientId(long clientId)
+        {
+            return await _masterServiceAssignmentService.GetAllMasterServiceAssignmentsForScheduleCartByClientId(clientId);
+
+        }
+
         [HttpGet("GetAllScheduledServiceAssignmentMasters")]
         public async Task<ApiCommonResponse> GetAllScheduledServiceAssignmentMasters()
         {
@@ -97,8 +111,20 @@ namespace HaloBiz.Controllers
         public async Task<ApiCommonResponse> UpdateServiceAssignmentMasterById(long id, MasterServiceAssignmentReceivingDTO ReceivingDTO)
         {
             return await _masterServiceAssignmentService.UpdateMasterServiceAssignment(HttpContext, id, ReceivingDTO);
-           
         }
+
+        [HttpPut("UpdateisAddedToCartStatusById/{id}")]
+        public async Task<ApiCommonResponse> UpdateisAddedToCartStatusById(long id)
+        {
+            return await _masterServiceAssignmentService.UpdateisAddedToCartStatus(id);
+        }
+
+        [HttpPut("UpdateisPaidForStatusById/{id}")]
+        public async Task<ApiCommonResponse> UpdateisPaidForStatusById(long id)
+        {
+            return await _masterServiceAssignmentService.UpdateisPaidForStatus(id);
+        }
+
 
         [HttpDelete("DeleteServiceAssignmentMasterById/{id}")]
         public async Task<ApiCommonResponse> DeleteServiceAssignmentMasterById(int id)

@@ -46,7 +46,6 @@ namespace HaloBiz.Repository.Impl
         {
             return await _context.CommanderSMORoutesResourceTies.Where(ct => ct.IsDeleted == false)
                .Include(ct => ct.Resource)
-               .Include(ct => ct.Resource.AttachedBranch).Include(ct => ct.Resource.AttachedOffice)
                .Include(ct => ct.SMORegion).Include(ct => ct.Resource.CommanderType).Include(s=>s.SMORoute)
                .Include(s=>s.Resource.Profile)
                           .ToListAsync();
@@ -56,7 +55,6 @@ namespace HaloBiz.Repository.Impl
         {
             return await _context.CommanderSMORoutesResourceTies.Where(ct => ct.IsDeleted == false && ct.ResourceId == resourceId)
               .Include(ct => ct.Resource)
-              .Include(ct => ct.Resource.AttachedBranch).Include(ct => ct.Resource.AttachedOffice)
               .Include(ct => ct.SMORegion).Include(ct => ct.Resource.CommanderType).Include(s => s.SMORoute)
               .Include(s => s.Resource.Profile)
                          .ToListAsync();

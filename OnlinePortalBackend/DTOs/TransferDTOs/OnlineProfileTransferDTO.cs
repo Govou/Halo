@@ -17,4 +17,29 @@ namespace OnlinePortalBackend.DTOs.TransferDTOs
         public long CustomerDivisionId { get; set; }
         public CustomerDivision CustomerDivision { get; set; }
     }
+
+    public class OnlineProfileTransferDetailDTO
+    {
+        public long Id { get; set; }
+        public string Name { get; set; }
+        public string Email { get; set; }
+        public bool LockoutEnabled { get; set; } = false;
+        public int AccessFailedCount { get; set; } = 0;
+        public long? CustomerDivisionId { get; set; }
+        public List<ProfileContractDetail> ProfileContractDetail { get; set; }
+
+    }
+
+    public class ProfileContractDetail
+    {
+        public long ContractId { get; set; }
+        public List<ProfileContractServiceDetail> ContractServices { get; set; }
+
+    }
+
+    public class ProfileContractServiceDetail
+    {
+        public long ContractServiceId { get; set; }
+        public long ServiceId { get; set; }
+    }
 }

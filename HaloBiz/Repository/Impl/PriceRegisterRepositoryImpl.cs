@@ -1,4 +1,5 @@
 ﻿using HalobizMigrations.Data;
+using HalobizMigrations.Models;
 using HalobizMigrations.Models.Armada;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -38,12 +39,37 @@ namespace HaloBiz.Repository.Impl
         {
             return await _context.PriceRegisters.Where(price => price.IsDeleted == false && price.SMORouteId == routeId)
                 .Include(price => price.ServiceRegistration).Include(price => price.ServiceRegistration.Service).Include(price => price.ServiceRegistration.Service.ServiceCategory)
-                .Include(price => price.SMORegion).Include(price => price.SMORoute).Include(price => price.CreatedBy).OrderByDescending(x=>x.Id)
+                .Include(price => price.SMORegion).Include(price => price.SMORoute).OrderByDescending(x=>x.Id)
                 .ToListAsync();
+        }
+
+        public async Task<IEnumerable<PriceRegister>> FindAllPriceRegistersWithByRouteId_(long? routeId, long? categoryId)
+        {
+            //long? routeId = null;
+            //long? categoryId = null;
+           // var priReg = new List<PriceRegister>();
+            IQueryable<PriceRegister> query = _context.PriceRegisters
+                .Include(x => x.ServiceRegistration)
+                    .ThenInclude(x => x.Service);
+            if (routeId.HasValue)
+                query = query.Where(x => x.SMORouteId == routeId);
+            if (categoryId.HasValue)
+                query = query.Where(x => x.ServiceRegistration.Service.ServiceCategoryId == categoryId);
+
+            //var result = a
+            //var result = await query.Select(x => x.ServiceRegistration.Service).ToListAsync();
+            var result = await query.ToListAsync();
+            //.ToListAsync();
+
+            return result;
         }
 
         public async Task<IEnumerable<PriceRegister>> FindAllPriceRegistersWithByServiceCategoryId(long categoryId)
         {
+            //return await _context.PriceRegisters.Where(price => price.IsDeleted == false && price.ServiceRegistrationId == categoryId)
+            // .Include(price => price.ServiceRegistration)
+            // .OrderByDescending(x => x.Id)
+            // .ToListAsync();
             return await _context.PriceRegisters.Where(price => price.IsDeleted == false && price.ServiceRegistration.Service.ServiceCategoryId == categoryId)
                .Include(price => price.ServiceRegistration).Include(price => price.ServiceRegistration.Service)
                .OrderByDescending(x => x.Id)

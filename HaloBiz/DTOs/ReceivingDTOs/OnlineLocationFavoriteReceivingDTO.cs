@@ -7,7 +7,7 @@ namespace HaloBiz.DTOs.ReceivingDTOs
 {
     public class OnlineLocationFavoriteReceivingDTO
     {
-      
+        public string Title { get; set; }
         public string LocationGeometry { get; set; }
         public double LocationLatitude { get; set; }
         public double LocationLongitude { get; set; }
