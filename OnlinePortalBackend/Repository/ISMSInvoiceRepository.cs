@@ -1,5 +1,6 @@
 ﻿using Halobiz.Common.DTOs.ReceivingDTOs;
 using Halobiz.Common.DTOs.TransferDTOs;
+using OnlinePortalBackend.DTOs.ReceivingDTOs;
 using OnlinePortalBackend.DTOs.TransferDTOs;
 using System.Threading.Tasks;
 
@@ -11,5 +12,6 @@ namespace OnlinePortalBackend.Repository
         Task<(bool isSuccess, object message)> ReceiptInvoice(SMSReceiptReceivingDTO request);
         Task<SendReceiptDTO> GetReceiptDetail(string invoiceNumber);
         Task<(bool isSuccess, string message)> ReceiptAllInvoicesForContract(SMSReceiptInvoiceForContractDTO request);
+        Task<bool> PostTransactions(PostTransactionDTO request);
     }
 }
