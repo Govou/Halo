@@ -307,8 +307,9 @@ namespace HaloBiz.Controllers
             return await _serviceAssignmentDetailsService.UpdateServiceDetailsHeldForActionAndReadyStatusByAssignmentId( id);
         }
 
-        [HttpGet("UpdateServiceDetailsHeldForActionAndReadyStatusForOnlineByAssignmentId")]
-        public async Task<ApiCommonResponse> UpdateServiceDetailsHeldForActionAndReadyStatusForOnlineByAssignmentId([FromQuery]long[] id)
+        [HttpPost("UpdateServiceDetailsHeldForActionAndReadyStatusForOnlineByAssignmentId")]
+        //public async Task<ApiCommonResponse> UpdateServiceDetailsHeldForActionAndReadyStatusForOnlineByAssignmentId([FromQuery]long[] id)
+        public async Task<ApiCommonResponse> UpdateServiceDetailsHeldForActionAndReadyStatusForOnlineByAssignmentId(long[] id)
         {
             return await _serviceAssignmentDetailsService.UpdateServiceDetailsHeldForActionAndReadyStatusForOnlineByAssignmentId(id);
         }
