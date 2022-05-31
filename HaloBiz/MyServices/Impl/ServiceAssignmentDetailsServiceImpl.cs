@@ -1984,11 +1984,11 @@ namespace HaloBiz.MyServices.Impl
                     transaction.Rollback();
                     return CommonResponse.Send(ResponseCodes.FAILURE, null, "Ready Status couldn't be updated");
                 }
-                //if (!await _serviceAssignmentMasterRepository.UpdateisPaidForStatus(itemToUpdate))
-                //{
-                //    transaction.Rollback();
-                //    return CommonResponse.Send(ResponseCodes.FAILURE, null, "is paid For Status couldn't be updated");
-                //}
+                if (!await _serviceAssignmentMasterRepository.UpdateisPaidForStatus(itemToUpdate))
+                {
+                    transaction.Rollback();
+                    return CommonResponse.Send(ResponseCodes.FAILURE, null, "is paid For Status couldn't be updated");
+                }
 
 
 

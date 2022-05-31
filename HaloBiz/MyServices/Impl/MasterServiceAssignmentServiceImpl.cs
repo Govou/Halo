@@ -1072,6 +1072,16 @@ namespace HaloBiz.MyServices.Impl
             return CommonResponse.Send(ResponseCodes.SUCCESS);
         }
 
+        public async Task<ApiCommonResponse> GetAllCompletedTripsByClientId(long clientId)
+        {
+            var master = await _serviceAssignmentMasterRepository.FindAllCompletedTripsByClientId(clientId);
+            if (master == null)
+            {
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);
+            }
+            return CommonResponse.Send(ResponseCodes.SUCCESS, master.Count(), ResponseMessage.Success200);
+        }
+
         public async Task<ApiCommonResponse> GetAllCustomerDivisions()
         {
             var CustomerDivisions = await _serviceAssignmentMasterRepository.FindAllCustomerDivision();

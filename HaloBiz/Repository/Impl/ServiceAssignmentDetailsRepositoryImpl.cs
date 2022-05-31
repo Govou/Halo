@@ -706,7 +706,7 @@ namespace HaloBiz.Repository.Impl
         public async Task<bool> UpdateVehicleServiceAssignmentDetailHeldByAssignmentId(VehicleServiceAssignmentDetail serviceAssignmentDetail)
         {
             serviceAssignmentDetail.IsHeldForAction = true;
-            serviceAssignmentDetail.DateHeldForAction = DateTime.UtcNow;
+            serviceAssignmentDetail.DateHeldForAction = DateTime.Now;
             _context.VehicleServiceAssignmentDetails.Update(serviceAssignmentDetail);
             return await SaveChanges();
         }
