@@ -107,7 +107,8 @@ namespace HaloBiz.MyServices.Impl
                         .Include(x => x.ComplaintAttendants)
                             .ThenInclude(x => x.UserProfile)
                         .FirstOrDefaultAsync(x => x.ComplaintTypeId == complaint.ComplaintTypeId);
-                    var receipents = escalationMatrix.ComplaintAttendants.Select(x => x.UserProfile.Email);
+                    var receipents = escalationMatrix.ComplaintAttendants.Select(x => x.UserProfile.Email).ToList();
+                    receipents.Add(context.GetLoggedInUserEmail());
                     GenericMailRequest mailRequestHandler = new GenericMailRequest()
                     {
                         subject = "Suucessful Registration",
@@ -129,7 +130,8 @@ namespace HaloBiz.MyServices.Impl
                         {
                             var staffReceipents = new List<string>()
                             {
-                                complainant.Email
+                                complainant.Email,
+                                context.GetLoggedInUserEmail()
                             };
                             GenericMailRequest mailRequestStaff = new ()
                             {
@@ -153,7 +155,8 @@ namespace HaloBiz.MyServices.Impl
                         {
                             var clientReceipents = new List<string>()
                             {
-                                complainant.Email
+                                complainant.Email,
+                                context.GetLoggedInUserEmail()
                             };
                             GenericMailRequest mailRequestClient = new ()
                             {
@@ -175,7 +178,8 @@ namespace HaloBiz.MyServices.Impl
                         {
                             var supplierReceipents = new List<string>()
                             {
-                                complainant.SupplierEmail
+                                complainant.SupplierEmail,
+                                context.GetLoggedInUserEmail()
                             };
                             GenericMailRequest mailRequestSupplier = new ()
                             {

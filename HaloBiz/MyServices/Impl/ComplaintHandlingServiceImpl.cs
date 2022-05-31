@@ -362,7 +362,8 @@ namespace HaloBiz.MyServices.Impl
                                 {
                                     var staffReceipents = new List<string>()
                                     {
-                                        complainant.Email
+                                        complainant.Email,
+                                        context.GetLoggedInUserEmail()
                                     };
                                     GenericMailRequest mailRequestStaff = new ()
                                     {
@@ -384,7 +385,8 @@ namespace HaloBiz.MyServices.Impl
                                 {
                                     var clientReceipents = new List<string>()
                                     {
-                                        complainant.Email
+                                        complainant.Email,
+                                        context.GetLoggedInUserEmail()
                                     };
                                     GenericMailRequest mailRequestClient = new ()
                                     {
@@ -404,7 +406,8 @@ namespace HaloBiz.MyServices.Impl
                                 {
                                     var supplierReceipents = new List<string>()
                                     {
-                                        complainant.SupplierEmail
+                                        complainant.SupplierEmail,
+                                        context.GetLoggedInUserEmail()
                                     };
                                     GenericMailRequest mailRequestSupplier = new()
                                     {
@@ -426,7 +429,8 @@ namespace HaloBiz.MyServices.Impl
                                 {
                                     var staffReceipents = new List<string>()
                                     {
-                                        complainant.Email
+                                        complainant.Email,
+                                        context.GetLoggedInUserEmail()
                                     };
                                     GenericMailRequest mailRequestStaff = new()
                                     {
@@ -448,7 +452,8 @@ namespace HaloBiz.MyServices.Impl
                                 {
                                     var clientReceipents = new List<string>()
                                     {
-                                        complainant.Email
+                                        complainant.Email,
+                                        context.GetLoggedInUserEmail()
                                     };
                                     GenericMailRequest mailRequestClient = new()
                                     {
@@ -468,7 +473,8 @@ namespace HaloBiz.MyServices.Impl
                                 {
                                     var supplierReceipents = new List<string>()
                                     {
-                                        complainant.SupplierEmail
+                                        complainant.SupplierEmail,
+                                        context.GetLoggedInUserEmail()
                                     };
                                     GenericMailRequest mailRequestSupplier = new()
                                     {
@@ -490,7 +496,8 @@ namespace HaloBiz.MyServices.Impl
                                 {
                                     var staffReceipents = new List<string>()
                                     {
-                                        complainant.Email
+                                        complainant.Email,
+                                        context.GetLoggedInUserEmail()
                                     };
                                     GenericMailRequest mailRequestStaff = new()
                                     {
@@ -512,7 +519,8 @@ namespace HaloBiz.MyServices.Impl
                                 {
                                     var clientReceipents = new List<string>()
                                     {
-                                        complainant.Email
+                                        complainant.Email,
+                                        context.GetLoggedInUserEmail()
                                     };
                                     GenericMailRequest mailRequestClient = new()
                                     {
@@ -532,7 +540,8 @@ namespace HaloBiz.MyServices.Impl
                                 {
                                     var supplierReceipents = new List<string>()
                                     {
-                                        complainant.SupplierEmail
+                                        complainant.SupplierEmail,
+                                        context.GetLoggedInUserEmail()
                                     };
                                     GenericMailRequest mailRequestSupplier = new()
                                     {
@@ -554,7 +563,8 @@ namespace HaloBiz.MyServices.Impl
                                 {
                                     var staffReceipents = new List<string>()
                                     {
-                                        complainant.Email
+                                        complainant.Email,
+                                        context.GetLoggedInUserEmail()
                                     };
                                     GenericMailRequest mailRequestStaff = new()
                                     {
@@ -576,7 +586,8 @@ namespace HaloBiz.MyServices.Impl
                                 {
                                     var clientReceipents = new List<string>()
                                     {
-                                        complainant.Email
+                                        complainant.Email,
+                                        context.GetLoggedInUserEmail()
                                     };
                                     GenericMailRequest mailRequestClient = new()
                                     {
@@ -596,7 +607,8 @@ namespace HaloBiz.MyServices.Impl
                                 {
                                     var supplierReceipents = new List<string>()
                                     {
-                                        complainant.SupplierEmail
+                                        complainant.SupplierEmail,
+                                        context.GetLoggedInUserEmail()
                                     };
                                     GenericMailRequest mailRequestSupplier = new()
                                     {

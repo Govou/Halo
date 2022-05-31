@@ -31,6 +31,15 @@ namespace HaloBiz.Helpers
             return id;
         }
 
+        public static string GetLoggedInUserEmail(this HttpContext context)
+        {
+            try
+            {
+                string userEmailClaim = context.User.FindFirstValue(ClaimTypes.Email);
+                return !String.IsNullOrWhiteSpace(userEmailClaim) ? userEmailClaim : "itsupport@halogen-group.com";
+            }
+            catch { return "itsupport@halogen-group.com"; }
+        }
         public static IEnumerable<RequiredServiceDocumentTransferDTO> GetListOfRequiredDocuments(this IEnumerable<ServiceRequiredServiceDocument> docs)
         {
             var reqDocs = new List<RequiredServiceDocumentTransferDTO>();
