@@ -64,6 +64,25 @@ namespace HaloBiz.DTOs.TransferDTOs
         public DateTime CreatedAt { get; set; }
     }
 
+    public class ServiceTransferForOnlineDTO
+    {
+     
+        public long Id { get; set; }
+     
+        public string Name { get; set; }
+        public string Alias { get; set; }
+      
+        public string Description { get; set; }
+        public double UnitPrice { get; set; }
+        public long ServiceCategoryId { get; set; }
+        public DateTime CreatedAt { get; set; }
+        public DateTime UpdatedAt { get; set; }
+        public long DivisionId { get; set; }
+        public long OperatingEntityId { get; set; }
+        public long ServiceGroupId { get; set; }
+        public string ImageUrl { get; set; }
+    }
+
 
     public class MasterServiceAssignmentWithRegisterTransferDTO
     {
@@ -85,6 +104,8 @@ namespace HaloBiz.DTOs.TransferDTOs
         public decimal CostPrice { get; set; }
         public decimal MarkupPrice { get; set; }
         public ServiceCategory ServiceCategory { get; set; }
+        public Service Service { get; set; }
+        //public ServiceTransferForOnlineDTO Service { get; set; }
         public double PickupLocationLongitude { get; set; }
         public double PickupLocationLatitude { get; set; }
         public double DropoffLocationLongitude { get; set; }

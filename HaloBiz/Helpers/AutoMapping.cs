@@ -46,6 +46,7 @@ namespace HaloBiz.Helpers
             CreateMap<ServiceRelationship, ServiceRelationshipDTO>();
             CreateMap<Service, ServicesLeanformatDTO>();
             CreateMap<Service, ServiceCategoryForRetailTransferDTO>();
+            CreateMap<Service, ServiceTransferForOnlineDTO>();
             CreateMap<State, StateTransferDTO>();    
             CreateMap<Lga, LGATransferDTO>();
            
