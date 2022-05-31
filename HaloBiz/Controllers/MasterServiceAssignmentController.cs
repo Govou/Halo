@@ -48,6 +48,13 @@ namespace HaloBiz.Controllers
 
         }
 
+        [HttpGet("GetAllCompletedTripsCountByClientId/{clientId}")]
+        public async Task<ApiCommonResponse> GetAllCompletedTripsCountByClientId(long clientId)
+        {
+            return await _masterServiceAssignmentService.GetAllCompletedTripsByClientId(clientId);
+
+        }
+
         [HttpGet("GetAllScheduledServiceAssignmentMasters")]
         public async Task<ApiCommonResponse> GetAllScheduledServiceAssignmentMasters()
         {

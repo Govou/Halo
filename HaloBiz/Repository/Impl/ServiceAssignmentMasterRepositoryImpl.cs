@@ -255,5 +255,19 @@ namespace HaloBiz.Repository.Impl
 
             return q;
         }
+
+        //public int FindAllCompletedTripsByClientId(long clientId)
+        //{
+        //    var count =  _context.MasterServiceAssignments.Where(aer => aer.CustomerDivisionId == clientId && aer.IsDeleted == false  && aer.SAExecutionStatus == 2 && aer.AssignmentStatus == "Closed")
+        //      .ToList();
+
+        //    return count.Count();
+        //}
+
+        public async Task<IEnumerable<MasterServiceAssignment>> FindAllCompletedTripsByClientId(long clientId)
+        {
+            return await _context.MasterServiceAssignments.Where(aer => aer.CustomerDivisionId == clientId && aer.IsDeleted == false && aer.SAExecutionStatus == 2 && aer.AssignmentStatus == "Closed")
+                 .ToListAsync();
+        }
     }
 }
