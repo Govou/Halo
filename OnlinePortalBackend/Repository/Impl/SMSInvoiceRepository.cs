@@ -65,7 +65,10 @@ namespace OnlinePortalBackend.Repository.Impl
                 InvoiceNumber = request.InvoiceNumber,
                 InvoiceValue = request.InvoiceValue,
                 PaymentGateway = request.PaymentGateway,
-                PaymentReference = request.PaymentReference
+                PaymentReference = request.PaymentReference,
+                DateAndTimeOfFundsReceived = DateTime.UtcNow.AddHours(1),
+                ReceiptValue = request.InvoiceValue,
+             
             };
 
            var LoggedInUserId = (long)_context.UserProfiles.FirstOrDefault(x => x.Email.ToLower().Contains("online.portal")).Id;
@@ -498,6 +501,12 @@ namespace OnlinePortalBackend.Repository.Impl
             var inv = invoices.OrderByDescending(x => x.Id).FirstOrDefault();
 
             var validInvoices = invoices.Where(x => x.AdhocGroupingId == inv.AdhocGroupingId);
+            var invoicesSum = validInvoices.Select(x => x.Value).Sum();
+
+            if (request.InvoiceValue != invoicesSum)
+            {
+                return (false, "Invoice value is not valid");
+            }
 
             var receiptsRequests = new List<SMSReceiptReceivingDTO>();
 

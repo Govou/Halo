@@ -35,11 +35,11 @@ namespace OnlinePortalBackend.Controllers.SecureMobilitySales
             return await _contractsService.GenerateInvoice(request);
         }
 
-        [HttpPost("ReceiptInvoice")]
-        public async Task<ApiCommonResponse> ReceiptInvoice(SMSReceiptReceivingDTO request)
-        {
-            return await _contractsService.ReceiptInvoice(request);
-        }
+        //[HttpPost("ReceiptInvoice")]
+        //public async Task<ApiCommonResponse> ReceiptInvoice(SMSReceiptReceivingDTO request)
+        //{
+        //    return await _contractsService.ReceiptInvoice(request);
+        //}
 
         [HttpPost("PostTransactions")]
         public async Task<ApiCommonResponse> PostTransactions(PostTransactionDTO request)
