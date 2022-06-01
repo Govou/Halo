@@ -10,5 +10,8 @@
         public double PaymentStatusInPercentage { get; set; }
         public double ComplaintsStatusInPercentage { get; set; }
         public double EndorsementsStatusInPercentage { get; set; }
+        public int PaymentsDue { get; set; }
+        public int PaymentsOverDue { get; set; }
+        public int PaymentsDueNextCycle { get; set; }
     }
 }

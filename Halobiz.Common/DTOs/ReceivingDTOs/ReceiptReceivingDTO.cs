@@ -32,4 +32,14 @@ namespace Halobiz.Common.DTOs.ReceivingDTOs
         public int PaymentGateway { get; set; }
         public string PaymentReference { get; set; }
     }
+
+    public class SMSReceiptInvoiceForContractDTO
+    {
+
+        public string Caption { get; set; }
+        public long ContractId { get; set; }
+        public double InvoiceValue { get; set; }
+        public int PaymentGateway { get; set; }
+        public string PaymentReference { get; set; }
+    }
 }

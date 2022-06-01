@@ -580,5 +580,16 @@ namespace HaloBiz.MyServices.Impl
             var serviceTransferDTO = _mapper.Map<IEnumerable<ServiceTransferDTO>>(services);
             return CommonResponse.Send(ResponseCodes.SUCCESS, serviceTransferDTO);
         }
+
+        public ApiCommonResponse GetAllSecuredMobilityCategoryServices()
+        {
+            var services = _servicesRepository.FindAllSecuredMobilityCategoryServices();
+            if (services == null)
+            {
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE); ;
+            }
+            var serviceTransferDTO = _mapper.Map<IEnumerable<ServiceCategoryForRetailTransferDTO>>(services);
+            return CommonResponse.Send(ResponseCodes.SUCCESS, serviceTransferDTO);
+        }
     }
 }

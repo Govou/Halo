@@ -42,4 +42,20 @@ namespace HaloBiz.DTOs.TransferDTOs
         public ServiceRelationshipEnum ServiceRelationshipEnum { get; set; }
 
     }
+
+    public class ServiceCategoryForRetailTransferDTO
+    {
+        public long Id { get; set; }
+        public string Name { get; set; }
+        //public ServiceCategory ServiceCategory { get; set; }
+        public serviceCategoryTransferDTO ServiceCategory { get; set; }
+    }
+
+    public class serviceCategoryTransferDTO
+    {
+        public long Id { get; set; }
+        public string Name { get; set; }
+        public string Description { get; set; }
+        
+    }
 }

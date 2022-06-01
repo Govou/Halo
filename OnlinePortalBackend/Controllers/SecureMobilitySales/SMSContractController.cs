@@ -1,6 +1,7 @@
 ﻿using Halobiz.Common.DTOs.ApiDTOs;
 using Halobiz.Common.DTOs.ReceivingDTOs;
 using Microsoft.AspNetCore.Mvc;
+using OnlinePortalBackend.DTOs.ReceivingDTOs;
 using OnlinePortalBackend.MyServices.SecureMobilitySales;
 using System.Threading.Tasks;
 
@@ -34,10 +35,22 @@ namespace OnlinePortalBackend.Controllers.SecureMobilitySales
             return await _contractsService.GenerateInvoice(request);
         }
 
-        [HttpPost("ReceiptInvoice")]
-        public async Task<ApiCommonResponse> ReceiptInvoice(SMSReceiptReceivingDTO request)
+        //[HttpPost("ReceiptInvoice")]
+        //public async Task<ApiCommonResponse> ReceiptInvoice(SMSReceiptReceivingDTO request)
+        //{
+        //    return await _contractsService.ReceiptInvoice(request);
+        //}
+
+        [HttpPost("PostTransactions")]
+        public async Task<ApiCommonResponse> PostTransactions(PostTransactionDTO request)
         {
-            return await _contractsService.ReceiptInvoice(request);
+            return await _contractsService.PostTransactions(request);
+        }
+
+        [HttpPost("ReceiptAllInvoicesForContract")]
+        public async Task<ApiCommonResponse> ReceiptAllInvoicesForContract(SMSReceiptInvoiceForContractDTO request)
+        {
+            return await _contractsService.ReceiptAllInvoicesForContract(request);
         }
     }
 }

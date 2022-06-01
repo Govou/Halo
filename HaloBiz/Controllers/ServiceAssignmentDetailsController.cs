@@ -301,10 +301,17 @@ namespace HaloBiz.Controllers
             return await _serviceAssignmentDetailsService.DeleteVehicleDetail(id);
             //return StatusCode(response.StatusCode);
         }
-        [HttpPut("UpdateServiceDetailsHeldForActionAndReadyStatusByAssignmentId/{id}")]
+        [HttpGet("UpdateServiceDetailsHeldForActionAndReadyStatusByAssignmentId/{id}")]
         public async Task<ApiCommonResponse> UpdateServiceDetailsHeldForActionAndReadyStatusByAssignmentId(long id)
         {
             return await _serviceAssignmentDetailsService.UpdateServiceDetailsHeldForActionAndReadyStatusByAssignmentId( id);
+        }
+
+        [HttpPost("UpdateServiceDetailsHeldForActionAndReadyStatusForOnlineByAssignmentId")]
+        //public async Task<ApiCommonResponse> UpdateServiceDetailsHeldForActionAndReadyStatusForOnlineByAssignmentId([FromQuery]long[] id)
+        public async Task<ApiCommonResponse> UpdateServiceDetailsHeldForActionAndReadyStatusForOnlineByAssignmentId(long[] id)
+        {
+            return await _serviceAssignmentDetailsService.UpdateServiceDetailsHeldForActionAndReadyStatusForOnlineByAssignmentId(id);
         }
         //Passenger
         [HttpGet("GetAllPassengers")]
@@ -316,7 +323,6 @@ namespace HaloBiz.Controllers
             //var cType = ((ApiOkResponse)response).Result;
             //return Ok(cType);
         }
-        [AllowAnonymous]
         [HttpGet("GetAllPassengersByAssignmentId/{id}")]
         public async Task<ApiCommonResponse> GetAllPassengersByAssignmentId(long id)
         {

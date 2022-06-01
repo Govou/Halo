@@ -27,6 +27,7 @@ using DocumentFormat.OpenXml.Spreadsheet;
 using Google.Apis.Calendar.v3.Data;
 using Google.Apis.Services;
 using Google.Apis.Util.Store;
+using MailKit.Search;
 using Microsoft.AspNetCore.Hosting;
 using ConferenceSolution = HaloBiz.DTOs.ConferenceSolution;
 
@@ -162,13 +163,34 @@ namespace HaloBiz.MyServices.Impl
         public async Task<ApiCommonResponse> getAllWorkspacesRevamped(HttpContext httpContext)
         {
 
-            var workspaceQuery = await _context.Workspaces.Where(x => x.IsActive == true && x.CreatedById == httpContext.GetLoggedInUserId() || x.IsDefault == true)
-                                                          .Include(x => x.Projects.Where(x => x.IsActive == true))
-                                                          .Include(x => x.PrivacyAccesses.Where(x => x.IsActive == true))
+            var workspaceQuery = await _context.Workspaces.OrderByDescending(x=>x.CreatedAt).AsNoTracking()
+                .Where(x => x.IsActive == true && x.CreatedById == httpContext.GetLoggedInUserId() || x.IsDefault == true)
+                                                          .Include(x => x.Projects.Where(x => x.IsActive == true)).AsNoTracking()
+                                                          .Include(x => x.PrivacyAccesses.Where(x => x.IsActive == true)).AsNoTracking()
                                                           .Include(x => x.ProjectCreators.Where(x => x.IsActive == true))
-                                                          .Include(x => x.StatusFlows.Where(x => x.IsDeleted == false))
-                                                          .Include(x => x.Deliverables)
-                                                          .ToListAsync();
+                                                          .Include(x => x.StatusFlows.Where(x => x.IsDeleted == false)).AsNoTracking()
+                                                          .Include(x => x.Deliverables).AsNoTracking()
+                .ToListAsync();
+            if(workspaceQuery.Count == 0)
+            {
+                return CommonResponse.Send(ResponseCodes.FAILURE, null,ResponseMessage.EntityNotFound);
+            }
+
+            return CommonResponse.Send(ResponseCodes.SUCCESS, workspaceQuery);
+
+        }
+        
+        public async Task<ApiCommonResponse> getAllProjectCreatorsWorkspacesRevamped(HttpContext httpContext)
+        {
+
+            var workspaceQuery = await _context.Workspaces.OrderByDescending(x=>x.CreatedAt).AsNoTracking()
+                .Where(x => x.IsActive == true && x.ProjectCreators.Any(x=>x.ProjectCreatorProfileId == httpContext.GetLoggedInUserId()) || x.IsDefault == true)
+                .Include(x => x.Projects.Where(x => x.IsActive == true)).AsNoTracking()
+                .Include(x => x.PrivacyAccesses.Where(x => x.IsActive == true)).AsNoTracking()
+                .Include(x => x.ProjectCreators.Where(x => x.IsActive == true))
+                .Include(x => x.StatusFlows.Where(x => x.IsDeleted == false)).AsNoTracking()
+                .Include(x => x.Deliverables).AsNoTracking()
+                .ToListAsync();
             if(workspaceQuery.Count == 0)
             {
                 return CommonResponse.Send(ResponseCodes.FAILURE, null,ResponseMessage.EntityNotFound);
@@ -181,13 +203,13 @@ namespace HaloBiz.MyServices.Impl
 
         public async Task<ApiCommonResponse> getAllDataForWorkspaceSideBar(HttpContext httpContext)
         {
-            var getAllWorkspaceQuery = await _context.Workspaces.Where(x => x.CreatedById == httpContext.GetLoggedInUserId() && x.IsActive == true || x.IsDefault == true).ToListAsync();
+            var getAllWorkspaceQuery = await _context.Workspaces.AsNoTracking().Where(x => x.CreatedById == httpContext.GetLoggedInUserId() && x.IsActive == true || x.IsDefault == true).ToListAsync();
 
-            var getAllProjectQuery = await _context.Projects.Where(x => x.IsActive == true && x.CreatedById == httpContext.GetLoggedInUserId()).ToListAsync();
+            var getAllProjectQuery = await _context.Projects.AsNoTracking().Where(x => x.IsActive == true && x.CreatedById == httpContext.GetLoggedInUserId()).ToListAsync();
 
-            var getAllTaskQuery = await _context.Tasks.Where(x => x.IsActive == true && x.CreatedById == httpContext.GetLoggedInUserId()).ToListAsync();
+            var getAllTaskQuery = await _context.Tasks.AsNoTracking().Where(x => x.IsActive == true && x.CreatedById == httpContext.GetLoggedInUserId()).ToListAsync();
 
-            var getAllDeliverablesQuery = await _context.Deliverables.Where(x => x.IsActive == true && x.CreatedById == httpContext.GetLoggedInUserId()).ToListAsync();
+            var getAllDeliverablesQuery = await _context.Deliverables.AsNoTracking().Where(x => x.IsActive == true && x.CreatedById == httpContext.GetLoggedInUserId()).ToListAsync();
 
             var getAllQuery = new SidebarClassWorkspace
             {
@@ -219,11 +241,11 @@ namespace HaloBiz.MyServices.Impl
 
         public async Task<ApiCommonResponse> getAllWorkspaces(HttpContext httpContext)
         {
-
+        
             var workspaceArr = new List<RevampedWorkspaceDTO>();
-            var works = await _context.Workspaces.Where(x => x.IsActive != false && x.CreatedById == httpContext.GetLoggedInUserId()).ToListAsync();
-
-
+            var works = await _context.Workspaces.AsNoTracking().Where(x => x.IsActive != false && x.CreatedById == httpContext.GetLoggedInUserId()).ToListAsync();
+        
+        
             foreach (var item in works)
             {
                 var workspaces = new RevampedWorkspaceDTO();
@@ -234,25 +256,43 @@ namespace HaloBiz.MyServices.Impl
                 workspaces.CreatedAt = item.CreatedAt;
                 workspaces.Description = item.Description;
                 workspaces.StatusFlowOption = item.StatusFlowOption;
-                workspaces.Projects = await _context.Projects.Where(x => x.IsActive != false && x.WorkspaceId == item.Id).ToListAsync();
-                workspaces.PrivacyAccesses = await _context.PrivacyAccesses.Where(x => x.IsActive != false && x.WorkspaceId == item.Id).ToListAsync();
-                workspaces.ProjectCreators = await _context.ProjectCreators.Where(x => x.IsActive != false && x.WorkspaceId == item.Id).ToListAsync();
-                workspaces.StatusFlowDTO = await _context.StatusFlows.Where(x => x.IsDeleted == false && x.WorkspaceId == item.Id).ToListAsync();
+                workspaces.Projects = await _context.Projects.AsNoTracking().Where(x => x.IsActive != false && x.WorkspaceId == item.Id).ToListAsync();
+                workspaces.PrivacyAccesses = await _context.PrivacyAccesses.AsNoTracking().Where(x => x.IsActive != false && x.WorkspaceId == item.Id).ToListAsync();
+                workspaces.ProjectCreators = await _context.ProjectCreators.AsNoTracking().Where(x => x.IsActive != false && x.WorkspaceId == item.Id).ToListAsync();
+                workspaces.StatusFlowDTO = await _context.StatusFlows.AsNoTracking().Where(x => x.IsDeleted == false && x.WorkspaceId == item.Id).ToListAsync();
                 workspaces.ProjectCreatorsLength = (item.ProjectCreators == null ? 0 : item.ProjectCreators.Count());
                 workspaces.ProjectLength = (item.Projects == null ? 0 : item.Projects.Count());
                 workspaces.IsPublic = item.IsPublic == false ? "Private" : "Public";
                 workspaceArr.Add(workspaces);
             }
-
+        
             if (workspaceArr == null)
             {
                 return CommonResponse.Send(ResponseCodes.SUCCESS,workspaceArr);
             }
-
+        
             return CommonResponse.Send(ResponseCodes.SUCCESS,workspaceArr);
-
+        
         }
 
+        //   public async Task<ApiCommonResponse> getAllWorkspaces(HttpContext httpContext)
+        // {
+        //
+        //     var works = await _context.Workspaces.AsNoTracking().OrderByDescending(x=>x.CreatedAt).Where(x => x.IsActive != false && x.CreatedById == httpContext.GetLoggedInUserId())
+        //         .Include(x=>x.Projects).AsNoTracking()
+        //         .Include(x=>x.PrivacyAccesses).AsNoTracking()
+        //         .Include(x=>x.ProjectCreators).AsNoTracking()
+        //         .Include(x=>x.StatusFlows).AsNoTracking()
+        //         .ToListAsync();
+        //
+        //     if (works.Any())
+        //     {
+        //         return CommonResponse.Send(ResponseCodes.SUCCESS,works);
+        //     }
+        //
+        //     return CommonResponse.Send(ResponseCodes.FAILURE,null);
+        //
+        // }
 
         public async Task<ApiCommonResponse> getWorkspaceById(long id)
         {
@@ -1100,6 +1140,27 @@ namespace HaloBiz.MyServices.Impl
 
             return CommonResponse.Send(ResponseCodes.SUCCESS, taskList);
         }
+        
+        public async Task<ApiCommonResponse> getAllMilestoneTaskDueTodayForWatcher(HttpContext httpContext)
+        {
+            var milestoneQuery = await _context.Watchers.Where(x => x.IsActive == true && x.ProjectWatcherId == httpContext.GetLoggedInUserId())
+                .Include(x => x.Project)
+                .ThenInclude(x => x.Tasks.Where(x => x.IsActive == true && x.IsMilestone == true))
+                .ThenInclude(x=>x.Deliverables.Where(x=>x.IsActive == true))
+                .ToListAsync();
+            var taskList = new List<Task>();
+            foreach(var watcher in milestoneQuery)
+            {
+                var today = DateTime.Now;
+                if(watcher.Project.Tasks.Count != 0 && watcher.Project.Tasks.Any(x=>x.TaskEndDate == today))
+                {
+                    taskList.AddRange(watcher.Project.Tasks);
+                }
+                
+            }
+
+            return CommonResponse.Send(ResponseCodes.SUCCESS, taskList);
+        }
 
         public async Task<ApiCommonResponse> getAllTaskToDueToday(HttpContext httpContext)
         {
@@ -1146,26 +1207,24 @@ namespace HaloBiz.MyServices.Impl
             }
 
 
-            var taskOwnerDTO = new List<TaskBarChartDTO>();
+            var taskOwnerDto = new List<TaskBarChartDTO>();
             if (taskArray.Count > 0)
             {
 
                 foreach (var task in taskArray)
                 {
                     var taskOwner = new TaskBarChartDTO();
-                    var owner = await _context.UserProfiles.Where(x => x.IsDeleted == false && x.Id == task.TaskOwnership.TaskOwnerId).FirstOrDefaultAsync();
-                    taskOwner.TaskOwnerName = owner.FirstName + " " + owner.LastName;
-                    
-                    taskOwner.TaskCount = _context.Tasks.Where(x => x.IsActive == true && x.TaskOwnershipId == task.TaskOwnershipId)
-                                                              .ToList().Count();
-                    taskOwnerDTO.Add(taskOwner);
+                    if (task.TaskOwnership != null)
+                    {
+                        var owner = await _context.UserProfiles.Where(x => x.IsDeleted == false && x.Id == task.TaskOwnership.TaskOwnerId).FirstOrDefaultAsync();
+                        taskOwner.TaskOwnerName = owner?.FirstName + " " + owner?.LastName;
+                        taskOwner.TaskCount = _context.Tasks
+                            .Where(x => x.IsActive == true && x.TaskOwnershipId == task.TaskOwnershipId).ToList().Count;
+                        taskOwnerDto.Add(taskOwner);
+                    }
                 }
-
-
-
             }
-
-            return CommonResponse.Send(ResponseCodes.SUCCESS, taskOwnerDTO);
+            return CommonResponse.Send(ResponseCodes.SUCCESS, taskOwnerDto);
 
         }
 
@@ -2727,7 +2786,7 @@ namespace HaloBiz.MyServices.Impl
             var projectCreatorList = new List<RevampedWorkspaceDTO>();
             var id = httpContext.GetLoggedInUserId();
             Console.WriteLine("Here is my id ", id);
-            var getAllProjectCreatorsById = await _context.ProjectCreators.Where(x => x.IsActive == true && x.ProjectCreatorProfileId == httpContext.GetLoggedInUserId()).ToListAsync();
+            var getAllProjectCreatorsById = await _context.ProjectCreators.AsNoTracking().Where(x => x.IsActive == true && x.ProjectCreatorProfileId == httpContext.GetLoggedInUserId()).ToListAsync();
 
             if(getAllProjectCreatorsById != null)
             {
@@ -2735,7 +2794,7 @@ namespace HaloBiz.MyServices.Impl
 
                 foreach (var item in getAllProjectCreatorsById)
                 {
-                    var workspace = await _context.Workspaces.FirstOrDefaultAsync(x => x.IsActive == true && x.Id == item.WorkspaceId);
+                    var workspace = await _context.Workspaces.AsNoTracking().FirstOrDefaultAsync(x => x.IsActive == true && x.Id == item.WorkspaceId);
                     if(workspace != null)
                     {
                         var assignedWorkspace = new RevampedWorkspaceDTO()
@@ -2747,10 +2806,10 @@ namespace HaloBiz.MyServices.Impl
                             Description = workspace.Description,
                             IsActive = workspace.IsActive,
                             StatusFlowOption = workspace.StatusFlowOption,
-                            Projects = await _context.Projects.Where(x => x.IsActive != false && x.CreatedById == httpContext.GetLoggedInUserId() && x.WorkspaceId == item.WorkspaceId).ToListAsync(),
-                            ProjectCreators = await _context.ProjectCreators.Where(x => x.IsActive != false  && x.WorkspaceId == item.WorkspaceId).ToListAsync(),
-                            PrivacyAccesses = await _context.PrivacyAccesses.Where(x => x.IsActive != false  && x.WorkspaceId == item.WorkspaceId).ToListAsync(),
-                            StatusFlowDTO = await _context.StatusFlows.Where(x => x.IsDeleted == false  && x.WorkspaceId == item.WorkspaceId).ToListAsync(),
+                            Projects = await _context.Projects.AsNoTracking().Where(x => x.IsActive != false && x.CreatedById == httpContext.GetLoggedInUserId() && x.WorkspaceId == item.WorkspaceId).ToListAsync(),
+                            ProjectCreators = await _context.ProjectCreators.AsNoTracking().Where(x => x.IsActive != false  && x.WorkspaceId == item.WorkspaceId).ToListAsync(),
+                            PrivacyAccesses = await _context.PrivacyAccesses.AsNoTracking().Where(x => x.IsActive != false  && x.WorkspaceId == item.WorkspaceId).ToListAsync(),
+                            StatusFlowDTO = await _context.StatusFlows.AsNoTracking().Where(x => x.IsDeleted == false  && x.WorkspaceId == item.WorkspaceId).ToListAsync(),
                             ProjectCreatorsLength = workspace.ProjectCreators == null ? 0 : workspace.ProjectCreators.Count(),
                             ProjectLength = workspace.Projects == null ? 0 : workspace.Projects.Count(),
                             IsPublic = workspace.IsPublic == false ? "Private" : "Public",
@@ -4146,10 +4205,11 @@ namespace HaloBiz.MyServices.Impl
 
             var projectArray = new List<Project>();
            
-            var getAllAssigned = await _context.Tasks.Where(x => x.IsActive == true && x.TaskAssignees.Any(t => t.TaskAssigneeId == httpContext.GetLoggedInUserId()))
+            var getAllAssigned = await _context.Tasks.
+                Where(x => x.IsActive == true && x.TaskAssignees.Any(t => t.TaskAssigneeId == httpContext.GetLoggedInUserId()))
                                  .Include(x => x.Project)
                                  .Include(x=>x.TaskAssignees.Where(x=>x.IsActive == true))
-                                 .ToListAsync();
+                                 .OrderByDescending(x=>x.CreatedAt).ToListAsync();
 
             
 

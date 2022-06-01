@@ -2,9 +2,11 @@
 using Halobiz.Common.DTOs.TransferDTOs;
 using HalobizMigrations.Data;
 using HalobizMigrations.Models;
+using HalobizMigrations.Models.OnlinePortal;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using OnlinePortalBackend.DTOs.ReceivingDTOs;
 using OnlinePortalBackend.DTOs.TransferDTOs;
 using OnlinePortalBackend.Helpers;
 using System;
@@ -63,7 +65,10 @@ namespace OnlinePortalBackend.Repository.Impl
                 InvoiceNumber = request.InvoiceNumber,
                 InvoiceValue = request.InvoiceValue,
                 PaymentGateway = request.PaymentGateway,
-                PaymentReference = request.PaymentReference
+                PaymentReference = request.PaymentReference,
+                DateAndTimeOfFundsReceived = DateTime.UtcNow.AddHours(1),
+                ReceiptValue = request.InvoiceValue,
+             
             };
 
            var LoggedInUserId = (long)_context.UserProfiles.FirstOrDefault(x => x.Email.ToLower().Contains("online.portal")).Id;
@@ -488,6 +493,92 @@ namespace OnlinePortalBackend.Repository.Impl
             };
 
             return result;
+        }
+
+        public async Task<(bool isSuccess, string message)> ReceiptAllInvoicesForContract(SMSReceiptInvoiceForContractDTO request)
+        {
+            var invoices = _context.Invoices.Where(x => x.ContractId == request.ContractId);
+            var inv = invoices.OrderByDescending(x => x.Id).FirstOrDefault();
+
+            var validInvoices = invoices.Where(x => x.AdhocGroupingId == inv.AdhocGroupingId);
+            var invoicesSum = validInvoices.Select(x => x.Value).Sum();
+
+            if (request.InvoiceValue != invoicesSum)
+            {
+                return (false, "Invoice value is not valid");
+            }
+
+            var receiptsRequests = new List<SMSReceiptReceivingDTO>();
+
+            try
+            {
+                foreach (var item in validInvoices)
+                {
+                    var receiptInv = new SMSReceiptReceivingDTO
+                    {
+                        Caption = request.Caption,
+                        InvoiceId = item.Id,
+                        InvoiceNumber = item.InvoiceNumber,
+                        InvoiceValue = item.Value,
+                        PaymentGateway = request.PaymentGateway,
+                        PaymentReference = request.PaymentReference,
+                    };
+
+                    receiptsRequests.Add(receiptInv);
+                }
+
+                foreach (var item in receiptsRequests)
+                {
+                    var result = await ReceiptInvoice(item);
+
+                    if (!result.isSuccess)
+                    {
+                        throw new Exception("Receipting invoice failed");
+                    }
+                }
+
+                return (true, "success");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.Message);
+                _logger.LogError(ex.StackTrace);
+            }
+
+            return (false, "failed");
+        }
+
+        public async Task<bool> PostTransactions(PostTransactionDTO request)
+        {
+            _context.OnlineTransactions.Add(new OnlineTransaction
+            {
+                CreatedAt = DateTime.UtcNow.AddHours(1),
+                UpdatedAt = DateTime.UtcNow.AddHours(1),
+                VAT = request.VAT,
+                Value = request.Value,
+                CreatedById = request.ProfileId,
+                TransactionType = request.TransactionType,
+                PaymentGateway = request?.PaymentGateway,
+                PaymentGatewayResponseDescription = request.PaymentGatewayResponseDescription,
+                PaymentGatewayResponseCode = request.PaymentGatewayResponseCode,
+                PaymentReferenceInternal = request.PaymentReferenceInternal,
+                PaymentReferenceGateway = request.PaymentReferenceGateway,
+                TotalValue = request.Value + request.VAT,
+                SessionId = request.SessionId,
+                ProfileId = request.ProfileId
+            });
+
+            try
+            {
+                await _context.SaveChangesAsync();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.Message);
+                _logger.LogError(ex.StackTrace);
+                return false;
+            }
         }
     }
 }

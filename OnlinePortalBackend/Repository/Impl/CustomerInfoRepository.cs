@@ -27,6 +27,9 @@ namespace OnlinePortalBackend.Repository.Impl
             var paymentStatusInPercentage = 0d;
             var complaintsStatusInPercentage = 0d;
             var endorsementsStatusInPercentage = 0d;
+            var paymentsDue = 0;
+            var paymentsOverDue = 0;
+            var paymentsDueNextCycle = 0;
 
             try
             {
@@ -45,7 +48,7 @@ namespace OnlinePortalBackend.Repository.Impl
 
                 var approvedContracts = _context.Contracts.Where(x => x.IsApproved == true && x.CustomerDivisionId == customerDiv && x.IsDeleted == false).ToList();
 
-                foreach (var item in pendingContracts)
+                foreach (var item in approvedContracts)
                 {
                     var conServices = _context.ContractServices.Where(x => x.ContractId == item.Id).Count();
                     completedOrders += conServices;
@@ -83,6 +86,12 @@ namespace OnlinePortalBackend.Repository.Impl
                     endorsementsStatusInPercentage = completedChangeRequests / (completedChangeRequests + pendingChangeRequests) * 100;
                 }
 
+                paymentsOverDue = _context.Invoices.Where(x => x.IsFinalInvoice == true && x.IsReceiptedStatus == 0 && x.CustomerDivisionId == customerDiv && x.EndDate < DateTime.Today && x.IsReceiptedStatus == 0).Count();
+                paymentsDue = _context.Invoices.Where(x => x.DateToBeSent < DateTime.Today && x.CustomerDivisionId == customerDiv && x.IsReceiptedStatus == 0).Count();
+               
+                
+                paymentsDueNextCycle = _context.Invoices.Where(x => x.StartDate > DateTime.Today && x.CustomerDivisionId == customerDiv && x.CustomerDivisionId == customerDiv && x.CustomerDivisionId == customerDiv && x.CustomerDivisionId == customerDiv && x.IsReceiptedStatus == 0).Count();
+                    
 
                 return new CustomerContractInfoDTO
                 {
@@ -94,6 +103,9 @@ namespace OnlinePortalBackend.Repository.Impl
                     PaymentStatusInPercentage = paymentStatusInPercentage,
                     PendingChangeRequests = pendingChangeRequests,
                     PendingOrders = pendingOrders,
+                    PaymentsDue = paymentsDue,
+                    PaymentsOverDue = paymentsOverDue,
+                    PaymentsDueNextCycle = paymentsDueNextCycle,
                 };
             }
             catch (Exception ex)
