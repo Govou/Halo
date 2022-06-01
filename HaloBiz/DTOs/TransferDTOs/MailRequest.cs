@@ -12,7 +12,5 @@ namespace HaloBiz.DTOs.TransferDTOs
         public string EmailSenderName { get; set; }
         public long DestinationId { get; set; }
         public List<IFormFile> Attachments { get; set; }
-        
-        
     }
 }
