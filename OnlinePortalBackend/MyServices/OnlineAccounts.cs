@@ -442,7 +442,7 @@ namespace OnlinePortalBackend.MyServices
                 {
                     profileContractDetails.Add(new ProfileContractDetail
                     {
-                        ContractId = 0,
+                        ContractId = null,
                         ContractServices = null
                     });
                 }
