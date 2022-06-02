@@ -580,5 +580,34 @@ namespace OnlinePortalBackend.Repository.Impl
                 return false;
             }
         }
+
+        public async Task<SendReceiptDTO> GetContractServiceDetailsForReceipt(long contractId)
+        {
+            var receiptDetails = _context.ContractServices.Include(x => x.Service).Where(x => x.ContractId == contractId).Select(x => new SendReceiptDetailDTO
+            {
+                Amount = x.AdHocInvoicedAmount.ToString(),
+                Description = x.Service.Description,
+                Quantity = x.Quantity.ToString(),
+                ServiceName = x.Service.Name,
+                Total = x.AdHocInvoicedAmount.ToString()
+            }).AsEnumerable();
+
+            var totalSum = receiptDetails.Select(x => double.Parse(x.Amount)).Sum();
+
+            var email = _context.Contacts.FirstOrDefault(x => x.Id == contractId).Email;
+
+            var custName = _context.CustomerDivisions.FirstOrDefault(x => x.Email.ToLower() == email.ToLower()).DivisionName;
+
+            var sendReceipt = new SendReceiptDTO
+            {
+                Amount = totalSum.ToString(),
+                Date = DateTime.UtcNow.AddHours(1).ToString("dd/MM/yyyy"),
+                Email = email,
+                CustomerName = custName,
+                SendReceiptDetailDTOs = receiptDetails.ToList()
+            };
+
+            return sendReceipt;
+        }
     }
 }
