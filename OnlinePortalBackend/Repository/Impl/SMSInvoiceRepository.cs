@@ -86,7 +86,7 @@ namespace OnlinePortalBackend.Repository.Impl
                     .Include(x => x.Receipts)
                     .Include(x => x.CustomerDivision)
                     .Where(x => x.GroupInvoiceNumber == singleInvoice.GroupInvoiceNumber
-                            && x.StartDate == singleInvoice.StartDate && !x.IsDeleted)
+                            && x.StartDate == singleInvoice.StartDate && !x.IsDeleted && x.AdhocGroupingId == request.AdHocIvoiceGroup)
                     .ToListAsync();
 
                 var totalReceiptAmount = receiptReceivingDTO.ReceiptValue;
@@ -522,6 +522,7 @@ namespace OnlinePortalBackend.Repository.Impl
                         InvoiceValue = item.Value,
                         PaymentGateway = request.PaymentGateway,
                         PaymentReference = request.PaymentReference,
+                        AdHocIvoiceGroup = item.AdhocGroupingId
                     };
 
                     receiptsRequests.Add(receiptInv);
@@ -594,16 +595,16 @@ namespace OnlinePortalBackend.Repository.Impl
 
             var totalSum = receiptDetails.Select(x => double.Parse(x.Amount)).Sum();
 
-            var email = _context.Contacts.FirstOrDefault(x => x.Id == contractId).Email;
+            var customerDivId = _context.Contracts.FirstOrDefault(x => x.Id == contractId).CustomerDivisionId;
 
-            var custName = _context.CustomerDivisions.FirstOrDefault(x => x.Email.ToLower() == email.ToLower()).DivisionName;
+            var custDiv = _context.CustomerDivisions.FirstOrDefault(x => x.Id == customerDivId);
 
             var sendReceipt = new SendReceiptDTO
             {
                 Amount = totalSum.ToString(),
                 Date = DateTime.UtcNow.AddHours(1).ToString("dd/MM/yyyy"),
-                Email = email,
-                CustomerName = custName,
+                Email = custDiv.Email,
+                CustomerName = custDiv.DivisionName,
                 SendReceiptDetailDTOs = receiptDetails.ToList()
             };
 
