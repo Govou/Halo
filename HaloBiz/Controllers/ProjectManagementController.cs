@@ -11,6 +11,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using HaloBiz.DTOs.TransferDTOs;
+using HaloBiz.Models;
+using Microsoft.AspNetCore.Mvc.Filters;
 using RestSharp;
 
 namespace HaloBiz.Controllers
@@ -342,6 +344,7 @@ namespace HaloBiz.Controllers
 
         public async Task<ApiCommonResponse> GetAssignedTask()
         {
+            var route = Request.Path.Value;
             return await _projectAllocationService.getAssignedTask(HttpContext);
 
         }
