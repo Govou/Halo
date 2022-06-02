@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using OnlinePortalBackend.DTOs.ReceivingDTOs;
+using OnlinePortalBackend.DTOs.TransferDTOs;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
@@ -109,6 +110,34 @@ namespace OnlinePortalBackend.Repository.Impl
 
             return (true, new AesCryptoUtil().Decrypt(balance.WalletBalance));
 
+        }
+
+        public async Task<WalletTransactionHistoryDTO> GetWalletTransactionHistory(int propfileId)
+        {
+            var walletTrxActivity = _context.OnlineTransactions.Where(x => x.ProfileId == propfileId && x.TransactionType.ToLower().Contains("wallet")).Select(x => new WalletTransactionActivity
+            {
+                Amount = x.TotalValue,
+                Description = x.TransactionType,
+                Platform = "Secure Mobility",
+                Status = String.IsNullOrEmpty(x.PaymentReferenceInternal) ? "Success" : "Fail",
+                TransactionDate = DateTime.UtcNow.AddHours(1)
+            });
+
+            if (walletTrxActivity.Count() < 1)
+            {
+                return null;
+            }
+
+            var trxHistory = new WalletTransactionHistoryDTO
+            {
+                ProfileId = propfileId,
+                TotalSpend = walletTrxActivity.Where(x => x.Description.ToLower().Contains("spend")).Select(x => x.Amount).Sum(),
+                TotalTopup = walletTrxActivity.Where(x => x.Description.ToLower().Contains("topup")).Select(x => x.Amount).Sum(),
+                Balance = walletTrxActivity.Where(x => x.Description.ToLower().Contains("topup")).Select(x => x.Amount).Sum() - walletTrxActivity.Where(x => x.Description.ToLower().Contains("spend")).Select(x => x.Amount).Sum(),
+                TransactionHistory = walletTrxActivity
+            };
+
+            return trxHistory;
         }
 
         public async Task<(bool isSuccess, string message)> LoadWallet(LoadWalletDTO request)

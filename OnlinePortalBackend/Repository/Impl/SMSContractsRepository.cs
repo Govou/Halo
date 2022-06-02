@@ -429,7 +429,9 @@ namespace OnlinePortalBackend.Repository.Impl
                     {
                         var contractService = _mapper.Map<ContractService>(item);
                         contractService.ContractId = newContract.Id;
+                        contractService.AdHocInvoicedAmount = contractService.BillableAmount.Value;
                         newContractServices.Add(contractService);
+
                     }
                     catch (Exception ex)
                     {
@@ -468,6 +470,7 @@ namespace OnlinePortalBackend.Repository.Impl
                             item.PreviousContractServiceId = entity.Entity.Id;
                             item.IsConvertedToContractService = true;
                             item.IsRequestedForApproval = false;
+                            
                         }
 
                         var savedEntity = await SaveContractServiceForEndorsement(item);

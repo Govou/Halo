@@ -307,7 +307,8 @@ namespace HaloBiz.Controllers
             return await _serviceAssignmentDetailsService.UpdateServiceDetailsHeldForActionAndReadyStatusByAssignmentId( id);
         }
 
-        [HttpGet("UpdateServiceDetailsHeldForActionAndReadyStatusForOnlineByAssignmentId")]
+        [HttpPost("UpdateServiceDetailsHeldForActionAndReadyStatusForOnlineByAssignmentId")]
+        //public async Task<ApiCommonResponse> UpdateServiceDetailsHeldForActionAndReadyStatusForOnlineByAssignmentId([FromQuery]long[] id)
         public async Task<ApiCommonResponse> UpdateServiceDetailsHeldForActionAndReadyStatusForOnlineByAssignmentId(long[] id)
         {
             return await _serviceAssignmentDetailsService.UpdateServiceDetailsHeldForActionAndReadyStatusForOnlineByAssignmentId(id);
@@ -322,7 +323,6 @@ namespace HaloBiz.Controllers
             //var cType = ((ApiOkResponse)response).Result;
             //return Ok(cType);
         }
-        [AllowAnonymous]
         [HttpGet("GetAllPassengersByAssignmentId/{id}")]
         public async Task<ApiCommonResponse> GetAllPassengersByAssignmentId(long id)
         {

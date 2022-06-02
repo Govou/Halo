@@ -370,6 +370,23 @@ namespace HaloBiz.Adapters.Impl
             throw new NotImplementedException();
         }
 
+        public async Task<ApiCommonResponse> SendNotificationMail(DTOs.TransferDTOs.GenericMailRequest model)
+        {
+            var baseUrl = $"{_mailBaseUrl}/Mail/SendNotification";
+            try
+            {
+                var response = await baseUrl.AllowAnyHttpStatus()
+                   .PostJsonAsync(model).ReceiveJson();
+                return CommonResponse.Send(ResponseCodes.SUCCESS);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogInformation(ex.Message);
+                _logger.LogInformation(ex.StackTrace);
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, ex.Message);
+            }
+        }
+
         //public async Task<ApiCommonResponse> LeadConversionTriggered(string serializedLeadtoClient)
         //{
         //    var baseUrl = $"{_mailBaseUrl}/Mail/LeadConversionTriggered";

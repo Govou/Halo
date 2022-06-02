@@ -296,8 +296,8 @@ namespace HaloBiz.Repository.Impl
         {
             //added extra IsTemporarilyHeld == true bcz of resource replacement, might have the same assignId && type.IsTemporarilyHeld == true
             return await _context.VehicleServiceAssignmentDetails.Where(type => type.IsDeleted == false  && type.ServiceAssignmentId == assignmentId )
-            .Include(ct => ct.VehicleResource).Include(t => t.ActionReleaseType).Include(t => t.TempReleaseType).Include(t => t.ServiceAssignment)
-            .Include(t => t.TempReleaseType).Include(t => t.CreatedBy).Include(t => t.VehicleResource.SupplierService).Include(t => t.VehicleResource.VehicleType)
+            .Include(ct => ct.VehicleResource).Include(t => t.TempReleaseType).Include(t => t.ServiceAssignment)
+            .Include(t => t.VehicleResource.SupplierService).Include(t => t.VehicleResource.VehicleType)
             .OrderByDescending(x => x.Id)
             .ToListAsync();
         }
@@ -706,7 +706,7 @@ namespace HaloBiz.Repository.Impl
         public async Task<bool> UpdateVehicleServiceAssignmentDetailHeldByAssignmentId(VehicleServiceAssignmentDetail serviceAssignmentDetail)
         {
             serviceAssignmentDetail.IsHeldForAction = true;
-            serviceAssignmentDetail.DateHeldForAction = DateTime.UtcNow;
+            serviceAssignmentDetail.DateHeldForAction = DateTime.Now;
             _context.VehicleServiceAssignmentDetails.Update(serviceAssignmentDetail);
             return await SaveChanges();
         }

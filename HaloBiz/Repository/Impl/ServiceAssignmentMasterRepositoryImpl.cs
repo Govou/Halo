@@ -205,6 +205,7 @@ namespace HaloBiz.Repository.Impl
                          DropoffDate = pd.DropoffDate,
                          PickoffTime = pd.PickoffTime,
                          ServiceRegistration = pd.ServiceRegistration,
+                         Service = pd.ServiceRegistration.Service,
                          ReadyStatus = pd.ReadyStatus,
                          SellingPrice = od.SellingPrice,
                          CostPrice = od.CostPrice,
@@ -243,6 +244,7 @@ namespace HaloBiz.Repository.Impl
                                PickupDate = pd.PickupDate,
                                DropoffDate = pd.DropoffDate,
                                PickoffTime = pd.PickoffTime,
+                               Service = pd.ServiceRegistration.Service,
                                ServiceRegistration = pd.ServiceRegistration,
                                ReadyStatus = pd.ReadyStatus,
                                SellingPrice = od.SellingPrice,
@@ -252,6 +254,20 @@ namespace HaloBiz.Repository.Impl
                            }).ToListAsync();
 
             return q;
+        }
+
+        //public int FindAllCompletedTripsByClientId(long clientId)
+        //{
+        //    var count =  _context.MasterServiceAssignments.Where(aer => aer.CustomerDivisionId == clientId && aer.IsDeleted == false  && aer.SAExecutionStatus == 2 && aer.AssignmentStatus == "Closed")
+        //      .ToList();
+
+        //    return count.Count();
+        //}
+
+        public async Task<IEnumerable<MasterServiceAssignment>> FindAllCompletedTripsByClientId(long clientId)
+        {
+            return await _context.MasterServiceAssignments.Where(aer => aer.CustomerDivisionId == clientId && aer.IsDeleted == false && aer.SAExecutionStatus == 2 && aer.AssignmentStatus == "Closed")
+                 .ToListAsync();
         }
     }
 }

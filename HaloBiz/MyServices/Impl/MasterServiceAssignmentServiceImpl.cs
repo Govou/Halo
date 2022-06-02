@@ -176,13 +176,13 @@ namespace HaloBiz.MyServices.Impl
 
                                     vehicle.Id = 0;
                                     vehicle.IsTemporarilyHeld = true;
-                                    vehicle.DateTemporarilyHeld = DateTime.UtcNow;
+                                    vehicle.DateTemporarilyHeld = DateTime.Now;
                                     //vehicle.IsHeldForAction = true;
                                     //vehicle.DateHeldForAction = DateTime.UtcNow;
                                     vehicle.VehicleResourceId = getVehicleResourceId;
                                     vehicle.RequiredCount = resourceCount++;
                                     vehicle.CreatedById = context.GetLoggedInUserId();
-                                    vehicle.CreatedAt = DateTime.UtcNow;
+                                    vehicle.CreatedAt = DateTime.Now;
                                     vehicle.ServiceAssignmentId = getId;
                                     var savedItem = await _serviceAssignmentDetailsRepository.SaveVehicleServiceAssignmentdetail(vehicle);
                                     if (savedItem == null)
@@ -255,7 +255,7 @@ namespace HaloBiz.MyServices.Impl
                                
                                 pilot.Id = 0;
                                 pilot.IsTemporarilyHeld = true;
-                                pilot.DateTemporarilyHeld = DateTime.UtcNow;
+                                pilot.DateTemporarilyHeld = DateTime.Now;
                                 pilot.PilotResourceId = getResourceId;
                                 foreach (var item in VehicleResourceIdsToTie)
                                 {
@@ -346,7 +346,7 @@ namespace HaloBiz.MyServices.Impl
                               
                                 commander.Id = 0;
                                 commander.IsTemporarilyHeld = true;
-                                commander.DateTemporarilyHeld = DateTime.UtcNow;
+                                commander.DateTemporarilyHeld = DateTime.Now;
                                 commander.CommanderResourceId = getResourceId;
                                 //commander.TiedVehicleResourceId = TiedVehicleId;
                                 foreach (var item in VehicleResourceIdsToTieComm)
@@ -430,7 +430,7 @@ namespace HaloBiz.MyServices.Impl
                                 //Add
                                 armedEscort.Id = 0;
                                 armedEscort.IsTemporarilyHeld = true;
-                                armedEscort.DateTemporarilyHeld = DateTime.UtcNow;
+                                armedEscort.DateTemporarilyHeld = DateTime.Now;
                                 armedEscort.ArmedEscortResourceId = getResourceId;
                                 armedEscort.RequiredCount = resourceCount++;
                                 armedEscort.CreatedById = context.GetLoggedInUserId();
@@ -1070,6 +1070,16 @@ namespace HaloBiz.MyServices.Impl
             }
 
             return CommonResponse.Send(ResponseCodes.SUCCESS);
+        }
+
+        public async Task<ApiCommonResponse> GetAllCompletedTripsByClientId(long clientId)
+        {
+            var master = await _serviceAssignmentMasterRepository.FindAllCompletedTripsByClientId(clientId);
+            if (master == null)
+            {
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);
+            }
+            return CommonResponse.Send(ResponseCodes.SUCCESS, master.Count(), ResponseMessage.Success200);
         }
 
         public async Task<ApiCommonResponse> GetAllCustomerDivisions()
