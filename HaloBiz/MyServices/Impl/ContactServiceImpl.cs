@@ -16,6 +16,7 @@ using HalobizMigrations.Models;
 using HalobizMigrations.Models.Visitors;
 using HalobizMigrations.Models.ProjectManagement;
 using System.Collections.Generic;
+using HaloBiz.DTOs;
 
 namespace HaloBiz.MyServices.Impl
 {
@@ -1113,34 +1114,64 @@ namespace HaloBiz.MyServices.Impl
             return CommonResponse.Send(ResponseCodes.SUCCESS, contract, "Contract was successfully retrieved");
 
         }
-
-
+        
         public async Task<ApiCommonResponse> getDeliverableDashboard(HttpContext httpContext)
         {
+            var projects = await _context.Projects.AsNoTracking()
+                .Where(x => x.IsActive == true && x.Watchers.Any(x => x.IsActive == true && x.ProjectWatcherId == httpContext.GetLoggedInUserId()))
+                .Include(x=>x.Workspace)
+                .ToListAsync();
+
+            var tasks = await _context.Tasks.AsNoTracking()
+                .Where(x => x.IsActive == true).ToListAsync();
+            
+            var statusFlows = await _context.StatusFlows.AsNoTracking()
+                .Where(x => x.IsDeleted == false).ToListAsync();
+            
+            var deliverables = await _context.Deliverables.AsNoTracking()
+                .Where(x => x.IsActive == true)
+                .Include(x=>x.CreatedBy)
+                .ToListAsync();
 
 
-            var projects = await _context.Projects.Where(x => x.IsActive == true && x.Watchers.Any(x => x.IsActive == true && x.ProjectWatcherId == httpContext.GetLoggedInUserId()))
-                                                  .Include(x => x.Workspace)
-                                                       .ThenInclude(x => x.StatusFlows.Where(x => x.IsDeleted == false))
-                                                  .Include(x => x.Tasks.Where(x => x.IsActive == true))
-                                                          .ThenInclude(x => x.Deliverables.Where(x => x.IsActive == true))
-                                                                .ThenInclude(x => x.CreatedBy)
-                                                  .ToListAsync();
-
-
-            if (projects.Count == 0)
+            var valuesToEmit = new ProjectExtract()
             {
-                return CommonResponse.Send(ResponseCodes.FAILURE, null, "No Project was found");
-            }
+                Deliverables = deliverables,
+                Projects = projects,
+                Tasks = tasks,
+                StatusFlows = statusFlows
+            };
 
-            var getProjectResultResult = projects.GroupBy(p => p.Id)
-                              .Select(result => result.First())
-                              .ToArray();
-
-
-            return CommonResponse.Send(ResponseCodes.SUCCESS, getProjectResultResult, "Project was successfully retrieved");
-
+            return CommonResponse.Send(ResponseCodes.SUCCESS, valuesToEmit, "Project was successfully retrieved");
         }
+
+
+        // public async Task<ApiCommonResponse> getDeliverableDashboard(HttpContext httpContext)
+        // {
+        //
+        //
+        //     var projects = await _context.Projects.Where(x => x.IsActive == true && x.Watchers.Any(x => x.IsActive == true && x.ProjectWatcherId == 4))
+        //                                           .Include(x => x.Workspace)
+        //                                                .ThenInclude(x => x.StatusFlows.Where(x => x.IsDeleted == false))
+        //                                           .Include(x => x.Tasks.Where(x => x.IsActive == true))
+        //                                                   .ThenInclude(x => x.Deliverables.Where(x => x.IsActive == true))
+        //                                                         .ThenInclude(x => x.CreatedBy)
+        //                                           .ToListAsync();
+        //
+        //
+        //     if (projects.Count == 0)
+        //     {
+        //         return CommonResponse.Send(ResponseCodes.FAILURE, null, "No Project was found");
+        //     }
+        //
+        //     var getProjectResultResult = projects.GroupBy(p => p.Id)
+        //                       .Select(result => result.First())
+        //                       .ToArray();
+        //
+        //
+        //     return CommonResponse.Send(ResponseCodes.SUCCESS, getProjectResultResult, "Project was successfully retrieved");
+        //
+        // }
 
         public async Task<ApiCommonResponse> getAllQuotes(HttpContext httpContext)
         {

@@ -27,8 +27,10 @@ using DocumentFormat.OpenXml.Spreadsheet;
 using Google.Apis.Calendar.v3.Data;
 using Google.Apis.Services;
 using Google.Apis.Util.Store;
+using HaloBiz.Models;
 using MailKit.Search;
 using Microsoft.AspNetCore.Hosting;
+using Org.BouncyCastle.Asn1.Ocsp;
 using ConferenceSolution = HaloBiz.DTOs.ConferenceSolution;
 
 namespace HaloBiz.MyServices.Impl
@@ -42,6 +44,7 @@ namespace HaloBiz.MyServices.Impl
         private readonly IMapper _mapper;
         private IWebHostEnvironment _hostEnvironment;
         private readonly IEmailService _emailService;
+       
 
         public ProjectAllocationServiceImpl(IEmailService emailService, IWebHostEnvironment environment,IProjectResolver projectResolver, HalobizContext context, IProjectAllocationRepositoryImpl projectAllocationRepository, ILogger<ProjectAllocationServiceImpl> logger, IMapper mapper)
         {
@@ -4199,286 +4202,266 @@ namespace HaloBiz.MyServices.Impl
 
             }
         }
+        
+        public async Task<ApiCommonResponse> getAssignedTask(HttpContext httpContext)
+        {
 
-            public async Task<ApiCommonResponse> getAssignedTask(HttpContext httpContext)
-            {
-
-            var projectArray = new List<Project>();
-           
-            var getAllAssigned = await _context.Tasks.
+            var getAllAssigned = await _context.Tasks.AsNoTracking().
                 Where(x => x.IsActive == true && x.TaskAssignees.Any(t => t.TaskAssigneeId == httpContext.GetLoggedInUserId()))
-                                 .Include(x => x.Project)
-                                 .Include(x=>x.TaskAssignees.Where(x=>x.IsActive == true))
-                                 .OrderByDescending(x=>x.CreatedAt).ToListAsync();
-
-            
-
-
-            if (getAllAssigned.Count() > 0)
-               {
-
-                    foreach (var assigned in getAllAssigned)
-                    {
-                        if(assigned.Project.IsActive == true)
-                        {
-                            projectArray.Add(assigned.Project);
-                        }
-                        
-                    }
-
-                var projectResult = projectArray.GroupBy(p => p.Id)
-                     .Select(result => result.First())
-                     .ToArray();
-
-                return CommonResponse.Send(ResponseCodes.SUCCESS, projectResult, ResponseMessage.EntitySuccessfullyFound);
-             }
+                .OrderByDescending(x=>x.CreatedAt).ToListAsync();
+            var getAllProject = await _context.Projects.AsNoTracking().Where(x => x.IsActive == true)
+                .OrderByDescending(x => x.CreatedAt).ToListAsync();
+            var  getAllAssignee =   await _context.TaskAssignees.AsNoTracking().Where(x => x.IsActive == true)
+                .OrderByDescending(x => x.CreatedAt).ToListAsync();
 
                 
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE, null, ResponseMessage.EntityNotFound);
-             } 
+                var projectResult = new ProjectInstance();
+                projectResult.Projects = getAllProject;
+                projectResult.Tasks = getAllAssigned;
+                projectResult.TaskAssignees = getAllAssignee;
+
+                if (!projectResult.Projects.Any() || !projectResult.Tasks.Any())
+                {
+                    return CommonResponse.Send( ResponseCodes.FAILURE , null, ResponseMessage.EntityNotFound);
+                }
+                
+                return CommonResponse.Send( ResponseCodes.SUCCESS , projectResult, ResponseMessage.EntitySuccessfullyFound);
+
+        } 
+
+           
 
         
 
-               public async Task<List<TaskAssigneeDTO>> getAssignees(HttpContext httpContext, long taskId)
-                {
-                    var taskAssigneeList = new List<TaskAssigneeDTO>();
+            public async Task<List<TaskAssigneeDTO>> getAssignees(HttpContext httpContext, long taskId)
+            {
+                var taskAssigneeList = new List<TaskAssigneeDTO>();
 
-                    if (taskId != 0)
+                if (taskId != 0)
+                {
+
+
+                    var getTaskAssignees = await _context.TaskAssignees.Where(x => x.IsActive == true && x.TaskId == taskId && x.CreatedById == httpContext.GetLoggedInUserId()).ToListAsync();
+
+                    foreach (var taskAssignees in getTaskAssignees)
                     {
+                        var taskAssignee = new TaskAssigneeDTO();
+                        taskAssignee.CreatedAt = taskAssignees.CreatedAt;
+                        taskAssignee.CreatedById = taskAssignees.CreatedById;
+                        taskAssignee.IsActive = taskAssignees.IsActive;
+                        taskAssignee.Name = taskAssignees.Name;
+                        taskAssignee.TaskAssigneeId = taskAssignees.TaskAssigneeId;
+                        taskAssignee.ProfileImage = _context.UserProfiles.Where(x => x.Id == taskAssignee.TaskAssigneeId).FirstOrDefault().ImageUrl;
+                        taskAssignee.TaskId = taskAssignees.TaskId;
+                        taskAssignee.UpdatedAt = taskAssignees.UpdatedAt;
 
+                        taskAssigneeList.Add(taskAssignee);
+                    }
 
-                var getTaskAssignees = await _context.TaskAssignees.Where(x => x.IsActive == true && x.TaskId == taskId && x.CreatedById == httpContext.GetLoggedInUserId()).ToListAsync();
-
-                foreach (var taskAssignees in getTaskAssignees)
-                {
-                    var taskAssignee = new TaskAssigneeDTO();
-                    taskAssignee.CreatedAt = taskAssignees.CreatedAt;
-                    taskAssignee.CreatedById = taskAssignees.CreatedById;
-                    taskAssignee.IsActive = taskAssignees.IsActive;
-                    taskAssignee.Name = taskAssignees.Name;
-                    taskAssignee.TaskAssigneeId = taskAssignees.TaskAssigneeId;
-                    taskAssignee.ProfileImage = _context.UserProfiles.Where(x => x.Id == taskAssignee.TaskAssigneeId).FirstOrDefault().ImageUrl;
-                    taskAssignee.TaskId = taskAssignees.TaskId;
-                    taskAssignee.UpdatedAt = taskAssignees.UpdatedAt;
-
-                    taskAssigneeList.Add(taskAssignee);
                 }
 
-            }
-
-            return taskAssigneeList;
-
-        }
-
-        public async Task<DeliverableUser> getUser(long? userId, HttpContext httpContext)
-        {
-
-            var getUser = await _context.UserProfiles.FirstOrDefaultAsync(x => x.IsDeleted == false && x.Id == userId);
-            var user = new DeliverableUser();
-            if (getUser == null)
-            {
-                return null;
-            }
-            else
-            {
-
-                user.userId = getUser.Id;
-                user.email = getUser.Email;
-                user.fullname = getUser.FirstName + " " + getUser.LastName;
-                user.imageUrl = getUser.ImageUrl;
-
-                return user;
-            }
-
-        }
-
-
-
-        public async Task<ApiCommonResponse> dropTask(long taskId, long taskOwnershipId, HttpContext httpContext)
-        {
-            var taskToBePicked = await _context.Tasks.FirstOrDefaultAsync(x => x.IsActive == true && x.Id == taskId);
-            var taskOwnerShip = await _context.TaskOwnerships.FirstOrDefaultAsync(x => x.IsDeleted == false && x.Id == taskOwnershipId && x.TaskOwnerId == httpContext.GetLoggedInUserId());
-            if (taskToBePicked == null || taskOwnerShip == null)
-            {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE, null, "No Assignee details  was found");
+                return taskAssigneeList;
 
             }
-            else
+
+            public async Task<DeliverableUser> getUser(long? userId, HttpContext httpContext)
             {
 
-                var canDropTask = await _context.Deliverables.Where(x=>x.IsActive == true && x.TaskId == taskId && x.IsAssigned == true)
-                             .ToListAsync();
-
-                if (canDropTask.Count > 0)
+                var getUser = await _context.UserProfiles.FirstOrDefaultAsync(x => x.IsDeleted == false && x.Id == userId);
+                var user = new DeliverableUser();
+                if (getUser == null)
                 {
-                    return CommonResponse.Send(ResponseCodes.FAILURE, null, "This task contains deliverables that has been assigned,therefore cannot  be dropped.");
+                    return null;
                 }
                 else
-                { 
-
-
-                taskToBePicked.IsPickedUp = false;
-                _context.Tasks.Update(taskToBePicked);
-                taskOwnerShip.IsDeleted = true;
-                //taskOwnerShip.TaskOwnerId = 0;
-
-                _context.TaskOwnerships.Update(taskOwnerShip);
-                await _context.SaveChangesAsync();
-
-                var getUpdatedTaskownerShip = await _context.TaskOwnerships.Where(x => x.IsDeleted == false && x.TaskOwnerId == httpContext.GetLoggedInUserId()).ToListAsync();
-
-                var taskArray = new List<Task>();
-                if (getUpdatedTaskownerShip != null || getUpdatedTaskownerShip.Count() > 0)
                 {
 
-                    foreach (var item in getUpdatedTaskownerShip)
+                    user.userId = getUser.Id;
+                    user.email = getUser.Email;
+                    user.fullname = getUser.FirstName + " " + getUser.LastName;
+                    user.imageUrl = getUser.ImageUrl;
+
+                    return user;
+                }
+
+            }
+
+
+
+            public async Task<ApiCommonResponse> dropTask(long taskId, long taskOwnershipId, HttpContext httpContext)
+            {
+                var taskToBePicked = await _context.Tasks.FirstOrDefaultAsync(x => x.IsActive == true && x.Id == taskId);
+                var taskOwnerShip = await _context.TaskOwnerships.FirstOrDefaultAsync(x => x.IsDeleted == false && x.Id == taskOwnershipId && x.TaskOwnerId == httpContext.GetLoggedInUserId());
+                if (taskToBePicked == null || taskOwnerShip == null)
+                {
+                    return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE, null, "No Assignee details  was found");
+
+                }
+                else
+                {
+
+                    var canDropTask = await _context.Deliverables.Where(x=>x.IsActive == true && x.TaskId == taskId && x.IsAssigned == true)
+                        .ToListAsync();
+
+                    if (canDropTask.Count > 0)
                     {
+                        return CommonResponse.Send(ResponseCodes.FAILURE, null, "This task contains deliverables that has been assigned,therefore cannot  be dropped.");
+                    }
+                    else
+                    { 
 
-                        var taskGotten = await _context.Tasks.Where(x => x.IsActive == true && x.TaskOwnershipId == item.Id).ToListAsync();
 
-                        taskArray.AddRange(taskGotten);
+                        taskToBePicked.IsPickedUp = false;
+                        _context.Tasks.Update(taskToBePicked);
+                        taskOwnerShip.IsDeleted = true;
+                        //taskOwnerShip.TaskOwnerId = 0;
+
+                        _context.TaskOwnerships.Update(taskOwnerShip);
+                        await _context.SaveChangesAsync();
+
+                        var getUpdatedTaskownerShip = await _context.TaskOwnerships.Where(x => x.IsDeleted == false && x.TaskOwnerId == httpContext.GetLoggedInUserId()).ToListAsync();
+
+                        var taskArray = new List<Task>();
+                        if (getUpdatedTaskownerShip != null || getUpdatedTaskownerShip.Count() > 0)
+                        {
+
+                            foreach (var item in getUpdatedTaskownerShip)
+                            {
+
+                                var taskGotten = await _context.Tasks.Where(x => x.IsActive == true && x.TaskOwnershipId == item.Id).ToListAsync();
+
+                                taskArray.AddRange(taskGotten);
+
+                            }
+
+
+                        }
+
+                        return CommonResponse.Send(ResponseCodes.SUCCESS, taskArray);
 
                     }
 
 
                 }
 
-                return CommonResponse.Send(ResponseCodes.SUCCESS, taskArray);
 
             }
 
-
-            }
-
-
-        }
-
-        public async Task<ApiCommonResponse> updateProject(HttpContext httpContext, long projectId, ProjectDTO projectDTO)
-        {
-            var projectFound = await _context.Projects.FirstOrDefaultAsync(x => x.Id == projectId && x.CreatedById == httpContext.GetLoggedInUserId() && x.IsActive == true);
-
-            if (projectFound != null)
+            public async Task<ApiCommonResponse> updateProject(HttpContext httpContext, long projectId, ProjectDTO projectDTO)
             {
-                var getProjectByCaption = await _context.Projects.FirstOrDefaultAsync(x => x.IsActive == true && x.Caption == projectDTO.Caption);
+                var projectFound = await _context.Projects.FirstOrDefaultAsync(x => x.Id == projectId && x.CreatedById == httpContext.GetLoggedInUserId() && x.IsActive == true);
 
-                if (projectDTO.Caption == projectFound.Caption || getProjectByCaption != null)
+                if (projectFound != null)
                 {
-                    if (projectDTO.Alias == null)
-                        projectDTO.Alias = projectFound.Alias;
-                    if (projectDTO.ProjectImage == null)
-                        projectDTO.ProjectImage = projectFound.ProjectImage;
-                    if (projectDTO.Description == null)
-                        projectDTO.Description = projectFound.Description;
+                    var getProjectByCaption = await _context.Projects.FirstOrDefaultAsync(x => x.IsActive == true && x.Caption == projectDTO.Caption);
 
-                    projectFound.Alias = projectDTO.Alias;
-                    projectFound.Description = projectDTO.Description;
-                    projectFound.ProjectImage = projectDTO.ProjectImage;
-                    _context.Projects.Update(projectFound);
-                    await _context.SaveChangesAsync();
-                    var updatedProject = await _context.Projects.FirstOrDefaultAsync(x => x.Id == projectId && x.IsActive == true);
-                                   return CommonResponse.Send(ResponseCodes.SUCCESS, updatedProject);
+                    if (projectDTO.Caption == projectFound.Caption || getProjectByCaption != null)
+                    {
+                        if (projectDTO.Alias == null)
+                            projectDTO.Alias = projectFound.Alias;
+                        if (projectDTO.ProjectImage == null)
+                            projectDTO.ProjectImage = projectFound.ProjectImage;
+                        if (projectDTO.Description == null)
+                            projectDTO.Description = projectFound.Description;
 
+                        projectFound.Alias = projectDTO.Alias;
+                        projectFound.Description = projectDTO.Description;
+                        projectFound.ProjectImage = projectDTO.ProjectImage;
+                        _context.Projects.Update(projectFound);
+                        await _context.SaveChangesAsync();
+                        var updatedProject = await _context.Projects.FirstOrDefaultAsync(x => x.Id == projectId && x.IsActive == true);
+                        return CommonResponse.Send(ResponseCodes.SUCCESS, updatedProject);
+
+
+                    }
+                    else
+                    {
+                        if (projectDTO.Alias == null)
+                            projectDTO.Alias = projectFound.Alias;
+                        if (projectDTO.Caption == null)
+                            projectDTO.Caption = projectFound.Caption;
+                        if (projectDTO.ProjectImage == null)
+                            projectDTO.ProjectImage = projectFound.ProjectImage;
+                        if (projectDTO.Description == null)
+                            projectDTO.Description = projectFound.Description;
+
+                        projectFound.Alias = projectDTO.Alias;
+                        projectFound.Caption = projectDTO.Caption;
+                        projectFound.Description = projectDTO.Description;
+                        projectFound.ProjectImage = projectDTO.ProjectImage;
+                        _context.Projects.Update(projectFound);
+                        await _context.SaveChangesAsync();
+                        var updatedProject = await _context.Projects.FirstOrDefaultAsync(x => x.Id == projectId && x.IsActive == true);
+                        return CommonResponse.Send(ResponseCodes.SUCCESS, updatedProject);
+
+                    }
 
                 }
                 else
                 {
-                    if (projectDTO.Alias == null)
-                        projectDTO.Alias = projectFound.Alias;
-                    if (projectDTO.Caption == null)
-                        projectDTO.Caption = projectFound.Caption;
-                    if (projectDTO.ProjectImage == null)
-                        projectDTO.ProjectImage = projectFound.ProjectImage;
-                    if (projectDTO.Description == null)
-                        projectDTO.Description = projectFound.Description;
-
-                    projectFound.Alias = projectDTO.Alias;
-                    projectFound.Caption = projectDTO.Caption;
-                    projectFound.Description = projectDTO.Description;
-                    projectFound.ProjectImage = projectDTO.ProjectImage;
-                    _context.Projects.Update(projectFound);
-                    await _context.SaveChangesAsync();
-                    var updatedProject = await _context.Projects.FirstOrDefaultAsync(x => x.Id == projectId && x.IsActive == true);
-                    return CommonResponse.Send(ResponseCodes.SUCCESS, updatedProject);
+                    return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);
 
                 }
-
             }
-            else
+            public async Task<ApiCommonResponse> getTaskByCaption(HttpContext httpContext, string caption)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);
+                var checkIfTaskExistByCaption = await _context.Tasks.Where(x => x.Caption == caption.Trim() && x.CreatedById == httpContext.GetLoggedInUserId()).FirstOrDefaultAsync();
 
-            }
-        }
-        public async Task<ApiCommonResponse> getTaskByCaption(HttpContext httpContext, string caption)
-        {
-            var checkIfTaskExistByCaption = await _context.Tasks.Where(x => x.Caption == caption.Trim() && x.CreatedById == httpContext.GetLoggedInUserId()).FirstOrDefaultAsync();
-
-            if (checkIfTaskExistByCaption == null)
-            {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);
-
-            }
-            else
-            {
-                var taskSummary = new TaskSummaryDTO();
-                taskSummary.id = checkIfTaskExistByCaption.Id;
-                taskSummary.Alias = checkIfTaskExistByCaption.Alias;
-                taskSummary.Caption = checkIfTaskExistByCaption.Caption;
-                taskSummary.CreatedAt = checkIfTaskExistByCaption.CreatedAt;
-                taskSummary.CreatedById = checkIfTaskExistByCaption.CreatedById;
-                taskSummary.Description = checkIfTaskExistByCaption.Description;
-                taskSummary.IsAssigned = checkIfTaskExistByCaption.IsAssigned;
-                taskSummary.IsMilestone = checkIfTaskExistByCaption.IsMilestone;
-                taskSummary.IsReassigned = checkIfTaskExistByCaption.IsReassigned;
-                taskSummary.DueTime = checkIfTaskExistByCaption.DueTime;
-                taskSummary.WorkingManHours = checkIfTaskExistByCaption.WorkingManHours;
-                taskSummary.IsWorkbenched = checkIfTaskExistByCaption.IsWorkbenched;
-                taskSummary.ProjectId = checkIfTaskExistByCaption.ProjectId;
-                taskSummary.TaskEndDate = checkIfTaskExistByCaption.TaskEndDate;
-                taskSummary.TaskStartDate = checkIfTaskExistByCaption.TaskStartDate;
-                taskSummary.Project = await _context.Projects.FirstOrDefaultAsync(x => x.Id == checkIfTaskExistByCaption.ProjectId && x.IsActive == true && x.CreatedById == httpContext.GetLoggedInUserId());
-                taskSummary.TaskAssignees = await _context.TaskAssignees.Where(X => X.TaskId == checkIfTaskExistByCaption.Id && X.IsActive == true && X.CreatedById == httpContext.GetLoggedInUserId()).ToListAsync();
-                taskSummary.workspace = await _context.Workspaces.FirstOrDefaultAsync(x => x.Id == taskSummary.Project.WorkspaceId && x.IsActive == true && x.CreatedById == httpContext.GetLoggedInUserId());
-                return CommonResponse.Send(ResponseCodes.SUCCESS, taskSummary);
-
-            }
-
-        }
-
-        public async Task<ApiCommonResponse> getAllPickedTask(HttpContext httpContext)
-        {
-            var getUpdatedTaskownerShip = await _context.TaskOwnerships.Where(x => x.IsDeleted == false && x.TaskOwnerId == httpContext.GetLoggedInUserId()).ToListAsync();
-
-            if (getUpdatedTaskownerShip == null || getUpdatedTaskownerShip.Count() == 0)
-            {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE,"No assigned found");
-
-
-            }
-            else
-            {
-
-                var taskArray = new List<Task>();
-                foreach (var item in getUpdatedTaskownerShip)
+                if (checkIfTaskExistByCaption == null)
                 {
+                    return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);
 
-                    var taskGotten = await _context.Tasks.Where(x => x.IsActive == true && x.TaskOwnershipId == item.Id).ToListAsync();
-
-                    taskArray.AddRange(taskGotten);
+                }
+                else
+                {
+                    var taskSummary = new TaskSummaryDTO();
+                    taskSummary.id = checkIfTaskExistByCaption.Id;
+                    taskSummary.Alias = checkIfTaskExistByCaption.Alias;
+                    taskSummary.Caption = checkIfTaskExistByCaption.Caption;
+                    taskSummary.CreatedAt = checkIfTaskExistByCaption.CreatedAt;
+                    taskSummary.CreatedById = checkIfTaskExistByCaption.CreatedById;
+                    taskSummary.Description = checkIfTaskExistByCaption.Description;
+                    taskSummary.IsAssigned = checkIfTaskExistByCaption.IsAssigned;
+                    taskSummary.IsMilestone = checkIfTaskExistByCaption.IsMilestone;
+                    taskSummary.IsReassigned = checkIfTaskExistByCaption.IsReassigned;
+                    taskSummary.DueTime = checkIfTaskExistByCaption.DueTime;
+                    taskSummary.WorkingManHours = checkIfTaskExistByCaption.WorkingManHours;
+                    taskSummary.IsWorkbenched = checkIfTaskExistByCaption.IsWorkbenched;
+                    taskSummary.ProjectId = checkIfTaskExistByCaption.ProjectId;
+                    taskSummary.TaskEndDate = checkIfTaskExistByCaption.TaskEndDate;
+                    taskSummary.TaskStartDate = checkIfTaskExistByCaption.TaskStartDate;
+                    taskSummary.Project = await _context.Projects.FirstOrDefaultAsync(x => x.Id == checkIfTaskExistByCaption.ProjectId && x.IsActive == true && x.CreatedById == httpContext.GetLoggedInUserId());
+                    taskSummary.TaskAssignees = await _context.TaskAssignees.Where(X => X.TaskId == checkIfTaskExistByCaption.Id && X.IsActive == true && X.CreatedById == httpContext.GetLoggedInUserId()).ToListAsync();
+                    taskSummary.workspace = await _context.Workspaces.FirstOrDefaultAsync(x => x.Id == taskSummary.Project.WorkspaceId && x.IsActive == true && x.CreatedById == httpContext.GetLoggedInUserId());
+                    return CommonResponse.Send(ResponseCodes.SUCCESS, taskSummary);
 
                 }
 
+            }
 
+            public async Task<ApiCommonResponse> getAllPickedTask(HttpContext httpContext)
+            {
+                var getUpdatedTaskownerShip = await _context.TaskOwnerships.AsNoTracking().Where(x => x.IsDeleted == false && x.TaskOwnerId == httpContext.GetLoggedInUserId()).ToListAsync();
 
-                return CommonResponse.Send(ResponseCodes.SUCCESS, taskArray);
-
+                if (getUpdatedTaskownerShip == null || getUpdatedTaskownerShip.Count() == 0)
+                {
+                    return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE,"No assigned found");
+                }
+                else
+                {
+                    var taskArray = new List<Task>();
+                    foreach (var item in getUpdatedTaskownerShip)
+                    {
+                        var taskGotten = await _context.Tasks.AsNoTracking().Where(x => x.IsActive == true && x.TaskOwnershipId == item.Id).ToListAsync();
+                        taskArray.AddRange(taskGotten);
+                    }
+                    return CommonResponse.Send(ResponseCodes.SUCCESS, taskArray);
+                }
 
             }
 
-        }
-
-        public async Task<ApiCommonResponse> createTaskIllustration(IllustrationsDTO illustrationsDTO, long taskId, HttpContext httpContext)
-        {
+            public async Task<ApiCommonResponse> createTaskIllustration(IllustrationsDTO illustrationsDTO, long taskId, HttpContext httpContext)
+            {
             
             
                 var illustrationInstance = new PMIllustration();
@@ -4494,57 +4477,57 @@ namespace HaloBiz.MyServices.Impl
                 //illustrationList.Add(illustrationInstance);
             
 
-            await _context.PMIllustrations.AddAsync(illustrationInstance);
-            await _context.SaveChangesAsync();
-            var getTaskIllustration = await _context.PMIllustrations.Where(x => x.IsActive == true && x.TaskId == taskId).ToListAsync();
-
-            return CommonResponse.Send(ResponseCodes.SUCCESS, getTaskIllustration);
-
-
-        }
-
-        public async Task<ApiCommonResponse> removeIllustrationById(long taskId, long illustrationId)
-        {
-            var getTaskIllustration = await _context.PMIllustrations.FirstOrDefaultAsync(x => x.IsActive == true && x.Id == illustrationId);
-            if (getTaskIllustration == null)
-            {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);
-            }
-            else
-            {
-                getTaskIllustration.IsActive = false;
+                await _context.PMIllustrations.AddAsync(illustrationInstance);
                 await _context.SaveChangesAsync();
+                var getTaskIllustration = await _context.PMIllustrations.Where(x => x.IsActive == true && x.TaskId == taskId).ToListAsync();
 
+                return CommonResponse.Send(ResponseCodes.SUCCESS, getTaskIllustration);
+
+
+            }
+
+            public async Task<ApiCommonResponse> removeIllustrationById(long taskId, long illustrationId)
+            {
+                var getTaskIllustration = await _context.PMIllustrations.FirstOrDefaultAsync(x => x.IsActive == true && x.Id == illustrationId);
+                if (getTaskIllustration == null)
+                {
+                    return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);
+                }
+                else
+                {
+                    getTaskIllustration.IsActive = false;
+                    await _context.SaveChangesAsync();
+
+                    return CommonResponse.Send(ResponseCodes.SUCCESS, getTaskIllustration);
+
+                }
+
+
+            }
+
+            public async Task<ApiCommonResponse> getAllPrivacyAccessByWorkspaceId(HttpContext httpContext, long workspaceId)
+            {
+                var privacyAccesses = await _context.PrivacyAccesses.Where(x => x.WorkspaceId == workspaceId && x.IsActive == true && x.CreatedById == httpContext.GetLoggedInUserId()).ToListAsync();
+                return CommonResponse.Send(ResponseCodes.SUCCESS, privacyAccesses);
+
+
+
+            }
+            public async Task<ApiCommonResponse> getTaskIllustrationById(long taskId)
+            {
+                var getTaskIllustration = await _context.PMIllustrations.Where(x => x.IsActive == true && x.TaskId == taskId).ToListAsync();
                 return CommonResponse.Send(ResponseCodes.SUCCESS, getTaskIllustration);
 
             }
 
-
-        }
-
-        public async Task<ApiCommonResponse> getAllPrivacyAccessByWorkspaceId(HttpContext httpContext, long workspaceId)
-        {
-            var privacyAccesses = await _context.PrivacyAccesses.Where(x => x.WorkspaceId == workspaceId && x.IsActive == true && x.CreatedById == httpContext.GetLoggedInUserId()).ToListAsync();
-            return CommonResponse.Send(ResponseCodes.SUCCESS, privacyAccesses);
-
-
-
-        }
-        public async Task<ApiCommonResponse> getTaskIllustrationById(long taskId)
-        {
-            var getTaskIllustration = await _context.PMIllustrations.Where(x => x.IsActive == true && x.TaskId == taskId).ToListAsync();
-            return CommonResponse.Send(ResponseCodes.SUCCESS, getTaskIllustration);
-
-        }
-
         
        
 
-        public async Task<ApiCommonResponse> ResolveQuotesIntoProjects(HttpContext httpContext, long instanceId,string fulfillmentType)
-        {
-            if (fulfillmentType.ToLower().Trim() == "Contract Creation".ToLower().Trim())
+            public async Task<ApiCommonResponse> ResolveQuotesIntoProjects(HttpContext httpContext, long instanceId,string fulfillmentType)
             {
-                        var getNewLeadWithQuotes = await _context.LeadDivisions.AsNoTracking()
+                if (fulfillmentType.ToLower().Trim() == "Contract Creation".ToLower().Trim())
+                {
+                    var getNewLeadWithQuotes = await _context.LeadDivisions.AsNoTracking()
                         .Include(lead => lead.LeadOrigin)
                         .Include(lead => lead.Lead)
                         .Include(lead => lead.LeadType)
@@ -4555,32 +4538,32 @@ namespace HaloBiz.MyServices.Impl
                         .ThenInclude(x=>x.Division)
                         .FirstOrDefaultAsync(x => x.LeadId == instanceId);
 
-                     if (getNewLeadWithQuotes != null)
-                     {
-                         var quotesServiceArray = new List<QuoteService>();
-                         foreach (var leadQuotes in getNewLeadWithQuotes.Quote.QuoteServices)
-                         {
-                             quotesServiceArray.AddRange(leadQuotes.Quote.QuoteServices);
-                         }
-                         var structuredService = await  _projectResolver.StructureServices(quotesServiceArray);
-                         var createFulfilmentProject = await _projectResolver.CreateProjectForFulfilmentProject(httpContext,getNewLeadWithQuotes,structuredService);
-                         return CommonResponse.Send(ResponseCodes.SUCCESS,null, "Successfully resolved projects and tasks");
-                     }
-                     else
-                     {
-                         return CommonResponse.Send(ResponseCodes.FAILURE,null, "Couldn't resolve task and projects");
-                     }
-            }
-            else if (fulfillmentType.ToLower().Trim() == "Endorsements".ToLower().Trim())
-            {
+                    if (getNewLeadWithQuotes != null)
+                    {
+                        var quotesServiceArray = new List<QuoteService>();
+                        foreach (var leadQuotes in getNewLeadWithQuotes.Quote.QuoteServices)
+                        {
+                            quotesServiceArray.AddRange(leadQuotes.Quote.QuoteServices);
+                        }
+                        var structuredService = await  _projectResolver.StructureServices(quotesServiceArray);
+                        var createFulfilmentProject = await _projectResolver.CreateProjectForFulfilmentProject(httpContext,getNewLeadWithQuotes,structuredService);
+                        return CommonResponse.Send(ResponseCodes.SUCCESS,null, "Successfully resolved projects and tasks");
+                    }
+                    else
+                    {
+                        return CommonResponse.Send(ResponseCodes.FAILURE,null, "Couldn't resolve task and projects");
+                    }
+                }
+                else if (fulfillmentType.ToLower().Trim() == "Endorsements".ToLower().Trim())
+                {
                 
                     var getNewEndorsementById = await _context.ContractServiceForEndorsements.AsNoTracking()
-                                                                    .Include(x => x.EndorsementType)
-                                                                    .Include(x=>x.Service)
-                                                                    .ThenInclude(x=>x.Division).AsNoTracking()
-                                                                    .Include(x => x.CustomerDivision)
-                                                                    .Where(x => x.IsRequestedForApproval && !x.IsApproved && !x.IsDeclined && x.Id == instanceId)
-                                                                    .FirstOrDefaultAsync();
+                        .Include(x => x.EndorsementType)
+                        .Include(x=>x.Service)
+                        .ThenInclude(x=>x.Division).AsNoTracking()
+                        .Include(x => x.CustomerDivision)
+                        .Where(x => x.IsRequestedForApproval && !x.IsApproved && !x.IsDeclined && x.Id == instanceId)
+                        .FirstOrDefaultAsync();
                     if (getNewEndorsementById != null)
                     {
                         var createEndorseMent = await _projectResolver.CreateEndorseMentProject(httpContext,getNewEndorsementById);
@@ -4599,10 +4582,10 @@ namespace HaloBiz.MyServices.Impl
                     }
                 
                 
-            }
-            else
-            {
-                var getService = await _context.Services
+                }
+                else
+                {
+                    var getService = await _context.Services
                         .Include(service => service.Target)
                         .Include(service => service.ServiceType)
                         .Include(service => service.Account)
@@ -4619,338 +4602,338 @@ namespace HaloBiz.MyServices.Impl
                         .Where(service => service.IsRequestedForPublish == true && service.IsPublished == false && service.IsDeleted == false && service.Id == instanceId)
                         .FirstOrDefaultAsync();
 
-                if (getService != null)
-                {
-                    var createProject = await _projectResolver.CreateServiceProject(httpContext,getService);
+                    if (getService != null)
+                    {
+                        var createProject = await _projectResolver.CreateServiceProject(httpContext,getService);
 
-                    if (createProject.responseCode == "00")
-                    {
-                        return CommonResponse.Send(ResponseCodes.SUCCESS,null, "Service was successfully resolved into project");
+                        if (createProject.responseCode == "00")
+                        {
+                            return CommonResponse.Send(ResponseCodes.SUCCESS,null, "Service was successfully resolved into project");
+                        }
+                        else
+                        {
+                            return CommonResponse.Send(ResponseCodes.FAILURE,null, "Service couldn't be resolved into project");
+                        }
                     }
-                    else
+                    return CommonResponse.Send(ResponseCodes.FAILURE,null, $"Service with id {instanceId} couldn't be found");
+                }
+            }
+        
+              
+        
+            public async Task<ApiCommonResponse> FetchAmortizationDetails()
+            {
+            
+                var getAmortizationDetails = await _context.RepAmortizationDetails.AsNoTracking()
+                    // .Include(x=>x.RepAmortizationDetails).AsNoTracking()
+                    .ToListAsync();
+
+                    
+                if (getAmortizationDetails.Any())
+                {
+                    return CommonResponse.Send(ResponseCodes.SUCCESS,getAmortizationDetails, "Amortization data successfully retrieved");
+                }
+                return CommonResponse.Send(ResponseCodes.FAILURE,getAmortizationDetails, "Could not retrieve armortization data");
+            }
+
+            public async Task<ApiCommonResponse> FetchAmortizationMaster(int year,int month)
+            {
+                var chosenDay = month == 2 ? 28 : 30;
+                DateTime endDate = new DateTime(year, month,chosenDay);
+                DateTime startDate = new DateTime(year,1,1);
+                var getAmortizationMaster = await _context.RepAmortizationMasters.AsNoTracking()
+                    .Where(x => x.IsDeleted == false && startDate <= x.CreatedAt && x.CreatedAt < endDate)
+                    //.Include(x=>x.CustomerDivision)
+                    //.Include(x=>x.RepAmortizationDetails)
+                    .ToListAsync();
+                    
+                if (getAmortizationMaster.Any())
+                {
+                    return CommonResponse.Send(ResponseCodes.SUCCESS,getAmortizationMaster, "Amortization data successfully retrieved");
+                }
+                return CommonResponse.Send(ResponseCodes.FAILURE,getAmortizationMaster, "Could not retrieve armortization data");
+            }
+
+            public async Task<ApiCommonResponse> RetrieveCustomerDivision()
+            {
+                var getCustomerDivision = await _context.CustomerDivisions.AsNoTracking()
+                    .Where(x => x.IsDeleted == false)
+                    .ToListAsync();
+                if (getCustomerDivision.Any())
+                {
+                    return CommonResponse.Send(ResponseCodes.SUCCESS,getCustomerDivision, "Customer division data successfully retrieved");
+                }
+                return CommonResponse.Send(ResponseCodes.FAILURE,null, "Could not retrieve Customerdivision");
+            }
+
+
+           
+            public async Task<ApiCommonResponse> PushEventToGoogleCalender(CalenderRequestDTO calenderRequestDto,HttpContext httpContext)
+            {
+                try
+                {
+                    string[] scopes = { "https://www.googleapis.com/auth/calendar" };
+                    string applicationName = "HalobizCalender";
+                    //var credentials = Path.Combine("Files", "credential.json");
+                    //string path = $"wwwroot/Files/credential.json";
+                    string path = Path.Combine(_hostEnvironment.WebRootPath,"Files/credential.json");
+                    UserCredential credential;
+
+                    using (var stream =
+                           new FileStream(path, FileMode.Open, FileAccess.Read))
                     {
-                        return CommonResponse.Send(ResponseCodes.FAILURE,null, "Service couldn't be resolved into project");
+                        string credPath = Path.Combine(_hostEnvironment.WebRootPath,"Files/token.json");
+                        credential = GoogleWebAuthorizationBroker.AuthorizeAsync(
+                            GoogleClientSecrets.Load(stream).Secrets,
+                            scopes,
+                            "user",
+                            CancellationToken.None,
+                            new FileDataStore(credPath, true)).Result;
+                        Console.WriteLine("Credential file saved to: " + credPath);
+                    }
+                    var initializer = new BaseClientService.Initializer()
+                    {
+                        HttpClientInitializer = credential,
+                        ApplicationName = "HalobizCalenderEvent",
+                    };
+                    var service = new CalendarService(initializer);
+               
+                    var response = await  CreateEvent(service,calenderRequestDto,httpContext);
+
+                    if (response.responseCode == "00")
+                    {
+                        return CommonResponse.Send(ResponseCodes.SUCCESS,null, "The event was successfully created");
                     }
                 }
-                return CommonResponse.Send(ResponseCodes.FAILURE,null, $"Service with id {instanceId} couldn't be found");
+                catch (Exception e)
+                {
+                    return CommonResponse.Send(ResponseCodes.FAILURE,e, "An unspecified error occured");
+                }
+                return CommonResponse.Send(ResponseCodes.FAILURE,null, "The event could not be created");
             }
-        }
-        
-              
-        
-        public async Task<ApiCommonResponse> FetchAmortizationDetails()
-        {
-            
-            var getAmortizationDetails = await _context.RepAmortizationDetails.AsNoTracking()
-                // .Include(x=>x.RepAmortizationDetails).AsNoTracking()
-                .ToListAsync();
 
-                    
-            if (getAmortizationDetails.Any())
+
+            public async Task<ApiCommonResponse> DeleteEvent(string eventId)
             {
-                return CommonResponse.Send(ResponseCodes.SUCCESS,getAmortizationDetails, "Amortization data successfully retrieved");
-            }
-            return CommonResponse.Send(ResponseCodes.FAILURE,getAmortizationDetails, "Could not retrieve armortization data");
-        }
+                try
+                {
+                    string[] scopes = { "https://www.googleapis.com/auth/calendar" };
+                    string applicationName = "HalobizCalender";
+                    string path = Path.Combine(_hostEnvironment.WebRootPath,"Files/credential.json");
 
-           public async Task<ApiCommonResponse> FetchAmortizationMaster(int year,int month)
-           {
-                    var chosenDay = month == 2 ? 28 : 30;
-                    DateTime endDate = new DateTime(year, month,chosenDay);
-                    DateTime startDate = new DateTime(year,1,1);
-                    var getAmortizationMaster = await _context.RepAmortizationMasters.AsNoTracking()
-                   .Where(x => x.IsDeleted == false && startDate <= x.CreatedAt && x.CreatedAt < endDate)
-                   //.Include(x=>x.CustomerDivision)
-                   .Include(x=>x.RepAmortizationDetails)
-                   .ToListAsync();
-                    
-               if (getAmortizationMaster.Any())
-               {
-                   return CommonResponse.Send(ResponseCodes.SUCCESS,getAmortizationMaster, "Amortization data successfully retrieved");
-               }
-               return CommonResponse.Send(ResponseCodes.FAILURE,getAmortizationMaster, "Could not retrieve armortization data");
-           }
+                    UserCredential credential;
 
-           public async Task<ApiCommonResponse> RetrieveCustomerDivision()
-           {
-               var getCustomerDivision = await _context.CustomerDivisions.AsNoTracking()
-                   .Where(x => x.IsDeleted == false)
-                   .ToListAsync();
-               if (getCustomerDivision.Any())
-               {
-                   return CommonResponse.Send(ResponseCodes.SUCCESS,getCustomerDivision, "Customer division data successfully retrieved");
-               }
-               return CommonResponse.Send(ResponseCodes.FAILURE,null, "Could not retrieve Customerdivision");
-           }
-
-
-           
-           public async Task<ApiCommonResponse> PushEventToGoogleCalender(CalenderRequestDTO calenderRequestDto,HttpContext httpContext)
-           {
-               try
-               {
-                   string[] scopes = { "https://www.googleapis.com/auth/calendar" };
-                   string applicationName = "HalobizCalender";
-                   //var credentials = Path.Combine("Files", "credential.json");
-                   //string path = $"wwwroot/Files/credential.json";
-                   string path = Path.Combine(_hostEnvironment.WebRootPath,"Files/credential.json");
-                   UserCredential credential;
-
-                   using (var stream =
-                          new FileStream(path, FileMode.Open, FileAccess.Read))
-                   {
-                       string credPath = Path.Combine(_hostEnvironment.WebRootPath,"Files/token.json");
-                       credential = GoogleWebAuthorizationBroker.AuthorizeAsync(
-                           GoogleClientSecrets.Load(stream).Secrets,
-                           scopes,
-                           "user",
-                           CancellationToken.None,
-                           new FileDataStore(credPath, true)).Result;
-                       Console.WriteLine("Credential file saved to: " + credPath);
-                   }
-                   var initializer = new BaseClientService.Initializer()
-                   {
-                       HttpClientInitializer = credential,
-                       ApplicationName = "HalobizCalenderEvent",
-                   };
-                   var service = new CalendarService(initializer);
+                    using (var stream =
+                           new FileStream(path, FileMode.Open, FileAccess.Read))
+                    {
+                        string credPath = Path.Combine(_hostEnvironment.WebRootPath,"Files/token.json");
+                        credential = GoogleWebAuthorizationBroker.AuthorizeAsync(
+                            GoogleClientSecrets.Load(stream).Secrets,
+                            scopes,
+                            "user",
+                            CancellationToken.None,
+                            new FileDataStore(credPath, true)).Result;
+                        Console.WriteLine("Credential file saved to: " + credPath);
+                    }
+                    var initializer = new BaseClientService.Initializer()
+                    {
+                        HttpClientInitializer = credential,
+                        ApplicationName = "HalobizCalenderEvent",
+                    };
+                    var service = new CalendarService(initializer);
                
-                   var response = await  CreateEvent(service,calenderRequestDto,httpContext);
-
-                   if (response.responseCode == "00")
-                   {
-                       return CommonResponse.Send(ResponseCodes.SUCCESS,null, "The event was successfully created");
-                   }
-               }
-               catch (Exception e)
-               {
-                   return CommonResponse.Send(ResponseCodes.FAILURE,e, "An unspecified error occured");
-               }
-               return CommonResponse.Send(ResponseCodes.FAILURE,null, "The event could not be created");
-           }
-
-
-           public async Task<ApiCommonResponse> DeleteEvent(string eventId)
-           {
-               try
-               {
-                   string[] scopes = { "https://www.googleapis.com/auth/calendar" };
-                   string applicationName = "HalobizCalender";
-                   string path = Path.Combine(_hostEnvironment.WebRootPath,"Files/credential.json");
-
-                   UserCredential credential;
-
-                   using (var stream =
-                          new FileStream(path, FileMode.Open, FileAccess.Read))
-                   {
-                       string credPath = Path.Combine(_hostEnvironment.WebRootPath,"Files/token.json");
-                       credential = GoogleWebAuthorizationBroker.AuthorizeAsync(
-                           GoogleClientSecrets.Load(stream).Secrets,
-                           scopes,
-                           "user",
-                           CancellationToken.None,
-                           new FileDataStore(credPath, true)).Result;
-                       Console.WriteLine("Credential file saved to: " + credPath);
-                   }
-                   var initializer = new BaseClientService.Initializer()
-                   {
-                       HttpClientInitializer = credential,
-                       ApplicationName = "HalobizCalenderEvent",
-                   };
-                   var service = new CalendarService(initializer);
-               
-                   EventsResource.DeleteRequest request = service.Events.Delete("primary",eventId);  
-                   var listedEvents = await request.ExecuteAsync();
-                   var meeting = await _context.CalenderEvents.FirstOrDefaultAsync(x => x.CalenderId == eventId && x.IsActive == true);
-                   meeting.IsActive = false;
-                   _context.CalenderEvents.Update(meeting);
-                   await _context.SaveChangesAsync();
-                   return CommonResponse.Send(ResponseCodes.SUCCESS,listedEvents, "The event was successfully retrieved");
-               }
-               catch (Exception e)
-               {
-                   return CommonResponse.Send(ResponseCodes.FAILURE,e, "An unspecified error occurred");
-               }
+                    EventsResource.DeleteRequest request = service.Events.Delete("primary",eventId);  
+                    var listedEvents = await request.ExecuteAsync();
+                    var meeting = await _context.CalenderEvents.FirstOrDefaultAsync(x => x.CalenderId == eventId && x.IsActive == true);
+                    meeting.IsActive = false;
+                    _context.CalenderEvents.Update(meeting);
+                    await _context.SaveChangesAsync();
+                    return CommonResponse.Send(ResponseCodes.SUCCESS,listedEvents, "The event was successfully retrieved");
+                }
+                catch (Exception e)
+                {
+                    return CommonResponse.Send(ResponseCodes.FAILURE,e, "An unspecified error occurred");
+                }
        
-           }
+            }
 
-           public async Task<ApiCommonResponse> PersistEvent(Event insertedEvent,CalenderRequestDTO request, HttpContext httpContext)
-           {
-               var meeting = await _context.CalenderEvents.Where(x => x.MeetingId == request.Id && x.IsActive == true).FirstOrDefaultAsync();
-               if (meeting == null)
-               {
-                   var eventToBeSaved = new CalenderEvent()
-                   {
-                       IsActive = true,
-                       CreatedById = httpContext.GetLoggedInUserId(),
-                       CreatedAt = DateTime.Now,
-                       MeetingId = request.Id,
-                       CalenderId = insertedEvent.Id
-                   };
-                   await _context.CalenderEvents.AddAsync(eventToBeSaved);
-                   await _context.SaveChangesAsync();
-                   return CommonResponse.Send(ResponseCodes.SUCCESS,null, ""); 
-               }
-               else
-               {
-                   meeting.CalenderId = insertedEvent.Id;
-                   meeting.CreatedById = httpContext.GetLoggedInUserId();
-                   _context.CalenderEvents.Update(meeting);
-                   await _context.SaveChangesAsync();
-                   return CommonResponse.Send(ResponseCodes.SUCCESS,null, ""); 
-               }
+            public async Task<ApiCommonResponse> PersistEvent(Event insertedEvent,CalenderRequestDTO request, HttpContext httpContext)
+            {
+                var meeting = await _context.CalenderEvents.Where(x => x.MeetingId == request.Id && x.IsActive == true).FirstOrDefaultAsync();
+                if (meeting == null)
+                {
+                    var eventToBeSaved = new CalenderEvent()
+                    {
+                        IsActive = true,
+                        CreatedById = httpContext.GetLoggedInUserId(),
+                        CreatedAt = DateTime.Now,
+                        MeetingId = request.Id,
+                        CalenderId = insertedEvent.Id
+                    };
+                    await _context.CalenderEvents.AddAsync(eventToBeSaved);
+                    await _context.SaveChangesAsync();
+                    return CommonResponse.Send(ResponseCodes.SUCCESS,null, ""); 
+                }
+                else
+                {
+                    meeting.CalenderId = insertedEvent.Id;
+                    meeting.CreatedById = httpContext.GetLoggedInUserId();
+                    _context.CalenderEvents.Update(meeting);
+                    await _context.SaveChangesAsync();
+                    return CommonResponse.Send(ResponseCodes.SUCCESS,null, ""); 
+                }
            
-           }
+            }
            
-           public async Task<ApiCommonResponse> CreateEvent(CalendarService service,CalenderRequestDTO request,HttpContext httpContext)
-           {
-               var users = await _context.UserProfiles.Where(x => x.IsDeleted == false).ToListAsync();
-               var contacts = await _context.Contacts.Where(x => x.IsDeleted == false).ToListAsync();
-               var attenders = new List<EventAttendee>();
+            public async Task<ApiCommonResponse> CreateEvent(CalendarService service,CalenderRequestDTO request,HttpContext httpContext)
+            {
+                var users = await _context.UserProfiles.Where(x => x.IsDeleted == false).ToListAsync();
+                var contacts = await _context.Contacts.Where(x => x.IsDeleted == false).ToListAsync();
+                var attenders = new List<EventAttendee>();
                
-               var eventToCreate = new Event(){
-                           Summary = request?.Caption,
-                           Description = request?.Description,
-                           Start = new EventDateTime()
-                           {
-                               DateTime = request?.StartDate,
-                               TimeZone = "Africa/Lagos"
-                           },
-                           End = new EventDateTime()
-                           {
-                               DateTime = request?.EndDate,
-                               TimeZone = "Africa/Lagos"
-                           },
-               };
-               eventToCreate.ConferenceData = new ConferenceData()
-               {
-                   CreateRequest = new CreateConferenceRequest()
-                   {
-                       RequestId = "event" + request?.Id,
-                       ConferenceSolutionKey = new ConferenceSolutionKey()
-                       {
-                           Type = "hangoutsMeet"
-                       },
-                       Status = new ConferenceRequestStatus
-                       {
-                           StatusCode = "success"
-                       },
-                   },
+                var eventToCreate = new Event(){
+                    Summary = request?.Caption,
+                    Description = request?.Description,
+                    Start = new EventDateTime()
+                    {
+                        DateTime = request?.StartDate,
+                        TimeZone = "Africa/Lagos"
+                    },
+                    End = new EventDateTime()
+                    {
+                        DateTime = request?.EndDate,
+                        TimeZone = "Africa/Lagos"
+                    },
+                };
+                eventToCreate.ConferenceData = new ConferenceData()
+                {
+                    CreateRequest = new CreateConferenceRequest()
+                    {
+                        RequestId = "event" + request?.Id,
+                        ConferenceSolutionKey = new ConferenceSolutionKey()
+                        {
+                            Type = "hangoutsMeet"
+                        },
+                        Status = new ConferenceRequestStatus
+                        {
+                            StatusCode = "success"
+                        },
+                    },
                   
-               };
-               if (request.StaffsInvolved.Any())
-               {
-                   foreach (var staff in request.StaffsInvolved)
-                   {
-                       var attendee = new EventAttendee();
-                       var addedStaff = users.FirstOrDefault(x => x.Id == staff.StaffId);
-                       attendee.Email = addedStaff?.Email ?? "example@mail.com";
-                       attendee.DisplayName = addedStaff?.LastName + " " + addedStaff?.FirstName;
-                       attenders.Add(attendee);
-                   }
-               }
+                };
+                if (request.StaffsInvolved.Any())
+                {
+                    foreach (var staff in request.StaffsInvolved)
+                    {
+                        var attendee = new EventAttendee();
+                        var addedStaff = users.FirstOrDefault(x => x.Id == staff.StaffId);
+                        attendee.Email = addedStaff?.Email ?? "example@mail.com";
+                        attendee.DisplayName = addedStaff?.LastName + " " + addedStaff?.FirstName;
+                        attenders.Add(attendee);
+                    }
+                }
                
-               if (request.ContactsInvolved.Any())
-               {
-                   foreach (var contact in request.ContactsInvolved)
-                   {
-                       var attendee = new EventAttendee();
-                       var addedContact = contacts.FirstOrDefault(x => x.Id == contact.ContactId);
-                       attendee.Email = addedContact?.Email ?? "example@mail.com";
-                       attendee.DisplayName = addedContact?.LastName + " " + addedContact?.FirstName;
-                       attenders.Add(attendee);
-                   }
-               }
-               eventToCreate.Attendees = attenders;
-               var creatorId = httpContext.GetLoggedInUserId();
-               var creator = users.FirstOrDefault(x => x.Id == creatorId);
+                if (request.ContactsInvolved.Any())
+                {
+                    foreach (var contact in request.ContactsInvolved)
+                    {
+                        var attendee = new EventAttendee();
+                        var addedContact = contacts.FirstOrDefault(x => x.Id == contact.ContactId);
+                        attendee.Email = addedContact?.Email ?? "example@mail.com";
+                        attendee.DisplayName = addedContact?.LastName + " " + addedContact?.FirstName;
+                        attenders.Add(attendee);
+                    }
+                }
+                eventToCreate.Attendees = attenders;
+                var creatorId = httpContext.GetLoggedInUserId();
+                var creator = users.FirstOrDefault(x => x.Id == creatorId);
               
-               if (creator != null)
-               {
-                   try
-                   {
-                       var calCreator = new Event.CreatorData
-                       {
-                           Email = creator?.Email,
-                           DisplayName = creator?.LastName + " " + creator?.FirstName
-                       };
-                       eventToCreate.Creator = calCreator;
-                       eventToCreate.Visibility = "public";
-                       eventToCreate.Transparency = "transparent";
-                       var insertedEvent = service.Events.Insert(eventToCreate, "primary");
-                       insertedEvent.SendNotifications = true;
-                       insertedEvent.ConferenceDataVersion= 1;
-                       var insertEventResult = await insertedEvent.ExecuteAsync();
-                       await PersistEvent(insertEventResult, request, httpContext);
-                       return CommonResponse.Send(ResponseCodes.SUCCESS,insertedEvent, "");
-                   }
-                   catch (Exception e)
-                   {
-                       Console.WriteLine(e);
-                   }
+                if (creator != null)
+                {
+                    try
+                    {
+                        var calCreator = new Event.CreatorData
+                        {
+                            Email = creator?.Email,
+                            DisplayName = creator?.LastName + " " + creator?.FirstName
+                        };
+                        eventToCreate.Creator = calCreator;
+                        eventToCreate.Visibility = "public";
+                        eventToCreate.Transparency = "transparent";
+                        var insertedEvent = service.Events.Insert(eventToCreate, "primary");
+                        insertedEvent.SendNotifications = true;
+                        insertedEvent.ConferenceDataVersion= 1;
+                        var insertEventResult = await insertedEvent.ExecuteAsync();
+                        await PersistEvent(insertEventResult, request, httpContext);
+                        return CommonResponse.Send(ResponseCodes.SUCCESS,insertedEvent, "");
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine(e);
+                    }
                  
-               }
+                }
             
-               return CommonResponse.Send(ResponseCodes.FAILURE,null, "An error occurreed while creating event");
-           }
+                return CommonResponse.Send(ResponseCodes.FAILURE,null, "An error occurreed while creating event");
+            }
 
 
-           public async Task<ApiCommonResponse> SendEmail(MailRequest mailRequest,HttpContext httpContext)
-           {
-               _emailService.Send(mailRequest);
+            public async Task<ApiCommonResponse> SendEmail(MailRequest mailRequest,HttpContext httpContext)
+            {
+                _emailService.Send(mailRequest);
 
-               string sentToList;
-               List<string> recipientArray = new List<string>();
-               foreach (var recipient in mailRequest.EmailReceivers)
-               {
-                   recipientArray.Add(recipient);
-               }
+                string sentToList;
+                List<string> recipientArray = new List<string>();
+                foreach (var recipient in mailRequest.EmailReceivers)
+                {
+                    recipientArray.Add(recipient);
+                }
            
-               sentToList = string.Join(",", recipientArray);
-               var auditEmail = new SentMail()
-               {
-                   IsActive = true,
-                   SenderId = httpContext.GetLoggedInUserId(),
-                   SentFrom = mailRequest.EmailSender,
-                   SentTo = sentToList,
-                   CreatedById = httpContext.GetLoggedInUserId(),
-                   HasAttachment = mailRequest.Attachments.Any() ? true : false,
-                   Attachment = mailRequest.Attachments.ToString(),
-                   CreatedAt = DateTime.Now,
-                   MailContent = mailRequest.EmailBody,
-                   Subject = mailRequest.EmailSubject,
-               };
+                sentToList = string.Join(",", recipientArray);
+                var auditEmail = new SentMail()
+                {
+                    IsActive = true,
+                    SenderId = httpContext.GetLoggedInUserId(),
+                    SentFrom = mailRequest.EmailSender,
+                    SentTo = sentToList,
+                    CreatedById = httpContext.GetLoggedInUserId(),
+                    HasAttachment = mailRequest.Attachments.Any() ? true : false,
+                    Attachment = mailRequest.Attachments.ToString(),
+                    CreatedAt = DateTime.Now,
+                    MailContent = mailRequest.EmailBody,
+                    Subject = mailRequest.EmailSubject,
+                };
 
-               await _context.SentMails.AddAsync(auditEmail);
-               await _context.SaveChangesAsync();
-               return CommonResponse.Send(ResponseCodes.SUCCESS,auditEmail, "SuccessFully saved");
-           }
+                await _context.SentMails.AddAsync(auditEmail);
+                await _context.SaveChangesAsync();
+                return CommonResponse.Send(ResponseCodes.SUCCESS,auditEmail, "SuccessFully saved");
+            }
 
-           public async Task<ApiCommonResponse> GetAllConcernedMail(HttpContext httpContext)
-           {
+            public async Task<ApiCommonResponse> GetAllConcernedMail(HttpContext httpContext)
+            {
 
-               var getAllConcernedMail = await _context.SentMails.Where(x =>
-                       x.SenderId == httpContext.GetLoggedInUserId() && x.IsActive == true || x.ReceiverId == httpContext.GetLoggedInUserId() && x.IsActive == true)
-                   .OrderByDescending(x=>x.CreatedAt).ToListAsync();
-               if (getAllConcernedMail.Any())
-               {
-                   return CommonResponse.Send(ResponseCodes.SUCCESS,getAllConcernedMail, "SuccessFully Found");
-               }
-               return CommonResponse.Send(ResponseCodes.FAILURE,null, "Could not be  Found");
-           }
+                var getAllConcernedMail = await _context.SentMails.Where(x =>
+                        x.SenderId == httpContext.GetLoggedInUserId() && x.IsActive == true || x.ReceiverId == httpContext.GetLoggedInUserId() && x.IsActive == true)
+                    .OrderByDescending(x=>x.CreatedAt).ToListAsync();
+                if (getAllConcernedMail.Any())
+                {
+                    return CommonResponse.Send(ResponseCodes.SUCCESS,getAllConcernedMail, "SuccessFully Found");
+                }
+                return CommonResponse.Send(ResponseCodes.FAILURE,null, "Could not be  Found");
+            }
            
-           public async Task<ApiCommonResponse> DisableMail(long emailId)
-           {
-               var getConcernedMail = await _context.SentMails.Where(x => x.Id == emailId).FirstOrDefaultAsync();
-               if (getConcernedMail != null)
-               {
-                   getConcernedMail.IsActive = false;
-                   _context.SentMails.Update(getConcernedMail);
-                   await _context.SaveChangesAsync();
-                   return CommonResponse.Send(ResponseCodes.SUCCESS,null, "SuccessFully Found");
-               }
-               return CommonResponse.Send(ResponseCodes.FAILURE,null, "Could not be  Found");
-           }
+            public async Task<ApiCommonResponse> DisableMail(long emailId)
+            {
+                var getConcernedMail = await _context.SentMails.Where(x => x.Id == emailId).FirstOrDefaultAsync();
+                if (getConcernedMail != null)
+                {
+                    getConcernedMail.IsActive = false;
+                    _context.SentMails.Update(getConcernedMail);
+                    await _context.SaveChangesAsync();
+                    return CommonResponse.Send(ResponseCodes.SUCCESS,null, "SuccessFully Found");
+                }
+                return CommonResponse.Send(ResponseCodes.FAILURE,null, "Could not be  Found");
+            }
            
            
            
