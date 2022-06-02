@@ -44,7 +44,8 @@ namespace OnlinePortalBackend.Repository.Impl
 
             using var trx = await _context.Database.BeginTransactionAsync();
             string initials = GetInitials(profile.Name);
-            var acctTrx = _context.Accounts.LastOrDefault(x => x.Alias.StartsWith("W"));
+            var acctTrxs = _context.Accounts.Where(x => x.Alias.StartsWith("W"));
+            var acctTrx = acctTrxs.OrderByDescending(x => x.Id).FirstOrDefault();
             long acctTrxId = 0;
             if (acctTrx == null)
                 acctTrxId = 1;
