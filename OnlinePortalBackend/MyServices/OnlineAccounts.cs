@@ -433,14 +433,19 @@ namespace OnlinePortalBackend.MyServices
                     }
                     profileContractDetails.Add(new ProfileContractDetail
                     {
-                        ContractId = contract.Id,
+                        ContractId =  contract.Id,
                         ContractServices = profileContractServiceDetails
                     });
 
                 }
-
-
-
+                else
+                {
+                    profileContractDetails.Add(new ProfileContractDetail
+                    {
+                        ContractId = null,
+                        ContractServices = null
+                    });
+                }
 
                 mappedProfile.ProfileContractDetail = profileContractDetails;
                 //reset the access failed count

@@ -86,7 +86,7 @@ namespace OnlinePortalBackend.Repository.Impl
                     .Include(x => x.Receipts)
                     .Include(x => x.CustomerDivision)
                     .Where(x => x.GroupInvoiceNumber == singleInvoice.GroupInvoiceNumber
-                            && x.StartDate == singleInvoice.StartDate && !x.IsDeleted)
+                            && x.StartDate == singleInvoice.StartDate && !x.IsDeleted && x.AdhocGroupingId == request.AdHocIvoiceGroup)
                     .ToListAsync();
 
                 var totalReceiptAmount = receiptReceivingDTO.ReceiptValue;
@@ -522,6 +522,7 @@ namespace OnlinePortalBackend.Repository.Impl
                         InvoiceValue = item.Value,
                         PaymentGateway = request.PaymentGateway,
                         PaymentReference = request.PaymentReference,
+                        AdHocIvoiceGroup = item.AdhocGroupingId
                     };
 
                     receiptsRequests.Add(receiptInv);
@@ -579,6 +580,35 @@ namespace OnlinePortalBackend.Repository.Impl
                 _logger.LogError(ex.StackTrace);
                 return false;
             }
+        }
+
+        public async Task<SendReceiptDTO> GetContractServiceDetailsForReceipt(long contractId)
+        {
+            var receiptDetails = _context.ContractServices.Include(x => x.Service).Where(x => x.ContractId == contractId).Select(x => new SendReceiptDetailDTO
+            {
+                Amount = x.AdHocInvoicedAmount.ToString(),
+                Description = x.Service.Description,
+                Quantity = x.Quantity.ToString(),
+                ServiceName = x.Service.Name,
+                Total = x.AdHocInvoicedAmount.ToString()
+            }).AsEnumerable();
+
+            var totalSum = receiptDetails.Select(x => double.Parse(x.Amount)).Sum();
+
+            var customerDivId = _context.Contracts.FirstOrDefault(x => x.Id == contractId).CustomerDivisionId;
+
+            var custDiv = _context.CustomerDivisions.FirstOrDefault(x => x.Id == customerDivId);
+
+            var sendReceipt = new SendReceiptDTO
+            {
+                Amount = totalSum.ToString(),
+                Date = DateTime.UtcNow.AddHours(1).ToString("dd/MM/yyyy"),
+                Email = custDiv.Email,
+                CustomerName = custDiv.DivisionName,
+                SendReceiptDetailDTOs = receiptDetails.ToList()
+            };
+
+            return sendReceipt;
         }
     }
 }
