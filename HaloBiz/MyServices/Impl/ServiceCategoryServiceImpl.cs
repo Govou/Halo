@@ -31,7 +31,7 @@ namespace HaloBiz.MyServices.Impl
             var savedserviceCategory = await _serviceCategoryRepo.SaveServiceCategory(serviceCategory);
             if (savedserviceCategory == null)
             {
-                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Error! Please check duplicate entry for name and category group");
             }
             var serviceCategoryTransferDTO = _mapper.Map<ServiceCategoryTransferDTO>(savedserviceCategory);
             return CommonResponse.Send(ResponseCodes.SUCCESS,serviceCategoryTransferDTO);

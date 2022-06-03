@@ -21,6 +21,13 @@ namespace HaloBiz.Repository.Impl
 
         public async Task<ServiceCategory> SaveServiceCategory(ServiceCategory serviceCategory)
         {
+            //check if this previously exist
+            if(_context.ServiceCategories.Any(x=>x.Name.Trim().ToLower() == serviceCategory.Name.Trim().ToLower() && x.ServiceGroupId == serviceCategory.ServiceGroupId && x.IsDeleted==false))
+            {
+                //record previously exist
+                return null;
+            }
+
             var savedEntity = await _context.ServiceCategories.AddAsync(serviceCategory);
             if(await SaveChanges())
             {
