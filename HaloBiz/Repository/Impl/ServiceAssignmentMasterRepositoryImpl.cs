@@ -211,6 +211,7 @@ namespace HaloBiz.Repository.Impl
                          CostPrice = od.CostPrice,
                          MarkupPrice = od.MarkupPrice,
                          ServiceCategory = od.ServiceRegistration.Service.ServiceCategory,
+                         //PriceServiceRegistration = od.ServiceRegistration,
                      }).ToListAsync();
 
             return  q;
@@ -251,6 +252,7 @@ namespace HaloBiz.Repository.Impl
                                CostPrice = od.CostPrice,
                                MarkupPrice = od.MarkupPrice,
                                ServiceCategory = od.ServiceRegistration.Service.ServiceCategory,
+                               //PriceServiceRegistration = od.ServiceRegistration,
                            }).ToListAsync();
 
             return q;
@@ -264,9 +266,16 @@ namespace HaloBiz.Repository.Impl
         //    return count.Count();
         //}
 
+        public async Task<IEnumerable<MasterServiceAssignment>> FindAllCompletedTripsCountByClientId(long clientId)
+        {
+            return await _context.MasterServiceAssignments.Where(aer => aer.CustomerDivisionId == clientId && aer.IsDeleted == false && aer.SAExecutionStatus == 2 && aer.AssignmentStatus == "Closed")
+                 .ToListAsync();
+        }
+
         public async Task<IEnumerable<MasterServiceAssignment>> FindAllCompletedTripsByClientId(long clientId)
         {
             return await _context.MasterServiceAssignments.Where(aer => aer.CustomerDivisionId == clientId && aer.IsDeleted == false && aer.SAExecutionStatus == 2 && aer.AssignmentStatus == "Closed")
+                .Include(s=>s.ServiceRegistration).ThenInclude(x=>x.Service).Include(s=>s.SMORoute).ThenInclude(x=>x.SMORegion)
                  .ToListAsync();
         }
     }

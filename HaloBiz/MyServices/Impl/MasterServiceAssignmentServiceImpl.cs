@@ -1079,6 +1079,17 @@ namespace HaloBiz.MyServices.Impl
             {
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);
             }
+            var TransferDTO = _mapper.Map<IEnumerable<MasterServiceAssignmentTransferDTO>>(master);
+            return CommonResponse.Send(ResponseCodes.SUCCESS, TransferDTO, ResponseMessage.Success200);
+        }
+
+        public async Task<ApiCommonResponse> GetAllCompletedTripsCountByClientId(long clientId)
+        {
+            var master = await _serviceAssignmentMasterRepository.FindAllCompletedTripsCountByClientId(clientId);
+            if (master == null)
+            {
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);
+            }
             return CommonResponse.Send(ResponseCodes.SUCCESS, master.Count(), ResponseMessage.Success200);
         }
 
