@@ -43,7 +43,7 @@ namespace HaloBiz.MyServices
         Task<ApiCommonResponse> GetLeadClassificationsData(HttpContext httpContext);
         Task<ApiCommonResponse> GetLeadsOpportunityData(HttpContext httpContext);
         Task<ApiCommonResponse> getContractByLeadId(long Id);
-        Task<ApiCommonResponse> getDeliverableDashboard(HttpContext httpContext);
+        Task<ApiCommonResponse> getDeliverableDashboard(HttpContext httpContext, int year, int month);
         Task<ApiCommonResponse> getAllQuotes(HttpContext httpContext);
         Task<ApiCommonResponse> getQuoteServices(HttpContext httpContext, long Id);
 
