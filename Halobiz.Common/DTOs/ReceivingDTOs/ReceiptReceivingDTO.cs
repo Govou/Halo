@@ -31,6 +31,7 @@ namespace Halobiz.Common.DTOs.ReceivingDTOs
         public long InvoiceId { get; set; }
         public int PaymentGateway { get; set; }
         public string PaymentReference { get; set; }
+        public long? AdHocIvoiceGroup { get; set; }
     }
 
     public class SMSReceiptInvoiceForContractDTO

@@ -1115,12 +1115,27 @@ namespace HaloBiz.MyServices.Impl
 
         }
         
-        public async Task<ApiCommonResponse> getDeliverableDashboard(HttpContext httpContext)
+        public async Task<ApiCommonResponse> getDeliverableDashboard(HttpContext httpContext,int year,int month)
         {
-            var projects = await _context.Projects.AsNoTracking()
-                .Where(x => x.IsActive == true && x.Watchers.Any(x => x.IsActive == true && x.ProjectWatcherId == httpContext.GetLoggedInUserId()))
-                .Include(x=>x.Workspace)
-                .ToListAsync();
+            var projects = new List<Project>();
+            
+            if (month == 13)
+            {
+                     projects = await _context.Projects.AsNoTracking()
+                    .Where(x => x.IsActive == true && x.Watchers.Any(x => x.IsActive == true && x.ProjectWatcherId == httpContext.GetLoggedInUserId()))
+                    .Include(x=>x.Workspace)
+                    .ToListAsync();
+            }
+            else
+            {
+                     projects = await _context.Projects.AsNoTracking()
+                    .Where(x => x.IsActive == true && x.Watchers.Any(x => x.IsActive == true && x.ProjectWatcherId == httpContext.GetLoggedInUserId())
+                                                   && x.CreatedAt.Month == month && x.CreatedAt.Year == year)
+                    .Include(x=>x.Workspace)
+                    .ToListAsync();
+            }
+            
+            
 
             var tasks = await _context.Tasks.AsNoTracking()
                 .Where(x => x.IsActive == true).ToListAsync();
