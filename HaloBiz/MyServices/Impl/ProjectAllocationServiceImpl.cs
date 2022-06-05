@@ -2503,8 +2503,9 @@ namespace HaloBiz.MyServices.Impl
         {
 
             var getAllProjects = await _context.Projects.Where(x => x.IsActive == true &&  x.CreatedById == httpContext.GetLoggedInUserId()).ToListAsync();
+            
 
-            if (getAllProjects == null)
+            if (getAllProjects.Any())
             {
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);
             }
@@ -2513,8 +2514,37 @@ namespace HaloBiz.MyServices.Impl
 
 
         }
+        
+        public async Task<ApiCommonResponse> GetAllWatcherProjectsAndTask(HttpContext httpContext)
+
+        {
+
+            var getAllProjects = await _context.Projects.AsNoTracking().Where(x => x.IsActive == true &&  x.Watchers.Any(x=>x.ProjectWatcherId == httpContext.GetLoggedInUserId())).ToListAsync();
+
+            var getAllTask = await _context.Tasks.AsNoTracking().Where(x => x.IsActive)
+                .Include(x=>x.Deliverables.Where(x=>x.IsActive == true))
+                .ToListAsync();
+            
+
+            var projectWatcher = new ProjectWatcherResponse()
+            {
+                Project = getAllProjects,
+                Task = getAllTask
+            };
+
+            if (!projectWatcher.Project.Any() || !projectWatcher.Task.Any() )
+            {
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);
+            }
+
+            return CommonResponse.Send(ResponseCodes.SUCCESS, projectWatcher);
 
 
+        }
+
+        
+
+        
         public async Task<ApiCommonResponse> getAllProjectCreatorsWorkspace(HttpContext httpContext)
 
         {
@@ -2557,6 +2587,21 @@ namespace HaloBiz.MyServices.Impl
         }
 
 
+        public async Task<ApiCommonResponse> getAllDeliverablesRevamp(HttpContext httpContext)
+        {
+            var getAlldeliverable =
+                await _context.Deliverables.AsNoTracking().Where(x => x.IsActive == true)
+                    .ToListAsync();
+            
+            if (getAlldeliverable.Any())
+            {
+              
+                return CommonResponse.Send(ResponseCodes.SUCCESS, getAlldeliverable,"deliverabies successfully fetched");
+
+            }
+            return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);
+            
+        }
         public async Task<ApiCommonResponse> getAllDeliverables(HttpContext httpContext)
 
         {

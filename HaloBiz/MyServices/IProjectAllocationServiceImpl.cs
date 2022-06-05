@@ -151,7 +151,8 @@ namespace HaloBiz.MyServices
          Task<ApiCommonResponse> SendEmail(MailRequest mailRequest, HttpContext htttHttpContext);
          Task<ApiCommonResponse> GetAllConcernedMail(HttpContext httpContext);
          Task<ApiCommonResponse> DisableMail(long emailId);
-
+         Task<ApiCommonResponse> GetAllWatcherProjectsAndTask(HttpContext httpContext);
          Task<ApiCommonResponse> getAllProjectCreatorsWorkspacesRevamped(HttpContext httpContext);
+         Task<ApiCommonResponse> getAllDeliverablesRevamp(HttpContext httpContext);
     }
 }

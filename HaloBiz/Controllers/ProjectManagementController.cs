@@ -483,6 +483,15 @@ namespace HaloBiz.Controllers
             return await _projectAllocationService.getAllDeliverables(HttpContext);
 
         }
+        
+        
+        [HttpGet("GetAllDeliverableRevamped")]
+
+        public async Task<ApiCommonResponse> GetAllDeliverableRevamped()
+        {
+            return await _projectAllocationService.getAllDeliverablesRevamp(HttpContext);
+
+        }
 
         [HttpGet("GetDeliverableByTaskId/{taskId}")]
         public async Task<ApiCommonResponse> GetDeliverableByTaskId(long taskId)
@@ -818,6 +827,14 @@ namespace HaloBiz.Controllers
         {
             return await _projectAllocationService.DisableMail(emailId);
         }
+        
+        [HttpGet("GetAllWatcherProjects")]
+        public async Task<ApiCommonResponse> GetAllWatcherProjects()
+        {
+            return await _projectAllocationService.GetAllWatcherProjectsAndTask(HttpContext);
+        }
+        
+        
 
     }
 }
