@@ -18,6 +18,7 @@ namespace HaloBiz.MyServices
         //For Schedule Cart
         Task<ApiCommonResponse> GetAllMasterServiceAssignmentsForScheduleCartByClientId(long clientId);
         Task<ApiCommonResponse> GetAllCompletedTripsByClientId(long clientId);
+        Task<ApiCommonResponse> GetAllCompletedTripsCountByClientId(long clientId);
         Task<ApiCommonResponse> GetAllScheduledMasterServiceAssignments();
         Task<ApiCommonResponse> GetMasterServiceAssignmentById(long id);
         Task<ApiCommonResponse> UpdateMasterServiceAssignment(HttpContext context, long id, MasterServiceAssignmentReceivingDTO masterReceivingDTO);

@@ -100,6 +100,7 @@ namespace HaloBiz.DTOs.TransferDTOs
         public string DropoffLocation { get; set; }
         public long? ContractServiceId { get; set; }
         public ServiceRegistration ServiceRegistration { get; set; }
+        public ServiceRegistration PriceServiceRegistration { get; set; }
         public decimal SellingPrice { get; set; }
         public decimal CostPrice { get; set; }
         public decimal MarkupPrice { get; set; }
