@@ -1,6 +1,9 @@
 ﻿using Halobiz.Common.Auths;
 using Halobiz.Common.DTOs.ApiDTOs;
+using HaloBiz.MyServices.Impl;
+using HalobizMigrations.Models.Halobiz;
 using Microsoft.AspNetCore.Mvc;
+using System.Threading.Tasks;
 
 namespace HaloBiz.Controllers.AccountsModel
 {
@@ -9,28 +12,41 @@ namespace HaloBiz.Controllers.AccountsModel
     [ModuleName(HalobizModules.Finance, 127)]
     public class AdvancePaymentController : Controller
     {
-        [HttpGet("")]
-        public async Task<ApiCommonResponse> GetAdvancePayments()
+        private readonly IAdvancePaymentService _advancePaymentService;
+        public AdvancePaymentController(IAdvancePaymentService advancePaymentService)
         {
-                return await _invoiceService.GetAllInvoice();
+            _advancePaymentService = advancePaymentService;
         }
+
+        //[HttpGet("")]
+        //public async Task<ApiCommonResponse> GetAdvancePayments()
+        //{
+        //        return await _advancePaymentService.GetAll();
+        //}
 
 
         [HttpGet("{id}")]
-        public async Task<ApiCommonResponse> GetByCustomerId(long id)
+        public async Task<ApiCommonResponse> GetByCustomerPaymentId(long id)
         {
-            return await _invoiceService.GetAllInvoicesById(id);
-        }
-        [HttpPut("{id}")]
-        public async Task<ApiCommonResponse> Update(long id)
-        {
-            return await _invoiceService.SendInvoice(invoiceId);
+            return await _advancePaymentService.GetCustomerPayment(id);
         }
 
         [HttpPut("{id}")]
-        public async Task<ApiCommonResponse> Post(long id)
+        public async Task<ApiCommonResponse> Update(long id, AdvancePayment payment)
         {
-            return await _invoiceService.SendInvoice(invoiceId);
+            return await _advancePaymentService.UpdatePayment(HttpContext, id, payment);
+        }
+
+        [HttpPost]
+        public async Task<ApiCommonResponse> Post(AdvancePayment payment)
+        {
+            return await _advancePaymentService.AddPayment(HttpContext, payment);
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<ApiCommonResponse> Delete(long id)
+        {
+            return await _advancePaymentService.DeletePayment(HttpContext, id);
         }
     }
 }
