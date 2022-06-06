@@ -24,6 +24,7 @@ namespace Halobiz.Common.DTOs.ReceivingDTOs
     {
         public int ServiceId { get; set; }
         public int Quantity { get; set; }
+        public double TotalAmount { get; set; }
         public DateTime ServiceStartDate { get; set; }
         public DateTime ServiceEndDate { get; set; }
         public string DropLocation { get; set; }

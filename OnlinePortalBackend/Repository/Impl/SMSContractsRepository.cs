@@ -174,20 +174,13 @@ namespace OnlinePortalBackend.Repository.Impl
                 foreach (var item in contractDTO.SMSContractServices)
                 {
                     var service = _context.Services.FirstOrDefault(x => x.Id == item.ServiceId);
-                    var amountWithoutVat = service.UnitPrice * item.Quantity;
+                    var amountWithoutVat = item.TotalAmount;
                     var amount = 0.0;
                     var vat = 0.0;
+                    var amountWithVat = amountWithoutVat + (0.075 * amountWithoutVat);
+                    amount = amountWithVat;
+                    vat = 0.075 * amountWithoutVat;
 
-                    if (service.IsVatable.Value)
-                    {
-                        var amountWithVat = amountWithoutVat + (0.075 * amountWithoutVat);
-                        amount = amountWithVat;
-                        vat = 0.075 * amountWithoutVat;
-                    }
-                    else
-                    {
-                        amount = amountWithoutVat;
-                    }
                     contractServiceForEndorsements.Add(new ContractServiceForEndorsementReceivingDto
                     {
                         ActivationDate = DateTime.UtcNow.AddHours(1),
@@ -815,6 +808,10 @@ namespace OnlinePortalBackend.Repository.Impl
             {
                 DateTime startDate = endorsement == null ? (DateTime)contractService.ContractStartDate : (DateTime)endorsement?.DateForNewContractToTakeEffect;
                 DateTime endDate = (DateTime)contractService.ContractEndDate;
+                if (startDate == endDate)
+                {
+                    endDate = endDate.AddDays(1);
+                }
                 var InitialYear = startDate.Year;
                 var amount = billableAmount;
 
@@ -2004,20 +2001,12 @@ namespace OnlinePortalBackend.Repository.Impl
                 foreach (var item in contractDTO.SMSContractServices)
                 {
                     var service = _context.Services.FirstOrDefault(x => x.Id == item.ServiceId);
-                    var amountWithoutVat = service.UnitPrice * item.Quantity;
+                    var amountWithoutVat = item.TotalAmount;
                     var amount = 0.0;
                     var vat = 0.0;
-
-                    if (service.IsVatable.Value)
-                    {
-                        var amountWithVat = amountWithoutVat + (0.075 * amountWithoutVat);
-                        amount = amountWithVat;
-                        vat = 0.075 * amountWithoutVat;
-                    }
-                    else
-                    {
-                        amount = amountWithoutVat;
-                    }
+                    var amountWithVat = amountWithoutVat + (0.075 * amountWithoutVat);
+                    amount = amountWithVat;
+                    vat = 0.075 * amountWithoutVat;
                     contractServiceForEndorsements.Add(new ContractServiceForEndorsementReceivingDto
                     {
                         ActivationDate = DateTime.UtcNow.AddHours(1),
