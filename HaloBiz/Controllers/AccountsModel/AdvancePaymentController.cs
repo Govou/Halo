@@ -18,17 +18,23 @@ namespace HaloBiz.Controllers.AccountsModel
             _advancePaymentService = advancePaymentService;
         }
 
-        //[HttpGet("")]
-        //public async Task<ApiCommonResponse> GetAdvancePayments()
-        //{
-        //        return await _advancePaymentService.GetAll();
-        //}
+        [HttpGet("")]
+        public async Task<ApiCommonResponse> GetAllAdvancePayments()
+        {
+            return await _advancePaymentService.GetAllPayments();
+        }
 
 
-        [HttpGet("{id}")]
-        public async Task<ApiCommonResponse> GetByCustomerPaymentId(long id)
+        [HttpGet("GetByCustomerDivisionId/{id}")]
+        public async Task<ApiCommonResponse> GetByCustomerDivisionId(long id)
         {
             return await _advancePaymentService.GetCustomerPayment(id);
+        }
+
+        [HttpGet("{id}")]
+        public async Task<ApiCommonResponse> GetById(long id)
+        {
+            return await _advancePaymentService.GetById(id);
         }
 
         [HttpPut("{id}")]

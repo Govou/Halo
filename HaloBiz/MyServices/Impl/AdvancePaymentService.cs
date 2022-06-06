@@ -15,8 +15,10 @@ namespace HaloBiz.MyServices.Impl
     {
         Task<ApiCommonResponse> AddPayment(HttpContext context, AdvancePayment payment);
         Task<ApiCommonResponse> GetCustomerPayment(long customerDivisionId);
+        Task<ApiCommonResponse> GetAllPayments();
         Task<ApiCommonResponse> UpdatePayment(HttpContext context, long paymentId, AdvancePayment payment);
         Task<ApiCommonResponse> DeletePayment(HttpContext context, long paymentId);
+        Task<ApiCommonResponse> GetById(long paymentId);
     }
 
     public class AdvancePaymentService : IAdvancePaymentService
@@ -55,6 +57,21 @@ namespace HaloBiz.MyServices.Impl
         {
             //add IsDeleted
             var result = await _context.AdvancePayments.Where(x=>x.CustomerDivisionId==customerDivisionId).ToListAsync();  
+            return CommonResponse.Send(ResponseCodes.SUCCESS, result);
+        }
+        public async Task<ApiCommonResponse> GetById(long paymentId)
+        {
+            //add IsDeleted
+            var result = await _context.AdvancePayments.FindAsync(paymentId);
+            if(result==null)
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE, null, "No payment with this id" );
+
+            return CommonResponse.Send(ResponseCodes.SUCCESS, result);
+        }
+        public async Task<ApiCommonResponse> GetAllPayments()
+        {
+            //add IsDeleted
+            var result = await _context.AdvancePayments.Where(x=>x.Id>0).ToListAsync();
             return CommonResponse.Send(ResponseCodes.SUCCESS, result);
         }
 
