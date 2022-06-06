@@ -501,12 +501,7 @@ namespace OnlinePortalBackend.Repository.Impl
             var inv = invoices.OrderByDescending(x => x.Id).FirstOrDefault();
 
             var validInvoices = invoices.Where(x => x.AdhocGroupingId == inv.AdhocGroupingId);
-            var invoicesSum = validInvoices.Select(x => x.Value).Sum();
 
-            if (request.InvoiceValue != invoicesSum)
-            {
-                return (false, "Invoice value is not valid");
-            }
 
             var receiptsRequests = new List<SMSReceiptReceivingDTO>();
 
@@ -556,7 +551,7 @@ namespace OnlinePortalBackend.Repository.Impl
                 CreatedAt = DateTime.UtcNow.AddHours(1),
                 UpdatedAt = DateTime.UtcNow.AddHours(1),
                 VAT = request.VAT,
-                Value = request.Value,
+                Value = request.Value - request.VAT,
                 CreatedById = request.ProfileId,
                 TransactionType = request.TransactionType,
                 PaymentGateway = request?.PaymentGateway,
@@ -564,7 +559,7 @@ namespace OnlinePortalBackend.Repository.Impl
                 PaymentGatewayResponseCode = request.PaymentGatewayResponseCode,
                 PaymentReferenceInternal = request.PaymentReferenceInternal,
                 PaymentReferenceGateway = request.PaymentReferenceGateway,
-                TotalValue = request.Value + request.VAT,
+                TotalValue = request.Value,
                 SessionId = request.SessionId,
                 ProfileId = request.ProfileId
             });
