@@ -1,5 +1,6 @@
 ﻿using Halobiz.Common.Auths;
 using Halobiz.Common.DTOs.ApiDTOs;
+using HaloBiz.DTOs.ReceivingDTOs;
 using HaloBiz.MyServices.Impl;
 using HalobizMigrations.Models.Halobiz;
 using Microsoft.AspNetCore.Mvc;
@@ -38,13 +39,13 @@ namespace HaloBiz.Controllers.AccountsModel
         }
 
         [HttpPut("{id}")]
-        public async Task<ApiCommonResponse> Update(long id, AdvancePayment payment)
+        public async Task<ApiCommonResponse> Update(long id, AdvancePaymentReceivingDTO payment)
         {
             return await _advancePaymentService.UpdatePayment(HttpContext, id, payment);
         }
 
         [HttpPost]
-        public async Task<ApiCommonResponse> Post(AdvancePayment payment)
+        public async Task<ApiCommonResponse> Post(AdvancePaymentReceivingDTO payment)
         {
             return await _advancePaymentService.AddPayment(HttpContext, payment);
         }

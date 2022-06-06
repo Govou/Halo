@@ -43,6 +43,8 @@ namespace HaloBiz.Helpers
 
         public AutoMapping() : base()
         {
+            CreateMap<AdvancePaymentReceivingDTO, AdvancePayment>();
+            CreateMap<AdvancePayment, AdvancePaymentTransferDTO>();
             CreateMap<ServiceRelationship, ServiceRelationshipDTO>();
             CreateMap<Service, ServicesLeanformatDTO>();
             CreateMap<Service, ServiceCategoryForRetailTransferDTO>();
