@@ -75,7 +75,7 @@ namespace HaloBiz.MyServices.Impl
                     var recordedPayment = payEntity.Entity;
                     recordedPayment.CustomerDivision = customerDivion;
 
-                    var paymentVoucherType = await _voucherRepo.GetFinanceVoucherTypeByName("Sales Receipt");
+                    var paymentVoucherType = await _voucherRepo.GetFinanceVoucherTypeByName("Advance Payment");
                     var branch = await _context.Branches.FirstOrDefaultAsync();
                     var office = await _context.Offices.FirstOrDefaultAsync();
                     var master = await CreateAccountMaster(recordedPayment, paymentVoucherType.Id, branch.Id, office.Id, userId);
