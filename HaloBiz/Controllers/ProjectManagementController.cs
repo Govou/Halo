@@ -10,7 +10,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using HaloBiz.DTOs;
 using HaloBiz.DTOs.TransferDTOs;
+using HaloBiz.Models;
+using Microsoft.AspNetCore.Mvc.Filters;
 using RestSharp;
 
 namespace HaloBiz.Controllers
@@ -342,6 +345,7 @@ namespace HaloBiz.Controllers
 
         public async Task<ApiCommonResponse> GetAssignedTask()
         {
+            var route = Request.Path.Value;
             return await _projectAllocationService.getAssignedTask(HttpContext);
 
         }
@@ -358,7 +362,7 @@ namespace HaloBiz.Controllers
 
         public async Task<ApiCommonResponse> GetAllWorkspaceForProjectCreator()
         {
-            return await _projectAllocationService.getWorkByProjectCreatorId(HttpContext);
+            return await _projectAllocationService.getAllProjectCreatorsWorkspacesRevamped(HttpContext);
 
         }
 
@@ -478,6 +482,15 @@ namespace HaloBiz.Controllers
         public async Task<ApiCommonResponse> GetAllDeliverable()
         {
             return await _projectAllocationService.getAllDeliverables(HttpContext);
+
+        }
+        
+        
+        [HttpGet("GetAllDeliverableRevamped")]
+
+        public async Task<ApiCommonResponse> GetAllDeliverableRevamped()
+        {
+            return await _projectAllocationService.getAllDeliverablesRevamp(HttpContext);
 
         }
 
@@ -671,6 +684,13 @@ namespace HaloBiz.Controllers
             var response = await _projectAllocationService.getAllMilestoneTaskForWatcher(HttpContext);
             return Ok(response);
         }
+        
+        [HttpGet("GetAllMileStoneTaskDueToday")]
+        public async Task<ActionResult> GetAllMileStoneTaskDueToday()
+        {
+            var response = await _projectAllocationService.getAllMilestoneTaskDueTodayForWatcher(HttpContext);
+            return Ok(response);
+        }
 
         [HttpGet("GetAllTaskDueToday")]
         public async Task<ActionResult> GetAllTaskDueToday()
@@ -808,6 +828,58 @@ namespace HaloBiz.Controllers
         {
             return await _projectAllocationService.DisableMail(emailId);
         }
+       
+        
+        [HttpGet("GetAllWatcherProjects")]
+        public async Task<ApiCommonResponse> GetAllWatcherProjects()
+        {
+            return await _projectAllocationService.GetAllWatcherProjectsAndTask(HttpContext);
+        }
+        
+        [HttpGet("GetAllProjectsComment")]
+        public async Task<ApiCommonResponse> GetAllProjectsComment()
+        {
+            return await _projectAllocationService.GetAllProjectsComment(HttpContext);
+        }
+        
+        [HttpGet("GetAllProjectComments/{projectId}")]
+        public async Task<ApiCommonResponse> GetAllProjectComments(long projectId)
+        {
+            return await _projectAllocationService.RetrieveProjectComments(projectId);
+        }
+        
+        [HttpPost("CreateComments/{projectId}")]
+        public async Task<ApiCommonResponse> CreateComments(ProjectCommentRequest projectCommentRequest,long projectId)
+        {
+             var response = await _projectAllocationService.MakeProjectComment(projectCommentRequest,projectId,HttpContext);
+             return response;
+        }
+        
+        [HttpPost("CreateTaskComments/{taskId}")]
+        public async Task<ApiCommonResponse> CreateTaskComments(ProjectCommentRequest projectCommentRequest,long taskId)
+        {
+            var response = await _projectAllocationService.MakeTaskComment(projectCommentRequest,taskId,HttpContext);
+            return response;
+        }
+        
+        [HttpDelete("DisableComment/{commentId}")]
+        public async Task<ApiCommonResponse> DisableComment(long commentId)
+        {
+            return await _projectAllocationService.DisableProjectComment(commentId);
+        }
+        
+        [HttpDelete("DisableTaskComment/{commentId}")]
+        public async Task<ApiCommonResponse> DisableTaskComment(long commentId)
+        {
+            return await _projectAllocationService.DisableTaskComment(commentId);
+        }
+        
+        [HttpGet("GetAllTaskComments")]
+        public async Task<ApiCommonResponse> GetAllTaskComments()
+        {
+            return await _projectAllocationService.GetAllTaskComment(HttpContext);
+        }
+        
 
     }
 }

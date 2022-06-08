@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using OnlinePortalBackend.DTOs.ReceivingDTOs;
+using OnlinePortalBackend.DTOs.TransferDTOs;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
@@ -19,6 +20,11 @@ namespace OnlinePortalBackend.Repository.Impl
         private readonly HalobizContext _context;
         private readonly ILogger<WalletRepository> _logger;
         private readonly IConfiguration _configuration;
+
+        private readonly string RETAIL_VAT_ACCOUNT = "RETAIL VAT ACCOUNT";
+        private readonly string VatControlAccount = "VAT";
+
+
         public WalletRepository(HalobizContext context, ILogger<WalletRepository> logger, IConfiguration configuration)
         {
             _context = context;
@@ -38,7 +44,8 @@ namespace OnlinePortalBackend.Repository.Impl
 
             using var trx = await _context.Database.BeginTransactionAsync();
             string initials = GetInitials(profile.Name);
-            var acctTrx = _context.Accounts.LastOrDefault(x => x.Alias.StartsWith("W"));
+            var acctTrxs = _context.Accounts.Where(x => x.Alias.StartsWith("W"));
+            var acctTrx = acctTrxs.OrderByDescending(x => x.Id).FirstOrDefault();
             long acctTrxId = 0;
             if (acctTrx == null)
                 acctTrxId = 1;
@@ -56,7 +63,7 @@ namespace OnlinePortalBackend.Repository.Impl
                     Description = $"Liability Account for {profile.Name.ToUpper()}",
                     Name = profile.Name,
                     IsDebitBalance = false,
-                    Alias = "W_" + $"{initials}_" +  $"0{acctTrxId}"
+                    Alias = "W_" + $"{initials}_" +  $"0{acctTrxId}",
                 };
 
                 await SaveAccount(account);
@@ -109,6 +116,34 @@ namespace OnlinePortalBackend.Repository.Impl
 
             return (true, new AesCryptoUtil().Decrypt(balance.WalletBalance));
 
+        }
+
+        public async Task<WalletTransactionHistoryDTO> GetWalletTransactionHistory(int propfileId)
+        {
+            var walletTrxActivity = _context.OnlineTransactions.Where(x => x.ProfileId == propfileId && x.TransactionType.ToLower().Contains("wallet")).Select(x => new WalletTransactionActivity
+            {
+                Amount = x.TotalValue,
+                Description = x.TransactionType,
+                Platform = "Secure Mobility",
+                Status = String.IsNullOrEmpty(x.PaymentReferenceInternal) ? "Success" : "Fail",
+                TransactionDate = DateTime.UtcNow.AddHours(1)
+            });
+
+            if (walletTrxActivity.Count() < 1)
+            {
+                return null;
+            }
+
+            var trxHistory = new WalletTransactionHistoryDTO
+            {
+                ProfileId = propfileId,
+                TotalSpend = walletTrxActivity.Where(x => x.Description.ToLower().Contains("spend")).Select(x => x.Amount).Sum(),
+                TotalTopup = walletTrxActivity.Where(x => x.Description.ToLower().Contains("topup")).Select(x => x.Amount).Sum(),
+                Balance = walletTrxActivity.Where(x => x.Description.ToLower().Contains("topup")).Select(x => x.Amount).Sum() - walletTrxActivity.Where(x => x.Description.ToLower().Contains("spend")).Select(x => x.Amount).Sum(),
+                TransactionHistory = walletTrxActivity
+            };
+
+            return trxHistory;
         }
 
         public async Task<(bool isSuccess, string message)> LoadWallet(LoadWalletDTO request)
@@ -186,7 +221,9 @@ namespace OnlinePortalBackend.Repository.Impl
                 _context.AccountDetails.Add(accountDetail2);
                 _context.SaveChanges();
 
-                var debitCashAccount = _context.AccountDetails.Include(x => x.AccountMaster).FirstOrDefault(x => x.AccountId == int.Parse(debitCashBook));
+                var debitCashBk = int.Parse(debitCashBook);
+
+                var debitCashAccount = _context.AccountDetails.Include(x => x.AccountMaster).FirstOrDefault(x => x.AccountId == debitCashBk);
 
                 var acctToDebit = _context.AccountMasters.FirstOrDefault(x => x.Id == debitCashAccount.AccountMasterId);
 
@@ -260,7 +297,21 @@ namespace OnlinePortalBackend.Repository.Impl
 
             if (double.Parse(new AesCryptoUtil().Decrypt(walletMaster.WalletBalance)) < request.Amount)
                 return (false, new SpendWalletResponseDTO { Message = "Insufficient funds in wallet" });
-            
+
+            var customerDiv = _context.OnlineProfiles.FirstOrDefault(x => x.Id == request.ProfileId).CustomerDivisionId;
+
+            if (customerDiv != null)
+            {
+                var totalBookingAmt = 0d;
+                var scheduledBookingConService = _context.MasterServiceAssignments.Where(x => x.CustomerDivisionId == customerDiv && x.IsDeleted == false && x.IsPaidFor == false && x.IsScheduled == true && x.IsAddedToCart == true && x.PickoffTime > DateTime.UtcNow.AddHours(1)).Select(x => x.ContractServiceId).AsEnumerable();
+                foreach (var item in scheduledBookingConService)
+                {
+                    totalBookingAmt += _context.ContractServices.FirstOrDefault(x => x.Id == item.Value).AdHocInvoicedAmount;
+                }
+
+                if (double.Parse(new AesCryptoUtil().Decrypt(walletMaster.WalletBalance)) < request.Amount + totalBookingAmt)
+                    return (false, new SpendWalletResponseDTO { Message = "Insufficient funds in wallet" });
+            }
 
             var profile = _context.OnlineProfiles.FirstOrDefault(x => x.Id == request.ProfileId);
             var office = _context.Offices.FirstOrDefault(x => x.Name.ToLower().Contains("office")).Id;
@@ -290,9 +341,17 @@ namespace OnlinePortalBackend.Repository.Impl
 
                 _context.AccountMasters.Add(accountMaster);
                 _context.SaveChanges();
-                
+
+                var customerDivision = _context.CustomerDivisions.FirstOrDefault(x => x.Id == customerDiv);
+
+                var conService = _context.ContractServices.Include(x => x.Service).FirstOrDefault(x => x.Id == request.ContractServiceId);
+
+                var serviceAccountId =  await GetServiceIncomeAccountForClient(customerDivision, conService.Service);
+
+                var vatAccountId = await GetRetailVATAccount(customerDivision);
 
                 var creditCashBook = _configuration["WalletCreditCashBookID"] ?? _configuration.GetSection("AppSettings:WalletCreditCashBookID").Value;
+
                 var accountDetail1 = new AccountDetail
                 {
                     VoucherId = accountMaster.VoucherId,
@@ -303,14 +362,30 @@ namespace OnlinePortalBackend.Repository.Impl
                     BranchId = branchId,
                     OfficeId = office,
                     TransactionDate = DateTime.UtcNow.AddHours(1),
-                    Credit = request.Amount,
-                    AccountId = int.Parse(creditCashBook),
+                    Credit = request.Amount - (request.Amount * 0.075),
+                    AccountId = serviceAccountId,
                     Description = $"Spend from {profile.Name}'s wallet with reference number {transactionId} on {ConvertDateToLongString(DateTime.UtcNow.AddHours(1))}",
                     TransactionId = transactionId,
-                    
                 };
 
                 var accountDetail2 = new AccountDetail
+                {
+                    VoucherId = accountMaster.VoucherId,
+                    AccountMasterId = accountMaster.Id,
+                    CreatedById = createdBy,
+                    CreatedAt = DateTime.UtcNow.AddHours(1),
+                    UpdatedAt = DateTime.UtcNow.AddHours(1),
+                    BranchId = branchId,
+                    OfficeId = office,
+                    TransactionDate = DateTime.UtcNow.AddHours(1),
+                    Credit = request.Amount * 0.075,
+                    AccountId = vatAccountId,
+                    Description = $"Spend from {profile.Name}'s wallet with reference number {transactionId} on {ConvertDateToLongString(DateTime.UtcNow.AddHours(1))}",
+                    TransactionId = transactionId,
+
+                };
+
+                var accountDetail3 = new AccountDetail
                 {
                     VoucherId = accountMaster.VoucherId,
                     AccountMasterId = accountMaster.Id,
@@ -332,7 +407,11 @@ namespace OnlinePortalBackend.Repository.Impl
                 _context.AccountDetails.Add(accountDetail2);
                 _context.SaveChanges();
 
-                var creditCashAccount = _context.AccountDetails.Include(x => x.AccountMaster).FirstOrDefault(x => x.AccountId == int.Parse(creditCashBook));
+                _context.AccountDetails.Add(accountDetail3);
+                _context.SaveChanges();
+
+                var creditCashBk = int.Parse(creditCashBook);
+                var creditCashAccount = _context.AccountDetails.Include(x => x.AccountMaster).FirstOrDefault(x => x.AccountId == creditCashBk);
 
                 var acctToCredit = _context.AccountMasters.FirstOrDefault(x => x.Id == creditCashAccount.AccountMasterId);
 
@@ -370,8 +449,8 @@ namespace OnlinePortalBackend.Repository.Impl
                     CreatedById = createdBy,
                     UpdatedAt = DateTime.UtcNow.AddHours(1),
                     WalletMasterId = walletMaster.Id,
-                    TransactionValue = request.Amount.ToString(),
-                    MovingBalance = balance.ToString(),
+                    TransactionValue = new AesCryptoUtil().Encrypt(request.Amount.ToString()),
+                    MovingBalance = new AesCryptoUtil().Encrypt(balance.ToString()),
                     TransactionType = (int)WalletTransactionType.Spend,
                     AccountMasterId = accountMaster.Id,
                 };
@@ -457,6 +536,78 @@ namespace OnlinePortalBackend.Repository.Impl
             }
 
         }
-      
+
+        private async Task<long> GetServiceIncomeAccountForClient(CustomerDivision customerDivision, Service service)
+        {
+            string serviceClientIncomeAccountName = $"{service.Name} Income for {customerDivision.DivisionName}";
+
+            var createdBy = _context.UserProfiles.FirstOrDefault(x => x.Email.ToLower().Contains("online")).Id;
+
+            Account serviceClientIncomeAccount = await _context.Accounts
+                .FirstOrDefaultAsync(x => x.ControlAccountId == (long)service.ControlAccountId && x.Name == serviceClientIncomeAccountName);
+
+            long accountId = 0;
+            if (serviceClientIncomeAccount == null)
+            {
+                Account account = new Account()
+                {
+                    Name = serviceClientIncomeAccountName,
+                    Description = $"{service.Name} Income Account for {customerDivision.DivisionName}",
+                    Alias = customerDivision.DTrackCustomerNumber ?? "",
+                    IsDebitBalance = true,
+                    ControlAccountId = (long)service.ControlAccountId,
+                    CreatedById = createdBy
+                };
+                var savedAccount = await SaveAccount(account);
+                accountId = savedAccount;
+                await _context.SaveChangesAsync();
+            }
+            else
+            {
+                accountId = serviceClientIncomeAccount.Id;
+            }
+
+            return accountId;
+        }
+
+        private async Task<long> GetRetailVATAccount(CustomerDivision customerDivision)
+        {
+            var createdBy = _context.UserProfiles.FirstOrDefault(x => x.Email.ToLower().Contains("online")).Id;
+
+            Account vatAccount = await _context.Accounts.FirstOrDefaultAsync(x => x.Name == RETAIL_VAT_ACCOUNT);
+            long accountId = 0;
+            if (vatAccount == null)
+            {
+                ControlAccount controlAccount = await _context.ControlAccounts
+                        .FirstOrDefaultAsync(x => x.Caption == VatControlAccount);
+
+                Account account = new Account()
+                {
+                    Name = RETAIL_VAT_ACCOUNT,
+                    Description = $"VAT Account of Retail Clients",
+                    Alias = "HA_RET",
+                    IsDebitBalance = true,
+                    ControlAccountId = controlAccount.Id,
+                    CreatedById = createdBy
+                };
+                var savedAccount = await SaveAccount(account);
+
+                customerDivision.VatAccountId = savedAccount;
+                _context.CustomerDivisions.Update(customerDivision);
+                await _context.SaveChangesAsync();
+                accountId = savedAccount;
+            }
+            else
+            {
+                customerDivision.VatAccountId = vatAccount.Id;
+                _context.CustomerDivisions.Update(customerDivision);
+                await _context.SaveChangesAsync();
+                accountId = vatAccount.Id;
+            }
+
+            return accountId;
+
+        }
+
     }
 }

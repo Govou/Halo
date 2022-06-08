@@ -414,10 +414,10 @@ namespace OnlinePortalBackend.MyServices
                     Id = profile.Id,
                     
                 };
-                var contracts = _context.Contracts.Where(x => x.CustomerDivisionId == profile.CustomerDivisionId).ToList();
+                var contract = _context.Contracts.Where(x => x.CustomerDivisionId == profile.CustomerDivisionId).OrderByDescending(x => x.Id).FirstOrDefault();
                 var profileContractDetails = new List<ProfileContractDetail>();
-                
-                foreach (var contract in contracts)
+
+                if (contract != null)
                 {
                     var profileContractDetail = new ProfileContractDetail { ContractId = contract.Id };
                     var profileContractServiceDetails = new List<ProfileContractServiceDetail>();
@@ -433,8 +433,17 @@ namespace OnlinePortalBackend.MyServices
                     }
                     profileContractDetails.Add(new ProfileContractDetail
                     {
-                        ContractId = contract.Id,
+                        ContractId =  contract.Id,
                         ContractServices = profileContractServiceDetails
+                    });
+
+                }
+                else
+                {
+                    profileContractDetails.Add(new ProfileContractDetail
+                    {
+                        ContractId = null,
+                        ContractServices = null
                     });
                 }
 

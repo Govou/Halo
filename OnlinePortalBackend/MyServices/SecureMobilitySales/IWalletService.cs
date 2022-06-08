@@ -17,5 +17,6 @@ namespace OnlinePortalBackend.MyServices.SecureMobilitySales
         Task<ApiCommonResponse> SpendWallet(SpendWalletDTO request);
         Task<ApiCommonResponse> GetWalletBalance(int profileId);
         Task<ApiCommonResponse> GetWalletActivationStatus(int profileId);
+        Task<ApiCommonResponse> GetWalletTransactionHistory(int profileId);
     }
 }

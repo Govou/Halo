@@ -8,7 +8,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using HaloBiz.DTOs;
 using HaloBiz.DTOs.TransferDTOs;
+using HaloBiz.Models;
+using Microsoft.AspNetCore.Mvc.Filters;
 using Task = HalobizMigrations.Models.ProjectManagement.Task;
 
 namespace HaloBiz.MyServices
@@ -114,6 +117,7 @@ namespace HaloBiz.MyServices
         Task<ApiCommonResponse> updateDeliverable(HttpContext httpContext, long taskId, long deliverableId, DeliverableDTO deliverableDTO);
         Task<ApiCommonResponse> disableDeliverable(HttpContext httpContext, long taskId, long deliverableId);
         Task<ApiCommonResponse> getBarChartDetails(HttpContext httpContext, long taskId);
+        Task<ApiCommonResponse> getAllMilestoneTaskDueTodayForWatcher(HttpContext httpContext);
         Task<ApiCommonResponse> getAssignedDeliverableStatus(HttpContext httpContext, List<DeliverableStatusDTO> deliverableStatusDTOs);
         Task<ApiCommonResponse> getWorkspaceWithStatus(HttpContext httpContext);
         Task<ApiCommonResponse> getCurrentDeliverableStatus(HttpContext httpContext,long deliverableId);
@@ -148,5 +152,19 @@ namespace HaloBiz.MyServices
          Task<ApiCommonResponse> SendEmail(MailRequest mailRequest, HttpContext htttHttpContext);
          Task<ApiCommonResponse> GetAllConcernedMail(HttpContext httpContext);
          Task<ApiCommonResponse> DisableMail(long emailId);
+         Task<ApiCommonResponse> GetAllWatcherProjectsAndTask(HttpContext httpContext);
+         Task<ApiCommonResponse> getAllProjectCreatorsWorkspacesRevamped(HttpContext httpContext);
+         Task<ApiCommonResponse> getAllDeliverablesRevamp(HttpContext httpContext);
+         Task<ApiCommonResponse> DisableProjectComment(long commentId);
+         Task<ApiCommonResponse> RetrieveProjectComments(long projectId);
+         Task<ApiCommonResponse> GetAllProjectsComment(HttpContext httpContext);
+         Task<ApiCommonResponse> MakeProjectComment(ProjectCommentRequest projectCommentRequest, long projectId,
+             HttpContext httpContext);
+
+         Task<ApiCommonResponse> DisableTaskComment(long commentId);
+         Task<ApiCommonResponse> GetAllTaskComment(HttpContext httpContext);
+
+         Task<ApiCommonResponse> MakeTaskComment(ProjectCommentRequest projectCommentRequest, long taskId,
+             HttpContext httpContext);
     }
 }

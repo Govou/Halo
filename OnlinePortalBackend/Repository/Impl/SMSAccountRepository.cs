@@ -33,7 +33,7 @@ namespace OnlinePortalBackend.Repository.Impl
         }
         public async Task<(bool success, string message)> CreateBusinessAccount(SMSBusinessAccountDTO accountDTO)
         {
-            var exist = _context.LeadDivisions.Any(x => x.Email.ToLower() == accountDTO.AccountLogin.Email.ToLower());
+            var exist = _context.OnlineProfiles.Any(x => x.Email.ToLower() == accountDTO.AccountLogin.Email.ToLower());
 
             if (exist)
             return (false, "User already exists");
@@ -210,7 +210,7 @@ namespace OnlinePortalBackend.Repository.Impl
 
         public async Task<(bool success, string message)> CreateIndividualAccount(SMSIndividualAccountDTO accountDTO)
         {
-            var exist = _context.LeadDivisions.Any(x => x.Email.ToLower() == accountDTO.AccountLogin.Email.ToLower());
+            var exist = _context.OnlineProfiles.Any(x => x.Email.ToLower() == accountDTO.AccountLogin.Email.ToLower());
 
             if (exist)
                 return (false, "User already exists");

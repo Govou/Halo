@@ -46,6 +46,17 @@ namespace OnlinePortalBackend.MyServices.SecureMobilitySales
             return CommonResponse.Send(ResponseCodes.SUCCESS, result.message);
         }
 
+        public async Task<ApiCommonResponse> GetWalletTransactionHistory(int profileId)
+        {
+            var result = await _walletRepository.GetWalletTransactionHistory(profileId);
+            if (result == null)
+            {
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);
+            }
+
+            return CommonResponse.Send(ResponseCodes.SUCCESS, result);
+        }
+
         public async Task<ApiCommonResponse> LoadWallet(LoadWalletDTO request)
         {
             var result = await _walletRepository.LoadWallet(request);

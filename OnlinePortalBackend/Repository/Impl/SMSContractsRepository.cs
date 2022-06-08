@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Halobiz.Common.DTOs.ApiDTOs;
 using Halobiz.Common.DTOs.ReceivingDTOs;
 using Halobiz.Common.Helpers;
 using HalobizMigrations.Data;
@@ -9,6 +10,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using OnlinePortalBackend.DTOs.ReceivingDTOs;
+using OnlinePortalBackend.DTOs.TransferDTOs;
 using OnlinePortalBackend.Helpers;
 using System;
 using System.Collections.Generic;
@@ -56,7 +59,7 @@ namespace OnlinePortalBackend.Repository.Impl
             var branch = _configuration["OnlineBranchID"] ?? _configuration.GetSection("AppSettings:OnlineBranchID").Value;
             var office = _configuration["OnlineOfficeID"] ?? _configuration.GetSection("AppSettings:OnlineOfficeID").Value;
             var userId = _context.UserProfiles.FirstOrDefault(x => x.Email.ToLower().Contains("online")).Id;
-            var customerDivisionId = 0; 
+            var customerDivisionId = 0l; 
             var leadDivisionId = _context.LeadDivisions.FirstOrDefault(x => x.Email == contractDTO.Email).Id;
 
             var suspectId = _context.Suspects.FirstOrDefault(x => x.Email == contractDTO.Email).Id;
@@ -77,6 +80,7 @@ namespace OnlinePortalBackend.Repository.Impl
 
             var createdBy = _context.UserProfiles.FirstOrDefault(x => x.Email.ToLower().Contains("online")).Id;
             var contractId = 0;
+            var contractServiceId = 0;
 
             var contractServiceForEndorsements = new List<ContractServiceForEndorsementReceivingDto>();
             var quoteServices = new List<QuoteServiceReceivingDTO>();
@@ -84,87 +88,99 @@ namespace OnlinePortalBackend.Repository.Impl
             try
             {
 
-                var suspect = _context.Suspects.FirstOrDefault(x => x.Email == contractDTO.Email);
+                var customerExists = _context.CustomerDivisions.Any(x => x.Email == contractDTO.Email);
+                var onlineProfileExists = _context.OnlineProfiles.Any(x => x.Email == contractDTO.Email);
 
-               
-                var customer = new Customer
+                if (!customerExists)
                 {
-                    CreatedAt = DateTime.UtcNow.AddHours(1),
-                    UpdatedAt = DateTime.UtcNow.AddHours(1),
-                    CreatedById = createdBy,
-                    Email = contractDTO.Email,
-                    GroupName = leadDiv.DivisionName,
-                    CustomerLeadId = leadDiv.LeadId,
-                    Industry = leadDiv.Industry,
-                    GroupTypeId = suspect.GroupTypeId,
-                    Rcnumber = leadDiv.Rcnumber ?? "NULL",
-                    PhoneNumber = leadDiv.PhoneNumber,
-                    LogoUrl = leadDiv.LogoUrl
-                };
+                    var suspect = _context.Suspects.FirstOrDefault(x => x.Email == contractDTO.Email);
 
-                _context.Customers.Add(customer);
-                await _context.SaveChangesAsync();
 
-                var customerContact = new CustomerContact
+                    var customer = new Customer
+                    {
+                        CreatedAt = DateTime.UtcNow.AddHours(1),
+                        UpdatedAt = DateTime.UtcNow.AddHours(1),
+                        CreatedById = createdBy,
+                        Email = contractDTO.Email,
+                        GroupName = leadDiv.DivisionName,
+                        CustomerLeadId = leadDiv.LeadId,
+                        Industry = leadDiv.Industry,
+                        GroupTypeId = suspect.GroupTypeId,
+                        Rcnumber = leadDiv.Rcnumber ?? "NULL",
+                        PhoneNumber = leadDiv.PhoneNumber,
+                        LogoUrl = leadDiv.LogoUrl
+                    };
+
+                    _context.Customers.Add(customer);
+                    await _context.SaveChangesAsync();
+
+                    var customerContact = new CustomerContact
+                    {
+                        ContactDesignation = ContactDesignation.Self,
+                        ContactPriority = ContactPriority.PrimaryContact,
+                        ContactQualification = ContactQualification.DecisionMaker,
+                        ContactId = contactId,
+                        CustomerId = customer.Id
+                    };
+
+                    _context.CustomerContacts.Add(customerContact);
+                    await _context.SaveChangesAsync();
+
+
+                    var customerDiv = new CustomerDivision
+                    {
+                        Address = suspect.Address,
+                        CreatedAt = DateTime.UtcNow.AddHours(1),
+                        UpdatedAt = DateTime.UtcNow.AddHours(1),
+                        CreatedById = createdBy,
+                        CustomerId = customer.Id,
+                        Industry = leadDiv.Industry,
+                        DivisionName = leadDiv.DivisionName,
+                        Email = leadDiv.Email,
+                        LeadDivisionId = leadDiv.Id,
+                        Lgaid = leadDiv.Lgaid,
+                        LogoUrl = leadDiv.LogoUrl,
+                        StateId = leadDiv.StateId,
+                        PhoneNumber = leadDiv.PhoneNumber,
+                        Rcnumber = leadDiv.Rcnumber,
+                        Street = leadDiv.Street
+                    };
+
+                    _context.CustomerDivisions.Add(customerDiv);
+                    await _context.SaveChangesAsync();
+
+                    customerDivisionId = (int)customerDiv.Id;
+                }
+
+                if (onlineProfileExists && !customerExists)
                 {
-                    ContactDesignation = ContactDesignation.Self,
-                    ContactPriority = ContactPriority.PrimaryContact,
-                    ContactQualification = ContactQualification.DecisionMaker,
-                    ContactId = contactId,
-                    CustomerId = customer.Id
-                };
+                    var onlineProfile = _context.OnlineProfiles.FirstOrDefault(x => x.Email.ToLower() == contractDTO.Email.ToLower());
+                    onlineProfile.CustomerDivisionId = customerDivisionId;
 
-                _context.CustomerContacts.Add(customerContact);
-                await _context.SaveChangesAsync();
+                    await _context.SaveChangesAsync();
+                }
 
-
-                var customerDiv = new CustomerDivision
+                if (onlineProfileExists && customerExists)
                 {
-                    Address = suspect.Address,
-                    CreatedAt = DateTime.UtcNow.AddHours(1),
-                    UpdatedAt = DateTime.UtcNow.AddHours(1),
-                    CreatedById = createdBy,
-                    CustomerId = customer.Id,
-                    Industry = leadDiv.Industry,
-                    DivisionName = leadDiv.DivisionName,
-                    Email = leadDiv.Email,
-                    LeadDivisionId = leadDiv.Id,
-                    Lgaid = leadDiv.Lgaid,
-                    LogoUrl = leadDiv.LogoUrl,
-                    StateId = leadDiv.StateId,
-                    PhoneNumber = leadDiv.PhoneNumber,
-                    Rcnumber = leadDiv.Rcnumber,
-                    Street = leadDiv.Street
-                };
+                    customerDivisionId = _context.CustomerDivisions.FirstOrDefault(x => x.Email.ToLower() == contractDTO.Email.ToLower()).Id;
+                    var onlineProfile = _context.OnlineProfiles.FirstOrDefault(x => x.Email.ToLower() == contractDTO.Email.ToLower());
+                    onlineProfile.CustomerDivisionId = customerDivisionId;
 
-                _context.CustomerDivisions.Add(customerDiv);
-                await _context.SaveChangesAsync();
-
-                customerDivisionId = (int)customerDiv.Id;
-
-                var onlineProfile = _context.OnlineProfiles.FirstOrDefault(x => x.Email.ToLower() == contractDTO.Email.ToLower());
-                onlineProfile.CustomerDivisionId = onlineProfile.Id;
-
-                await _context.SaveChangesAsync();
+                    await _context.SaveChangesAsync();
+                }
+              
 
 
                 foreach (var item in contractDTO.SMSContractServices)
                 {
                     var service = _context.Services.FirstOrDefault(x => x.Id == item.ServiceId);
-                    var amountWithoutVat = service.UnitPrice * item.Quantity;
+                    var amountWithoutVat = item.TotalAmount;
                     var amount = 0.0;
                     var vat = 0.0;
+                    var amountWithVat = amountWithoutVat + (0.075 * amountWithoutVat);
+                    amount = amountWithVat;
+                    vat = 0.075 * amountWithoutVat;
 
-                    if (service.IsVatable.Value)
-                    {
-                        var amountWithVat = amountWithoutVat + (0.075 * amountWithoutVat);
-                        amount = amountWithVat;
-                        vat = 0.075 * amountWithoutVat;
-                    }
-                    else
-                    {
-                        amount = amountWithoutVat;
-                    }
                     contractServiceForEndorsements.Add(new ContractServiceForEndorsementReceivingDto
                     {
                         ActivationDate = DateTime.UtcNow.AddHours(1),
@@ -185,9 +201,9 @@ namespace OnlinePortalBackend.Repository.Impl
                         GroupInvoiceNumber = groupInvoiceNumber,
                         ServiceId = service.Id,
                         ContractId = contractId,
-                        InvoicingInterval = TimeCycle.OneTime,
+                        InvoicingInterval = TimeCycle.Adhoc,
                         Quantity = item.Quantity,
-                        PaymentCycle = TimeCycle.OneTime,
+                        PaymentCycle = TimeCycle.Adhoc,
                         EndorsementTypeId = endorsementType,
                         PickupLocation = item.PickupLocation,
                         PickupDateTime = item.PickupTime,
@@ -211,9 +227,9 @@ namespace OnlinePortalBackend.Repository.Impl
                         Dropofflocation = item.DropLocation,
                         DropoffDateTime = item.DropoffDateTime,
                         ServiceId = service.Id,
-                        InvoicingInterval = TimeCycle.OneTime,
+                        InvoicingInterval = TimeCycle.Adhoc,
                         Quantity = item.Quantity,
-                        PaymentCycle = TimeCycle.OneTime,
+                        PaymentCycle = TimeCycle.Adhoc,
                         PickupLocation = item.PickupLocation,
                         PickupDateTime = item.PickupTime,
                         VAT = vat,
@@ -227,7 +243,8 @@ namespace OnlinePortalBackend.Repository.Impl
 
                 if (endorsementResult.isSuccess)
                 {
-                    contractId = int.Parse(endorsementResult.message.ToString());
+                    contractId = int.Parse(endorsementResult.message1.ToString());
+                    contractServiceId = int.Parse(endorsementResult.message2.ToString());
                 }
 
                 var quote = new QuoteReceivingDTO
@@ -251,7 +268,8 @@ namespace OnlinePortalBackend.Repository.Impl
                 return (true, new
                 {
                     CustomerDivisionId = customerDivisionId,
-                    ContractId = contractId
+                    ContractId = contractId,
+                    ContractServiceId = contractServiceId
                 });
 
             }
@@ -263,8 +281,6 @@ namespace OnlinePortalBackend.Repository.Impl
                 return (false, "An error has occured");
 
             }
-
-
         }
 
         private async Task<string> GenerateGroupInvoiceNumber()
@@ -295,12 +311,13 @@ namespace OnlinePortalBackend.Repository.Impl
             }
         }
 
-        public async Task<(bool isSuccess, object message)> AddNewRetentionContractServiceForEndorsement(List<ContractServiceForEndorsementReceivingDto> contractServiceForEndorsementDtos)
+        public async Task<(bool isSuccess, object message1, object message2)> AddNewRetentionContractServiceForEndorsement(List<ContractServiceForEndorsementReceivingDto> contractServiceForEndorsementDtos)
         {
             long contractId = 0;
+            long contractServiceId = 0l;
             if (!contractServiceForEndorsementDtos.Any())
             {
-                return (false, "No contract service specified");
+                return (false, "No contract service specified", null);
             }
 
 
@@ -316,7 +333,7 @@ namespace OnlinePortalBackend.Repository.Impl
                 //check if there is a pending contract addition for this guy
                 if (_context.Contracts.Any(x => x.CustomerDivisionId == contractDetail.CustomerDivisionId && !x.IsApproved))
                 {
-                    return (false, "You have pending contract waiting approval");
+                    return (false, "You have pending contract waiting approval", null);
                 }
 
                 newContract = new Contract
@@ -351,7 +368,7 @@ namespace OnlinePortalBackend.Repository.Impl
             //validate the admin direct pairs
             var (isValid, errorMessage) = await ValidateEndorsementRequest(createNewContract, contractServiceForEndorsementDtos);
             if (!isValid)
-                return (false, errorMessage);
+                return (false, errorMessage, null);
 
 
             foreach (var item in contractServiceForEndorsementDtos)
@@ -370,7 +387,7 @@ namespace OnlinePortalBackend.Repository.Impl
 
                     if (alreadyExists != null)
                     {
-                        return (false, $"There is already an endorsement request for the contract service with id {alreadyExists.Id}");
+                        return (false, $"There is already an endorsement request for the contract service with id {alreadyExists.Id}", null);
                     }
                 }
 
@@ -387,7 +404,7 @@ namespace OnlinePortalBackend.Repository.Impl
 
                 if (previouslyRenewal != null)
                 {
-                    return (false, "There has been a retention on this contract service");
+                    return (false, "There has been a retention on this contract service", null);
                 }
 
                 item.CreatedById = id;
@@ -397,7 +414,7 @@ namespace OnlinePortalBackend.Repository.Impl
                     {
                         if (item.ContractEndDate.Value.AddDays(1).Day != 1)
                         {
-                            return (false, $"Contract end date must be last day of month for tag {item.UniqueTag}");
+                            return (false, $"Contract end date must be last day of month for tag {item.UniqueTag}", null);
                         }
                     }
 
@@ -405,7 +422,9 @@ namespace OnlinePortalBackend.Repository.Impl
                     {
                         var contractService = _mapper.Map<ContractService>(item);
                         contractService.ContractId = newContract.Id;
+                        contractService.AdHocInvoicedAmount = contractService.BillableAmount.Value;
                         newContractServices.Add(contractService);
+
                     }
                     catch (Exception ex)
                     {
@@ -424,6 +443,8 @@ namespace OnlinePortalBackend.Repository.Impl
                 {
                     await _context.ContractServices.AddRangeAsync(newContractServices);
                     await _context.SaveChangesAsync();
+
+                    contractServiceId = newContractServices[0].Id;
                 }
                 else
                 {
@@ -435,18 +456,20 @@ namespace OnlinePortalBackend.Repository.Impl
                         {
                             //create a new contract service at draft stage
                             var contractService = _mapper.Map<ContractService>(item);
-                            contractService.Version = (int)VersionType.Draft;
+                            contractService.Version = (int)VersionType.Latest;
+                            contractService.AdHocInvoicedAmount = contractService.BillableAmount.Value;
                             var entity = _context.ContractServices.Add(contractService);
                             await _context.SaveChangesAsync();
                             item.PreviousContractServiceId = entity.Entity.Id;
                             item.IsConvertedToContractService = true;
                             item.IsRequestedForApproval = false;
+                            
                         }
 
                         var savedEntity = await SaveContractServiceForEndorsement(item);
                         if (savedEntity == null)
                         {
-                            return (false, "Some system errors occurred");
+                            return (false, "Some system errors occurred", null);
                         }
 
                         //bool successful = await _approvalService.SetUpApprovalsForContractModificationEndorsement(savedEntity, httpContext);
@@ -459,21 +482,21 @@ namespace OnlinePortalBackend.Repository.Impl
 
                 await _context.SaveChangesAsync();
 
-                if (createNewContract)
-                {
-                    var contract = await _context.ContractServices
-                            .Where(x => x.ContractId == newContract.Id)
-                           .Include(x => x.Contract)
-                           .ToListAsync();
-                    return (true, contractId);
-                }
-                return (true, contractId);
+                //if (createNewContract)
+                //{
+                //    var contract = await _context.ContractServices
+                //            .Where(x => x.ContractId == newContract.Id)
+                //          // .Include(x => x.Contract)
+                //           .ToListAsync();
+                //    return (true, contractId);
+                //}
+                return (true, contractId, contractServiceId);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex.Message);
                 _logger.LogError(ex.StackTrace);
-                return (false, "An error has occured");
+                return (false, "An error has occured", null);
             }
         }
 
@@ -785,6 +808,10 @@ namespace OnlinePortalBackend.Repository.Impl
             {
                 DateTime startDate = endorsement == null ? (DateTime)contractService.ContractStartDate : (DateTime)endorsement?.DateForNewContractToTakeEffect;
                 DateTime endDate = (DateTime)contractService.ContractEndDate;
+                if (startDate == endDate)
+                {
+                    endDate = endDate.AddDays(1);
+                }
                 var InitialYear = startDate.Year;
                 var amount = billableAmount;
 
@@ -1703,26 +1730,380 @@ namespace OnlinePortalBackend.Repository.Impl
 
         }
 
-        public async Task<(bool isSuccess, string message)> GenerateInvoiceForContract(SMSCreateInvoiceDTO request)
+        public async Task<(bool isSuccess, string message, List<InvoiceResult> invoiceResults)> GenerateInvoiceForContract(SMSCreateInvoiceDTO request)
+        {
+
+         using (var transaction = await _context.Database.BeginTransactionAsync())
+                {
+
+                    try
+                    {
+                        var contractServices = _context.ContractServices.Where(x => x.ContractId == request.ContractId);
+                        var customerDivisionId = _context.OnlineProfiles.FirstOrDefault(x => x.Id == request.ProfileId).CustomerDivisionId;
+                        var invoicesIds = new List<long>();
+                        foreach (var item in contractServices)
+                        {
+                            var invoice = new InvoiceReceivingDTO
+                            {
+                                BillableAmount = item.BillableAmount.Value,
+                                VAT = item.Vat.Value,
+                                ContractServiceId = item.Id,
+                                DateToBeSent = DateTime.UtcNow.AddHours(1),
+                                CustomerDivisionId = customerDivisionId.Value,
+                                UnitPrice = item.UnitPrice.Value,
+                                EndDate = item.ContractEndDate.Value,
+                                StartDate = item.ContractStartDate.Value,
+                                Quantity = item.Quantity,
+                            };
+                            var response = await AddInvoice(invoice);
+                            if (response.isSuccess)
+                                invoicesIds.Add(response.result);
+                        }
+
+                       var result = await ConvertInvoiceToFinalInvoice(invoicesIds);
+                      await transaction.CommitAsync();
+
+                    return result;
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError(ex.Message);
+                        _logger.LogError(ex.StackTrace);
+                       await transaction.RollbackAsync();
+                    return (false, "An error occured", null);
+                    }
+
+                }
+           
+        }
+
+        public async Task<(bool isSuccess, string message, long result)> AddInvoice(InvoiceReceivingDTO invoiceReceivingDTO)
+        {
+
+                try
+                {
+                    var invoice = _mapper.Map<Invoice>(invoiceReceivingDTO);
+                    var contractService = await _context.ContractServices
+                                .Where(x => x.Id == invoice.ContractServiceId)
+                                .Include(x => x.Contract)
+                                .FirstOrDefaultAsync();
+
+                    if (invoice.Value + contractService.AdHocInvoicedAmount > contractService.BillableAmount)
+                    {
+                        return (false, $"Total Invoiced value cannot be greater than the billable amount for contract with id: {contractService.Id}", 0);
+                    }
+
+                    var service = await _context.Services
+                                    .FirstOrDefaultAsync(x => x.Id == contractService.ServiceId);
+
+                    if (contractService.Contract.GroupContractCategory == GroupContractCategory.GroupContractWithSameDetails
+                        || contractService.Contract.GroupContractCategory == GroupContractCategory.GroupContractWithIndividualDetails)
+                    {
+                        var invNo = contractService.Contract?.GroupInvoiceNumber;
+                        //check if there is a previous invoice from with the group invoice number
+                        var allThisGroupedInvoices = await _context.Invoices.Where(x => x.GroupInvoiceNumber == invNo).ToListAsync();
+                        invoice.InvoiceNumber = $"{invNo}/{allThisGroupedInvoices.Count + 1}";
+
+                    }
+                    else
+                    {
+                        invoice.InvoiceNumber = $"INV{contractService.Id.ToString().PadLeft(8, '0')}";
+                    }
+                this.LoggedInUserId = _context.UserProfiles.FirstOrDefault(x => x.Email.ToLower().Contains("online")).Id;
+                    invoice.ContractId = contractService.ContractId;
+                    invoice.CreatedById = this.LoggedInUserId;
+                    invoice.InvoiceType = (int)InvoiceType.New;
+                    invoice.GroupInvoiceNumber = contractService.Contract?.GroupInvoiceNumber;
+                    invoice.IsFinalInvoice = false;
+                    invoice.TransactionId = GenerateTransactionNumber(service.ServiceCode, contractService);
+
+                    var savedInvoice = await _context.Invoices.AddAsync(invoice);
+                    await _context.SaveChangesAsync();
+                    
+                    return (true, "success", invoice.Id);
+                }
+                //catch (InvalidAdHocBillableAmount e)
+                //{
+                //    _logger.LogError(e.Message);
+                //    _logger.LogError(e.StackTrace);
+                //    await transaction.RollbackAsync();
+                //    return CommonResponse.Send(ResponseCodes.FAILURE, null, e.Message);
+                //}
+                catch (Exception e)
+                {
+                    _logger.LogError(e.Message);
+                    _logger.LogError(e.StackTrace);
+                    throw;
+                }
+            
+        }
+
+        private string GenerateTransactionNumber(string serviceCode, ContractService contractService)
+        {
+            return String.IsNullOrWhiteSpace(contractService.Contract?.GroupInvoiceNumber) ? $"{serviceCode}/{contractService.Id}"
+            : $"{contractService.Contract?.GroupInvoiceNumber.Replace("GINV", "TRS")}/{contractService.Id}";
+
+        }
+
+        private async Task<IEnumerable<Invoice>> GetProformaInvoiceByContractServiceId(long contractServiceId)
+        {
+
+            List<Invoice> invoices = new List<Invoice>();
+
+            try
+            {
+                var contractService = await _context.ContractServices
+                    .Where(x => x.Id == contractServiceId && !x.IsDeleted)
+                    .Include(x => x.Contract)
+                    .FirstOrDefaultAsync();
+
+                if (contractService == null)
+                {
+                    return new List<Invoice>();
+                }
+
+                if (String.IsNullOrWhiteSpace(contractService.Contract?.GroupInvoiceNumber))
+                {
+                    invoices = await _context.Invoices
+                    .Include(x => x.Receipts)
+                        .Where(x => x.ContractServiceId == contractServiceId
+                                    && (bool)x.IsFinalInvoice == false && x.IsDeleted == false)
+                        .OrderBy(x => x.StartDate)
+                        .ToListAsync();
+                }
+                else
+                {
+                    invoices = await _context.Invoices
+                    .Include(x => x.Receipts)
+                        .Where(x => x.GroupInvoiceNumber == contractService.Contract.GroupInvoiceNumber
+                                                                && (bool)x.IsFinalInvoice == false && !x.IsDeleted)
+                        .OrderBy(x => x.StartDate)
+                        .ToListAsync();
+
+                    return invoices;
+
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("", ex);
+                return new List<Invoice>();
+            }
+
+            return invoices;
+        }
+
+        public async Task<(bool isSuccess, string message, List<InvoiceResult> invoiceResults)> ConvertInvoiceToFinalInvoice(List<long> invoicesIds)
+        {
+            var invoiceResults = new List<InvoiceResult>();
+                try
+                {
+
+                    //get the hightest 
+                    var hightestGroupingId = await _context.Invoices.MaxAsync(x => x.AdhocGroupingId);
+                    var adhocGroupingId = 1 + hightestGroupingId ?? 0;
+
+                    foreach (var invoiceId in invoicesIds)
+                    {
+                        var invoice = await _context.Invoices
+                                       .Where(x => x.Id == invoiceId)
+                                       .Include(x => x.ContractService)
+                                        .ThenInclude(x => x.QuoteService)
+                                        .FirstOrDefaultAsync();
+
+                        var contractService = invoice.ContractService;
+
+                        contractService.AdHocInvoicedAmount += invoice.Value;
+                        if (contractService.AdHocInvoicedAmount > contractService.BillableAmount)
+                        {
+                            return (false, "Total invoices amount exceeds contract service billable amount", null);
+                        }
+
+                        _context.ContractServices.Update(contractService);
+                        await _context.SaveChangesAsync();
+
+                        var customerDivision = await _context.CustomerDivisions
+                                            .Where(x => x.Id == invoice.CustomerDivisionId)
+                                            .Include(x => x.Customer)
+                                                .ThenInclude(x => x.GroupType)
+                                            .FirstOrDefaultAsync();
+
+                        this.isRetail = customerDivision.Customer.GroupName == RETAIL;
+
+                        FinanceVoucherType accountVoucherType = await _context.FinanceVoucherTypes
+                                .FirstOrDefaultAsync(x => x.VoucherType == this.SALESINVOICEVOUCHER);
+
+                        var service = await _context.Services
+                                        .FirstOrDefaultAsync(x => x.Id == contractService.ServiceId);
+
+                    invoice.Value = contractService.AdHocInvoicedAmount;
+
+                    var (success, msg) = await CreateAccounts(contractService, customerDivision, (long)contractService?.BranchId, (long)contractService?.OfficeId,
+                        service, accountVoucherType, null, LoggedInUserId, false, invoice);
+                    if (!success)
+                        return (false, $"Account posting issue. {msg}", null);
+
+
+                    invoice.IsFinalInvoice = true;
+                    invoice.AdhocGroupingId = adhocGroupingId;
+                    invoice.IsInvoiceSent = true;
+
+                    _context.Invoices.Update(invoice);
+
+                    var invoiceRes = new InvoiceResult
+                    {
+                        InvoiceId = invoice.Id,
+                        InvoiceNumber = invoice.InvoiceNumber,
+                        InvoiceValue = invoice.Value
+                    };
+
+                    invoiceResults.Add(invoiceRes);
+                    await _context.SaveChangesAsync();
+                    var invoiceTransferDTO = _mapper.Map<InvoiceTransferDTO>(invoice);
+
+                    await GenerateAmortizations(contractService, customerDivision,
+                                    invoice.Value);
+                    }
+
+                    await _context.SaveChangesAsync();
+
+                    return (true, "success", invoiceResults );
+                }
+                catch (Exception e)
+                {
+                    _logger.LogError(e.Message);
+                    _logger.LogError(e.StackTrace);
+                     throw;
+                }
+            
+        }
+
+        public async Task<(bool isSuccess, object message)> AddServiceToContract(SMSContractServiceDTO contractDTO)
         {
             using var transaction = await _context.Database.BeginTransactionAsync();
             try
             {
-                var contractCreate = await CreateContract(request.ContractId);
+                var branch = _configuration["OnlineBranchID"] ?? _configuration.GetSection("AppSettings:OnlineBranchID").Value;
+                var office = _configuration["OnlineOfficeID"] ?? _configuration.GetSection("AppSettings:OnlineOfficeID").Value;
+               
 
-                if (!contractCreate.isSuccess)
-                    throw new Exception(contractCreate.message.ToString());
+                var userId = _context.UserProfiles.FirstOrDefault(x => x.Email.ToLower().Contains("online")).Id;
+                var customerDivisionId = _context.Contracts.FirstOrDefault(x => x.Id == contractDTO.ContractId).CustomerDivisionId;
+                var contractServiceForEndorsements = new List<ContractServiceForEndorsementReceivingDto>();
+                var quoteServices = new List<QuoteServiceReceivingDTO>();
+                var email = _context.CustomerDivisions.FirstOrDefault(x => x.Id == customerDivisionId).Email;
+                var leadDivisionId = _context.LeadDivisions.FirstOrDefault(x => x.Email == email).Id;
+
+                var branchId = int.Parse(branch);
+                var officeId = int.Parse(office);
+                var endorsementType = _context.EndorsementTypes.FirstOrDefault(x => x.Caption.ToLower() == "service addition").Id;
+                var groupInvoiceNumber = _context.Contracts.FirstOrDefault(x => x.Id == contractDTO.ContractId).GroupInvoiceNumber;
+                foreach (var item in contractDTO.SMSContractServices)
+                {
+                    var service = _context.Services.FirstOrDefault(x => x.Id == item.ServiceId);
+                    var amountWithoutVat = item.TotalAmount;
+                    var amount = 0.0;
+                    var vat = 0.0;
+                    var amountWithVat = amountWithoutVat + (0.075 * amountWithoutVat);
+                    amount = amountWithVat;
+                    vat = 0.075 * amountWithoutVat;
+                    contractServiceForEndorsements.Add(new ContractServiceForEndorsementReceivingDto
+                    {
+                        ActivationDate = DateTime.UtcNow.AddHours(1),
+                        AdminDirectTie = new Random().Next(100_000_000, 1000_000_000).ToString(),
+                        BillableAmount = amount,
+                        IsApproved = true,
+                        VAT = vat,
+                        BranchId = branchId,
+                        OfficeId = officeId,
+                        ContractStartDate = item.ServiceStartDate,
+                        ContractEndDate = item.ServiceEndDate,
+                        UniqueTag = new Random().Next(100_000_000, 1000_000_000).ToString(),
+                        CreatedById = userId,
+                        UnitPrice = service.UnitPrice,
+                        Dropofflocation = item.DropLocation,
+                        DropoffDateTime = item.DropoffDateTime,
+                        CustomerDivisionId = (long)customerDivisionId,
+                        GroupInvoiceNumber = groupInvoiceNumber,
+                        ServiceId = service.Id,
+                        ContractId = contractDTO.ContractId,
+                        InvoicingInterval = TimeCycle.Adhoc,
+                        Quantity = item.Quantity,
+                        PaymentCycle = TimeCycle.Adhoc,
+                        EndorsementTypeId = endorsementType,
+                        PickupLocation = item.PickupLocation,
+                        PickupDateTime = item.PickupTime,
+                        GroupContractCategory = GroupContractCategory.GroupContractWithSameDetails,
+                        FirstInvoiceSendDate = DateTime.UtcNow.AddHours(1),
+                        FulfillmentEndDate = DateTime.UtcNow.AddHours(1),
+                        FulfillmentStartDate = DateTime.UtcNow.AddHours(1),
+                    });
+
+
+                    quoteServices.Add(new QuoteServiceReceivingDTO
+                    {
+                        ActivationDate = DateTime.UtcNow.AddHours(1),
+                        AdminDirectTie = new Random().Next(100_000_000, 1000_000_000).ToString(),
+                        BillableAmount = amount,
+                        BranchId = branchId,
+                        OfficeId = officeId,
+                        ContractStartDate = item.ServiceStartDate,
+                        ContractEndDate = item.ServiceEndDate,
+                        UniqueTag = new Random().Next(100_000_000, 1000_000_000).ToString(),
+                        UnitPrice = service.UnitPrice,
+                        Dropofflocation = item.DropLocation,
+                        DropoffDateTime = item.DropoffDateTime,
+                        ServiceId = service.Id,
+                        InvoicingInterval = TimeCycle.Adhoc,
+                        Quantity = item.Quantity,
+                        PaymentCycle = TimeCycle.Adhoc,
+                        PickupLocation = item.PickupLocation,
+                        PickupDateTime = item.PickupTime,
+                        VAT = vat,
+                        FirstInvoiceSendDate = DateTime.UtcNow.AddHours(1),
+                        FulfillmentStartDate = DateTime.UtcNow.AddHours(1),
+                        FulfillmentEndDate = DateTime.UtcNow.AddHours(1),
+                    });
+                }
+
+                var endorsementResult = await AddNewRetentionContractServiceForEndorsement(contractServiceForEndorsements);
+
+               
+                var quote = new QuoteReceivingDTO
+                {
+                    GroupInvoiceNumber = groupInvoiceNumber,
+                    GroupQuoteCategory = GroupQuoteCategory.GroupQuoteWithSameDetails,
+                    IsConvertedToContract = true,
+                    Version = Halobiz.Common.DTOs.ReceivingDTOs.VersionType.Latest,
+                    LeadDivisionId = leadDivisionId,
+                    QuoteServices = quoteServices,
+
+                };
+
+                var quoteResult = await AddQuote(quote);
+
+                if (!quoteResult.isSuccess)
+                    throw new Exception(quoteResult.message.ToString());
 
                 await transaction.CommitAsync();
-                return (true, "success");
+
+                var contractServiceId = _context.ContractServices.Where(x => x.ContractId == contractDTO.ContractId).OrderByDescending(x => x.Id).FirstOrDefault().Id;
+
+                return (true, new
+                {
+                    CustomerDivisionId = customerDivisionId,
+                    ContractServiceId = contractServiceId
+                });
+
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex.Message);
                 _logger.LogError(ex.StackTrace);
                 transaction.Rollback();
+                return (false, "An error has occured");
+
             }
-            return (false, "failed to generate invoice");
         }
     }
 
@@ -1736,5 +2117,12 @@ namespace OnlinePortalBackend.Repository.Impl
         public int Year { get; set; }
         public long Month { get; set; }
         public double Amount { get; set; }
+    }
+
+    public class InvoiceResult
+    {
+        public string InvoiceNumber { get; set; }
+        public double InvoiceValue { get; set; }
+        public long InvoiceId { get; set; }
     }
 }

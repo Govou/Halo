@@ -57,6 +57,14 @@ namespace HaloBiz
             {
                 services.AddDbContext<HalobizContext>(options =>
                     options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")), ServiceLifetime.Scoped);
+                services.AddHttpContextAccessor();
+                services.AddSingleton<IUriService>(o =>
+                {
+                    var accessor = o.GetRequiredService<IHttpContextAccessor>();
+                    var request = accessor.HttpContext.Request;
+                    var uri = string.Concat(request.Scheme, "://", request.Host.ToUriComponent());
+                    return new UriService(uri);
+                });
             }
             else
             {
@@ -67,7 +75,17 @@ namespace HaloBiz
                 var database = Configuration["Database"];
                 services.AddDbContext<HalobizContext>(options =>
                     options.UseSqlServer($"Server={server},{port};Database={database};User Id={user};Password={password};"));
+                services.AddHttpContextAccessor();
+                services.AddSingleton<IUriService>(o =>
+                {
+                    var accessor = o.GetRequiredService<IHttpContextAccessor>();
+                    var request = accessor.HttpContext.Request;
+                    var uri = string.Concat(request.Scheme, "://", request.Host.ToUriComponent());
+                    return new UriService(uri);
+                });
             }
+            
+            
 
             //Authentication with JWT Setup
             services
