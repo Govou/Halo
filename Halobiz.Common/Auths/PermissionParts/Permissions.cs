@@ -1066,6 +1066,15 @@ namespace Halobiz.Common.Auths.PermissionParts
         [Display(ShortName = "SecuredMobility", GroupName = "OnlineLocationFavorite", Name = "Delete", Description = "Can delete online location favorite")]
         OnlineLocationFavorite_Delete = 0x2254,
 
+        [Display(ShortName = "Finance", GroupName = "AdvancePayment", Name = "Get", Description = "Can view advance payment")]
+        AdvancePayment_Get = 0x2271,
+        [Display(ShortName = "Finance", GroupName = "AdvancePayment", Name = "Post", Description = "Can create advance payment")]
+        AdvancePayment_Post = 0x2272,
+        [Display(ShortName = "Finance", GroupName = "AdvancePayment", Name = "Put", Description = "Can update advance payment")]
+        AdvancePayment_Put = 0x2273,
+        [Display(ShortName = "Finance", GroupName = "AdvancePayment", Name = "Delete", Description = "Can delete advance payment")]
+        AdvancePayment_Delete = 0x2274,
+
     }
 
 }

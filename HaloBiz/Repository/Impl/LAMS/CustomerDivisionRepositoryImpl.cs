@@ -90,8 +90,6 @@ namespace HaloBiz.Repository.Impl.LAMS
         public async Task<IEnumerable<object>> FindAllCustomerDivision()
         {
             return await _context.CustomerDivisions.Where(x => !x.IsDeleted)
-                .OrderBy(x => x.DivisionName)
-                .Select(x => new { Id = x.Id, DivisionName = x.DivisionName })
                 .ToListAsync();
         }
 
