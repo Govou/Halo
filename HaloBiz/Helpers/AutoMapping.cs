@@ -47,6 +47,7 @@ namespace HaloBiz.Helpers
             CreateMap<Service, ServicesLeanformatDTO>();
             CreateMap<Service, ServiceCategoryForRetailTransferDTO>();
             CreateMap<Service, ServiceTransferForOnlineDTO>();
+            CreateMap<Service, serviceForServiceAssignmentTransferDTO>();
             CreateMap<State, StateTransferDTO>();    
             CreateMap<Lga, LGATransferDTO>();
            
@@ -329,11 +330,13 @@ namespace HaloBiz.Helpers
             CreateMap<SMORouteReceivingDTO, SMORoute>();
             CreateMap<SMORoute, SMORouteTransferDTO>();
             CreateMap<SMORoute, SMORouteTransferDTO_>();
+            CreateMap<SMORoute, SMORoutesForServiceAssignmentTransferDTO>();
             CreateMap<SMOReturnRouteReceivingDTO, SMOReturnRoute>();
             CreateMap<SMOReturnRoute, SMOReturnRouteTransferDTO>();
             CreateMap<SMORegionReceivingDTO, SMORegion>();
             CreateMap<SMORegion, SMORegionTransferDTO>();
             CreateMap<SMORegion, SMORegionTransferDTO_>();
+            CreateMap<SMORegion, SMORegionsForServiceAssignmentTransferDTO>();
 
             CreateMap<SMORegion, SMORouteRegionTransferDTO>();
             CreateMap<SMORoute, SMORouteRegionTransferDTO>();
@@ -374,6 +377,7 @@ namespace HaloBiz.Helpers
             CreateMap<ServiceRegistrationReceivingDTO, ServiceRegistration>();
             CreateMap<ServiceRegistration, ServiceRegistrationTransferDTO>();
             CreateMap<ServiceRegistration, BusinessRuleServiceRegTransferDTO>();
+            CreateMap<ServiceRegistration, serviceRegistrationForServiceAssignmentTransferDTO>();
 
             CreateMap<BusinessRuleReceivingDTO, BusinessRule>();
             CreateMap<BusinessRule, BusinessRuleTransferDTO>();

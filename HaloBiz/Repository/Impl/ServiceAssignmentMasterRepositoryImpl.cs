@@ -64,15 +64,17 @@ namespace HaloBiz.Repository.Impl
         public async Task<IEnumerable<MasterServiceAssignment>> FindAllServiceAssignments()
         {
             return await _context.MasterServiceAssignments.Where(type => type.IsDeleted == false && type.IsScheduled == false)
-               .Include(ct => ct.ContractService).Include(t=>t.CustomerDivision).Include(t=>t.SMORegion).Include(t=>t.SMORegion)
+               .Include(ct => ct.ContractService).Include(t=>t.CustomerDivision).Include(t=>t.SMORegion)
                .Include(sec=>sec.SecondaryServiceAssignments.Where(x=>x.IsDeleted == false))
                .Include(t=>t.SMORoute).Include(t=>t.SourceType).Include(t=>t.TripType).Include(t=>t.CreatedBy).Include(t=>t.ServiceRegistration)
-               .Include(t=>t.ServiceRegistration.Service).Include(t => t.ServiceRegistration.ApplicableArmedEscortTypes.Where(t=>t.IsDeleted == false))
-               .Include(t => t.ServiceRegistration.ApplicableCommanderTypes.Where(t => t.IsDeleted == false))
-               .Include(t => t.ServiceRegistration.ApplicablePilotTypes.Where(t => t.IsDeleted == false))
-               .Include(t => t.ServiceRegistration.ApplicableVehicleTypes.Where(t => t.IsDeleted == false))
+               .Include(t=>t.ServiceRegistration.Service)
                .OrderByDescending(x => x.Id)
                .ToListAsync();
+
+            //.Include(t => t.ServiceRegistration.ApplicableArmedEscortTypes.Where(t => t.IsDeleted == false))
+            //   .Include(t => t.ServiceRegistration.ApplicableCommanderTypes.Where(t => t.IsDeleted == false))
+            //   .Include(t => t.ServiceRegistration.ApplicablePilotTypes.Where(t => t.IsDeleted == false))
+            //   .Include(t => t.ServiceRegistration.ApplicableVehicleTypes.Where(t => t.IsDeleted == false))
         }
 
         public async Task<IEnumerable<MasterServiceAssignment>> FindAllScheduledServiceAssignments()
@@ -145,10 +147,24 @@ namespace HaloBiz.Repository.Impl
             _context.MasterServiceAssignments.Update(serviceAssignment);
             return await SaveChanges();
         }
-
+        
         public async Task<bool> UpdateisAddedToCartStatus(MasterServiceAssignment serviceAssignment)
         {
             serviceAssignment.IsAddedToCart = true;
+            _context.MasterServiceAssignments.Update(serviceAssignment);
+            return await SaveChanges();
+        }
+
+        public async Task<bool> UpdatehasPassengerStatusToTrue(MasterServiceAssignment serviceAssignment)
+        {
+            //serviceAssignment.hasPassenger = true;
+            _context.MasterServiceAssignments.Update(serviceAssignment);
+            return await SaveChanges();
+        }
+
+        public async Task<bool> UpdatehasPassengerStatusToFalse(MasterServiceAssignment serviceAssignment)
+        {
+            //serviceAssignment.hasPassenger = false;
             _context.MasterServiceAssignments.Update(serviceAssignment);
             return await SaveChanges();
         }

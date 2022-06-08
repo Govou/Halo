@@ -56,7 +56,7 @@ namespace HaloBiz.DTOs.ReceivingDTOs
         public string Othername { get; set; }
         public string Lastname { get; set; }
         public string Firstname { get; set; }
-        public long? ServiceAssignmentId { get; set; }
+        public long ServiceAssignmentId { get; set; }
         public string FacebooHandle { get; set; }
     }
 

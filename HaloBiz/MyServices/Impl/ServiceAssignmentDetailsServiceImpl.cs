@@ -732,7 +732,9 @@ namespace HaloBiz.MyServices.Impl
         public async Task<ApiCommonResponse> AddPassenger(HttpContext context, PassengerReceivingDTO passengerReceivingDTO)
         {
             var passenger = _mapper.Map<Passenger>(passengerReceivingDTO);
-          
+            var itemToUpdate = await _serviceAssignmentMasterRepository.FindServiceAssignmentById(passengerReceivingDTO.ServiceAssignmentId);
+
+
             passenger.CreatedById = context.GetLoggedInUserId();
             passenger.CreatedAt = DateTime.UtcNow;
             var savedItem = await _serviceAssignmentDetailsRepository.SavePassenger(passenger);
@@ -740,6 +742,15 @@ namespace HaloBiz.MyServices.Impl
             {
                 return CommonResponse.Send(ResponseCodes.FAILURE, null, ResponseMessage.InternalServer500);
             }
+
+            //if (itemToUpdate.has)
+            //{
+            //    if (!await _serviceAssignmentMasterRepository.UpdatehasPassengerStatusToTrue(itemToUpdate))
+            //    {
+            //        return CommonResponse.Send(ResponseCodes.FAILURE, null, "Couldn't update Status to True on Service Assignment ");
+            //    }
+            //}
+           
             var TransferDTO = _mapper.Map<PassengerTransferDTO>(passenger);
             return CommonResponse.Send(ResponseCodes.SUCCESS, TransferDTO, ResponseMessage.Success200);
         }
@@ -1410,6 +1421,9 @@ namespace HaloBiz.MyServices.Impl
         public async Task<ApiCommonResponse> DeletePassenger(long id)
         {
             var itemToDelete = await _serviceAssignmentDetailsRepository.FindPassengerById(id);
+            var itemToUpdate = await _serviceAssignmentMasterRepository.FindServiceAssignmentById((long)itemToDelete.ServiceAssignmentId);
+           
+
 
             if (itemToDelete == null)
             {
@@ -1419,6 +1433,16 @@ namespace HaloBiz.MyServices.Impl
             if (!await _serviceAssignmentDetailsRepository.DeletePassenger(itemToDelete))
             {
                 return CommonResponse.Send(ResponseCodes.FAILURE, null, ResponseMessage.InternalServer500);
+            }
+
+            var allPassengers = await _serviceAssignmentDetailsRepository.FindAllPassengersByAssignmentId((long)itemToDelete.ServiceAssignmentId);
+
+            if (allPassengers.Count() < 1)
+            {
+                if (!await _serviceAssignmentMasterRepository.UpdatehasPassengerStatusToFalse(itemToUpdate))
+                {
+                    return CommonResponse.Send(ResponseCodes.FAILURE, null, "Couldn't update Status to False on Service Assignment");
+                }
             }
 
             return CommonResponse.Send(ResponseCodes.SUCCESS, null, ResponseMessage.Success200);
