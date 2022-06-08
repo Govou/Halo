@@ -743,14 +743,14 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.FAILURE, null, ResponseMessage.InternalServer500);
             }
 
-            //if (itemToUpdate.has)
-            //{
-            //    if (!await _serviceAssignmentMasterRepository.UpdatehasPassengerStatusToTrue(itemToUpdate))
-            //    {
-            //        return CommonResponse.Send(ResponseCodes.FAILURE, null, "Couldn't update Status to True on Service Assignment ");
-            //    }
-            //}
-           
+            if (itemToUpdate.HasPassenger == false)
+            {
+                if (!await _serviceAssignmentMasterRepository.UpdatehasPassengerStatusToTrue(itemToUpdate))
+                {
+                    return CommonResponse.Send(ResponseCodes.FAILURE, null, "Couldn't update Status to True on Service Assignment ");
+                }
+            }
+
             var TransferDTO = _mapper.Map<PassengerTransferDTO>(passenger);
             return CommonResponse.Send(ResponseCodes.SUCCESS, TransferDTO, ResponseMessage.Success200);
         }
