@@ -98,23 +98,24 @@ namespace HaloBiz.MyServices.Impl
                     var controlAccount = await _context.ControlAccounts.Where(x => x.AccountNumber == advancedPayNo).FirstOrDefaultAsync();
 
                     //check if this client has account under this control account
-                    Account liabilityAccount = await _context.Accounts.Where(x => x.ControlAccountId == controlAccount.Id && x.CustomerDivisionId==customerDivion.Id).FirstOrDefaultAsync();
+                    Account liabilityAccount = await _context.Accounts.Where(x => x.ControlAccountId == controlAccount.Id && x.ClientId==customerDivion.Id).FirstOrDefaultAsync();
                     if (liabilityAccount == null)
                     {
                         //get the last account under the control account
-                        var lastAccount = await _context.Accounts.LastOrDefaultAsync(x=>x.ControlAccountId==controlAccount.Id);
+                        var lastAccount = await _context.Accounts.OrderBy(x=>x.Id).LastOrDefaultAsync(x=>x.ControlAccountId==controlAccount.Id);
                         //create one for this guy
                         var liabilityAccountEntity = await _context.Accounts.AddAsync(new Account
                         {
                             AccountNumber = lastAccount == null ? controlAccount.AccountNumber + 1 : lastAccount.AccountNumber + 1,
                             ControlAccountId = controlAccount.Id,
-                            Description = $"",
-                            Name = $"",
+                            Description = $"Advance payment account for {customerDivion.DivisionName}",
+                            Name = $"Advance payment account for {customerDivion.DivisionName}",
                             IsDebitBalance = false,
                             CreatedById = userId,
                             CreatedAt = DateTime.Now,
+                            Alias = "PA",
                             IsActive = true,
-                            CustomerDivisionId = customerDivion.Id,
+                            ClientId = customerDivion.Id,
                         });
 
                         await _context.SaveChangesAsync();
