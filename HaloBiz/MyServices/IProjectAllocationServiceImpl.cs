@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using HaloBiz.DTOs;
 using HaloBiz.DTOs.TransferDTOs;
 using HaloBiz.Models;
 using Microsoft.AspNetCore.Mvc.Filters;
@@ -154,5 +155,16 @@ namespace HaloBiz.MyServices
          Task<ApiCommonResponse> GetAllWatcherProjectsAndTask(HttpContext httpContext);
          Task<ApiCommonResponse> getAllProjectCreatorsWorkspacesRevamped(HttpContext httpContext);
          Task<ApiCommonResponse> getAllDeliverablesRevamp(HttpContext httpContext);
+         Task<ApiCommonResponse> DisableProjectComment(long commentId);
+         Task<ApiCommonResponse> RetrieveProjectComments(long projectId);
+         Task<ApiCommonResponse> GetAllProjectsComment(HttpContext httpContext);
+         Task<ApiCommonResponse> MakeProjectComment(ProjectCommentRequest projectCommentRequest, long projectId,
+             HttpContext httpContext);
+
+         Task<ApiCommonResponse> DisableTaskComment(long commentId);
+         Task<ApiCommonResponse> GetAllTaskComment(HttpContext httpContext);
+
+         Task<ApiCommonResponse> MakeTaskComment(ProjectCommentRequest projectCommentRequest, long taskId,
+             HttpContext httpContext);
     }
 }
