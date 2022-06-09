@@ -25,6 +25,13 @@ namespace OnlinePortalBackend.Controllers.SecureMobilitySales
         //    return await _authService.SendConfirmCodeToClient(email);
         //}
 
+        [AllowAnonymous]
+        [HttpPost("SupplierLogin")]
+        public async Task<ApiCommonResponse> SupplierLogin(LoginDTO login)
+        {
+            return await _authService.SupplierLogin(login);
+        }
+
 
         [AllowAnonymous]
         [HttpPost("Login")]

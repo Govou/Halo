@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Halobiz.Common.DTOs.ApiDTOs;
 using Halobiz.Common.DTOs.ReceivingDTOs;
+using OnlinePortalBackend.DTOs.ReceivingDTOs;
 using OnlinePortalBackend.DTOs.TransferDTOs;
 using OnlinePortalBackend.Repository;
 using System.Threading.Tasks;
@@ -33,6 +34,18 @@ namespace OnlinePortalBackend.MyServices.SecureMobilitySales
         {
 
             var result = await _accountRepository.CreateIndividualAccount(request);
+
+            if (result.success)
+            {
+                var authResult = await _authService.SendConfirmCodeToClient_v2(request.AccountLogin.Email);
+                return authResult;
+            }
+            return CommonResponse.Send(ResponseCodes.FAILURE, null, result.message);
+        }
+
+        public async Task<ApiCommonResponse> CreateSupplierAccount(SMSSupplierAccountDTO request)
+        {
+            var result = await _accountRepository.CreateSupplierAccount(request);
 
             if (result.success)
             {

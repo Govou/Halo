@@ -80,7 +80,7 @@ namespace OnlinePortalBackend.Repository.Impl
             var office = _configuration["OnlineOfficeId"] ?? _configuration.GetSection("AppSettings:OnlineOfficeId").Value;
             var branch = _configuration["OnlineBranchId"] ?? _configuration.GetSection("AppSettings:OnlineBranchId").Value;
 
-            var profile = _context.OnlineProfiles.FirstOrDefault(p => p.Id == request.ProfileId);
+            var profile = _context.OnlineProfiles.FirstOrDefault(p => p.SupplierId == request.ProfileId);
 
 
             var voucher = _configuration["WalletTopupVoucherTypeID"] ?? _configuration.GetSection("AppSettings:WalletTopupVoucherTypeID").Value;

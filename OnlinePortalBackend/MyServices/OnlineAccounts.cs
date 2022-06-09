@@ -21,6 +21,7 @@ using System.Text.RegularExpressions;
 using OnlinePortalBackend.DTOs.TransferDTOs;
 using Microsoft.Extensions.Caching.Memory;
 using Halobiz.Common.Model;
+using Google.Apis.Auth;
 
 namespace OnlinePortalBackend.MyServices
 {
@@ -31,6 +32,8 @@ namespace OnlinePortalBackend.MyServices
         Task<ApiCommonResponse> CreateAccount(CreatePasswordDTO user);
         Task<ApiCommonResponse> Login(LoginDTO user);
         Task<ApiCommonResponse> Login_v2(LoginDTO user);
+        Task<ApiCommonResponse> SupplierLogin(LoginDTO login);
+        Task<ApiCommonResponse> CommanderLogin(LoginDTO login);
         Task<ApiCommonResponse> VerifyCode(CodeVerifyModel model);
     }
 
@@ -465,7 +468,6 @@ namespace OnlinePortalBackend.MyServices
             }
         }
 
-
         private static (byte[], string) HashPassword(byte[] salt, string password)
         {
             // generate a 128-bit salt using a cryptographically strong random sequence of nonzero values
@@ -488,6 +490,136 @@ namespace OnlinePortalBackend.MyServices
 
             return (salt, hashed);
         }
-       
+
+        public async Task<ApiCommonResponse> SupplierLogin(LoginDTO user)
+        {
+            try
+            {
+                var profile = await _context.OnlineProfiles.Where(x => x.Email == user.Email).FirstOrDefaultAsync();
+                if (profile == null)
+                {
+                    return CommonResponse.Send(ResponseCodes.FAILURE, null, "No user with this email");
+                }
+
+                //check if this account is locked
+                var (isLocked, timeLeft) = IsAccountLocked(user.Email);
+                if (isLocked)
+                {
+                    return CommonResponse.Send(ResponseCodes.FAILURE, null, $"Account locked. Please try again in {timeLeft.ToString("#.##")} minutes");
+                }
+
+                var byteSalt = Convert.FromBase64String(profile.SecurityStamp);
+                var (salt, hashed) = HashPassword(byteSalt, user.Password);
+                if (!_context.OnlineProfiles.Any(x => x.Email == user.Email && x.PasswordHash == hashed))
+                {
+                    profile.AccessFailedCount = ++profile.AccessFailedCount;
+                    if (profile.AccessFailedCount >= 3)
+                    {
+                        LockAccount(user.Email);
+                    }
+
+                    await _context.SaveChangesAsync();
+
+                    return CommonResponse.Send(ResponseCodes.FAILURE, null, "Username or password is incorrect");
+                }
+
+                var jwtToken = _jwttHelper.GenerateToken(profile);
+
+                var mappedProfile = new OnlineProfileTransferDetailDTO
+                {
+                    AccessFailedCount = profile.AccessFailedCount,
+                    CustomerDivisionId = profile.CustomerDivisionId,
+                    Email = user.Email,
+                    LockoutEnabled = profile.LockoutEnabled,
+                    Name = profile.Name,
+                    Id = profile.Id,
+
+                };
+
+                //reset the access failed count
+                profile.AccessFailedCount = 0;
+                await _context.SaveChangesAsync();
+
+                return CommonResponse.Send(ResponseCodes.SUCCESS, new
+                {
+                    Token = jwtToken,
+                    UserProfile = mappedProfile
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.StackTrace);
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, ex.Message);
+            }
+        }
+
+        public Task<ApiCommonResponse> CommanderLogin(LoginDTO login)
+        {
+            throw new NotImplementedException();
+        }
+
+        public async Task<ApiCommonResponse> GoogleLogin(GoogleLoginReceivingDTO loginReceiving)
+        {
+            try
+            {
+                GoogleJsonWebSignature.Payload payload;
+
+                try
+                {
+                    payload = await GoogleJsonWebSignature.ValidateAsync(loginReceiving.IdToken);
+                    if (!_allowedDomains.Contains(payload.HostedDomain))
+                    {
+                        return CommonResponse.Send(ResponseCodes.FAILURE, null, "Your hosted domain is not allowed to access this site");
+                    }
+                }
+                catch (InvalidJwtException invalidJwtException)
+                {
+                    _logger.LogWarning($"Could not validate Google Id Token [{loginReceiving.IdToken}] => {invalidJwtException.Message}");
+                    return CommonResponse.Send(ResponseCodes.FAILURE, null, invalidJwtException.Message);
+                }
+
+                if (!payload.EmailVerified)
+                {
+                    return CommonResponse.Send(ResponseCodes.FAILURE, null, "Your email has not been verified.");
+                }
+
+                var email = payload.Email;
+
+                var userProfile = await _context.UserProfiles.Where(x => x.Email == email).FirstOrDefaultAsync();
+                if (userProfile == null)
+                {
+                    return await CreateNewProfile(email);
+                }
+
+
+                //get the permissions of the user
+                var (permissions, roleList) = await _roleService.GetPermissionEnumsOnUser(userProfile.Id);
+                var hasAdminRole = await UserHasAdminRole(userProfile.Id);
+
+                var (jwtToken, jwtLifespan) = _jwttHelper.GenerateToken(new UserProfile { Id = userProfile.Id, Email = userProfile.Email }, permissions, hasAdminRole);
+
+                //get a refresh token for this user
+                var refreshToken = GenerateRefreshToken(userProfile.Id);
+
+                var responseCode = ResponseCodes.SUCCESS;
+                if (string.IsNullOrEmpty(userProfile.MobileNumber))
+                    responseCode = ResponseCodes.CREATE_PROFILE;
+
+                return CommonResponse.Send(responseCode, new UserAuthTransferDTO
+                {
+                    Token = jwtToken,
+                    JwtLifespan = jwtLifespan,
+                    RefreshToken = refreshToken,
+                    Roles = roleList,
+                    UserProfile = _mapper.Map<UserProfileTransferDTO>(userProfile)
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.Message);
+                _logger.LogError(ex.StackTrace);
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, ex.Message);
+            }
+        }
     }
 }
