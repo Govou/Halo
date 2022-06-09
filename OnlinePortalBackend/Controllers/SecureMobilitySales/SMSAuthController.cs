@@ -33,6 +33,7 @@ namespace OnlinePortalBackend.Controllers.SecureMobilitySales
             return await _authService.Login_v2(login);
         }
 
+
         [AllowAnonymous]
         [HttpPost("VerifyCode")]
         public async Task<ApiCommonResponse> VerifyCode(CodeVerifyModel model)
