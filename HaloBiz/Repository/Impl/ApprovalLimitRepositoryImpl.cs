@@ -53,6 +53,12 @@ namespace HaloBiz.Repository.Impl
             _context.ApprovalLimits.Update(approvalLimit);
             return await SaveChanges();
         }
+        public async Task<bool> DeleteApprovalLimitModule(ApprovalLimit approvalLimit)
+        {
+            approvalLimit.IsDeleted = true;
+            _context.ApprovalLimits.Update(approvalLimit);
+            return await SaveChanges();
+        }
         public async Task<ApprovalLimit> FindApprovalLimitById(long Id)
         {
            return await _context.ApprovalLimits

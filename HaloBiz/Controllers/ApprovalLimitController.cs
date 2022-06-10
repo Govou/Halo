@@ -50,5 +50,11 @@ namespace HaloBiz.Controllers
             return await _approvalLimitService.DeleteApprovalLimit(id);
         }
 
+        [HttpDelete("DeleteApprovalLimitModule/{id}")]
+        public async Task<ApiCommonResponse> DeleteApprovalLimitModule(int id)
+        {
+            return await _approvalLimitService.DeleteApprovalLimitModule(id);
+        }
+
     }
 }
