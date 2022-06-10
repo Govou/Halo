@@ -19,13 +19,14 @@ namespace OnlinePortalBackend.Controllers.SecureMobilitySales
         }
 
 
-        [HttpGet("BookAsset")]
+       
+        [HttpPost("BookAsset")]
         public Task<ApiCommonResponse> BookNewAsset(SupplierBookAssetDTO request)
         {
             return _supplierService.BookAsset(request);
         }
 
-        [HttpGet("AddNewAsset")]
+        [HttpPost("AddNewAsset")]
         public Task<ApiCommonResponse> NewAssetAddition(AssetAdditionDTO request)
         {
             return _supplierService.NewAssetAddition(request);

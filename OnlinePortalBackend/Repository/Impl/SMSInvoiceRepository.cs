@@ -554,21 +554,33 @@ namespace OnlinePortalBackend.Repository.Impl
             var invoices = _context.Invoices.Where(x => x.ContractId == request.ContractId);
             var inv = invoices.OrderByDescending(x => x.Id).FirstOrDefault();
 
-            var sessionId = inv.InvoiceNumber + request.ProfileId + inv.StartDate;
-            sessionId = sessionId.Replace('/', '0');
-            sessionId = sessionId.Replace('-', '0');
-
+            var sessionId = string.Empty;
+            if (inv != null)
+            {
+                sessionId = inv.InvoiceNumber + request.ProfileId + inv.StartDate;
+                sessionId = sessionId.Replace('/', '0');
+                sessionId = sessionId.Replace('-', '0');
+            }
+            else
+            {
+                sessionId = new Random().Next(1_000_000_000).ToString() + new Random().Next(1_000_000_000).ToString();
+            }
             var paymentConformation = false;
 
-            var result = await _adapter.VerifyPaymentAsync((PaymentGateway)GeneralHelper.GetPaymentGateway(request.PaymentGateway), request.PaymentReferenceGateway);
-            
-            if (result != null)
+            if (string.IsNullOrEmpty(request.PaymentGatewayResponseCode))
             {
-                if (result.PaymentSuccessful)
+
+                var result = await _adapter.VerifyPaymentAsync((PaymentGateway)GeneralHelper.GetPaymentGateway(request.PaymentGateway), request.PaymentReferenceGateway);
+
+                if (result != null)
                 {
-                    paymentConformation = true;
+                    if (result.PaymentSuccessful)
+                    {
+                        paymentConformation = true;
+                    }
                 }
             }
+          
 
             _context.OnlineTransactions.Add(new OnlineTransaction
             {

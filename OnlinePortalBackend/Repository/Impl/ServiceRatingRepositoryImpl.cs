@@ -134,9 +134,9 @@ namespace OnlinePortalBackend.Repository.Impl
             return await _context.Applications.ToListAsync();
         }
 
-        public async Task<IEnumerable<ServiceReviewDTO>> GetServiceReviews(int serviceId, int pageSIze = 10)
+        public async Task<IEnumerable<ServiceReviewDTO>> GetServiceReviews(int serviceId)
         {
-            var reviews = _context.ServiceRatings.Where(x => x.ServiceId == serviceId && !String.IsNullOrEmpty(x.Review)).OrderBy(x => x.Id).Take(pageSIze).Select(x => new ServiceReviewDTO
+            var reviews = _context.ServiceRatings.Where(x => x.ServiceId == serviceId && !String.IsNullOrEmpty(x.Review)).OrderByDescending(x => x.Id).Select(x => new ServiceReviewDTO
             {
                 Rating = x.Rating,
                 Recommendation = x.Recommendation,

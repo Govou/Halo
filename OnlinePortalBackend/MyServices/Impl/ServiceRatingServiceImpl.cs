@@ -140,9 +140,9 @@ namespace OnlinePortalBackend.MyServices.Impl
 
         }
 
-        public async Task<ApiResponse> GetServiceReviews(int serviceId, int pageSIze = 10)
+        public async Task<ApiResponse> GetServiceReviews(int serviceId)
         {
-            var applications = await _serviceRatingRepo.GetServiceReviews(serviceId, pageSIze);
+            var applications = await _serviceRatingRepo.GetServiceReviews(serviceId);
             if (applications == null)
             {
                 return new ApiResponse(404);
