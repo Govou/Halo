@@ -443,6 +443,11 @@ namespace OnlinePortalBackend.Repository.Impl
             if (exist)
                 return (false, "User already exists");
 
+            var exist1 = _context.Suppliers.Any(x => x.SupplierEmail.ToLower() == accountDTO.AccountLogin.Email.ToLower());
+
+            if (exist1)
+                return (false, "User already exists");
+
             var createdBy = _context.UserProfiles.FirstOrDefault(x => x.Email.ToLower().Contains("online")).Id;
             var grouptype = _context.GroupTypes.FirstOrDefault(x => x.Caption.ToLower() == "individual").Id;
             var leadOrigin = _context.LeadOrigins.FirstOrDefault(x => x.Caption.ToLower() == "email").Id;
@@ -563,5 +568,7 @@ namespace OnlinePortalBackend.Repository.Impl
             }
 
         }
+
+
     }
 }

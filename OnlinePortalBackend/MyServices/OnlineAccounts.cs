@@ -22,6 +22,7 @@ using OnlinePortalBackend.DTOs.TransferDTOs;
 using Microsoft.Extensions.Caching.Memory;
 using Halobiz.Common.Model;
 using Google.Apis.Auth;
+using Microsoft.Extensions.Configuration;
 
 namespace OnlinePortalBackend.MyServices
 {
@@ -45,14 +46,16 @@ namespace OnlinePortalBackend.MyServices
         private readonly JwtHelper _jwttHelper;
         private readonly IMapper _mapper;
         private readonly IMemoryCache _memoryCache;
-
+        private readonly List<string> _allowedDomains;
+        private readonly IConfiguration _config;
 
         public OnlineAccounts(IMailService mailService, 
             IMemoryCache memoryCache,
             JwtHelper jwtHelper,
             IMapper mapper,
             ILogger<OnlineAccounts> logger,
-            HalobizContext context
+            HalobizContext context,
+            IConfiguration config
          )
         {
             _mailService = mailService;
@@ -61,6 +64,8 @@ namespace OnlinePortalBackend.MyServices
             _jwttHelper = jwtHelper;
             _context = context;
             _memoryCache = memoryCache;
+            _config = config;
+            _allowedDomains = config.GetSection("AllowedLoginDomains").Get<List<string>>();
         }
       
 
@@ -558,7 +563,7 @@ namespace OnlinePortalBackend.MyServices
             throw new NotImplementedException();
         }
 
-        public async Task<ApiCommonResponse> GoogleLogin(GoogleLoginReceivingDTO loginReceiving)
+        public async Task<(ResponseCodes rc, string token, string refreshToken, string message)> GoogleLogin(GoogleLoginReceivingDTO loginReceiving)
         {
             try
             {
@@ -569,34 +574,29 @@ namespace OnlinePortalBackend.MyServices
                     payload = await GoogleJsonWebSignature.ValidateAsync(loginReceiving.IdToken);
                     if (!_allowedDomains.Contains(payload.HostedDomain))
                     {
-                        return CommonResponse.Send(ResponseCodes.FAILURE, null, "Your hosted domain is not allowed to access this site");
+                        return (ResponseCodes.FAILURE, null, null, "Your hosted domain is not allowed to access this site");
                     }
                 }
                 catch (InvalidJwtException invalidJwtException)
                 {
                     _logger.LogWarning($"Could not validate Google Id Token [{loginReceiving.IdToken}] => {invalidJwtException.Message}");
-                    return CommonResponse.Send(ResponseCodes.FAILURE, null, invalidJwtException.Message);
+                    return (ResponseCodes.FAILURE, null, null, invalidJwtException.Message);
                 }
 
                 if (!payload.EmailVerified)
                 {
-                    return CommonResponse.Send(ResponseCodes.FAILURE, null, "Your email has not been verified.");
+                    return (ResponseCodes.FAILURE, null, null, "Your email has not been verified.");
                 }
 
                 var email = payload.Email;
 
                 var userProfile = await _context.UserProfiles.Where(x => x.Email == email).FirstOrDefaultAsync();
+                
                 if (userProfile == null)
-                {
-                    return await CreateNewProfile(email);
-                }
+                    return (ResponseCodes.FAILURE, null, null, "User does not exit");
 
 
-                //get the permissions of the user
-                var (permissions, roleList) = await _roleService.GetPermissionEnumsOnUser(userProfile.Id);
-                var hasAdminRole = await UserHasAdminRole(userProfile.Id);
-
-                var (jwtToken, jwtLifespan) = _jwttHelper.GenerateToken(new UserProfile { Id = userProfile.Id, Email = userProfile.Email }, permissions, hasAdminRole);
+                var jwtToken = _jwttHelper.GenerateToken_v2(new UserProfile { Id = userProfile.Id, Email = userProfile.Email });
 
                 //get a refresh token for this user
                 var refreshToken = GenerateRefreshToken(userProfile.Id);
@@ -605,20 +605,33 @@ namespace OnlinePortalBackend.MyServices
                 if (string.IsNullOrEmpty(userProfile.MobileNumber))
                     responseCode = ResponseCodes.CREATE_PROFILE;
 
-                return CommonResponse.Send(responseCode, new UserAuthTransferDTO
-                {
-                    Token = jwtToken,
-                    JwtLifespan = jwtLifespan,
-                    RefreshToken = refreshToken,
-                    Roles = roleList,
-                    UserProfile = _mapper.Map<UserProfileTransferDTO>(userProfile)
-                });
+                return (responseCode, jwtToken.token, refreshToken, "success");
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex.Message);
                 _logger.LogError(ex.StackTrace);
-                return CommonResponse.Send(ResponseCodes.FAILURE, null, ex.Message);
+                return (ResponseCodes.FAILURE, null, null, ex.Message);
+            }
+        }
+
+        private string GenerateRefreshToken(long UserId)
+        {
+            using (var rngCryptoServiceProvider = new RNGCryptoServiceProvider())
+            {
+                var randomBytes = new byte[64];
+                rngCryptoServiceProvider.GetBytes(randomBytes);
+                var token = new HalobizMigrations.Models.Halobiz.RefreshToken
+                {
+                    Token = Convert.ToBase64String(randomBytes),
+                    Expires = DateTime.Now.AddDays(7),
+                    CreatedAt = DateTime.Now,
+                    AssignedTo = UserId
+                };
+
+                _context.RefreshTokens.Add(token);
+                _context.SaveChanges();
+                return token.Token;
             }
         }
     }

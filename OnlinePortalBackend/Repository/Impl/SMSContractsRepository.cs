@@ -56,7 +56,10 @@ namespace OnlinePortalBackend.Repository.Impl
         public async Task<(bool isSuccess, object message)> AddNewContract(SMSContractDTO contractDTO)
         {
 
+            //if (c)
+            //{
 
+            //}
 
             var groupInvoiceNumber = await GenerateGroupInvoiceNumber();
             var branch = _configuration["OnlineBranchID"] ?? _configuration.GetSection("AppSettings:OnlineBranchID").Value;
