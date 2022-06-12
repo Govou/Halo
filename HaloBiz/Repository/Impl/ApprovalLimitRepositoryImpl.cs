@@ -55,8 +55,10 @@ namespace HaloBiz.Repository.Impl
         }
         public async Task<bool> DeleteApprovalLimitModule(ApprovalLimit approvalLimit)
         {
-            approvalLimit.IsDeleted = true;
-            _context.ApprovalLimits.Update(approvalLimit);
+            var allModuleApprovalLimits = await _context.ApprovalLimits
+                .Where(x => x.ProcessesRequiringApprovalId == approvalLimit.ProcessesRequiringApprovalId)
+                .ToListAsync();
+            _context.ApprovalLimits.RemoveRange(allModuleApprovalLimits);
             return await SaveChanges();
         }
         public async Task<ApprovalLimit> FindApprovalLimitById(long Id)
