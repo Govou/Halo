@@ -25,6 +25,20 @@ namespace OnlinePortalBackend.Controllers.SecureMobilitySales
         //    return await _authService.SendConfirmCodeToClient(email);
         //}
 
+        [AllowAnonymous]
+        [HttpPost("SupplierLogin")]
+        public async Task<ApiCommonResponse> SupplierLogin(LoginDTO login)
+        {
+            return await _authService.SupplierLogin(login);
+        }
+
+        [AllowAnonymous]
+        [HttpPost("CommanderLogin")]
+        public async Task<ApiCommonResponse> CommanderLogin(LoginDTO login)
+        {
+            return await _authService.CommanderLogin(login);
+        }
+
 
         [AllowAnonymous]
         [HttpPost("Login")]
@@ -32,6 +46,7 @@ namespace OnlinePortalBackend.Controllers.SecureMobilitySales
         {
             return await _authService.Login_v2(login);
         }
+
 
         [AllowAnonymous]
         [HttpPost("VerifyCode")]

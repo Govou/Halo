@@ -27,12 +27,12 @@ namespace OnlinePortalBackend.MyServices.SecureMobilitySales
         public async Task<ApiCommonResponse> GetWalletActivationStatus(int profileId)
         {
             var result = await _walletRepository.GetWalletActivationStatus(profileId);
-            if (result.isSuccess)
+            if (result.isSuccess && result.status)
             {
                 return CommonResponse.Send(ResponseCodes.SUCCESS, result.status);
             }
 
-            return CommonResponse.Send(ResponseCodes.FAILURE, "Failed");
+            return CommonResponse.Send(ResponseCodes.FAILURE, result.status);
         }
 
         public async Task<ApiCommonResponse> GetWalletBalance(int profileId)

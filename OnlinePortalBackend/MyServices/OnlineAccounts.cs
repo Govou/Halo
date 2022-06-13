@@ -21,6 +21,8 @@ using System.Text.RegularExpressions;
 using OnlinePortalBackend.DTOs.TransferDTOs;
 using Microsoft.Extensions.Caching.Memory;
 using Halobiz.Common.Model;
+using Google.Apis.Auth;
+using Microsoft.Extensions.Configuration;
 
 namespace OnlinePortalBackend.MyServices
 {
@@ -31,6 +33,8 @@ namespace OnlinePortalBackend.MyServices
         Task<ApiCommonResponse> CreateAccount(CreatePasswordDTO user);
         Task<ApiCommonResponse> Login(LoginDTO user);
         Task<ApiCommonResponse> Login_v2(LoginDTO user);
+        Task<ApiCommonResponse> SupplierLogin(LoginDTO login);
+        Task<ApiCommonResponse> CommanderLogin(LoginDTO login);
         Task<ApiCommonResponse> VerifyCode(CodeVerifyModel model);
     }
 
@@ -42,14 +46,16 @@ namespace OnlinePortalBackend.MyServices
         private readonly JwtHelper _jwttHelper;
         private readonly IMapper _mapper;
         private readonly IMemoryCache _memoryCache;
-
+        private readonly List<string> _allowedDomains;
+        private readonly IConfiguration _config;
 
         public OnlineAccounts(IMailService mailService, 
             IMemoryCache memoryCache,
             JwtHelper jwtHelper,
             IMapper mapper,
             ILogger<OnlineAccounts> logger,
-            HalobizContext context
+            HalobizContext context,
+            IConfiguration config
          )
         {
             _mailService = mailService;
@@ -58,6 +64,8 @@ namespace OnlinePortalBackend.MyServices
             _jwttHelper = jwtHelper;
             _context = context;
             _memoryCache = memoryCache;
+            _config = config;
+            _allowedDomains = config.GetSection("AllowedLoginDomains").Get<List<string>>();
         }
       
 
@@ -465,7 +473,6 @@ namespace OnlinePortalBackend.MyServices
             }
         }
 
-
         private static (byte[], string) HashPassword(byte[] salt, string password)
         {
             // generate a 128-bit salt using a cryptographically strong random sequence of nonzero values
@@ -488,6 +495,144 @@ namespace OnlinePortalBackend.MyServices
 
             return (salt, hashed);
         }
-       
+
+        public async Task<ApiCommonResponse> SupplierLogin(LoginDTO user)
+        {
+            try
+            {
+                var profile = await _context.OnlineProfiles.Where(x => x.Email == user.Email).FirstOrDefaultAsync();
+                if (profile == null)
+                {
+                    return CommonResponse.Send(ResponseCodes.FAILURE, null, "No user with this email");
+                }
+
+                //check if this account is locked
+                var (isLocked, timeLeft) = IsAccountLocked(user.Email);
+                if (isLocked)
+                {
+                    return CommonResponse.Send(ResponseCodes.FAILURE, null, $"Account locked. Please try again in {timeLeft.ToString("#.##")} minutes");
+                }
+
+                var byteSalt = Convert.FromBase64String(profile.SecurityStamp);
+                var (salt, hashed) = HashPassword(byteSalt, user.Password);
+                if (!_context.OnlineProfiles.Any(x => x.Email == user.Email && x.PasswordHash == hashed))
+                {
+                    profile.AccessFailedCount = ++profile.AccessFailedCount;
+                    if (profile.AccessFailedCount >= 3)
+                    {
+                        LockAccount(user.Email);
+                    }
+
+                    await _context.SaveChangesAsync();
+
+                    return CommonResponse.Send(ResponseCodes.FAILURE, null, "Username or password is incorrect");
+                }
+
+                var jwtToken = _jwttHelper.GenerateToken(profile);
+
+                var mappedProfile = new OnlineProfileTransferDetailDTO
+                {
+                    AccessFailedCount = profile.AccessFailedCount,
+                    CustomerDivisionId = profile.CustomerDivisionId,
+                    Email = user.Email,
+                    LockoutEnabled = profile.LockoutEnabled,
+                    Name = profile.Name,
+                    Id = profile.Id,
+
+                };
+
+                //reset the access failed count
+                profile.AccessFailedCount = 0;
+                await _context.SaveChangesAsync();
+
+                return CommonResponse.Send(ResponseCodes.SUCCESS, new
+                {
+                    Token = jwtToken,
+                    UserProfile = mappedProfile
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.StackTrace);
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, ex.Message);
+            }
+        }
+
+        public Task<ApiCommonResponse> CommanderLogin(LoginDTO login)
+        {
+            throw new NotImplementedException();
+        }
+
+        public async Task<(ResponseCodes rc, string token, string refreshToken, string message)> GoogleLogin(GoogleLoginReceivingDTO loginReceiving)
+        {
+            try
+            {
+                GoogleJsonWebSignature.Payload payload;
+
+                try
+                {
+                    payload = await GoogleJsonWebSignature.ValidateAsync(loginReceiving.IdToken);
+                    if (!_allowedDomains.Contains(payload.HostedDomain))
+                    {
+                        return (ResponseCodes.FAILURE, null, null, "Your hosted domain is not allowed to access this site");
+                    }
+                }
+                catch (InvalidJwtException invalidJwtException)
+                {
+                    _logger.LogWarning($"Could not validate Google Id Token [{loginReceiving.IdToken}] => {invalidJwtException.Message}");
+                    return (ResponseCodes.FAILURE, null, null, invalidJwtException.Message);
+                }
+
+                if (!payload.EmailVerified)
+                {
+                    return (ResponseCodes.FAILURE, null, null, "Your email has not been verified.");
+                }
+
+                var email = payload.Email;
+
+                var userProfile = await _context.UserProfiles.Where(x => x.Email == email).FirstOrDefaultAsync();
+                
+                if (userProfile == null)
+                    return (ResponseCodes.FAILURE, null, null, "User does not exit");
+
+
+                var jwtToken = _jwttHelper.GenerateToken_v2(new UserProfile { Id = userProfile.Id, Email = userProfile.Email });
+
+                //get a refresh token for this user
+                var refreshToken = GenerateRefreshToken(userProfile.Id);
+
+                var responseCode = ResponseCodes.SUCCESS;
+                if (string.IsNullOrEmpty(userProfile.MobileNumber))
+                    responseCode = ResponseCodes.CREATE_PROFILE;
+
+                return (responseCode, jwtToken.token, refreshToken, "success");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.Message);
+                _logger.LogError(ex.StackTrace);
+                return (ResponseCodes.FAILURE, null, null, ex.Message);
+            }
+        }
+
+        private string GenerateRefreshToken(long UserId)
+        {
+            using (var rngCryptoServiceProvider = new RNGCryptoServiceProvider())
+            {
+                var randomBytes = new byte[64];
+                rngCryptoServiceProvider.GetBytes(randomBytes);
+                var token = new HalobizMigrations.Models.Halobiz.RefreshToken
+                {
+                    Token = Convert.ToBase64String(randomBytes),
+                    Expires = DateTime.Now.AddDays(7),
+                    CreatedAt = DateTime.Now,
+                    AssignedTo = UserId
+                };
+
+                _context.RefreshTokens.Add(token);
+                _context.SaveChanges();
+                return token.Token;
+            }
+        }
     }
 }
