@@ -62,6 +62,13 @@ namespace HaloBiz.Controllers
 
         }
 
+        [HttpGet("GetAllFrequentRoutesCountByClientId/{clientId}")]
+        public async Task<ApiCommonResponse> GetAllFrequentRoutesCountByClientId(long clientId)
+        {
+            return await _masterServiceAssignmentService.GetAllFrequentRouteCountByClientId(clientId);
+
+        }
+
         [HttpGet("GetAllScheduledServiceAssignmentMasters")]
         public async Task<ApiCommonResponse> GetAllScheduledServiceAssignmentMasters()
         {
@@ -160,6 +167,8 @@ namespace HaloBiz.Controllers
             return await _masterServiceAssignmentService.DeleteSecondaryServiceAssignment(id);
             //return StatusCode(response.StatusCode);
         }
+
+        //Mails
 
         [HttpGet("GetJMPDetails/{id}")]
 

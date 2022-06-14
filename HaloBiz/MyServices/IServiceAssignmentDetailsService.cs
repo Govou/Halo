@@ -19,6 +19,7 @@ namespace HaloBiz.MyServices
         Task<ApiCommonResponse> GetArmedEscortDetailById(long id);
         Task<ApiCommonResponse> UpdateArmedEscortDetail(HttpContext context, long id, ArmedEscortServiceAssignmentDetailsReceivingDTO armedEscortReceivingDTO);
         Task<ApiCommonResponse> DeleteArmedEscortDetail(long id);
+        Task<ApiCommonResponse> DeleteArmedEscortDetail_(long id); //For is Deleted Status
         Task<ApiCommonResponse> UpdateArmedEscortDetailHeldForActionByAssignmentId(long id);
         Task<ApiCommonResponse> UpdateServiceDetailsHeldForActionAndReadyStatusForOnlineByAssignmentId(long[] id);
         Task<ApiCommonResponse> UpdateServiceDetailsHeldForActionAndReadyStatusByAssignmentId(long id);
@@ -34,6 +35,7 @@ namespace HaloBiz.MyServices
         Task<ApiCommonResponse> UpdateCommanderDetail(HttpContext context, long id, CommanderServiceAssignmentDetailsReceivingDTO commanderReceivingDTO);
         //Task<ApiCommonResponse> UpdateCommanderDetailForVehicleReplacementByAssIdandResourceId(HttpContext context, long assId, long resourceId, CommanderServiceAssignmentDetailsReceivingDTO commanderReceivingDTO);
         Task<ApiCommonResponse> DeleteCommanderDetail(long id);
+        Task<ApiCommonResponse> DeleteCommanderDetail_(long id);
         //Task<ApiCommonResponse> UpdateCommanderDetailHeldForActionByAssignmentId(long id);
 
         //Pilot
@@ -47,6 +49,7 @@ namespace HaloBiz.MyServices
         //Task<ApiCommonResponse> UpdatePilotDetailForVehicleReplacementByAssIdandResourceId(HttpContext context, long assId, long resourceId, PilotServiceAssignmentDetailsReceivingDTO pilotReceivingDTO);
 
         Task<ApiCommonResponse> DeletePilotDetail(long id);
+        Task<ApiCommonResponse> DeletePilotDetail_(long id);
         //Task<ApiCommonResponse> UpdatePilotDetailHeldForActionByAssignmentId(long id);
 
         //Vehicle
@@ -58,6 +61,7 @@ namespace HaloBiz.MyServices
         Task<ApiCommonResponse> GetVehicleDetailById(long id);
         Task<ApiCommonResponse> UpdateVehicleDetail(HttpContext context, long id, VehicleServiceAssignmentDetailsReceivingDTO vehicleReceivingDTO);
         Task<ApiCommonResponse> DeleteVehicleDetail(long id);
+        Task<ApiCommonResponse> DeleteVehicleDetail_(long id);//isDeleted Status
         //Task<ApiCommonResponse> UpdateVehicleDetailHeldForActionByAssignmentId(long id);
 
 
