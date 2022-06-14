@@ -238,6 +238,7 @@ namespace HaloBiz.MigrationsHelpers
         public long ContractId { get; set; }
         public long ContractServiceId { get; set; }
         public string CustomerName { get; set; }
+        public double? WHTLoadingValue { get; set; }
     }
 
     public class ServiceContractDetais : Contracto
