@@ -1170,7 +1170,7 @@ namespace HaloBiz.MyServices.Impl
         {
             throw new NotImplementedException();
         }
-
+        
         public async Task<ApiCommonResponse> UpdateisAddedToCartStatus(long id)
         {
             var itemToUpdate = await _serviceAssignmentMasterRepository.FindServiceAssignmentById(id);
@@ -1181,6 +1181,40 @@ namespace HaloBiz.MyServices.Impl
             }
 
             if (!await _serviceAssignmentMasterRepository.UpdateisAddedToCartStatus(itemToUpdate))
+            {
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, ResponseMessage.InternalServer500);
+            }
+
+            return CommonResponse.Send(ResponseCodes.SUCCESS, null, ResponseMessage.Success200);
+        }
+
+        public async Task<ApiCommonResponse> UpdatehasPassengerStatusToTrue(long id)
+        {
+            var itemToUpdate = await _serviceAssignmentMasterRepository.FindServiceAssignmentById(id);
+
+            if (itemToUpdate == null)
+            {
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);
+            }
+
+            if (!await _serviceAssignmentMasterRepository.UpdatehasPassengerStatusToTrue(itemToUpdate))
+            {
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, ResponseMessage.InternalServer500);
+            }
+
+            return CommonResponse.Send(ResponseCodes.SUCCESS, null, ResponseMessage.Success200);
+        }
+
+        public async Task<ApiCommonResponse> UpdatehasPassengerStatusToFalse(long id)
+        {
+            var itemToUpdate = await _serviceAssignmentMasterRepository.FindServiceAssignmentById(id);
+
+            if (itemToUpdate == null)
+            {
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);
+            }
+
+            if (!await _serviceAssignmentMasterRepository.UpdatehasPassengerStatusToFalse(itemToUpdate))
             {
                 return CommonResponse.Send(ResponseCodes.FAILURE, null, ResponseMessage.InternalServer500);
             }

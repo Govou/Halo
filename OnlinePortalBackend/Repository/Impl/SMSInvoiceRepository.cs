@@ -6,6 +6,7 @@ using HalobizMigrations.Models.OnlinePortal;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using OnlinePortalBackend.Adapters;
 using OnlinePortalBackend.DTOs.ReceivingDTOs;
 using OnlinePortalBackend.DTOs.TransferDTOs;
 using OnlinePortalBackend.Helpers;
@@ -21,16 +22,19 @@ namespace OnlinePortalBackend.Repository.Impl
         private readonly HalobizContext _context;
         private readonly IConfiguration _configuration;
         private readonly ILogger<SMSInvoiceRepository> _logger;
+        private readonly IPaymentAdapter _adapter;
+
 
         private readonly string WITHOLDING_TAX = "WITHOLDING TAX";
         private readonly string RECEIPTVOUCHERTYPE = "Sales Receipt";
         private readonly string RETAIL = "RETAIL";
 
-        public SMSInvoiceRepository(HalobizContext context, IConfiguration configuration, ILogger<SMSInvoiceRepository> logger)
+        public SMSInvoiceRepository(HalobizContext context, IConfiguration configuration, ILogger<SMSInvoiceRepository> logger, IPaymentAdapter adapter)
         {
             _context = context;
             _configuration = configuration;
             _logger = logger;
+            _adapter = adapter;
         }
         public async Task<(bool isSuccess, SMSInvoiceDTO message)> GetInvoice(int profileId)
         {
@@ -546,12 +550,44 @@ namespace OnlinePortalBackend.Repository.Impl
 
         public async Task<bool> PostTransactions(PostTransactionDTO request)
         {
+            var vat = Convert.ToDouble(request.Value) * 0.075;
+            var invoices = _context.Invoices.Where(x => x.ContractId == request.ContractId);
+            var inv = invoices.OrderByDescending(x => x.Id).FirstOrDefault();
+
+            var sessionId = string.Empty;
+            if (inv != null)
+            {
+                sessionId = inv.InvoiceNumber + request.ProfileId + inv.StartDate;
+                sessionId = sessionId.Replace('/', '0');
+                sessionId = sessionId.Replace('-', '0');
+            }
+            else
+            {
+                sessionId = new Random().Next(1_000_000_000).ToString() + new Random().Next(1_000_000_000).ToString();
+            }
+            var paymentConformation = false;
+
+            if (string.IsNullOrEmpty(request.PaymentGatewayResponseCode))
+            {
+
+                var result = await _adapter.VerifyPaymentAsync((PaymentGateway)GeneralHelper.GetPaymentGateway(request.PaymentGateway), request.PaymentReferenceGateway);
+
+                if (result != null)
+                {
+                    if (result.PaymentSuccessful)
+                    {
+                        paymentConformation = true;
+                    }
+                }
+            }
+          
+
             _context.OnlineTransactions.Add(new OnlineTransaction
             {
                 CreatedAt = DateTime.UtcNow.AddHours(1),
                 UpdatedAt = DateTime.UtcNow.AddHours(1),
-                VAT = request.VAT,
-                Value = request.Value - request.VAT,
+                VAT = Convert.ToDecimal(vat),
+                Value = request.Value - Convert.ToDecimal(vat),
                 CreatedById = request.ProfileId,
                 TransactionType = request.TransactionType,
                 PaymentGateway = request?.PaymentGateway,
@@ -560,8 +596,12 @@ namespace OnlinePortalBackend.Repository.Impl
                 PaymentReferenceInternal = request.PaymentReferenceInternal,
                 PaymentReferenceGateway = request.PaymentReferenceGateway,
                 TotalValue = request.Value,
-                SessionId = request.SessionId,
-                ProfileId = request.ProfileId
+                SessionId = sessionId,
+                ProfileId = request.ProfileId,
+                TransactionSource = request.TransactionSource,
+                PaymentFulfilment = true,
+                PaymentConfirmation = paymentConformation,
+                
             });
 
             try

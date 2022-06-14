@@ -55,6 +55,12 @@ namespace OnlinePortalBackend.Repository.Impl
 
         public async Task<(bool isSuccess, object message)> AddNewContract(SMSContractDTO contractDTO)
         {
+
+            //if (c)
+            //{
+
+            //}
+
             var groupInvoiceNumber = await GenerateGroupInvoiceNumber();
             var branch = _configuration["OnlineBranchID"] ?? _configuration.GetSection("AppSettings:OnlineBranchID").Value;
             var office = _configuration["OnlineOfficeID"] ?? _configuration.GetSection("AppSettings:OnlineOfficeID").Value;
@@ -191,7 +197,7 @@ namespace OnlinePortalBackend.Repository.Impl
                         BranchId = branchId,
                         OfficeId = officeId,
                         ContractStartDate = item.ServiceStartDate,
-                        ContractEndDate = item.ServiceEndDate,
+                        ContractEndDate = item.ServiceEndDate.AddDays(1),
                         UniqueTag = new Random().Next(100_000_000, 1000_000_000).ToString(),
                         CreatedById = userId,
                         UnitPrice = service.UnitPrice,

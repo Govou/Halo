@@ -32,6 +32,8 @@ namespace HaloBiz.Repository
         Task<bool> DeleteServiceAssignment(MasterServiceAssignment serviceAssignment);
         Task<bool> UpdateReadyStatus(MasterServiceAssignment serviceAssignment);
         Task<bool> UpdateisAddedToCartStatus(MasterServiceAssignment serviceAssignment);
+        Task<bool> UpdatehasPassengerStatusToTrue(MasterServiceAssignment serviceAssignment);
+        Task<bool> UpdatehasPassengerStatusToFalse(MasterServiceAssignment serviceAssignment);
         Task<bool> UpdateisPaidForStatus(MasterServiceAssignment serviceAssignment);
 
         //Secondary

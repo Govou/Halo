@@ -97,8 +97,33 @@ namespace HaloBiz.MyServices.Impl
                     long advancedPayNo = long.Parse(advancedPayccountNo);
                     var controlAccount = await _context.ControlAccounts.Where(x => x.AccountNumber == advancedPayNo).FirstOrDefaultAsync();
 
+                    //check if this client has account under this control account
+                    Account liabilityAccount = await _context.Accounts.Where(x => x.ControlAccountId == controlAccount.Id && x.ClientId==customerDivion.Id).FirstOrDefaultAsync();
+                    if (liabilityAccount == null)
+                    {
+                        //get the last account under the control account
+                        var lastAccount = await _context.Accounts.OrderBy(x=>x.Id).LastOrDefaultAsync(x=>x.ControlAccountId==controlAccount.Id);
+                        //create one for this guy
+                        var liabilityAccountEntity = await _context.Accounts.AddAsync(new Account
+                        {
+                            AccountNumber = lastAccount == null ? controlAccount.AccountNumber + 1 : lastAccount.AccountNumber + 1,
+                            ControlAccountId = controlAccount.Id,
+                            Description = $"Advance payment account for {customerDivion.DivisionName}",
+                            Name = $"Advance payment account for {customerDivion.DivisionName}",
+                            IsDebitBalance = false,
+                            CreatedById = userId,
+                            CreatedAt = DateTime.Now,
+                            Alias = "PA",
+                            IsActive = true,
+                            ClientId = customerDivion.Id,
+                        });
+
+                        await _context.SaveChangesAsync();
+                        liabilityAccount = liabilityAccountEntity.Entity;
+                    }
+
                     //post to liability account for customer
-                    var accountDetail2 = await PostAccountDetail(recordedPayment, paymentVoucherType.Id, true, master.Id, controlAccount.Id, payment.Amount, branch.Id, office.Id, userId);
+                    var accountDetail2 = await PostAccountDetail(recordedPayment, paymentVoucherType.Id, true, master.Id, liabilityAccount.Id, payment.Amount, branch.Id, office.Id, userId);
                     if (accountDetail2 == null)
                         return CommonResponse.Send(ResponseCodes.FAILURE, null, "Could not post account detail for avance payment account");
 
@@ -112,6 +137,64 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.FAILURE, null, e.Message);
             }
 
+        }
+        private async Task<AccountMaster> CreateAccountMaster(AdvancePayment payment,
+                                                      long accountVoucherTypeId,
+                                                      long branchId,
+                                                      long officeId,
+                                                      long userId
+                                                      )
+        {
+            AccountMaster accountMaster = new AccountMaster()
+            {
+                Description = $"Posting advance payment for {payment.CustomerDivision?.DivisionName} on {payment.Id}",
+                IntegrationFlag = false,
+                VoucherId = accountVoucherTypeId,
+                Value = payment.Amount,
+                TransactionId = "No Transaction Id",
+                CreatedById = userId,
+                CustomerDivisionId = payment.CustomerDivisionId,
+                BranchId = branchId,
+                OfficeId = officeId
+            };
+            var savedAccountMaster = await _context.AccountMasters.AddAsync(accountMaster);
+            await _context.SaveChangesAsync();
+            return savedAccountMaster.Entity;
+        }
+
+        private async Task<AccountDetail> PostAccountDetail(
+                                                    AdvancePayment payment,
+                                                    long accountVoucherTypeId,
+                                                    bool isCredit,
+                                                    long accountMasterId,
+                                                    long accountId,
+                                                    double amount,
+                                                    long branchId,
+                                                    long officeId,
+                                                    long userId
+                                                    )
+        {
+
+            AccountDetail accountDetail = new AccountDetail()
+            {
+                Description = $"Advance payment for {payment.CustomerDivision?.DivisionName}",
+                IntegrationFlag = false,
+                VoucherId = accountVoucherTypeId,
+                TransactionId = "No Transaction Id",
+                TransactionDate = DateTime.Now,
+                Credit = isCredit ? amount : 0,
+                Debit = !isCredit ? amount : 0,
+                AccountId = accountId,
+                AccountMasterId = accountMasterId,
+                CreatedById = userId,
+                BranchId = branchId,
+                OfficeId = officeId
+
+            };
+
+            var savedAccountDetails = await _context.AccountDetails.AddAsync(accountDetail);
+            await _context.SaveChangesAsync();
+            return savedAccountDetails.Entity;
         }
 
         public async Task<ApiCommonResponse> GetCustomerPayment(long customerDivisionId)
@@ -211,64 +294,7 @@ namespace HaloBiz.MyServices.Impl
             }
         }
 
-        private async Task<AccountMaster> CreateAccountMaster(AdvancePayment payment,
-                                                       long accountVoucherTypeId,
-                                                       long branchId,
-                                                       long officeId,
-                                                       long userId
-                                                       )
-        {
-            AccountMaster accountMaster = new AccountMaster()
-            {
-                Description = $"Posting advance payment for {payment.CustomerDivision?.DivisionName} on {payment.Id}",
-                IntegrationFlag = false,
-                VoucherId = accountVoucherTypeId,
-                Value = payment.Amount,
-                TransactionId = "No Transaction Id",
-                CreatedById = userId,
-                CustomerDivisionId = payment.CustomerDivisionId,
-                BranchId = branchId,
-                OfficeId = officeId
-            };
-            var savedAccountMaster = await _context.AccountMasters.AddAsync(accountMaster);
-            await _context.SaveChangesAsync();
-            return savedAccountMaster.Entity;
-        }
-
-        private async Task<AccountDetail> PostAccountDetail(
-                                                    AdvancePayment payment,
-                                                    long accountVoucherTypeId,
-                                                    bool isCredit,
-                                                    long accountMasterId,
-                                                    long accountId,
-                                                    double amount,
-                                                    long branchId,
-                                                    long officeId,
-                                                    long userId
-                                                    )
-        {
-
-            AccountDetail accountDetail = new AccountDetail()
-            {
-                Description = $"Advance payment for {payment.CustomerDivision?.DivisionName}",
-                IntegrationFlag = false,
-                VoucherId = accountVoucherTypeId,
-                TransactionId = "No Transaction Id",
-                TransactionDate = DateTime.Now,
-                Credit = isCredit ? amount : 0,
-                Debit = !isCredit ? amount : 0,
-                AccountId = accountId,
-                AccountMasterId = accountMasterId,
-                CreatedById = userId,
-                BranchId = branchId,
-                OfficeId = officeId
-
-            };
-
-            var savedAccountDetails = await _context.AccountDetails.AddAsync(accountDetail);
-            await _context.SaveChangesAsync();
-            return savedAccountDetails.Entity;
-        }
+       
     }
 
 }
