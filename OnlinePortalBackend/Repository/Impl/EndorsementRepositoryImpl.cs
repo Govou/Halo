@@ -279,6 +279,13 @@ namespace OnlinePortalBackend.Repository.Impl
             {
                 return service?.Division?.Company?.HeadId ?? throw new Exception($"No head set up for CEO head in {service?.Division?.Company?.Name}");
             }
+            else if (item.ApproverLevel.Caption == "Retention Head")
+            {
+                if (service.Division == null) throw new Exception($"No Division set up for service {service?.Name}");
+                var companyCAMDivision = _context.Divisions
+                    .FirstOrDefault(x => x.CompanyId == service.Division.CompanyId && x.IsDeleted == false && x.Name.ToLower() == "cam");
+                return companyCAMDivision?.HeadId ?? throw new Exception($"No Retention Head set up for service company");
+            }
             else
             {
                 throw new Exception($"No approval person set up approval level {item?.ApproverLevel}");
