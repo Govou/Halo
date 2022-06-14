@@ -1093,6 +1093,18 @@ namespace HaloBiz.MyServices.Impl
             return CommonResponse.Send(ResponseCodes.SUCCESS, master.Count(), ResponseMessage.Success200);
         }
 
+        public async Task<ApiCommonResponse> GetAllFrequentRouteCountByClientId(long clientId)
+        {
+            var master = await _serviceAssignmentMasterRepository.FindAllFrequentRoutesCountByClientId(clientId);
+            if (master == null)
+            {
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);
+            }
+            return CommonResponse.Send(ResponseCodes.SUCCESS, master.Count(), ResponseMessage.Success200);
+        }
+
+        
+
         public async Task<ApiCommonResponse> GetAllCustomerDivisions()
         {
             var CustomerDivisions = await _serviceAssignmentMasterRepository.FindAllCustomerDivision();

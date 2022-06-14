@@ -131,16 +131,16 @@ namespace HaloBiz.MyServices.Impl
             var IdExist = _serviceregRepository.GetserviceId(serviceRegReceivingDTO.ServiceId);
             if (IdExist != null)
             {
-                                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE,null, "No record exists");;
+                                 return CommonResponse.Send(ResponseCodes.FAILURE,null, " record already exists");;
             }
             if (serviceRegReceivingDTO.RequiresArmedEscort == false && serviceRegReceivingDTO.RequiresCommander == false && serviceRegReceivingDTO.RequiresPilot == false
                 && serviceRegReceivingDTO.RequiresVehicle == false)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE, null, "Please select at least one requirement"); ;
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Please select at least one requirement"); ;
             }
 
             service.CreatedById = context.GetLoggedInUserId();
-            service.CreatedAt = DateTime.UtcNow;
+            service.CreatedAt = DateTime.Now;
             service.Description = "";
             var savedType = await _serviceregRepository.SaveService(service);
             if (savedType == null)

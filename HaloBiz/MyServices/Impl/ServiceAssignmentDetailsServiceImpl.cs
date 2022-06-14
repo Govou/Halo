@@ -1401,6 +1401,23 @@ namespace HaloBiz.MyServices.Impl
             return CommonResponse.Send(ResponseCodes.SUCCESS, null, ResponseMessage.Success200);
         }
 
+        public async Task<ApiCommonResponse> DeleteArmedEscortDetail_(long id)
+        {
+            var itemToDelete = await _serviceAssignmentDetailsRepository.FindEscortServiceAssignmentDetailById(id);
+
+            if (itemToDelete == null)
+            {
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);
+            }
+
+            if (!await _serviceAssignmentDetailsRepository.DeleteEscortServiceAssignmentDetailById(itemToDelete))
+            {
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, ResponseMessage.InternalServer500);
+            }
+
+            //return new ApiOkResponse(true);
+            return CommonResponse.Send(ResponseCodes.SUCCESS, null, ResponseMessage.Success200);
+        }
         public async Task<ApiCommonResponse> DeleteCommanderDetail(long id)
         {
             var itemToDelete = await _serviceAssignmentDetailsRepository.FindCommanderServiceAssignmentDetailById(id);
@@ -1411,6 +1428,23 @@ namespace HaloBiz.MyServices.Impl
             }
 
             if (!await _serviceAssignmentDetailsRepository.DeleteCommanderServiceAssignmentDetail(itemToDelete))
+            {
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, ResponseMessage.InternalServer500);
+            }
+
+            return CommonResponse.Send(ResponseCodes.SUCCESS, null, ResponseMessage.Success200);
+        }
+
+        public async Task<ApiCommonResponse> DeleteCommanderDetail_(long id)
+        {
+            var itemToDelete = await _serviceAssignmentDetailsRepository.FindCommanderServiceAssignmentDetailById(id);
+
+            if (itemToDelete == null)
+            {
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);
+            }
+
+            if (!await _serviceAssignmentDetailsRepository.DeleteCommanderServiceAssignmentDetailById(itemToDelete))
             {
                 return CommonResponse.Send(ResponseCodes.FAILURE, null, ResponseMessage.InternalServer500);
             }
@@ -1465,6 +1499,23 @@ namespace HaloBiz.MyServices.Impl
             return CommonResponse.Send(ResponseCodes.SUCCESS, null, ResponseMessage.Success200);
         }
 
+        public async Task<ApiCommonResponse> DeletePilotDetail_(long id)
+        {
+            var itemToDelete = await _serviceAssignmentDetailsRepository.FindPilotServiceAssignmentDetailById(id);
+
+            if (itemToDelete == null)
+            {
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);
+            }
+
+            if (!await _serviceAssignmentDetailsRepository.DeletePilotServiceAssignmentDetailById(itemToDelete))
+            {
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, ResponseMessage.InternalServer500);
+            }
+
+            return CommonResponse.Send(ResponseCodes.SUCCESS, null, ResponseMessage.Success200);
+        }
+
         public async Task<ApiCommonResponse> DeleteVehicleDetail(long id)
         {
             var itemToDelete = await _serviceAssignmentDetailsRepository.FindVehicleServiceAssignmentDetailById(id);
@@ -1475,6 +1526,23 @@ namespace HaloBiz.MyServices.Impl
             }
 
             if (!await _serviceAssignmentDetailsRepository.DeleteVehicleServiceAssignmentDetail(itemToDelete))
+            {
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, ResponseMessage.InternalServer500);
+            }
+
+            return CommonResponse.Send(ResponseCodes.SUCCESS, null, ResponseMessage.Success200);
+        }
+
+        public async Task<ApiCommonResponse> DeleteVehicleDetail_(long id)//for isDeleted 
+        {
+            var itemToDelete = await _serviceAssignmentDetailsRepository.FindVehicleServiceAssignmentDetailById(id);
+
+            if (itemToDelete == null)
+            {
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);
+            }
+
+            if (!await _serviceAssignmentDetailsRepository.DeleteVehicleServiceAssignmentDetailById(itemToDelete))
             {
                 return CommonResponse.Send(ResponseCodes.FAILURE, null, ResponseMessage.InternalServer500);
             }
