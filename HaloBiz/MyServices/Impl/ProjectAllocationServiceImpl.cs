@@ -5033,116 +5033,116 @@ namespace HaloBiz.MyServices.Impl
 
 
 
-
-        public async Task<ApiCommonResponse> ResolveQuotesIntoProjects(HttpContext httpContext, long instanceId,
-            string fulfillmentType)
-        {
-            if (fulfillmentType.ToLower().Trim() == "Contract Creation".ToLower().Trim())
-            {
-                var getNewLeadWithQuotes = await _context.LeadDivisions.AsNoTracking()
-                    .Include(lead => lead.LeadOrigin)
-                    .Include(lead => lead.Lead)
-                    .Include(lead => lead.LeadType)
-                    .Include(lead => lead.LeadDivisionKeyPeople.Where(x => x.IsDeleted == false))
-                    .Include(lead => lead.Quote)
-                    .ThenInclude(quote => quote.QuoteServices.Where(x => x.IsDeleted == false))
-                    .ThenInclude(x => x.Service)
-                    .ThenInclude(x => x.Division)
-                    .FirstOrDefaultAsync(x => x.LeadId == instanceId);
-
-                if (getNewLeadWithQuotes != null)
-                {
-                    var quotesServiceArray = new List<QuoteService>();
-                    foreach (var leadQuotes in getNewLeadWithQuotes.Quote.QuoteServices)
-                    {
-                        quotesServiceArray.AddRange(leadQuotes.Quote.QuoteServices);
-                    }
-
-                    var structuredService = await _projectResolver.StructureServices(quotesServiceArray);
-                    var createFulfilmentProject =
-                        await _projectResolver.CreateProjectForFulfilmentProject(httpContext, getNewLeadWithQuotes,
-                            structuredService);
-                    return CommonResponse.Send(ResponseCodes.SUCCESS, null, "Successfully resolved projects and tasks");
-                }
-                else
-                {
-                    return CommonResponse.Send(ResponseCodes.FAILURE, null, "Couldn't resolve task and projects");
-                }
-            }
-            else if (fulfillmentType.ToLower().Trim() == "Endorsements".ToLower().Trim())
-            {
-
-                var getNewEndorsementById = await _context.ContractServiceForEndorsements.AsNoTracking()
-                    .Include(x => x.EndorsementType)
-                    .Include(x => x.Service)
-                    .ThenInclude(x => x.Division).AsNoTracking()
-                    .Include(x => x.CustomerDivision)
-                    .Where(x => x.IsRequestedForApproval && !x.IsApproved && !x.IsDeclined && x.Id == instanceId)
-                    .FirstOrDefaultAsync();
-                if (getNewEndorsementById != null)
-                {
-                    var createEndorseMent =
-                        await _projectResolver.CreateEndorseMentProject(httpContext, getNewEndorsementById);
-                    if (createEndorseMent.responseCode == "00")
-                    {
-                        return CommonResponse.Send(ResponseCodes.SUCCESS, null,
-                            "Endorsement was successfully resolved into project");
-                    }
-                    else
-                    {
-                        return CommonResponse.Send(ResponseCodes.FAILURE, null,
-                            "Endorsement couldn't be resolved into project");
-                    }
-                }
-                else
-                {
-                    return CommonResponse.Send(ResponseCodes.FAILURE, null,
-                        $"Endorsement with id {instanceId} couldn't be found");
-                }
-
-
-            }
-            else
-            {
-                var getService = await _context.Services
-                    .Include(service => service.Target)
-                    .Include(service => service.ServiceType)
-                    .Include(service => service.Account)
-                    .Include(service => service.Division)
-                    .Include(service => service.ServiceCategory).AsNoTracking()
-                    .Include(service => service.ServiceGroup).AsNoTracking()
-                    .Include(service => service.Division)
-                    .Include(service => service.OperatingEntity).AsNoTracking()
-                    .Include(service => service.CreatedBy)
-                    .Include(service => service.ServiceRequiredServiceDocuments.Where(row => row.IsDeleted == false))
-                    .ThenInclude(row => row.RequiredServiceDocument)
-                    .Include(service =>
-                        service.ServiceRequredServiceQualificationElements.Where(row => row.IsDeleted == false))
-                    .ThenInclude(row => row.RequredServiceQualificationElement)
-                    .Where(service => service.IsRequestedForPublish == true && service.IsPublished == false &&
-                                      service.IsDeleted == false && service.Id == instanceId)
-                    .FirstOrDefaultAsync();
-
-                if (getService != null)
-                {
-                    var createProject = await _projectResolver.CreateServiceProject(httpContext, getService);
-
-                    if (createProject.responseCode == "00")
-                    {
-                        return CommonResponse.Send(ResponseCodes.SUCCESS, null,
-                            "Service was successfully resolved into project");
-                    }
-                    else
-                    {
-                        return CommonResponse.Send(ResponseCodes.FAILURE, null,
-                            "Service couldn't be resolved into project");
-                    }
-                }
-
-                return CommonResponse.Send(ResponseCodes.FAILURE, null,
-                    $"Service with id {instanceId} couldn't be found");
-            }
-        }
+        //
+        // public async Task<ApiCommonResponse> ResolveQuotesIntoProjects(HttpContext httpContext, long instanceId,
+        //     string fulfillmentType)
+        // {
+        //     if (fulfillmentType.ToLower().Trim() == "Contract Creation".ToLower().Trim())
+        //     {
+        //         var getNewLeadWithQuotes = await _context.LeadDivisions.AsNoTracking()
+        //             .Include(lead => lead.LeadOrigin)
+        //             .Include(lead => lead.Lead)
+        //             .Include(lead => lead.LeadType)
+        //             .Include(lead => lead.LeadDivisionKeyPeople.Where(x => x.IsDeleted == false))
+        //             .Include(lead => lead.Quote)
+        //             .ThenInclude(quote => quote.QuoteServices.Where(x => x.IsDeleted == false))
+        //             .ThenInclude(x => x.Service)
+        //             .ThenInclude(x => x.Division)
+        //             .FirstOrDefaultAsync(x => x.LeadId == instanceId);
+        //
+        //         if (getNewLeadWithQuotes != null)
+        //         {
+        //             var quotesServiceArray = new List<QuoteService>();
+        //             foreach (var leadQuotes in getNewLeadWithQuotes.Quote.QuoteServices)
+        //             {
+        //                 quotesServiceArray.AddRange(leadQuotes.Quote.QuoteServices);
+        //             }
+        //
+        //             var structuredService = await _projectResolver.StructureServices(quotesServiceArray);
+        //             var createFulfilmentProject =
+        //                 await _projectResolver.CreateProjectForFulfilmentProject(httpContext, getNewLeadWithQuotes,
+        //                     structuredService);
+        //             return CommonResponse.Send(ResponseCodes.SUCCESS, null, "Successfully resolved projects and tasks");
+        //         }
+        //         else
+        //         {
+        //             return CommonResponse.Send(ResponseCodes.FAILURE, null, "Couldn't resolve task and projects");
+        //         }
+        //     }
+        //     else if (fulfillmentType.ToLower().Trim() == "Endorsements".ToLower().Trim())
+        //     {
+        //
+        //         var getNewEndorsementById = await _context.ContractServiceForEndorsements.AsNoTracking()
+        //             .Include(x => x.EndorsementType)
+        //             .Include(x => x.Service)
+        //             .ThenInclude(x => x.Division).AsNoTracking()
+        //             .Include(x => x.CustomerDivision)
+        //             .Where(x => x.IsRequestedForApproval && !x.IsApproved && !x.IsDeclined && x.Id == instanceId)
+        //             .FirstOrDefaultAsync();
+        //         if (getNewEndorsementById != null)
+        //         {
+        //             var createEndorseMent =
+        //                 await _projectResolver.CreateEndorseMentProject(httpContext, getNewEndorsementById);
+        //             if (createEndorseMent.responseCode == "00")
+        //             {
+        //                 return CommonResponse.Send(ResponseCodes.SUCCESS, null,
+        //                     "Endorsement was successfully resolved into project");
+        //             }
+        //             else
+        //             {
+        //                 return CommonResponse.Send(ResponseCodes.FAILURE, null,
+        //                     "Endorsement couldn't be resolved into project");
+        //             }
+        //         }
+        //         else
+        //         {
+        //             return CommonResponse.Send(ResponseCodes.FAILURE, null,
+        //                 $"Endorsement with id {instanceId} couldn't be found");
+        //         }
+        //
+        //
+        //     }
+        //     else
+        //     {
+        //         var getService = await _context.Services
+        //             .Include(service => service.Target)
+        //             .Include(service => service.ServiceType)
+        //             .Include(service => service.Account)
+        //             .Include(service => service.Division)
+        //             .Include(service => service.ServiceCategory).AsNoTracking()
+        //             .Include(service => service.ServiceGroup).AsNoTracking()
+        //             .Include(service => service.Division)
+        //             .Include(service => service.OperatingEntity).AsNoTracking()
+        //             .Include(service => service.CreatedBy)
+        //             .Include(service => service.ServiceRequiredServiceDocuments.Where(row => row.IsDeleted == false))
+        //             .ThenInclude(row => row.RequiredServiceDocument)
+        //             .Include(service =>
+        //                 service.ServiceRequredServiceQualificationElements.Where(row => row.IsDeleted == false))
+        //             .ThenInclude(row => row.RequredServiceQualificationElement)
+        //             .Where(service => service.IsRequestedForPublish == true && service.IsPublished == false &&
+        //                               service.IsDeleted == false && service.Id == instanceId)
+        //             .FirstOrDefaultAsync();
+        //
+        //         if (getService != null)
+        //         {
+        //             var createProject = await _projectResolver.CreateServiceProject(httpContext, getService);
+        //
+        //             if (createProject.responseCode == "00")
+        //             {
+        //                 return CommonResponse.Send(ResponseCodes.SUCCESS, null,
+        //                     "Service was successfully resolved into project");
+        //             }
+        //             else
+        //             {
+        //                 return CommonResponse.Send(ResponseCodes.FAILURE, null,
+        //                     "Service couldn't be resolved into project");
+        //             }
+        //         }
+        //
+        //         return CommonResponse.Send(ResponseCodes.FAILURE, null,
+        //             $"Service with id {instanceId} couldn't be found");
+        //     }
+        // }
 
 
 
@@ -5613,6 +5613,31 @@ namespace HaloBiz.MyServices.Impl
             return CommonResponse.Send(ResponseCodes.SUCCESS, valueToBeSaved.Entity, "SuccessFully savedComments");
 
         }
+        
+        public async Task<ApiCommonResponse> ResolveQuotesIntoProjects(HttpContext httpContext,ProjectFulfilmentDto projectFulfilment)
+        {
+            var finalResult = new ApiCommonResponse();
+            if (projectFulfilment != null)
+            {
+                switch (projectFulfilment.RequestClass.ToLower().Trim()) 
+                {
+                    case "services": 
+                        finalResult = await _projectResolver.ResolveService(projectFulfilment.RequestId,httpContext);
+                        break;
+                    case "endorsements":
+                        finalResult = await _projectResolver.ResolveEndorsement(projectFulfilment.RequestId,httpContext);
+                        break;
+                }
+            }
+            return CommonResponse.Send(ResponseCodes.SUCCESS, finalResult, "SuccessFully savedComments");
+        }
+
+
+     
+
+       
+
 
     }
+   
 }

@@ -767,11 +767,10 @@ namespace HaloBiz.Controllers
 
         }
         
-        [HttpPost("ResolveQuotesToProjects/{fulfillmentTypeId}/{instanceTypeId}")]
-        public async Task<ApiCommonResponse> CreateDefaultWorkspace(long instanceTypeId,string fulfillmentTypeId)
+        [HttpPost("ResolveQuotesToProjects")]
+        public async Task<ApiCommonResponse> CreateDefaultWorkspace(ProjectFulfilmentDto projectFulfilmentDto)
         {
-            
-            return await _projectAllocationService.ResolveQuotesIntoProjects(HttpContext,instanceTypeId,fulfillmentTypeId);
+            return await _projectAllocationService.ResolveQuotesIntoProjects(HttpContext,projectFulfilmentDto);
 
         }
         
