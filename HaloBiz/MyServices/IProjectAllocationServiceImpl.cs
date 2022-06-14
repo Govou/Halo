@@ -141,8 +141,8 @@ namespace HaloBiz.MyServices
         Task<ApiCommonResponse> getAllDataForWorkspaceSideBar(HttpContext httpContext);
         Task<ApiCommonResponse> getWorkspaceById(HttpContext httpContext, long workspaceId);
         //Task<ApiCommonResponse> CreateDefaultWorkspace();
-        Task<ApiCommonResponse> ResolveQuotesIntoProjects(HttpContext httpContext,long serviceId, string fulfillmentType);
-        //Task<ApiCommonResponse> FetchAmortizationData(int year, int month);
+        // Task<ApiCommonResponse> ResolveQuotesIntoProjects(HttpContext httpContext,long serviceId, string fulfillmentType);
+        // //Task<ApiCommonResponse> FetchAmortizationData(int year, int month);
         Task<ApiCommonResponse> FetchAmortizationMaster(int year, int month);
 
         Task<ApiCommonResponse> FetchAmortizationDetails();
@@ -166,5 +166,9 @@ namespace HaloBiz.MyServices
 
          Task<ApiCommonResponse> MakeTaskComment(ProjectCommentRequest projectCommentRequest, long taskId,
              HttpContext httpContext);
+
+         Task<ApiCommonResponse> ResolveQuotesIntoProjects(HttpContext httpContext,
+             ProjectFulfilmentDto projectFulfilment);
+
     }
 }
