@@ -425,7 +425,8 @@ namespace HaloBiz.MyServices.Impl.LAMS
                     OfficeId = quoteService.OfficeId,
                     BranchId = quoteService.BranchId,
                     UniqueTag = quoteService.UniqueTag,
-                    AdminDirectTie = quoteService.AdminDirectTie
+                    AdminDirectTie = quoteService.AdminDirectTie,
+                    WHTLoadingValue = quoteService.WHTLoadingValue
                 };
 
                 contractServiceToSave.ContractId = contractId;
@@ -710,7 +711,8 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
                     while (startDate < endDate)
                     {
-                        var invoiceValueToPost = billableForInvoicingPeriod;   var invoiceEndDateToPost = startDate.AddMonths(interval);
+                        var invoiceValueToPost = Math.Round(billableForInvoicingPeriod + wht, 2); 
+                        var invoiceEndDateToPost = startDate.AddMonths(interval);
 
                         //todo where is VAT in this?
                         invoices.Add(GenerateInvoice(startDate,
@@ -726,6 +728,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                         invoiceNumber++;
                     }
                 }
+
                 return invoices;
             }
             catch (Exception ex)
@@ -782,9 +785,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 _logger.LogError($"Error in GenerateInvoice: {ex.ToString()}");
                 return null;
             }
-        }            
-
-       
+        }
 
         public async Task<(bool, string)> GenerateAmortizations(ContractService contractService, CustomerDivision customerDivision, double billableAmount, ContractServiceForEndorsement endorsement =  null)
         {
@@ -1160,14 +1161,14 @@ namespace HaloBiz.MyServices.Impl.LAMS
                     if (contractService.WHTLoadingValue != null)
                     {
                         totalWHT = contractService.WHTLoadingValue.Value;
+                        totalContractBillable -= totalWHT;
                     }
 
-                   // totalContractBillable = invoice.Value - totalVAT - totalWHT;
-                    totalVAT = invoice.Value * (7.5 / 107.5);
+                    totalVAT = totalContractBillable * (7.5 / 107.5);
                     //make it 2dp
                     var vatString = totalVAT.ToString("#.##");
                     totalVAT = double.Parse(vatString);
-                    
+                   // totalContractBillable -= totalVAT;
                 }
             }
 

@@ -891,8 +891,8 @@ namespace HaloBiz.MyServices.Impl.LAMS
             var (success, msg) = await _leadConversionService.CreateAccounts(
                                             contractServiceDifference,
                                             customerDivision,
-                                            (long)contractServiceForEndorsement.BranchId,
-                                            (long)contractServiceForEndorsement.OfficeId,
+                                            (long) contractServiceForEndorsement.BranchId,
+                                            (long) contractServiceForEndorsement.OfficeId,
                                             service,
                                             financialVoucherType,
                                             null,
