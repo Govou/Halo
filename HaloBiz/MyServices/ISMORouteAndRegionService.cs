@@ -45,6 +45,7 @@ namespace HaloBiz.MyServices
         Task<ApiCommonResponse> AddSMORouteMap(HttpContext context, SMORouteMapReceivingDTO sMORouteMapReceivingDTO);
         Task<ApiCommonResponse> GetSMORouteMapById(long id);
         Task<ApiCommonResponse> GetAllRouteMapsByRouteId(long routeId);
+        Task<ApiCommonResponse> CheckIfStateISAvailableOnRoute(long stateId, long routeId);
         Task<ApiCommonResponse> GetAllSMORouteMaps();
         Task<ApiCommonResponse> DeleteSMORouteMap(long id);
     }

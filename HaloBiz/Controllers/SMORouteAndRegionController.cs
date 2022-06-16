@@ -58,6 +58,12 @@ namespace HaloBiz.Controllers
             return await _sMORoutesAndRegionServices.GetAllSMORouteMaps();
         }
 
+        [HttpGet("CheckIfStateISAvailableOnRoute/{stateId}/{routeId}")]
+        public async Task<ApiCommonResponse> CheckIfStateISAvailableOnRoute(long stateId, long routeId)
+        {
+            return await _sMORoutesAndRegionServices.CheckIfStateISAvailableOnRoute(stateId, routeId);
+        }
+
         [HttpGet("GetRoutesByName")]
         public async Task<ApiCommonResponse> GetRoutesByName(string routeName)
         {
