@@ -174,9 +174,15 @@ namespace HaloBiz.MyServices.Impl
                     foreach (var contractService in contractServices)
                     {
                         double amountToInvoice;
+                        var billableAmount = (double)contractService.BillableAmount;
+                        //if (contractService.WHTLoadingValue != null)
+                        //{
+                        //    var wht = (double) contractService.WHTLoadingValue;
+                        //    billableAmount -= wht;
+                        //}
 
-                        var amountAvaliableToInvoice = (double)contractService.BillableAmount - contractService.AdHocInvoicedAmount;
-
+                        amountToInvoice = billableAmount;
+                        var amountAvaliableToInvoice = billableAmount - contractService.AdHocInvoicedAmount;
                         if (amountAvaliableToInvoice == 0) continue;
 
                         if (billable >= amountAvaliableToInvoice)
@@ -465,12 +471,12 @@ namespace HaloBiz.MyServices.Impl
             while(billableAmount > 0 || counter > contractServices.Count())
             {
                 contractService = contractServices[counter];
-                amountToPost =(double) contractService.BillableAmount - contractService.AdHocInvoicedAmount;
+                amountToPost = (double) contractService.BillableAmount - contractService.AdHocInvoicedAmount;
                 
-                if( amountToPost <= billableAmount )
+                if(amountToPost <= billableAmount)
                 {
                     contractService.AdHocInvoicedAmount = contractService.BillableAmount?? 0;
-                    billableAmount-= amountToPost;
+                    billableAmount -= amountToPost;
                 }else{
                     contractService.AdHocInvoicedAmount += billableAmount;
                     billableAmount = 0;
