@@ -1,4 +1,5 @@
 ﻿using HaloBiz.DTOs.TransferDTOs;
+using HaloBiz.Helpers;
 using HalobizMigrations.Data;
 using HalobizMigrations.Models;
 using HalobizMigrations.Models.Armada;
@@ -291,6 +292,15 @@ namespace HaloBiz.Repository.Impl
             return await _context.MasterServiceAssignments.Where(aer => aer.CustomerDivisionId == clientId && aer.IsDeleted == false && aer.SAExecutionStatus == 2 && aer.AssignmentStatus == "Closed")
                  .ToListAsync();
         }
+
+        public async Task<IEnumerable<MasterServiceAssignment>> FindAllFrequentRoutesCountByClientId(long clientId)
+        {
+            var query =  _context.MasterServiceAssignments.Where(aer => aer.CustomerDivisionId == clientId && aer.IsDeleted == false && aer.SAExecutionStatus == 2 && aer.AssignmentStatus == "Closed")
+                .DistinctBy(x=>x.SMORouteId);
+            //.ToListAsync();
+            return  query.ToList();
+        }
+        
 
         public async Task<IEnumerable<MasterServiceAssignment>> FindAllCompletedTripsByClientId(long clientId)
         {
