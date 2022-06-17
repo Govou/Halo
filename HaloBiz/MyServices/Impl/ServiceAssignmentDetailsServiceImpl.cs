@@ -1908,7 +1908,7 @@ namespace HaloBiz.MyServices.Impl
         //For when client makes payment
         public async Task<ApiCommonResponse> UpdateServiceDetailsHeldForActionAndReadyStatusForOnlineByAssignmentId(long[] id)
         {
-            for (int i = 0; i < id.Length; i++)
+            for (int i = 0; i <= id.Length; i++)
             {
                 var transaction = _context.Database.BeginTransaction();
                 var escortToUpdate = await _serviceAssignmentDetailsRepository.FindAllEscortServiceAssignmentDetailsByAssignmentId(id[i]);
