@@ -114,6 +114,7 @@ namespace HaloBiz.MyServices
         Task<ApiCommonResponse> updateDeliverable(HttpContext httpContext, long taskId, long deliverableId, DeliverableDTO deliverableDTO);
         Task<ApiCommonResponse> disableDeliverable(HttpContext httpContext, long taskId, long deliverableId);
         Task<ApiCommonResponse> getBarChartDetails(HttpContext httpContext, long taskId);
+        Task<ApiCommonResponse> getAllMilestoneTaskDueTodayForWatcher(HttpContext httpContext);
         Task<ApiCommonResponse> getAssignedDeliverableStatus(HttpContext httpContext, List<DeliverableStatusDTO> deliverableStatusDTOs);
         Task<ApiCommonResponse> getWorkspaceWithStatus(HttpContext httpContext);
         Task<ApiCommonResponse> getCurrentDeliverableStatus(HttpContext httpContext,long deliverableId);
@@ -148,5 +149,7 @@ namespace HaloBiz.MyServices
          Task<ApiCommonResponse> SendEmail(MailRequest mailRequest, HttpContext htttHttpContext);
          Task<ApiCommonResponse> GetAllConcernedMail(HttpContext httpContext);
          Task<ApiCommonResponse> DisableMail(long emailId);
+
+         Task<ApiCommonResponse> getAllProjectCreatorsWorkspacesRevamped(HttpContext httpContext);
     }
 }

@@ -24,5 +24,6 @@ namespace HaloBiz.Adapters
         Task<ApiCommonResponse> SendJourneyEndNotificationMail(MasterServiceAssignmentMailVMDTO masterServiceAssignmentMailVMDTO);
         Task<ApiCommonResponse> SendNoPaymentConfirmationMail(MasterServiceAssignmentMailVMDTO masterServiceAssignmentMailVMDTO);
         Task<ApiCommonResponse> SendComplaintResolutionConfirmationMail(ConfirmComplaintResolutionMailDTO model);
+        Task<ApiCommonResponse> SendNotificationMail(DTOs.TransferDTOs.GenericMailRequest model);
     }
 }

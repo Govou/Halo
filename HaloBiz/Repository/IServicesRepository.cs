@@ -12,6 +12,7 @@ namespace HaloBiz.Repository
         Task<Service> FindServiceByName(string name);
         Task<IEnumerable<Service>> FindAllServices();
         IEnumerable<Service> FindAllSecuredMobilityServices();
+        IEnumerable<Service> FindAllSecuredMobilityCategoryServices();
         Task<IEnumerable<Service>> FindOnlinePortalServices();
         Task<Service> UpdateServices(Service service);
         Task<bool> DeleteService(Service service);

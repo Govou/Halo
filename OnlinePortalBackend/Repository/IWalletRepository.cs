@@ -1,5 +1,6 @@
 ﻿using Halobiz.Common.DTOs.ReceivingDTOs;
 using OnlinePortalBackend.DTOs.ReceivingDTOs;
+using OnlinePortalBackend.DTOs.TransferDTOs;
 using System.Threading.Tasks;
 
 namespace OnlinePortalBackend.Repository
@@ -12,5 +13,6 @@ namespace OnlinePortalBackend.Repository
         Task<(bool isSuccess, object message)> GetWalletBalance(int profileId);
         Task<(bool isSuccess, bool status)> GetWalletActivationStatus(int profileId);
         Task<bool> WalletLogin(WalletLoginDTO request);
+        Task<WalletTransactionHistoryDTO> GetWalletTransactionHistory(int propfileId);
     }
 }

@@ -53,4 +53,11 @@ namespace HaloBiz.DTOs.TransferDTOs
         public List<string> EvidenceUrls { get; set; }
         public DateTime? DateComplaintReported { get; set; }
     }
+
+    public class GenericMailRequest
+    {
+        public string subject { get; set; }
+        public string[] recipients { get; set; }
+        public string message { get; set; }
+    }
 }

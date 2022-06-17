@@ -80,6 +80,7 @@ namespace OnlinePortalBackend.Repository.Impl
 
             var createdBy = _context.UserProfiles.FirstOrDefault(x => x.Email.ToLower().Contains("online")).Id;
             var contractId = 0;
+            var contractServiceId = 0;
 
             var contractServiceForEndorsements = new List<ContractServiceForEndorsementReceivingDto>();
             var quoteServices = new List<QuoteServiceReceivingDTO>();
@@ -151,7 +152,7 @@ namespace OnlinePortalBackend.Repository.Impl
                     customerDivisionId = (int)customerDiv.Id;
                 }
 
-                if (!onlineProfileExists && !customerExists)
+                if (onlineProfileExists && !customerExists)
                 {
                     var onlineProfile = _context.OnlineProfiles.FirstOrDefault(x => x.Email.ToLower() == contractDTO.Email.ToLower());
                     onlineProfile.CustomerDivisionId = customerDivisionId;
@@ -159,7 +160,7 @@ namespace OnlinePortalBackend.Repository.Impl
                     await _context.SaveChangesAsync();
                 }
 
-                if (!onlineProfileExists && customerExists)
+                if (onlineProfileExists && customerExists)
                 {
                     customerDivisionId = _context.CustomerDivisions.FirstOrDefault(x => x.Email.ToLower() == contractDTO.Email.ToLower()).Id;
                     var onlineProfile = _context.OnlineProfiles.FirstOrDefault(x => x.Email.ToLower() == contractDTO.Email.ToLower());
@@ -249,7 +250,8 @@ namespace OnlinePortalBackend.Repository.Impl
 
                 if (endorsementResult.isSuccess)
                 {
-                    contractId = int.Parse(endorsementResult.message.ToString());
+                    contractId = int.Parse(endorsementResult.message1.ToString());
+                    contractServiceId = int.Parse(endorsementResult.message2.ToString());
                 }
 
                 var quote = new QuoteReceivingDTO
@@ -273,7 +275,8 @@ namespace OnlinePortalBackend.Repository.Impl
                 return (true, new
                 {
                     CustomerDivisionId = customerDivisionId,
-                    ContractId = contractId
+                    ContractId = contractId,
+                    ContractServiceId = contractServiceId
                 });
 
             }
@@ -315,12 +318,13 @@ namespace OnlinePortalBackend.Repository.Impl
             }
         }
 
-        public async Task<(bool isSuccess, object message)> AddNewRetentionContractServiceForEndorsement(List<ContractServiceForEndorsementReceivingDto> contractServiceForEndorsementDtos)
+        public async Task<(bool isSuccess, object message1, object message2)> AddNewRetentionContractServiceForEndorsement(List<ContractServiceForEndorsementReceivingDto> contractServiceForEndorsementDtos)
         {
             long contractId = 0;
+            long contractServiceId = 0l;
             if (!contractServiceForEndorsementDtos.Any())
             {
-                return (false, "No contract service specified");
+                return (false, "No contract service specified", null);
             }
 
 
@@ -336,7 +340,7 @@ namespace OnlinePortalBackend.Repository.Impl
                 //check if there is a pending contract addition for this guy
                 if (_context.Contracts.Any(x => x.CustomerDivisionId == contractDetail.CustomerDivisionId && !x.IsApproved))
                 {
-                    return (false, "You have pending contract waiting approval");
+                    return (false, "You have pending contract waiting approval", null);
                 }
 
                 newContract = new Contract
@@ -371,7 +375,7 @@ namespace OnlinePortalBackend.Repository.Impl
             //validate the admin direct pairs
             var (isValid, errorMessage) = await ValidateEndorsementRequest(createNewContract, contractServiceForEndorsementDtos);
             if (!isValid)
-                return (false, errorMessage);
+                return (false, errorMessage, null);
 
 
             foreach (var item in contractServiceForEndorsementDtos)
@@ -390,7 +394,7 @@ namespace OnlinePortalBackend.Repository.Impl
 
                     if (alreadyExists != null)
                     {
-                        return (false, $"There is already an endorsement request for the contract service with id {alreadyExists.Id}");
+                        return (false, $"There is already an endorsement request for the contract service with id {alreadyExists.Id}", null);
                     }
                 }
 
@@ -407,7 +411,7 @@ namespace OnlinePortalBackend.Repository.Impl
 
                 if (previouslyRenewal != null)
                 {
-                    return (false, "There has been a retention on this contract service");
+                    return (false, "There has been a retention on this contract service", null);
                 }
 
                 item.CreatedById = id;
@@ -417,7 +421,7 @@ namespace OnlinePortalBackend.Repository.Impl
                     {
                         if (item.ContractEndDate.Value.AddDays(1).Day != 1)
                         {
-                            return (false, $"Contract end date must be last day of month for tag {item.UniqueTag}");
+                            return (false, $"Contract end date must be last day of month for tag {item.UniqueTag}", null);
                         }
                     }
 
@@ -425,7 +429,9 @@ namespace OnlinePortalBackend.Repository.Impl
                     {
                         var contractService = _mapper.Map<ContractService>(item);
                         contractService.ContractId = newContract.Id;
+                        contractService.AdHocInvoicedAmount = contractService.BillableAmount.Value;
                         newContractServices.Add(contractService);
+
                     }
                     catch (Exception ex)
                     {
@@ -444,6 +450,8 @@ namespace OnlinePortalBackend.Repository.Impl
                 {
                     await _context.ContractServices.AddRangeAsync(newContractServices);
                     await _context.SaveChangesAsync();
+
+                    contractServiceId = newContractServices[0].Id;
                 }
                 else
                 {
@@ -462,12 +470,13 @@ namespace OnlinePortalBackend.Repository.Impl
                             item.PreviousContractServiceId = entity.Entity.Id;
                             item.IsConvertedToContractService = true;
                             item.IsRequestedForApproval = false;
+                            
                         }
 
                         var savedEntity = await SaveContractServiceForEndorsement(item);
                         if (savedEntity == null)
                         {
-                            return (false, "Some system errors occurred");
+                            return (false, "Some system errors occurred", null);
                         }
 
                         //bool successful = await _approvalService.SetUpApprovalsForContractModificationEndorsement(savedEntity, httpContext);
@@ -480,21 +489,21 @@ namespace OnlinePortalBackend.Repository.Impl
 
                 await _context.SaveChangesAsync();
 
-                if (createNewContract)
-                {
-                    var contract = await _context.ContractServices
-                            .Where(x => x.ContractId == newContract.Id)
-                           .Include(x => x.Contract)
-                           .ToListAsync();
-                    return (true, contractId);
-                }
-                return (true, contractId);
+                //if (createNewContract)
+                //{
+                //    var contract = await _context.ContractServices
+                //            .Where(x => x.ContractId == newContract.Id)
+                //          // .Include(x => x.Contract)
+                //           .ToListAsync();
+                //    return (true, contractId);
+                //}
+                return (true, contractId, contractServiceId);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex.Message);
                 _logger.LogError(ex.StackTrace);
-                return (false, "An error has occured");
+                return (false, "An error has occured", null);
             }
         }
 
@@ -1727,7 +1736,7 @@ namespace OnlinePortalBackend.Repository.Impl
         public async Task<(bool isSuccess, string message, List<InvoiceResult> invoiceResults)> GenerateInvoiceForContract(SMSCreateInvoiceDTO request)
         {
 
-                using (var transaction = await _context.Database.BeginTransactionAsync())
+         using (var transaction = await _context.Database.BeginTransactionAsync())
                 {
 
                     try
@@ -1768,9 +1777,8 @@ namespace OnlinePortalBackend.Repository.Impl
                     }
 
                 }
-            
            
-            }
+        }
 
         public async Task<(bool isSuccess, string message, long result)> AddInvoice(InvoiceReceivingDTO invoiceReceivingDTO)
         {

@@ -3,6 +3,7 @@ using Halobiz.Common.DTOs.ReceivingDTOs;
 using Halobiz.Common.DTOs.TransferDTOs;
 using Halobiz.Common.Helpers;
 using HalobizMigrations.Models;
+using OnlinePortalBackend.DTOs.ReceivingDTOs;
 using OnlinePortalBackend.DTOs.TransferDTOs;
 using OnlinePortalBackend.Helpers;
 using OnlinePortalBackend.Repository;
@@ -78,13 +79,36 @@ namespace OnlinePortalBackend.MyServices.SecureMobilitySales
             return CommonResponse.Send(ResponseCodes.SUCCESS, result);
         }
 
+        public async Task<ApiCommonResponse> PostTransactions(PostTransactionDTO request)
+        {
+            var result = await _invoiceRepo.PostTransactions(request);
+
+            if (!result)
+            {
+                return CommonResponse.Send(ResponseCodes.FAILURE); ;
+            }
+            return CommonResponse.Send(ResponseCodes.SUCCESS, result);
+        }
+
+        public async Task<ApiCommonResponse> ReceiptAllInvoicesForContract(SMSReceiptInvoiceForContractDTO request)
+        {
+
+            var result = await _invoiceRepo.ReceiptAllInvoicesForContract(request);
+
+            if (!result.isSuccess)
+            {
+                return CommonResponse.Send(ResponseCodes.FAILURE); ;
+            }
+            return CommonResponse.Send(ResponseCodes.SUCCESS, result);
+        }
+
         public async Task<ApiCommonResponse> ReceiptInvoice(SMSReceiptReceivingDTO request)
         {
             //var result = await _invoiceRepo.ReceiptInvoice(request);
 
             //if (!result.isSuccess)
             //{
-            //    return CommonResponse.Send(ResponseCodes.FAILURE); ;
+            //    return CommonResponse.Send(ResponseCodes.FAILURE);
             //}
 
 
