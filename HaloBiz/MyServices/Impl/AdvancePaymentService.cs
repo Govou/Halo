@@ -257,7 +257,10 @@ namespace HaloBiz.MyServices.Impl
         public async Task<ApiCommonResponse> GetCustomerPayment(long customerDivisionId)
         {
             //add IsDeleted
-            var result = await _context.AdvancePayments.Where(x=>x.CustomerDivisionId==customerDivisionId && !x.IsDeleted).OrderByDescending(x=>x.Id).ToListAsync();  
+            var result = await _context.AdvancePayments
+                .Where(x=>x.CustomerDivisionId==customerDivisionId && !x.IsDeleted)
+                .OrderByDescending(x=>x.Id)
+                .ToListAsync();  
             if (!result.Any())
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);
 
