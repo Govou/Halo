@@ -18,5 +18,6 @@ namespace OnlinePortalBackend.MyServices.SecureMobilitySales
 
         Task<ApiCommonResponse> GetVehicleModels(int makeId);
 
+        Task<ApiCommonResponse> GetSupplierCategories();
     }
 }

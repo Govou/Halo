@@ -176,5 +176,16 @@ namespace OnlinePortalBackend.MyServices.SecureMobilitySales
             }
             return CommonResponse.Send(ResponseCodes.SUCCESS, result, "success");
         }
+
+        public async Task<ApiCommonResponse> GetSupplierCategories()
+        {
+            var result = await _supplierRepo.GetSupplierCategories();
+
+            if (result == null)
+            {
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE, null, "failed");
+            }
+            return CommonResponse.Send(ResponseCodes.SUCCESS, result, "success");
+        }
     }
 }

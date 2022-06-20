@@ -11,5 +11,6 @@ namespace OnlinePortalBackend.Repository
         Task<bool> PostTransactionForBooking(PostTransactionDTO request);
         Task<IEnumerable<VehicleMakeDTO>> GetVehicleMakes();
         Task<IEnumerable<VehicleModelDTO>> GetVehicleModels(int makeId);
+        Task<IEnumerable<SupplierCategoryDTO>> GetSupplierCategories();
     }
 }

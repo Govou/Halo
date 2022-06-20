@@ -75,6 +75,15 @@ namespace OnlinePortalBackend.Repository.Impl
             return false;
         }
 
+        public async Task<IEnumerable<SupplierCategoryDTO>> GetSupplierCategories()
+        {
+            return _context.SupplierCategories.Where(x => x.IsDeleted == false).Select(m => new SupplierCategoryDTO
+            {
+                CategoryId = m.Id,
+                CategoryName = m.CategoryName
+            }).AsEnumerable();
+        }
+
         public async Task<IEnumerable<VehicleMakeDTO>> GetVehicleMakes()
         {
             return _context.Makes.Where(x => x.IsDeleted == false).Select(m => new VehicleMakeDTO {

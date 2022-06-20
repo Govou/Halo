@@ -45,9 +45,16 @@ namespace OnlinePortalBackend.Controllers.SecureMobilitySales
         }
 
         [HttpGet("GetVehicleModels")]
-        public Task<ApiCommonResponse> GetVehincleModels(int makeId)
+        public Task<ApiCommonResponse> GetVehicleModels(int makeId)
         {
             return _supplierService.GetVehicleModels(makeId);
         }
+
+        [HttpGet("GetSupplierCategories")]
+        public Task<ApiCommonResponse> GetSupplierCategories()
+        {
+            return _supplierService.GetSupplierCategories();
+        }
+
     }
 }
