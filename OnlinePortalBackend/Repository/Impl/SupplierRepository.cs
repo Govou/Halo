@@ -4,8 +4,10 @@ using HalobizMigrations.Models.OnlinePortal;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using OnlinePortalBackend.DTOs.ReceivingDTOs;
+using OnlinePortalBackend.DTOs.TransferDTOs;
 using OnlinePortalBackend.Helpers;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -71,6 +73,25 @@ namespace OnlinePortalBackend.Repository.Impl
             }
           
             return false;
+        }
+
+        public async Task<IEnumerable<VehicleMakeDTO>> GetVehicleMakes()
+        {
+            return _context.Makes.Where(x => x.IsDeleted == false).Select(m => new VehicleMakeDTO {
+                Id = m.Id,
+                Name = m.Caption
+            }).AsEnumerable();
+
+        }
+
+        public async Task<IEnumerable<VehicleModelDTO>> GetVehicleModels(int makeId)
+        {
+            return _context.Models.Where(x => x.IsDeleted == false && x.MakeId == makeId).Select(m => new VehicleModelDTO
+            {
+                Id = m.Id,
+                Name = m.Caption,
+                MakeId = makeId
+            }).AsEnumerable();
         }
 
         public async Task<bool> PostTransactionForBooking(PostTransactionDTO request)

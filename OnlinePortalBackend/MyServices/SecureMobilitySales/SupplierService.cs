@@ -154,5 +154,27 @@ namespace OnlinePortalBackend.MyServices.SecureMobilitySales
             }
             return CommonResponse.Send(ResponseCodes.SUCCESS, null, "success");
         }
+
+        public async Task<ApiCommonResponse> GetVehicleMakes()
+        {
+            var result = await _supplierRepo.GetVehicleMakes();
+
+            if (result == null)
+            {
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE, null, "failed");
+            }
+            return CommonResponse.Send(ResponseCodes.SUCCESS, result, "success");
+        }
+
+        public async Task<ApiCommonResponse> GetVehicleModels(int makeId)
+        {
+            var result = await _supplierRepo.GetVehicleModels(makeId);
+
+            if (result == null)
+            {
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE, null, "failed");
+            }
+            return CommonResponse.Send(ResponseCodes.SUCCESS, result, "success");
+        }
     }
 }

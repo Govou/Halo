@@ -1,4 +1,6 @@
 ﻿using OnlinePortalBackend.DTOs.ReceivingDTOs;
+using OnlinePortalBackend.DTOs.TransferDTOs;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace OnlinePortalBackend.Repository
@@ -7,5 +9,7 @@ namespace OnlinePortalBackend.Repository
     {
         Task<bool> AddNewAsset(AssetAdditionDTO request);
         Task<bool> PostTransactionForBooking(PostTransactionDTO request);
+        Task<IEnumerable<VehicleMakeDTO>> GetVehicleMakes();
+        Task<IEnumerable<VehicleModelDTO>> GetVehicleModels(int makeId);
     }
 }
