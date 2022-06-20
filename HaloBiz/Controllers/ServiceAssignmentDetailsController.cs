@@ -42,10 +42,10 @@ namespace HaloBiz.Controllers
             //return Ok(cType);
         }
 
-        [HttpGet("GetAllDistinctArmedEscortDetails")]
-        public async Task<ApiCommonResponse> GetAllDistinctArmedEscortDetails()
+        [HttpGet("GetAllAvailableArmedEscortDetails")]
+        public async Task<ApiCommonResponse> GetAllAvailableArmedEscortDetails()
         {
-            return await _serviceAssignmentDetailsService.GetAllUniqueArmedEscortDetails();
+            return await _serviceAssignmentDetailsService.GetAllUniqueAvailableArmedEscortDetails();
         }
 
         [HttpGet("GetAllArmedEscortDetailsByAssignmentId/{id}")]
@@ -113,10 +113,10 @@ namespace HaloBiz.Controllers
             //return Ok(cType);
         }
 
-        [HttpGet("GetAllDistinctCommanderDetails")]
-        public async Task<ApiCommonResponse> GetAllDistinctCommanderDetails()
+        [HttpGet("GetAllAvailableCommanderDetails")]
+        public async Task<ApiCommonResponse> GetAllAvailableCommanderDetails()
         {
-            return await _serviceAssignmentDetailsService.GetAllUniqueCommanderDetails();
+            return await _serviceAssignmentDetailsService.GetAllUniqueAvailableCommanderDetails();
         }
 
         [HttpGet("GetAllCommanderDetailsByAssignmentId/{id}")]
@@ -194,10 +194,10 @@ namespace HaloBiz.Controllers
             //return Ok(cType);
         }
 
-        [HttpGet("GetAllDistinctPilotDetails")]
-        public async Task<ApiCommonResponse> GetAllDistinctPilotDetails()
+        [HttpGet("GetAllAvailablePilotDetails")]
+        public async Task<ApiCommonResponse> GetAllAvailablePilotDetails()
         {
-            return await _serviceAssignmentDetailsService.GetAllUniquePilotDetails();
+            return await _serviceAssignmentDetailsService.GetAllUniqueAvailablePilotDetails();
           
         }
         [AllowAnonymous]
@@ -265,10 +265,10 @@ namespace HaloBiz.Controllers
             //return Ok(cType);
         }
 
-        [HttpGet("GetAllDistinctVehicleDetails")]
-        public async Task<ApiCommonResponse> GetAllDistinctVehicleDetails()
+        [HttpGet("GetAllAvailableVehicleDetails")]
+        public async Task<ApiCommonResponse> GetAllAvailableVehicleDetails()
         {
-            return await _serviceAssignmentDetailsService.GetAllUniqueVehicleDetails();
+            return await _serviceAssignmentDetailsService.GetAllUniqueAvailableVehicleDetails();
             //if (response.StatusCode >= 400)
             //    return StatusCode(response.StatusCode, response);
             //var cType = ((ApiOkResponse)response).Result;
