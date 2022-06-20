@@ -1077,9 +1077,9 @@ namespace HaloBiz.MyServices.Impl
                            .Include(x => x.CreatedBy)
                            .Include(x => x.GroupType)
                            .Include(x => x.Suspect)
-                             .ThenInclude(x => x.SuspectQualifications)
-                                   .ThenInclude(x => x.ServiceQualifications)
-
+                           .ThenInclude(x => x.SuspectQualifications)
+                           .ThenInclude(x => x.ServiceQualifications)
+                           .OrderByDescending(x=>x.CreatedAt)
                            .ToListAsync();
 
 
@@ -1250,8 +1250,10 @@ namespace HaloBiz.MyServices.Impl
             var getQuote = await _context.LeadDivisions.AsNoTracking()
                                                 .Include(x=>x.CreatedBy)
                                                 .Include(x => x.Quote)
-                                                           .ThenInclude(x => x.QuoteServices.Where(x => x.IsDeleted == false))
+                                                .ThenInclude(x => x.QuoteServices.Where(x => x.IsDeleted == false))
+                                                .ThenInclude(x=>x.Service)
                                                 .Where(x=>x.IsDeleted == false && x.LeadId == Id)
+                                                .OrderByDescending(x=>x.CreatedAt)
                                                 .ToListAsync();
 
 

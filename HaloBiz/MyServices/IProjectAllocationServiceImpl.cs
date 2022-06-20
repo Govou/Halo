@@ -41,7 +41,7 @@ namespace HaloBiz.MyServices
         Task<ApiCommonResponse> getProjectById(HttpContext httpContext, long projectId);
         Task<ApiCommonResponse> createDefaultStatus(HttpContext httpContext, List<DefaultStatusDTO> defaultStatusDTOs);
         Task<ApiCommonResponse> updateStatusFlowOptionToCustom(HttpContext httpContext, long workspaceId, List<StatusFlowDTO> statusFlowDTOs);
-        Task<ApiCommonResponse> removeProject(HttpContext httpContext, long projectId, long workspaceId);
+        Task<ApiCommonResponse> removeProject(HttpContext httpContext, long projectId);
         Task<ApiCommonResponse> removeTask(HttpContext httpContext, long taskId, long projectId);
         Task<ApiCommonResponse> removeDeliverable(HttpContext httpContext, long deliverableId, long taskId);
         Task<ApiCommonResponse> updateWorkspace(HttpContext httpContext, long id, UpdateWorkspaceDTO workspaceDTO);

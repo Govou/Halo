@@ -266,10 +266,10 @@ namespace HaloBiz.Controllers
     
         }
 
-        [HttpDelete("DisableProject/{projectId}/{workspacedId}")]
-        public async Task<ApiCommonResponse> DisableProject(long projectId, long workspacedId)
+        [HttpDelete("DisableProject/{projectId}")]
+        public async Task<ApiCommonResponse> DisableProject(long projectId)
         {
-            return await _projectAllocationService.removeProject(HttpContext, projectId, workspacedId);
+            return await _projectAllocationService.removeProject(HttpContext, projectId);
 
         }
 
