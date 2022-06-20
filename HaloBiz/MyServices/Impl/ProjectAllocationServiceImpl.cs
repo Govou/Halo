@@ -3508,7 +3508,7 @@ namespace HaloBiz.MyServices.Impl
         public async Task<ApiCommonResponse> addMoreTaskAssignees(HttpContext context, long taskId,
             List<TaskAssigneeDTO> taskAssigneeDTO)
         {
-            var getTask = await _context.Tasks.FirstOrDefaultAsync(x => x.IsActive == true && x.Id == taskId);
+            var getTask = await _context.Tasks.AsNoTracking().FirstOrDefaultAsync(x => x.IsActive == true && x.Id == taskId);
             if (getTask == null)
             {
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);
@@ -3521,7 +3521,7 @@ namespace HaloBiz.MyServices.Impl
             {
                 foreach (var existing in taskAssigneeDTO)
                 {
-                    var findAssignee = await _context.TaskAssignees.FirstOrDefaultAsync(x =>
+                    var findAssignee = await _context.TaskAssignees.AsNoTracking().FirstOrDefaultAsync(x =>
                         x.TaskAssigneeId == existing.TaskAssigneeId && x.TaskId == existing.TaskId &&
                         x.IsActive == true);
                     if (findAssignee != null)
@@ -3551,12 +3551,12 @@ namespace HaloBiz.MyServices.Impl
 
             }
 
-            var getUpdatedAssigneeById = await _context.TaskAssignees
+            var getUpdatedAssigneeById = await _context.TaskAssignees.AsNoTracking()
                 .Where(x => x.IsActive == true && x.TaskId == taskId).ToListAsync();
-            var distinctAssigneeId = getUpdatedAssigneeById.GroupBy(x => x.TaskAssigneeId)
-                .Select(g => g.First())
-                .ToList();
-            return CommonResponse.Send(ResponseCodes.SUCCESS, distinctAssigneeId);
+            // var distinctAssigneeId = getUpdatedAssigneeById.GroupBy(x => x.TaskAssigneeId)
+            //     .Select(g => g.First())
+            //     .ToList();
+            return CommonResponse.Send(ResponseCodes.SUCCESS, getUpdatedAssigneeById);
 
 
 
@@ -3564,8 +3564,9 @@ namespace HaloBiz.MyServices.Impl
 
         public async Task<ApiCommonResponse> disableTaskAssignee(HttpContext context, long taskId, long assigneeId)
         {
-            var getAssignee = await _context.TaskAssignees.FirstOrDefaultAsync(x =>
-                x.TaskAssigneeId == assigneeId && x.TaskId == taskId && x.IsActive == true);
+            var getAssignee = await _context.TaskAssignees.AsNoTracking()
+                .Where(x =>x.Id == assigneeId && x.TaskId == taskId && x.IsActive == true)
+                .FirstOrDefaultAsync();
             if (getAssignee == null)
             {
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);
@@ -3577,13 +3578,14 @@ namespace HaloBiz.MyServices.Impl
                 _context.TaskAssignees.Update(getAssignee);
                 await _context.SaveChangesAsync();
 
-                var getUpdatedAssigneeById = await _context.TaskAssignees
+                var getUpdatedAssigneeById = await _context.TaskAssignees.AsNoTracking()
+                    .Include(x=>x.CreatedBy)
                     .Where(x => x.IsActive == true && x.TaskId == taskId).ToListAsync();
-                var getDistinctUpdatedAssignee = getUpdatedAssigneeById.GroupBy(x => x.TaskAssigneeId)
-                    .Select(g => g.First())
-                    .ToList();
+                // var getDistinctUpdatedAssignee = getUpdatedAssigneeById.GroupBy(x => x.TaskAssigneeId)
+                //     .Select(assignee => assignee.First())
+                //     .ToList();
 
-                return CommonResponse.Send(ResponseCodes.SUCCESS, getUpdatedAssigneeById);
+                return CommonResponse.Send(ResponseCodes.SUCCESS, getUpdatedAssigneeById,"successfully disabled");
             }
         }
 
@@ -4019,12 +4021,16 @@ namespace HaloBiz.MyServices.Impl
 
         public async Task<ApiCommonResponse> getProjectByWorkspaceId(HttpContext httpContext, long workspaceId)
         {
-            var getProjectsByWorkspaceId = await _context.Projects.AsNoTracking().Where(x =>
+            var getProjectsByWorkspaceId = await _context.Projects.AsNoTracking()
+                .Where(x =>
                     x.WorkspaceId == workspaceId && x.CreatedById == httpContext.GetLoggedInUserId() &&
                     x.IsActive == true)
+                .Include(x=>x.Tasks.Where(task=>task.IsActive == true))
+                .ThenInclude(x=>x.Deliverables.Where(deliverable=>deliverable.IsActive == true))
+                .Include(x=>x.Watchers.Where(watcher=>watcher.IsActive == true))
+                .Include(x=>x.Workspace)
                 .ToListAsync();
-            var ProjectArr = new List<ProjectSummaryDTO>();
-            if (getProjectsByWorkspaceId.Count() == 0)
+            if (!getProjectsByWorkspaceId.Any())
             {
 
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);
@@ -4032,31 +4038,7 @@ namespace HaloBiz.MyServices.Impl
 
             else
             {
-                foreach (var item in getProjectsByWorkspaceId)
-                {
-                    var projectInstance = new ProjectSummaryDTO();
-
-                    projectInstance.Alias = item.Alias;
-                    projectInstance.Caption = item.Caption;
-                    projectInstance.CreatedById = item.CreatedById;
-                    projectInstance.Description = item.Description;
-                    projectInstance.Id = item.Id;
-                    projectInstance.IsActive = item.IsActive;
-                    projectInstance.ProjectImage = item.ProjectImage;
-                    projectInstance.CreatedAt = item.CreatedAt;
-                    projectInstance.Tasks = await _context.Tasks
-                        .AsNoTracking()
-                        .Where(x => x.ProjectId == item.Id && x.CreatedById == httpContext.GetLoggedInUserId())
-                        .Include(x=>x.Deliverables.Where(x=>x.IsActive == true))
-                        .ToListAsync();
-                    projectInstance.Watchers = await _context.Watchers.AsNoTracking().Where(x =>
-                        x.ProjectId == item.Id && x.CreatedById == httpContext.GetLoggedInUserId() &&
-                        x.IsActive == true).ToListAsync();
-                    projectInstance.Workspace = await _context.Workspaces.AsNoTracking().FirstOrDefaultAsync(x =>
-                        x.Id == workspaceId && x.IsActive == true && x.CreatedById == httpContext.GetLoggedInUserId());
-                    ProjectArr.Add(projectInstance);
-                }
-                return CommonResponse.Send(ResponseCodes.SUCCESS, ProjectArr);
+                return CommonResponse.Send(ResponseCodes.SUCCESS, getProjectsByWorkspaceId,"Successfully retrieved  projects");
             }
         }
 
@@ -4351,10 +4333,10 @@ namespace HaloBiz.MyServices.Impl
         }
 
 
-        public async Task<ApiCommonResponse> removeProject(HttpContext httpContext, long projectId, long workspaceId)
+        public async Task<ApiCommonResponse> removeProject(HttpContext httpContext, long projectId)
         {
             var ifProjectExist = await _context.Projects.FirstOrDefaultAsync(x =>
-                x.Id == projectId && x.WorkspaceId == workspaceId && x.IsActive == true);
+                x.Id == projectId && x.IsActive == true);
             if (ifProjectExist == null)
             {
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);
@@ -4369,9 +4351,7 @@ namespace HaloBiz.MyServices.Impl
                     ifProjectExist.IsActive = false;
                     _context.Projects.Update(ifProjectExist);
                     await _context.SaveChangesAsync();
-                    var getUpdatedProject = await _context.Projects
-                        .Where(x => x.WorkspaceId == workspaceId && x.IsActive == true).ToListAsync();
-                    return CommonResponse.Send(ResponseCodes.SUCCESS, getUpdatedProject,
+                    return CommonResponse.Send(ResponseCodes.SUCCESS, null,
                         "Project successfully disabled");
                 }
                 else
@@ -5621,15 +5601,15 @@ namespace HaloBiz.MyServices.Impl
             {
                 switch (projectFulfilment.RequestClass.ToLower().Trim()) 
                 {
-                    case "services": 
-                        finalResult = await _projectResolver.ResolveService(projectFulfilment.RequestId,httpContext);
+                    case "leads": 
+                        finalResult = await _projectResolver.ResolveLead(projectFulfilment.RequestId,httpContext);
                         break;
                     case "endorsements":
                         finalResult = await _projectResolver.ResolveEndorsement(projectFulfilment.RequestId,httpContext);
                         break;
                 }
             }
-            return CommonResponse.Send(ResponseCodes.SUCCESS, finalResult, "SuccessFully savedComments");
+            return CommonResponse.Send(ResponseCodes.SUCCESS, finalResult, finalResult.responseMsg);
         }
 
 
