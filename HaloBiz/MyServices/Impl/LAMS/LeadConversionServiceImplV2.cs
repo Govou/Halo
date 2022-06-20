@@ -425,7 +425,8 @@ namespace HaloBiz.MyServices.Impl.LAMS
                     OfficeId = quoteService.OfficeId,
                     BranchId = quoteService.BranchId,
                     UniqueTag = quoteService.UniqueTag,
-                    AdminDirectTie = quoteService.AdminDirectTie
+                    AdminDirectTie = quoteService.AdminDirectTie,
+                    WHTLoadingValue = quoteService.WHTLoadingValue
                 };
 
                 contractServiceToSave.ContractId = contractId;
@@ -662,7 +663,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
                 List<Invoice> invoices = new List<Invoice>();
 
-                var (interval, billableForInvoicingPeriod, vat) = CalculateTotalBillableForPeriod(contractService);
+                var (interval, billableForInvoicingPeriod, vat, wht) = CalculateTotalBillableForPeriod(contractService);
                                                  
 
                 if (cycle == TimeCycle.OneTime)
@@ -710,7 +711,8 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
                     while (startDate < endDate)
                     {
-                        var invoiceValueToPost = billableForInvoicingPeriod;   var invoiceEndDateToPost = startDate.AddMonths(interval);
+                        var invoiceValueToPost = Math.Round(billableForInvoicingPeriod + wht, 2); 
+                        var invoiceEndDateToPost = startDate.AddMonths(interval);
 
                         //todo where is VAT in this?
                         invoices.Add(GenerateInvoice(startDate,
@@ -726,6 +728,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                         invoiceNumber++;
                     }
                 }
+
                 return invoices;
             }
             catch (Exception ex)
@@ -782,9 +785,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 _logger.LogError($"Error in GenerateInvoice: {ex.ToString()}");
                 return null;
             }
-        }            
-
-       
+        }
 
         public async Task<(bool, string)> GenerateAmortizations(ContractService contractService, CustomerDivision customerDivision, double billableAmount, ContractServiceForEndorsement endorsement =  null)
         {
@@ -800,7 +801,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                     .FirstOrDefaultAsync();
                 var _customerType = group?.GroupType?.Id;
 
-                var (interval, billableForInvoicingPeriod, vat) = CalculateTotalBillableForPeriod(contractService);
+                var (interval, billableForInvoicingPeriod, vat, wht) = CalculateTotalBillableForPeriod(contractService);
                 var allMonthAndYear = new List<MonthsAndYears>();
                 double? proratedAmount = null;
 
@@ -916,7 +917,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 DateTime endDate = (DateTime)contractService.ContractEndDate;
                 var InitialYear = startDate.Year;
 
-                var (interval, billableForInvoicingPeriod, vat) = CalculateTotalBillableForPeriod(contractService);
+                var (interval, billableForInvoicingPeriod, vat, wht) = CalculateTotalBillableForPeriod(contractService);
                 var allMonthAndYear = new List<MonthsAndYears>();
 
                 billableAmount = billableAmount == 0 ? billableForInvoicingPeriod : billableAmount;
@@ -1118,7 +1119,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
         {
             isRetail = false;
 
-            double totalContractBillable, totalVAT = 0;
+            double totalContractBillable, totalWHT = 0, totalVAT = 0; 
             int interval;
 
             if (invoice == null)
@@ -1132,8 +1133,15 @@ namespace HaloBiz.MyServices.Impl.LAMS
                     //get the first date and how many days left in the month
                     var daysCounted = (lastDayOfFirstMonth - startDate).TotalDays + 1;
                     var daysInMonth = (lastDayOfFirstMonth - firstDayOfMonth).TotalDays + 1;
+                    var amount = (double) contractService.BillableAmount;
 
-                    totalContractBillable = double.Parse((daysCounted / daysInMonth * (double)contractService.BillableAmount).ToString("#.##"));
+                    if (contractService.WHTLoadingValue != null)
+                    {
+                        var oneWht = contractService.WHTLoadingValue.Value;
+                        amount -= oneWht;
+                    }
+
+                    totalContractBillable = double.Parse((daysCounted / daysInMonth * amount).ToString("#.##"));
                     if (contractService?.Service?.IsVatable == true)
                     {
                         totalVAT = totalContractBillable * 0.075;
@@ -1141,24 +1149,29 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 }
                 else
                 {
-                    (interval, totalContractBillable, totalVAT) = CalculateTotalBillableForPeriod(contractService);
+                    (interval, totalContractBillable, totalVAT, totalWHT) = CalculateTotalBillableForPeriod(contractService);
                 }
             }
             else
             {
-
                 totalContractBillable = invoice.Value;                
 
                 if (contractService?.Service?.IsVatable == true)
-                {                    
-                    totalContractBillable = invoice.Value - totalVAT;
-                    totalVAT = invoice.Value * (7.5 / 107.5);
+                {
+                    if (contractService.WHTLoadingValue != null)
+                    {
+                        totalWHT = contractService.WHTLoadingValue.Value;
+                        totalContractBillable -= totalWHT;
+                    }
+
+                    totalVAT = totalContractBillable * (7.5 / 107.5);
                     //make it 2dp
                     var vatString = totalVAT.ToString("#.##");
                     totalVAT = double.Parse(vatString);
+                   // totalContractBillable -= totalVAT;
                 }
-            }            
-            
+            }
+
             var totalAfterTax = totalContractBillable - totalVAT;
 
             var savedAccountMasterId = await CreateAccountMaster(service,
@@ -1207,6 +1220,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                                            !isReversal
                                            );
                 if (!isSuccessVat) return (false, "VAT creaton was not successful");
+
                 bool isIncomeSuccessful = await PostIncomeAccount(
                                         service,
                                         contractService,
@@ -1884,15 +1898,22 @@ namespace HaloBiz.MyServices.Impl.LAMS
         /// </summary>
         /// <param name="contractService"></param>
         /// <returns>interval, amount, tax</returns>
-        public (int, double, double) CalculateTotalBillableForPeriod(ContractService contractService)
+        public (int, double, double, double) CalculateTotalBillableForPeriod(ContractService contractService)
         {
             int interval = 1;
             TimeCycle cycle = (TimeCycle)contractService.InvoicingInterval;
             double amount = (double)contractService.BillableAmount;
             double vat = 0;
+            double wht = 0;
             if(contractService?.Service?.IsVatable == true)
             {
                 vat = (double)contractService.Vat;
+
+                if (contractService.WHTLoadingValue != null)
+                {
+                    wht = (double)contractService.WHTLoadingValue;
+                    amount -= wht;
+                }
             }
 
 
@@ -1915,17 +1936,13 @@ namespace HaloBiz.MyServices.Impl.LAMS
                     break;
             }
 
-           if (cycle == TimeCycle.OneTime)
+           if (cycle == TimeCycle.OneTime || cycle == TimeCycle.Adhoc)
             {
-                return (interval, amount, vat);
-            }
-            else if (cycle == TimeCycle.Adhoc)
-            {
-                return (1, amount, vat);
+                return (interval, amount, vat, wht);
             }
             else
             {
-                return (interval, amount * interval, vat * interval);
+                return (interval, amount * interval, vat * interval, wht * interval);
             }
         }
     }

@@ -32,7 +32,7 @@ namespace HaloBiz.Repository.Impl
             return await SaveChanges();
         }
 
-        public async Task<bool> DeleteCommanderServiceAssignmentDetailByAssignmentId(CommanderServiceAssignmentDetail serviceAssignmentDetail)
+        public async Task<bool> DeleteCommanderServiceAssignmentDetailById(CommanderServiceAssignmentDetail serviceAssignmentDetail)
         {
             serviceAssignmentDetail.IsDeleted = true;
             _context.CommanderServiceAssignmentDetails.Update(serviceAssignmentDetail);
@@ -50,7 +50,7 @@ namespace HaloBiz.Repository.Impl
             return await SaveChanges();
         }
 
-        public async Task<bool> DeleteEscortServiceAssignmentDetailByAssignmentId(ArmedEscortServiceAssignmentDetail serviceAssignmentDetail)
+        public async Task<bool> DeleteEscortServiceAssignmentDetailById(ArmedEscortServiceAssignmentDetail serviceAssignmentDetail)
         {
             serviceAssignmentDetail.IsDeleted = true;
             _context.ArmedEscortServiceAssignmentDetails.Update(serviceAssignmentDetail);
@@ -81,7 +81,7 @@ namespace HaloBiz.Repository.Impl
             return await SaveChanges();
         }
 
-        public async Task<bool> DeletePilotServiceAssignmentDetailByAssignmentId(PilotServiceAssignmentDetail serviceAssignmentDetail)
+        public async Task<bool> DeletePilotServiceAssignmentDetailById(PilotServiceAssignmentDetail serviceAssignmentDetail)
         {
             serviceAssignmentDetail.IsDeleted = true;
             _context.PilotServiceAssignmentDetails.Update(serviceAssignmentDetail);
@@ -98,7 +98,7 @@ namespace HaloBiz.Repository.Impl
             return await SaveChanges();
         }
 
-        public async Task<bool> DeleteVehicleServiceAssignmentDetailByAssignmentId(VehicleServiceAssignmentDetail serviceAssignmentDetail)
+        public async Task<bool> DeleteVehicleServiceAssignmentDetailById(VehicleServiceAssignmentDetail serviceAssignmentDetail)
         {
             serviceAssignmentDetail.IsDeleted = true;
             _context.VehicleServiceAssignmentDetails.Update(serviceAssignmentDetail);

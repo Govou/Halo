@@ -65,6 +65,6 @@ namespace HaloBiz.DTOs.TransferDTOs.LAMS
         public string AdminDirectTie { get; set; }
         public long BranchId { get; set; }
         public long OfficeId { get; set; }
-
+        public double? WHTLoadingValue { get; set; }
     }
 }

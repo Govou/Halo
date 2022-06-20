@@ -29,7 +29,8 @@ namespace HaloBiz.Repository
         Task<ArmedEscortServiceAssignmentDetail> UpdateEscortServiceAssignmentDetail(ArmedEscortServiceAssignmentDetail serviceAssignmentDetail);
 
         Task<bool> DeleteEscortServiceAssignmentDetail(ArmedEscortServiceAssignmentDetail serviceAssignmentDetail);
-        Task<bool> DeleteEscortServiceAssignmentDetailByAssignmentId(ArmedEscortServiceAssignmentDetail serviceAssignmentDetail);
+        Task<bool> DeleteEscortServiceAssignmentDetailById(ArmedEscortServiceAssignmentDetail serviceAssignmentDetail);
+        //Task<bool> DeleteEscortServiceAssignmentDetailByAssignmentId(ArmedEscortServiceAssignmentDetail serviceAssignmentDetail);
         Task<bool> UpdateEscortServiceAssignmentDetailForEndJourneyByAssignmentId(ArmedEscortServiceAssignmentDetail serviceAssignmentDetail);
         Task<bool> UpdateArmedEscortServiceAssignmentDetailHeldByAssignmentId(ArmedEscortServiceAssignmentDetail serviceAssignmentDetail);
 
@@ -55,7 +56,8 @@ namespace HaloBiz.Repository
         Task<CommanderServiceAssignmentDetail> UpdateCommanderServiceAssignmentDetail(CommanderServiceAssignmentDetail serviceAssignmentDetail);
 
         Task<bool> DeleteCommanderServiceAssignmentDetail(CommanderServiceAssignmentDetail serviceAssignmentDetail);
-        Task<bool> DeleteCommanderServiceAssignmentDetailByAssignmentId(CommanderServiceAssignmentDetail serviceAssignmentDetail);
+        Task<bool> DeleteCommanderServiceAssignmentDetailById(CommanderServiceAssignmentDetail serviceAssignmentDetail);
+        //Task<bool> DeleteCommanderServiceAssignmentDetailByAssignmentId(CommanderServiceAssignmentDetail serviceAssignmentDetail);
         Task<bool> UpdateCommanderServiceAssignmentDetailForEndJourneyByAssignmentId(CommanderServiceAssignmentDetail serviceAssignmentDetail);
         Task<bool> UpdateCommanderServiceAssignmentDetailHeldByAssignmentId(CommanderServiceAssignmentDetail serviceAssignmentDetail);
        // Task<CommanderServiceAssignmentDetail> UpdateCommanderServiceAssignmentDetailForVehicleReplacementByAssignmentIdAndResourceId(CommanderServiceAssignmentDetail serviceAssignmentDetail);
@@ -81,7 +83,8 @@ namespace HaloBiz.Repository
         Task<PilotServiceAssignmentDetail> UpdatePilotServiceAssignmentDetail(PilotServiceAssignmentDetail serviceAssignmentDetail);
 
         Task<bool> DeletePilotServiceAssignmentDetail(PilotServiceAssignmentDetail serviceAssignmentDetail);
-        Task<bool> DeletePilotServiceAssignmentDetailByAssignmentId(PilotServiceAssignmentDetail serviceAssignmentDetail);
+        Task<bool> DeletePilotServiceAssignmentDetailById(PilotServiceAssignmentDetail serviceAssignmentDetail);
+        //Task<bool> DeletePilotServiceAssignmentDetailByAssignmentId(PilotServiceAssignmentDetail serviceAssignmentDetail);
         Task<bool> UpdatePilotServiceAssignmentDetailForEndJourneyByAssignmentId(PilotServiceAssignmentDetail serviceAssignmentDetail);
         Task<bool> UpdatePilotServiceAssignmentDetailHeldByAssignmentId(PilotServiceAssignmentDetail serviceAssignmentDetail);
 
@@ -109,7 +112,8 @@ namespace HaloBiz.Repository
         Task<VehicleServiceAssignmentDetail> UpdateVehicleServiceAssignmentDetail(VehicleServiceAssignmentDetail serviceAssignmentDetail);
 
         Task<bool> DeleteVehicleServiceAssignmentDetail(VehicleServiceAssignmentDetail serviceAssignmentDetail);
-        Task<bool> DeleteVehicleServiceAssignmentDetailByAssignmentId(VehicleServiceAssignmentDetail serviceAssignmentDetail);
+        Task<bool> DeleteVehicleServiceAssignmentDetailById(VehicleServiceAssignmentDetail serviceAssignmentDetail);
+        //Task<bool> DeleteVehicleServiceAssignmentDetailByAssignmentId(VehicleServiceAssignmentDetail serviceAssignmentDetail);
         Task<bool> UpdateVehicleServiceAssignmentDetailForEndJourneyByAssignmentId(VehicleServiceAssignmentDetail serviceAssignmentDetail);
         Task<bool> UpdateVehicleServiceAssignmentDetailHeldByAssignmentId(VehicleServiceAssignmentDetail serviceAssignmentDetail);
 

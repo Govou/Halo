@@ -174,9 +174,15 @@ namespace HaloBiz.MyServices.Impl
                     foreach (var contractService in contractServices)
                     {
                         double amountToInvoice;
+                        var billableAmount = (double)contractService.BillableAmount;
+                        //if (contractService.WHTLoadingValue != null)
+                        //{
+                        //    var wht = (double) contractService.WHTLoadingValue;
+                        //    billableAmount -= wht;
+                        //}
 
-                        var amountAvaliableToInvoice = (double)contractService.BillableAmount - contractService.AdHocInvoicedAmount;
-
+                        amountToInvoice = billableAmount;
+                        var amountAvaliableToInvoice = billableAmount - contractService.AdHocInvoicedAmount;
                         if (amountAvaliableToInvoice == 0) continue;
 
                         if (billable >= amountAvaliableToInvoice)
@@ -465,12 +471,12 @@ namespace HaloBiz.MyServices.Impl
             while(billableAmount > 0 || counter > contractServices.Count())
             {
                 contractService = contractServices[counter];
-                amountToPost =(double) contractService.BillableAmount - contractService.AdHocInvoicedAmount;
+                amountToPost = (double) contractService.BillableAmount - contractService.AdHocInvoicedAmount;
                 
-                if( amountToPost <= billableAmount )
+                if(amountToPost <= billableAmount)
                 {
                     contractService.AdHocInvoicedAmount = contractService.BillableAmount?? 0;
-                    billableAmount-= amountToPost;
+                    billableAmount -= amountToPost;
                 }else{
                     contractService.AdHocInvoicedAmount += billableAmount;
                     billableAmount = 0;
@@ -1483,30 +1489,67 @@ namespace HaloBiz.MyServices.Impl
                         .Where(x => x.ServiceAssignmentId == invoice.Id && x.IsDeleted == false && x.PassengerType.TypeName == "Principal")
                         .Include(x => x.ServiceAssignment).Include(x => x.PassengerType)
                         .ToListAsync();
-            var commanders = await _context.CommanderServiceAssignmentDetails
-                        .Where(x => x.ServiceAssignmentId == invoice.Id && x.IsDeleted == false && x.IsTemporarilyHeld == true)
-                        .Include(x => x.ServiceAssignment)
-                        .Include(x => x.CommanderResource)
-                        .Include(x=>x.CommanderResource.Profile)
-                       
-                        .ToListAsync();
-            var armedEscorts = await _context.ArmedEscortServiceAssignmentDetails
-                        .Where(x => x.ServiceAssignmentId == invoice.Id && x.IsDeleted == false && x.IsTemporarilyHeld == true)
-                        .Include(x => x.ServiceAssignment)
-                        .Include(x => x.ArmedEscortResource)
-                        .ToListAsync();
-            var pilots = await _context.PilotServiceAssignmentDetails
-                        .Where(x => x.ServiceAssignmentId == invoice.Id && x.IsDeleted == false && x.IsTemporarilyHeld == true)
-                        .Include(x => x.ServiceAssignment)
-                        .Include(x => x.PilotResource)
-                        
-                        .ToListAsync();
-            var vehicles = await _context.VehicleServiceAssignmentDetails
-                        .Where(x => x.ServiceAssignmentId == invoice.Id && x.IsDeleted == false && x.IsTemporarilyHeld == true)
-                        .Include(x => x.ServiceAssignment)
-                        .Include(x => x.VehicleResource)
-                        .Include(x => x.VehicleResource.SupplierService)
-                        .ToListAsync();
+
+            //IQueryable<commanderser> query
+            var armedEscorts = new List<ArmedEscortServiceAssignmentDetail>();
+            var commanders = new List<CommanderServiceAssignmentDetail>();
+            var pilots = new List<PilotServiceAssignmentDetail>();
+            var vehicles = new List<VehicleServiceAssignmentDetail>();
+            if (serviceAss.AssignmentStatus == "Closed" && serviceAss.SAExecutionStatus == 2)
+            {
+                    commanders = await _context.CommanderServiceAssignmentDetails
+                    .Where(x => x.ServiceAssignmentId == invoice.Id && x.IsDeleted == false )
+                    .Include(x => x.ServiceAssignment)
+                    .Include(x => x.CommanderResource)
+                    .Include(x => x.CommanderResource.Profile)
+
+                    .ToListAsync();
+                 armedEscorts = await _context.ArmedEscortServiceAssignmentDetails
+                            .Where(x => x.ServiceAssignmentId == invoice.Id && x.IsDeleted == false )
+                            .Include(x => x.ServiceAssignment)
+                            .Include(x => x.ArmedEscortResource)
+                            .ToListAsync();
+                 pilots = await _context.PilotServiceAssignmentDetails
+                            .Where(x => x.ServiceAssignmentId == invoice.Id && x.IsDeleted == false )
+                            .Include(x => x.ServiceAssignment)
+                            .Include(x => x.PilotResource)
+
+                            .ToListAsync();
+                 vehicles = await _context.VehicleServiceAssignmentDetails
+                            .Where(x => x.ServiceAssignmentId == invoice.Id && x.IsDeleted == false )
+                            .Include(x => x.ServiceAssignment)
+                            .Include(x => x.VehicleResource)
+                            .Include(x => x.VehicleResource.SupplierService)
+                            .ToListAsync();
+            }
+
+            else
+            {
+                 commanders = await _context.CommanderServiceAssignmentDetails
+                    .Where(x => x.ServiceAssignmentId == invoice.Id && x.IsDeleted == false && x.IsTemporarilyHeld == true)
+                    .Include(x => x.ServiceAssignment)
+                    .Include(x => x.CommanderResource)
+                    .Include(x => x.CommanderResource.Profile)
+
+                    .ToListAsync();
+                 armedEscorts = await _context.ArmedEscortServiceAssignmentDetails
+                            .Where(x => x.ServiceAssignmentId == invoice.Id && x.IsDeleted == false && x.IsTemporarilyHeld == true)
+                            .Include(x => x.ServiceAssignment)
+                            .Include(x => x.ArmedEscortResource)
+                            .ToListAsync();
+                 pilots = await _context.PilotServiceAssignmentDetails
+                            .Where(x => x.ServiceAssignmentId == invoice.Id && x.IsDeleted == false && x.IsTemporarilyHeld == true)
+                            .Include(x => x.ServiceAssignment)
+                            .Include(x => x.PilotResource)
+
+                            .ToListAsync();
+                 vehicles = await _context.VehicleServiceAssignmentDetails
+                            .Where(x => x.ServiceAssignmentId == invoice.Id && x.IsDeleted == false && x.IsTemporarilyHeld == true)
+                            .Include(x => x.ServiceAssignment)
+                            .Include(x => x.VehicleResource)
+                            .Include(x => x.VehicleResource.SupplierService)
+                            .ToListAsync();
+            }
 
 
             IEnumerable<MasterServiceAssignment> invoices;

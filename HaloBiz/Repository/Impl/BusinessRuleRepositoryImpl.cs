@@ -65,7 +65,7 @@ namespace HaloBiz.Repository.Impl
             return await _context.BusinessRules.Where(s => s.IsDeleted == false)
                                     .Include(s => s.ServiceRegistration).Include(s=>s.ServiceRegistration.Service)
                                     .Include(s => s.CreatedBy).Include(s=>s.ServiceRegistration.Service.ServiceCategory)
-                                    .Include(s=>s.ServiceRegistration.Service.ServiceType)
+                                    
                                               .ToListAsync();
         }
 

@@ -551,9 +551,13 @@ namespace OnlinePortalBackend.Repository.Impl
         public async Task<bool> PostTransactions(PostTransactionDTO request)
         {
             var vat = Convert.ToDouble(request.Value) * 0.075;
-            var invoices = _context.Invoices.Where(x => x.ContractId == request.ContractId);
-            var inv = invoices.OrderByDescending(x => x.Id).FirstOrDefault();
-
+            var inv = new Invoice();
+            if (request.ContractId != null)
+            {
+                var invoices = _context.Invoices.Where(x => x.ContractId == request.ContractId);
+                inv = invoices.OrderByDescending(x => x.Id).FirstOrDefault();
+            }
+         
             var sessionId = string.Empty;
             if (inv != null)
             {

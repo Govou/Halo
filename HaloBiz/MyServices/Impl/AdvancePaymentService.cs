@@ -80,7 +80,7 @@ namespace HaloBiz.MyServices.Impl
                     var office = await _context.Offices.FirstOrDefaultAsync();
                     var master = await CreateAccountMaster(recordedPayment, paymentVoucherType.Id, branch.Id, office.Id, userId);
 
-                    //post to cash book
+                    //debit or post to cash book
                     var accountDetail1 = await PostAccountDetail(recordedPayment, paymentVoucherType.Id, false, master.Id, paymentDTO.AccountId, payment.Amount, branch.Id, office.Id, userId);
 
                     if (accountDetail1 == null)
@@ -122,10 +122,33 @@ namespace HaloBiz.MyServices.Impl
                         liabilityAccount = liabilityAccountEntity.Entity;
                     }
 
-                    //post to liability account for customer
+                    //credit or post to liability account for customer
                     var accountDetail2 = await PostAccountDetail(recordedPayment, paymentVoucherType.Id, true, master.Id, liabilityAccount.Id, payment.Amount, branch.Id, office.Id, userId);
                     if (accountDetail2 == null)
                         return CommonResponse.Send(ResponseCodes.FAILURE, null, "Could not post account detail for avance payment account");
+
+                    //again debit liability account of customer
+                    var accountDetail3 = await PostAccountDetail(recordedPayment, paymentVoucherType.Id, false, master.Id, liabilityAccount.Id, payment.Amount, branch.Id, office.Id, userId);
+                    if (accountDetail3 == null)
+                        return CommonResponse.Send(ResponseCodes.FAILURE, null, "Could not post account detail for avance payment account");
+
+                    //get the client receivable account
+                    var receivableAccountId = customerDivion.ReceivableAccountId;
+                    if(receivableAccountId == null)
+                    {
+                        //create new receivable for this customer
+                        receivableAccountId = await CreateCustomerReceivableAccount(customerDivion, userId);
+                        //update the customerDivision table now
+                        customerDivion.ReceivableAccountId = receivableAccountId;
+                        _context.CustomerDivisions.Update(customerDivion);
+                        await _context.SaveChangesAsync();
+                    }
+
+                    //again CREDIT  the receivable account of customer
+                    var accountDetail4 = await PostAccountDetail(recordedPayment, paymentVoucherType.Id, true, master.Id, (long) receivableAccountId, payment.Amount, branch.Id, office.Id, userId);
+                    if (accountDetail4 == null)
+                        return CommonResponse.Send(ResponseCodes.FAILURE, null, "Could not post receivable account detail for avance payment");
+
 
                     await transaction.CommitAsync();
                 }
@@ -195,6 +218,40 @@ namespace HaloBiz.MyServices.Impl
             var savedAccountDetails = await _context.AccountDetails.AddAsync(accountDetail);
             await _context.SaveChangesAsync();
             return savedAccountDetails.Entity;
+        }
+
+        private async Task<long> CreateCustomerReceivableAccount(CustomerDivision customerDivision, long userId)
+        {
+            ControlAccount controlAccount = await _context.ControlAccounts
+                        .FirstOrDefaultAsync(x => x.Caption == "Receivable");
+
+            Account account = new Account()
+            {
+                Name = $"{customerDivision.DivisionName} Receivable",
+                Description = $"Receivable Account of {customerDivision.DivisionName}",
+                Alias = GenerateClientAlias(customerDivision.DivisionName),
+                IsDebitBalance = true,
+                ControlAccountId = controlAccount.Id,
+                CreatedById = userId,
+                ClientId = customerDivision.Id
+            };
+
+            await _context.Accounts.AddAsync(account);
+
+            await _context.SaveChangesAsync();
+
+            return account.Id;
+        }
+
+        private string GenerateClientAlias(string divisionName)
+        {
+            string[] names = divisionName.Split(" ");
+            string initial = "";
+            foreach (var name in names)
+            {
+                initial += name.Substring(0, 1).ToUpper();
+            }
+            return initial;
         }
 
         public async Task<ApiCommonResponse> GetCustomerPayment(long customerDivisionId)

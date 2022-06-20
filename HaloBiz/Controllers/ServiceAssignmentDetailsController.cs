@@ -95,6 +95,13 @@ namespace HaloBiz.Controllers
             //return StatusCode(response.StatusCode);
         }
 
+         [HttpDelete("DeleteArmedEscortDetailById_/{id}")]
+        public async Task<ApiCommonResponse> DeleteArmedEscortDetailById_(int id)
+        {
+            return await _serviceAssignmentDetailsService.DeleteArmedEscortDetail_(id);
+            //return StatusCode(response.StatusCode);
+        }
+
         //Commander
         [HttpGet("GetAllCommanderDetails")]
         public async Task<ApiCommonResponse> GetAllCommanderDetails()
@@ -169,6 +176,13 @@ namespace HaloBiz.Controllers
             //return StatusCode(response.StatusCode);
         }
 
+        [HttpDelete("DeleteCommanderDetailById_/{id}")]
+        public async Task<ApiCommonResponse> DeleteCommanderDetailById_(int id)
+        {
+            return await _serviceAssignmentDetailsService.DeleteCommanderDetail_(id);
+            //return StatusCode(response.StatusCode);
+        }
+
         //Pilot
         [HttpGet("GetAllPilotDetails")]
         public async Task<ApiCommonResponse> GetAllPilotDetails()
@@ -234,6 +248,12 @@ namespace HaloBiz.Controllers
             //return StatusCode(response.StatusCode);
         }
 
+        [HttpDelete("DeletePilotDetailById_/{id}")]
+        public async Task<ApiCommonResponse> DeletePilotDetailById_(int id)
+        {
+            return await _serviceAssignmentDetailsService.DeletePilotDetail_(id);
+            //return StatusCode(response.StatusCode);
+        }
         //Vehicle
         [HttpGet("GetAllVehicleDetails")]
         public async Task<ApiCommonResponse> GetAllVehicleDetails()
@@ -254,7 +274,6 @@ namespace HaloBiz.Controllers
             //var cType = ((ApiOkResponse)response).Result;
             //return Ok(cType);
         }
-        [AllowAnonymous]
         [HttpGet("GetAllVehicleDetailsByAssignmentId/{id}")]
         public async Task<ApiCommonResponse> GetAllVehicleDetailsByAssignmentId(long id)
         {
@@ -299,6 +318,13 @@ namespace HaloBiz.Controllers
         public async Task<ApiCommonResponse> DeleteVehicleDetailById(int id)
         {
             return await _serviceAssignmentDetailsService.DeleteVehicleDetail(id);
+            //return StatusCode(response.StatusCode);
+        }
+
+        [HttpDelete("DeleteVehicleDetailById_/{id}")]
+        public async Task<ApiCommonResponse> DeleteVehicleDetailById_(int id)
+        {
+            return await _serviceAssignmentDetailsService.DeleteVehicleDetail_(id);
             //return StatusCode(response.StatusCode);
         }
         [HttpGet("UpdateServiceDetailsHeldForActionAndReadyStatusByAssignmentId/{id}")]
