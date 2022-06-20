@@ -10,11 +10,8 @@ namespace HaloBiz.Helpers
 {
     public interface IProjectResolver
     {
-        Task<ApiCommonResponse> ResolveService(long requestId, HttpContext httpContext);
-        // Task<ApiCommonResponse> ResolveLead(long requestId, HttpContext httpContext);
-
         Task<ApiCommonResponse> ResolveEndorsement(long requestId, HttpContext httpContext);
 
-        // Task<ApiCommonResponse> ResolveContract(long requestId, HttpContext httpContext);
+        Task<ApiCommonResponse> ResolveLead(long requestId, HttpContext httpContext);
     }
 }
