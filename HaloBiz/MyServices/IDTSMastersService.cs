@@ -13,6 +13,7 @@ namespace HaloBiz.MyServices
         //ArmedEscort
         Task<ApiCommonResponse> AddArmedEscortMaster(HttpContext context, ArmedEscortDTSMastersReceivingDTO armedEscortReceivingDTO);
         Task<ApiCommonResponse> GetAllArmedEscortMasters();
+        Task<ApiCommonResponse> GetAllArmedEscortMastersByResourceId(long resourceId);
         Task<ApiCommonResponse> GetArmedEscortMasterById(long id);
         Task<ApiCommonResponse> UpdateArmedEscortMaster(HttpContext context, long id, ArmedEscortDTSMastersReceivingDTO armedEscortReceivingDTO);
         Task<ApiCommonResponse> DeleteArmedEscortMaster(long id);
@@ -20,6 +21,7 @@ namespace HaloBiz.MyServices
         //Commander
         Task<ApiCommonResponse> AddCommanderMaster(HttpContext context, CommanderDTSMastersReceivingDTO commanderReceivingDTO);
         Task<ApiCommonResponse> GetAllCommanderMasters();
+        Task<ApiCommonResponse> GetAllCommanderMastersByResourceId(long resourceId);
         Task<ApiCommonResponse> GetCommanderMasterById(long id);
         Task<ApiCommonResponse> UpdateCommanderMaster(HttpContext context, long id, CommanderDTSMastersReceivingDTO commanderReceivingDTO);
         Task<ApiCommonResponse> DeleteCommanderMaster(long id);
@@ -27,6 +29,7 @@ namespace HaloBiz.MyServices
         //Pilot
         Task<ApiCommonResponse> AddPilotMaster(HttpContext context, PilotDTSMastersReceivingDTO pilotReceivingDTO);
         Task<ApiCommonResponse> GetAllPilotMasters();
+        Task<ApiCommonResponse> GetAllPilotMastersByResourceId(long resourceId);
         Task<ApiCommonResponse> GetPilotMasterById(long id);
         Task<ApiCommonResponse> UpdatePilotMaster(HttpContext context, long id, PilotDTSMastersReceivingDTO pilotReceivingDTO);
         Task<ApiCommonResponse> DeletePilotMaster(long id);
@@ -34,6 +37,7 @@ namespace HaloBiz.MyServices
         //Vehicle
         Task<ApiCommonResponse> AddVehicleMaster(HttpContext context, VehicleDTSMastersReceivingDTO vehicleReceivingDTO);
         Task<ApiCommonResponse> GetAllVehicleMasters();
+        Task<ApiCommonResponse> GetAllVehicleMastersByResourceId(long resourceId);
         Task<ApiCommonResponse> GetVehicleMasterById(long id);
         Task<ApiCommonResponse> UpdateVehicleMaster(HttpContext context, long id, VehicleDTSMastersReceivingDTO vehicleReceivingDTO);
         Task<ApiCommonResponse> DeleteVehicleMaster(long id);

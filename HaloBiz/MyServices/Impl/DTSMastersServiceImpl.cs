@@ -212,6 +212,17 @@ namespace HaloBiz.MyServices.Impl
             return CommonResponse.Send(ResponseCodes.SUCCESS,TransferDTO);
         }
 
+        public async Task<ApiCommonResponse> GetAllArmedEscortMastersByResourceId(long resourceId)
+        {
+            var masters = await _dTSMastersRepository.FindAllArmedEscortMastersByResourceId(resourceId);
+            if (masters == null)
+            {
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE); ;
+            }
+            var TransferDTO = _mapper.Map<IEnumerable<ArmedEscortDTSMastersTransferDTO>>(masters);
+            return CommonResponse.Send(ResponseCodes.SUCCESS, TransferDTO);
+        }
+
         public async Task<ApiCommonResponse> GetAllCommanderMasters()
         {
             var masters = await _dTSMastersRepository.FindAllCommanderMasters();
@@ -221,6 +232,17 @@ namespace HaloBiz.MyServices.Impl
             }
             var TransferDTO = _mapper.Map<IEnumerable<CommanderDTSMastersTransferDTO>>(masters);
             return CommonResponse.Send(ResponseCodes.SUCCESS,TransferDTO);
+        }
+
+        public async Task<ApiCommonResponse> GetAllCommanderMastersByResourceId(long resourceId)
+        {
+            var masters = await _dTSMastersRepository.FindAllCommanderMastersByResourceId(resourceId);
+            if (masters == null)
+            {
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE); ;
+            }
+            var TransferDTO = _mapper.Map<IEnumerable<CommanderDTSMastersTransferDTO>>(masters);
+            return CommonResponse.Send(ResponseCodes.SUCCESS, TransferDTO);
         }
 
         public async Task<ApiCommonResponse> GetAllPilotMasters()
@@ -234,6 +256,17 @@ namespace HaloBiz.MyServices.Impl
             return CommonResponse.Send(ResponseCodes.SUCCESS,TransferDTO);
         }
 
+        public async Task<ApiCommonResponse> GetAllPilotMastersByResourceId(long resourceId)
+        {
+            var masters = await _dTSMastersRepository.FindAllPilotMastersByResourceId(resourceId);
+            if (masters == null)
+            {
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE); ;
+            }
+            var TransferDTO = _mapper.Map<IEnumerable<PilotDTSMastersTransferDTO>>(masters);
+            return CommonResponse.Send(ResponseCodes.SUCCESS, TransferDTO);
+        }
+
         public async Task<ApiCommonResponse> GetAllVehicleMasters()
         {
             var masters = await _dTSMastersRepository.FindAllVehicleMasters();
@@ -243,6 +276,17 @@ namespace HaloBiz.MyServices.Impl
             }
             var TransferDTO = _mapper.Map<IEnumerable<VehicleDTSMastersTransferDTO>>(masters);
             return CommonResponse.Send(ResponseCodes.SUCCESS,TransferDTO);
+        }
+
+        public async Task<ApiCommonResponse> GetAllVehicleMastersByResourceId(long resourceId)
+        {
+            var masters = await _dTSMastersRepository.FindAllVehicleMastersByResourceId(resourceId);
+            if (masters == null)
+            {
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE); ;
+            }
+            var TransferDTO = _mapper.Map<IEnumerable<VehicleDTSMastersTransferDTO>>(masters);
+            return CommonResponse.Send(ResponseCodes.SUCCESS, TransferDTO);
         }
 
         public async Task<ApiCommonResponse> GetArmedEscortMasterById(long id)

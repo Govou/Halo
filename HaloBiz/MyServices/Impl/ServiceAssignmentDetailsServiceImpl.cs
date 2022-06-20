@@ -1908,7 +1908,7 @@ namespace HaloBiz.MyServices.Impl
         //For when client makes payment
         public async Task<ApiCommonResponse> UpdateServiceDetailsHeldForActionAndReadyStatusForOnlineByAssignmentId(long[] id)
         {
-            for (int i = 0; i < id.Length; i++)
+            for (int i = 0; i <= id.Length; i++)
             {
                 var transaction = _context.Database.BeginTransaction();
                 var escortToUpdate = await _serviceAssignmentDetailsRepository.FindAllEscortServiceAssignmentDetailsByAssignmentId(id[i]);
@@ -2821,47 +2821,47 @@ namespace HaloBiz.MyServices.Impl
             return CommonResponse.Send(ResponseCodes.SUCCESS, "Replacement Successful");
         }
 
-        public async Task<ApiCommonResponse> GetAllUniqueArmedEscortDetails()
+        public async Task<ApiCommonResponse> GetAllUniqueAvailableArmedEscortDetails()
         {
-            var master = await _serviceAssignmentDetailsRepository.FindAllUniqueEscortServiceAssignmentDetails();
+            var master = await _serviceAssignmentDetailsRepository.FindAllUniqueAvailableEscortServiceAssignmentDetails();
             if (master == null)
             {
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);
             }
-            var TransferDTO = _mapper.Map<IEnumerable<ArmedEscortServiceAssignmentDetailsTransferDTO>>(master);
+            var TransferDTO = _mapper.Map<IEnumerable<ArmedEscortProfileTransferDTO>>(master);
             return CommonResponse.Send(ResponseCodes.SUCCESS, TransferDTO);
         }
 
-        public async Task<ApiCommonResponse> GetAllUniqueCommanderDetails()
+        public async Task<ApiCommonResponse> GetAllUniqueAvailableCommanderDetails()
         {
-            var master = await _serviceAssignmentDetailsRepository.FindAllUniqueCommanderServiceAssignmentDetails();
+            var master = await _serviceAssignmentDetailsRepository.FindAllUniqueAvailableCommanderServiceAssignmentDetails();
             if (master == null)
             {
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);
             }
-            var TransferDTO = _mapper.Map<IEnumerable<CommanderServiceAssignmentDetailsTransferDTO>>(master);
+            var TransferDTO = _mapper.Map<IEnumerable<CommanderProfileTransferDTO>>(master);
             return CommonResponse.Send(ResponseCodes.SUCCESS, TransferDTO);
         }
 
-        public async Task<ApiCommonResponse> GetAllUniquePilotDetails()
+        public async Task<ApiCommonResponse> GetAllUniqueAvailablePilotDetails()
         {
-            var master = await _serviceAssignmentDetailsRepository.FindAllUniquePilotServiceAssignmentDetails();
+            var master = await _serviceAssignmentDetailsRepository.FindAllUniqueAvailablePilotServiceAssignmentDetails();
             if (master == null)
             {
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);
             }
-            var TransferDTO = _mapper.Map<IEnumerable<PilotServiceAssignmentDetailsTransferDTO>>(master);
+            var TransferDTO = _mapper.Map<IEnumerable<PilotProfileTransferDTO>>(master);
             return CommonResponse.Send(ResponseCodes.SUCCESS, TransferDTO);
         }
 
-        public async Task<ApiCommonResponse> GetAllUniqueVehicleDetails()
+        public async Task<ApiCommonResponse> GetAllUniqueAvailableVehicleDetails()
         {
-            var master = await _serviceAssignmentDetailsRepository.FindAllUniqueVehicleServiceAssignmentDetails();
+            var master = await _serviceAssignmentDetailsRepository.FindAllUniqueAvailableVehicleServiceAssignmentDetails();
             if (master == null)
             {
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);
             }
-            var TransferDTO = _mapper.Map<IEnumerable<VehicleServiceAssignmentDetailsTransferDTO>>(master);
+            var TransferDTO = _mapper.Map<IEnumerable<VehicleTransferDTO>>(master);
             return CommonResponse.Send(ResponseCodes.SUCCESS, TransferDTO);
         }
     }
