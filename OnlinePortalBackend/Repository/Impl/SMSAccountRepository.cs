@@ -436,7 +436,7 @@ namespace OnlinePortalBackend.Repository.Impl
             
         }
 
-        public async Task<(bool success, string message)> CreateSupplierAccount(SMSSupplierAccountDTO accountDTO)
+        public async Task<(bool success, string message)> CreateSupplierBusinessAccount(SMSSupplierBusinessAccountDTO accountDTO)
         {
             var exist = _context.OnlineProfiles.Any(x => x.Email.ToLower() == accountDTO.AccountLogin.Email.ToLower());
 
@@ -569,6 +569,140 @@ namespace OnlinePortalBackend.Repository.Impl
 
         }
 
+        public async Task<(bool success, string message)> CreateSupplierIndividualAccount(SMSSupplierIndividualAccountDTO accountDTO)
+        {
+            var exist = _context.OnlineProfiles.Any(x => x.Email.ToLower() == accountDTO.AccountLogin.Email.ToLower());
+
+            if (exist)
+                return (false, "User already exists");
+
+            var exist1 = _context.Suppliers.Any(x => x.SupplierEmail.ToLower() == accountDTO.AccountLogin.Email.ToLower());
+
+            if (exist1)
+                return (false, "User already exists");
+
+            var createdBy = _context.UserProfiles.FirstOrDefault(x => x.Email.ToLower().Contains("online")).Id;
+            var grouptype = _context.GroupTypes.FirstOrDefault(x => x.Caption.ToLower() == "individual").Id;
+            var leadOrigin = _context.LeadOrigins.FirstOrDefault(x => x.Caption.ToLower() == "email").Id;
+            var branchId = _context.Branches.FirstOrDefault(x => x.Name.ToLower().Contains("hq")).Id;
+            var leadtype = _context.LeadTypes.FirstOrDefault(x => x.Caption.ToLower() == "rfq").Id;
+            var office = _context.Offices.FirstOrDefault(x => x.Name.ToLower().Contains("office")).Id;
+            //var receivableAcctId = 0;
+
+            using var transaction = await _context.Database.BeginTransactionAsync();
+            var gender = accountDTO.PrimaryContactGender == "M" ? Gender.Male : Gender.Female;
+
+            var firstName = accountDTO.PrimaryContactName.Split(' ')[0];
+            var lastName = accountDTO.PrimaryContactName.Split(' ')[1];
+
+            var contact = new Contact
+            {
+                CreatedAt = DateTime.UtcNow.AddHours(1),
+                UpdatedAt = DateTime.UtcNow.AddHours(1),
+                CreatedById = createdBy,
+                Email = accountDTO.AccountLogin.Email,
+                FirstName = firstName,
+                LastName = lastName,
+                Gender = gender,
+                ProfilePicture = accountDTO.ImageUrl,
+                Mobile = accountDTO.MobileNumber,
+
+            };
+            var lga = _context.Lgas.FirstOrDefault(x => x.Id == accountDTO.LGAId).Name;
+            var state = _context.States.FirstOrDefault(x => x.Id == accountDTO.StateId).Name;
+
+            var supplier = new Supplier
+            {
+                ImageUrl = accountDTO.ImageUrl,
+                PrimaryContactGender = accountDTO.PrimaryContactGender,
+                PrimaryContactEmail = accountDTO.PrimaryContactEmail,
+                PrimaryContactMobile = accountDTO.PrimaryContactMobile,
+                Lgaid = accountDTO.LGAId,
+                PrimaryContactName = accountDTO.PrimaryContactName,
+                MobileNumber = accountDTO.MobileNumber,
+                SupplierName = accountDTO.FirstName + " " + accountDTO.LastName,
+               // Description = accountDTO.Description,
+                SupplierEmail = accountDTO.PrimaryContactEmail,
+                StateId = accountDTO.StateId,
+                UpdatedAt = DateTime.UtcNow.AddHours(1),
+                CreatedAt = DateTime.UtcNow.AddHours(1),
+                CreatedById = createdBy,
+                SupplierCategoryId = accountDTO.SupplierCategoryId,
+                Street = accountDTO.Street,
+                Address = accountDTO.Street + " " + accountDTO.State
+            };
+
+            var customer = new Customer
+            {
+                CreatedAt = DateTime.UtcNow.AddHours(1),
+                UpdatedAt = DateTime.UtcNow.AddHours(1),
+                CreatedById = createdBy,
+                Email = accountDTO.PrimaryContactEmail,
+                PhoneNumber = accountDTO.MobileNumber,
+                GroupName = accountDTO.FirstName + " " + accountDTO.LastName,
+                
+            };
+
+            var custDiv = new CustomerDivision
+            {
+                Address = accountDTO.Street + " " + accountDTO.State,
+                CreatedAt = DateTime.UtcNow.AddHours(1),
+                UpdatedAt = DateTime.UtcNow.AddHours(1),
+                Email = accountDTO.PrimaryContactEmail,
+                Lgaid = accountDTO.LGAId,
+                CreatedById = createdBy,
+                DivisionName = accountDTO.PrimaryContactName,
+                PhoneNumber = accountDTO.MobileNumber,
+                StateId = accountDTO.StateId,
+                Street = accountDTO.Street,
+                
+            };
+
+            var (salt, hashed) = HashPassword(new byte[] { }, accountDTO.AccountLogin.Password);
+
+            var onlinProfile = new OnlineProfile
+            {
+                Email = accountDTO.AccountLogin.Email,
+                NormalizedEmail = accountDTO.AccountLogin.Email.ToUpper(),
+                PasswordHash = hashed,
+                SecurityStamp = Convert.ToBase64String(salt),
+                Name = firstName + " " + lastName,
+                CreatedAt = DateTime.UtcNow.AddHours(1),
+                EmailConfirmed = true
+            };
+
+            try
+            {
+                _context.Customers.Add(customer);
+                _context.SaveChanges();
+
+                custDiv.CustomerId = customer.Id;
+                _context.CustomerDivisions.Add(custDiv);
+
+                _context.Contacts.Add(contact);
+                await _context.SaveChangesAsync();
+
+                _context.Suppliers.Add(supplier);
+                _context.SaveChanges();
+
+                onlinProfile.CustomerDivisionId = custDiv.Id;
+                onlinProfile.SupplierId = supplier.Id;
+                _context.OnlineProfiles.Add(onlinProfile);
+                await _context.SaveChangesAsync();
+
+                await transaction.CommitAsync();
+
+                return (true, "success");
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e.Message);
+                _logger.LogError(e.StackTrace);
+                await transaction.RollbackAsync();
+                return (false, "An error has occured");
+            }
+
+        }
 
     }
 }

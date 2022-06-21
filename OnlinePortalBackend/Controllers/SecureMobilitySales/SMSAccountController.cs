@@ -31,16 +31,16 @@ namespace OnlinePortalBackend.Controllers.SecureMobilitySales
         }
 
         [HttpPost("CreateSupplierAccount")]
-        public Task<ApiCommonResponse> CreateSupplierIndividualAccount(SMSSupplierAccountDTO request)
+        public Task<ApiCommonResponse> CreateSupplierIndividualAccount(SMSSupplierIndividualAccountDTO request)
         {
-            return _accountService.CreateSupplierAccount(request);
+            return _accountService.CreateSupplierIndividualAccount(request);
         }
 
 
         [HttpPost("CreateSupplierAccount")]
-        public Task<ApiCommonResponse> CreateSupplierBusinessAccount(SMSSupplierAccountDTO request)
+        public Task<ApiCommonResponse> CreateSupplierBusinessAccount(SMSSupplierBusinessAccountDTO request)
         {
-            return _accountService.CreateSupplierAccount(request);
+            return _accountService.CreateSupplierBusinessAccount(request);
         }
 
 
