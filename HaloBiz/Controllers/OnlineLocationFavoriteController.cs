@@ -31,7 +31,7 @@ namespace HaloBiz.Controllers
         }
 
 
-        [HttpGet("GetAllOnlineLocationFavoritesByOnlineProfileId/{clientId}")]
+        [HttpGet("GetAllOnlineLocationFavoritesByOnlineProfileId/{onlineProfileId}")]
         public async Task<ApiCommonResponse> GetAllOnlineLocationFavoritesByClientId(long onlineProfileId)
         {
             return await _onlineLocationFavoriteService.GetOnlineLocationFavoriteByOnlineProfileId(onlineProfileId);

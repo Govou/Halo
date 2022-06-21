@@ -299,24 +299,40 @@ namespace HaloBiz.Repository.Impl
             return newList.ToList();
         }
 
-        public Task<IEnumerable<CommanderProfile>> FindAllUniqueHeldCommanderServiceAssignmentDetails()
+        public async Task<IEnumerable<CommanderServiceAssignmentDetail>> FindAllUniqueHeldCommanderServiceAssignmentDetails()
         {
-            throw new NotImplementedException();
+            var query = _context.CommanderServiceAssignmentDetails.Where(type => type.IsDeleted == false && type.IsTemporarilyHeld == true)
+             .Include(ct => ct.CommanderResource).ThenInclude(t => t.Profile).Include(t => t.ServiceAssignment)
+             .Include(t => t.CommanderResource.CommanderType)
+             .OrderByDescending(x => x.Id).DistinctBy(y => y.CommanderResourceId);
+
+            return query.ToList();
         }
 
-        public Task<IEnumerable<ArmedEscortProfile>> FindAllUniqueHeldEscortServiceAssignmentDetails()
+        public async Task<IEnumerable<ArmedEscortServiceAssignmentDetail>> FindAllUniqueHeldEscortServiceAssignmentDetails()
         {
-            throw new NotImplementedException();
+            var query = _context.ArmedEscortServiceAssignmentDetails.Where(type => type.IsDeleted == false && type.IsTemporarilyHeld == true)
+            .Include(ct => ct.ArmedEscortResource).Include(t => t.ServiceAssignment).Include(t => t.ArmedEscortResource.ArmedEscortType)
+            .OrderByDescending(x => x.Id).DistinctBy(c => c.ArmedEscortResourceId);
+
+            return query.ToList();
         }
 
-        public Task<IEnumerable<PilotProfile>> FindAllUniqueHeldPilotServiceAssignmentDetails()
+        public async Task<IEnumerable<PilotServiceAssignmentDetail>> FindAllUniqueHeldPilotServiceAssignmentDetails()
         {
-            throw new NotImplementedException();
+            var query = _context.PilotServiceAssignmentDetails.Where(type => type.IsDeleted == false && type.IsTemporarilyHeld == true)
+            .Include(ct => ct.PilotResource).Include(t => t.ServiceAssignment).Include(t => t.PilotResource.PilotType)
+            .OrderByDescending(x => x.Id).DistinctBy(c => c.PilotResourceId);
+            return query.ToList();
         }
 
-        public Task<IEnumerable<Vehicle>> FindAllUniqueHeldVehicleServiceAssignmentDetails()
+        public async Task<IEnumerable<VehicleServiceAssignmentDetail>> FindAllUniqueHeldVehicleServiceAssignmentDetails()
         {
-            throw new NotImplementedException();
+            var query = _context.VehicleServiceAssignmentDetails.Where(type => type.IsDeleted == false && type.IsTemporarilyHeld == true)
+           .Include(ct => ct.VehicleResource).Include(t => t.ServiceAssignment)
+          .Include(t => t.VehicleResource.SupplierService).Include(t => t.VehicleResource.VehicleType)
+           .OrderByDescending(x => x.Id).DistinctBy(c => c.VehicleResourceId);
+            return query.ToList();
         }
 
         public async Task<IEnumerable<VehicleServiceAssignmentDetail>> FindAllVehicleServiceAssignmentDetails()
