@@ -17,14 +17,12 @@ namespace OnlinePortalBackend.Controllers.SecureMobilitySales
         {
             _supplierService = supplierService;
         }
-
-
        
-        [HttpPost("BookAsset")]
-        public Task<ApiCommonResponse> BookNewAsset(SupplierBookAssetDTO request)
-        {
-            return _supplierService.BookAsset(request);
-        }
+        //[HttpPost("BookAsset")]
+        //public Task<ApiCommonResponse> BookNewAsset(SupplierBookAssetDTO request)
+        //{
+        //    return _supplierService.BookAsset(request);
+        //}
 
         [HttpPost("AddNewAsset")]
         public Task<ApiCommonResponse> NewAssetAddition(AssetAdditionDTO request)
