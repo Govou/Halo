@@ -43,9 +43,21 @@ namespace OnlinePortalBackend.MyServices.SecureMobilitySales
             return CommonResponse.Send(ResponseCodes.FAILURE, null, result.message);
         }
 
-        public async Task<ApiCommonResponse> CreateSupplierAccount(SMSSupplierAccountDTO request)
+        public async Task<ApiCommonResponse> CreateSupplierBusinessAccount(SMSSupplierBusinessAccountDTO request)
         {
-            var result = await _accountRepository.CreateSupplierAccount(request);
+            var result = await _accountRepository.CreateSupplierBusinessAccount(request);
+
+            if (result.success)
+            {
+                var authResult = await _authService.SendConfirmCodeToClient_v2(request.AccountLogin.Email);
+                return authResult;
+            }
+            return CommonResponse.Send(ResponseCodes.FAILURE, null, result.message);
+        }
+
+        public async Task<ApiCommonResponse> CreateSupplierIndividualAccount(SMSSupplierIndividualAccountDTO request)
+        {
+            var result = await _accountRepository.CreateSupplierIndividualAccount(request);
 
             if (result.success)
             {

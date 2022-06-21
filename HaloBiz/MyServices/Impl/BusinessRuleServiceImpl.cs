@@ -93,7 +93,7 @@ namespace HaloBiz.MyServices.Impl
             //int pairedCount = 0;
             if (businessRuleCheck.ServiceRegistrationId.Length > 0)
             {
-                var pairCheck = _businessRulesRepository.FindAllPairablesCheckByRuleId(businessRuleCheck.BusinessRuleId);//gets all items that can be paired with
+                var pairCheck = _businessRulesRepository.FindAllPairablesCheckByRuleId(businessRuleCheck.BRServiceRegistrationId);//gets all items that can be paired with
                 
                 if (pairCheck.Count()  < 1)
                 {

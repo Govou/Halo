@@ -122,6 +122,17 @@ namespace OnlinePortalBackend.MyServices.SecureMobilitySales
            // return CommonResponse.Send(ResponseCodes.SUCCESS, result);
         }
 
+        public async Task<ApiCommonResponse> RemoveServiceFromContract(SMSContractServiceRemovalDTO request)
+        {
+            var result = await _contractsRepo.RemoveServiceFromContract(request);
+
+            if (!result.isSuccess)
+            {
+                return CommonResponse.Send(ResponseCodes.FAILURE);
+            }
+            return CommonResponse.Send(ResponseCodes.SUCCESS, result);
+        }
+
         private async Task SendReceiptViaEmail(SendReceiptDTO request)
         {
 

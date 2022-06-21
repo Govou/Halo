@@ -2111,6 +2111,25 @@ namespace OnlinePortalBackend.Repository.Impl
 
             }
         }
+
+        public async Task<(bool isSuccess, object message)> RemoveServiceFromContract(SMSContractServiceRemovalDTO request)
+        {
+            var contractService = _context.ContractServices.FirstOrDefault(x => x.ContractId == request.ContractId && x.ServiceId == request.ServiceId);
+            if (contractService == null)
+            {
+                return (false, null);
+            }
+
+            contractService.IsDeleted = true;
+            _context.SaveChanges();
+
+            var invoice = _context.Invoices.FirstOrDefault(x => x.ContractServiceId == contractService.Id);
+
+            invoice.IsDeleted = true;
+            _context.SaveChanges();
+
+            return (true, "successfully removed");
+        }
     }
 
     public enum VersionType

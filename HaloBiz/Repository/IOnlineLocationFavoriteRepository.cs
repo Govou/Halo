@@ -11,7 +11,7 @@ namespace HaloBiz.Repository
         Task<OnlineLocationFavourite> SaveLocationFavorite(OnlineLocationFavourite locationFavourite);
 
         Task<OnlineLocationFavourite> FindLocationFavoriteById(long Id);
-        Task<IEnumerable<OnlineLocationFavourite>> FindAllLocationFavoritesByClientId(long clientId);
+        Task<IEnumerable<OnlineLocationFavourite>> FindAllLocationFavoritesByOnlineProfileId(long onlineProfileId);
 
         Task<IEnumerable<OnlineLocationFavourite>> FindAllLocationFavorites();
 

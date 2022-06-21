@@ -10,6 +10,7 @@ namespace OnlinePortalBackend.MyServices.SecureMobilitySales
         Task<ApiCommonResponse> CreateIndividualAccount(SMSIndividualAccountDTO request);
         Task<ApiCommonResponse> CreateBusinessAccount(SMSBusinessAccountDTO request);
         Task<ApiCommonResponse> GetCustomerProfile(int profileId);
-        Task<ApiCommonResponse> CreateSupplierAccount(SMSSupplierAccountDTO request);
+        Task<ApiCommonResponse> CreateSupplierIndividualAccount(SMSSupplierIndividualAccountDTO request);
+        Task<ApiCommonResponse> CreateSupplierBusinessAccount(SMSSupplierBusinessAccountDTO request);
     }
 }

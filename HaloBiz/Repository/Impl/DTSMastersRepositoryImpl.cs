@@ -64,6 +64,14 @@ namespace HaloBiz.Repository.Impl
              .ToListAsync();
         }
 
+        public async Task<IEnumerable<ArmedEscortDTSMaster>> FindAllArmedEscortMastersByResourceId(long resourceId)
+        {
+            return await _context.ArmedEscortDTSMasters.Where(dts => dts.IsDeleted == false && dts.ArmedEscortResourceId == resourceId)
+            .Include(dts => dts.CreatedBy).Include(dts => dts.GenericDays).Include(dts => dts.ArmedEscortResource).Include(dts => dts.ArmedEscortResource.SupplierService)
+            .OrderByDescending(x => x.Id)
+            .ToListAsync();
+        }
+
         public async Task<ArmedEscortDTSMasterExtended> FindAllArmedEscortMastersForAutoAssignmentByPickupDate(long seviceRegId, long RouteId, DateTime pickupDate, DateTime pickUpTime)
         {
             var services = new List<ArmedEscortDTSMaster>();
@@ -208,6 +216,14 @@ namespace HaloBiz.Repository.Impl
             .Include(dts => dts.CreatedBy).Include(dts => dts.GenericDays).Include(dts => dts.CommanderResource).Include(dts=>dts.CommanderResource.Profile)
             .OrderByDescending(x => x.Id)
             .ToListAsync();
+        }
+
+        public async Task<IEnumerable<CommanderDTSMaster>> FindAllCommanderMastersByResourceId(long resourceId)
+        {
+            return await _context.CommanderDTSMasters.Where(dts => dts.IsDeleted == false && dts.CommanderResourceId == resourceId)
+           .Include(dts => dts.CreatedBy).Include(dts => dts.GenericDays).Include(dts => dts.CommanderResource).Include(dts => dts.CommanderResource.Profile)
+           .OrderByDescending(x => x.Id)
+           .ToListAsync();
         }
 
         public async Task<CommanderDTSMasterExtended> FindAllCommanderMastersForAutoAssignmentByPickupDate(long seviceRegId, long RouteId, DateTime pickupDate, DateTime pickUpTime)
@@ -356,6 +372,14 @@ namespace HaloBiz.Repository.Impl
             .ToListAsync();
         }
 
+        public async Task<IEnumerable<PilotDTSMaster>> FindAllPilotMastersByResourceId(long resourceId)
+        {
+            return await _context.PilotDTSMasters.Where(dts => dts.IsDeleted == false && dts.PilotResourceId == resourceId)
+           .Include(dts => dts.CreatedBy).Include(dts => dts.GenericDays).Include(dts => dts.PilotResource)
+           .OrderByDescending(x => x.Id)
+           .ToListAsync();
+        }
+
         public async Task<PilotDTSMasterExtended> FindAllPilotMastersForAutoAssignmentByPickupDate(long seviceRegId, long RouteId, DateTime pickupDate, DateTime pickUpTime)
         {
             var services = new List<PilotDTSMaster>();
@@ -499,6 +523,14 @@ namespace HaloBiz.Repository.Impl
             .Include(dts => dts.CreatedBy).Include(dts=>dts.GenericDays).Include(dts => dts.VehicleResource).Include(dts => dts.VehicleResource.SupplierService)
             .OrderByDescending(x => x.Id)
             .ToListAsync();
+        }
+
+        public async Task<IEnumerable<VehicleDTSMaster>> FindAllVehicleMastersByResourceId(long resourceId)
+        {
+            return await _context.VehicleDTSMasters.Where(dts => dts.IsDeleted == false && dts.VehicleResourceId == resourceId)
+           .Include(dts => dts.CreatedBy).Include(dts => dts.GenericDays).Include(dts => dts.VehicleResource).Include(dts => dts.VehicleResource.SupplierService)
+           .OrderByDescending(x => x.Id)
+           .ToListAsync();
         }
 
         public async Task<IEnumerable<VehicleDTSMaster>> FindAllVehicleMastersForAutoAssignment()

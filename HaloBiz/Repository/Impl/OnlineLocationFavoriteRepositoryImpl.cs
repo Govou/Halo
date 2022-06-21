@@ -33,11 +33,14 @@ namespace HaloBiz.Repository.Impl
                 .ToListAsync();
         }
 
-        public async Task<IEnumerable<OnlineLocationFavourite>> FindAllLocationFavoritesByClientId(long clientId)
+        public async Task<IEnumerable<OnlineLocationFavourite>> FindAllLocationFavoritesByOnlineProfileId(long onlineProfileId)
         {
             return await _context.OnlineLocationFavourites
-                 .Where(aer => aer.ClientId == clientId && aer.IsDeleted == false).Include(online => online.LocationLGA).Include(online => online.LocationState)
+                 .Where(aer => aer.OnlineProfileId == onlineProfileId && aer.IsDeleted == false).Include(online => online.LocationLGA).Include(online => online.LocationState)
                  .Include(r => r.Client).Include(x => x.OnlineProfile).ToListAsync();
+
+                             //.Where(aer => aer.ClientId == clientId && aer.IsDeleted == false).Include(online => online.LocationLGA).Include(online => online.LocationState)
+
         }
 
         public async Task<OnlineLocationFavourite> FindLocationFavoriteById(long Id)

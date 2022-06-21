@@ -12,7 +12,13 @@ namespace OnlinePortalBackend.MyServices.SecureMobilitySales
 
         Task<ApiCommonResponse> NewAssetAddition(AssetAdditionDTO request);
 
-        Task<ApiCommonResponse> BookAsset(SupplierBookAssetDTO request);
+     //   Task<ApiCommonResponse> BookAsset(SupplierBookAssetDTO request);
+
+        Task<ApiCommonResponse> GetVehicleMakes();
+
+        Task<ApiCommonResponse> GetVehicleModels(int makeId);
+
+        Task<ApiCommonResponse> GetSupplierCategories();
 
     }
 }
