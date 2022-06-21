@@ -15,6 +15,7 @@ namespace HaloBiz.MyServices
         Task<ApiCommonResponse> AddArmedEscortDetailReplacement(HttpContext context, ArmedEscortReplacementReceivingDTO armedEscortReceivingDTO);
         Task<ApiCommonResponse> GetAllArmedEscortDetails();
         Task<ApiCommonResponse> GetAllUniqueAvailableArmedEscortDetails();
+        Task<ApiCommonResponse> GetAllUniqueHeldArmedEscortDetails();
         Task<ApiCommonResponse> GetAllArmedEscortDetailsByAssignmentId(long assignmentId);
         Task<ApiCommonResponse> GetArmedEscortDetailById(long id);
         Task<ApiCommonResponse> UpdateArmedEscortDetail(HttpContext context, long id, ArmedEscortServiceAssignmentDetailsReceivingDTO armedEscortReceivingDTO);
@@ -29,6 +30,7 @@ namespace HaloBiz.MyServices
         Task<ApiCommonResponse> AddCommanderDetailReplacement(HttpContext context, CommanderReplacementReceivingDTO commanderReceivingDTO);
         Task<ApiCommonResponse> GetAllCommanderDetails();
         Task<ApiCommonResponse> GetAllUniqueAvailableCommanderDetails();
+        Task<ApiCommonResponse> GetAllUniqueHeldCommanderDetails();
         Task<ApiCommonResponse> GetAllCommanderDetailsByAssignmentId(long assignmentId);
         Task<ApiCommonResponse> GetAllCommanderDetailsByProfileId(long profileId);
         Task<ApiCommonResponse> GetCommanderDetailById(long id);
@@ -43,6 +45,7 @@ namespace HaloBiz.MyServices
         Task<ApiCommonResponse> AddPilotDetailReplacement(HttpContext context, PilotReplacementReceivingDTO pilotReceivingDTO);
         Task<ApiCommonResponse> GetAllPilotDetails();
         Task<ApiCommonResponse> GetAllUniqueAvailablePilotDetails();
+        Task<ApiCommonResponse> GetAllUniqueHeldPilotDetails();
         Task<ApiCommonResponse> GetAllPilotDetailsByAssignmentId(long assignmentId);
         Task<ApiCommonResponse> GetPilotDetailById(long id);
         Task<ApiCommonResponse> UpdatePilotDetail(HttpContext context, long id, PilotServiceAssignmentDetailsReceivingDTO pilotReceivingDTO);
@@ -57,6 +60,7 @@ namespace HaloBiz.MyServices
         Task<ApiCommonResponse> AddVehicleDetailReplacement(HttpContext context, VehicleReplacementReceivingDTO vehicleReceivingDTO);
         Task<ApiCommonResponse> GetAllVehicleDetails();
         Task<ApiCommonResponse> GetAllUniqueAvailableVehicleDetails();
+        Task<ApiCommonResponse> GetAllUniqueHeldVehicleDetails();
         Task<ApiCommonResponse> GetAllVehicleDetailsByAssignmentId(long assignmentId);
         Task<ApiCommonResponse> GetVehicleDetailById(long id);
         Task<ApiCommonResponse> UpdateVehicleDetail(HttpContext context, long id, VehicleServiceAssignmentDetailsReceivingDTO vehicleReceivingDTO);

@@ -21,7 +21,7 @@ namespace HaloBiz.Repository
 
         Task<IEnumerable<ArmedEscortServiceAssignmentDetail>> FindAllEscortServiceAssignmentDetails();
         Task<IEnumerable<ArmedEscortProfile>> FindAllUniqueAvailableEscortServiceAssignmentDetails();
-        Task<IEnumerable<ArmedEscortProfile>> FindAllUniqueHeldEscortServiceAssignmentDetails();
+        Task<IEnumerable<ArmedEscortServiceAssignmentDetail>> FindAllUniqueHeldEscortServiceAssignmentDetails();
         Task<IEnumerable<ArmedEscortServiceAssignmentDetail>> FindAllNoneHeldEscortServiceAssignmentDetails();
 
         //MasterServiceAssignment GetName(string name);
@@ -48,7 +48,7 @@ namespace HaloBiz.Repository
 
         Task<IEnumerable<CommanderServiceAssignmentDetail>> FindAllCommanderServiceAssignmentDetails();
         Task<IEnumerable<CommanderProfile>> FindAllUniqueAvailableCommanderServiceAssignmentDetails();
-        Task<IEnumerable<CommanderProfile>> FindAllUniqueHeldCommanderServiceAssignmentDetails();
+        Task<IEnumerable<CommanderServiceAssignmentDetail>> FindAllUniqueHeldCommanderServiceAssignmentDetails();
         Task<IEnumerable<CommanderServiceAssignmentDetail>> FindAllNoneHeldCommanderServiceAssignmentDetails();
         Task<IEnumerable<CommanderServiceAssignmentDetail>> FindAllCommanderServiceAssignmentDetailsByAssignmentId(long assignmentId);
         Task<IEnumerable<CommanderServiceAssignmentDetail>> FindAllCommanderServiceAssignmentDetailsByProfileId(long profileId);
@@ -77,7 +77,7 @@ namespace HaloBiz.Repository
 
         Task<IEnumerable<PilotServiceAssignmentDetail>> FindAllPilotServiceAssignmentDetails();
         Task<IEnumerable<PilotProfile>> FindAllUniqueAvailablePilotServiceAssignmentDetails();
-        Task<IEnumerable<PilotProfile>> FindAllUniqueHeldPilotServiceAssignmentDetails();
+        Task<IEnumerable<PilotServiceAssignmentDetail>> FindAllUniqueHeldPilotServiceAssignmentDetails();
         Task<IEnumerable<PilotServiceAssignmentDetail>> FindAllNoneHeldPilotServiceAssignmentDetails();
 
         //MasterServiceAssignment GetName(string name);
@@ -106,7 +106,7 @@ namespace HaloBiz.Repository
 
         Task<IEnumerable<VehicleServiceAssignmentDetail>> FindAllVehicleServiceAssignmentDetails();
         Task<IEnumerable<Vehicle>> FindAllUniqueAvailableVehicleServiceAssignmentDetails();
-        Task<IEnumerable<Vehicle>> FindAllUniqueHeldVehicleServiceAssignmentDetails();
+        Task<IEnumerable<VehicleServiceAssignmentDetail>> FindAllUniqueHeldVehicleServiceAssignmentDetails();
         Task<IEnumerable<VehicleServiceAssignmentDetail>> FindAllNoneHeldVehicleServiceAssignmentDetails();
         List<VehicleServiceAssignmentDetail> FindAllNoneHeldVehicleServiceAssignmentDetails2();
         Task<IEnumerable<VehicleServiceAssignmentDetail>> FindAllVehicleServiceAssignmentDetailsByAssignmentId(long assignmentId);
