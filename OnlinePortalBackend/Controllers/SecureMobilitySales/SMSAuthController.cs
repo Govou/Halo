@@ -54,5 +54,7 @@ namespace OnlinePortalBackend.Controllers.SecureMobilitySales
         {
             return await _authService.VerifyCode(model);
         }
+
+
     }
 }
