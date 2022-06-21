@@ -15,7 +15,7 @@ using Claim = System.Security.Claims.Claim;
 
 namespace OnlinePortalBackend.Helpers
 {
-    public class JwtHelper
+    public class JwtHelper : IJwtHelper
     {
         private readonly ILogger<JwtHelper> _logger;
         private readonly string _secret;

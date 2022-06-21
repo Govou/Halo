@@ -149,6 +149,10 @@ namespace OnlinePortalBackend.Repository.Impl
                             invoice.IsReceiptedStatus = (int)InvoiceStatus.CompletelyReceipted;
                             await UpdateInvoice(invoice);
                             await PostAccounts(receipt, invoice, receiptReceivingDTO.AccountId);
+
+                            var contract = _context.Contracts.FirstOrDefault(x => x.Id == invoice.ContractId);
+                            contract.IsDeleted = true;
+                            _context.SaveChanges();
                             break;
                         }
                         else

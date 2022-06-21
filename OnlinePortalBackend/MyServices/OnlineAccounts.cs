@@ -422,7 +422,7 @@ namespace OnlinePortalBackend.MyServices
                     Id = profile.Id,
                     
                 };
-                var contract = _context.Contracts.Where(x => x.CustomerDivisionId == profile.CustomerDivisionId).OrderByDescending(x => x.Id).FirstOrDefault();
+                var contract = _context.Contracts.Where(x => x.CustomerDivisionId == profile.CustomerDivisionId && x.IsDeleted == false).OrderByDescending(x => x.Id).FirstOrDefault();
                 var profileContractDetails = new List<ProfileContractDetail>();
 
                 if (contract != null)
