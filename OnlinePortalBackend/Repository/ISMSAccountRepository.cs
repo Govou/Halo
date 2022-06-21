@@ -11,7 +11,9 @@ namespace OnlinePortalBackend.Repository
 
         Task<(bool success, string message)> CreateBusinessAccount(SMSBusinessAccountDTO accountDTO);
 
-        Task<(bool success, string message)> CreateSupplierAccount(SMSSupplierAccountDTO request);
+        Task<(bool success, string message)> CreateSupplierIndividualAccount(SMSSupplierIndividualAccountDTO request);
+
+        Task<(bool success, string message)> CreateSupplierBusinessAccount(SMSSupplierBusinessAccountDTO request);
 
         Task<OnlineProfile> GetCustomerProfile(int profileId);
     }
