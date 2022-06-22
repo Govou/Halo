@@ -127,6 +127,7 @@ namespace OnlinePortalBackend.MyServices
                 return CommonResponse.Send(ResponseCodes.FAILURE, null, ex.Message);
             }          
         }
+
         public async Task<ApiCommonResponse> SendConfirmCodeToClient_v2(string Email)
         {
             try
@@ -209,6 +210,7 @@ namespace OnlinePortalBackend.MyServices
                 return CommonResponse.Send(ResponseCodes.FAILURE, null, ex.Message);
             }
         }
+
         private async Task<string> GenerateCode()
         {
             string code = string.Empty;

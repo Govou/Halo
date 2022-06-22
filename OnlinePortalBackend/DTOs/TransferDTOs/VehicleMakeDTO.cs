@@ -2,13 +2,13 @@
 {
     public class VehicleMakeDTO
     {
-        public long Id { get; set; }
+        public long MakeId { get; set; }
         public string Name { get; set; }
     }
 
     public class VehicleModelDTO
     {
-        public long Id { get; set; }
+        public long ModelId { get; set; }
         public string Name { get; set; }
         public long MakeId { get; set; }
     }
