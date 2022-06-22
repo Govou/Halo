@@ -180,7 +180,7 @@ namespace OnlinePortalBackend.Repository.Impl
         public async Task<IEnumerable<VehicleMakeDTO>> GetVehicleMakes()
         {
             return _context.Makes.Where(x => x.IsDeleted == false).Select(m => new VehicleMakeDTO {
-                Id = m.Id,
+                MakeId = m.Id,
                 Name = m.Caption
             }).AsEnumerable();
 
@@ -190,7 +190,7 @@ namespace OnlinePortalBackend.Repository.Impl
         {
             return _context.Models.Where(x => x.IsDeleted == false && x.MakeId == makeId).Select(m => new VehicleModelDTO
             {
-                Id = m.Id,
+                ModelId = m.Id,
                 Name = m.Caption,
                 MakeId = makeId
             }).AsEnumerable();
