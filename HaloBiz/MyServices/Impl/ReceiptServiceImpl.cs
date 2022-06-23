@@ -52,10 +52,14 @@ namespace HaloBiz.MyServices.Impl
 
         public async Task<ApiCommonResponse> AddReceipt(HttpContext context, ReceiptReceivingDTO receiptReceivingDTO)
         {
+            bool postToFinance = receiptReceivingDTO.Source == ReceiptPostingSourceOfFund.Bank;
+
             if(receiptReceivingDTO.Source != ReceiptPostingSourceOfFund.Bank && receiptReceivingDTO.CreditNoteOrAdvancePaymentId == null)
             {
                 return CommonResponse.Send(ResponseCodes.FAILURE, null, "You have to indicate the Id of the advance payment or credit note");
             }
+
+            
 
             LoggedInUserId = context.GetLoggedInUserId();
             if (receiptReceivingDTO.InvoiceNumber.ToUpper().Contains("GINV"))
@@ -96,7 +100,8 @@ namespace HaloBiz.MyServices.Impl
                             var savedReceipt = await _receiptRepo.SaveReceipt(receipt);
                             invoice.IsReceiptedStatus = (int)InvoiceStatus.PartlyReceipted;
                             await _invoiceRepo.UpdateInvoice(invoice);
-                            await PostAccounts(receipt, invoice, receiptReceivingDTO.AccountId);
+                            if(postToFinance)
+                                await PostAccounts(receipt, invoice, receiptReceivingDTO.AccountId);
                             break;
                         }
                         else if (totalReceiptAmount == invoiceValueBeforeReceipting)
@@ -106,7 +111,8 @@ namespace HaloBiz.MyServices.Impl
                             var savedReceipt = await _receiptRepo.SaveReceipt(receipt);
                             invoice.IsReceiptedStatus = (int)InvoiceStatus.CompletelyReceipted;
                             await _invoiceRepo.UpdateInvoice(invoice);
-                            await PostAccounts(receipt, invoice, receiptReceivingDTO.AccountId);                           
+                            if (postToFinance)
+                                await PostAccounts(receipt, invoice, receiptReceivingDTO.AccountId);                           
                             break;
                         }
                         else
@@ -117,7 +123,8 @@ namespace HaloBiz.MyServices.Impl
                             invoice.IsReceiptedStatus = (int)InvoiceStatus.CompletelyReceipted;
                             await _invoiceRepo.UpdateInvoice(invoice);
                             totalReceiptAmount -= invoiceValueBeforeReceipting;
-                            await PostAccounts(receipt, invoice, receiptReceivingDTO.AccountId);
+                            if (postToFinance)
+                                await PostAccounts(receipt, invoice, receiptReceivingDTO.AccountId);
                         }                    
                     }
                     catch (Exception ex)
@@ -164,7 +171,9 @@ namespace HaloBiz.MyServices.Impl
                             await _invoiceRepo.UpdateInvoice(invoice);
                         }
 
-                        await PostAccounts(receipt, invoice, receiptReceivingDTO.AccountId);
+                        if (postToFinance)
+                            await PostAccounts(receipt, invoice, receiptReceivingDTO.AccountId);
+                       
                         await UpdateUsage(receiptReceivingDTO, LoggedInUserId);
                         await transaction.CommitAsync();
                         return CommonResponse.Send(ResponseCodes.SUCCESS,receiptTransferDTO);
@@ -194,7 +203,8 @@ namespace HaloBiz.MyServices.Impl
 
                 var whtPercentage = dto.ValueOfWHT;
                 whtAmount = amount * (whtPercentage / 100.0);
-                amountToPost = amount - whtAmount;
+                amountToPost = Math.Round(amount - whtAmount,2);
+
             }
 
             if (dto.Source== ReceiptPostingSourceOfFund.AdvancePayment)
@@ -224,11 +234,10 @@ namespace HaloBiz.MyServices.Impl
                     ValueOfWht = dto.ValueOfWHT
                 };
 
-                _context.CreditNoteUsage.Add(usage);
+                //_context.CreditNoteUsage.Add(usage);
             }
 
             await _context.SaveChangesAsync();
-
             return true;
         }
 
