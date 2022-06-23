@@ -499,30 +499,6 @@ namespace OnlinePortalBackend.Repository.Impl
                 Address = accountDTO.Street + " " + accountDTO.State
             };
 
-            var customer = new Customer
-            {
-                CreatedAt = DateTime.UtcNow.AddHours(1),
-                UpdatedAt = DateTime.UtcNow.AddHours(1),
-                CreatedById = createdBy,
-                Email = accountDTO.PrimaryContactEmail,
-                PhoneNumber = accountDTO.MobileNumber,
-                GroupName = accountDTO.SupplierName
-            };
-
-            var custDiv = new CustomerDivision
-            {
-                Address = accountDTO.Street + " " + accountDTO.State,
-                CreatedAt = DateTime.UtcNow.AddHours(1),
-                UpdatedAt = DateTime.UtcNow.AddHours(1),
-                Email = accountDTO.PrimaryContactEmail,
-                Lgaid = accountDTO.LGAId,
-                CreatedById = createdBy,
-                DivisionName = accountDTO.PrimaryContactName,
-                PhoneNumber = accountDTO.MobileNumber,
-                StateId = accountDTO.StateId,
-                Street = accountDTO.Street
-            };
-
             var (salt, hashed) = HashPassword(new byte[] { }, accountDTO.AccountLogin.Password);
 
             var onlinProfile = new OnlineProfile
@@ -533,24 +509,21 @@ namespace OnlinePortalBackend.Repository.Impl
                 SecurityStamp = Convert.ToBase64String(salt),
                 Name = firstName + " " + lastName,
                 CreatedAt = DateTime.UtcNow.AddHours(1),
-                EmailConfirmed = true
             };
 
             try
             {
-                _context.Customers.Add(customer);
-                _context.SaveChanges();
-
-                custDiv.CustomerId = customer.Id;
-                _context.CustomerDivisions.Add(custDiv);
-                
+               
                 _context.Contacts.Add(contact);
                 await _context.SaveChangesAsync();
 
                 _context.Suppliers.Add(supplier);
                 _context.SaveChanges();
 
-                onlinProfile.CustomerDivisionId = custDiv.Id;
+                var suppliercontact = new SupplierContactMapping { ContactId = contact.Id, SupplierId = supplier.Id, CreatedAt = DateTime.UtcNow.AddHours(1), CreatedById = createdBy };
+                _context.SupplierContactMappings.Add(suppliercontact);
+                _context.SaveChanges();
+
                 onlinProfile.SupplierId = supplier.Id;
                 _context.OnlineProfiles.Add(onlinProfile);
                 await _context.SaveChangesAsync();
@@ -632,32 +605,6 @@ namespace OnlinePortalBackend.Repository.Impl
                 Address = accountDTO.Street + " " + accountDTO.State
             };
 
-            var customer = new Customer
-            {
-                CreatedAt = DateTime.UtcNow.AddHours(1),
-                UpdatedAt = DateTime.UtcNow.AddHours(1),
-                CreatedById = createdBy,
-                Email = accountDTO.PrimaryContactEmail,
-                PhoneNumber = accountDTO.MobileNumber,
-                GroupName = accountDTO.FirstName + " " + accountDTO.LastName,
-                
-            };
-
-            var custDiv = new CustomerDivision
-            {
-                Address = accountDTO.Street + " " + accountDTO.State,
-                CreatedAt = DateTime.UtcNow.AddHours(1),
-                UpdatedAt = DateTime.UtcNow.AddHours(1),
-                Email = accountDTO.PrimaryContactEmail,
-                Lgaid = accountDTO.LGAId,
-                CreatedById = createdBy,
-                DivisionName = accountDTO.PrimaryContactName,
-                PhoneNumber = accountDTO.MobileNumber,
-                StateId = accountDTO.StateId,
-                Street = accountDTO.Street,
-                
-            };
-
             var (salt, hashed) = HashPassword(new byte[] { }, accountDTO.AccountLogin.Password);
 
             var onlinProfile = new OnlineProfile
@@ -668,24 +615,20 @@ namespace OnlinePortalBackend.Repository.Impl
                 SecurityStamp = Convert.ToBase64String(salt),
                 Name = firstName + " " + lastName,
                 CreatedAt = DateTime.UtcNow.AddHours(1),
-                EmailConfirmed = true
             };
 
             try
             {
-                _context.Customers.Add(customer);
-                _context.SaveChanges();
-
-                custDiv.CustomerId = customer.Id;
-                _context.CustomerDivisions.Add(custDiv);
-
                 _context.Contacts.Add(contact);
                 await _context.SaveChangesAsync();
 
                 _context.Suppliers.Add(supplier);
                 _context.SaveChanges();
 
-                onlinProfile.CustomerDivisionId = custDiv.Id;
+                var suppliercontact = new SupplierContactMapping { ContactId = contact.Id, SupplierId = supplier.Id, CreatedAt = DateTime.UtcNow.AddHours(1), CreatedById = createdBy };
+                _context.SupplierContactMappings.Add(suppliercontact);
+                _context.SaveChanges();
+
                 onlinProfile.SupplierId = supplier.Id;
                 _context.OnlineProfiles.Add(onlinProfile);
                 await _context.SaveChangesAsync();
