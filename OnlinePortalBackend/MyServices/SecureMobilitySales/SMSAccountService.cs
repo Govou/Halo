@@ -49,7 +49,7 @@ namespace OnlinePortalBackend.MyServices.SecureMobilitySales
 
             if (result.success)
             {
-                var authResult = await _authService.SendConfirmCodeToClient_v2(request.AccountLogin.Email);
+                var authResult = await _authService.SendConfirmCodeToClient_v3(request.AccountLogin.Email);
                 return authResult;
             }
             return CommonResponse.Send(ResponseCodes.FAILURE, null, result.message);
@@ -61,7 +61,7 @@ namespace OnlinePortalBackend.MyServices.SecureMobilitySales
 
             if (result.success)
             {
-                var authResult = await _authService.SendConfirmCodeToClient_v2(request.AccountLogin.Email);
+                var authResult = await _authService.SendConfirmCodeToClient_v3(request.AccountLogin.Email);
                 return authResult;
             }
             return CommonResponse.Send(ResponseCodes.FAILURE, null, result.message);
