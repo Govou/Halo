@@ -42,10 +42,16 @@ namespace HaloBiz.Controllers
             //return Ok(cType);
         }
 
-        [HttpGet("GetAllDistinctArmedEscortDetails")]
-        public async Task<ApiCommonResponse> GetAllDistinctArmedEscortDetails()
+        [HttpGet("GetAllAvailableArmedEscortDetails")]
+        public async Task<ApiCommonResponse> GetAllAvailableArmedEscortDetails()
         {
-            return await _serviceAssignmentDetailsService.GetAllUniqueArmedEscortDetails();
+            return await _serviceAssignmentDetailsService.GetAllUniqueAvailableArmedEscortDetails();
+        }
+
+        [HttpGet("GetAllDistinctHeldArmedEscortDetails")]
+        public async Task<ApiCommonResponse> GetAllDistinctHeldArmedEscortDetails()
+        {
+            return await _serviceAssignmentDetailsService.GetAllUniqueHeldArmedEscortDetails();
         }
 
         [HttpGet("GetAllArmedEscortDetailsByAssignmentId/{id}")]
@@ -113,10 +119,16 @@ namespace HaloBiz.Controllers
             //return Ok(cType);
         }
 
-        [HttpGet("GetAllDistinctCommanderDetails")]
-        public async Task<ApiCommonResponse> GetAllDistinctCommanderDetails()
+        [HttpGet("GetAllAvailableCommanderDetails")]
+        public async Task<ApiCommonResponse> GetAllAvailableCommanderDetails()
         {
-            return await _serviceAssignmentDetailsService.GetAllUniqueCommanderDetails();
+            return await _serviceAssignmentDetailsService.GetAllUniqueAvailableCommanderDetails();
+        }
+
+        [HttpGet("GetAllDistinctHeldCommanderDetails")]
+        public async Task<ApiCommonResponse> GetAllDistinctHeldCommanderDetails()
+        {
+            return await _serviceAssignmentDetailsService.GetAllUniqueHeldCommanderDetails();
         }
 
         [HttpGet("GetAllCommanderDetailsByAssignmentId/{id}")]
@@ -188,27 +200,28 @@ namespace HaloBiz.Controllers
         public async Task<ApiCommonResponse> GetAllPilotDetails()
         {
             return await _serviceAssignmentDetailsService.GetAllPilotDetails();
-            //if (response.StatusCode >= 400)
-            //    return StatusCode(response.StatusCode, response);
-            //var cType = ((ApiOkResponse)response).Result;
-            //return Ok(cType);
+           
         }
 
-        [HttpGet("GetAllDistinctPilotDetails")]
-        public async Task<ApiCommonResponse> GetAllDistinctPilotDetails()
+        [HttpGet("GetAllAvailablePilotDetails")]
+        public async Task<ApiCommonResponse> GetAllAvailablePilotDetails()
         {
-            return await _serviceAssignmentDetailsService.GetAllUniquePilotDetails();
+            return await _serviceAssignmentDetailsService.GetAllUniqueAvailablePilotDetails();
           
+        }
+
+        [HttpGet("GetAllDistinctHeldPilotDetails")]
+        public async Task<ApiCommonResponse> GetAllDistictHeldPilotDetails()
+        {
+            return await _serviceAssignmentDetailsService.GetAllUniqueHeldPilotDetails();
+
         }
         [AllowAnonymous]
         [HttpGet("GetAllPilotDetailsByAssignmentId/{id}")]
         public async Task<ApiCommonResponse> GetAllPilotDetailsByAssignmentId(long id)
         {
             return await _serviceAssignmentDetailsService.GetAllPilotDetailsByAssignmentId(id);
-            //if (response.StatusCode >= 400)
-            //    return StatusCode(response.StatusCode, response);
-            //var cType = ((ApiOkResponse)response).Result;
-            //return Ok(cType);
+            
         }
 
         [HttpGet("GetPilotDetailById/{id}")]
@@ -226,20 +239,13 @@ namespace HaloBiz.Controllers
         {
             return await _serviceAssignmentDetailsService.AddPilotDetail(HttpContext, ReceivingDTO);
 
-            //if (response.StatusCode >= 400)
-            //    return StatusCode(response.StatusCode, response);
-            //var rank = ((ApiOkResponse)response).Result;
-            //return Ok(rank);
         }
 
         [HttpPut("UpdatePilotDetailById/{id}")]
         public async Task<ApiCommonResponse> UpdatePilotDetailById(long id, PilotServiceAssignmentDetailsReceivingDTO Receiving)
         {
             return await _serviceAssignmentDetailsService.UpdatePilotDetail(HttpContext, id, Receiving);
-            //if (response.StatusCode >= 400)
-            //    return StatusCode(response.StatusCode, response);
-            //var type = ((ApiOkResponse)response).Result;
-            //return Ok(type);
+           
         }
         [HttpDelete("DeletePilotDetailById/{id}")]
         public async Task<ApiCommonResponse> DeletePilotDetailById(int id)
@@ -265,14 +271,18 @@ namespace HaloBiz.Controllers
             //return Ok(cType);
         }
 
-        [HttpGet("GetAllDistinctVehicleDetails")]
-        public async Task<ApiCommonResponse> GetAllDistinctVehicleDetails()
+        [HttpGet("GetAllAvailableVehicleDetails")]
+        public async Task<ApiCommonResponse> GetAllAvailableVehicleDetails()
         {
-            return await _serviceAssignmentDetailsService.GetAllUniqueVehicleDetails();
-            //if (response.StatusCode >= 400)
-            //    return StatusCode(response.StatusCode, response);
-            //var cType = ((ApiOkResponse)response).Result;
-            //return Ok(cType);
+            return await _serviceAssignmentDetailsService.GetAllUniqueAvailableVehicleDetails();
+           
+        }
+
+        [HttpGet("GetAllDistinctHeldVehicleDetails")]
+        public async Task<ApiCommonResponse> GetAllDistinctHeldVehicleDetails()
+        {
+            return await _serviceAssignmentDetailsService.GetAllUniqueHeldVehicleDetails();
+
         }
         [HttpGet("GetAllVehicleDetailsByAssignmentId/{id}")]
         public async Task<ApiCommonResponse> GetAllVehicleDetailsByAssignmentId(long id)

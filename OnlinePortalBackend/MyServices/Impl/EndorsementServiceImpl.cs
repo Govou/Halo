@@ -336,7 +336,7 @@ namespace OnlinePortalBackend.MyServices.Impl
 
             if (contractService == null)
                 return null;
-           
+
 
             var possibleDateList = await _context.Invoices
                .Where(x => !x.IsReversalInvoice.Value && !x.IsDeleted && !x.IsReversed.Value

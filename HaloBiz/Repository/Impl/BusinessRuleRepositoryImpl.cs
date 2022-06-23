@@ -87,9 +87,16 @@ namespace HaloBiz.Repository.Impl
                 .FirstOrDefaultAsync(ae => ae.Id == Id && ae.IsDeleted == false);
         }
 
-        public List<BRPairableCheckDTO> FindAllPairablesCheckByRuleId(long? BusinessRuleId)
+        public List<BRPairableCheckDTO> FindAllPairablesCheckByRuleId(long? serviceRegId)
         {
-            return _context.BRPairables.Where(s => s.IsDeleted == false && s.BusinessRuleId == BusinessRuleId).Select(x=> new BRPairableCheckDTO { ServiceRegistrationId = x.ServiceRegistrationId }).ToList();
+            var ruleEmpty = new List<BRPairableCheckDTO>();
+            var getRule = _context.BusinessRules.Where(s => s.IsDeleted == false && s.ServiceRegistrationId == serviceRegId).Select(x => new BusinessRuleCheckDTO { BusinessRuleId = x.Id }).FirstOrDefault();
+
+            if (getRule == null)
+                return ruleEmpty;
+            else
+                //return await _context.BRPairables.Where(s => s.IsDeleted == false && s.BusinessRuleId == getRule.BusinessRuleId).ToListAsync();
+                return _context.BRPairables.Where(s => s.IsDeleted == false && s.BusinessRuleId == getRule.BusinessRuleId).Select(x => new BRPairableCheckDTO { ServiceRegistrationId = x.ServiceRegistrationId }).ToList();
                                  //.Include(s => s.ServiceRegistration).Include(s => s.ServiceRegistration.Service)
                                  //.Include(s => s.CreatedBy).ToListAsync();
         }

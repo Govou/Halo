@@ -4934,6 +4934,7 @@ namespace HaloBiz.MyServices.Impl
                 foreach (var item in getUpdatedTaskownerShip)
                 {
                     var taskGotten = await _context.Tasks.AsNoTracking()
+                        .Include(x=>x.Project)
                         .Where(x => x.IsActive == true && x.TaskOwnershipId == item.Id).ToListAsync();
                     taskArray.AddRange(taskGotten);
                 }

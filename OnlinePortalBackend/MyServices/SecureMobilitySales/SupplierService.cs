@@ -22,47 +22,27 @@ namespace OnlinePortalBackend.MyServices.SecureMobilitySales
             _adapter = adapter;
         }
 
-        public async Task<ApiCommonResponse> BookAsset(SupplierBookAssetDTO request)
-        {
-            var result = await _adapter.VerifyPaymentAsync((PaymentGateway)GeneralHelper.GetPaymentGateway(request.PaymentGateway), request.PaymentReference);
+        //public async Task<ApiCommonResponse> BookAsset(SupplierBookAssetDTO request)
+        //{
+        //    var result = await _adapter.VerifyPaymentAsync((PaymentGateway)GeneralHelper.GetPaymentGateway(request.PaymentGateway), request.PaymentReference);
 
-            if (!result.PaymentSuccessful)
-            {
-                 return CommonResponse.Send(ResponseCodes.FAILURE, null, "Payment could not be verified");
-            }
+        //    if (!result.PaymentSuccessful)
+        //    {
+        //         return CommonResponse.Send(ResponseCodes.FAILURE, null, "Payment could not be verified");
+        //    }
 
-            var response = await BookAssetOnThridPartyService(request);
+        //    var response = await BookAssetOnThridPartyService(request);
 
-            if (response.isSuccess)
-            {
-                return CommonResponse.Send(ResponseCodes.SUCCESS, null, response.message);
-            }
+        //    if (response.isSuccess)
+        //    {
+        //        return CommonResponse.Send(ResponseCodes.SUCCESS, null, response.message);
+        //    }
 
-            return CommonResponse.Send(ResponseCodes.FAILURE, null, response.message);
-        }
+        //    return CommonResponse.Send(ResponseCodes.FAILURE, null, response.message);
+        //}
 
 
-        public async Task<(bool isSuccess, string message)> BookAssetOnThridPartyService(SupplierBookAssetDTO bookAsset)
-        {
-            var client = new RestClient("https://api.myvivcar.com/api/booking");
-            var request = new RestRequest(Method.POST);
-
-            request.AddHeader("Content-Type", "application/json");
-
-            var body = JsonConvert.SerializeObject(bookAsset);
-
-            request.AddParameter("application/json", body, ParameterType.RequestBody);
-            IRestResponse response = client.Execute(request);
-              
-            var result = JsonConvert.DeserializeObject<SupplierBookAssetResponseDTO>(response.Content);
-
-            if (result.Status == "success")
-            {
-                return (true, result.Message);
-            }
-            return(false, result.Message);
-        }
-
+      
 
 
         public async Task<ApiCommonResponse> GetServiceCenters(string state)
@@ -152,7 +132,42 @@ namespace OnlinePortalBackend.MyServices.SecureMobilitySales
             {
                 return CommonResponse.Send(ResponseCodes.FAILURE, null, "failed");
             }
-            return CommonResponse.Send(ResponseCodes.SUCCESS, null, "success");
+
+            return CommonResponse.Send(ResponseCodes.SUCCESS, result, "success");
+
+        }
+
+        public async Task<ApiCommonResponse> GetVehicleMakes()
+        {
+            var result = await _supplierRepo.GetVehicleMakes();
+
+            if (result == null)
+            {
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE, null, "failed");
+            }
+            return CommonResponse.Send(ResponseCodes.SUCCESS, result, "success");
+        }
+
+        public async Task<ApiCommonResponse> GetVehicleModels(int makeId)
+        {
+            var result = await _supplierRepo.GetVehicleModels(makeId);
+
+            if (result == null)
+            {
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE, null, "failed");
+            }
+            return CommonResponse.Send(ResponseCodes.SUCCESS, result, "success");
+        }
+
+        public async Task<ApiCommonResponse> GetSupplierCategories()
+        {
+            var result = await _supplierRepo.GetSupplierCategories();
+
+            if (result == null)
+            {
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE, null, "failed");
+            }
+            return CommonResponse.Send(ResponseCodes.SUCCESS, result, "success");
         }
     }
 }

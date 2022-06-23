@@ -1473,6 +1473,13 @@ namespace HaloBiz.MyServices.Impl
                          .Where(x => x.Id == invoice.Id && x.IsDeleted == false)
                          .Include(x => x.CustomerDivision).Include(x=>x.CreatedBy)
                          .FirstOrDefaultAsync();
+           
+                var returnServiceAss = await _context.MasterServiceAssignments
+                       .Where(x =>  x.IsDeleted == false && x.TripTypeId == 2 && x.PrimaryTripAssignmentId == serviceAss.Id)
+                       .Include(x => x.CustomerDivision).Include(x => x.CreatedBy)
+                       .FirstOrDefaultAsync();
+            
+           
             var secondaryServiceAss = await _context.SecondaryServiceAssignments
                         .Where(x => x.ServiceAssignmentId == invoice.Id && x.IsDeleted == false).
                         Include(x => x.CreatedBy)
@@ -1553,13 +1560,21 @@ namespace HaloBiz.MyServices.Impl
 
 
             IEnumerable<MasterServiceAssignment> invoices;
+            IEnumerable<MasterServiceAssignment> returnTrip;
             List<MasterServiceAssignment> invoicesToUpdate = new List<MasterServiceAssignment>();
             invoices = await _context.MasterServiceAssignments
                        .Where(x => x.Id == invoice.Id)
                        .Include(x => x.ServiceRegistration)
                        .Include(x => x.ContractService).Include(x=>x.CreatedBy)
-                       
                        .ToListAsync();
+          
+                //returnTrip = await _context.MasterServiceAssignments
+                //      .Where(x => x.Id == invoice.PrimaryTripAssignmentId)
+                //      .Include(x => x.ServiceRegistration)
+                //      .Include(x => x.ContractService).Include(x => x.CreatedBy)
+                //      .ToListAsync();
+            
+           
            
 
             List<string> recepients = new List<string>();
@@ -1726,6 +1741,12 @@ namespace HaloBiz.MyServices.Impl
                 Description = serviceReg.Service.Description,
               
             };
+            MasterServiceAssignmentReturnMailVMDTO returnServiceMailDTO = new MasterServiceAssignmentReturnMailVMDTO()
+            {
+                id = returnServiceAss.Id,
+                ServiceRegistrationId = returnServiceAss.ServiceRegistrationId,
+
+            };
             ClientInfosMailDTO client = new ClientInfosMailDTO()
             {
                 Name = serviceAss.CustomerDivision.DivisionName,
@@ -1764,7 +1785,7 @@ namespace HaloBiz.MyServices.Impl
                 pilots = pilotsMailDTO,
                 vehicles = vehiclesMailDTO,
                 clientInfo = client,
-
+                returnService = returnServiceMailDTO,
                 ServiceMailDTO = serviceMailDTO,
                 //ContractServices = contractServiceMailDTOs
             };

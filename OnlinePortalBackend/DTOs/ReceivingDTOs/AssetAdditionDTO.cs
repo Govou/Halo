@@ -6,6 +6,7 @@
         public string Description { get; set; }
         public string Make { get; set; }
         public string Model { get; set; }
+        public string Year { get; set; }
         public string ModelNumber { get; set; }
         public string ImageUrl { get; set; }
         public string TrackerId { get; set; }
@@ -25,5 +26,17 @@
         public string RearViewImage { get; set; }
         public string TopViewImage { get; set; }
         public string InteriorViewImage { get; set; }
+        public string PaymentGateway { get; set; }
+        public string PaymentReference { get; set; }
+        public string CentreId { get; set; }
+        public string PaymentType { get; set; }
+        public string BookingAmount { get; set; }
+        public string BookingAddress { get; set; }
+        public string BookingState { get; set; }
+        public string AppointmentDate { get; set; }
+        public string AppointmentTime { get; set; }
+        public int ProfileId { get; set; }
+        public string ServiceId { get; set; }
+        public string ProviderId { get; set; }
     }
 }
