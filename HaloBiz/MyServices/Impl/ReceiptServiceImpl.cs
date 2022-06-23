@@ -16,6 +16,8 @@ using Microsoft.Extensions.Logging;
 using System.Linq;
 using System.Collections.Generic;
 using Halobiz.Common.DTOs.ReceivingDTOs;
+using Halobiz.Common.Model;
+using HalobizMigrations.Models.Halobiz;
 
 namespace HaloBiz.MyServices.Impl
 {
@@ -50,6 +52,11 @@ namespace HaloBiz.MyServices.Impl
 
         public async Task<ApiCommonResponse> AddReceipt(HttpContext context, ReceiptReceivingDTO receiptReceivingDTO)
         {
+            if(receiptReceivingDTO.Source != ReceiptPostingSourceOfFund.Bank && receiptReceivingDTO.CreditNoteOrAdvancePaymentId == null)
+            {
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "You have to indicate the Id of the advance payment or credit note");
+            }
+
             LoggedInUserId = context.GetLoggedInUserId();
             if (receiptReceivingDTO.InvoiceNumber.ToUpper().Contains("GINV"))
             {
@@ -121,7 +128,7 @@ namespace HaloBiz.MyServices.Impl
                         return  CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
                     }                                
                 }
-
+                await UpdateUsage(receiptReceivingDTO, LoggedInUserId);
                 await trx.CommitAsync();
                 return CommonResponse.Send(ResponseCodes.SUCCESS);
             }
@@ -158,6 +165,7 @@ namespace HaloBiz.MyServices.Impl
                         }
 
                         await PostAccounts(receipt, invoice, receiptReceivingDTO.AccountId);
+                        await UpdateUsage(receiptReceivingDTO, LoggedInUserId);
                         await transaction.CommitAsync();
                         return CommonResponse.Send(ResponseCodes.SUCCESS,receiptTransferDTO);
                     }
@@ -170,6 +178,58 @@ namespace HaloBiz.MyServices.Impl
                     }
                 }
             }
+        }
+
+        private async Task<bool> UpdateUsage(ReceiptReceivingDTO dto, long userId)
+        {
+            if (dto.Source == ReceiptPostingSourceOfFund.Bank)
+                return false;
+
+            double amountToPost = 0;
+
+            if (dto.IsTaskWitheld)
+            {
+                var amount = dto.ReceiptValue;
+                var whtAmount = 0.0;
+
+                var whtPercentage = dto.ValueOfWHT;
+                whtAmount = amount * (whtPercentage / 100.0);
+                amountToPost = amount - whtAmount;
+            }
+
+            if (dto.Source== ReceiptPostingSourceOfFund.AdvancePayment)
+            {
+                var usage = new AdvancePaymentUsage
+                {
+                    AdvancePaymentId = dto.CreditNoteOrAdvancePaymentId,
+                    AmountUsed = dto.IsTaskWitheld ? amountToPost : dto.ReceiptValue,
+                    CreatedById = userId,
+                    CreatedAt = DateTime.Now,
+                    Description = dto.Caption,
+                    InvoiceId = dto.InvoiceId,
+                    ValueOfWht = dto.ValueOfWHT
+                };
+                _context.AdvancePaymentUsages.Add(usage);
+            }
+            else if(dto.Source== ReceiptPostingSourceOfFund.CreditNote)
+            {
+                var usage = new CreditNoteUsage
+                {
+                    AccountMasterId = dto.CreditNoteOrAdvancePaymentId,
+                    AmountUsed = dto.IsTaskWitheld ? amountToPost : dto.ReceiptValue,
+                    CreatedById = userId,
+                    CreatedAt = DateTime.Now,
+                    Description = dto.Caption,
+                    InvoiceId = dto.InvoiceId,
+                    ValueOfWht = dto.ValueOfWHT
+                };
+
+                _context.CreditNoteUsage.Add(usage);
+            }
+
+            await _context.SaveChangesAsync();
+
+            return true;
         }
 
         public async Task<ApiCommonResponse> GetReceiptBreakDown(long invoiceId, double totalReceiptAmount)

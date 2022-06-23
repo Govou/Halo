@@ -259,6 +259,7 @@ namespace HaloBiz.MyServices.Impl
             //add IsDeleted
             var result = await _context.AdvancePayments
                 .Where(x=>x.CustomerDivisionId==customerDivisionId && !x.IsDeleted)
+                .Include(x=>x.AdvancePaymentUsages)
                 .OrderByDescending(x=>x.Id)
                 .ToListAsync();  
             if (!result.Any())
