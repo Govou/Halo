@@ -75,5 +75,6 @@ namespace Halobiz.Common.DTOs.ReceivingDTOs
         public string GroupInvoiceNumber { get; set; }
         public ServiceRelationshipEnum ServiceRelationshipEnum { get; set; }
         public double? WHTLoadingValue { get; set; }
+        public int? DaysAffected { get; set; }
     }
 }
