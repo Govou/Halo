@@ -35,7 +35,7 @@
         public string BookingState { get; set; }
         public string AppointmentDate { get; set; }
         public string AppointmentTime { get; set; }
-        public int ProfileId { get; set; }
+        public string ProfileId { get; set; }
         public string ServiceId { get; set; }
         public string ProviderId { get; set; }
     }

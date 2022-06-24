@@ -35,7 +35,8 @@ namespace OnlinePortalBackend.Repository.Impl
         }
         public async Task<bool> AddNewAsset(AssetAdditionDTO request)
         {
-            var profile = _context.OnlineProfiles.FirstOrDefault(x => x.SupplierId == request.SupplierId);
+            var profileId = int.Parse(request.ProfileId);
+            var profile = _context.OnlineProfiles.FirstOrDefault(x => x.Id == profileId);
   
             var createdBy = _context.UserProfiles.FirstOrDefault(x => x.Email.Contains("online")).Id;
 
@@ -65,7 +66,7 @@ namespace OnlinePortalBackend.Repository.Impl
                     TopViewImage = request.TopViewImage,
                     IdentificationNumber = request.IdentificationNumber,
                     StandardDiscount = request.StandardDiscount,
-                    SupplierId = request.SupplierId,
+                    SupplierId = profile.SupplierId.Value,
                     IsDeleted = false,
                     ServiceName = request.ServiceName,
                     RightViewImage = request.RightViewImage,
