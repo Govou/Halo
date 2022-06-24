@@ -234,7 +234,7 @@ namespace HaloBiz.MyServices.Impl
                     ValueOfWht = dto.ValueOfWHT
                 };
 
-                //_context.CreditNoteUsage.Add(usage);
+                _context.CreditNoteUsages.Add(usage);
             }
 
             await _context.SaveChangesAsync();
