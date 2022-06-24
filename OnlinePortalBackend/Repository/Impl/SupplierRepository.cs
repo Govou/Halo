@@ -303,5 +303,25 @@ namespace OnlinePortalBackend.Repository.Impl
             return false;
            
         }
+
+        public async Task<SupplierDashboardDetails> GetDashboardDetails(int profileId)
+        {
+           var dashB = new SupplierDashboardDetails();
+
+           var profile = _context.OnlineProfiles.FirstOrDefault(x => x.Id == profileId);
+
+            var services = _context.SupplierServices.Where(x => x.SupplierId == profile.SupplierId).ToList();
+
+            dashB.SupplierName = profile.Name;
+
+            if (services.Count > 0)
+            {
+                dashB.TotalAssetUnderManagement = services.Count.ToString();
+                dashB.DistinctTypes = services.DistinctBy(x => x.ServiceName).Count().ToString();
+               // dashB.as = services.DistinctBy(x => x.ServiceName).Count().ToString();
+            }
+            return dashB;
+
+        }
     }
 }

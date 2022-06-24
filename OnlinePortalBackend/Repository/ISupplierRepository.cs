@@ -12,5 +12,6 @@ namespace OnlinePortalBackend.Repository
         Task<IEnumerable<VehicleMakeDTO>> GetVehicleMakes();
         Task<IEnumerable<VehicleModelDTO>> GetVehicleModels(int makeId);
         Task<IEnumerable<SupplierCategoryDTO>> GetSupplierCategories();
+        Task<SupplierDashboardDetails> GetDashboardDetails(int profileId);
     }
 }
