@@ -631,7 +631,7 @@ namespace OnlinePortalBackend.Repository.Impl
 
             foreach (var item in contractServices)
             {
-                var ms = _context.MasterServiceAssignments.FirstOrDefault(x => x.ContractServiceId == item.Id && x.IsAddedToCart == true && x.IsDeleted == false);
+                var ms = _context.MasterServiceAssignments.FirstOrDefault(x => x.ContractServiceId == item.Id && x.IsAddedToCart == true && x.IsDeleted == false && x.IsScheduled == false);
 
                 if (ms != null)
                 {
