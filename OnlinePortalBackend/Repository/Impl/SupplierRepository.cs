@@ -35,7 +35,8 @@ namespace OnlinePortalBackend.Repository.Impl
         }
         public async Task<bool> AddNewAsset(AssetAdditionDTO request)
         {
-            var profile = _context.OnlineProfiles.FirstOrDefault(x => x.SupplierId == request.SupplierId);
+            var profileId = int.Parse(request.ProfileId);
+            var profile = _context.OnlineProfiles.FirstOrDefault(x => x.Id == profileId);
   
             var createdBy = _context.UserProfiles.FirstOrDefault(x => x.Email.Contains("online")).Id;
 
@@ -65,7 +66,7 @@ namespace OnlinePortalBackend.Repository.Impl
                     TopViewImage = request.TopViewImage,
                     IdentificationNumber = request.IdentificationNumber,
                     StandardDiscount = request.StandardDiscount,
-                    SupplierId = request.SupplierId,
+                    SupplierId = profile.SupplierId.Value,
                     IsDeleted = false,
                     ServiceName = request.ServiceName,
                     RightViewImage = request.RightViewImage,
@@ -180,7 +181,7 @@ namespace OnlinePortalBackend.Repository.Impl
         public async Task<IEnumerable<VehicleMakeDTO>> GetVehicleMakes()
         {
             return _context.Makes.Where(x => x.IsDeleted == false).Select(m => new VehicleMakeDTO {
-                Id = m.Id,
+                MakeId = m.Id,
                 Name = m.Caption
             }).AsEnumerable();
 
@@ -190,7 +191,7 @@ namespace OnlinePortalBackend.Repository.Impl
         {
             return _context.Models.Where(x => x.IsDeleted == false && x.MakeId == makeId).Select(m => new VehicleModelDTO
             {
-                Id = m.Id,
+                ModelId = m.Id,
                 Name = m.Caption,
                 MakeId = makeId
             }).AsEnumerable();
@@ -301,6 +302,31 @@ namespace OnlinePortalBackend.Repository.Impl
             }
             return false;
            
+        }
+
+        public async Task<SupplierDashboardDetails> GetDashboardDetails(int profileId)
+        {
+           var dashB = new SupplierDashboardDetails();
+
+           var profile = _context.OnlineProfiles.FirstOrDefault(x => x.Id == profileId);
+
+            var services = _context.SupplierServices.Where(x => x.SupplierId == profile.SupplierId).ToList();
+
+            dashB.SupplierName = profile.Name;
+
+            if (services.Count > 0)
+            {
+                dashB.TotalAssetUnderManagement = services.Count.ToString();
+                dashB.DistinctTypes = services.DistinctBy(x => x.ServiceName).Count().ToString();
+                dashB.AssetAwaitingInspection = services.Count.ToString();
+            }
+
+            dashB.TotalAssetUnderManagement = dashB.TotalAssetUnderManagement ?? "0";
+            dashB.DistinctTypes = dashB.DistinctTypes ?? "0";
+            dashB.AssetAwaitingInspection = dashB.AssetAwaitingInspection ?? "0";
+
+            return dashB;
+
         }
     }
 }

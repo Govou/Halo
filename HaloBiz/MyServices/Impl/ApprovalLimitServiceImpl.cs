@@ -61,7 +61,7 @@ namespace HaloBiz.MyServices.Impl
             {
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE); ;
             }
-            if (!await _approvalLimitRepo.DeleteApprovalLimit(approvalLimitToDelete))
+            if (!await _approvalLimitRepo.DeleteApprovalLimitModule(approvalLimitToDelete))
             {
                 return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
             }

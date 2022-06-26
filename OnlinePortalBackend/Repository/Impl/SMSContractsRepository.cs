@@ -56,11 +56,6 @@ namespace OnlinePortalBackend.Repository.Impl
         public async Task<(bool isSuccess, object message)> AddNewContract(SMSContractDTO contractDTO)
         {
 
-            //if (c)
-            //{
-
-            //}
-
             var groupInvoiceNumber = await GenerateGroupInvoiceNumber();
             var branch = _configuration["OnlineBranchID"] ?? _configuration.GetSection("AppSettings:OnlineBranchID").Value;
             var office = _configuration["OnlineOfficeID"] ?? _configuration.GetSection("AppSettings:OnlineOfficeID").Value;
@@ -1739,35 +1734,49 @@ namespace OnlinePortalBackend.Repository.Impl
         public async Task<(bool isSuccess, string message, List<InvoiceResult> invoiceResults)> GenerateInvoiceForContract(SMSCreateInvoiceDTO request)
         {
 
-         using (var transaction = await _context.Database.BeginTransactionAsync())
+             using (var transaction = await _context.Database.BeginTransactionAsync())
+             {
+                var validContactServices = new List<ContractService>();
+
+                try
                 {
+                    var contractServices = _context.ContractServices.Where(x => x.ContractId == request.ContractId);
+                    var customerDivisionId = _context.OnlineProfiles.FirstOrDefault(x => x.Id == request.ProfileId).CustomerDivisionId;
 
-                    try
+                    foreach (var item in contractServices)
                     {
-                        var contractServices = _context.ContractServices.Where(x => x.ContractId == request.ContractId);
-                        var customerDivisionId = _context.OnlineProfiles.FirstOrDefault(x => x.Id == request.ProfileId).CustomerDivisionId;
-                        var invoicesIds = new List<long>();
-                        foreach (var item in contractServices)
-                        {
-                            var invoice = new InvoiceReceivingDTO
-                            {
-                                BillableAmount = item.BillableAmount.Value,
-                                VAT = item.Vat.Value,
-                                ContractServiceId = item.Id,
-                                DateToBeSent = DateTime.UtcNow.AddHours(1),
-                                CustomerDivisionId = customerDivisionId.Value,
-                                UnitPrice = item.UnitPrice.Value,
-                                EndDate = item.ContractEndDate.Value,
-                                StartDate = item.ContractStartDate.Value,
-                                Quantity = item.Quantity,
-                            };
-                            var response = await AddInvoice(invoice);
-                            if (response.isSuccess)
-                                invoicesIds.Add(response.result);
-                        }
+                        var ms = _context.MasterServiceAssignments.FirstOrDefault(x => x.ContractServiceId == item.Id && x.IsAddedToCart == true && x.IsPaidFor == false && x.IsDeleted == false && x.IsScheduled == false);
 
-                       var result = await ConvertInvoiceToFinalInvoice(invoicesIds);
-                      await transaction.CommitAsync();
+                        if (ms != null)
+                        {
+                            validContactServices.Add(item);
+                        }
+                    }
+
+                    var invoicesIds = new List<long>();
+
+                    foreach (var item in validContactServices)
+                    {
+                        var invoice = new InvoiceReceivingDTO
+                        {
+                            BillableAmount = item.BillableAmount.Value,
+                            VAT = item.Vat.Value,
+                            ContractServiceId = item.Id,
+                            DateToBeSent = DateTime.UtcNow.AddHours(1),
+                            CustomerDivisionId = customerDivisionId.Value,
+                            UnitPrice = item.UnitPrice.Value,
+                            EndDate = item.ContractEndDate.Value,
+                            StartDate = item.ContractStartDate.Value,
+                            Quantity = item.Quantity,
+                        };
+
+                        var response = await AddInvoice(invoice);
+                        if (response.isSuccess)
+                            invoicesIds.Add(response.result);
+                    }
+
+                    var result = await ConvertInvoiceToFinalInvoice(invoicesIds);
+                    await transaction.CommitAsync();
 
                     return result;
                     }
@@ -1775,7 +1784,7 @@ namespace OnlinePortalBackend.Repository.Impl
                     {
                         _logger.LogError(ex.Message);
                         _logger.LogError(ex.StackTrace);
-                       await transaction.RollbackAsync();
+                        await transaction.RollbackAsync();
                     return (false, "An error occured", null);
                     }
 
@@ -2112,23 +2121,9 @@ namespace OnlinePortalBackend.Repository.Impl
             }
         }
 
-        public async Task<(bool isSuccess, object message)> RemoveServiceFromContract(SMSContractServiceRemovalDTO request)
+        public Task<(bool isSuccess, object message)> RemoveServiceFromContract(SMSContractServiceRemovalDTO request)
         {
-            var contractService = _context.ContractServices.FirstOrDefault(x => x.ContractId == request.ContractId && x.ServiceId == request.ServiceId);
-            if (contractService == null)
-            {
-                return (false, null);
-            }
-
-            contractService.IsDeleted = true;
-            _context.SaveChanges();
-
-            var invoice = _context.Invoices.FirstOrDefault(x => x.ContractServiceId == contractService.Id);
-
-            invoice.IsDeleted = true;
-            _context.SaveChanges();
-
-            return (true, "successfully removed");
+            throw new NotImplementedException();
         }
     }
 

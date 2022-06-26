@@ -8,6 +8,7 @@ using OnlinePortalBackend.Helpers;
 using OnlinePortalBackend.Repository;
 using RestSharp;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace OnlinePortalBackend.MyServices.SecureMobilitySales
@@ -65,6 +66,12 @@ namespace OnlinePortalBackend.MyServices.SecureMobilitySales
                 {
                     serviceCenters.Data.AddRange(result?.Data);
                 }
+
+                //if (serviceCenters.Data.Count > 1)
+                //{
+                //    var centres = serviceCenters.Data.DistinctBy(x => x.CentreId);
+                //    serviceCenters.Data = centres.ToList();
+                //}
             }
 
             if (serviceCenters?.Data?.Count > 0)
@@ -115,7 +122,7 @@ namespace OnlinePortalBackend.MyServices.SecureMobilitySales
             IRestResponse response = client.Execute(request);
            
             var result = JsonConvert.DeserializeObject<ServiceInspectionDTO>(response.Content);
-
+            
             return result;
         }
 
@@ -162,6 +169,17 @@ namespace OnlinePortalBackend.MyServices.SecureMobilitySales
         public async Task<ApiCommonResponse> GetSupplierCategories()
         {
             var result = await _supplierRepo.GetSupplierCategories();
+
+            if (result == null)
+            {
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE, null, "failed");
+            }
+            return CommonResponse.Send(ResponseCodes.SUCCESS, result, "success");
+        }
+
+        public  async Task<ApiCommonResponse> GetDashboardDetails(int profileId)
+        {
+            var result = await _supplierRepo.GetDashboardDetails(profileId);
 
             if (result == null)
             {

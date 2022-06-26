@@ -30,6 +30,7 @@ namespace OnlinePortalBackend.MyServices
     {
         Task<ApiCommonResponse> SendConfirmCodeToClient(string Email);
         Task<ApiCommonResponse> SendConfirmCodeToClient_v2(string Email);
+        Task<ApiCommonResponse> SendConfirmCodeToClient_v3(string Email);
         Task<ApiCommonResponse> CreateAccount(CreatePasswordDTO user);
         Task<ApiCommonResponse> Login(LoginDTO user);
         Task<ApiCommonResponse> Login_v2(LoginDTO user);
@@ -127,6 +128,7 @@ namespace OnlinePortalBackend.MyServices
                 return CommonResponse.Send(ResponseCodes.FAILURE, null, ex.Message);
             }          
         }
+
         public async Task<ApiCommonResponse> SendConfirmCodeToClient_v2(string Email)
         {
             try
@@ -181,6 +183,54 @@ namespace OnlinePortalBackend.MyServices
             }          
         }
 
+        public async Task<ApiCommonResponse> SendConfirmCodeToClient_v3(string Email)
+        {
+            try
+            {
+                var response = await _context.OnlineProfiles.Where(x => x.Email == Email).FirstOrDefaultAsync();
+
+                if (_context.UsersCodeVerifications.Any(x => x.Email == Email && x.CodeExpiryTime >= DateTime.Now && x.CodeUsedTime == null))
+                {
+                    return CommonResponse.Send(ResponseCodes.DUPLICATE_REQUEST, null, $"The code for {Email} has not been used");
+                }
+
+                //save security code for this guy
+                var code = await GenerateCode();
+                var codeModel = new UsersCodeVerification
+                {
+                    Email = Email,
+                    CodeExpiryTime = DateTime.UtcNow.AddHours(1).AddMinutes(10),
+                    Code = code,
+                    Purpose = CodePurpose.Onboarding
+                };
+
+                var entity = await _context.UsersCodeVerifications.AddAsync(codeModel);
+                await _context.SaveChangesAsync();
+
+                List<string> detail = new List<string>();
+                detail.Add($"Your verification code for the online portal is <strong>{code}</strong>. Please note that it expires it 10 minutes");
+
+                //send email with the code
+                var request = new OnlinePortalDTO
+                {
+                    Recepients = new string[] { Email },
+                    Name = "",
+                    Salutation = "Hi",
+                    Subject = "Confirmation code for Account Creation",
+                    DetailsInPara = detail
+                };
+
+                var mailresponse = await _mailService.ConfirmCodeSending(request);
+                mailresponse.responseData = $"Verfication Code has been sent to {Email}";
+                return mailresponse;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.StackTrace);
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, ex.Message);
+            }
+        }
+
         public async Task<ApiCommonResponse> VerifyCode(CodeVerifyModel model)
         {
             try
@@ -209,6 +259,7 @@ namespace OnlinePortalBackend.MyServices
                 return CommonResponse.Send(ResponseCodes.FAILURE, null, ex.Message);
             }
         }
+
         private async Task<string> GenerateCode()
         {
             string code = string.Empty;

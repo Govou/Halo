@@ -253,7 +253,7 @@ namespace HaloBiz.Repository.Impl
               //.Include(ct => ct.CommanderResource).Include(t => t.CommanderResource.Profile).Include(t => t.TiedVehicleResource).Include(t => t.ServiceAssignment)
               //.Include(t => t.TempReleaseType).Include(t => t.CreatedBy).Include(t => t.ActionReleaseType).Include(t => t.CommanderResource.CommanderType)
               .OrderByDescending(x => x.Id).DistinctBy(y => y.CommanderResourceId).ToList();
-            var resourceList = _context.CommanderProfiles.Where(cm => cm.IsDeleted == false).Include(x=>x.CommanderType).ToList();
+            var resourceList = _context.CommanderProfiles.Where(cm => cm.IsDeleted == false).Include(x=>x.Profile).Include(x=>x.CommanderType).ToList();
             var newList = new List<CommanderProfile>();
             newList = resourceList.Where(x => !query.Any(y => y.CommanderResourceId == x.Id)).ToList();
             return  newList.ToList();
