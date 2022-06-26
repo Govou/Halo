@@ -12,6 +12,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using HaloBiz.EnumResponse;
+using HaloBiz.MyServices.Impl;
 
 
 namespace HaloBiz.Repository.Impl
@@ -22,11 +24,13 @@ namespace HaloBiz.Repository.Impl
 
         private readonly HalobizContext _context;
         private readonly ILogger<ProjectAllocationRepositoryImpl> _logger;
-        public ProjectAllocationRepositoryImpl(HalobizContext context, ILogger<ProjectAllocationRepositoryImpl> logger)
+        private IProjectManagementMailService _projectManagementMailService;
+        public ProjectAllocationRepositoryImpl(HalobizContext context, ILogger<ProjectAllocationRepositoryImpl> logger,
+            IProjectManagementMailService projectManagementMailService)
         {
             this._logger = logger;
             this._context = context;
-
+            this._projectManagementMailService = projectManagementMailService;
         }
 
 
@@ -64,6 +68,7 @@ namespace HaloBiz.Repository.Impl
 
             var savedWorkspace = await _context.Workspaces.AddAsync(workspaceToBeSaved);
             await _context.SaveChangesAsync();
+           
 
             foreach (var item in workspaceDTO.StatusFlowDTO) 
             {
@@ -123,12 +128,15 @@ namespace HaloBiz.Repository.Impl
             await _context.ProjectCreators.AddRangeAsync(projectCreatorsList);
 
             await _context.SaveChangesAsync();
+            await _projectManagementMailService.BuildMail(ProjectManagementOption.WorkspaceCreation,
+                savedWorkspace.Entity.Id);
 
 
 
             if (workspaceToBeSaved != null)
             {
                 return savedWorkspace.Entity;
+                
             }
             return null;
         }
