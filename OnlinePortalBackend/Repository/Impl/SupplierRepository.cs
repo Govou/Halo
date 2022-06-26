@@ -318,8 +318,13 @@ namespace OnlinePortalBackend.Repository.Impl
             {
                 dashB.TotalAssetUnderManagement = services.Count.ToString();
                 dashB.DistinctTypes = services.DistinctBy(x => x.ServiceName).Count().ToString();
-               // dashB.as = services.DistinctBy(x => x.ServiceName).Count().ToString();
+                dashB.AssetAwaitingInspection = services.Count.ToString();
             }
+
+            dashB.TotalAssetUnderManagement = dashB.TotalAssetUnderManagement ?? "0";
+            dashB.DistinctTypes = dashB.DistinctTypes ?? "0";
+            dashB.AssetAwaitingInspection = dashB.AssetAwaitingInspection ?? "0";
+
             return dashB;
 
         }

@@ -510,7 +510,6 @@ namespace OnlinePortalBackend.Repository.Impl
 
             var validInvoices = invoices.Where(x => x.AdhocGroupingId == inv.AdhocGroupingId);
 
-
             var receiptsRequests = new List<SMSReceiptReceivingDTO>();
 
             try
@@ -627,6 +626,19 @@ namespace OnlinePortalBackend.Repository.Impl
 
         public async Task<SendReceiptDTO> GetContractServiceDetailsForReceipt(long contractId)
         {
+            var contractServices = _context.ContractServices.Include(x => x.Service).Where(x => x.ContractId == contractId);
+            var validContractServices = new List<ContractService>();
+
+            foreach (var item in contractServices)
+            {
+                var ms = _context.MasterServiceAssignments.FirstOrDefault(x => x.ContractServiceId == item.Id && x.IsAddedToCart == true && x.IsDeleted == false);
+
+                if (ms != null)
+                {
+                    validContractServices.Add(item);
+                }
+            }
+
             var receiptDetails = _context.ContractServices.Include(x => x.Service).Where(x => x.ContractId == contractId).Select(x => new SendReceiptDetailDTO
             {
                 Amount = x.AdHocInvoicedAmount.ToString(),
@@ -635,6 +647,8 @@ namespace OnlinePortalBackend.Repository.Impl
                 ServiceName = x.Service.Name,
                 Total = x.AdHocInvoicedAmount.ToString()
             }).AsEnumerable();
+
+            var validContactServices = new List<ContractService>();
 
             var totalSum = receiptDetails.Select(x => double.Parse(x.Amount)).Sum();
 
