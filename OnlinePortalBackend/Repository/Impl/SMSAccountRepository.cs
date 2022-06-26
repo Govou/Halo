@@ -565,8 +565,8 @@ namespace OnlinePortalBackend.Repository.Impl
             using var transaction = await _context.Database.BeginTransactionAsync();
             var gender = accountDTO.PrimaryContactGender == "M" ? Gender.Male : Gender.Female;
 
-            var firstName = accountDTO.PrimaryContactName.Split(' ')[0];
-            var lastName = accountDTO.PrimaryContactName.Split(' ')[1];
+            var firstName = accountDTO.FirstName;
+            var lastName = accountDTO.LastName;
 
             var contact = new Contact
             {
