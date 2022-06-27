@@ -232,7 +232,7 @@ namespace HaloBiz.Repository.Impl
                          MarkupPrice = od.MarkupPrice,
                          ServiceCategory = od.ServiceRegistration.Service.ServiceCategory,
                          //PriceServiceRegistration = od.ServiceRegistration,
-                     }).ToListAsync();
+                     }).OrderByDescending(x=>x.PickupDate).ToListAsync();
 
             return  q;
 
@@ -274,7 +274,7 @@ namespace HaloBiz.Repository.Impl
                                MarkupPrice = od.MarkupPrice,
                                ServiceCategory = od.ServiceRegistration.Service.ServiceCategory,
                                //PriceServiceRegistration = od.ServiceRegistration,
-                           }).ToListAsync();
+                           }).OrderByDescending(x=>x.PickupDate).ToListAsync();
 
             return q;
         }
