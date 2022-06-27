@@ -29,6 +29,7 @@ namespace Halobiz.Common.DTOs.ReceivingDTOs
     public class SMSContractService
     {
         public int ServiceId { get; set; }
+        public string TripType { get; set; }
         public int Quantity { get; set; }
         public double TotalAmount { get; set; }
         public DateTime ServiceStartDate { get; set; }

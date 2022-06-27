@@ -239,8 +239,8 @@ namespace OnlinePortalBackend.Repository.Impl
                         FulfillmentEndDate = DateTime.UtcNow.AddHours(1),
                     });
                 }
-
-                var endorsementResult = await AddNewRetentionContractServiceForEndorsement(contractServiceForEndorsements);
+                var caption = contractDTO.SMSContractServices[0].TripType;
+                var endorsementResult = await AddNewRetentionContractServiceForEndorsement(contractServiceForEndorsements, caption);
 
                 if (endorsementResult.isSuccess)
                 {
@@ -312,7 +312,7 @@ namespace OnlinePortalBackend.Repository.Impl
             }
         }
 
-        public async Task<(bool isSuccess, object message1, object message2)> AddNewRetentionContractServiceForEndorsement(List<ContractServiceForEndorsementReceivingDto> contractServiceForEndorsementDtos)
+        public async Task<(bool isSuccess, object message1, object message2)> AddNewRetentionContractServiceForEndorsement(List<ContractServiceForEndorsementReceivingDto> contractServiceForEndorsementDtos, string caption)
         {
             long contractId = 0;
             long contractServiceId = 0l;
@@ -347,7 +347,7 @@ namespace OnlinePortalBackend.Repository.Impl
                     GroupInvoiceNumber = contractDetail.GroupInvoiceNumber,
                     IsApproved = true,
                     HasAddedSBU = true,
-                    Caption = contractDetail.DocumentUrl
+                    Caption = caption
                 };
 
                 var entity = await _context.Contracts.AddAsync(newContract);
@@ -2080,8 +2080,8 @@ namespace OnlinePortalBackend.Repository.Impl
                         FulfillmentEndDate = DateTime.UtcNow.AddHours(1),
                     });
                 }
-
-                var endorsementResult = await AddNewRetentionContractServiceForEndorsement(contractServiceForEndorsements);
+                var caption = contractDTO.SMSContractServices[0].TripType;
+                var endorsementResult = await AddNewRetentionContractServiceForEndorsement(contractServiceForEndorsements, caption);
 
                
                 var quote = new QuoteReceivingDTO

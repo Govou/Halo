@@ -33,6 +33,7 @@ namespace OnlinePortalBackend.DTOs.TransferDTOs
     public class ProfileContractDetail
     {
         public long? ContractId { get; set; }
+        public long? ScheduledContractId { get; set; }
         public List<ProfileContractServiceDetail> ContractServices { get; set; }
 
     }
