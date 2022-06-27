@@ -88,8 +88,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 Customer customer = await ConvertLeadToCustomer(lead, _context);
                 foreach (var leadDivision in lead.LeadDivisions)
                 {
-                    CustomerDivision customerDivision = await ConvertLeadDivisionToCustomerDivision(leadDivision, customer.Id, _context);
-
+                    CustomerDivision customerDivision = await ConvertLeadDivisionToCustomerDivision(leadDivision, customer.Id, _context, lead.IsInternalClientType);
                     var quote = await _context.Quotes
                                           .Include(x => x.QuoteServices.Where(x => !x.IsDeleted))
                                               .ThenInclude(x => x.SbutoQuoteServiceProportions)
@@ -289,7 +288,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
             }
         }
 
-        private async Task<CustomerDivision> ConvertLeadDivisionToCustomerDivision(LeadDivision leadDivision, long customerId, HalobizContext context)
+        private async Task<CustomerDivision> ConvertLeadDivisionToCustomerDivision(LeadDivision leadDivision, long customerId, HalobizContext context, bool isInternalClientType = false)
         {
             var customerDivision = await context.CustomerDivisions
                     .Where(x => x.DivisionName == leadDivision.DivisionName && x.Rcnumber == leadDivision.Rcnumber)                    
@@ -317,7 +316,8 @@ namespace HaloBiz.MyServices.Impl.LAMS
                     Lga = leadDivision.Lga,
                     Street = leadDivision.Street,
                     CreatedById = LoggedInUserId,
-                    DTrackCustomerNumber = await GetDtrackCustomerNumber(leadDivision)
+                    DTrackCustomerNumber = await GetDtrackCustomerNumber(leadDivision),
+                    IsInternalClientType = isInternalClientType
                 });
 
                 await context.SaveChangesAsync();
@@ -1192,7 +1192,9 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
             try
             {
-                var (isSuccesReceivable, messageReceivale) = await PostCustomerReceivablAccounts(
+                if (!customerDivision.IsInternalClientType)
+                {
+                    var (isSuccesReceivable, messageReceivale) = await PostCustomerReceivablAccounts(
                                     service,
                                     contractService,
                                     customerDivision,
@@ -1205,7 +1207,8 @@ namespace HaloBiz.MyServices.Impl.LAMS
                                     isReversal
                                    );
 
-                if (!isSuccesReceivable) return (false, "Receivable was not created");
+                    if (!isSuccesReceivable) return (false, "Receivable was not created");
+                }
 
                 var (isSuccessVat, messageVat) = await PostVATAccountDetails(
                                             service,

@@ -37,12 +37,25 @@ namespace HaloBiz.Controllers.AccountsModel
             return await _accountService.GetCashBookAccounts();
         }
 
+        [HttpGet("ServiceAccounts")]
+        public async Task<ApiCommonResponse> GetserviceAccounts()
+        {
+            return await _accountService.GetserviceAccounts();
+        }
+
+        [HttpPost("SaveServiceAccount")]
+        public async Task<ApiCommonResponse> SaveServiceAccount(AccountSearchDTO accountSearchDTO)
+        {
+            return await _accountService.SaveServiceAccount(accountSearchDTO);
+        }
 
         [HttpPost("SeachAccount")]
         public async Task<ApiCommonResponse> SeachAccount(AccountSearchDTO accountSearchDTO)
         {
             return await _accountService.SearchForAccountDetails( accountSearchDTO);
         }
+
+       
 
         [HttpGet("TradeIncome")]
         public async Task<ApiCommonResponse> GetTradeIncomeAccountes()
