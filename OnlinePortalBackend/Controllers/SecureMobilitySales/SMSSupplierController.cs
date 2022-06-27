@@ -54,5 +54,11 @@ namespace OnlinePortalBackend.Controllers.SecureMobilitySales
             return _supplierService.GetSupplierCategories();
         }
 
+        [HttpGet("Dashboard")]
+        public Task<ApiCommonResponse> GetDashboardDetails(int profileId)
+        {
+            return _supplierService.GetDashboardDetails(profileId);
+        }
+
     }
 }

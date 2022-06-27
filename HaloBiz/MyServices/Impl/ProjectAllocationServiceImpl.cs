@@ -27,6 +27,7 @@ using DocumentFormat.OpenXml.Spreadsheet;
 using Google.Apis.Calendar.v3.Data;
 using Google.Apis.Services;
 using Google.Apis.Util.Store;
+using HaloBiz.EnumResponse;
 using HaloBiz.Models;
 using MailKit.Search;
 using Microsoft.AspNetCore.Hosting;
@@ -42,13 +43,14 @@ namespace HaloBiz.MyServices.Impl
         private readonly ILogger<ProjectAllocationServiceImpl> _logger;
         private readonly IProjectAllocationRepositoryImpl _projectAllocationRepository;
         private readonly IMapper _mapper;
+        private IProjectManagementMailService _projectManagementMailService;
         private IWebHostEnvironment _hostEnvironment;
         private readonly IEmailService _emailService;
 
 
         public ProjectAllocationServiceImpl(IEmailService emailService, IWebHostEnvironment environment,
             IProjectResolver projectResolver, HalobizContext context,
-            IProjectAllocationRepositoryImpl projectAllocationRepository, ILogger<ProjectAllocationServiceImpl> logger,
+            IProjectAllocationRepositoryImpl projectAllocationRepository,IProjectManagementMailService projectManagementMailService, ILogger<ProjectAllocationServiceImpl> logger,
             IMapper mapper)
         {
             this._mapper = mapper;
@@ -58,6 +60,7 @@ namespace HaloBiz.MyServices.Impl
             _emailService = emailService;
             this._projectResolver = projectResolver;
             _hostEnvironment = environment;
+            _projectManagementMailService = projectManagementMailService;
         }
 
 
@@ -122,9 +125,6 @@ namespace HaloBiz.MyServices.Impl
 
         public async Task<ApiCommonResponse> CreateNewWorkspace(HttpContext context, WorkspaceDTO workspaceDTO)
         {
-
-
-
             var savedWorkSpaces = await _projectAllocationRepository.createWorkspace(context, workspaceDTO);
 
             if (savedWorkSpaces == null)
@@ -1535,6 +1535,7 @@ namespace HaloBiz.MyServices.Impl
             getDeliverableToUpdate.IsPicked = true;
             _context.Deliverables.Update(getDeliverableToUpdate);
             _context.SaveChanges();
+            await _projectManagementMailService.BuildMail(ProjectManagementOption.DeliverableMovement, deliverableId);
 
             var getCurrentStatus =
                 await _context.StatusFlows.FirstOrDefaultAsync(x => x.IsDeleted == false && x.Id == statusId);
@@ -1770,6 +1771,7 @@ namespace HaloBiz.MyServices.Impl
             getDeliverableToApprove.IsDeclined = false;
             _context.Deliverables.Update(getDeliverableToApprove);
             _context.SaveChanges();
+            
 
             return CommonResponse.Send(ResponseCodes.SUCCESS, null,
                 "Deliverable " + getDeliverableToApprove.Caption + " was approved successfuly");
@@ -1838,18 +1840,16 @@ namespace HaloBiz.MyServices.Impl
                                 "The requirement " + required.Caption +
                                 " is missing an upload,therefore it cannot be pushed for approval");
                         }
-
-
                     }
                 }
-
-
             }
 
             getDeliverable.IsPushedForApproval = true;
             getDeliverable.DatePushedForApproval = DateTime.Now;
             _context.Deliverables.Update(getDeliverable);
             _context.SaveChanges();
+            await _projectManagementMailService.BuildMail(ProjectManagementOption.DeliverableApproval, getDeliverable.Id);
+
             return CommonResponse.Send(ResponseCodes.SUCCESS, getDeliverable,
                 "All " + requirementCount + " requirement(s) where met,therefore " + getDeliverable.Caption +
                 "has been successfully pushed for Approval");
@@ -3649,31 +3649,13 @@ namespace HaloBiz.MyServices.Impl
 
                     await _context.TaskAssignees.AddRangeAsync(taskAssigneeArray);
                     await _context.SaveChangesAsync();
+                    await _projectManagementMailService.BuildMail(ProjectManagementOption.TaskCreation,
+                        TaskToBeSaved.Id);
                     var getUpdatedList = await _context.Tasks
                         .Where(x => x.ProjectId == projectId && x.CreatedById == context.GetLoggedInUserId())
                         .ToListAsync();
                     return CommonResponse.Send(ResponseCodes.SUCCESS, getUpdatedList);
 
-                    //foreach (var item in getUpdatedList)
-                    //{
-                    //    var taskSummary = new TaskSummaryDTO();
-                    //    taskSummary.Alias = item.Alias;
-                    //    taskSummary.Caption = item.Caption;
-                    //    taskSummary.CreatedAt = item.CreatedAt;
-                    //    taskSummary.CreatedById = item.CreatedById;
-                    //    taskSummary.Description = item.Description;
-                    //    taskSummary.IsAssigned = item.IsAssigned;
-                    //    taskSummary.IsMilestone = item.IsMilestone;
-                    //    taskSummary.IsReassigned = item.IsReassigned;
-                    //    taskSummary.IsWorkbenched = item.IsWorkbenched;
-                    //    taskSummary.ProjectId = item.ProjectId;
-                    //    taskSummary.TaskEndDate = item.TaskEndDate;
-                    //    taskSummary.TaskStartDate = item.TaskStartDate;
-                    //    taskSummary.Project = await _context.Projects.FirstOrDefaultAsync(x => x.Id == item.ProjectId && x.IsActive == true);
-                    //    taskSummary.TaskAssignees = await _context.TaskAssignees.Where(X => X.TaskId == item.Id && X.IsActive == true).ToListAsync();
-                    //    taskSummary.workspace = await _context.Workspaces.FirstOrDefaultAsync(x => x.Id == taskSummary.Project.WorkspaceId && x.IsActive == true);
-                    //    taskSummaryList.Add(taskSummary);
-                    //}
 
                 }
 
@@ -4127,7 +4109,6 @@ namespace HaloBiz.MyServices.Impl
                 CreatedById = httpContext.GetLoggedInUserId(),
                 CreatedAt = DateTime.Now,
             };
-
             _context.Projects.Add(projectTobeSaved);
             await _context.SaveChangesAsync();
 
@@ -4147,6 +4128,7 @@ namespace HaloBiz.MyServices.Impl
             }
 
             await _context.SaveChangesAsync();
+            await _projectManagementMailService.BuildMail(ProjectManagementOption.ProjectCreation, projectTobeSaved.Id);
             var getAllProjects = await _context.Projects.Where(x =>
                 x.WorkspaceId == projectDTO.WorkspaceId && x.CreatedById == httpContext.GetLoggedInUserId() &&
                 x.IsActive == true).ToListAsync();
@@ -5484,6 +5466,7 @@ namespace HaloBiz.MyServices.Impl
 
             var valueToBeSaved = await _context.ProjectComments.AddAsync(projectComment);
             await _context.SaveChangesAsync();
+            await _projectManagementMailService.BuildMail(ProjectManagementOption.ProjectComment, projectComment.Id);
             return CommonResponse.Send(ResponseCodes.SUCCESS, valueToBeSaved.Entity, "SuccessFully savedComments");
         }
 
@@ -5591,6 +5574,7 @@ namespace HaloBiz.MyServices.Impl
 
             var valueToBeSaved = await _context.TaskComments.AddAsync(taskComment);
             await _context.SaveChangesAsync();
+            await _projectManagementMailService.BuildMail(ProjectManagementOption.TaskComment, taskComment.Id);
             return CommonResponse.Send(ResponseCodes.SUCCESS, valueToBeSaved.Entity, "SuccessFully savedComments");
 
         }
