@@ -117,9 +117,9 @@ namespace HaloBiz.Repository.Impl
         public async Task<IEnumerable<CommanderServiceAssignmentDetail>> FindAllCommanderServiceAssignmentDetailsByAssignmentId(long assignmentId)
         {
             return await _context.CommanderServiceAssignmentDetails.Where(type => type.IsDeleted == false  && type.ServiceAssignmentId == assignmentId)
-               .Include(ct => ct.CommanderResource).Include(t => t.CommanderResource.Profile).Include(t => t.TiedVehicleResource).Include(t => t.ServiceAssignment)
+               .Include(ct => ct.CommanderResource).ThenInclude(t => t.Profile).Include(t => t.TiedVehicleResource).Include(t => t.ServiceAssignment)
                .Include(ct => ct.ServiceAssignment.ServiceRegistration).Include(ct => ct.ServiceAssignment.ServiceRegistration.Service)
-               .Include(t => t.TempReleaseType).Include(t => t.CreatedBy).Include(t => t.ActionReleaseType).Include(t => t.CommanderResource.CommanderType)
+              .Include(t => t.CommanderResource.CommanderType)
                .OrderByDescending(x => x.Id)
                .ToListAsync();
         }
