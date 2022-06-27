@@ -35,7 +35,7 @@ namespace HaloBiz.Controllers
         {
             return await _armedEscortService.GetAllArmedEscortTies();
         }
-        [HttpGet("GetAllArmedEscortTiesByResourceId")]
+        [HttpGet("GetAllArmedEscortTiesByResourceId")]// we use params(?id=) for apis in this format where id is not field (/{id}) is not used
         public async Task<ApiCommonResponse> GetAllArmedEscortTiesByResourceId(long id)
         {
             return await _armedEscortService.GetAllArmedEscortTiesByResourceId(id);
