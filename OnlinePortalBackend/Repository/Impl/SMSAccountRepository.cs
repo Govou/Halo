@@ -647,5 +647,36 @@ namespace OnlinePortalBackend.Repository.Impl
 
         }
 
+        public Task<(bool success, string message)> UpdateCustomerProfile(ProfileUpdateDTO profile)
+        {
+            throw new NotImplementedException();
+        }
+
+        //public async Task<(bool success, string message)> UpdateCustomerProfile(ProfileUpdateDTO request)
+        //{
+        //    var profile = _context.OnlineProfiles.FirstOrDefault(x => x.Id == request.profileId);
+
+        //    if (profile == null)
+        //    {
+        //        return (false, "Profile does not exist");
+        //    }
+
+        //    var leadDiv = _context.LeadDivisions.FirstOrDefault(x => x.Id == profile.LeadDivisionId);
+        //    leadDiv.DivisionName = request.FirstName + " " + request.LastName;
+        //    leadDiv.LogoUrl = request.ProfileImage;
+        //    leadDiv.UpdatedAt = DateTime.UtcNow.AddHours(1);
+
+        //    var lead = _context.Leads.FirstOrDefault(x => x.Id == leadDiv.LeadId);
+        //    lead.LogoUrl = request.ProfileImage;
+
+        //    if (profile.CustomerDivisionId != null )
+        //    {
+        //        var custDiv = _context.CustomerDivisions.FirstOrDefault(x => x.Id == profile.CustomerDivisionId);
+
+        //        var cust = _context.Customers.FirstOrDefault(x => x.Id == leadDiv.LeadId);
+        //    }
+
+
+        //}
     }
 }

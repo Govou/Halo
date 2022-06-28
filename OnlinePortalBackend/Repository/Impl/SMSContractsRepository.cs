@@ -239,8 +239,8 @@ namespace OnlinePortalBackend.Repository.Impl
                         FulfillmentEndDate = DateTime.UtcNow.AddHours(1),
                     });
                 }
-
-                var endorsementResult = await AddNewRetentionContractServiceForEndorsement(contractServiceForEndorsements);
+                var caption = contractDTO.SMSContractServices[0].TripType;
+                var endorsementResult = await AddNewRetentionContractServiceForEndorsement(contractServiceForEndorsements, caption);
 
                 if (endorsementResult.isSuccess)
                 {
@@ -312,7 +312,7 @@ namespace OnlinePortalBackend.Repository.Impl
             }
         }
 
-        public async Task<(bool isSuccess, object message1, object message2)> AddNewRetentionContractServiceForEndorsement(List<ContractServiceForEndorsementReceivingDto> contractServiceForEndorsementDtos)
+        public async Task<(bool isSuccess, object message1, object message2)> AddNewRetentionContractServiceForEndorsement(List<ContractServiceForEndorsementReceivingDto> contractServiceForEndorsementDtos, string caption)
         {
             long contractId = 0;
             long contractServiceId = 0l;
@@ -347,7 +347,7 @@ namespace OnlinePortalBackend.Repository.Impl
                     GroupInvoiceNumber = contractDetail.GroupInvoiceNumber,
                     IsApproved = true,
                     HasAddedSBU = true,
-                    Caption = contractDetail.DocumentUrl
+                    Caption = caption
                 };
 
                 var entity = await _context.Contracts.AddAsync(newContract);
@@ -1743,13 +1743,17 @@ namespace OnlinePortalBackend.Repository.Impl
                     var contractServices = _context.ContractServices.Where(x => x.ContractId == request.ContractId);
                     var customerDivisionId = _context.OnlineProfiles.FirstOrDefault(x => x.Id == request.ProfileId).CustomerDivisionId;
 
-                    foreach (var item in contractServices)
+                    foreach (var item in request.ContractServices)
                     {
-                        var ms = _context.MasterServiceAssignments.FirstOrDefault(x => x.ContractServiceId == item.Id && x.IsAddedToCart == true && x.IsPaidFor == false && x.IsDeleted == false && x.IsScheduled == false);
-
-                        if (ms != null)
+                        //var ms = _context.MasterServiceAssignments.FirstOrDefault(x => x.ContractServiceId == item.Id && x.IsAddedToCart == true && x.IsPaidFor == false && x.IsDeleted == false && x.IsScheduled == false);
+                        //if (ms != null)
+                        //{
+                        //    validContactServices.Add(item);
+                        //}
+                        var conSer = contractServices.FirstOrDefault(x => x.Id == item);
+                        if (conSer != null)
                         {
-                            validContactServices.Add(item);
+                            validContactServices.Add(conSer);
                         }
                     }
 
@@ -2080,8 +2084,8 @@ namespace OnlinePortalBackend.Repository.Impl
                         FulfillmentEndDate = DateTime.UtcNow.AddHours(1),
                     });
                 }
-
-                var endorsementResult = await AddNewRetentionContractServiceForEndorsement(contractServiceForEndorsements);
+                var caption = contractDTO.SMSContractServices[0].TripType;
+                var endorsementResult = await AddNewRetentionContractServiceForEndorsement(contractServiceForEndorsements, caption);
 
                
                 var quote = new QuoteReceivingDTO
