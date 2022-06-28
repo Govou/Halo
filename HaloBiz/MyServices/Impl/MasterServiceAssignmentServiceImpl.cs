@@ -1145,9 +1145,9 @@ namespace HaloBiz.MyServices.Impl
             return CommonResponse.Send(ResponseCodes.SUCCESS, TransferDTO, ResponseMessage.Success200);
         }
 
-        public async Task<ApiCommonResponse> GetAllMasterServiceAssignmentsByClientId(long clientId)
+        public async Task<ApiCommonResponse> GetAllMasterServiceAssignmentsForCartByClientId(long clientId)
         {
-            var master = await _serviceAssignmentMasterRepository.FindAllServiceAssignmentsByClientId(clientId);
+            var master = await _serviceAssignmentMasterRepository.FindAllServiceAssignmentsForCartByClientId(clientId);
             if (master == null)
             {
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);
@@ -1316,6 +1316,17 @@ namespace HaloBiz.MyServices.Impl
             }
 
             return CommonResponse.Send(ResponseCodes.SUCCESS, null, ResponseMessage.Success200);
+        }
+
+        public async Task<ApiCommonResponse> GetAllMasterServiceAssignmentsByClientId(long clientId)
+        {
+            var master = await _serviceAssignmentMasterRepository.FindAllServiceAssignmentsByClientId(clientId);
+            if (master == null)
+            {
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);
+            }
+          
+            return CommonResponse.Send(ResponseCodes.SUCCESS, master, ResponseMessage.Success200);
         }
     }
 }

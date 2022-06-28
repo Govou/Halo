@@ -194,7 +194,7 @@ namespace HaloBiz.Repository.Impl
             }
         }
 
-        public async Task<IEnumerable<MasterServiceAssignmentWithRegisterTransferDTO>> FindAllServiceAssignmentsByClientId(long clientId)
+        public async Task<IEnumerable<MasterServiceAssignmentWithRegisterTransferDTO>> FindAllServiceAssignmentsForCartByClientId(long clientId)
         {
             //return await _context.MasterServiceAssignments.Where(aer => aer.CustomerDivisionId == clientId && aer.IsDeleted == false && aer.ReadyStatus == false && aer.IsScheduled == false && aer.IsPaidFor == false && aer.IsAddedToCart == true)
             //  .Include(ct => ct.ContractService).Include(t => t.SMORegion).Include(t => t.SMORegion)
@@ -232,7 +232,7 @@ namespace HaloBiz.Repository.Impl
                          MarkupPrice = od.MarkupPrice,
                          ServiceCategory = od.ServiceRegistration.Service.ServiceCategory,
                          //PriceServiceRegistration = od.ServiceRegistration,
-                     }).ToListAsync();
+                     }).OrderByDescending(x=>x.PickupDate).ToListAsync();
 
             return  q;
 
@@ -274,7 +274,7 @@ namespace HaloBiz.Repository.Impl
                                MarkupPrice = od.MarkupPrice,
                                ServiceCategory = od.ServiceRegistration.Service.ServiceCategory,
                                //PriceServiceRegistration = od.ServiceRegistration,
-                           }).ToListAsync();
+                           }).OrderByDescending(x=>x.PickupDate).ToListAsync();
 
             return q;
         }
@@ -307,6 +307,13 @@ namespace HaloBiz.Repository.Impl
             return await _context.MasterServiceAssignments.Where(aer => aer.CustomerDivisionId == clientId && aer.IsDeleted == false && aer.SAExecutionStatus == 2 && aer.AssignmentStatus == "Closed")
                 .Include(s=>s.ServiceRegistration).ThenInclude(x=>x.Service).Include(s=>s.SMORoute).ThenInclude(x=>x.SMORegion)
                  .ToListAsync();
+        }
+
+        public async Task<IEnumerable<MasterServiceAssignment>> FindAllServiceAssignmentsByClientId(long clientId)
+        {
+            return await _context.MasterServiceAssignments.Where(aer => aer.CustomerDivisionId == clientId && aer.IsDeleted == false )
+           .Include(s => s.ServiceRegistration).ThenInclude(x => x.Service).Include(s => s.SMORoute).ThenInclude(x => x.SMORegion)
+            .ToListAsync();
         }
     }
 }

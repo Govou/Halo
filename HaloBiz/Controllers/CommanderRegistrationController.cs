@@ -34,7 +34,7 @@ namespace HaloBiz.Controllers
         {
             return await _commanderService.GetAllCommanderTies();
         }
-        [HttpGet("GetAllCommanderTiesByResourceId")]
+        [HttpGet("GetAllCommanderTiesByResourceId")]//without /{resourceId} we use ?id= when calling the api
         public async Task<ApiCommonResponse> GetAllCommanderTiesByResourceId(long id)
         {
             return await _commanderService.GetAllCommanderTiesByResourceId(id);

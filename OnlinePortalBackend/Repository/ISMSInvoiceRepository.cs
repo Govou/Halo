@@ -14,7 +14,7 @@ namespace OnlinePortalBackend.Repository
         Task<SendReceiptDTO> GetReceiptDetail(string invoiceNumber);
         Task<(bool isSuccess, string message)> ReceiptAllInvoicesForContract(SMSReceiptInvoiceForContractDTO request);
         Task<bool> PostTransactions(PostTransactionDTO request);
-        Task<SendReceiptDTO> GetContractServiceDetailsForReceipt(long contractId);
+        Task<SendReceiptDTO> GetContractServiceDetailsForReceipt(long contractId, int[] contractServices);
 
     }
 }

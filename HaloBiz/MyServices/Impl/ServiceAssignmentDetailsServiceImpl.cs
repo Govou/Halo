@@ -1996,7 +1996,7 @@ namespace HaloBiz.MyServices.Impl
         //For when client makes payment
         public async Task<ApiCommonResponse> UpdateServiceDetailsHeldForActionAndReadyStatusForOnlineByAssignmentId(long[] id)
         {
-            for (int i = 0; i <= id.Length; i++)
+            for (int i = 0; i < id.Length; i++)
             {
                 var transaction = _context.Database.BeginTransaction();
                 var escortToUpdate = await _serviceAssignmentDetailsRepository.FindAllEscortServiceAssignmentDetailsByAssignmentId(id[i]);
@@ -2307,6 +2307,7 @@ namespace HaloBiz.MyServices.Impl
                             master.IsTemporarilyHeld = true;
                             master.IsHeldForAction = true;
                             master.DateHeldForAction = DateTime.UtcNow;
+                            master.ArmedEscortResourceId = armedEscortReceivingDTO.NewResourceId;
                             master.RequiredCount = getEscortDetailListById.Count() + 1;
                             master.DateTemporarilyHeld = DateTime.UtcNow;
                             master.ServiceAssignmentId = armedEscortReceivingDTO.MasterServiceAssignmentId;
@@ -2477,6 +2478,7 @@ namespace HaloBiz.MyServices.Impl
                             master.DateTemporarilyHeld = DateTime.Now;
                             master.IsHeldForAction = true;
                             master.DateHeldForAction = DateTime.Now;
+                            master.CommanderResourceId = commanderReceivingDTO.NewResourceId;
                             master.RequiredCount = getCommanderDetailListById.Count() + 1;
                             master.CreatedById = context.GetLoggedInUserId();
                             master.TiedVehicleResourceId = itemToDelete.TiedVehicleResourceId;
@@ -2529,10 +2531,10 @@ namespace HaloBiz.MyServices.Impl
             }
 
 
-          
-            //var TransferDTO = _mapper.Map<CommanderServiceAssignmentDetailsTransferDTO>(master);
             await _invoiceService.SendJourneyManagementPlan(commanderReceivingDTO.MasterServiceAssignmentId);
-            return CommonResponse.Send(ResponseCodes.SUCCESS, "Replacement Successful");
+            var TransferDTO = _mapper.Map<CommanderServiceAssignmentDetailsTransferDTO>(master);
+            
+            return CommonResponse.Send(ResponseCodes.SUCCESS, null, "Replacement Successful");
         }
 
         public async Task<ApiCommonResponse> AddPilotDetailReplacement(HttpContext context, PilotReplacementReceivingDTO pilotReceivingDTO)
@@ -2655,6 +2657,7 @@ namespace HaloBiz.MyServices.Impl
                             master.RequiredCount = getPilotDetailListById.Count() + 1;
                             master.CreatedById = context.GetLoggedInUserId();
                             master.TiedVehicleResourceId = itemToDelete.TiedVehicleResourceId;
+                            master.PilotResourceId = pilotReceivingDTO.NewResourceId;
                             master.CreatedAt = DateTime.Now;
                             master.ServiceAssignmentId = pilotReceivingDTO.MasterServiceAssignmentId;
                             var savedItem = await _serviceAssignmentDetailsRepository.SavePilotServiceAssignmentdetail(master);

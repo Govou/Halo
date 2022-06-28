@@ -473,7 +473,9 @@ namespace OnlinePortalBackend.MyServices
                     Id = profile.Id,
                     
                 };
-                var contract = _context.Contracts.Where(x => x.CustomerDivisionId == profile.CustomerDivisionId && x.IsDeleted == false).OrderByDescending(x => x.Id).FirstOrDefault();
+
+                var contract = _context.Contracts.Where(x => x.CustomerDivisionId == profile.CustomerDivisionId && x.IsDeleted == false && x.Caption.ToLower().Contains("booked")).OrderByDescending(x => x.Id).FirstOrDefault();
+                var schduledcontract = _context.Contracts.Where(x => x.CustomerDivisionId == profile.CustomerDivisionId && x.IsDeleted == false && x.Caption.ToLower().Contains("scheduled")).OrderByDescending(x => x.Id).FirstOrDefault();
                 var profileContractDetails = new List<ProfileContractDetail>();
 
                 if (contract != null)
@@ -504,6 +506,11 @@ namespace OnlinePortalBackend.MyServices
                         ContractId = null,
                         ContractServices = null
                     });
+                }
+
+                if (schduledcontract != null)
+                {
+                    profileContractDetails[0].ScheduledContractId = schduledcontract.Id;
                 }
 
                 mappedProfile.ProfileContractDetail = profileContractDetails;

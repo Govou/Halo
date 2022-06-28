@@ -506,9 +506,17 @@ namespace OnlinePortalBackend.Repository.Impl
         public async Task<(bool isSuccess, string message)> ReceiptAllInvoicesForContract(SMSReceiptInvoiceForContractDTO request)
         {
             var invoices = _context.Invoices.Where(x => x.ContractId == request.ContractId);
-            var inv = invoices.OrderByDescending(x => x.Id).FirstOrDefault();
 
-            var validInvoices = invoices.Where(x => x.AdhocGroupingId == inv.AdhocGroupingId);
+            var validInvoices = new List<Invoice>();
+            foreach (var item in request.ContractServices)
+            {
+                var valInv = invoices.FirstOrDefault(x => x.ContractServiceId == item);
+
+                if (valInv != null)
+                {
+                    validInvoices.Add(valInv);
+                }
+            }
 
             var receiptsRequests = new List<SMSReceiptReceivingDTO>();
 
@@ -624,22 +632,27 @@ namespace OnlinePortalBackend.Repository.Impl
             }
         }
 
-        public async Task<SendReceiptDTO> GetContractServiceDetailsForReceipt(long contractId)
+        public async Task<SendReceiptDTO> GetContractServiceDetailsForReceipt(long contractId, int[] contServices)
         {
             var contractServices = _context.ContractServices.Include(x => x.Service).Where(x => x.ContractId == contractId);
             var validContractServices = new List<ContractService>();
 
-            foreach (var item in contractServices)
+            foreach (var item in contServices)
             {
-                var ms = _context.MasterServiceAssignments.FirstOrDefault(x => x.ContractServiceId == item.Id && x.IsAddedToCart == true && x.IsDeleted == false && x.IsScheduled == false);
+                //var ms = _context.MasterServiceAssignments.FirstOrDefault(x => x.ContractServiceId == item.Id && x.IsAddedToCart == true && x.IsDeleted == false && x.IsScheduled == false);
 
-                if (ms != null)
+                //if (ms != null)
+                //{
+                //    validContractServices.Add(item);
+                //}
+                var contrServ = contractServices.FirstOrDefault(x => x.Id == item);
+                if (contrServ != null)
                 {
-                    validContractServices.Add(item);
+                    validContractServices.Add(contrServ);
                 }
             }
 
-            var receiptDetails = _context.ContractServices.Include(x => x.Service).Where(x => x.ContractId == contractId).Select(x => new SendReceiptDetailDTO
+            var receiptDetails = validContractServices.Select(x => new SendReceiptDetailDTO
             {
                 Amount = x.AdHocInvoicedAmount.ToString(),
                 Description = x.Service.Description,
@@ -648,7 +661,7 @@ namespace OnlinePortalBackend.Repository.Impl
                 Total = x.AdHocInvoicedAmount.ToString()
             }).AsEnumerable();
 
-            var validContactServices = new List<ContractService>();
+          //  var validContactServices = new List<ContractService>();
 
             var totalSum = receiptDetails.Select(x => double.Parse(x.Amount)).Sum();
 
