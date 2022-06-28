@@ -13,6 +13,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using HalobizMigrations.Data;
+using HalobizMigrations.Models.Halobiz;
+using HaloBiz.DTOs;
+using Microsoft.Extensions.Configuration;
 
 namespace HaloBiz.MyServices.Impl
 {
@@ -21,12 +25,16 @@ namespace HaloBiz.MyServices.Impl
         private readonly ILogger<AccountServiceImpl> _logger;
         private readonly IAccountRepository _AccountRepo;
         private readonly IMapper _mapper;
+        private readonly HalobizContext _context;
+        private readonly IConfiguration _configuration;
 
-        public AccountServiceImpl(IAccountRepository AccountRepo, ILogger<AccountServiceImpl> logger, IMapper mapper)
+        public AccountServiceImpl(HalobizContext context, IConfiguration conf, IAccountRepository AccountRepo, ILogger<AccountServiceImpl> logger, IMapper mapper)
         {
             this._mapper = mapper;
             this._AccountRepo = AccountRepo;
             this._logger = logger;
+            _context = context;
+            _configuration = conf;
         }
 
         public async Task<ApiCommonResponse> AddAccount(HttpContext context, AccountReceivingDTO AccountReceivingDTO)
@@ -101,7 +109,73 @@ namespace HaloBiz.MyServices.Impl
             var AccountTransferDTOs = _mapper.Map<IEnumerable<AccountTransferDTO>>(Accountes);
             return CommonResponse.Send(ResponseCodes.SUCCESS,AccountTransferDTOs);
         }
-        
+
+        public async Task<ApiCommonResponse> GetServiceAccounts()
+        {
+            var serviceAccounts = await _context.ServiceAccounts
+                .Include(x=>x.Account)
+                    .ThenInclude(x=>x.ControlAccount)
+                .Include(x=>x.Service)
+                .ToListAsync();
+
+            return serviceAccounts.Any()
+                ? CommonResponse.Send(ResponseCodes.SUCCESS, serviceAccounts)
+                : CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);
+        }
+
+        public async Task<ApiCommonResponse> GetAccountForService()
+        {
+            var controlAcc = _configuration.GetSection("AccountsInformation:CostOfSalesControlAccount").Value;
+            if(string.IsNullOrEmpty(controlAcc))
+                CommonResponse.Send(ResponseCodes.FAILURE,null, "Cost of Sales control account number not registered in appsetting.json");
+           
+            var accountNumber = long.Parse(controlAcc);
+            var controlAccount = await _context.ControlAccounts.Where(x=>x.AccountNumber == accountNumber).FirstOrDefaultAsync();
+
+            if (controlAccount==null)
+                CommonResponse.Send(ResponseCodes.FAILURE, null, "Cost of Sales control account number in appsettings does not exist on the system");
+            
+            var accounts = await _context.Accounts
+                .Where(x=>x.ControlAccountId==controlAccount.Id)
+                .Include(x => x.ControlAccount)
+                .ToListAsync();
+
+            return accounts.Any()
+                ? CommonResponse.Send(ResponseCodes.SUCCESS, accounts)
+                : CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);
+        }
+
+        public async Task<ApiCommonResponse> SaveServiceAccounts(ServiceAccountsDTO dto, HttpContext context)
+        {
+            if(dto.ServiceId==null || dto.AccountId==null)
+                return CommonResponse.Send(ResponseCodes.FAILURE,null, "Some required inputs are missing"); ;
+
+            try
+            {
+                var userId = context.GetLoggedInUserId();
+                var req = new ServiceAccount
+                {
+                    AccountId = dto.AccountId,
+                    ServiceId = dto.ServiceId,
+                    CreatedById = userId,
+                    CreatedAt = DateTime.Now,
+                    Description = dto.Description
+                    
+                };
+
+               await _context.ServiceAccounts.AddAsync(req);
+              var affected = await _context.SaveChangesAsync();
+                return affected > 0 
+                    ? CommonResponse.Send(ResponseCodes.SUCCESS) 
+                    : CommonResponse.Send(ResponseCodes.FAILURE, null, "Not saved");
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e.StackTrace);
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, e.Message);
+            }
+        }
+
         public async Task<ApiCommonResponse> SearchForAccountDetails(AccountSearchDTO accountSearchDTO)
         {
             var account = await _AccountRepo.FindAccountById(accountSearchDTO.AccountId);

@@ -88,8 +88,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 Customer customer = await ConvertLeadToCustomer(lead, _context);
                 foreach (var leadDivision in lead.LeadDivisions)
                 {
-                    CustomerDivision customerDivision = await ConvertLeadDivisionToCustomerDivision(leadDivision, customer.Id, _context);
-
+                    CustomerDivision customerDivision = await ConvertLeadDivisionToCustomerDivision(leadDivision, customer.Id, _context, lead.IsInternalClientType);
                     var quote = await _context.Quotes
                                           .Include(x => x.QuoteServices.Where(x => !x.IsDeleted))
                                               .ThenInclude(x => x.SbutoQuoteServiceProportions)
@@ -100,9 +99,9 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
                     foreach (var quoteService in quote.QuoteServices)
                     {
-                        var success = await ConvertQuoteServiceToContractService(quoteService, _context, customerDivision, contract.Id, leadDivision);
+                        var (success,msg) = await ConvertQuoteServiceToContractService(quoteService, _context, customerDivision, contract.Id, leadDivision);
                         if (!success)
-                            return (false, "Error occurred in converting one quote service to contract service");
+                            return (false, msg);
                     }
                 }
 
@@ -289,7 +288,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
             }
         }
 
-        private async Task<CustomerDivision> ConvertLeadDivisionToCustomerDivision(LeadDivision leadDivision, long customerId, HalobizContext context)
+        private async Task<CustomerDivision> ConvertLeadDivisionToCustomerDivision(LeadDivision leadDivision, long customerId, HalobizContext context, bool isInternalClientType = false)
         {
             var customerDivision = await context.CustomerDivisions
                     .Where(x => x.DivisionName == leadDivision.DivisionName && x.Rcnumber == leadDivision.Rcnumber)                    
@@ -317,7 +316,8 @@ namespace HaloBiz.MyServices.Impl.LAMS
                     Lga = leadDivision.Lga,
                     Street = leadDivision.Street,
                     CreatedById = LoggedInUserId,
-                    DTrackCustomerNumber = await GetDtrackCustomerNumber(leadDivision)
+                    DTrackCustomerNumber = await GetDtrackCustomerNumber(leadDivision),
+                    IsInternalClientType = isInternalClientType
                 });
 
                 await context.SaveChangesAsync();
@@ -375,7 +375,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
             return null;
         }
 
-        private async Task<bool> ConvertQuoteServiceToContractService(QuoteService quoteService,
+        private async Task<(bool,string)> ConvertQuoteServiceToContractService(QuoteService quoteService,
                                                                         HalobizContext context,
                                                                         CustomerDivision customerDivision,
                                                                         long contractId,
@@ -443,7 +443,6 @@ namespace HaloBiz.MyServices.Impl.LAMS
                             .AsNoTracking()
                             .FirstOrDefaultAsync();
 
-
                 quoteService.IsConvertedToContractService = true;
                 //context.Update(quoteService);
                 await context.SaveChangesAsync();
@@ -469,7 +468,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                                         LoggedInUserId,
                                         false, null);
                     if (!createSuccess)
-                        return false;
+                        return (false, createMsg);
 
                  var _serviceCode = quoteService?.Service?.ServiceCode ?? contractService.Service?.ServiceCode;
                  var (invoiceSuccess, invoiceMsg) =   await GenerateInvoices(contractService, customerDivision.Id, _serviceCode, LoggedInUserId,"");
@@ -482,7 +481,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                 throw;
             }
 
-            return true;
+            return (true,"");
         }
 
         public async Task<bool> AccountsForContractServices(ContractService contractService, CustomerDivision customerDivision, long userId)
@@ -1059,7 +1058,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                     Where(x => x.Id == task.Entity.Id)
                     .SingleOrDefaultAsync();
 
-                await SendNewTaskAssignedMail(taskFulfilment, contractServcie.Service.OperatingEntity.Name);
+                await SendNewTaskAssignedMail(taskFulfilment, operatingEntity.Name);
 
                 foreach (var deliverable in serviceTask.ServiceTaskDeliverables)
                 {
@@ -1192,7 +1191,9 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
             try
             {
-                var (isSuccesReceivable, messageReceivale) = await PostCustomerReceivablAccounts(
+                if (!customerDivision.IsInternalClientType)
+                {
+                    var (isSuccesReceivable, messageReceivale) = await PostCustomerReceivablAccounts(
                                     service,
                                     contractService,
                                     customerDivision,
@@ -1205,9 +1206,9 @@ namespace HaloBiz.MyServices.Impl.LAMS
                                     isReversal
                                    );
 
-                if (!isSuccesReceivable) return (false, "Receivable was not created");
+                    if (!isSuccesReceivable) return (false, "Receivable was not created");
 
-                var (isSuccessVat, messageVat) = await PostVATAccountDetails(
+                    var (isSuccessVat, messageVat) = await PostVATAccountDetails(
                                             service,
                                             contractService,
                                             customerDivision,
@@ -1219,7 +1220,40 @@ namespace HaloBiz.MyServices.Impl.LAMS
                                            loggedInUserId,
                                            !isReversal
                                            );
-                if (!isSuccessVat) return (false, "VAT creaton was not successful");
+                    if (!isSuccessVat) return (false, "VAT creaton was not successful");
+                }
+
+                if (customerDivision.IsInternalClientType)
+                {
+                    //debit expense account
+                    //check that there is expense account for this service
+                    //get the id of the control account first
+                    var (controlAccountId, errorMessage) = await GetExpenseConrolAccountId();
+                    if (controlAccountId == 0)
+                        return (false,errorMessage);
+
+                    service = service ?? contractService.Service;
+                   var serviceAccount = await _context.ServiceAccounts.Where(x => x.ServiceId == service.Id && x.Account.ControlAccount.Id == controlAccountId).FirstOrDefaultAsync();
+                   if(serviceAccount == null)
+                        return (false, $"No expense account setup for service {service.Name}");
+
+                  var isSuccessful =  await PostExpenseAccount(service,
+                        contractService,
+                        customerDivision,
+                        branchId,
+                        officeId,
+                        accountVoucherType,
+                        savedAccountMasterId,
+                        totalContractBillable,
+                        loggedInUserId,
+                        false,
+                        (long) serviceAccount.AccountId);
+
+                    if (!isSuccessful) return (false, "Expense account posting was not successful");
+
+
+                }
+                                
 
                 bool isIncomeSuccessful = await PostIncomeAccount(
                                         service,
@@ -1229,7 +1263,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                                         officeId,
                                         accountVoucherType,
                                         savedAccountMasterId,
-                                        totalAfterTax,
+                                        customerDivision.IsInternalClientType ? totalContractBillable : totalAfterTax,
                                         loggedInUserId,
                                         !isReversal
                                                 );
@@ -1244,6 +1278,20 @@ namespace HaloBiz.MyServices.Impl.LAMS
             }
 
             return (true,"success");
+        }
+
+        private async Task<(long,string)> GetExpenseConrolAccountId()
+        {
+            var controlAcc = _configuration.GetSection("AccountsInformation:CostOfSalesControlAccount").Value;
+            if (string.IsNullOrEmpty(controlAcc))
+                return (0, "Cost of Sales control account number not registered in appsetting.json");
+
+            var accountNumber = long.Parse(controlAcc);
+            var controlAccount = await _context.ControlAccounts.Where(x => x.AccountNumber == accountNumber).FirstOrDefaultAsync();
+
+            if (controlAccount == null)
+                return (0, "Cost of Sales control account number in appsettings does not exist on the system");
+            return (controlAccount.Id, "success");
         }
 
         public async Task<(bool, string)> PostCustomerReceivablAccounts(
@@ -1608,6 +1656,38 @@ namespace HaloBiz.MyServices.Impl.LAMS
                                     );
 
             return true;
+        }
+
+        public async Task<bool> PostExpenseAccount(
+                                   Service service,
+                                   ContractService contractService,
+                                   CustomerDivision customerDivision,
+                                   long branchId,
+                                   long officeId,
+                                   FinanceVoucherType accountVoucherType,
+                                   long accountMasterId,
+                                   double expenseValue,
+                                   long loggedInUserId,
+                                   bool isCredit,
+                                   long accountId
+                                   )
+        {
+            
+
+           var (isSucess, accountDetail) = await PostAccountDetail(service,
+                                    contractService,
+                                    accountVoucherType,
+                                    branchId,
+                                    officeId,
+                                    expenseValue,
+                                    isCredit,
+                                    accountMasterId,
+                                    accountId,
+                                    customerDivision,
+                                    loggedInUserId
+                                    );
+
+            return isSucess;
         }
 
 

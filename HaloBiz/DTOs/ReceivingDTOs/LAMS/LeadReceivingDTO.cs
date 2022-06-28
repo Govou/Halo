@@ -21,7 +21,6 @@ namespace HaloBiz.DTOs.ReceivingDTOs.LAMS
         public string LogoUrl { get; set; }
         public string LeadCaptureDocumentUrl { get; set; }
         public long SuspectId { get; set; }
-
-
+        public bool isInternalClientType { get; set; } = false;
     }
 }
