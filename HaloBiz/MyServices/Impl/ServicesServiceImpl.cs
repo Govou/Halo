@@ -15,6 +15,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using HaloBiz.MyServices;
 using HalobizMigrations.Models.Shared;
+using HalobizMigrations.Models.Halobiz;
 
 namespace HaloBiz.MyServices.Impl
 {
@@ -92,7 +93,13 @@ namespace HaloBiz.MyServices.Impl
                         });
                     }
 
-                    
+
+                    //manange the expense account
+                    if (servicesReceivingDTO.ServiceAccount != null)
+                    {
+                        var userId = context.GetLoggedInUserId();
+                        await ExpenseAccount(savedService.Id, servicesReceivingDTO.ServiceAccount, userId);
+                    }
 
                     var isFieldsSaved = await _reqServiceElementRepo.SaveRangeServiceRequredServiceQualificationElement(serviceQualificationElements);
                     var isDocSaved = await _requiredServiceDocRepo.SaveRangeServiceRequiredServiceDocument(serviceRequiredServiceDocument);
@@ -297,6 +304,13 @@ namespace HaloBiz.MyServices.Impl
                     await _context.SaveChangesAsync();
                     await manageServiceRelationship(isAdminPreviously, id, serviceReceivingDTO, context);
 
+                    //manange the expense account
+                    if(serviceReceivingDTO.ServiceAccount != null)
+                    {
+                        var userId = context.GetLoggedInUserId();
+                        await ExpenseAccount(serviceToUpdate.Id, serviceReceivingDTO.ServiceAccount, userId);
+                    }
+
                     if (listOfElementToAdd.Count > 0)
                         await _context.ServiceRequredServiceQualificationElements.AddRangeAsync(listOfElementToAdd);
                     
@@ -341,6 +355,48 @@ namespace HaloBiz.MyServices.Impl
                     transaction.Rollback();
                     return CommonResponse.Send(ResponseCodes.FAILURE, null, ex.Message);
                 }
+            }
+        }
+
+        private async Task<bool> ExpenseAccount(long? serviceId, long? accountId, long userId)
+        {
+            try
+            {
+                var expenseAccountLabel = "Expense Account";
+                if (accountId == null || serviceId == null)
+                    return false;
+
+                //check if this relationship exists
+                var serviceAcc = await _context.ServiceAccounts.Where(x => x.ServiceId == serviceId && x.Description == expenseAccountLabel).FirstOrDefaultAsync();
+                if (serviceAcc == null)
+                {
+                    var serviceAccount = new ServiceAccount
+                    {
+                        AccountId = accountId,
+                        ServiceId = serviceId,
+                        CreatedById = userId,
+                        Description = expenseAccountLabel,
+                        CreatedAt = DateTime.Now,
+                    };
+
+                    _context.ServiceAccounts.Add(serviceAccount);
+                    await _context.SaveChangesAsync();
+                    return true;
+                }
+
+                if (serviceAcc.AccountId != accountId)
+                {
+                    serviceAcc.AccountId = accountId;
+                    _context.ServiceAccounts.Update(serviceAcc);
+                    await _context.SaveChangesAsync();
+                }
+
+                return true;
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e.StackTrace);
+                return false;
             }
         }
 

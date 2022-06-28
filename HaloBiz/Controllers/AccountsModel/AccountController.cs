@@ -1,5 +1,6 @@
 ﻿using Halobiz.Common.Auths;
 using Halobiz.Common.DTOs.ApiDTOs;
+using HaloBiz.DTOs;
 using HaloBiz.DTOs.ReceivingDTOs;
 using HaloBiz.DTOs.TransferDTOs;
 using HaloBiz.MyServices;
@@ -38,15 +39,22 @@ namespace HaloBiz.Controllers.AccountsModel
         }
 
         [HttpGet("ServiceAccounts")]
-        public async Task<ApiCommonResponse> GetserviceAccounts()
+        public async Task<ApiCommonResponse> GetServiceAccounts()
         {
-            return await _accountService.GetserviceAccounts();
+            return await _accountService.GetServiceAccounts();
+        }
+
+        //GetAccountForService
+        [HttpGet("GetAccountForService")]
+        public async Task<ApiCommonResponse> GetAccountForService()
+        {
+            return await _accountService.GetAccountForService();
         }
 
         [HttpPost("SaveServiceAccount")]
-        public async Task<ApiCommonResponse> SaveServiceAccount(AccountSearchDTO accountSearchDTO)
+        public async Task<ApiCommonResponse> SaveServiceAccount(ServiceAccountsDTO accountSearchDTO)
         {
-            return await _accountService.SaveServiceAccount(accountSearchDTO);
+            return await _accountService.SaveServiceAccounts(accountSearchDTO, HttpContext);
         }
 
         [HttpPost("SeachAccount")]
