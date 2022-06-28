@@ -436,6 +436,22 @@ namespace OnlinePortalBackend.Repository.Impl
             
         }
 
+        public async Task<string> GetProfileImage(long profileID)
+        {
+            var profile = _context.OnlineProfiles.FirstOrDefault(x => x.Id == profileID);
+            if (profile == null)
+            {
+                return null;
+            }
+            var leadDiv = _context.LeadDivisions.FirstOrDefault(x => x.Id == profile.LeadDivisionId);
+
+            if (leadDiv == null)
+                return null;
+
+            return leadDiv.LogoUrl;
+
+        }
+
         public async Task<(bool success, string message)> CreateSupplierBusinessAccount(SMSSupplierBusinessAccountDTO accountDTO)
         {
             var exist = _context.OnlineProfiles.Any(x => x.Email.ToLower() == accountDTO.AccountLogin.Email.ToLower());
@@ -647,36 +663,65 @@ namespace OnlinePortalBackend.Repository.Impl
 
         }
 
-        public Task<(bool success, string message)> UpdateCustomerProfile(ProfileUpdateDTO profile)
+        public async Task<(bool success, string message)> UpdateCustomerProfile(ProfileUpdateDTO request)
         {
-            throw new NotImplementedException();
+
+            using var transaction = await _context.Database.BeginTransactionAsync();
+            var profile = _context.OnlineProfiles.FirstOrDefault(x => x.Id == request.profileId);
+            try
+            {
+                if (profile == null)
+                {
+                    return (false, "Profile does not exist");
+                }
+
+
+
+                var leadDiv = _context.LeadDivisions.FirstOrDefault(x => x.Id == profile.LeadDivisionId);
+                leadDiv.Email = String.IsNullOrEmpty(request.Email) ? leadDiv.Email : request.Email;
+                leadDiv.LogoUrl = String.IsNullOrEmpty(request.ProfileImage) ? leadDiv.LogoUrl : request.ProfileImage;
+                leadDiv.PhoneNumber = String.IsNullOrEmpty(request.PhoneNumber) ? leadDiv.PhoneNumber : request.PhoneNumber;
+                leadDiv.UpdatedAt = DateTime.UtcNow.AddHours(1);
+                _context.SaveChanges();
+
+                var lead = _context.Leads.FirstOrDefault(x => x.Id == leadDiv.LeadId);
+                lead.LogoUrl = request.ProfileImage;
+                _context.SaveChanges();
+
+
+                if (profile.CustomerDivisionId != null)
+                {
+                    var custDiv = _context.CustomerDivisions.FirstOrDefault(x => x.Id == profile.CustomerDivisionId);
+                    custDiv.Email = String.IsNullOrEmpty(request.Email) ? custDiv.Email : request.Email;
+                    custDiv.LogoUrl = String.IsNullOrEmpty(request.ProfileImage) ? custDiv.LogoUrl : request.ProfileImage;
+                    custDiv.PhoneNumber = String.IsNullOrEmpty(request.PhoneNumber) ? custDiv.PhoneNumber : request.PhoneNumber;
+                    custDiv.UpdatedAt = DateTime.UtcNow.AddHours(1);
+                    _context.SaveChanges();
+
+                    var cust = _context.Customers.FirstOrDefault(x => x.Id == leadDiv.LeadId);
+                    cust.Email = String.IsNullOrEmpty(request.Email) ? cust.Email : request.Email;
+                    cust.LogoUrl = String.IsNullOrEmpty(request.ProfileImage) ? cust.LogoUrl : request.ProfileImage;
+                    cust.PhoneNumber = String.IsNullOrEmpty(request.PhoneNumber) ? cust.PhoneNumber : request.PhoneNumber ;
+                    cust.UpdatedAt = DateTime.UtcNow.AddHours(1);
+                    _context.SaveChanges();
+
+                }
+
+                profile.Email = String.IsNullOrEmpty(request.Email) ? profile.Email : request.Email;
+                profile.NormalizedEmail = String.IsNullOrEmpty(request.Email) ? profile.NormalizedEmail : request.Email.ToUpper();
+                _context.SaveChanges();
+
+                await transaction.CommitAsync();
+                return (true, "successful");
+
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.Message);
+                _logger.LogError(ex.StackTrace);
+                await transaction.RollbackAsync();  
+            }
+            return (false, "failed updating");
         }
-
-        //public async Task<(bool success, string message)> UpdateCustomerProfile(ProfileUpdateDTO request)
-        //{
-        //    var profile = _context.OnlineProfiles.FirstOrDefault(x => x.Id == request.profileId);
-
-        //    if (profile == null)
-        //    {
-        //        return (false, "Profile does not exist");
-        //    }
-
-        //    var leadDiv = _context.LeadDivisions.FirstOrDefault(x => x.Id == profile.LeadDivisionId);
-        //    leadDiv.DivisionName = request.FirstName + " " + request.LastName;
-        //    leadDiv.LogoUrl = request.ProfileImage;
-        //    leadDiv.UpdatedAt = DateTime.UtcNow.AddHours(1);
-
-        //    var lead = _context.Leads.FirstOrDefault(x => x.Id == leadDiv.LeadId);
-        //    lead.LogoUrl = request.ProfileImage;
-
-        //    if (profile.CustomerDivisionId != null )
-        //    {
-        //        var custDiv = _context.CustomerDivisions.FirstOrDefault(x => x.Id == profile.CustomerDivisionId);
-
-        //        var cust = _context.Customers.FirstOrDefault(x => x.Id == leadDiv.LeadId);
-        //    }
-
-
-        //}
     }
 }

@@ -51,10 +51,10 @@ namespace OnlinePortalBackend.Controllers.SecureMobilitySales
         }
 
 
-        //[HttpGet("UpdateCustomerProfile")]
-        //public Task<ApiCommonResponse> UpdateCustomerProfile(ProfileUpdateDTO profile)
-        //{
-        //    return _accountService.UpdateCustomerProfile(profile);
-        //}
+        [HttpPost("UpdateCustomerProfile")]
+        public Task<ApiCommonResponse> UpdateCustomerProfile(ProfileUpdateDTO profile)
+        {
+            return _accountService.UpdateCustomerProfile(profile);
+        }
     }
 }

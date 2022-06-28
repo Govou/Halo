@@ -17,5 +17,6 @@ namespace OnlinePortalBackend.Repository
 
         Task<OnlineProfile> GetCustomerProfile(int profileId);
         Task<(bool success, string message)> UpdateCustomerProfile(ProfileUpdateDTO profile);
+        Task<string> GetProfileImage(long profileID);
     }
 }
