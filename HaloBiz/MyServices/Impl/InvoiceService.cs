@@ -1741,12 +1741,22 @@ namespace HaloBiz.MyServices.Impl
                 Description = serviceReg.Service.Description,
               
             };
-            MasterServiceAssignmentReturnMailVMDTO returnServiceMailDTO = new MasterServiceAssignmentReturnMailVMDTO()
-            {
-                id = returnServiceAss.Id,
-                ServiceRegistrationId = returnServiceAss.ServiceRegistrationId,
 
-            };
+            var returnServiceMailDTO = new MasterServiceAssignmentReturnMailVMDTO();
+
+
+            if (returnServiceAss != null)
+            {
+                returnServiceMailDTO = new MasterServiceAssignmentReturnMailVMDTO()
+                {
+
+                    id = returnServiceAss.Id,
+                    ServiceRegistrationId = returnServiceAss.ServiceRegistrationId,
+
+                };
+            }
+            
+           
             ClientInfosMailDTO client = new ClientInfosMailDTO()
             {
                 Name = serviceAss.CustomerDivision.DivisionName,
@@ -2104,12 +2114,12 @@ namespace HaloBiz.MyServices.Impl
                 return await _mailAdapter.SendJourneyManagementPlan(masterServiceAssignmentMailDTO);
 
             }
-            catch (System.Exception ex)
+            catch (Exception ex)
             {
                 _logger.LogError($"An Error occured while trying to send JMP with Id: {serviceAssignmentId}");
                 _logger.LogError($"Error: {ex.Message}");
                 _logger.LogError($"Error: {ex.StackTrace}");
-                return CommonResponse.Send(ResponseCodes.FAILURE, null, "JMP Not Sent");
+                return CommonResponse.Send(ResponseCodes.FAILURE, ex.Message, "JMP Not Sent");
             }
         }
 
