@@ -29,7 +29,7 @@ namespace HaloBiz.Repository.Impl
         public async Task<IEnumerable<OnlineLocationFavourite>> FindAllLocationFavorites()
         {
             return await _context.OnlineLocationFavourites.Where(online => online.IsDeleted == false)
-                .Include(ct => ct.Client).Include(on=>on.OnlineProfile).Include(online => online.LocationLGA).Include(online => online.LocationState).OrderByDescending(x => x.Id)
+                .Include(on=>on.OnlineProfile).Include(online => online.LocationLGA).Include(online => online.LocationState).OrderByDescending(x => x.Id)
                 .ToListAsync();
         }
 
@@ -37,7 +37,7 @@ namespace HaloBiz.Repository.Impl
         {
             return await _context.OnlineLocationFavourites
                  .Where(aer => aer.OnlineProfileId == onlineProfileId && aer.IsDeleted == false).Include(online => online.LocationLGA).Include(online => online.LocationState)
-                 .Include(r => r.Client).Include(x => x.OnlineProfile).ToListAsync();
+                 .Include(x => x.OnlineProfile).ToListAsync();
 
                              //.Where(aer => aer.ClientId == clientId && aer.IsDeleted == false).Include(online => online.LocationLGA).Include(online => online.LocationState)
 
@@ -45,7 +45,7 @@ namespace HaloBiz.Repository.Impl
 
         public async Task<OnlineLocationFavourite> FindLocationFavoriteById(long Id)
         {
-            return await _context.OnlineLocationFavourites.Include(r => r.Client).Include(x => x.OnlineProfile).Include(online => online.LocationLGA).Include(online => online.LocationState)
+            return await _context.OnlineLocationFavourites.Include(x => x.OnlineProfile).Include(online => online.LocationLGA).Include(online => online.LocationState)
                 .FirstOrDefaultAsync(aer => aer.Id == Id && aer.IsDeleted == false);
         }
 

@@ -14,7 +14,7 @@ namespace HaloBiz.DTOs.TransferDTOs
         public long Id { get; set; }
         public long? OnlineProfileId { get; set; }
         public string Title { get; set; }
-        public long? ClientId { get; set; }
+       // public long? ClientId { get; set; }
         public long CreatedById { get; set; }
         public bool IsDeleted { get; set; }
         public string LocationGeometry { get; set; }
