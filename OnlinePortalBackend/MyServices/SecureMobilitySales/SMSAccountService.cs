@@ -85,5 +85,16 @@ namespace OnlinePortalBackend.MyServices.SecureMobilitySales
 
             return CommonResponse.Send(ResponseCodes.SUCCESS, profile, "Success");
         }
+
+        public async Task<ApiCommonResponse> UpdateCustomerProfile(ProfileUpdateDTO profile)
+        {
+            var result = await _accountRepository.UpdateCustomerProfile(profile);
+
+            if (result.success)
+            {
+                return CommonResponse.Send(ResponseCodes.SUCCESS, null, result.message);
+            }
+            return CommonResponse.Send(ResponseCodes.FAILURE, null, result.message);
+        }
     }
 }

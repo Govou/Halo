@@ -39,6 +39,7 @@ namespace Halobiz.Common.DTOs.ReceivingDTOs
 
         public string Caption { get; set; }
         public long ContractId { get; set; }
+        public int[] ContractServices { get; set; }
         public double InvoiceValue { get; set; }
         public int PaymentGateway { get; set; }
         public string PaymentReference { get; set; }

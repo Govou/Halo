@@ -100,7 +100,7 @@ namespace OnlinePortalBackend.MyServices.SecureMobilitySales
                 return CommonResponse.Send(ResponseCodes.FAILURE); ;
             }
 
-            var receipt = await _invoiceRepo.GetContractServiceDetailsForReceipt(request.ContractId);
+            var receipt = await _invoiceRepo.GetContractServiceDetailsForReceipt(request.ContractId, request.ContractServices);
           //  var receipt = new SendReceiptDTO();
             await SendReceiptViaEmail(receipt);
 

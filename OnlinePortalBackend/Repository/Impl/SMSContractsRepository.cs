@@ -1743,13 +1743,17 @@ namespace OnlinePortalBackend.Repository.Impl
                     var contractServices = _context.ContractServices.Where(x => x.ContractId == request.ContractId);
                     var customerDivisionId = _context.OnlineProfiles.FirstOrDefault(x => x.Id == request.ProfileId).CustomerDivisionId;
 
-                    foreach (var item in contractServices)
+                    foreach (var item in request.ContractServices)
                     {
-                        var ms = _context.MasterServiceAssignments.FirstOrDefault(x => x.ContractServiceId == item.Id && x.IsAddedToCart == true && x.IsPaidFor == false && x.IsDeleted == false && x.IsScheduled == false);
-
-                        if (ms != null)
+                        //var ms = _context.MasterServiceAssignments.FirstOrDefault(x => x.ContractServiceId == item.Id && x.IsAddedToCart == true && x.IsPaidFor == false && x.IsDeleted == false && x.IsScheduled == false);
+                        //if (ms != null)
+                        //{
+                        //    validContactServices.Add(item);
+                        //}
+                        var conSer = contractServices.FirstOrDefault(x => x.Id == item);
+                        if (conSer != null)
                         {
-                            validContactServices.Add(item);
+                            validContactServices.Add(conSer);
                         }
                     }
 

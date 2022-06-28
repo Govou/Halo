@@ -49,5 +49,12 @@ namespace OnlinePortalBackend.Controllers.SecureMobilitySales
         {
             return _accountService.GetCustomerProfile(profileId);
         }
+
+
+        //[HttpGet("UpdateCustomerProfile")]
+        //public Task<ApiCommonResponse> UpdateCustomerProfile(ProfileUpdateDTO profile)
+        //{
+        //    return _accountService.UpdateCustomerProfile(profile);
+        //}
     }
 }

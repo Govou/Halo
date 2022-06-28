@@ -44,5 +44,6 @@ namespace Halobiz.Common.DTOs.ReceivingDTOs
     {
         public int ProfileId { get; set; }
         public int ContractId { get; set; }
+        public int[] ContractServices { get; set; }
     }
 }
