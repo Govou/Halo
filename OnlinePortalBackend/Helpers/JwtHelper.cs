@@ -15,7 +15,7 @@ using Claim = System.Security.Claims.Claim;
 
 namespace OnlinePortalBackend.Helpers
 {
-    public class JwtHelper
+    public class JwtHelper : IJwtHelper
     {
         private readonly ILogger<JwtHelper> _logger;
         private readonly string _secret;
@@ -52,6 +52,30 @@ namespace OnlinePortalBackend.Helpers
             var tokenHandler = new JwtSecurityTokenHandler();
             var token = tokenHandler.CreateToken(tokenDescriptor);
             return tokenHandler.WriteToken(token);
+        }
+
+        public (string token, string expiryTime) GenerateToken_v2(UserProfile userProfile)
+        {
+            List<Claim> claims = new List<Claim>()
+            {
+                new Claim(ClaimTypes.NameIdentifier, userProfile.Id.ToString()),
+                new Claim(ClaimTypes.Email, userProfile.Email),
+            };
+
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_secret));
+
+            var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha512Signature);
+
+            var tokenDescriptor = new SecurityTokenDescriptor
+            {
+                Subject = new ClaimsIdentity(claims),
+                Expires = DateTime.Now.AddMinutes(15),
+                SigningCredentials = credentials
+            };
+
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var token = tokenHandler.CreateToken(tokenDescriptor);
+            return (tokenHandler.WriteToken(token), DateTime.Now.AddMinutes(15).ToString());
         }
 
         public bool IsValidToken(string token)

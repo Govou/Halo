@@ -53,6 +53,7 @@ namespace HaloBiz.Repository
 
         Task<IEnumerable<SMORouteAndStateMap>> FindAllSMORoutesMap();
         Task<bool> DeleteSMORouteMap(SMORouteAndStateMap sMOMapRoute);
+        Task<bool> CheckIfStateISAvailableOnRoute(long stateId, long routeId);
         SMORouteAndStateMap GetSMORouteMapByRouteIdAndStateId(long? routeId, long? stateId);
         Task<IEnumerable<SMORouteAndStateMap>> FindAllRouteMapsByRouteId(long routeId);
     }

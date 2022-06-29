@@ -215,6 +215,30 @@ namespace HaloBiz.MyServices.Impl
             return CommonResponse.Send(ResponseCodes.SUCCESS,AccountMasterTransferDTOs);
         }
 
+        public async Task<ApiCommonResponse> GetCreditNotes(long customerDivisionId)
+        {
+            if (customerDivisionId == 0)
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "No customerDivisionId in request");
+
+            if (!_context.CustomerDivisions.Any(x=>x.Id==customerDivisionId))
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "No CustomerDivisionId with this Id");
+
+
+            //get credit note Id
+            var voucher = await _context.FinanceVoucherTypes.Where(x => x.VoucherType.ToLower().Contains("credit note")).FirstOrDefaultAsync();
+            if(voucher == null)
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Credit note in voucher types have not been created");
+
+            var result = await _context.AccountMasters
+                .Where(x=>x.CustomerDivisionId == customerDivisionId && x.VoucherId == voucher.Id)
+                .Include(x=>x.CreditNoteUsages)
+                .ToListAsync();
+
+            return result.Any()
+                ? CommonResponse.Send(ResponseCodes.SUCCESS, result)
+                : CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);
+        }
+
         public async Task<ApiCommonResponse> PostPeriodicAccountMaster(HttpContext httpContext)
         {               
             

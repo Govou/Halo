@@ -13,7 +13,7 @@ namespace HaloBiz.MyServices
         Task<ApiCommonResponse> AddOnlineLocationFavorite(HttpContext context, OnlineLocationFavoriteReceivingDTO favoriteReceivingDTO);
         Task<ApiCommonResponse> GetAllOnlineLocationFavorites();
         Task<ApiCommonResponse> GetOnlineLocationFavoriteById(long id);
-        Task<ApiCommonResponse> GetOnlineLocationFavoriteByClientId(long clientId);
+        Task<ApiCommonResponse> GetOnlineLocationFavoriteByOnlineProfileId(long onlineProfileId);
         Task<ApiCommonResponse> UpdateOnlineLocationFavorite(HttpContext context, long id, OnlineLocationFavoriteReceivingDTO favoriteReceivingDTO);
         Task<ApiCommonResponse> DeleteOnlineLocationFavorite(long id);
     }

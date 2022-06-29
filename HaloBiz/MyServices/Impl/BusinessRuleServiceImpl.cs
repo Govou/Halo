@@ -93,11 +93,18 @@ namespace HaloBiz.MyServices.Impl
             //int pairedCount = 0;
             if (businessRuleCheck.ServiceRegistrationId.Length > 0)
             {
-                var pairCheck = _businessRulesRepository.FindAllPairablesCheckByRuleId(businessRuleCheck.BusinessRuleId);
+                var pairCheck = _businessRulesRepository.FindAllPairablesCheckByRuleId(businessRuleCheck.BRServiceRegistrationId);//gets all items that can be paired with
+                
+                if (pairCheck.Count()  < 1)
+                {
+                    return CommonResponse.Send(ResponseCodes.FAILURE, false, "Item cannot be paired with one/more services in cart");
+                }
+
+
                 var lastPair = pairCheck.Last();
-              
                 foreach (var item in businessRuleCheck.ServiceRegistrationId)
                 {
+                    //might need to remove an item when it matches an id so as to save time and avoid comparing it again
                     foreach (var check in pairCheck)
                     {
                         if (item.Equals(check.ServiceRegistrationId))
@@ -113,7 +120,7 @@ namespace HaloBiz.MyServices.Impl
                             }
                             else
                             {
-                                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Item cannot be paired with one/more services in cart");
+                                return CommonResponse.Send(ResponseCodes.FAILURE, false, "Item cannot be paired with one/more services in cart");
                             }
                            
                         }
@@ -124,7 +131,7 @@ namespace HaloBiz.MyServices.Impl
           
            
             //var TransferDTO = _mapper.Map<BusinessRuleTransferDTO>(rule);
-            return CommonResponse.Send(ResponseCodes.SUCCESS, null, "Pairing allowed");
+            return CommonResponse.Send(ResponseCodes.SUCCESS, true, "Pairing allowed");
         }
 
         public async Task<ApiCommonResponse> DeleteBusinessRule(long id)

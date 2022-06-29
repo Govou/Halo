@@ -16,9 +16,12 @@ namespace HaloBiz.Repository
         Task<MasterServiceAssignment> FindServiceAssignmentById(long Id);
 
         Task<IEnumerable<MasterServiceAssignment>> FindAllServiceAssignments();
-        Task<IEnumerable<MasterServiceAssignmentWithRegisterTransferDTO>> FindAllServiceAssignmentsByClientId(long clientId);
+        Task<IEnumerable<MasterServiceAssignmentWithRegisterTransferDTO>> FindAllServiceAssignmentsForCartByClientId(long clientId);
+        Task<IEnumerable<MasterServiceAssignment>> FindAllServiceAssignmentsByClientId(long clientId);
         //Task<IEnumerable<MasterServiceAssignment>> FindAllServiceAssignmentsByClientId(long clientId);
         Task<IEnumerable<MasterServiceAssignmentWithRegisterTransferDTO>> FindAllServiceAssignmentsForScheduleCartByClientId(long clientId);
+        Task<IEnumerable<MasterServiceAssignment>> FindAllCompletedTripsCountByClientId(long clientId);
+        Task<IEnumerable<MasterServiceAssignment>> FindAllFrequentRoutesCountByClientId(long clientId);
         Task<IEnumerable<MasterServiceAssignment>> FindAllCompletedTripsByClientId(long clientId);
         //Task<IEnumerable<MasterServiceAssignment>> FindAllServiceAssignmentsForScheduleCartByClientId(long clientId);
         Task<IEnumerable<MasterServiceAssignment>> FindAllScheduledServiceAssignments();
@@ -31,6 +34,8 @@ namespace HaloBiz.Repository
         Task<bool> DeleteServiceAssignment(MasterServiceAssignment serviceAssignment);
         Task<bool> UpdateReadyStatus(MasterServiceAssignment serviceAssignment);
         Task<bool> UpdateisAddedToCartStatus(MasterServiceAssignment serviceAssignment);
+        Task<bool> UpdatehasPassengerStatusToTrue(MasterServiceAssignment serviceAssignment);
+        Task<bool> UpdatehasPassengerStatusToFalse(MasterServiceAssignment serviceAssignment);
         Task<bool> UpdateisPaidForStatus(MasterServiceAssignment serviceAssignment);
 
         //Secondary

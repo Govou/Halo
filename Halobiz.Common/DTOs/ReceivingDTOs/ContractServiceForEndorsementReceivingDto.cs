@@ -74,5 +74,7 @@ namespace Halobiz.Common.DTOs.ReceivingDTOs
         public GroupContractCategory GroupContractCategory { get; set; } = GroupContractCategory.IndividualContract;
         public string GroupInvoiceNumber { get; set; }
         public ServiceRelationshipEnum ServiceRelationshipEnum { get; set; }
+        public double? WHTLoadingValue { get; set; }
+        public int? DaysAffected { get; set; }
     }
 }

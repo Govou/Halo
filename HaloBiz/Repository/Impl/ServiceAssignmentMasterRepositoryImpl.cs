@@ -1,4 +1,5 @@
 ﻿using HaloBiz.DTOs.TransferDTOs;
+using HaloBiz.Helpers;
 using HalobizMigrations.Data;
 using HalobizMigrations.Models;
 using HalobizMigrations.Models.Armada;
@@ -64,15 +65,17 @@ namespace HaloBiz.Repository.Impl
         public async Task<IEnumerable<MasterServiceAssignment>> FindAllServiceAssignments()
         {
             return await _context.MasterServiceAssignments.Where(type => type.IsDeleted == false && type.IsScheduled == false)
-               .Include(ct => ct.ContractService).Include(t=>t.CustomerDivision).Include(t=>t.SMORegion).Include(t=>t.SMORegion)
+               .Include(ct => ct.ContractService).Include(t=>t.CustomerDivision).Include(t=>t.SMORegion)
                .Include(sec=>sec.SecondaryServiceAssignments.Where(x=>x.IsDeleted == false))
                .Include(t=>t.SMORoute).Include(t=>t.SourceType).Include(t=>t.TripType).Include(t=>t.CreatedBy).Include(t=>t.ServiceRegistration)
-               .Include(t=>t.ServiceRegistration.Service).Include(t => t.ServiceRegistration.ApplicableArmedEscortTypes.Where(t=>t.IsDeleted == false))
-               .Include(t => t.ServiceRegistration.ApplicableCommanderTypes.Where(t => t.IsDeleted == false))
-               .Include(t => t.ServiceRegistration.ApplicablePilotTypes.Where(t => t.IsDeleted == false))
-               .Include(t => t.ServiceRegistration.ApplicableVehicleTypes.Where(t => t.IsDeleted == false))
+               .Include(t=>t.ServiceRegistration.Service)
                .OrderByDescending(x => x.Id)
                .ToListAsync();
+
+            //.Include(t => t.ServiceRegistration.ApplicableArmedEscortTypes.Where(t => t.IsDeleted == false))
+            //   .Include(t => t.ServiceRegistration.ApplicableCommanderTypes.Where(t => t.IsDeleted == false))
+            //   .Include(t => t.ServiceRegistration.ApplicablePilotTypes.Where(t => t.IsDeleted == false))
+            //   .Include(t => t.ServiceRegistration.ApplicableVehicleTypes.Where(t => t.IsDeleted == false))
         }
 
         public async Task<IEnumerable<MasterServiceAssignment>> FindAllScheduledServiceAssignments()
@@ -99,14 +102,16 @@ namespace HaloBiz.Repository.Impl
         public async Task<MasterServiceAssignment> FindServiceAssignmentById(long Id)
         {
             return await _context.MasterServiceAssignments
-               .Include(ct => ct.ContractService).Include(t => t.SMORegion).Include(t => t.SMORegion)
+               .Include(ct => ct.ContractService).Include(t => t.SMORegion)
                .Include(sec => sec.SecondaryServiceAssignments.Where(x => x.IsDeleted == false))
                .Include(t => t.SMORoute).Include(t => t.SourceType).Include(t => t.TripType).Include(t => t.CreatedBy).Include(t => t.ServiceRegistration)
-               .Include(t => t.ServiceRegistration.Service).Include(t => t.ServiceRegistration.ApplicableArmedEscortTypes.Where(t => t.IsDeleted == false))
-               .Include(t => t.ServiceRegistration.ApplicableCommanderTypes.Where(t => t.IsDeleted == false))
-               .Include(t => t.ServiceRegistration.ApplicablePilotTypes.Where(t => t.IsDeleted == false))
-               .Include(t => t.ServiceRegistration.ApplicableVehicleTypes.Where(t => t.IsDeleted == false))
+               .Include(t => t.ServiceRegistration.Service)
                .FirstOrDefaultAsync(aer => aer.Id == Id && aer.IsDeleted == false);
+
+            //.Include(t => t.ServiceRegistration.ApplicableArmedEscortTypes.Where(t => t.IsDeleted == false))
+            //   .Include(t => t.ServiceRegistration.ApplicableCommanderTypes.Where(t => t.IsDeleted == false))
+            //   .Include(t => t.ServiceRegistration.ApplicablePilotTypes.Where(t => t.IsDeleted == false))
+            //   .Include(t => t.ServiceRegistration.ApplicableVehicleTypes.Where(t => t.IsDeleted == false))
         }
 
         public async Task<SecondaryServiceAssignment> SaveSecondaryServiceAssignment(SecondaryServiceAssignment serviceAssignment)
@@ -145,10 +150,24 @@ namespace HaloBiz.Repository.Impl
             _context.MasterServiceAssignments.Update(serviceAssignment);
             return await SaveChanges();
         }
-
+        
         public async Task<bool> UpdateisAddedToCartStatus(MasterServiceAssignment serviceAssignment)
         {
             serviceAssignment.IsAddedToCart = true;
+            _context.MasterServiceAssignments.Update(serviceAssignment);
+            return await SaveChanges();
+        }
+
+        public async Task<bool> UpdatehasPassengerStatusToTrue(MasterServiceAssignment serviceAssignment)
+        {
+            serviceAssignment.HasPassenger = true;
+            _context.MasterServiceAssignments.Update(serviceAssignment);
+            return await SaveChanges();
+        }
+
+        public async Task<bool> UpdatehasPassengerStatusToFalse(MasterServiceAssignment serviceAssignment)
+        {
+            serviceAssignment.HasPassenger = false;
             _context.MasterServiceAssignments.Update(serviceAssignment);
             return await SaveChanges();
         }
@@ -175,7 +194,7 @@ namespace HaloBiz.Repository.Impl
             }
         }
 
-        public async Task<IEnumerable<MasterServiceAssignmentWithRegisterTransferDTO>> FindAllServiceAssignmentsByClientId(long clientId)
+        public async Task<IEnumerable<MasterServiceAssignmentWithRegisterTransferDTO>> FindAllServiceAssignmentsForCartByClientId(long clientId)
         {
             //return await _context.MasterServiceAssignments.Where(aer => aer.CustomerDivisionId == clientId && aer.IsDeleted == false && aer.ReadyStatus == false && aer.IsScheduled == false && aer.IsPaidFor == false && aer.IsAddedToCart == true)
             //  .Include(ct => ct.ContractService).Include(t => t.SMORegion).Include(t => t.SMORegion)
@@ -202,6 +221,7 @@ namespace HaloBiz.Repository.Impl
                          IsScheduled = pd.IsScheduled,
                          ContractServiceId = pd.ContractServiceId,
                          PickupDate = pd.PickupDate,
+                         HasPassenger = pd.HasPassenger,
                          DropoffDate = pd.DropoffDate,
                          PickoffTime = pd.PickoffTime,
                          ServiceRegistration = pd.ServiceRegistration,
@@ -211,7 +231,8 @@ namespace HaloBiz.Repository.Impl
                          CostPrice = od.CostPrice,
                          MarkupPrice = od.MarkupPrice,
                          ServiceCategory = od.ServiceRegistration.Service.ServiceCategory,
-                     }).ToListAsync();
+                         //PriceServiceRegistration = od.ServiceRegistration,
+                     }).OrderByDescending(x=>x.PickupDate).ToListAsync();
 
             return  q;
 
@@ -242,6 +263,7 @@ namespace HaloBiz.Repository.Impl
                                IsScheduled = pd.IsScheduled,
                                ContractServiceId = pd.ContractServiceId,
                                PickupDate = pd.PickupDate,
+                               HasPassenger = pd.HasPassenger,
                                DropoffDate = pd.DropoffDate,
                                PickoffTime = pd.PickoffTime,
                                Service = pd.ServiceRegistration.Service,
@@ -251,7 +273,8 @@ namespace HaloBiz.Repository.Impl
                                CostPrice = od.CostPrice,
                                MarkupPrice = od.MarkupPrice,
                                ServiceCategory = od.ServiceRegistration.Service.ServiceCategory,
-                           }).ToListAsync();
+                               //PriceServiceRegistration = od.ServiceRegistration,
+                           }).OrderByDescending(x=>x.PickupDate).ToListAsync();
 
             return q;
         }
@@ -264,10 +287,33 @@ namespace HaloBiz.Repository.Impl
         //    return count.Count();
         //}
 
-        public async Task<IEnumerable<MasterServiceAssignment>> FindAllCompletedTripsByClientId(long clientId)
+        public async Task<IEnumerable<MasterServiceAssignment>> FindAllCompletedTripsCountByClientId(long clientId)
         {
             return await _context.MasterServiceAssignments.Where(aer => aer.CustomerDivisionId == clientId && aer.IsDeleted == false && aer.SAExecutionStatus == 2 && aer.AssignmentStatus == "Closed")
                  .ToListAsync();
+        }
+
+        public async Task<IEnumerable<MasterServiceAssignment>> FindAllFrequentRoutesCountByClientId(long clientId)
+        {
+            var query =  _context.MasterServiceAssignments.Where(aer => aer.CustomerDivisionId == clientId && aer.IsDeleted == false && aer.SAExecutionStatus == 2 && aer.AssignmentStatus == "Closed")
+                .DistinctBy(x=>x.SMORouteId);
+            //.ToListAsync();
+            return  query.ToList();
+        }
+        
+
+        public async Task<IEnumerable<MasterServiceAssignment>> FindAllCompletedTripsByClientId(long clientId)
+        {
+            return await _context.MasterServiceAssignments.Where(aer => aer.CustomerDivisionId == clientId && aer.IsDeleted == false && aer.SAExecutionStatus == 2 && aer.AssignmentStatus == "Closed")
+                .Include(s=>s.ServiceRegistration).ThenInclude(x=>x.Service).Include(s=>s.SMORoute).ThenInclude(x=>x.SMORegion)
+                 .ToListAsync();
+        }
+
+        public async Task<IEnumerable<MasterServiceAssignment>> FindAllServiceAssignmentsByClientId(long clientId)
+        {
+            return await _context.MasterServiceAssignments.Where(aer => aer.CustomerDivisionId == clientId && aer.IsDeleted == false )
+           .Include(s => s.ServiceRegistration).ThenInclude(x => x.Service).Include(s => s.SMORoute).ThenInclude(x => x.SMORegion).OrderByDescending(x=>x.Id)
+            .ToListAsync();
         }
     }
 }

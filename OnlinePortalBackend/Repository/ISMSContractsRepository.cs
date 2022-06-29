@@ -10,5 +10,6 @@ namespace OnlinePortalBackend.Repository
         Task<(bool isSuccess, object message)> AddNewContract(SMSContractDTO contractDTO);
         Task<(bool isSuccess, string message, List<InvoiceResult> invoiceResults)> GenerateInvoiceForContract(SMSCreateInvoiceDTO request);
         Task<(bool isSuccess, object message)> AddServiceToContract(SMSContractServiceDTO request);
+        Task<(bool isSuccess, object message)> RemoveServiceFromContract(SMSContractServiceRemovalDTO request);
     }
 }

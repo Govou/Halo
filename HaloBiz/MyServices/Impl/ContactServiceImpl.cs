@@ -16,6 +16,7 @@ using HalobizMigrations.Models;
 using HalobizMigrations.Models.Visitors;
 using HalobizMigrations.Models.ProjectManagement;
 using System.Collections.Generic;
+using HaloBiz.DTOs;
 
 namespace HaloBiz.MyServices.Impl
 {
@@ -1076,9 +1077,9 @@ namespace HaloBiz.MyServices.Impl
                            .Include(x => x.CreatedBy)
                            .Include(x => x.GroupType)
                            .Include(x => x.Suspect)
-                             .ThenInclude(x => x.SuspectQualifications)
-                                   .ThenInclude(x => x.ServiceQualifications)
-
+                           .ThenInclude(x => x.SuspectQualifications)
+                           .ThenInclude(x => x.ServiceQualifications)
+                           .OrderByDescending(x=>x.CreatedAt)
                            .ToListAsync();
 
 
@@ -1113,34 +1114,79 @@ namespace HaloBiz.MyServices.Impl
             return CommonResponse.Send(ResponseCodes.SUCCESS, contract, "Contract was successfully retrieved");
 
         }
-
-
-        public async Task<ApiCommonResponse> getDeliverableDashboard(HttpContext httpContext)
+        
+        public async Task<ApiCommonResponse> getDeliverableDashboard(HttpContext httpContext,int year,int month)
         {
-
-
-            var projects = await _context.Projects.Where(x => x.IsActive == true && x.Watchers.Any(x => x.IsActive == true && x.ProjectWatcherId == httpContext.GetLoggedInUserId()))
-                                                  .Include(x => x.Workspace)
-                                                       .ThenInclude(x => x.StatusFlows.Where(x => x.IsDeleted == false))
-                                                  .Include(x => x.Tasks.Where(x => x.IsActive == true))
-                                                          .ThenInclude(x => x.Deliverables.Where(x => x.IsActive == true))
-                                                                .ThenInclude(x => x.CreatedBy)
-                                                  .ToListAsync();
-
-
-            if (projects.Count == 0)
+            var projects = new List<Project>();
+            
+            if (month == 13)
             {
-                return CommonResponse.Send(ResponseCodes.FAILURE, null, "No Project was found");
+                     projects = await _context.Projects.AsNoTracking()
+                    .Where(x => x.IsActive == true && x.Watchers.Any(x => x.IsActive == true && x.ProjectWatcherId == httpContext.GetLoggedInUserId()))
+                    .Include(x=>x.Workspace)
+                    .ToListAsync();
             }
+            else
+            {
+                     projects = await _context.Projects.AsNoTracking()
+                    .Where(x => x.IsActive == true && x.Watchers.Any(x => x.IsActive == true && x.ProjectWatcherId == httpContext.GetLoggedInUserId())
+                                                   && x.CreatedAt.Month == month && x.CreatedAt.Year == year)
+                    .Include(x=>x.Workspace)
+                    .ToListAsync();
+            }
+            
+            
 
-            var getProjectResultResult = projects.GroupBy(p => p.Id)
-                              .Select(result => result.First())
-                              .ToArray();
+            var tasks = await _context.Tasks.AsNoTracking()
+                .Where(x => x.IsActive == true).ToListAsync();
+            
+            var statusFlows = await _context.StatusFlows.AsNoTracking()
+                .Where(x => x.IsDeleted == false).ToListAsync();
+            
+            var deliverables = await _context.Deliverables.AsNoTracking()
+                .Where(x => x.IsActive == true)
+                .Include(x=>x.CreatedBy)
+                .ToListAsync();
 
 
-            return CommonResponse.Send(ResponseCodes.SUCCESS, getProjectResultResult, "Project was successfully retrieved");
+            var valuesToEmit = new ProjectExtract()
+            {
+                Deliverables = deliverables,
+                Projects = projects,
+                Tasks = tasks,
+                StatusFlows = statusFlows
+            };
 
+            return CommonResponse.Send(ResponseCodes.SUCCESS, valuesToEmit, "Project was successfully retrieved");
         }
+
+
+        // public async Task<ApiCommonResponse> getDeliverableDashboard(HttpContext httpContext)
+        // {
+        //
+        //
+        //     var projects = await _context.Projects.Where(x => x.IsActive == true && x.Watchers.Any(x => x.IsActive == true && x.ProjectWatcherId == 4))
+        //                                           .Include(x => x.Workspace)
+        //                                                .ThenInclude(x => x.StatusFlows.Where(x => x.IsDeleted == false))
+        //                                           .Include(x => x.Tasks.Where(x => x.IsActive == true))
+        //                                                   .ThenInclude(x => x.Deliverables.Where(x => x.IsActive == true))
+        //                                                         .ThenInclude(x => x.CreatedBy)
+        //                                           .ToListAsync();
+        //
+        //
+        //     if (projects.Count == 0)
+        //     {
+        //         return CommonResponse.Send(ResponseCodes.FAILURE, null, "No Project was found");
+        //     }
+        //
+        //     var getProjectResultResult = projects.GroupBy(p => p.Id)
+        //                       .Select(result => result.First())
+        //                       .ToArray();
+        //
+        //
+        //     return CommonResponse.Send(ResponseCodes.SUCCESS, getProjectResultResult, "Project was successfully retrieved");
+        //
+        // }
 
         public async Task<ApiCommonResponse> getAllQuotes(HttpContext httpContext)
         {
@@ -1204,8 +1250,10 @@ namespace HaloBiz.MyServices.Impl
             var getQuote = await _context.LeadDivisions.AsNoTracking()
                                                 .Include(x=>x.CreatedBy)
                                                 .Include(x => x.Quote)
-                                                           .ThenInclude(x => x.QuoteServices.Where(x => x.IsDeleted == false))
+                                                .ThenInclude(x => x.QuoteServices.Where(x => x.IsDeleted == false))
+                                                .ThenInclude(x=>x.Service)
                                                 .Where(x=>x.IsDeleted == false && x.LeadId == Id)
+                                                .OrderByDescending(x=>x.CreatedAt)
                                                 .ToListAsync();
 
 

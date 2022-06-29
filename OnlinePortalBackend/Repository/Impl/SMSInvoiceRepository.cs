@@ -6,6 +6,7 @@ using HalobizMigrations.Models.OnlinePortal;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using OnlinePortalBackend.Adapters;
 using OnlinePortalBackend.DTOs.ReceivingDTOs;
 using OnlinePortalBackend.DTOs.TransferDTOs;
 using OnlinePortalBackend.Helpers;
@@ -21,16 +22,19 @@ namespace OnlinePortalBackend.Repository.Impl
         private readonly HalobizContext _context;
         private readonly IConfiguration _configuration;
         private readonly ILogger<SMSInvoiceRepository> _logger;
+        private readonly IPaymentAdapter _adapter;
+
 
         private readonly string WITHOLDING_TAX = "WITHOLDING TAX";
         private readonly string RECEIPTVOUCHERTYPE = "Sales Receipt";
         private readonly string RETAIL = "RETAIL";
 
-        public SMSInvoiceRepository(HalobizContext context, IConfiguration configuration, ILogger<SMSInvoiceRepository> logger)
+        public SMSInvoiceRepository(HalobizContext context, IConfiguration configuration, ILogger<SMSInvoiceRepository> logger, IPaymentAdapter adapter)
         {
             _context = context;
             _configuration = configuration;
             _logger = logger;
+            _adapter = adapter;
         }
         public async Task<(bool isSuccess, SMSInvoiceDTO message)> GetInvoice(int profileId)
         {
@@ -86,7 +90,7 @@ namespace OnlinePortalBackend.Repository.Impl
                     .Include(x => x.Receipts)
                     .Include(x => x.CustomerDivision)
                     .Where(x => x.GroupInvoiceNumber == singleInvoice.GroupInvoiceNumber
-                            && x.StartDate == singleInvoice.StartDate && !x.IsDeleted)
+                            && x.StartDate == singleInvoice.StartDate && !x.IsDeleted && x.AdhocGroupingId == request.AdHocIvoiceGroup)
                     .ToListAsync();
 
                 var totalReceiptAmount = receiptReceivingDTO.ReceiptValue;
@@ -145,6 +149,10 @@ namespace OnlinePortalBackend.Repository.Impl
                             invoice.IsReceiptedStatus = (int)InvoiceStatus.CompletelyReceipted;
                             await UpdateInvoice(invoice);
                             await PostAccounts(receipt, invoice, receiptReceivingDTO.AccountId);
+
+                            var contract = _context.Contracts.FirstOrDefault(x => x.Id == invoice.ContractId);
+                            contract.IsDeleted = true;
+                            _context.SaveChanges();
                             break;
                         }
                         else
@@ -498,14 +506,16 @@ namespace OnlinePortalBackend.Repository.Impl
         public async Task<(bool isSuccess, string message)> ReceiptAllInvoicesForContract(SMSReceiptInvoiceForContractDTO request)
         {
             var invoices = _context.Invoices.Where(x => x.ContractId == request.ContractId);
-            var inv = invoices.OrderByDescending(x => x.Id).FirstOrDefault();
 
-            var validInvoices = invoices.Where(x => x.AdhocGroupingId == inv.AdhocGroupingId);
-            var invoicesSum = validInvoices.Select(x => x.Value).Sum();
-
-            if (request.InvoiceValue != invoicesSum)
+            var validInvoices = new List<Invoice>();
+            foreach (var item in request.ContractServices)
             {
-                return (false, "Invoice value is not valid");
+                var valInv = invoices.FirstOrDefault(x => x.ContractServiceId == item);
+
+                if (valInv != null)
+                {
+                    validInvoices.Add(valInv);
+                }
             }
 
             var receiptsRequests = new List<SMSReceiptReceivingDTO>();
@@ -522,6 +532,7 @@ namespace OnlinePortalBackend.Repository.Impl
                         InvoiceValue = item.Value,
                         PaymentGateway = request.PaymentGateway,
                         PaymentReference = request.PaymentReference,
+                        AdHocIvoiceGroup = item.AdhocGroupingId
                     };
 
                     receiptsRequests.Add(receiptInv);
@@ -550,12 +561,48 @@ namespace OnlinePortalBackend.Repository.Impl
 
         public async Task<bool> PostTransactions(PostTransactionDTO request)
         {
+            var vat = Convert.ToDouble(request.Value) * 0.075;
+            var inv = new Invoice();
+            if (request.ContractId != null)
+            {
+                var invoices = _context.Invoices.Where(x => x.ContractId == request.ContractId);
+                inv = invoices.OrderByDescending(x => x.Id).FirstOrDefault();
+            }
+         
+            var sessionId = string.Empty;
+            if (inv != null)
+            {
+                sessionId = inv.InvoiceNumber + request.ProfileId + inv.StartDate;
+                sessionId = sessionId.Replace('/', '0');
+                sessionId = sessionId.Replace('-', '0');
+            }
+            else
+            {
+                sessionId = new Random().Next(1_000_000_000).ToString() + new Random().Next(1_000_000_000).ToString();
+            }
+            var paymentConformation = false;
+
+            if (string.IsNullOrEmpty(request.PaymentGatewayResponseCode))
+            {
+
+                var result = await _adapter.VerifyPaymentAsync((PaymentGateway)GeneralHelper.GetPaymentGateway(request.PaymentGateway), request.PaymentReferenceGateway);
+
+                if (result != null)
+                {
+                    if (result.PaymentSuccessful)
+                    {
+                        paymentConformation = true;
+                    }
+                }
+            }
+          
+
             _context.OnlineTransactions.Add(new OnlineTransaction
             {
                 CreatedAt = DateTime.UtcNow.AddHours(1),
                 UpdatedAt = DateTime.UtcNow.AddHours(1),
-                VAT = request.VAT,
-                Value = request.Value,
+                VAT = Convert.ToDecimal(vat),
+                Value = request.Value - Convert.ToDecimal(vat),
                 CreatedById = request.ProfileId,
                 TransactionType = request.TransactionType,
                 PaymentGateway = request?.PaymentGateway,
@@ -563,9 +610,13 @@ namespace OnlinePortalBackend.Repository.Impl
                 PaymentGatewayResponseCode = request.PaymentGatewayResponseCode,
                 PaymentReferenceInternal = request.PaymentReferenceInternal,
                 PaymentReferenceGateway = request.PaymentReferenceGateway,
-                TotalValue = request.Value + request.VAT,
-                SessionId = request.SessionId,
-                ProfileId = request.ProfileId
+                TotalValue = request.Value,
+                SessionId = sessionId,
+                ProfileId = request.ProfileId,
+                TransactionSource = request.TransactionSource,
+                PaymentFulfilment = true,
+                PaymentConfirmation = paymentConformation,
+                
             });
 
             try
@@ -579,6 +630,55 @@ namespace OnlinePortalBackend.Repository.Impl
                 _logger.LogError(ex.StackTrace);
                 return false;
             }
+        }
+
+        public async Task<SendReceiptDTO> GetContractServiceDetailsForReceipt(long contractId, int[] contServices)
+        {
+            var contractServices = _context.ContractServices.Include(x => x.Service).Where(x => x.ContractId == contractId);
+            var validContractServices = new List<ContractService>();
+
+            foreach (var item in contServices)
+            {
+                //var ms = _context.MasterServiceAssignments.FirstOrDefault(x => x.ContractServiceId == item.Id && x.IsAddedToCart == true && x.IsDeleted == false && x.IsScheduled == false);
+
+                //if (ms != null)
+                //{
+                //    validContractServices.Add(item);
+                //}
+                var contrServ = contractServices.FirstOrDefault(x => x.Id == item);
+                if (contrServ != null)
+                {
+                    validContractServices.Add(contrServ);
+                }
+            }
+
+            var receiptDetails = validContractServices.Select(x => new SendReceiptDetailDTO
+            {
+                Amount = x.AdHocInvoicedAmount.ToString(),
+                Description = x.Service.Description,
+                Quantity = x.Quantity.ToString(),
+                ServiceName = x.Service.Name,
+                Total = x.AdHocInvoicedAmount.ToString()
+            }).AsEnumerable();
+
+          //  var validContactServices = new List<ContractService>();
+
+            var totalSum = receiptDetails.Select(x => double.Parse(x.Amount)).Sum();
+
+            var customerDivId = _context.Contracts.FirstOrDefault(x => x.Id == contractId).CustomerDivisionId;
+
+            var custDiv = _context.CustomerDivisions.FirstOrDefault(x => x.Id == customerDivId);
+
+            var sendReceipt = new SendReceiptDTO
+            {
+                Amount = totalSum.ToString(),
+                Date = DateTime.UtcNow.AddHours(1).ToString("dd/MM/yyyy"),
+                Email = custDiv.Email,
+                CustomerName = custDiv.DivisionName,
+                SendReceiptDetailDTOs = receiptDetails.ToList()
+            };
+
+            return sendReceipt;
         }
     }
 }

@@ -9,13 +9,13 @@ namespace OnlinePortalBackend.MyServices.SecureMobilitySales
     {
         Task<ApiCommonResponse> CreateContract(SMSContractDTO contractDTO);
         Task<ApiCommonResponse> AddServiceToContract(SMSContractServiceDTO contractDTO);
+        Task<ApiCommonResponse> RemoveServiceFromContract(SMSContractServiceRemovalDTO request);
         Task<ApiCommonResponse> GetInvoice(int profileId);
         Task<ApiCommonResponse> ReceiptInvoice(SMSReceiptReceivingDTO request);
         Task<ApiCommonResponse> GenerateInvoice(SMSCreateInvoiceDTO request);
         Task<ApiCommonResponse> ReceiptAllInvoicesForContract(SMSReceiptInvoiceForContractDTO request);
         Task<ApiCommonResponse> PostTransactions(PostTransactionDTO request);
-
-
+        Task<ApiCommonResponse> PostSupplierTransactions(PostTransactionDTO request);
 
     }
 }

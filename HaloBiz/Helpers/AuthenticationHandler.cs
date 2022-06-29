@@ -207,8 +207,6 @@ namespace HaloBiz.Helpers
             var permissionInt = (int)permission;
             return permisssions.Contains(permissionInt);
         }
-
-
     }
 }
 

@@ -136,6 +136,14 @@ namespace HaloBiz.MyServices.Impl
             return CommonResponse.Send(ResponseCodes.SUCCESS, "Records Added Successfully");
         }
 
+        public async Task<ApiCommonResponse> CheckIfStateISAvailableOnRoute(long stateId, long routeId)
+        {
+            var allItems = await _sMORouteAndRegionRepository.CheckIfStateISAvailableOnRoute(stateId, routeId);
+           
+            //var itemTransferDTO = _mapper.Map<IEnumerable<SMORouteMapTransferDTO>>(allItems);
+            return CommonResponse.Send(ResponseCodes.SUCCESS, allItems);
+        }
+
         public async Task<ApiCommonResponse> DeleteSMORegion(long id)
         {
             var itemToDelete = await _sMORouteAndRegionRepository.FindSMORegionById(id);

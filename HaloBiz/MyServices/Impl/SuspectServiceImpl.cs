@@ -93,7 +93,7 @@ namespace HaloBiz.MyServices.Impl
         public async Task<ApiCommonResponse> GetUserSuspects(HttpContext context)
         {
             var suspects = await _suspectRepo.FindAllUserSuspects(context.GetLoggedInUserId());
-            if (suspects == null)
+            if (!suspects.Any())
             {
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);;
             }
@@ -215,6 +215,7 @@ namespace HaloBiz.MyServices.Impl
 
             suspectToUpdate.Address = suspectReceivingDTO.Address;
             suspectToUpdate.BranchId = suspectReceivingDTO.BranchId;
+            suspectToUpdate.IsInternalClientType = suspectReceivingDTO.isInternalClientType;
 
             var updatedsuspect = await _suspectRepo.UpdateSuspect(suspectToUpdate);
 
@@ -266,7 +267,8 @@ namespace HaloBiz.MyServices.Impl
                     LeadTypeId = suspect.LeadTypeId ?? 1,
                     LogoUrl = suspect.ImageUrl,
                     RCNumber = suspect?.RCNumber,
-                    SuspectId = suspect.Id
+                    SuspectId = suspect.Id,
+                    isInternalClientType = suspect.IsInternalClientType,
                 });
 
                 if (leadSaveResponse.responseCode.Contains("00"))

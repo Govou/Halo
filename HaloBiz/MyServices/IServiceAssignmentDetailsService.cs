@@ -14,11 +14,13 @@ namespace HaloBiz.MyServices
         Task<ApiCommonResponse> AddArmedEscortDetail(HttpContext context, ArmedEscortServiceAssignmentDetailsReceivingDTO armedEscortReceivingDTO);
         Task<ApiCommonResponse> AddArmedEscortDetailReplacement(HttpContext context, ArmedEscortReplacementReceivingDTO armedEscortReceivingDTO);
         Task<ApiCommonResponse> GetAllArmedEscortDetails();
-        Task<ApiCommonResponse> GetAllUniqueArmedEscortDetails();
+        Task<ApiCommonResponse> GetAllUniqueAvailableArmedEscortDetails();
+        Task<ApiCommonResponse> GetAllUniqueHeldArmedEscortDetails();
         Task<ApiCommonResponse> GetAllArmedEscortDetailsByAssignmentId(long assignmentId);
         Task<ApiCommonResponse> GetArmedEscortDetailById(long id);
         Task<ApiCommonResponse> UpdateArmedEscortDetail(HttpContext context, long id, ArmedEscortServiceAssignmentDetailsReceivingDTO armedEscortReceivingDTO);
         Task<ApiCommonResponse> DeleteArmedEscortDetail(long id);
+        Task<ApiCommonResponse> DeleteArmedEscortDetail_(long id); //For is Deleted Status
         Task<ApiCommonResponse> UpdateArmedEscortDetailHeldForActionByAssignmentId(long id);
         Task<ApiCommonResponse> UpdateServiceDetailsHeldForActionAndReadyStatusForOnlineByAssignmentId(long[] id);
         Task<ApiCommonResponse> UpdateServiceDetailsHeldForActionAndReadyStatusByAssignmentId(long id);
@@ -27,37 +29,43 @@ namespace HaloBiz.MyServices
         Task<ApiCommonResponse> AddCommanderDetail(HttpContext context, CommanderServiceAssignmentDetailsReceivingDTO commanderReceivingDTO);
         Task<ApiCommonResponse> AddCommanderDetailReplacement(HttpContext context, CommanderReplacementReceivingDTO commanderReceivingDTO);
         Task<ApiCommonResponse> GetAllCommanderDetails();
-        Task<ApiCommonResponse> GetAllUniqueCommanderDetails();
+        Task<ApiCommonResponse> GetAllUniqueAvailableCommanderDetails();
+        Task<ApiCommonResponse> GetAllUniqueHeldCommanderDetails();
         Task<ApiCommonResponse> GetAllCommanderDetailsByAssignmentId(long assignmentId);
         Task<ApiCommonResponse> GetAllCommanderDetailsByProfileId(long profileId);
         Task<ApiCommonResponse> GetCommanderDetailById(long id);
         Task<ApiCommonResponse> UpdateCommanderDetail(HttpContext context, long id, CommanderServiceAssignmentDetailsReceivingDTO commanderReceivingDTO);
         //Task<ApiCommonResponse> UpdateCommanderDetailForVehicleReplacementByAssIdandResourceId(HttpContext context, long assId, long resourceId, CommanderServiceAssignmentDetailsReceivingDTO commanderReceivingDTO);
         Task<ApiCommonResponse> DeleteCommanderDetail(long id);
+        Task<ApiCommonResponse> DeleteCommanderDetail_(long id);
         //Task<ApiCommonResponse> UpdateCommanderDetailHeldForActionByAssignmentId(long id);
 
         //Pilot
         Task<ApiCommonResponse> AddPilotDetail(HttpContext context, PilotServiceAssignmentDetailsReceivingDTO pilotReceivingDTO);
         Task<ApiCommonResponse> AddPilotDetailReplacement(HttpContext context, PilotReplacementReceivingDTO pilotReceivingDTO);
         Task<ApiCommonResponse> GetAllPilotDetails();
-        Task<ApiCommonResponse> GetAllUniquePilotDetails();
+        Task<ApiCommonResponse> GetAllUniqueAvailablePilotDetails();
+        Task<ApiCommonResponse> GetAllUniqueHeldPilotDetails();
         Task<ApiCommonResponse> GetAllPilotDetailsByAssignmentId(long assignmentId);
         Task<ApiCommonResponse> GetPilotDetailById(long id);
         Task<ApiCommonResponse> UpdatePilotDetail(HttpContext context, long id, PilotServiceAssignmentDetailsReceivingDTO pilotReceivingDTO);
         //Task<ApiCommonResponse> UpdatePilotDetailForVehicleReplacementByAssIdandResourceId(HttpContext context, long assId, long resourceId, PilotServiceAssignmentDetailsReceivingDTO pilotReceivingDTO);
 
         Task<ApiCommonResponse> DeletePilotDetail(long id);
+        Task<ApiCommonResponse> DeletePilotDetail_(long id);
         //Task<ApiCommonResponse> UpdatePilotDetailHeldForActionByAssignmentId(long id);
 
         //Vehicle
         Task<ApiCommonResponse> AddVehicleDetail(HttpContext context, VehicleServiceAssignmentDetailsReceivingDTO vehicleReceivingDTO);
         Task<ApiCommonResponse> AddVehicleDetailReplacement(HttpContext context, VehicleReplacementReceivingDTO vehicleReceivingDTO);
         Task<ApiCommonResponse> GetAllVehicleDetails();
-        Task<ApiCommonResponse> GetAllUniqueVehicleDetails();
+        Task<ApiCommonResponse> GetAllUniqueAvailableVehicleDetails();
+        Task<ApiCommonResponse> GetAllUniqueHeldVehicleDetails();
         Task<ApiCommonResponse> GetAllVehicleDetailsByAssignmentId(long assignmentId);
         Task<ApiCommonResponse> GetVehicleDetailById(long id);
         Task<ApiCommonResponse> UpdateVehicleDetail(HttpContext context, long id, VehicleServiceAssignmentDetailsReceivingDTO vehicleReceivingDTO);
         Task<ApiCommonResponse> DeleteVehicleDetail(long id);
+        Task<ApiCommonResponse> DeleteVehicleDetail_(long id);//isDeleted Status
         //Task<ApiCommonResponse> UpdateVehicleDetailHeldForActionByAssignmentId(long id);
 
 

@@ -18,11 +18,13 @@ namespace OnlinePortalBackend.MyServices.SecureMobilitySales
         private readonly ISMSContractsRepository _contractsRepo;
         private readonly ISMSInvoiceRepository _invoiceRepo;
         private readonly IMailService _mailService;
-        public SMSContractsService(ISMSContractsRepository contractsRepo, ISMSInvoiceRepository invoiceRepository, IMailService mailService)
+        private readonly ISupplierRepository _supplierRepo;
+        public SMSContractsService(ISMSContractsRepository contractsRepo, ISMSInvoiceRepository invoiceRepository, IMailService mailService, ISupplierRepository supplierRepository)
         {
             _contractsRepo = contractsRepo;
             _invoiceRepo = invoiceRepository;
             _mailService = mailService;
+            _supplierRepo = supplierRepository;
         }
 
         public async Task<ApiCommonResponse> AddServiceToContract(SMSContractServiceDTO request)
@@ -79,6 +81,17 @@ namespace OnlinePortalBackend.MyServices.SecureMobilitySales
             return CommonResponse.Send(ResponseCodes.SUCCESS, result);
         }
 
+        public async Task<ApiCommonResponse> PostSupplierTransactions(PostTransactionDTO request)
+        {
+            var result = await _supplierRepo.PostTransactionForBooking(request);
+
+            if (!result)
+            {
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "failed"); ;
+            }
+            return CommonResponse.Send(ResponseCodes.SUCCESS, null, "success");
+        }
+
         public async Task<ApiCommonResponse> PostTransactions(PostTransactionDTO request)
         {
             var result = await _invoiceRepo.PostTransactions(request);
@@ -99,7 +112,13 @@ namespace OnlinePortalBackend.MyServices.SecureMobilitySales
             {
                 return CommonResponse.Send(ResponseCodes.FAILURE); ;
             }
+
+            var receipt = await _invoiceRepo.GetContractServiceDetailsForReceipt(request.ContractId, request.ContractServices);
+          //  var receipt = new SendReceiptDTO();
+            await SendReceiptViaEmail(receipt);
+
             return CommonResponse.Send(ResponseCodes.SUCCESS, result);
+          //  return CommonResponse.Send(ResponseCodes.SUCCESS, null);
         }
 
         public async Task<ApiCommonResponse> ReceiptInvoice(SMSReceiptReceivingDTO request)
@@ -112,55 +131,73 @@ namespace OnlinePortalBackend.MyServices.SecureMobilitySales
             //}
 
 
-            await SendReceiptViaEmail(request);
+         //   await SendReceiptViaEmail(request);
             return CommonResponse.Send(ResponseCodes.SUCCESS, "success");
            // return CommonResponse.Send(ResponseCodes.SUCCESS, result);
         }
 
-        private async Task SendReceiptViaEmail(SMSReceiptReceivingDTO request)
+        public async Task<ApiCommonResponse> RemoveServiceFromContract(SMSContractServiceRemovalDTO request)
         {
+            var result = await _contractsRepo.RemoveServiceFromContract(request);
 
-            //    var amountInWords = NumberToWordConverter.ChangeToWordsInMoney(request.InvoiceValue.ToString());
-            var amountInWords = NumberToWordConverter.ChangeToWordsInMoney(77918700.20.ToString());
-
-            var sendDetail = new List<SendReceiptDetailDTO>();
-            sendDetail.Add(new SendReceiptDetailDTO
+            if (!result.isSuccess)
             {
-                Amount = 30000.ToString(),
-                Description = "This is a good service. Trust me",
-                Quantity = 3.ToString(),
-                ServiceName = "Bull Dog",
-                Total = 78730.ToString()
-            });
+                return CommonResponse.Send(ResponseCodes.FAILURE);
+            }
+            return CommonResponse.Send(ResponseCodes.SUCCESS, result);
+        }
 
-            sendDetail.Add(new SendReceiptDetailDTO
-            {
-                Amount = 50000.ToString(),
-                Description = "This is a good service. Trust me!!!",
-                Quantity = 4.ToString(),
-                ServiceName = "Plane",
-                Total = 87237.00.ToString()
-            });
+        private async Task SendReceiptViaEmail(SendReceiptDTO request)
+        {
+            //var sendReceiptDetail1 = new SendReceiptDetailDTO
+            //{
+            //    Amount = "7000",
+            //    Description = "Secure mobility test",
+            //    Quantity = "2",
+            //    ServiceName = "Pilot service",
+            //    Total = "43000"
+            //};
 
-            var result = new SendReceiptDTO
-            {
-                CustomerName = "Kehinde Guvoeke",
-                Amount = 2389238.89.ToString(),
-                Date = DateTime.UtcNow.AddHours(1).ToString("dd/MM/yyyy"),
-                Email = "guvoekemauton@gmail.com",
-                SendReceiptDetailDTOs = sendDetail
-            }; //await _invoiceRepo.GetReceiptDetail(request.InvoiceNumber);
+            //var sendReceiptDetail2 = new SendReceiptDetailDTO
+            //{
+            //    Amount = "7000",
+            //    Description = "Secure mobility test",
+            //    Quantity = "2",
+            //    ServiceName = "Pilot service",
+            //    Total = "43000"
+            //};
 
-            
+            //var sendReceiptDetails = new List<SendReceiptDetailDTO>();
+            //sendReceiptDetails.Add(sendReceiptDetail1);
+            //sendReceiptDetails.Add(sendReceiptDetail2);
+
+            //var acct = new SendReceiptDTO
+            //{
+            //    Amount = "350000",
+            //    CustomerName = "Abolade Samuel",
+            //    Email = "guvoekemauton@gmail.com",
+            //    Date = DateTime.Now.ToString(),
+            //    SendReceiptDetailDTOs = sendReceiptDetails
+            //};
+
+            //var amountInWords = NumberToWordConverter.ChangeToWordsInMoney("35000");
+
+            //request = acct;
+
+            var amountInWords = NumberToWordConverter.ChangeToWordsInMoney(request.Amount);
+
+            var VAT = 0.075 * double.Parse(request.Amount);
+            var amount = double.Parse(request.Amount) - VAT;
+
             var receiptSummaryPartialPage = HTMLGenerator.GenerateReceiptSummary()
-                                                                                .Replace("{{Amount}}", result.Amount.ToString())
+                                                                                .Replace("{{Amount}}", request.Amount.ToString())
                                                                                 .Replace("{{date}}", DateTime.Now.ToString("dd/MM/yyyy"));
 
 
 
             var receiptDetailPartialPage = string.Empty;
 
-            foreach (var item in result.SendReceiptDetailDTOs)
+            foreach (var item in request.SendReceiptDetailDTOs)
             {
                 receiptDetailPartialPage += HTMLGenerator.GenerateReceiptDetail()
                                                                                  .Replace("{{ServiceName}}", item.ServiceName)
@@ -171,26 +208,28 @@ namespace OnlinePortalBackend.MyServices.SecureMobilitySales
 
             }
 
-            receiptDetailPartialPage += HTMLGenerator.GenerateReceiptDetail()
+
+
+            receiptDetailPartialPage += HTMLGenerator.GenerateReceiptTotal()
                                                                                 .Replace("{{ServiceName}}", "")
                                                                                 .Replace("{{ServiceDescription}}", "Total")
                                                                                 .Replace("{{Quantity}}", "")
                                                                                 .Replace("{{Amount}}", "")
-                                                                                .Replace("{{Total}}", $"{result.Amount}");
+                                                                                .Replace("{{total}}", $"{double.Parse(request.Amount).ToString("0.00")}");
 
-            receiptDetailPartialPage += HTMLGenerator.GenerateReceiptDetail()
+            receiptDetailPartialPage += HTMLGenerator.GenerateReceiptVAT()
                                                                                 .Replace("{{ServiceName}}", "")
                                                                                 .Replace("{{ServiceDescription}}", "VAT")
                                                                                 .Replace("{{Quantity}}", "")
                                                                                 .Replace("{{Amount}}", "")
-                                                                                .Replace("{{Total}}", $"{0}");
+                                                                                .Replace("{{vat}}", $"{VAT.ToString("0.00")}");
 
-            receiptDetailPartialPage += HTMLGenerator.GenerateReceiptDetail()
+            receiptDetailPartialPage += HTMLGenerator.GenerateReceiptTotal_VAT()
                                                                                 .Replace("{{ServiceName}}", "")
                                                                                 .Replace("{{ServiceDescription}}", "Total + VAT")
                                                                                 .Replace("{{Quantity}}", "")
                                                                                 .Replace("{{Amount}}", "")
-                                                                                .Replace("{{Total}}", $"{result.Amount}" );
+                                                                                .Replace("{{total_vat}}", $"{double.Parse(request.Amount).ToString("0.00")}");
 
             var receiptDetailsFooterPartialPage = HTMLGenerator.GenerateReceiptDetailsFooter()
                                                                                            .Replace("{{AmountInWords}}", "Total Amount in words: " + amountInWords);
@@ -201,10 +240,10 @@ namespace OnlinePortalBackend.MyServices.SecureMobilitySales
                 AmountInWords = amountInWords,
                 Subject = "Receipt",
                 ReceiptSummary = receiptSummaryPartialPage,
-                CustomerName = result.CustomerName,
+                CustomerName = request.CustomerName,
                 ReceiptItems = receiptDetailPartialPage,
                 ReceiptFooter = receiptDetailsFooterPartialPage,
-                Email = new string[] { result.Email }
+                Email = new string[] { request.Email }
             };
 
 

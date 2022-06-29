@@ -39,389 +39,319 @@ namespace HaloBiz.Helpers
         this._projectAllocationRepository = projectAllocationRepository;
         this._context = context;
     }
+    
 
-    public async Task<ApiCommonResponse> CreateEndorseMentProject(HttpContext httpContext,ContractServiceForEndorsement endorsement)
-    {
-        var getWatchers = await _context.Divisions.AsNoTracking()
-            .Where(x => x.Name == endorsement.Service.Division.Name)
-            .Include(x => x.Head)
-            .ToListAsync();
-        var distinctWatchers = getWatchers.GroupBy(x => x.Id).Select(x => x.First())
-            .ToArray();
-        var getDefaultWorkspace = await _context.Workspaces.AsNoTracking()
-            .FirstOrDefaultAsync(x => x.IsActive == true && x.IsDefault == true);
-        if (endorsement != null)
-        {
-            var projectInstance = new Project()
-            {
-                Caption =
-                    $"{endorsement.EndorsementType.Caption} for {endorsement.CustomerDivision.DivisionName} Fulfillment",
-                Alias =
-                    $"{endorsement.EndorsementType.Caption} for {endorsement.CustomerDivision.DivisionName} Fulfillment",
-                Description =
-                    $"{endorsement.EndorsementType.Caption} for {endorsement.CustomerDivision.DivisionName} Fulfillment",
-                IsActive = true,
-                CreatedById = 46, //httpContext.GetLoggedInUserId(),
-                CreatedAt = DateTime.Now,
-                WorkspaceId = getDefaultWorkspace.Id,
-                ProjectImage = endorsement.CustomerDivision.LogoUrl
-            };
-            await _context.Projects.AddAsync(projectInstance);
-            var status = await _context.SaveChangesAsync();
-            if (status > 0)
-            {
-                var watcherArray = new List<Watcher>();
-                foreach (var watcher in distinctWatchers)
-                {
-                    var watcherInstance = new Watcher()
-                    {
-                        IsActive = true,
-                        CreatedAt = DateTime.Now,
-                        CreatedById = httpContext.GetLoggedInUserId(),
-                        ProjectWatcherId = watcher.Head.Id,
-                        ProjectId = projectInstance.Id
-                    };
-                    watcherArray.Add(watcherInstance);
-                }
+       public async Task<ApiCommonResponse> SaveTask(Service service,long projectId,HttpContext httpContext)
+       {
+           
+           foreach (var task in service.ServiceCategory.ServiceCategoryTasks)
+           {
+               //if(service.)
+               var currentTask = new Task()
+               {
+                   IsActive = true,
+                   ProjectId = projectId,
+                   Caption = task.Caption + " " + service.Name + " " + DateTime.Now.ToString("dd-MM-yyyy HH:mm:ss"),
+                   Alias = task.Caption + " " + service.Name,
+                   IsAssigned = false,
+                   CreatedAt = DateTime.Now,
+                   CreatedById = httpContext.GetLoggedInUserId(),
+                   IsReassigned = false,
+                   Description = task.Caption + " for service " + service.Name + $" {(service.ServiceCode)}.",
+                   TaskStartDate = DateTime.Now,
+                   TaskEndDate = DateTime.Now.AddDays(1),
+                   WorkingManHours = (DateTime.Now.AddDays(1).Date - DateTime.Now.Date).Days,
+               };
+               var taskEntity = await _context.Tasks.AddAsync(currentTask);
+               await _context.SaveChangesAsync();
+               await SaveTaskAssignees(service.ServiceCategoryId, taskEntity.Entity.Id, httpContext);
+           }
+           return CommonResponse.Send(ResponseCodes.SUCCESS, null, "SuccessFully saved Task");
+       }
+       public async Task<ApiCommonResponse> SaveTaskAssignees(long serviceCategoryId,long taskId,HttpContext httpContext)
+       {
+           var getTaskAssignees = await _context.ProjectAllocations.AsNoTracking()
+               .Where(x => x.ServiceCategoryId == serviceCategoryId).ToListAsync();
 
-                await _context.Watchers.AddRangeAsync(watcherArray);
-                await _context.SaveChangesAsync();
-            }
+           var assigneeArray = new List<TaskAssignee>();
+           foreach (var assignee in getTaskAssignees)
+           {
+               var currentAssignee = new TaskAssignee()
+               {
+                   IsActive = true,
+                   TaskId = taskId,
+                   Name = assignee.ManagerName,
+                   CreatedAt = DateTime.Now,
+                   UserImage = assignee.ManagerImageUrl,
+                   CreatedById = httpContext.GetLoggedInUserId(),
+                   TaskAssigneeId = assignee.ManagerId,
+               };
+               assigneeArray.Add(currentAssignee);
+           }
 
-            await createEndorsementTask(httpContext,projectInstance.Id, endorsement);
-            return CommonResponse.Send(ResponseCodes.SUCCESS, null, "successfully created task");
-        }
+           await _context.TaskAssignees.AddRangeAsync(assigneeArray);
+           await _context.SaveChangesAsync();
+           return CommonResponse.Send(ResponseCodes.SUCCESS, null, "SuccessFully saved Assignee(s)");
+       }
 
-        return CommonResponse.Send(ResponseCodes.FAILURE, null, "An error occurred before a project could be created");
-    }
+       
+       public async Task<ApiCommonResponse> ResolveEndorsement(long requestId, HttpContext httpContext)
+       {
 
-    public async Task<ApiCommonResponse> CreateServiceProject(HttpContext httpContext, Service service)
-    {
-        var getWatchers = await _context.Divisions.AsNoTracking()
-            .Where(x => x.Name == service.Division.Name)
-            .Include(x => x.Head)
-            .ToListAsync();
-        var distinctWatchers = getWatchers.GroupBy(x => x.Id).Select(x => x.First())
-            .ToArray();
-        var getDefaultWorkspace = await _context.Workspaces.AsNoTracking()
-            .FirstOrDefaultAsync(x => x.IsActive == true && x.IsDefault == true);
-        if (service != null)
-        {
-            var projectInstance = new Project()
-            {
-                Caption =
-                    $"Service creation {service.Name}-{service.Division.Name}-Fulfillment",
-                Alias =
-                    $"Service creation {service.Name}-{service.Division.Name}-Fulfillment",
-                Description =
-                    $"Service creation for service type {service.ServiceType.Caption} with a service code of {service.ServiceCode}",
-                IsActive = true,
-                CreatedById = httpContext.GetLoggedInUserId(),
-                CreatedAt = DateTime.Now,
-                WorkspaceId = getDefaultWorkspace.Id,
-                ProjectImage = service.ImageUrl
-            };
-            await _context.Projects.AddAsync(projectInstance);
-            var status = await _context.SaveChangesAsync();
-            if (status > 0)
-            {
-                var watcherArray = new List<Watcher>();
-                foreach (var watcher in distinctWatchers)
-                {
-                    var watcherInstance = new Watcher()
-                    {
-                        IsActive = true,
-                        CreatedAt = DateTime.Now,
-                        CreatedById = httpContext.GetLoggedInUserId(),
-                        ProjectWatcherId = watcher.Head.Id,
-                        ProjectId = projectInstance.Id
-                    };
-                    watcherArray.Add(watcherInstance);
-                }
+           var getEndorsement = await _context.ContractServiceForEndorsements.AsNoTracking()
+               .Where(x => x.Id == requestId)
+               .Include(x=>x.EndorsementType)
+               .Include(x=>x.CustomerDivision)
+               .FirstOrDefaultAsync();
 
-                await _context.Watchers.AddRangeAsync(watcherArray);
-                await _context.SaveChangesAsync();
-            }
+           var getService = await _context.Services.AsNoTracking()
+               .Where(x => x.Id == getEndorsement.ServiceId && x.Name != "GUARD ADMIN SERVICE")
+               .Include(x => x.ServiceCategory)
+               .ThenInclude(x => x.ServiceCategoryTasks)
+               .FirstOrDefaultAsync();
+           
+           if (getService == null)
+           {
+               return CommonResponse.Send(ResponseCodes.FAILURE, null, "Could not create project fulfilment");
+           }
+           else
+           {
+               if (!getService.ServiceCategory.ServiceCategoryTasks.Any())
+               {
+                   return CommonResponse.Send(ResponseCodes.FAILURE, null, "Could not create project fulfilment");
+               }
+               else
+               {
+                   var projectToCreate = new Project()
+                   {
+                       Caption = getEndorsement.CustomerDivision.DivisionName + $" {getEndorsement.EndorsementType.Caption}",
+                       Alias = getEndorsement.BeneficiaryName + $" {getEndorsement.EndorsementType.Caption}",
+                       Description = getEndorsement.EndorsementDescription +" with unique tag " + getEndorsement.UniqueTag ,
+                       IsActive = true,
+                       ProjectImage = getEndorsement.DocumentUrl,
+                       WorkspaceId = 148,
+                       CreatedAt = DateTime.Now,
+                       CreatedById = httpContext.GetLoggedInUserId(),
+                   };
+                   var projectEntity = await _context.Projects.AddAsync(projectToCreate);
+                   await _context.SaveChangesAsync();
+                   await CreateEndorsementProjectWatcher(projectEntity.Entity.Id, getService.Id, httpContext);
+                   await SaveTask(getService, projectEntity.Entity.Id, httpContext);
+                   
+               }
+             
+           }
+            
+           return CommonResponse.Send(ResponseCodes.FAILURE, getService, "Could not create Project");
 
-            await createServiceTask(httpContext,projectInstance.Id, service);
-            return CommonResponse.Send(ResponseCodes.SUCCESS, null, "successfully created task");
-        }
-        return CommonResponse.Send(ResponseCodes.FAILURE, null, "An application error occurred at creating service project");
-    }
+       }
 
-    public async Task<ApiCommonResponse> createServiceTask(HttpContext httpContext,long Id, Service service)
-    {
-        if (service != null)
-        {
+       public async Task<ApiCommonResponse> ResolveLead(long requestId, HttpContext httpContext)
+       {
+           var serviceCategories = new List<ServiceCategory>();
+           var serviceCategoryTasks = new List<ServiceCategoryTask>();
+           var getQuote = await _context.LeadDivisions.AsNoTracking()
+               .Include(x=>x.Lead)
+               .Include(x => x.Quote)
+               .ThenInclude(x => x.QuoteServices.Where(x => x.IsDeleted == false))
+               .ThenInclude(x=>x.Service)
+               .ThenInclude(x=>x.ServiceCategory)
+               .ThenInclude(x=>x.ServiceCategoryTasks)
+               .Where(x=>x.IsDeleted == false && x.LeadId == requestId)
+               .OrderByDescending(x=>x.CreatedAt)
+               .FirstOrDefaultAsync();
 
+           if (getQuote != null)
+           {
+               foreach (var service in getQuote.Quote.QuoteServices)
+               {
+                   if (service.Service.Name != "GUARD ADMIN SERVICE")
+                   {
+                       serviceCategories.Add(service.Service.ServiceCategory);
+                   }
+                   
+               }
+           }
 
-            var taskInstance = new Task()
-            {
-                Alias =
-                    $"Task  {service.Name}, fetched based on service-group {service.ServiceGroup.Name}",
-                Caption =
-                    $"Task  {service.Name}, fetched based on service-group {service.ServiceGroup.Name}",
-                IsActive = true,
-                IsAssigned = false,
-                CreatedAt = DateTime.Now,
-                IsReassigned = false,
-                WorkingManHours = 0,
-                Description =
-                    service.Description,
-                TaskStartDate =
-                     DateTime.Now,
-                TaskEndDate =
-                     DateTime.Now,
-                CreatedById = httpContext.GetLoggedInUserId(),
-                ProjectId = Id
-            };
-            await _context.Tasks.AddAsync(taskInstance);
-            await _context.SaveChangesAsync();
-            var getUsers = await _context.ProjectAllocations
-                .Where(x => x.ServiceCategoryId == service.ServiceCategoryId && x.IsDeleted == false)
-                .ToListAsync();
-            if (getUsers.Any())
-            {
-                var taskAssigneeArray = new List<TaskAssignee>();
-                foreach (var user in getUsers)
-                {
-                    var taskAssignee = new TaskAssignee()
-                    {
-                        IsActive = true,
-                        Name = user.ManagerName,
-                        CreatedAt = DateTime.Now,
-                        TaskId = taskInstance.Id,
-                        CreatedById = httpContext.GetLoggedInUserId(),
-                        UserImage = user.ManagerImageUrl,
-                        TaskAssigneeId = user.ManagerId
-                    };
-                    taskAssigneeArray.Add(taskAssignee);
-                }
+           if (!serviceCategories.Any())
+           {
+               return CommonResponse.Send(ResponseCodes.FAILURE, null, "Service Category is empty");
+           }
 
-                await _context.AddRangeAsync(taskAssigneeArray);
-                await _context.SaveChangesAsync();
-            }
-        }
+           foreach (var serviceCategory in serviceCategories)
+           {
+                serviceCategoryTasks.AddRange(serviceCategory.ServiceCategoryTasks); 
+           }
+           
+           var projectToCreate = new Project()
+           {
+               Caption = getQuote.Lead.GroupName + "  " + DateTime.Now.ToString("dd-MM-yyyy HH:mm:ss"),
+               Alias = getQuote.Lead.GroupName + "  " + DateTime.Now.ToString("dd-MM-yyyy HH:mm:ss"),
+               Description = "Contract creation for " + getQuote.Lead.GroupName +  " with reference " + getQuote.Lead.ReferenceNo,
+               IsActive = true,
+               ProjectImage = getQuote.Lead.LogoUrl,
+               WorkspaceId = 148,
+               CreatedAt = DateTime.Now,
+               CreatedById = httpContext.GetLoggedInUserId(),
+           };
+           var projectEntity = await _context.Projects.AddAsync(projectToCreate);
+           await _context.SaveChangesAsync();
+           await CreateLeadProjectWatcher(projectEntity.Entity.Id, requestId, httpContext);
 
-        return CommonResponse.Send(ResponseCodes.SUCCESS, null, "successfully created task");
-    }
-    public async Task<ApiCommonResponse> createEndorsementTask(HttpContext httpContext,long Id, ContractServiceForEndorsement endorsement)
-    {
-        if (endorsement != null)
-        {
-
-
-            var taskInstance = new Task()
-            {
-                Alias =
-                    $"Task with unique-tag {endorsement.UniqueTag}, fetched based on {endorsement.Service.Name}  for {endorsement.EndorsementType.Caption}.",
-                Caption =
-                    $"Task with unique-tag {endorsement.UniqueTag}, fetched based on {endorsement.Service.Name}  for {endorsement.EndorsementType.Caption}.",
-                IsActive = true,
-                IsAssigned = false,
-                CreatedAt = DateTime.Now,
-                IsReassigned = false,
-                WorkingManHours = 0,
-                Description =
-                    endorsement.EndorsementDescription,
-                TaskStartDate =
-                    endorsement.ContractStartDate ?? DateTime.Now,
-                TaskEndDate =
-                    endorsement.ContractEndDate ?? DateTime.Now,
-                CreatedById = httpContext.GetLoggedInUserId(),
-                ProjectId = Id
-            };
-            await _context.Tasks.AddAsync(taskInstance);
-            await _context.SaveChangesAsync();
-            var getUsers = await _context.ProjectAllocations
-                .Where(x => x.ServiceCategoryId == endorsement.Service.ServiceCategoryId && x.IsDeleted == false)
-                .ToListAsync();
-            if (getUsers.Any())
-            {
-                var taskAssigneeArray = new List<TaskAssignee>();
-                foreach (var user in getUsers)
-                {
-                    var taskAssignee = new TaskAssignee()
-                    {
-                        IsActive = true,
-                        Name = user.ManagerName,
-                        CreatedAt = DateTime.Now,
-                        TaskId = taskInstance.Id,
-                        CreatedById = httpContext.GetLoggedInUserId(),
-                        UserImage = user.ManagerImageUrl,
-                        TaskAssigneeId = user.ManagerId
-                    };
-                    taskAssigneeArray.Add(taskAssignee);
-                }
-
-                await _context.AddRangeAsync(taskAssigneeArray);
-                await _context.SaveChangesAsync();
-            }
-        }
-
-        return CommonResponse.Send(ResponseCodes.SUCCESS, null, "successfully created task");
-    }
-
-    public async Task<List<ContractFulfillMentStructure>> StructureServices(List<QuoteService> quoteServices)
-    {
-        var contractServiceFufilmentArray = new List<ContractFulfillMentStructure>();
-        if (quoteServices.Any())
-        {
-            var divisionArray = new List<Division>();
-            foreach (var division in quoteServices)
-            {
-                divisionArray.Add(division.Service.Division);
-            }
-
-            var distinctDivision = divisionArray.GroupBy(x => x.Id).Select(x => x.First()).ToArray();
-
-            foreach (var division in distinctDivision)
-            {
-                var newQuoteService = quoteServices.Where(x =>
-                    x.Service.Division.Name.Trim() == division.Name.Trim() &&
-                    x.Service.Name != "GUARD ADMIN SERVICE").ToList();
-                var contractServiceFufilmentInstance = new ContractFulfillMentStructure()
-                {
-                    FulfillmentClass = division.Name,
-                    QuoteService = newQuoteService.GroupBy(x=>x.Id).Select(x=>x.First()).ToArray()
-                };
-                contractServiceFufilmentArray.Add(contractServiceFufilmentInstance);
-            }
-        }
-
-        return contractServiceFufilmentArray;
-    }
-
-
-
-
-
-    public async Task<ApiCommonResponse> CreateProjectForFulfilmentProject(HttpContext httpContext,
-        LeadDivision leadDivision, List<ContractFulfillMentStructure> contractFulfillMentStructures)
-    {
-
-        var getDefaultWorkspace = await _context.Workspaces.AsNoTracking()
-            .FirstOrDefaultAsync(x => x.IsActive == true && x.IsDefault == true);
-
-        if (getDefaultWorkspace != null)
-        {
-            var projectArray = new List<Project>();
-            foreach (var division in contractFulfillMentStructures)
-            {
-                var getWatchers = await _context.Divisions.AsNoTracking()
-                    .Where(x => x.Name == division.FulfillmentClass)
-                    .Include(x => x.Head)
-                    .ToListAsync();
-                var distinctWatchers = getWatchers.GroupBy(x => x.Id).Select(x => x.First())
-                    .ToArray();
-                var projectInstance = new Project()
-                {
-                    Caption = $"{leadDivision.DivisionName}-{division.FulfillmentClass} Contract Fulfillment",
-                    Alias = $"{leadDivision.DivisionName}-{division.FulfillmentClass} Fulfillment",
-                    Description =
-                        $"{leadDivision.DivisionName}-{division.FulfillmentClass} Fulfillment project",
-                    IsActive = true,
-                    CreatedById = httpContext.GetLoggedInUserId(),
-                    CreatedAt = DateTime.Now,
-                    WorkspaceId = getDefaultWorkspace.Id,
-                    ProjectImage = leadDivision.Lead.LogoUrl
-                };
-                await _context.Projects.AddAsync(projectInstance);
-                var status = await _context.SaveChangesAsync();
-                await CreateTaskFromProject(httpContext,projectInstance.Id, division.QuoteService);
-
-                if (status > 0)
-                {
-                    var watcherArray = new List<Watcher>();
-                    foreach (var watcher in distinctWatchers)
-                    {
-                        var watcherInstance = new Watcher()
-                        {
-                            IsActive = true,
-                            CreatedAt = DateTime.Now,
-                            CreatedById = httpContext.GetLoggedInUserId(),
-                            ProjectWatcherId = watcher.Head.Id,
-                            ProjectId = projectInstance.Id
-                        };
-                        watcherArray.Add(watcherInstance);
-                    }
-
-                    await _context.Watchers.AddRangeAsync(watcherArray);
-                    await _context.SaveChangesAsync();
-                }
-            }
-        }
-
-        return CommonResponse.Send(ResponseCodes.SUCCESS, null,
-            "Done creating project");
-    }
-
-
-    public async Task<ApiCommonResponse> CreateTaskFromProject(HttpContext httpContext,long Id, QuoteService[] quoteServices)
-    {
-        if (quoteServices.Any())
-        {
-            int index = 0;
-            foreach (var quoteService in quoteServices)
-            {
-                index++;
-                var taskInstance = new Task()
-                {
-                    Alias =
-                        $"T{index} with unique-tag {quoteService.UniqueTag}, fetched based on {quoteService.Service.Name ?? " Name not available"}.",
-                    Caption =
-                        $"T{index} with unique-tag {quoteService.UniqueTag}, fetched based on {quoteService.Service.Name ?? " Name not available"}.",
-                    IsActive = true,
-                    IsAssigned = false,
-                    CreatedAt = DateTime.Now,
-                    IsReassigned = false,
-                    WorkingManHours = 0,
-                    Description =
-                        $"Task with unique-tag {quoteService.UniqueTag},fetched based on {quoteService.Service.Name} with a budget of " +
-                        $"{quoteService.Budget} at a quantity of {quoteService.Quantity}.",
-                    TaskStartDate =
-                        quoteService.ContractStartDate ?? DateTime.Now,
-                    TaskEndDate =
-                        quoteService.ContractEndDate ?? DateTime.Now,
-                    CreatedById = httpContext.GetLoggedInUserId(),
-                    ProjectId = Id,
+           foreach (var task in serviceCategoryTasks)
+           {
+               if (task.EndorsementTypeId == 1)
+               {
+                   var currentTask = new Task()
+                   {
+                       IsActive = true,
+                       ProjectId = projectEntity.Entity.Id,
+                       Caption = task.Caption + " " + task.ServiceCategory.Services.First().Name + " " +
+                                 DateTime.Now.ToString("dd-MM-yyyy HH:mm:ss"),
+                       Alias = task.Caption + " " + task.ServiceCategory.Services.First().Name,
+                       IsAssigned = false,
+                       CreatedAt = DateTime.Now,
+                       CreatedById = httpContext.GetLoggedInUserId(),
+                       IsReassigned = false,
+                       Description = task.Caption + " for service " + task.ServiceCategory.Services.First().Name +
+                                     $" for service code {(task.ServiceCategory.Services.First().ServiceCode)}.",
+                       TaskStartDate = DateTime.Now,
+                       TaskEndDate = DateTime.Now.AddDays(1),
+                       WorkingManHours = (DateTime.Now.AddDays(1).Date - DateTime.Now.Date).Days,
+                   };
                     
-                };
-                await _context.Tasks.AddAsync(taskInstance);
-                await _context.SaveChangesAsync();
+                   var taskEntity = await _context.Tasks.AddAsync(currentTask);
+                   await _context.SaveChangesAsync();
+                   await SaveTaskAssignees(task.ServiceCategoryId, taskEntity.Entity.Id, httpContext);
+               }
+           }
+           return CommonResponse.Send(ResponseCodes.FAILURE, null, "An error occurred");
 
-                var serviceCategoryId = quoteService.Service.ServiceCategoryId;
-                var getUsers = await _context.ProjectAllocations.Where(x =>
-                    x.ServiceCategoryId == serviceCategoryId && x.IsDeleted == false).ToListAsync();
-                if (getUsers.Any())
-                {
-                    var taskAssigneeArray = new List<TaskAssignee>();
-                    foreach (var user in getUsers)
-                    {
-                        var taskAssignee = new TaskAssignee()
-                        {
-                            IsActive = true,
-                            Name = user.ManagerName,
-                            CreatedAt = DateTime.Now,
-                            TaskId = taskInstance.Id,
-                            CreatedById = 46, //httpContext.GetLoggedInUserId(),
-                            UserImage = user.ManagerImageUrl,
-                            TaskAssigneeId = user.ManagerId
-                        };
-                        taskAssigneeArray.Add(taskAssignee);
-                    }
+       }
 
-                    await _context.AddRangeAsync(taskAssigneeArray);
-                    await _context.SaveChangesAsync();
-                }
-            }
+       
+        public async Task<ApiCommonResponse> CreateEndorsementProjectWatcher(long projectId,long requestId,HttpContext httpContext)
+       {
+           var headers = new List<UserProfile>();
+           var quoteService = new List<QuoteService>();
+           var getHeaders = await _context.Services.AsNoTracking()
+               .Include(x=>x.Division)
+               .ThenInclude(x=>x.Head)
+               .Include(x=>x.OperatingEntity)
+               .ThenInclude(x=>x.Head)
+               .Where(x=>x.IsDeleted == false && x.Id == requestId)
+               .OrderByDescending(x=>x.CreatedAt)
+               .FirstOrDefaultAsync();
+           
+           if (getHeaders != null)
+           {
+               headers.Add(getHeaders.Division.Head);
+               headers.Add(getHeaders.OperatingEntity.Head);
+           }
 
-            return CommonResponse.Send(ResponseCodes.SUCCESS, null,
-                "Succesfully created task");
-        }
+           var getDistinctHeaders = headers.GroupBy(x => x.Id)
+               .Select(x => x.First())
+               .ToList();
 
-        return CommonResponse.Send(ResponseCodes.FAILURE, null,
-            "Could not successfully create task");
-    }
+           if (!getDistinctHeaders.Any())
+           {
+               return CommonResponse.Send(ResponseCodes.FAILURE, null, "No watcher to add");
+           }
+
+           var projectWatcherList = new List<Watcher>();
+           foreach (var header in getDistinctHeaders)
+           {
+               var projectWatcher = new Watcher()
+               {
+                   IsActive = true,
+                   CreatedAt = DateTime.Now,
+                   CreatedById = httpContext.GetLoggedInUserId(),
+                   ProjectId = projectId,
+                   ProjectWatcherId = header.Id,
+               };
+               
+               projectWatcherList.Add(projectWatcher);
+           }
+           await _context.Watchers.AddRangeAsync(projectWatcherList);
+           await _context.SaveChangesAsync();
+           return CommonResponse.Send(ResponseCodes.FAILURE, null, "An error occurred");
+           
+       }
+
+       
+
+       public async Task<ApiCommonResponse> CreateLeadProjectWatcher(long projectId,long requestId,HttpContext httpContext)
+       {
+           var headers = new List<UserProfile>();
+           var getHeadersFromMarket = await _context.LeadDivisions.AsNoTracking()
+               .Include(x=>x.Quote)
+               .ThenInclude(x=>x.QuoteServices)
+               .ThenInclude(x=>x.Service)
+               .ThenInclude(x=>x.OperatingEntity)
+               .ThenInclude(x=>x.Head)
+               .Where(x=>x.IsDeleted == false && x.LeadId == requestId)
+               .OrderByDescending(x=>x.CreatedAt)
+               .FirstOrDefaultAsync();
+           
+           var getHeadersFromDivision = await _context.LeadDivisions.AsNoTracking()
+               .Include(x=>x.Quote)
+               .ThenInclude(x=>x.QuoteServices)
+               .ThenInclude(x=>x.Service)
+               .ThenInclude(x=>x.Division)
+               .ThenInclude(x=>x.Head)
+               .Where(x=>x.IsDeleted == false && x.LeadId == requestId)
+               .OrderByDescending(x=>x.CreatedAt)
+               .FirstOrDefaultAsync(); 
+
+           if (getHeadersFromMarket != null)
+           {
+               foreach (var quote in getHeadersFromMarket.Quote.QuoteServices)
+               {
+                   headers.Add(quote.Service.OperatingEntity.Head);
+               }
+           }
+
+           if (getHeadersFromDivision != null)
+           {
+               foreach (var quote in getHeadersFromDivision.Quote.QuoteServices)
+               {
+                   headers.Add(quote.Service.Division.Head);
+               }
+           }
+
+           var getDistinctHeaders = headers.GroupBy(x => x.Id)
+               .Select(x => x.First())
+               .ToList();
+
+           if (!getDistinctHeaders.Any())
+           {
+               return CommonResponse.Send(ResponseCodes.FAILURE, null, "No watcher to add");
+           }
+
+           var projectWatcherList = new List<Watcher>();
+           foreach (var header in getDistinctHeaders)
+           {
+               var projectWatcher = new Watcher()
+               {
+                   IsActive = true,
+                   CreatedAt = DateTime.Now,
+                   CreatedById = httpContext.GetLoggedInUserId(),
+                   ProjectId = projectId,
+                   ProjectWatcherId = header.Id,
+               };
+               
+               projectWatcherList.Add(projectWatcher);
+           }
+
+           await _context.Watchers.AddRangeAsync(projectWatcherList);
+           await _context.SaveChangesAsync();
+           
+           return CommonResponse.Send(ResponseCodes.FAILURE, null, "An error occurred");
+           
+       }
+       
+       
+       
+   
     }
 }

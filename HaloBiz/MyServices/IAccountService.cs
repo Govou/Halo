@@ -1,6 +1,8 @@
 ﻿using Halobiz.Common.DTOs.ApiDTOs;
+using HaloBiz.DTOs;
 using HaloBiz.DTOs.ReceivingDTOs;
 using halobiz_backend.DTOs.ReceivingDTOs;
+using HalobizMigrations.Models.Halobiz;
 using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
@@ -20,5 +22,8 @@ namespace HaloBiz.MyServices
         Task<ApiCommonResponse> DeleteAccount(long id);
         Task<ApiCommonResponse> GetAllTradeIncomeTaxAccounts();
         Task<ApiCommonResponse> GetCashBookAccounts();
+        Task<ApiCommonResponse> GetServiceAccounts();
+        Task<ApiCommonResponse> SaveServiceAccounts(ServiceAccountsDTO dto, HttpContext context);
+        Task<ApiCommonResponse> GetAccountForService();
     }
 }
