@@ -75,19 +75,8 @@ namespace OnlinePortalBackend.MyServices.SecureMobilitySales
             {
                 return CommonResponse.Send(ResponseCodes.FAILURE, null, "Profile does not exist");
             }
-            var profileImage = await _accountRepository.GetProfileImage(profileId);
-            var perentageCompletion = string.IsNullOrEmpty(profileImage) ? "90" : "100"; 
-            var profile = new OnlineProfileDTO
-            {
-                CreatedAt = result.CreatedAt,
-                Email = result.Email,
-                Name = result.Name,
-                Id = result.Id,
-                profileImage = profileImage,
-                PercentageCompletion = perentageCompletion,
-            };
 
-            return CommonResponse.Send(ResponseCodes.SUCCESS, profile, "Success");
+            return CommonResponse.Send(ResponseCodes.SUCCESS, result, "Success");
         }
 
         public async Task<ApiCommonResponse> UpdateCustomerProfile(ProfileUpdateDTO profile)

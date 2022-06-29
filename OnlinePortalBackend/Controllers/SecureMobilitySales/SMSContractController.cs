@@ -52,5 +52,11 @@ namespace OnlinePortalBackend.Controllers.SecureMobilitySales
         {
             return await _contractsService.ReceiptAllInvoicesForContract(request);
         }
+
+        [HttpPost("PostSupplierTransaction")]
+        public async Task<ApiCommonResponse> PostSupplierTransaction(PostTransactionDTO request)
+        {
+            return await _contractsService.PostSupplierTransactions(request);
+        }
     }
 }
