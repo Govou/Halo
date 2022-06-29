@@ -145,7 +145,8 @@ namespace OnlinePortalBackend.Repository.Impl
                 LogoUrl = accountDTO.LogoUrl,
                 PhoneNumber = accountDTO.PhoneNumber,
                 OfficeId = office,
-                Rcnumber = accountDTO.RCNumber
+                Rcnumber = accountDTO.RCNumber,
+                Street = accountDTO.Address
             };
 
             var (salt, hashed) = HashPassword(new byte[] { }, accountDTO.AccountLogin.Password);
@@ -295,7 +296,8 @@ namespace OnlinePortalBackend.Repository.Impl
                 Lgaid = accountDTO.LGAId,
                 LogoUrl = accountDTO.ImageUrl,
                 PhoneNumber = accountDTO.PhoneNumber,
-                OfficeId = office
+                OfficeId = office,
+                Street = accountDTO.Address
             };
 
             var suspectContact = new SuspectContact
@@ -430,10 +432,33 @@ namespace OnlinePortalBackend.Repository.Impl
             return await _context.SaveChangesAsync() > 0;
         }
 
-        public async Task<OnlineProfile> GetCustomerProfile(int profileId)
+        public async Task<OnlineProfileDTO> GetCustomerProfile(int profileId)
         {
-            return _context.OnlineProfiles.FirstOrDefault(x => x.Id == profileId);
-            
+            var onlineProfile = _context.OnlineProfiles.FirstOrDefault(x => x.Id == profileId);
+            if (onlineProfile == null)
+            {
+                return null;
+            }
+
+            var leadProfile = _context.LeadDivisions.Include(x => x.State).Include(x => x.Lga).FirstOrDefault(x => x.Id == onlineProfile.LeadDivisionId);
+            var profile = new OnlineProfileDTO
+            {
+                CreatedAt = onlineProfile.CreatedAt,
+                Email = onlineProfile.Email,
+                Name = onlineProfile.Name,
+                profileImage = leadProfile.LogoUrl,
+                PercentageCompletion = String.IsNullOrEmpty(leadProfile.LogoUrl) ? "90%" : "100%",
+                Id = profileId,
+                LGAId = (int)leadProfile.Lgaid.Value,
+                StateId = (int)leadProfile.StateId.Value,
+                Street = leadProfile.Street,
+                StateName = leadProfile.State.Name,
+                LGAName = leadProfile.Lga.Name,
+
+            };
+
+            return profile;
+
         }
 
         public async Task<string> GetProfileImage(long profileID)
@@ -675,19 +700,27 @@ namespace OnlinePortalBackend.Repository.Impl
                     return (false, "Profile does not exist");
                 }
 
-
-
                 var leadDiv = _context.LeadDivisions.FirstOrDefault(x => x.Id == profile.LeadDivisionId);
+
                 leadDiv.Email = String.IsNullOrEmpty(request.Email) ? leadDiv.Email : request.Email;
                 leadDiv.LogoUrl = String.IsNullOrEmpty(request.ProfileImage) ? leadDiv.LogoUrl : request.ProfileImage;
                 leadDiv.PhoneNumber = String.IsNullOrEmpty(request.PhoneNumber) ? leadDiv.PhoneNumber : request.PhoneNumber;
                 leadDiv.UpdatedAt = DateTime.UtcNow.AddHours(1);
+                leadDiv.StateId = request.StateId ?? leadDiv.StateId;
+                leadDiv.Lgaid = request.LGAId ?? leadDiv.Lgaid;
+                leadDiv.Street = String.IsNullOrEmpty(request.Street) ? leadDiv.Street : request.Street;
+                _context.SaveChanges();
+
+
+                var leadDivNew = _context.LeadDivisions.Include(x => x.State).Include(x => x.Lga).FirstOrDefault(x => x.Id == profile.LeadDivisionId);
+                leadDiv.Address = leadDivNew.Street + ", " + leadDivNew.Lga.Name + ", " + leadDivNew.State.Name;
                 _context.SaveChanges();
 
                 var lead = _context.Leads.FirstOrDefault(x => x.Id == leadDiv.LeadId);
+   
                 lead.LogoUrl = request.ProfileImage;
                 _context.SaveChanges();
-
+                 
 
                 if (profile.CustomerDivisionId != null)
                 {

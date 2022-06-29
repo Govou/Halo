@@ -204,7 +204,7 @@ namespace OnlinePortalBackend.Repository.Impl
             var office = _configuration["OnlineOfficeId"] ?? _configuration.GetSection("AppSettings:OnlineOfficeId").Value;
             var branch = _configuration["OnlineBranchId"] ?? _configuration.GetSection("AppSettings:OnlineBranchId").Value;
 
-            var profile = _context.OnlineProfiles.FirstOrDefault(p => p.SupplierId == request.ProfileId);
+            var profile = _context.OnlineProfiles.FirstOrDefault(p => p.Id == request.ProfileId);
 
 
             var voucher = _configuration["WalletTopupVoucherTypeID"] ?? _configuration.GetSection("AppSettings:WalletTopupVoucherTypeID").Value;
@@ -213,7 +213,6 @@ namespace OnlinePortalBackend.Repository.Impl
                 CreatedAt = DateTime.UtcNow.AddHours(1),
                 UpdatedAt = DateTime.UtcNow.AddHours(1),
                 CreatedById = long.Parse(createdBy),
-                CustomerDivisionId = profile.CustomerDivisionId,
                 VoucherId = long.Parse(voucher),
                 Value = Convert.ToDouble(request.Value),
                 OfficeId = long.Parse(office),

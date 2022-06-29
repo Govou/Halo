@@ -59,6 +59,5 @@ namespace OnlinePortalBackend.Controllers.SecureMobilitySales
         {
             return _supplierService.GetDashboardDetails(profileId);
         }
-
     }
 }
