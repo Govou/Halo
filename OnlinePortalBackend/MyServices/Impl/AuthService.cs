@@ -161,7 +161,7 @@ namespace OnlinePortalBackend.MyServices.Impl
             };
 
             var _secret = _config["JWTSecretKey"] ?? _config.GetSection("AppSettings:JWTSecretKey").Value;
-            var jwtExpiryLifespanStr = _config["JWTExpiryInMinutes"] ?? _config.GetSection("AppSettings:JWTExpiryInMinutes").Value;
+            var jwtExpiryLifespanStr = "15"; // _config["JWTExpiryInMinutes"] ?? _config.GetSection("AppSettings:JWTExpiryInMinutes").Value;
             var jwtExpiryLifespan = double.Parse(jwtExpiryLifespanStr);
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_secret));
