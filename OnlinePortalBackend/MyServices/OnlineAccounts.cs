@@ -251,6 +251,14 @@ namespace OnlinePortalBackend.MyServices
                     await _context.SaveChangesAsync();
                 }
 
+                var request = new NewUserSignupDTO
+                {
+                    EmailAddress = profile.Email,
+                    UserName = profile.Name
+                };
+
+                var mailresponse = await _mailService.SendWelcomeOnboarding(request);
+
                 return CommonResponse.Send(ResponseCodes.SUCCESS, null, $"You have successfully used code for {model.Email}");
             }
             catch (Exception ex)
