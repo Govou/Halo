@@ -32,6 +32,8 @@ namespace HaloBiz.DTOs.MailDTOs
         public string AdminDirectTie { get; set; }
         public long Id { get; set; }
         public string StartDate { get; set; }
+        public double Vat { get; set; }
+        public double Amount { get; set; }
     }
 
     public class ClientInfoMailDTO
