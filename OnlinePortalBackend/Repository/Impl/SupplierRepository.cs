@@ -25,13 +25,14 @@ namespace OnlinePortalBackend.Repository.Impl
         private readonly ILogger<SupplierRepository> _logger;
         private readonly IConfiguration _configuration;
         private readonly IPaymentAdapter _adapter;
-
-        public SupplierRepository(HalobizContext context, ILogger<SupplierRepository> logger, IConfiguration configuration, IPaymentAdapter adapter)
+        private readonly ISMSAccountRepository _accountRepository;
+        public SupplierRepository(HalobizContext context, ILogger<SupplierRepository> logger, IConfiguration configuration, IPaymentAdapter adapter, ISMSAccountRepository accountRepository)
         {
             _context = context;
             _logger = logger;
             _configuration = configuration;
             _adapter = adapter;
+            _accountRepository = accountRepository;
         }
         public async Task<bool> AddNewAsset(AssetAdditionDTO request)
         {
@@ -199,6 +200,8 @@ namespace OnlinePortalBackend.Repository.Impl
 
         public async Task<bool> PostTransactionForBooking(PostTransactionDTO request)
         {
+            try
+            {
             var transactionId = "SMP" + new Random().Next(100_000_000, 1_000_000_000);
             var createdBy = _configuration["OnlineUserId"] ?? _configuration.GetSection("AppSettings:OnlineUserId").Value;
             var office = _configuration["OnlineOfficeId"] ?? _configuration.GetSection("AppSettings:OnlineOfficeId").Value;
@@ -206,8 +209,11 @@ namespace OnlinePortalBackend.Repository.Impl
 
             var profile = _context.OnlineProfiles.FirstOrDefault(p => p.Id == request.ProfileId);
 
+            var supplier = _context.Suppliers.FirstOrDefault(p => p.Id == profile.SupplierId);
 
             var voucher = _configuration["WalletTopupVoucherTypeID"] ?? _configuration.GetSection("AppSettings:WalletTopupVoucherTypeID").Value;
+                var payDesc = $"Payment on {profile.Name}'s supply with reference number {transactionId} on {GeneralHelper.ConvertDateToLongString(DateTime.UtcNow.AddHours(1))}";
+
             var accountMaster = new AccountMaster
             {
                 CreatedAt = DateTime.UtcNow.AddHours(1),
@@ -217,7 +223,8 @@ namespace OnlinePortalBackend.Repository.Impl
                 Value = Convert.ToDouble(request.Value),
                 OfficeId = long.Parse(office),
                 BranchId = long.Parse(branch),
-                TransactionId = transactionId
+                TransactionId = transactionId,
+                Description = payDesc
             };
 
             _context.AccountMasters.Add(accountMaster);
@@ -225,7 +232,8 @@ namespace OnlinePortalBackend.Repository.Impl
 
 
             var debitCashBook = _configuration["SupplierDebitCashBookID"] ?? _configuration.GetSection("AppSettings:SupplierDebitCashBookID").Value;
-            var creditCashBook = _configuration["SupplierCreditCashBookID"] ?? _configuration.GetSection("AppSettings:SupplierCreditCashBookID").Value;
+            //  var creditCashBook = _configuration["SupplierCreditCashBookID"] ?? _configuration.GetSection("AppSettings:SupplierCreditCashBookID").Value;
+            var creditCashBook = await _accountRepository.GetServiceIncomeAccountForSupplier(supplier);
 
             var accountDetail1 = new AccountDetail
             {
@@ -239,7 +247,7 @@ namespace OnlinePortalBackend.Repository.Impl
                 TransactionDate = DateTime.UtcNow.AddHours(1),
                 Debit = Convert.ToDouble(request.Value),
                 AccountId = int.Parse(debitCashBook),
-                Description = $"Topup of {profile.Name}'s wallet with reference number {transactionId} on {GeneralHelper.ConvertDateToLongString(DateTime.UtcNow.AddHours(1))}",
+                Description = payDesc,
                 TransactionId = transactionId,
             };
 
@@ -254,8 +262,8 @@ namespace OnlinePortalBackend.Repository.Impl
                 OfficeId = long.Parse(office),
                 TransactionDate = DateTime.UtcNow.AddHours(1),
                 Credit = Convert.ToDouble(request.Value),
-                AccountId = int.Parse(creditCashBook),
-                Description = $"Topup of {profile.Name}'s wallet with reference number {transactionId} on {GeneralHelper.ConvertDateToLongString(DateTime.UtcNow.AddHours(1))}",
+                AccountId = creditCashBook,
+                Description = payDesc,
                 TransactionId = transactionId,
             };
 
@@ -287,8 +295,7 @@ namespace OnlinePortalBackend.Repository.Impl
             };
 
 
-            try
-            {
+           
                 _context.OnlineTransactions.Add(transaction);
                 _context.SaveChanges();
                 return true;
@@ -299,7 +306,6 @@ namespace OnlinePortalBackend.Repository.Impl
                 _logger.LogError(ex.StackTrace);
                 return false;
             }
-            return false;
            
         }
 
