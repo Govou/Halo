@@ -1412,6 +1412,12 @@ namespace HaloBiz.MyServices.Impl
                 forUpdate.ContractService = null;
                 invoicesToUpdate.Add(forUpdate);
 
+                double vat = 0;
+                if (theInvoice.ContractService.Service.IsVatable == true)
+                {
+                    vat = Math.Round(theInvoice.Value * (7.5 / 107.5), 2);
+                }
+
                 contractServiceMailDTOs.Add(new ContractServiceMailDTO()
                 {
                     Description = theInvoice.ContractService.Service.Name,
@@ -1422,7 +1428,9 @@ namespace HaloBiz.MyServices.Impl
                     UniqueTag = theInvoice.ContractService.UniqueTag,
                     AdminDirectTie = theInvoice.ContractService.AdminDirectTie,
                     Id = theInvoice.ContractServiceId,
-                    StartDate = theInvoice.StartDate.ToString("G")
+                    StartDate = theInvoice.StartDate.ToString("G"),
+                    Vat = vat,
+                    Amount = Math.Round(theInvoice.Value - vat, 2),
                 });
 
             }
