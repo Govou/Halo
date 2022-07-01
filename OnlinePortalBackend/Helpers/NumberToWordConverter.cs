@@ -324,7 +324,7 @@ namespace OnlinePortalBackend.Helpers
 
             var koboInWords = string.Empty;
 
-            var nairaInWords = Converter.ConvertNumberToString(naira);
+            var nairaInWords = NumberToWordConverter_v2.ConvertNumberToString(naira);
             nairaInWords = nairaInWords + " Naira";
 
             if (separation.Length > 1)
@@ -332,7 +332,7 @@ namespace OnlinePortalBackend.Helpers
                 var kobo = int.Parse(separation[1]);
                 if (kobo.ToString() != "00" || !string.IsNullOrEmpty(kobo.ToString()))
                 {
-                    koboInWords = Converter.ConvertNumberToString(kobo);
+                    koboInWords = NumberToWordConverter_v2.ConvertNumberToString(kobo);
                     koboInWords = koboInWords + " Kobo";
                 }
             }
