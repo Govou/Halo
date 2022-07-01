@@ -595,7 +595,11 @@ namespace OnlinePortalBackend.Repository.Impl
                     }
                 }
             }
-          
+
+            if (request.TransactionType.ToLower().Contains("wallet") && paymentConformation == true)
+            {
+                request.PaymentReferenceInternal = "WAL_" + request.ProfileId.ToString() + new Random().Next(1_000_000_000).ToString() + new Random().Next(1_000_000_000).ToString() + new Random().Next(new Random().Next(1_000_000_000));
+            }
 
             _context.OnlineTransactions.Add(new OnlineTransaction
             {
