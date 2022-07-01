@@ -16,6 +16,7 @@ namespace OnlinePortalBackend.DTOs.TransferDTOs
         public int LGAId { get; set; }
         public string LGAName { get; set; }
         public string Street { get; set; }
+        public string PhoneNumber { get; set; }
 
         public List<OnlineContact> Contacts { get; set; }
 
