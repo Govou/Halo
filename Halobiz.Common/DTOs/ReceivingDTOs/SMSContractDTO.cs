@@ -20,10 +20,18 @@ namespace Halobiz.Common.DTOs.ReceivingDTOs
         public List<SMSContractService> SMSContractServices { get; set; }
     }
 
+    public class SMSContractServiceRemovalDTO
+    {
+        public int ContractId { get; set; }
+        public int ServiceId { get; set; }
+    }
+
     public class SMSContractService
     {
         public int ServiceId { get; set; }
+        public string TripType { get; set; }
         public int Quantity { get; set; }
+        public double TotalAmount { get; set; }
         public DateTime ServiceStartDate { get; set; }
         public DateTime ServiceEndDate { get; set; }
         public string DropLocation { get; set; }
@@ -36,5 +44,6 @@ namespace Halobiz.Common.DTOs.ReceivingDTOs
     {
         public int ProfileId { get; set; }
         public int ContractId { get; set; }
+        public int[] ContractServices { get; set; }
     }
 }

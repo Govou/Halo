@@ -11,6 +11,7 @@
     {
         public int ProfileId { get; set; }
         public double Amount { get; set; }
+        public int ContractServiceId { get; set; }
     }
 
     public class SpendWalletResponseDTO

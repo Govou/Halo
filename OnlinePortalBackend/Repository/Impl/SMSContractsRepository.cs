@@ -55,6 +55,7 @@ namespace OnlinePortalBackend.Repository.Impl
 
         public async Task<(bool isSuccess, object message)> AddNewContract(SMSContractDTO contractDTO)
         {
+
             var groupInvoiceNumber = await GenerateGroupInvoiceNumber();
             var branch = _configuration["OnlineBranchID"] ?? _configuration.GetSection("AppSettings:OnlineBranchID").Value;
             var office = _configuration["OnlineOfficeID"] ?? _configuration.GetSection("AppSettings:OnlineOfficeID").Value;
@@ -174,20 +175,13 @@ namespace OnlinePortalBackend.Repository.Impl
                 foreach (var item in contractDTO.SMSContractServices)
                 {
                     var service = _context.Services.FirstOrDefault(x => x.Id == item.ServiceId);
-                    var amountWithoutVat = service.UnitPrice * item.Quantity;
+                    var amountWithoutVat = item.TotalAmount;
                     var amount = 0.0;
                     var vat = 0.0;
+                    var amountWithVat = amountWithoutVat + (0.075 * amountWithoutVat);
+                    amount = amountWithVat;
+                    vat = 0.075 * amountWithoutVat;
 
-                    if (service.IsVatable.Value)
-                    {
-                        var amountWithVat = amountWithoutVat + (0.075 * amountWithoutVat);
-                        amount = amountWithVat;
-                        vat = 0.075 * amountWithoutVat;
-                    }
-                    else
-                    {
-                        amount = amountWithoutVat;
-                    }
                     contractServiceForEndorsements.Add(new ContractServiceForEndorsementReceivingDto
                     {
                         ActivationDate = DateTime.UtcNow.AddHours(1),
@@ -198,7 +192,7 @@ namespace OnlinePortalBackend.Repository.Impl
                         BranchId = branchId,
                         OfficeId = officeId,
                         ContractStartDate = item.ServiceStartDate,
-                        ContractEndDate = item.ServiceEndDate,
+                        ContractEndDate = item.ServiceEndDate.AddDays(1),
                         UniqueTag = new Random().Next(100_000_000, 1000_000_000).ToString(),
                         CreatedById = userId,
                         UnitPrice = service.UnitPrice,
@@ -245,8 +239,8 @@ namespace OnlinePortalBackend.Repository.Impl
                         FulfillmentEndDate = DateTime.UtcNow.AddHours(1),
                     });
                 }
-
-                var endorsementResult = await AddNewRetentionContractServiceForEndorsement(contractServiceForEndorsements);
+                var caption = contractDTO.SMSContractServices[0].TripType;
+                var endorsementResult = await AddNewRetentionContractServiceForEndorsement(contractServiceForEndorsements, caption);
 
                 if (endorsementResult.isSuccess)
                 {
@@ -318,7 +312,7 @@ namespace OnlinePortalBackend.Repository.Impl
             }
         }
 
-        public async Task<(bool isSuccess, object message1, object message2)> AddNewRetentionContractServiceForEndorsement(List<ContractServiceForEndorsementReceivingDto> contractServiceForEndorsementDtos)
+        public async Task<(bool isSuccess, object message1, object message2)> AddNewRetentionContractServiceForEndorsement(List<ContractServiceForEndorsementReceivingDto> contractServiceForEndorsementDtos, string caption)
         {
             long contractId = 0;
             long contractServiceId = 0l;
@@ -353,7 +347,7 @@ namespace OnlinePortalBackend.Repository.Impl
                     GroupInvoiceNumber = contractDetail.GroupInvoiceNumber,
                     IsApproved = true,
                     HasAddedSBU = true,
-                    Caption = contractDetail.DocumentUrl
+                    Caption = caption
                 };
 
                 var entity = await _context.Contracts.AddAsync(newContract);
@@ -815,6 +809,10 @@ namespace OnlinePortalBackend.Repository.Impl
             {
                 DateTime startDate = endorsement == null ? (DateTime)contractService.ContractStartDate : (DateTime)endorsement?.DateForNewContractToTakeEffect;
                 DateTime endDate = (DateTime)contractService.ContractEndDate;
+                if (startDate == endDate)
+                {
+                    endDate = endDate.AddDays(1);
+                }
                 var InitialYear = startDate.Year;
                 var amount = billableAmount;
 
@@ -1736,35 +1734,53 @@ namespace OnlinePortalBackend.Repository.Impl
         public async Task<(bool isSuccess, string message, List<InvoiceResult> invoiceResults)> GenerateInvoiceForContract(SMSCreateInvoiceDTO request)
         {
 
-         using (var transaction = await _context.Database.BeginTransactionAsync())
+             using (var transaction = await _context.Database.BeginTransactionAsync())
+             {
+                var validContactServices = new List<ContractService>();
+
+                try
                 {
+                    var contractServices = _context.ContractServices.Where(x => x.ContractId == request.ContractId);
+                    var customerDivisionId = _context.OnlineProfiles.FirstOrDefault(x => x.Id == request.ProfileId).CustomerDivisionId;
 
-                    try
+                    foreach (var item in request.ContractServices)
                     {
-                        var contractServices = _context.ContractServices.Where(x => x.ContractId == request.ContractId);
-                        var customerDivisionId = _context.OnlineProfiles.FirstOrDefault(x => x.Id == request.ProfileId).CustomerDivisionId;
-                        var invoicesIds = new List<long>();
-                        foreach (var item in contractServices)
+                        //var ms = _context.MasterServiceAssignments.FirstOrDefault(x => x.ContractServiceId == item.Id && x.IsAddedToCart == true && x.IsPaidFor == false && x.IsDeleted == false && x.IsScheduled == false);
+                        //if (ms != null)
+                        //{
+                        //    validContactServices.Add(item);
+                        //}
+                        var conSer = contractServices.FirstOrDefault(x => x.Id == item);
+                        if (conSer != null)
                         {
-                            var invoice = new InvoiceReceivingDTO
-                            {
-                                BillableAmount = item.BillableAmount.Value,
-                                VAT = item.Vat.Value,
-                                ContractServiceId = item.Id,
-                                DateToBeSent = DateTime.UtcNow.AddHours(1),
-                                CustomerDivisionId = customerDivisionId.Value,
-                                UnitPrice = item.UnitPrice.Value,
-                                EndDate = item.ContractEndDate.Value,
-                                StartDate = item.ContractStartDate.Value,
-                                Quantity = item.Quantity,
-                            };
-                            var response = await AddInvoice(invoice);
-                            if (response.isSuccess)
-                                invoicesIds.Add(response.result);
+                            validContactServices.Add(conSer);
                         }
+                    }
 
-                       var result = await ConvertInvoiceToFinalInvoice(invoicesIds);
-                      await transaction.CommitAsync();
+                    var invoicesIds = new List<long>();
+
+                    foreach (var item in validContactServices)
+                    {
+                        var invoice = new InvoiceReceivingDTO
+                        {
+                            BillableAmount = item.BillableAmount.Value,
+                            VAT = item.Vat.Value,
+                            ContractServiceId = item.Id,
+                            DateToBeSent = DateTime.UtcNow.AddHours(1),
+                            CustomerDivisionId = customerDivisionId.Value,
+                            UnitPrice = item.UnitPrice.Value,
+                            EndDate = item.ContractEndDate.Value,
+                            StartDate = item.ContractStartDate.Value,
+                            Quantity = item.Quantity,
+                        };
+
+                        var response = await AddInvoice(invoice);
+                        if (response.isSuccess)
+                            invoicesIds.Add(response.result);
+                    }
+
+                    var result = await ConvertInvoiceToFinalInvoice(invoicesIds);
+                    await transaction.CommitAsync();
 
                     return result;
                     }
@@ -1772,7 +1788,7 @@ namespace OnlinePortalBackend.Repository.Impl
                     {
                         _logger.LogError(ex.Message);
                         _logger.LogError(ex.StackTrace);
-                       await transaction.RollbackAsync();
+                        await transaction.RollbackAsync();
                     return (false, "An error occured", null);
                     }
 
@@ -2004,20 +2020,12 @@ namespace OnlinePortalBackend.Repository.Impl
                 foreach (var item in contractDTO.SMSContractServices)
                 {
                     var service = _context.Services.FirstOrDefault(x => x.Id == item.ServiceId);
-                    var amountWithoutVat = service.UnitPrice * item.Quantity;
+                    var amountWithoutVat = item.TotalAmount;
                     var amount = 0.0;
                     var vat = 0.0;
-
-                    if (service.IsVatable.Value)
-                    {
-                        var amountWithVat = amountWithoutVat + (0.075 * amountWithoutVat);
-                        amount = amountWithVat;
-                        vat = 0.075 * amountWithoutVat;
-                    }
-                    else
-                    {
-                        amount = amountWithoutVat;
-                    }
+                    var amountWithVat = amountWithoutVat + (0.075 * amountWithoutVat);
+                    amount = amountWithVat;
+                    vat = 0.075 * amountWithoutVat;
                     contractServiceForEndorsements.Add(new ContractServiceForEndorsementReceivingDto
                     {
                         ActivationDate = DateTime.UtcNow.AddHours(1),
@@ -2076,8 +2084,8 @@ namespace OnlinePortalBackend.Repository.Impl
                         FulfillmentEndDate = DateTime.UtcNow.AddHours(1),
                     });
                 }
-
-                var endorsementResult = await AddNewRetentionContractServiceForEndorsement(contractServiceForEndorsements);
+                var caption = contractDTO.SMSContractServices[0].TripType;
+                var endorsementResult = await AddNewRetentionContractServiceForEndorsement(contractServiceForEndorsements, caption);
 
                
                 var quote = new QuoteReceivingDTO
@@ -2115,6 +2123,11 @@ namespace OnlinePortalBackend.Repository.Impl
                 return (false, "An error has occured");
 
             }
+        }
+
+        public Task<(bool isSuccess, object message)> RemoveServiceFromContract(SMSContractServiceRemovalDTO request)
+        {
+            throw new NotImplementedException();
         }
     }
 

@@ -8,7 +8,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using HaloBiz.DTOs;
 using HaloBiz.DTOs.TransferDTOs;
+using HaloBiz.Models;
+using Microsoft.AspNetCore.Mvc.Filters;
 using Task = HalobizMigrations.Models.ProjectManagement.Task;
 
 namespace HaloBiz.MyServices
@@ -38,7 +41,7 @@ namespace HaloBiz.MyServices
         Task<ApiCommonResponse> getProjectById(HttpContext httpContext, long projectId);
         Task<ApiCommonResponse> createDefaultStatus(HttpContext httpContext, List<DefaultStatusDTO> defaultStatusDTOs);
         Task<ApiCommonResponse> updateStatusFlowOptionToCustom(HttpContext httpContext, long workspaceId, List<StatusFlowDTO> statusFlowDTOs);
-        Task<ApiCommonResponse> removeProject(HttpContext httpContext, long projectId, long workspaceId);
+        Task<ApiCommonResponse> removeProject(HttpContext httpContext, long projectId);
         Task<ApiCommonResponse> removeTask(HttpContext httpContext, long taskId, long projectId);
         Task<ApiCommonResponse> removeDeliverable(HttpContext httpContext, long deliverableId, long taskId);
         Task<ApiCommonResponse> updateWorkspace(HttpContext httpContext, long id, UpdateWorkspaceDTO workspaceDTO);
@@ -138,8 +141,8 @@ namespace HaloBiz.MyServices
         Task<ApiCommonResponse> getAllDataForWorkspaceSideBar(HttpContext httpContext);
         Task<ApiCommonResponse> getWorkspaceById(HttpContext httpContext, long workspaceId);
         //Task<ApiCommonResponse> CreateDefaultWorkspace();
-        Task<ApiCommonResponse> ResolveQuotesIntoProjects(HttpContext httpContext,long serviceId, string fulfillmentType);
-        //Task<ApiCommonResponse> FetchAmortizationData(int year, int month);
+        // Task<ApiCommonResponse> ResolveQuotesIntoProjects(HttpContext httpContext,long serviceId, string fulfillmentType);
+        // //Task<ApiCommonResponse> FetchAmortizationData(int year, int month);
         Task<ApiCommonResponse> FetchAmortizationMaster(int year, int month);
 
         Task<ApiCommonResponse> FetchAmortizationDetails();
@@ -149,7 +152,23 @@ namespace HaloBiz.MyServices
          Task<ApiCommonResponse> SendEmail(MailRequest mailRequest, HttpContext htttHttpContext);
          Task<ApiCommonResponse> GetAllConcernedMail(HttpContext httpContext);
          Task<ApiCommonResponse> DisableMail(long emailId);
-
+         Task<ApiCommonResponse> GetAllWatcherProjectsAndTask(HttpContext httpContext);
          Task<ApiCommonResponse> getAllProjectCreatorsWorkspacesRevamped(HttpContext httpContext);
+         Task<ApiCommonResponse> getAllDeliverablesRevamp(HttpContext httpContext);
+         Task<ApiCommonResponse> DisableProjectComment(long commentId);
+         Task<ApiCommonResponse> RetrieveProjectComments(long projectId);
+         Task<ApiCommonResponse> GetAllProjectsComment(HttpContext httpContext);
+         Task<ApiCommonResponse> MakeProjectComment(ProjectCommentRequest projectCommentRequest, long projectId,
+             HttpContext httpContext);
+
+         Task<ApiCommonResponse> DisableTaskComment(long commentId);
+         Task<ApiCommonResponse> GetAllTaskComment(HttpContext httpContext);
+
+         Task<ApiCommonResponse> MakeTaskComment(ProjectCommentRequest projectCommentRequest, long taskId,
+             HttpContext httpContext);
+
+         Task<ApiCommonResponse> ResolveQuotesIntoProjects(HttpContext httpContext,
+             ProjectFulfilmentDto projectFulfilment);
+
     }
 }

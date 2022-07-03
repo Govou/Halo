@@ -74,5 +74,7 @@ namespace Halobiz.Common.DTOs.ReceivingDTOs
         public Branch Branch { get; set; }
         public string UniqueTag { get; set; }
         public string AdminDirectTie { get; set; }
+        public double? WHTLoadingValue { get; set; }
+
     }
 }

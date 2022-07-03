@@ -34,10 +34,17 @@ namespace HaloBiz.Controllers
            
         }
 
+        [HttpGet("GetAllServiceAssignmentMastersByClientId/{clientId}")]
+        public async Task<ApiCommonResponse> GetAllServiceAssignmentMastersByClientId(long clientId)
+        {
+            return await _masterServiceAssignmentService.GetAllMasterServiceAssignmentsByClientId(clientId);
+
+        }
+
         [HttpGet("GetAllServiceAssignmentMastersAddedToCartByClientId/{clientId}")]
         public async Task<ApiCommonResponse> GetAllServiceAssignmentMastersAddedToCartByClientId(long clientId)
         {
-            return await _masterServiceAssignmentService.GetAllMasterServiceAssignmentsByClientId(clientId);
+            return await _masterServiceAssignmentService.GetAllMasterServiceAssignmentsForCartByClientId(clientId);
 
         }
 
@@ -48,10 +55,24 @@ namespace HaloBiz.Controllers
 
         }
 
+        [HttpGet("GetAllCompletedTripsByClientId/{clientId}")]
+        public async Task<ApiCommonResponse> GetAllCompletedTripsByClientId(long clientId)
+        {
+            return await _masterServiceAssignmentService.GetAllCompletedTripsByClientId(clientId);
+
+        }
+
         [HttpGet("GetAllCompletedTripsCountByClientId/{clientId}")]
         public async Task<ApiCommonResponse> GetAllCompletedTripsCountByClientId(long clientId)
         {
-            return await _masterServiceAssignmentService.GetAllCompletedTripsByClientId(clientId);
+            return await _masterServiceAssignmentService.GetAllCompletedTripsCountByClientId(clientId);
+
+        }
+
+        [HttpGet("GetAllFrequentRoutesCountByClientId/{clientId}")]
+        public async Task<ApiCommonResponse> GetAllFrequentRoutesCountByClientId(long clientId)
+        {
+            return await _masterServiceAssignmentService.GetAllFrequentRouteCountByClientId(clientId);
 
         }
 
@@ -153,6 +174,8 @@ namespace HaloBiz.Controllers
             return await _masterServiceAssignmentService.DeleteSecondaryServiceAssignment(id);
             //return StatusCode(response.StatusCode);
         }
+
+        //Mails
 
         [HttpGet("GetJMPDetails/{id}")]
 

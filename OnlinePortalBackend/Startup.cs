@@ -82,11 +82,13 @@ namespace OnlinePortalBackend
             services.AddScoped<IWalletRepository, WalletRepository>();
             services.AddScoped<ISMSInvoiceRepository, SMSInvoiceRepository>();
             services.AddScoped<ICustomerInfoRepository, CustomerInfoRepository>();
+            services.AddScoped<ISupplierRepository, SupplierRepository>();
 
             services.AddScoped<IPaymentAdapter, PaymentAdapter>();
             services.AddScoped<IApiInterceptor, ApiInterceptor>();
             services.AddScoped<IPaymentAdapter, PaymentAdapter>();
 
+            services.AddScoped<IJwtHelper, JwtHelper>();
             //services and repositories
             services.AddScoped<IMailService, MailService>();
             services.AddScoped<IOnlineAccounts, OnlineAccounts>();
@@ -104,8 +106,11 @@ namespace OnlinePortalBackend
             services.AddScoped<IUtilityService, UtilityService>();
             services.AddScoped<ISMSWalletService, SMSWalletService>();
             services.AddScoped<ICustomerInfoService, CustomerInfoService>();
+            services.AddScoped<ISupplierService, SupplierService>();
+            services.AddScoped<IAuthService, AuthService>();
 
             services.AddAutoMapper(typeof(Startup));
+
 
             services.AddControllers()
                 .AddNewtonsoftJson(option => option.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore);

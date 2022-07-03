@@ -19,6 +19,7 @@ namespace OnlinePortalBackend.MyServices
     {
         Task<ApiCommonResponse> ConfirmCodeSending(OnlinePortalDTO request);
         Task<ApiCommonResponse> SendInvoiceReceipt(ReceiptSendDTO request);
+        Task<ApiCommonResponse> SendWelcomeOnboarding(NewUserSignupDTO request);
     }
     public class MailService : IMailService
     {
@@ -32,6 +33,22 @@ namespace OnlinePortalBackend.MyServices
             _configuration = configuration;
             _mailBaseUrl = _configuration["MailServiceBaseUrl"] ?? _configuration.GetSection("AppSettings:MailServiceBaseUrl").Value;
             _context = context;
+        }
+
+        public async Task<ApiCommonResponse> SendWelcomeOnboarding(NewUserSignupDTO request)
+        {
+            var baseUrl = $"{_mailBaseUrl}/Mail/SendNewUserSignup";
+            try
+            {
+                var response = await baseUrl.AllowAnyHttpStatus()
+                   .PostJsonAsync(request).ReceiveJson();
+                return CommonResponse.Send(ResponseCodes.SUCCESS);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogInformation(ex.Message);
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, ex.Message);
+            }
         }
 
         public async Task<ApiCommonResponse> ConfirmCodeSending(OnlinePortalDTO request)

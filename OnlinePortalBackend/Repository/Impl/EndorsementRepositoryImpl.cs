@@ -63,6 +63,7 @@ namespace OnlinePortalBackend.Repository.Impl
                 ServiceCode = service.ServiceCode,
                 ServiceType = service.ServiceType?.Caption,
                 ServiceDescription = service.Description,
+                ExpiryDate = contractService.ContractEndDate,
                 HasDirectComponent = service.AdminRelationship?.DirectServiceId != null && service.AdminRelationship?.AdminService != null ? true : false,
                 HasAdminComponent = service.AdminRelationship?.AdminServiceId != null && service.AdminRelationship?.DirectService != null ? true : false,
                 TotalContractValue = (int)contractService.Quantity * service.UnitPrice,

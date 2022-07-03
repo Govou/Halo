@@ -19,7 +19,9 @@ namespace HaloBiz.DTOs.ReceivingDTOs
 
     public class BRPairableCheckReceivingDTO
     {
-        public long? BusinessRuleId { get; set; }
+        //serviceReg of Rule
+        //public long? BusinessRuleId { get; set; }
+        public long? BRServiceRegistrationId { get; set; }
      
         public long[] ServiceRegistrationId { get; set; }
     }

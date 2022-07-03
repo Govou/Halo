@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Halobiz.Common.DTOs.ApiDTOs;
+using HaloBiz.DTOs.GenericResponseDTO;
 using HaloBiz.DTOs.ReceivingDTOs;
 using HaloBiz.DTOs.TransferDTOs;
 using HaloBiz.Helpers;
@@ -75,12 +76,12 @@ namespace HaloBiz.MyServices.Impl
             return CommonResponse.Send(ResponseCodes.SUCCESS, rankTransferDTO);
         }
 
-        public async Task<ApiCommonResponse> GetOnlineLocationFavoriteByClientId(long clientId)
+        public async Task<ApiCommonResponse> GetOnlineLocationFavoriteByOnlineProfileId(long onlineProfileId)
         {
-            var location = await _onlineLocationFavoriteRepository.FindAllLocationFavoritesByClientId(clientId);
+            var location = await _onlineLocationFavoriteRepository.FindAllLocationFavoritesByOnlineProfileId(onlineProfileId);
             if (location == null)
             {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE); ;
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, ResponseMessage.NotFound404); ;
             }
             var rankTransferDTO = _mapper.Map<IEnumerable<OnlineLocationFavoriteTransferDTO>>(location);
             return CommonResponse.Send(ResponseCodes.SUCCESS, rankTransferDTO);

@@ -233,10 +233,10 @@ namespace HaloBiz.Controllers
             return await _contactServiceImpl.getContractByLeadId(Id);
         }
 
-        [HttpGet("GetDeliverableDashboard")]
-        public async Task<ApiCommonResponse> GetDeliverableDashboard()
+        [HttpGet("GetDeliverableDashboard/{year}/{month}")]
+        public async Task<ApiCommonResponse> GetDeliverableDashboard(int year,int month)
         {
-            return await _contactServiceImpl.getDeliverableDashboard(HttpContext);
+            return await _contactServiceImpl.getDeliverableDashboard(HttpContext,year,month);
         }
 
         [HttpGet("GetAllQuotesWithDivisions")]

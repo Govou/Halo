@@ -552,6 +552,7 @@ namespace HaloBiz.Controllers
             service.CreatedById = userIdToUse;
             service.InvoicingInterval = cycle;
             service.FirstInvoiceSendDate = invoiceSendDate;
+            service.WHTLoadingValue = contractService.WHTLoadingValue;
 
             var saveContractEntity = _context.ContractServices.Add(service);
 
@@ -663,7 +664,7 @@ namespace HaloBiz.Controllers
                         BranchId = defaultOffice.BranchId,
                         OfficeId = defaultOffice.Id,
                         CreatedById = userIdToUse,
-                        FirstInvoiceSendDate = cutOffDate.AddDays(1)
+                        FirstInvoiceSendDate = cutOffDate.AddDays(1),
                     });
 
                    // System.Threading.Thread.Sleep(3000);

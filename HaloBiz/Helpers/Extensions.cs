@@ -99,8 +99,9 @@ namespace HaloBiz.Helpers
         public static double GetNumberValuePerContractService(this ContractService contractService)
         {
             if(contractService.InvoicingInterval == (int)TimeCycle.OneTime){
-                return contractService.BillableAmount?? 0.0;
+                return contractService.BillableAmount ?? 0.0;
             }
+
             var startDate = (DateTime) contractService.ContractStartDate;
             var totalAmount = 0.0;
             while(startDate < contractService.ContractEndDate)

@@ -297,5 +297,13 @@ namespace HaloBiz.Repository.Impl
             Include(r => r.SMORoute)
             .ToListAsync();
         }
+
+        public async Task<bool> CheckIfStateISAvailableOnRoute(long stateId, long routeId)
+        {
+            var checkStateAvailability = _context.SMORouteAndStateMaps.Where(x => x.IsDeleted == false && x.StateId == stateId && x.SMORouteId == routeId).ToList();
+            int count = checkStateAvailability.Count();
+            return count > 0 ? true : false;
+            
+        }
     }
 }

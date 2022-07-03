@@ -67,9 +67,9 @@ namespace HaloBiz.Controllers
         }
 
         [HttpGet("GetServiceReviews")]
-        public async Task<ActionResult> GetServiceReviews(int serviceId, int pageSIze = 10)
+        public async Task<ActionResult> GetServiceReviews(int serviceId)
         {
-            var response = await _serviceRatingService.GetServiceReviews(serviceId, pageSIze);
+            var response = await _serviceRatingService.GetServiceReviews(serviceId);
             if (response.StatusCode >= 400)
                 return StatusCode(response.StatusCode, response);
             var serviceRating = ((ApiOkResponse)response).Result;

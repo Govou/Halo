@@ -21,6 +21,8 @@ using System.Text.RegularExpressions;
 using OnlinePortalBackend.DTOs.TransferDTOs;
 using Microsoft.Extensions.Caching.Memory;
 using Halobiz.Common.Model;
+using Google.Apis.Auth;
+using Microsoft.Extensions.Configuration;
 
 namespace OnlinePortalBackend.MyServices
 {
@@ -28,9 +30,12 @@ namespace OnlinePortalBackend.MyServices
     {
         Task<ApiCommonResponse> SendConfirmCodeToClient(string Email);
         Task<ApiCommonResponse> SendConfirmCodeToClient_v2(string Email);
+        Task<ApiCommonResponse> SendConfirmCodeToClient_v3(string Email);
         Task<ApiCommonResponse> CreateAccount(CreatePasswordDTO user);
         Task<ApiCommonResponse> Login(LoginDTO user);
         Task<ApiCommonResponse> Login_v2(LoginDTO user);
+        Task<ApiCommonResponse> SupplierLogin(LoginDTO login);
+        Task<ApiCommonResponse> CommanderLogin(LoginDTO login);
         Task<ApiCommonResponse> VerifyCode(CodeVerifyModel model);
     }
 
@@ -42,14 +47,16 @@ namespace OnlinePortalBackend.MyServices
         private readonly JwtHelper _jwttHelper;
         private readonly IMapper _mapper;
         private readonly IMemoryCache _memoryCache;
-
+        private readonly List<string> _allowedDomains;
+        private readonly IConfiguration _config;
 
         public OnlineAccounts(IMailService mailService, 
             IMemoryCache memoryCache,
             JwtHelper jwtHelper,
             IMapper mapper,
             ILogger<OnlineAccounts> logger,
-            HalobizContext context
+            HalobizContext context,
+            IConfiguration config
          )
         {
             _mailService = mailService;
@@ -58,6 +65,8 @@ namespace OnlinePortalBackend.MyServices
             _jwttHelper = jwtHelper;
             _context = context;
             _memoryCache = memoryCache;
+            _config = config;
+            _allowedDomains = config.GetSection("AllowedLoginDomains").Get<List<string>>();
         }
       
 
@@ -119,6 +128,7 @@ namespace OnlinePortalBackend.MyServices
                 return CommonResponse.Send(ResponseCodes.FAILURE, null, ex.Message);
             }          
         }
+
         public async Task<ApiCommonResponse> SendConfirmCodeToClient_v2(string Email)
         {
             try
@@ -173,6 +183,54 @@ namespace OnlinePortalBackend.MyServices
             }          
         }
 
+        public async Task<ApiCommonResponse> SendConfirmCodeToClient_v3(string Email)
+        {
+            try
+            {
+                var response = await _context.OnlineProfiles.Where(x => x.Email == Email).FirstOrDefaultAsync();
+
+                if (_context.UsersCodeVerifications.Any(x => x.Email == Email && x.CodeExpiryTime >= DateTime.Now && x.CodeUsedTime == null))
+                {
+                    return CommonResponse.Send(ResponseCodes.DUPLICATE_REQUEST, null, $"The code for {Email} has not been used");
+                }
+
+                //save security code for this guy
+                var code = await GenerateCode();
+                var codeModel = new UsersCodeVerification
+                {
+                    Email = Email,
+                    CodeExpiryTime = DateTime.UtcNow.AddHours(1).AddMinutes(10),
+                    Code = code,
+                    Purpose = CodePurpose.Onboarding
+                };
+
+                var entity = await _context.UsersCodeVerifications.AddAsync(codeModel);
+                await _context.SaveChangesAsync();
+
+                List<string> detail = new List<string>();
+                detail.Add($"Your verification code for the online portal is <strong>{code}</strong>. Please note that it expires it 10 minutes");
+
+                //send email with the code
+                var request = new OnlinePortalDTO
+                {
+                    Recepients = new string[] { Email },
+                    Name = "",
+                    Salutation = "Hi",
+                    Subject = "Confirmation code for Account Creation",
+                    DetailsInPara = detail
+                };
+
+                var mailresponse = await _mailService.ConfirmCodeSending(request);
+                mailresponse.responseData = $"Verfication Code has been sent to {Email}";
+                return mailresponse;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.StackTrace);
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, ex.Message);
+            }
+        }
+
         public async Task<ApiCommonResponse> VerifyCode(CodeVerifyModel model)
         {
             try
@@ -193,6 +251,14 @@ namespace OnlinePortalBackend.MyServices
                     await _context.SaveChangesAsync();
                 }
 
+                var request = new NewUserSignupDTO
+                {
+                    EmailAddress = profile.Email,
+                    UserName = profile.Name
+                };
+
+                var mailresponse = await _mailService.SendWelcomeOnboarding(request);
+
                 return CommonResponse.Send(ResponseCodes.SUCCESS, null, $"You have successfully used code for {model.Email}");
             }
             catch (Exception ex)
@@ -201,6 +267,7 @@ namespace OnlinePortalBackend.MyServices
                 return CommonResponse.Send(ResponseCodes.FAILURE, null, ex.Message);
             }
         }
+
         private async Task<string> GenerateCode()
         {
             string code = string.Empty;
@@ -414,7 +481,9 @@ namespace OnlinePortalBackend.MyServices
                     Id = profile.Id,
                     
                 };
-                var contract = _context.Contracts.Where(x => x.CustomerDivisionId == profile.CustomerDivisionId).OrderByDescending(x => x.Id).FirstOrDefault();
+
+                var contract = _context.Contracts.Where(x => x.CustomerDivisionId == profile.CustomerDivisionId && x.IsDeleted == false && x.Caption.ToLower().Contains("booked")).OrderByDescending(x => x.Id).FirstOrDefault();
+                var schduledcontract = _context.Contracts.Where(x => x.CustomerDivisionId == profile.CustomerDivisionId && x.IsDeleted == false && x.Caption.ToLower().Contains("scheduled")).OrderByDescending(x => x.Id).FirstOrDefault();
                 var profileContractDetails = new List<ProfileContractDetail>();
 
                 if (contract != null)
@@ -433,14 +502,24 @@ namespace OnlinePortalBackend.MyServices
                     }
                     profileContractDetails.Add(new ProfileContractDetail
                     {
-                        ContractId = contract.Id,
+                        ContractId =  contract.Id,
                         ContractServices = profileContractServiceDetails
                     });
 
                 }
+                else
+                {
+                    profileContractDetails.Add(new ProfileContractDetail
+                    {
+                        ContractId = null,
+                        ContractServices = null
+                    });
+                }
 
-
-
+                if (schduledcontract != null)
+                {
+                    profileContractDetails[0].ScheduledContractId = schduledcontract.Id;
+                }
 
                 mappedProfile.ProfileContractDetail = profileContractDetails;
                 //reset the access failed count
@@ -459,7 +538,6 @@ namespace OnlinePortalBackend.MyServices
                 return CommonResponse.Send(ResponseCodes.FAILURE, null, ex.Message);
             }
         }
-
 
         private static (byte[], string) HashPassword(byte[] salt, string password)
         {
@@ -483,6 +561,144 @@ namespace OnlinePortalBackend.MyServices
 
             return (salt, hashed);
         }
-       
+
+        public async Task<ApiCommonResponse> SupplierLogin(LoginDTO user)
+        {
+            try
+            {
+                var profile = await _context.OnlineProfiles.Where(x => x.Email == user.Email).FirstOrDefaultAsync();
+                if (profile == null)
+                {
+                    return CommonResponse.Send(ResponseCodes.FAILURE, null, "No user with this email");
+                }
+
+                //check if this account is locked
+                var (isLocked, timeLeft) = IsAccountLocked(user.Email);
+                if (isLocked)
+                {
+                    return CommonResponse.Send(ResponseCodes.FAILURE, null, $"Account locked. Please try again in {timeLeft.ToString("#.##")} minutes");
+                }
+
+                var byteSalt = Convert.FromBase64String(profile.SecurityStamp);
+                var (salt, hashed) = HashPassword(byteSalt, user.Password);
+                if (!_context.OnlineProfiles.Any(x => x.Email == user.Email && x.PasswordHash == hashed))
+                {
+                    profile.AccessFailedCount = ++profile.AccessFailedCount;
+                    if (profile.AccessFailedCount >= 3)
+                    {
+                        LockAccount(user.Email);
+                    }
+
+                    await _context.SaveChangesAsync();
+
+                    return CommonResponse.Send(ResponseCodes.FAILURE, null, "Username or password is incorrect");
+                }
+
+                var jwtToken = _jwttHelper.GenerateToken(profile);
+
+                var mappedProfile = new OnlineProfileTransferDetailDTO
+                {
+                    AccessFailedCount = profile.AccessFailedCount,
+                    CustomerDivisionId = profile.CustomerDivisionId,
+                    Email = user.Email,
+                    LockoutEnabled = profile.LockoutEnabled,
+                    Name = profile.Name,
+                    Id = profile.Id,
+
+                };
+
+                //reset the access failed count
+                profile.AccessFailedCount = 0;
+                await _context.SaveChangesAsync();
+
+                return CommonResponse.Send(ResponseCodes.SUCCESS, new
+                {
+                    Token = jwtToken,
+                    UserProfile = mappedProfile
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.StackTrace);
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, ex.Message);
+            }
+        }
+
+        public Task<ApiCommonResponse> CommanderLogin(LoginDTO login)
+        {
+            throw new NotImplementedException();
+        }
+
+        public async Task<(ResponseCodes rc, string token, string refreshToken, string message)> GoogleLogin(GoogleLoginReceivingDTO loginReceiving)
+        {
+            try
+            {
+                GoogleJsonWebSignature.Payload payload;
+
+                try
+                {
+                    payload = await GoogleJsonWebSignature.ValidateAsync(loginReceiving.IdToken);
+                    if (!_allowedDomains.Contains(payload.HostedDomain))
+                    {
+                        return (ResponseCodes.FAILURE, null, null, "Your hosted domain is not allowed to access this site");
+                    }
+                }
+                catch (InvalidJwtException invalidJwtException)
+                {
+                    _logger.LogWarning($"Could not validate Google Id Token [{loginReceiving.IdToken}] => {invalidJwtException.Message}");
+                    return (ResponseCodes.FAILURE, null, null, invalidJwtException.Message);
+                }
+
+                if (!payload.EmailVerified)
+                {
+                    return (ResponseCodes.FAILURE, null, null, "Your email has not been verified.");
+                }
+
+                var email = payload.Email;
+
+                var userProfile = await _context.UserProfiles.Where(x => x.Email == email).FirstOrDefaultAsync();
+                
+                if (userProfile == null)
+                    return (ResponseCodes.FAILURE, null, null, "User does not exit");
+
+
+                var jwtToken = _jwttHelper.GenerateToken_v2(new UserProfile { Id = userProfile.Id, Email = userProfile.Email });
+
+                //get a refresh token for this user
+                var refreshToken = GenerateRefreshToken(userProfile.Id);
+
+                var responseCode = ResponseCodes.SUCCESS;
+                if (string.IsNullOrEmpty(userProfile.MobileNumber))
+                    responseCode = ResponseCodes.CREATE_PROFILE;
+
+                return (responseCode, jwtToken.token, refreshToken, "success");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.Message);
+                _logger.LogError(ex.StackTrace);
+                return (ResponseCodes.FAILURE, null, null, ex.Message);
+            }
+        }
+
+        private string GenerateRefreshToken(long UserId)
+        {
+            using (var rngCryptoServiceProvider = new RNGCryptoServiceProvider())
+            {
+                var randomBytes = new byte[64];
+                rngCryptoServiceProvider.GetBytes(randomBytes);
+                var token = new HalobizMigrations.Models.Halobiz.RefreshToken
+                {
+                    Token = Convert.ToBase64String(randomBytes),
+                    Expires = DateTime.Now.AddDays(7),
+                    CreatedAt = DateTime.Now,
+                    AssignedTo = UserId
+                };
+
+                _context.RefreshTokens.Add(token);
+                _context.SaveChanges();
+                return token.Token;
+            }
+        }
     }
 }

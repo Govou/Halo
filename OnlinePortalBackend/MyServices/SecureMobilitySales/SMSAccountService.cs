@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Halobiz.Common.DTOs.ApiDTOs;
 using Halobiz.Common.DTOs.ReceivingDTOs;
+using OnlinePortalBackend.DTOs.ReceivingDTOs;
 using OnlinePortalBackend.DTOs.TransferDTOs;
 using OnlinePortalBackend.Repository;
 using System.Threading.Tasks;
@@ -42,6 +43,30 @@ namespace OnlinePortalBackend.MyServices.SecureMobilitySales
             return CommonResponse.Send(ResponseCodes.FAILURE, null, result.message);
         }
 
+        public async Task<ApiCommonResponse> CreateSupplierBusinessAccount(SMSSupplierBusinessAccountDTO request)
+        {
+            var result = await _accountRepository.CreateSupplierBusinessAccount(request);
+
+            if (result.success)
+            {
+                var authResult = await _authService.SendConfirmCodeToClient_v3(request.AccountLogin.Email);
+                return authResult;
+            }
+            return CommonResponse.Send(ResponseCodes.FAILURE, null, result.message);
+        }
+
+        public async Task<ApiCommonResponse> CreateSupplierIndividualAccount(SMSSupplierIndividualAccountDTO request)
+        {
+            var result = await _accountRepository.CreateSupplierIndividualAccount(request);
+
+            if (result.success)
+            {
+                var authResult = await _authService.SendConfirmCodeToClient_v3(request.AccountLogin.Email);
+                return authResult;
+            }
+            return CommonResponse.Send(ResponseCodes.FAILURE, null, result.message);
+        }
+
         public async Task<ApiCommonResponse> GetCustomerProfile(int profileId)
         {
             var result = await _accountRepository.GetCustomerProfile(profileId);
@@ -50,15 +75,19 @@ namespace OnlinePortalBackend.MyServices.SecureMobilitySales
             {
                 return CommonResponse.Send(ResponseCodes.FAILURE, null, "Profile does not exist");
             }
-            var profile = new OnlineProfileDTO
-            {
-                CreatedAt = result.CreatedAt,
-                Email = result.Email,
-                Name = result.Name,
-                Id = result.Id
-            };
 
-            return CommonResponse.Send(ResponseCodes.SUCCESS, profile, "Success");
+            return CommonResponse.Send(ResponseCodes.SUCCESS, result, "Success");
+        }
+
+        public async Task<ApiCommonResponse> UpdateCustomerProfile(ProfileUpdateDTO profile)
+        {
+            var result = await _accountRepository.UpdateCustomerProfile(profile);
+
+            if (result.success)
+            {
+                return CommonResponse.Send(ResponseCodes.SUCCESS, null, result.message);
+            }
+            return CommonResponse.Send(ResponseCodes.FAILURE, null, result.message);
         }
     }
 }

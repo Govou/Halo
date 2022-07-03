@@ -2,6 +2,7 @@
 using Halobiz.Common.DTOs.ReceivingDTOs;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using OnlinePortalBackend.DTOs.ReceivingDTOs;
 using OnlinePortalBackend.MyServices.SecureMobilitySales;
 using System.Threading.Tasks;
 
@@ -29,10 +30,31 @@ namespace OnlinePortalBackend.Controllers.SecureMobilitySales
             return _accountService.CreateBusinessAccount(request);
         }
 
+        [HttpPost("CreateSupplierIndividualAccount")]
+        public Task<ApiCommonResponse> CreateSupplierIndividualAccount(SMSSupplierIndividualAccountDTO request)
+        {
+            return _accountService.CreateSupplierIndividualAccount(request);
+        }
+
+
+        [HttpPost("CreateSupplierBusinessAccount")]
+        public Task<ApiCommonResponse> CreateSupplierBusinessAccount(SMSSupplierBusinessAccountDTO request)
+        {
+            return _accountService.CreateSupplierBusinessAccount(request);
+        }
+
+
         [HttpGet("GetCustomerProfile")]
         public Task<ApiCommonResponse> GetCustomerProfile(int profileId)
         {
             return _accountService.GetCustomerProfile(profileId);
+        }
+
+
+        [HttpPost("UpdateCustomerProfile")]
+        public Task<ApiCommonResponse> UpdateCustomerProfile(ProfileUpdateDTO profile)
+        {
+            return _accountService.UpdateCustomerProfile(profile);
         }
     }
 }

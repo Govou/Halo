@@ -16,7 +16,7 @@ namespace HaloBiz.DTOs.ReceivingDTOs
         public long LocationLGAId { get; set; }
         public long LocationStateId { get; set; }
         public long? OnlineProfileId { get; set; }
-        public long ClientId { get; set; }
+        //public long ClientId { get; set; }
 
     
     }

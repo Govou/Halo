@@ -31,6 +31,12 @@ namespace HaloBiz.Controllers
             return await _dTSMastersService.GetAllArmedEscortMasters();
         }
 
+        [HttpGet("GetAllArmedEscortMastersByResourceId/{resourceId}")]
+        public async Task<ApiCommonResponse> GetAllArmedEscortMastersByResourceId(long resourceId)
+        {
+            return await _dTSMastersService.GetAllArmedEscortMastersByResourceId(resourceId);
+        }
+
         [HttpGet("GetArmedEscortMasterById/{id}")]
         public async Task<ApiCommonResponse> GetArmedEscortMasterById(long id)
         {
@@ -59,6 +65,12 @@ namespace HaloBiz.Controllers
         public async Task<ApiCommonResponse> GetAllCommanderMasters()
         {
             return await _dTSMastersService.GetAllCommanderMasters();
+        }
+
+        [HttpGet("GetAllCommanderMastersByResourceId/{resourceId}")]
+        public async Task<ApiCommonResponse> GetAllCommanderMastersByResourceId(long resourceId)
+        {
+            return await _dTSMastersService.GetAllCommanderMastersByResourceId(resourceId);
         }
 
         [HttpGet("GetCommanderMasterById/{id}")]
@@ -91,6 +103,12 @@ namespace HaloBiz.Controllers
             return await _dTSMastersService.GetAllPilotMasters();
         }
 
+        [HttpGet("GetAllPilotMastersByResourceId/{resourceId}")]
+        public async Task<ApiCommonResponse> GetAllPilotMastersByResourceId(long resourceId)
+        {
+            return await _dTSMastersService.GetAllPilotMastersByResourceId(resourceId);
+        }
+
         [HttpGet("GetPilotMasterById/{id}")]
         public async Task<ApiCommonResponse> GetPilotMasterById(long id)
         {
@@ -119,6 +137,12 @@ namespace HaloBiz.Controllers
         public async Task<ApiCommonResponse> GetAllVehicleMasters()
         {
             return await _dTSMastersService.GetAllVehicleMasters();
+        }
+
+        [HttpGet("GetAllVehicleMastersByResourceId/{resourceId}")]
+        public async Task<ApiCommonResponse> GetAllVehicleMastersByResourceId(long resourceId)
+        {
+            return await _dTSMastersService.GetAllVehicleMastersByResourceId(resourceId);
         }
 
         [HttpGet("GetVehicleMasterById/{id}")]
