@@ -296,7 +296,7 @@ namespace OnlinePortalBackend.Helpers
             }
             if (n % 10 == 0) return tensStr;
             string onesStr = ConvertDigitToString(n - tensDigit * 10);
-            return "and " + tensStr + "-" + onesStr;
+            return  tensStr + "-" + onesStr;
         }
 
         // Use this to convert any integer bigger than 99
