@@ -115,7 +115,7 @@ namespace HaloBiz.MyServices.Impl
                             CreatedAt = DateTime.Now,
                             Alias = "PA",
                             IsActive = true,
-                            ClientId = customerDivion.Id,
+                            ClientId = customerDivion?.Id,
                         });
 
                         await _context.SaveChangesAsync();

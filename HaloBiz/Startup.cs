@@ -241,7 +241,7 @@ namespace HaloBiz
             app.UseRouting();
             app.UseCors(cors => cors.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
 
-            app.UseMiddleware<AuthenticationHandler>();
+            //app.UseMiddleware<AuthenticationHandler>();
 
             app.UseAuthentication();
             app.UseAuthorization();

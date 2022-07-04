@@ -699,7 +699,8 @@ namespace HaloBiz.MyServices.Impl
                     Alias = GenerateClientAlias(customerDivision.DivisionName),
                     IsDebitBalance = true,
                     ControlAccountId = controlAccount.Id,
-                    CreatedById = this.LoggedInUserId
+                    CreatedById = this.LoggedInUserId,
+                    //ClientId= customerDivision.Id
                 };
 
                 var savedAccount = await SaveAccount(account);
@@ -722,7 +723,8 @@ namespace HaloBiz.MyServices.Impl
                     Alias = "RIA",
                     IsDebitBalance = true,
                     ControlAccountId = controlAccount.Id,
-                    CreatedById = this.LoggedInUserId
+                    CreatedById = this.LoggedInUserId,
+                   // ClientId = customerDivision.Id
                 };
                 var savedAccount = await SaveAccount(account);
 
@@ -813,7 +815,8 @@ namespace HaloBiz.MyServices.Impl
                     Alias = customerDivision?.DTrackCustomerNumber ?? "",
                     IsDebitBalance = true,
                     ControlAccountId = controlAccount.Id,
-                    CreatedById = LoggedInUserId
+                    CreatedById = LoggedInUserId,
+                    //ClientId = customerDivision.Id
                 };
 
                 var savedAccount = await SaveAccount(account);
@@ -857,7 +860,8 @@ namespace HaloBiz.MyServices.Impl
                     Alias = "HA_RET",
                     IsDebitBalance = true,
                     ControlAccountId = controlAccount.Id,
-                    CreatedById = LoggedInUserId
+                    CreatedById = LoggedInUserId,
+                    //ClientId = customerDivision?.Id,
                 };
                 var savedAccount = await SaveAccount(account);
 
@@ -2067,8 +2071,10 @@ namespace HaloBiz.MyServices.Impl
                     Alias = customerDivision.DTrackCustomerNumber ?? "",
                     IsDebitBalance = true,
                     ControlAccountId = (long)service.ControlAccountId,
-                    CreatedById = LoggedInUserId
+                    CreatedById = LoggedInUserId,
+                    //ClientId = customerDivision?.Id
                 };
+
                 var savedAccount = await SaveAccount(account);
                 accountId = savedAccount.Id;
                 await _context.SaveChangesAsync();

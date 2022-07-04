@@ -921,6 +921,11 @@ namespace HaloBiz.MyServices.Impl.LAMS
 
                 billableAmount = billableAmount == 0 ? billableForInvoicingPeriod : billableAmount;
 
+                var group = await _context.Customers.Where(x => x.Id == customerDivision.CustomerId)
+                    .Include(x => x.GroupType)
+                    .FirstOrDefaultAsync();
+                var _customerType = group?.GroupType?.Id;
+
                 billableAmount *= interval;
 
                 if (contractService.InvoicingInterval == (int)TimeCycle.OneTime)
@@ -943,12 +948,21 @@ namespace HaloBiz.MyServices.Impl.LAMS
                         var repAmoritizationMaster = new RepAmortizationMaster()
                         {
                             Year = i,
-                            ClientId = customerDivision?.CustomerId,
-                            DivisionId = customerDivision.Id,
+                            ClientId = customerDivision.Id,
+                            DivisionId = contractService.Service?.DivisionId,
+                            OperatingEntityId = contractService.Service?.OperatingEntityId,
+                            ServiceCategoryId = contractService.Service?.ServiceCategoryId,
+                            ServiceGroupId = contractService.Service?.ServiceGroupId,
                             ContractId = contractService.ContractId,
+                            ServiceId = contractService.ServiceId,
                             ContractServiceId = contractService.Id,
                             GroupInvoiceNumber = contractService?.Contract?.GroupInvoiceNumber,
                             QuoteServiceId = contractService.QuoteServiceId,
+                            ClientTypeId = _customerType,
+                            DateCreated = DateTime.Now,
+                            CreatedById = LoggedInUserId > 0 ? LoggedInUserId : contractService.CreatedById,
+                            CustomerDivisionId = customerDivision.Id,
+                            EndorsementTypeId =  1, //new 
                         };
 
                         await _context.RepAmortizationMasters.AddAsync(repAmoritizationMaster);
@@ -1332,7 +1346,8 @@ namespace HaloBiz.MyServices.Impl.LAMS
                         IsDebitBalance = true,
                         ControlAccountId = controlAccount.Id,
                         CreatedById = createdById,
-                        CreatedAt = DateTime.Now
+                        CreatedAt = DateTime.Now,
+                        //ClientId = customerDivision?.Id
                     };
 
                     var savedAccountId = await SaveAccount(account);
@@ -1491,8 +1506,10 @@ namespace HaloBiz.MyServices.Impl.LAMS
                     Alias = customerDivision.DTrackCustomerNumber ?? "",
                     IsDebitBalance = true,
                     ControlAccountId = (long)service.ControlAccountId,
-                    CreatedById = LoggedInUserId
+                    CreatedById = LoggedInUserId,
+                    //ClientId = customerDivision?.Id
                 };
+
                 var savedAccountId = await SaveAccount(account);
                 accountId = savedAccountId;
                 await _context.SaveChangesAsync();
@@ -1576,7 +1593,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                         Alias = customerDivision.DTrackCustomerNumber,
                         IsDebitBalance = true,
                         ControlAccountId = controlAccount.Id,
-                        CreatedById = loggedInUserId
+                        CreatedById = loggedInUserId,
                     };
 
                     _context.ChangeTracker.Clear();
@@ -1588,8 +1605,6 @@ namespace HaloBiz.MyServices.Impl.LAMS
                     _context.CustomerDivisions.Update(customerDivision);
                     var affected = await _context.SaveChangesAsync();
                     _context.ChangeTracker.Clear();
-
-
                 }
 
                 var (isPosted, details) =  await PostAccountDetail(service,
