@@ -32,11 +32,12 @@ namespace OnlinePortalBackend.Repository.Impl
         private readonly string VatControlAccount = "VAT";
         public SMSAccountRepository(HalobizContext context,
             ILogger<SMSAccountRepository> logger,
-            IMapper mapper)
+            IMapper mapper, IConfiguration configuration)
         {
             _logger = logger;
             _context = context;
             _mapper = mapper;
+            _configuration = configuration;
         }
         public async Task<(bool success, string message)> CreateBusinessAccount(SMSBusinessAccountDTO accountDTO)
         {
@@ -460,7 +461,7 @@ namespace OnlinePortalBackend.Repository.Impl
                 Street = leadProfile.Street,
                 StateName = leadProfile.State.Name,
                 LGAName = leadProfile.Lga.Name,
-
+                PhoneNumber = leadProfile.PhoneNumber
             };
 
             return profile;
@@ -535,7 +536,7 @@ namespace OnlinePortalBackend.Repository.Impl
                 PrimaryContactName = accountDTO.PrimaryContactName,
                 MobileNumber = accountDTO.MobileNumber,
                 SupplierName = accountDTO.SupplierName,
-                Description = accountDTO.Description,
+                Description = accountDTO.SupplierName,
                 SupplierEmail = accountDTO.SupplierName,
                 StateId = accountDTO.StateId,
                 UpdatedAt = DateTime.UtcNow.AddHours(1),
@@ -543,7 +544,7 @@ namespace OnlinePortalBackend.Repository.Impl
                 CreatedById = createdBy,
                 SupplierCategoryId = accountDTO.SupplierCategoryId,
                 Street = accountDTO.Street,
-                Address = accountDTO.Street + " " + accountDTO.State
+                Address = accountDTO.Street + " " + accountDTO.State,
             };
 
             var (salt, hashed) = HashPassword(new byte[] { }, accountDTO.AccountLogin.Password);
@@ -575,7 +576,7 @@ namespace OnlinePortalBackend.Repository.Impl
                 _context.OnlineProfiles.Add(onlinProfile);
                 await _context.SaveChangesAsync();
 
-                await GetServiceIncomeAccountForClient(supplier);
+                await GetServiceIncomeAccountForSupplier(supplier);
 
                 await transaction.CommitAsync();
 
@@ -643,7 +644,7 @@ namespace OnlinePortalBackend.Repository.Impl
                 PrimaryContactName = accountDTO.PrimaryContactName,
                 MobileNumber = accountDTO.MobileNumber,
                 SupplierName = accountDTO.FirstName + " " + accountDTO.LastName,
-                // Description = accountDTO.Description,
+                Description = accountDTO.FirstName + " " + accountDTO.LastName,
                 SupplierEmail = accountDTO.PrimaryContactEmail,
                 StateId = accountDTO.StateId,
                 UpdatedAt = DateTime.UtcNow.AddHours(1),
@@ -682,7 +683,7 @@ namespace OnlinePortalBackend.Repository.Impl
                 _context.OnlineProfiles.Add(onlinProfile);
                 await _context.SaveChangesAsync();
 
-                await GetServiceIncomeAccountForClient(supplier);
+                await GetServiceIncomeAccountForSupplier(supplier);
 
                 await transaction.CommitAsync();
 
@@ -767,16 +768,24 @@ namespace OnlinePortalBackend.Repository.Impl
             return (false, "failed updating");
         }
 
-        private async Task GetServiceIncomeAccountForClient(Supplier profile)
+        public async Task<long> GetServiceIncomeAccountForSupplier(Supplier profile)
         {
-            
+            var controlAccount = _configuration["SupplierControlAccountID"] ?? _configuration.GetSection("AppSettings:SupplierControlAccountID").Value;
+            var controlAccountId = long.Parse(controlAccount);
+            var acctName = $"Supplier Service Income Account for {profile.SupplierName.ToUpper()}";
+
+            var incomeAcct = _context.Accounts.FirstOrDefault(x => x.ControlAccountId == controlAccountId && x.Name == acctName);
+
+            if (incomeAcct != null)
+            {
+                return incomeAcct.Id;
+            }
+
             var createdBy = _context.UserProfiles.FirstOrDefault(x => x.Email.ToLower().Contains("online")).Id;
 
-            var controlAccount = _configuration["WalletControlAccountID"] ?? _configuration.GetSection("AppSettings:WalletControlAccountID").Value;
 
-            var controlAccountId = int.Parse(controlAccount);
 
-            using var trx = await _context.Database.BeginTransactionAsync();
+         //   using var trx = await _context.Database.BeginTransactionAsync();
             string initials = GetInitials(profile.SupplierName);
             var acctTrxs = _context.Accounts.Where(x => x.Alias.StartsWith("SUP"));
             var acctTrx = acctTrxs.OrderByDescending(x => x.Id).FirstOrDefault();
@@ -794,14 +803,14 @@ namespace OnlinePortalBackend.Repository.Impl
                 CreatedAt = DateTime.UtcNow.AddHours(1),
                 CreatedById = createdBy,
                 IsActive = true,
-                Description = $"Income Account for {profile.SupplierName.ToUpper()}",
-                Name = profile.SupplierName,
+                Description = acctName,
+                Name = acctName,
                 IsDebitBalance = false,
                 Alias = "SUP_" + $"{initials}_" + $"0{acctTrxId}",
             };
 
-            await SaveAccount(account);
-
+            var accountId = await SaveAccount(account);
+            return accountId;
         }
     
         private async Task<long> GetRetailVATAccount(CustomerDivision customerDivision)
@@ -861,13 +870,13 @@ namespace OnlinePortalBackend.Repository.Impl
                     account.AccountNumber = lastSavedAccount.AccountNumber + 1;
                 }
 
-                _context.ChangeTracker.Clear();
+               // _context.ChangeTracker.Clear();
                 //remove exception throwing
                 account.Alias = account.Alias ?? "";
 
                 var savedAccount = await _context.Accounts.AddAsync(account);
                 await _context.SaveChangesAsync();
-                _context.ChangeTracker.Clear();
+             //   _context.ChangeTracker.Clear();
                 return savedAccount.Entity.Id;
             }
             catch (Exception ex)

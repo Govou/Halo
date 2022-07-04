@@ -184,7 +184,7 @@ namespace OnlinePortalBackend.MyServices.SecureMobilitySales
 
             //request = acct;
 
-            var amountInWords = NumberToWordConverter.ChangeToWordsInMoney(request.Amount);
+            var amountInWords = NumberToWordConverter_v2.ConvertMoneyToWords(request.Amount);
 
             var VAT = 0.075 * double.Parse(request.Amount);
             var amount = double.Parse(request.Amount) - VAT;

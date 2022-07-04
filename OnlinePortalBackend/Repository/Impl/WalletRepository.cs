@@ -166,6 +166,7 @@ namespace OnlinePortalBackend.Repository.Impl
                 var transactionId = "SM" + new Random().Next(100_000_000, 1_000_000_000);
 
                 var voucher = _configuration["WalletTopupVoucherTypeID"] ?? _configuration.GetSection("AppSettings:WalletTopupVoucherTypeID").Value;
+                var payDesc = $"Topup of {profile.Name}'s wallet with reference number {transactionId} on {GeneralHelper.ConvertDateToLongString(DateTime.UtcNow.AddHours(1))}";
                 var accountMaster = new AccountMaster
                 {
                     CreatedAt = DateTime.UtcNow.AddHours(1),
@@ -176,7 +177,8 @@ namespace OnlinePortalBackend.Repository.Impl
                     Value = request.Amount,
                     OfficeId = office,
                     BranchId = branchId,
-                    TransactionId = transactionId
+                    TransactionId = transactionId,
+                    Description = payDesc
                 };
 
                 _context.AccountMasters.Add(accountMaster);
@@ -196,7 +198,7 @@ namespace OnlinePortalBackend.Repository.Impl
                     TransactionDate = DateTime.UtcNow.AddHours(1),
                     Debit = request.Amount,
                     AccountId = int.Parse(debitCashBook),
-                    Description = $"Topup of {profile.Name}'s wallet with reference number {transactionId} on {GeneralHelper.ConvertDateToLongString(DateTime.UtcNow.AddHours(1))}",
+                    Description = payDesc,
                    TransactionId = transactionId,
                 };
 
@@ -212,7 +214,7 @@ namespace OnlinePortalBackend.Repository.Impl
                     TransactionDate = DateTime.UtcNow.AddHours(1),
                     Credit = request.Amount,
                     AccountId = walletMaster.WalletLiabilityAccountId.Value,
-                    Description = $"Topup of {profile.Name}'s wallet with reference number {transactionId} on {GeneralHelper.ConvertDateToLongString(DateTime.UtcNow.AddHours(1))}",
+                    Description = payDesc,
                     TransactionId = transactionId,
                 };
 
@@ -222,15 +224,7 @@ namespace OnlinePortalBackend.Repository.Impl
                 _context.AccountDetails.Add(accountDetail2);
                 _context.SaveChanges();
 
-                //var debitCashBk = int.Parse(debitCashBook);
-
-                //var debitCashAccount = _context.AccountDetails.Include(x => x.AccountMaster).FirstOrDefault(x => x.AccountId == debitCashBk);
-
-                //var acctToDebit = _context.AccountMasters.FirstOrDefault(x => x.Id == debitCashAccount.AccountMasterId);
-
-                //acctToDebit.Value = acctToDebit.Value - request.Amount;
-                //_context.SaveChanges();
-
+         
                 var transactions = _context.WalletDetails.Where(x => x.WalletMasterId == walletMaster.Id);
 
                 var creditTransactions = transactions.Where(x => x.TransactionType == (int)WalletTransactionType.Load).ToList();
@@ -267,6 +261,7 @@ namespace OnlinePortalBackend.Repository.Impl
                     Platform = request.Platform,
                     TransactionType = (int)WalletTransactionType.Load,
                     AccountMasterId = accountMaster.Id,
+                    
                 };
 
                 _context.WalletDetails.Add(walletDetail);
@@ -327,6 +322,8 @@ namespace OnlinePortalBackend.Repository.Impl
                 var transactionId = "SM" + new Random().Next(100_000_000, 1_000_000_000);
 
                 var voucher = _configuration["WalletReductionVoucherTypeID"] ?? _configuration.GetSection("AppSettings:WalletReductionVoucherTypeID").Value;
+
+                var payDesc = $"Spend from {profile.Name}'s wallet with reference number {transactionId} on {GeneralHelper.ConvertDateToLongString(DateTime.UtcNow.AddHours(1))}";
                 var accountMaster = new AccountMaster
                 {
                     CreatedAt = DateTime.UtcNow.AddHours(1),
@@ -337,7 +334,8 @@ namespace OnlinePortalBackend.Repository.Impl
                     Value = request.Amount,
                     OfficeId = office,
                     BranchId = branchId,
-                    TransactionId = transactionId
+                    TransactionId = transactionId,
+                    Description = payDesc
                 };
 
                 _context.AccountMasters.Add(accountMaster);
@@ -365,7 +363,7 @@ namespace OnlinePortalBackend.Repository.Impl
                     TransactionDate = DateTime.UtcNow.AddHours(1),
                     Credit = request.Amount - (request.Amount * 0.075),
                     AccountId = serviceAccountId,
-                    Description = $"Spend from {profile.Name}'s wallet with reference number {transactionId} on {GeneralHelper.ConvertDateToLongString(DateTime.UtcNow.AddHours(1))}",
+                    Description = payDesc,
                     TransactionId = transactionId,
                 };
 
@@ -381,7 +379,7 @@ namespace OnlinePortalBackend.Repository.Impl
                     TransactionDate = DateTime.UtcNow.AddHours(1),
                     Credit = request.Amount * 0.075,
                     AccountId = vatAccountId,
-                    Description = $"Spend from {profile.Name}'s wallet with reference number {transactionId} on {GeneralHelper.ConvertDateToLongString(DateTime.UtcNow.AddHours(1))}",
+                    Description = payDesc,
                     TransactionId = transactionId,
 
                 };
@@ -398,7 +396,7 @@ namespace OnlinePortalBackend.Repository.Impl
                     TransactionDate = DateTime.UtcNow.AddHours(1),
                     Debit = request.Amount,
                     AccountId = walletMaster.WalletLiabilityAccountId.Value,
-                    Description = $"Spend from {profile.Name}'s wallet with reference number {transactionId} on {GeneralHelper.ConvertDateToLongString(DateTime.UtcNow.AddHours(1))}",
+                    Description = payDesc,
                     TransactionId = transactionId,
                 };
 
