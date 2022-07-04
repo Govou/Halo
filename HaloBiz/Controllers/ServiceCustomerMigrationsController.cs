@@ -91,7 +91,7 @@ namespace HaloBiz.Controllers
 
 
                 var cb = await sender.getServiceContract(page);
-                var contracts = cb.Items.Take(10).ToList();
+                var contracts = cb.Items.ToList();
 
                 if (!contracts.Any())
                 {
@@ -127,7 +127,7 @@ namespace HaloBiz.Controllers
             {
                 try
                 {
-                    var transaction = _context.Database.BeginTransaction();
+                    //var transaction = _context.Database.BeginTransaction();
 
                     //check if this contract exist previously and skip
                     if (_context.Contracts.Any(x => x.Caption == _contract.ContractNumber))
