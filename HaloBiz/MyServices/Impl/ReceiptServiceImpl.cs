@@ -447,7 +447,8 @@ namespace HaloBiz.MyServices.Impl
                         Alias = string.IsNullOrEmpty(customerDivision?.DTrackCustomerNumber) ? "" : customerDivision?.DTrackCustomerNumber,
                         IsDebitBalance = true,
                         ControlAccountId = whtControlAccount.Id,
-                        CreatedById = LoggedInUserId
+                        CreatedById = LoggedInUserId,
+                        //ClientId = customerDivision?.Id,
                     };
                     var savedAccount = await SaveAccount(account);
                     accountId = savedAccount.Id;

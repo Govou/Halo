@@ -91,9 +91,10 @@ namespace HaloBiz.Controllers
 
 
                 var cb = await sender.getServiceContract(page);
-
-                var contracts =  cb.Items.Where(x => x.ContractNumber == "21/02/036" || x.ContractNumber== "19/02/008").ToList();
-                //var contracts = cb.Items.ToList();
+                //var problemContracts = new string[] {"11/01/361-47","20/01/017-07","20/01/016","18/05/035-02" };
+                //var contracts = cb.Items.Where(x=>problemContracts.Contains(x.ContractNumber)).ToList();
+               
+                var contracts = cb.Items.ToList();
 
                 if (!contracts.Any())
                 {
@@ -101,92 +102,18 @@ namespace HaloBiz.Controllers
                 }
 
                 _logger.LogInformation("MIGRATION OF CUSTOMER AND CONTRACT STARTED");
-                await saveContracts(contracts, page, cutoffdate);
+               return await saveContracts(contracts, page, cutoffdate);
             }
             catch (Exception ex)
             {
                 return CommonResponse.Send(ResponseCodes.FAILURE, null, ex.Message);
             }
 
-            return CommonResponse.Send(ResponseCodes.SUCCESS);
         }
 
-        private async Task saveToExcel(List<ServiceContractItem> services, int page)
-        {
-            try
-            {
-                string path = Path.Combine(_environment.WebRootPath, "MigrationsLog");
-
-                if (!Directory.Exists(path))
-                {
-                    Directory.CreateDirectory(path);
-                }
-
-                var timestamp = DateTime.Now.ToString("yyyyMMddHHmmss");
-
-                string filePath = Path.Combine(path + $"/CS_{timestamp}.xlsx");
-
-                FileStream fs = System.IO.File.Create(filePath);
-                fs.Dispose();
-
-                using var workbook = new XLWorkbook(filePath);
-                var worksheet = workbook.Worksheets.Add($"CS_{page}");
-                //int NumberOfLastRow = worksheet.LastRowUsed().RowNumber();
-
-                var currentRow = 1; // + NumberOfLastRow;
-
-                worksheet.Cell(currentRow, 1).Value = "ContractNumber";
-                worksheet.Cell(currentRow, 2).Value = "Customer Name";
-                worksheet.Cell(currentRow, 3).Value = "Description";
-                worksheet.Cell(currentRow, 4).Value = "Quantity";
-                worksheet.Cell(currentRow, 5).Value = "UnitPrice";
-                worksheet.Cell(currentRow, 6).Value = "Amount";
-                worksheet.Cell(currentRow, 7).Value = "ServiceType";
-                worksheet.Cell(currentRow, 8).Value = "Service Name";
-                worksheet.Cell(currentRow, 9).Value = "StartDate";
-                worksheet.Cell(currentRow, 10).Value = "End Date (Halobiz)";
-                worksheet.Cell(currentRow, 11).Value = "Contract Service Id(Halobiz)";
-                worksheet.Cell(currentRow, 12).Value = "Billing Cycle";
-                worksheet.Cell(currentRow, 13).Value = "Service Id (Halobiz)";
-                worksheet.Cell(currentRow, 14).Value = "Type (Halobiz)";
-                worksheet.Cell(currentRow, 15).Value = "Admin Direct Tie (Halobiz)";
-                worksheet.Cell(currentRow, 16).Value = "Taxable";//Contract Service Id(Halobiz)
-                worksheet.Cell(currentRow, 17).Value = "InvoiceItemDetail";
-
-                foreach (var service in services)
-                {
-                    currentRow++;
-                    worksheet.Cell(currentRow, 1).Value = service.ContractNumber;
-                    worksheet.Cell(currentRow, 2).Value = service.CustomerName; //contractId
-                    worksheet.Cell(currentRow, 3).Value = service.Description;
-                    worksheet.Cell(currentRow, 4).Value = service.Quantity;
-                    worksheet.Cell(currentRow, 5).Value = service.UnitPrice;
-                    worksheet.Cell(currentRow, 6).Value = service.Amount;
-                    worksheet.Cell(currentRow, 7).Value = service.ServiceType;
-                    worksheet.Cell(currentRow, 8).Value = service.ApiContractService.ServiceTypeName;
-                    worksheet.Cell(currentRow, 9).Value = service.StartDate;
-                    worksheet.Cell(currentRow, 10).Value = service.EndDate;
-                    worksheet.Cell(currentRow, 11).Value = service.ContractServiceId;
-                    worksheet.Cell(currentRow, 12).Value = service.BillingCycle;
-                    worksheet.Cell(currentRow, 13).Value = service.ApiContractService.ServiceId;
-                    worksheet.Cell(currentRow, 14).Value = service.Enum.ToString();
-                    worksheet.Cell(currentRow, 15).Value = service.AdminDirectTie;
-                    worksheet.Cell(currentRow, 16).Value = service.Taxable;
-                    worksheet.Cell(currentRow, 17).Value = service.InvoiceItemDetail;
-                }
-
-                using var stream = new MemoryStream();
-                workbook.SaveAs(stream);
-                var content = stream.ToArray();
-                System.IO.File.WriteAllBytes(filePath, content);
-            }
-            catch (Exception ex)
-            {
-                throw;
-            }           
-        }
+       
         
-        private async Task<bool> saveContracts(List<Contracto> contracts, int page, string cutOffDateStr)
+        private async Task<ApiCommonResponse> saveContracts(List<Contracto> contracts, int page, string cutOffDateStr)
         {
             int totalSaved = 0, previouslySaved = 0, errorLaden = 0;
 
@@ -198,12 +125,13 @@ namespace HaloBiz.Controllers
 
             List<ServiceContractItem> allContractServiceItems = new List<ServiceContractItem>();
            
-           // var transaction = _context.Database.BeginTransaction();
 
             foreach (var _contract in contracts)
             {
                 try
                 {
+                    //var transaction = _context.Database.BeginTransaction();
+
                     //check if this contract exist previously and skip
                     if (_context.Contracts.Any(x => x.Caption == _contract.ContractNumber))
                     {
@@ -493,12 +421,19 @@ namespace HaloBiz.Controllers
                 }
             }
 
-            //if(allContractServiceItems.Count > 0)
-            //    await saveToExcel(allContractServiceItems, page);
+            var obj = new
+            {
+                TotalContract = contracts.Count,
+                TotalSaved = totalSaved,
+                SkippedForDuplicates = previouslySaved,
+                Errorneous = errorLaden
+            };
 
-            _logger.LogInformation($"Total contracts: {contracts.Count}, Saved to db: {totalSaved}; Skipped for duplicate: {previouslySaved}; With error {errorLaden}");
+            var report = $"Total contracts: {contracts.Count}, Saved to db: {totalSaved}; Skipped for duplicate: {previouslySaved}; With error {errorLaden}";
+           
+            _logger.LogInformation(report);
+            return CommonResponse.Send(ResponseCodes.SUCCESS, obj, report);
 
-            return true;
         }
 
         private int getBillingCycle(string cycle)
