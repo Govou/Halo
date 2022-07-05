@@ -91,6 +91,9 @@ namespace HaloBiz.Controllers
 
 
                 var cb = await sender.getServiceContract(page);
+                //var problemContracts = new string[] {"11/01/361-47","20/01/017-07","20/01/016","18/05/035-02" };
+                //var contracts = cb.Items.Where(x=>problemContracts.Contains(x.ContractNumber)).ToList();
+               
                 var contracts = cb.Items.ToList();
 
                 if (!contracts.Any())
