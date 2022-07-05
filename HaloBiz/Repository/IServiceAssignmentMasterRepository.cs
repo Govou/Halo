@@ -16,10 +16,12 @@ namespace HaloBiz.Repository
         Task<MasterServiceAssignment> FindServiceAssignmentById(long Id);
 
         Task<IEnumerable<MasterServiceAssignment>> FindAllServiceAssignments();
-        Task<IEnumerable<MasterServiceAssignmentWithRegisterTransferDTO>> FindAllServiceAssignmentsByClientId(long clientId);
+        Task<IEnumerable<MasterServiceAssignmentWithRegisterTransferDTO>> FindAllServiceAssignmentsForCartByClientId(long clientId);
+        Task<IEnumerable<MasterServiceAssignment>> FindAllServiceAssignmentsByClientId(long clientId);
         //Task<IEnumerable<MasterServiceAssignment>> FindAllServiceAssignmentsByClientId(long clientId);
         Task<IEnumerable<MasterServiceAssignmentWithRegisterTransferDTO>> FindAllServiceAssignmentsForScheduleCartByClientId(long clientId);
         Task<IEnumerable<MasterServiceAssignment>> FindAllCompletedTripsCountByClientId(long clientId);
+        Task<IEnumerable<MasterServiceAssignment>> FindAllFrequentRoutesCountByClientId(long clientId);
         Task<IEnumerable<MasterServiceAssignment>> FindAllCompletedTripsByClientId(long clientId);
         //Task<IEnumerable<MasterServiceAssignment>> FindAllServiceAssignmentsForScheduleCartByClientId(long clientId);
         Task<IEnumerable<MasterServiceAssignment>> FindAllScheduledServiceAssignments();

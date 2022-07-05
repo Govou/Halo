@@ -45,6 +45,7 @@ namespace HaloBiz.DTOs.ReceivingDTOs
         [NotMapped]
         public long? DirectServiceId { get; set; }
         public string Alias { get; set; }
+        public long? ServiceAccount { get; set; }
 
     }
 }

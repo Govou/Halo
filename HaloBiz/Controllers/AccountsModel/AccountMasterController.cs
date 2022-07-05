@@ -51,6 +51,12 @@ namespace HaloBiz.Controllers.AccountsModel
             return await _AccountMasterService.GetAllAccountMastersByTransactionId(transactionId);
         }
 
+        [HttpGet("GetCreditNotes/{customerDivisionId}")]
+        public async Task<ApiCommonResponse> GetCreditNotes(long customerDivisionId)
+        {
+            return await _AccountMasterService.GetCreditNotes(customerDivisionId);
+        }
+
         [HttpPost("GetAccountMasterByCustomerIdAndContractYears")]
         public async Task<ApiCommonResponse> GetAccountMasterByTransactionId(AccountMasterTransactionDateQueryParams searchDto)
         {

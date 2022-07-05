@@ -1401,6 +1401,23 @@ namespace HaloBiz.MyServices.Impl
             return CommonResponse.Send(ResponseCodes.SUCCESS, null, ResponseMessage.Success200);
         }
 
+        public async Task<ApiCommonResponse> DeleteArmedEscortDetail_(long id)
+        {
+            var itemToDelete = await _serviceAssignmentDetailsRepository.FindEscortServiceAssignmentDetailById(id);
+
+            if (itemToDelete == null)
+            {
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);
+            }
+
+            if (!await _serviceAssignmentDetailsRepository.DeleteEscortServiceAssignmentDetailById(itemToDelete))
+            {
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, ResponseMessage.InternalServer500);
+            }
+
+            //return new ApiOkResponse(true);
+            return CommonResponse.Send(ResponseCodes.SUCCESS, null, ResponseMessage.Success200);
+        }
         public async Task<ApiCommonResponse> DeleteCommanderDetail(long id)
         {
             var itemToDelete = await _serviceAssignmentDetailsRepository.FindCommanderServiceAssignmentDetailById(id);
@@ -1411,6 +1428,23 @@ namespace HaloBiz.MyServices.Impl
             }
 
             if (!await _serviceAssignmentDetailsRepository.DeleteCommanderServiceAssignmentDetail(itemToDelete))
+            {
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, ResponseMessage.InternalServer500);
+            }
+
+            return CommonResponse.Send(ResponseCodes.SUCCESS, null, ResponseMessage.Success200);
+        }
+
+        public async Task<ApiCommonResponse> DeleteCommanderDetail_(long id)
+        {
+            var itemToDelete = await _serviceAssignmentDetailsRepository.FindCommanderServiceAssignmentDetailById(id);
+
+            if (itemToDelete == null)
+            {
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);
+            }
+
+            if (!await _serviceAssignmentDetailsRepository.DeleteCommanderServiceAssignmentDetailById(itemToDelete))
             {
                 return CommonResponse.Send(ResponseCodes.FAILURE, null, ResponseMessage.InternalServer500);
             }
@@ -1465,6 +1499,23 @@ namespace HaloBiz.MyServices.Impl
             return CommonResponse.Send(ResponseCodes.SUCCESS, null, ResponseMessage.Success200);
         }
 
+        public async Task<ApiCommonResponse> DeletePilotDetail_(long id)
+        {
+            var itemToDelete = await _serviceAssignmentDetailsRepository.FindPilotServiceAssignmentDetailById(id);
+
+            if (itemToDelete == null)
+            {
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);
+            }
+
+            if (!await _serviceAssignmentDetailsRepository.DeletePilotServiceAssignmentDetailById(itemToDelete))
+            {
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, ResponseMessage.InternalServer500);
+            }
+
+            return CommonResponse.Send(ResponseCodes.SUCCESS, null, ResponseMessage.Success200);
+        }
+
         public async Task<ApiCommonResponse> DeleteVehicleDetail(long id)
         {
             var itemToDelete = await _serviceAssignmentDetailsRepository.FindVehicleServiceAssignmentDetailById(id);
@@ -1482,9 +1533,37 @@ namespace HaloBiz.MyServices.Impl
             return CommonResponse.Send(ResponseCodes.SUCCESS, null, ResponseMessage.Success200);
         }
 
+        public async Task<ApiCommonResponse> DeleteVehicleDetail_(long id)//for isDeleted 
+        {
+            var itemToDelete = await _serviceAssignmentDetailsRepository.FindVehicleServiceAssignmentDetailById(id);
+
+            if (itemToDelete == null)
+            {
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);
+            }
+
+            if (!await _serviceAssignmentDetailsRepository.DeleteVehicleServiceAssignmentDetailById(itemToDelete))
+            {
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, ResponseMessage.InternalServer500);
+            }
+
+            return CommonResponse.Send(ResponseCodes.SUCCESS, null, ResponseMessage.Success200);
+        }
+
         public async Task<ApiCommonResponse> GetAllArmedEscortDetails()
         {
             var master = await _serviceAssignmentDetailsRepository.FindAllEscortServiceAssignmentDetails();
+            if (master == null)
+            {
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);
+            }
+            var TransferDTO = _mapper.Map<IEnumerable<ArmedEscortServiceAssignmentDetailsTransferDTO>>(master);
+            return CommonResponse.Send(ResponseCodes.SUCCESS, TransferDTO);
+        }
+
+        public async Task<ApiCommonResponse> GetAllUniqueHeldArmedEscortDetails()
+        {
+            var master = await _serviceAssignmentDetailsRepository.FindAllUniqueHeldEscortServiceAssignmentDetails();
             if (master == null)
             {
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);
@@ -1507,6 +1586,17 @@ namespace HaloBiz.MyServices.Impl
         public async Task<ApiCommonResponse> GetAllCommanderDetails()
         {
             var master = await _serviceAssignmentDetailsRepository.FindAllCommanderServiceAssignmentDetails();
+            if (master == null)
+            {
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);
+            }
+            var TransferDTO = _mapper.Map<IEnumerable<CommanderServiceAssignmentDetailsTransferDTO>>(master);
+            return CommonResponse.Send(ResponseCodes.SUCCESS, TransferDTO);
+        }
+
+        public async Task<ApiCommonResponse> GetAllUniqueHeldCommanderDetails()
+        {
+            var master = await _serviceAssignmentDetailsRepository.FindAllUniqueHeldCommanderServiceAssignmentDetails();
             if (master == null)
             {
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);
@@ -1570,6 +1660,17 @@ namespace HaloBiz.MyServices.Impl
             return CommonResponse.Send(ResponseCodes.SUCCESS, TransferDTO);
         }
 
+        public async Task<ApiCommonResponse> GetAllUniqueHeldPilotDetails()
+        {
+            var master = await _serviceAssignmentDetailsRepository.FindAllUniqueHeldPilotServiceAssignmentDetails();
+            if (master == null)
+            {
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);
+            }
+            var TransferDTO = _mapper.Map<IEnumerable<PilotServiceAssignmentDetailsTransferDTO>>(master);
+            return CommonResponse.Send(ResponseCodes.SUCCESS, TransferDTO);
+        }
+
         public async Task<ApiCommonResponse> GetAllPilotDetailsByAssignmentId(long assignmentId)
         {
             var master = await _serviceAssignmentDetailsRepository.FindAllPilotServiceAssignmentDetailsByAssignmentId(assignmentId);
@@ -1584,6 +1685,17 @@ namespace HaloBiz.MyServices.Impl
         public async Task<ApiCommonResponse> GetAllVehicleDetails()
         {
             var master = await _serviceAssignmentDetailsRepository.FindAllVehicleServiceAssignmentDetails();
+            if (master == null)
+            {
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);
+            }
+            var TransferDTO = _mapper.Map<IEnumerable<VehicleServiceAssignmentDetailsTransferDTO>>(master);
+            return CommonResponse.Send(ResponseCodes.SUCCESS, TransferDTO);
+        }
+
+        public async Task<ApiCommonResponse> GetAllUniqueHeldVehicleDetails()
+        {
+            var master = await _serviceAssignmentDetailsRepository.FindAllUniqueHeldVehicleServiceAssignmentDetails();
             if (master == null)
             {
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);
@@ -1655,6 +1767,50 @@ namespace HaloBiz.MyServices.Impl
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);
             }
             var TransferDTO = _mapper.Map<VehicleServiceAssignmentDetailsTransferDTO>(master);
+            return CommonResponse.Send(ResponseCodes.SUCCESS, TransferDTO);
+        }
+
+        public async Task<ApiCommonResponse> GetAllUniqueAvailableArmedEscortDetails()
+        {
+            var master = await _serviceAssignmentDetailsRepository.FindAllUniqueAvailableEscortServiceAssignmentDetails();
+            if (master == null)
+            {
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);
+            }
+            var TransferDTO = _mapper.Map<IEnumerable<ArmedEscortProfileTransferDTO>>(master);
+            return CommonResponse.Send(ResponseCodes.SUCCESS, TransferDTO);
+        }
+
+        public async Task<ApiCommonResponse> GetAllUniqueAvailableCommanderDetails()
+        {
+            var master = await _serviceAssignmentDetailsRepository.FindAllUniqueAvailableCommanderServiceAssignmentDetails();
+            if (master == null)
+            {
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);
+            }
+            var TransferDTO = _mapper.Map<IEnumerable<CommanderProfileTransferDTO>>(master);
+            return CommonResponse.Send(ResponseCodes.SUCCESS, TransferDTO);
+        }
+
+        public async Task<ApiCommonResponse> GetAllUniqueAvailablePilotDetails()
+        {
+            var master = await _serviceAssignmentDetailsRepository.FindAllUniqueAvailablePilotServiceAssignmentDetails();
+            if (master == null)
+            {
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);
+            }
+            var TransferDTO = _mapper.Map<IEnumerable<PilotProfileTransferDTO>>(master);
+            return CommonResponse.Send(ResponseCodes.SUCCESS, TransferDTO);
+        }
+
+        public async Task<ApiCommonResponse> GetAllUniqueAvailableVehicleDetails()
+        {
+            var master = await _serviceAssignmentDetailsRepository.FindAllUniqueAvailableVehicleServiceAssignmentDetails();
+            if (master == null)
+            {
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);
+            }
+            var TransferDTO = _mapper.Map<IEnumerable<VehicleTransferDTO>>(master);
             return CommonResponse.Send(ResponseCodes.SUCCESS, TransferDTO);
         }
 
@@ -2151,6 +2307,7 @@ namespace HaloBiz.MyServices.Impl
                             master.IsTemporarilyHeld = true;
                             master.IsHeldForAction = true;
                             master.DateHeldForAction = DateTime.UtcNow;
+                            master.ArmedEscortResourceId = armedEscortReceivingDTO.NewResourceId;
                             master.RequiredCount = getEscortDetailListById.Count() + 1;
                             master.DateTemporarilyHeld = DateTime.UtcNow;
                             master.ServiceAssignmentId = armedEscortReceivingDTO.MasterServiceAssignmentId;
@@ -2321,6 +2478,7 @@ namespace HaloBiz.MyServices.Impl
                             master.DateTemporarilyHeld = DateTime.Now;
                             master.IsHeldForAction = true;
                             master.DateHeldForAction = DateTime.Now;
+                            master.CommanderResourceId = commanderReceivingDTO.NewResourceId;
                             master.RequiredCount = getCommanderDetailListById.Count() + 1;
                             master.CreatedById = context.GetLoggedInUserId();
                             master.TiedVehicleResourceId = itemToDelete.TiedVehicleResourceId;
@@ -2373,10 +2531,10 @@ namespace HaloBiz.MyServices.Impl
             }
 
 
-          
-            //var TransferDTO = _mapper.Map<CommanderServiceAssignmentDetailsTransferDTO>(master);
             await _invoiceService.SendJourneyManagementPlan(commanderReceivingDTO.MasterServiceAssignmentId);
-            return CommonResponse.Send(ResponseCodes.SUCCESS, "Replacement Successful");
+            var TransferDTO = _mapper.Map<CommanderServiceAssignmentDetailsTransferDTO>(master);
+            
+            return CommonResponse.Send(ResponseCodes.SUCCESS, null, "Replacement Successful");
         }
 
         public async Task<ApiCommonResponse> AddPilotDetailReplacement(HttpContext context, PilotReplacementReceivingDTO pilotReceivingDTO)
@@ -2499,6 +2657,7 @@ namespace HaloBiz.MyServices.Impl
                             master.RequiredCount = getPilotDetailListById.Count() + 1;
                             master.CreatedById = context.GetLoggedInUserId();
                             master.TiedVehicleResourceId = itemToDelete.TiedVehicleResourceId;
+                            master.PilotResourceId = pilotReceivingDTO.NewResourceId;
                             master.CreatedAt = DateTime.Now;
                             master.ServiceAssignmentId = pilotReceivingDTO.MasterServiceAssignmentId;
                             var savedItem = await _serviceAssignmentDetailsRepository.SavePilotServiceAssignmentdetail(master);
@@ -2753,48 +2912,6 @@ namespace HaloBiz.MyServices.Impl
             return CommonResponse.Send(ResponseCodes.SUCCESS, "Replacement Successful");
         }
 
-        public async Task<ApiCommonResponse> GetAllUniqueArmedEscortDetails()
-        {
-            var master = await _serviceAssignmentDetailsRepository.FindAllUniqueEscortServiceAssignmentDetails();
-            if (master == null)
-            {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);
-            }
-            var TransferDTO = _mapper.Map<IEnumerable<ArmedEscortServiceAssignmentDetailsTransferDTO>>(master);
-            return CommonResponse.Send(ResponseCodes.SUCCESS, TransferDTO);
-        }
-
-        public async Task<ApiCommonResponse> GetAllUniqueCommanderDetails()
-        {
-            var master = await _serviceAssignmentDetailsRepository.FindAllUniqueCommanderServiceAssignmentDetails();
-            if (master == null)
-            {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);
-            }
-            var TransferDTO = _mapper.Map<IEnumerable<CommanderServiceAssignmentDetailsTransferDTO>>(master);
-            return CommonResponse.Send(ResponseCodes.SUCCESS, TransferDTO);
-        }
-
-        public async Task<ApiCommonResponse> GetAllUniquePilotDetails()
-        {
-            var master = await _serviceAssignmentDetailsRepository.FindAllUniquePilotServiceAssignmentDetails();
-            if (master == null)
-            {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);
-            }
-            var TransferDTO = _mapper.Map<IEnumerable<PilotServiceAssignmentDetailsTransferDTO>>(master);
-            return CommonResponse.Send(ResponseCodes.SUCCESS, TransferDTO);
-        }
-
-        public async Task<ApiCommonResponse> GetAllUniqueVehicleDetails()
-        {
-            var master = await _serviceAssignmentDetailsRepository.FindAllUniqueVehicleServiceAssignmentDetails();
-            if (master == null)
-            {
-                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);
-            }
-            var TransferDTO = _mapper.Map<IEnumerable<VehicleServiceAssignmentDetailsTransferDTO>>(master);
-            return CommonResponse.Send(ResponseCodes.SUCCESS, TransferDTO);
-        }
+     
     }
 }

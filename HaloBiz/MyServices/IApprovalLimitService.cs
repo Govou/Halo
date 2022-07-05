@@ -11,5 +11,6 @@ namespace HaloBiz.MyServices
         Task<ApiCommonResponse> GetAllApprovalLimit();
         Task<ApiCommonResponse> UpdateApprovalLimit(HttpContext context, long id, ApprovalLimitReceivingDTO approvalLimitReceivingDTO);
         Task<ApiCommonResponse> DeleteApprovalLimit(long id);
+        Task<ApiCommonResponse> DeleteApprovalLimitModule(long id);
     }
 }

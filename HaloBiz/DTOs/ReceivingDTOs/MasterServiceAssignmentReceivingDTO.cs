@@ -110,7 +110,39 @@ namespace HaloBiz.DTOs.ReceivingDTOs
         public IEnumerable<PilotsMailDTO> pilots { get; set; }
         public IEnumerable<VehiclesMailDTO> vehicles { get; set; }
         public IEnumerable<PassengersMailDTO> passengers { get; set; }
+        public MasterServiceAssignmentReturnMailVMDTO returnService { get; set; }
         public IEnumerable<SecondaryServiceAssignmentMailReceivingDTO> SecondaryServiceAssignmentServiceReg { get; set; }
+
+    }
+
+    public class MasterServiceAssignmentReturnMailVMDTO
+    {
+
+
+        public long id { get; set; }
+        public long? ServiceRegistrationId { get; set; }
+
+        //public ServiceRegistration ServiceRegistration { get; set; }
+        public string DropoffLocation { get; set; }
+        public string PickoffLocation { get; set; }
+        //public string[] Recepients { get; set; }
+        //public string[] Recepients1 { get; set; }
+        //public DateTime PickupDate { get; set; }
+        //public string Subject { get; set; }
+        //public string CreatedBy { get; set; }
+        //public string CreatedByMobile { get; set; }
+        //public string CreatedByPic { get; set; }
+        //public string ClientName { get; set; }
+        //public DateTime PickoffTime { get; set; }
+        //public ServiceMailDTO ServiceMailDTO { get; set; }
+        //public ClientInfosMailDTO clientInfo { get; set; }
+
+        //public IEnumerable<CommandersMailDTO> Commanders { get; set; }
+        //public IEnumerable<ArmedEscortsMailDTO> armedEscorts { get; set; }
+        //public IEnumerable<PilotsMailDTO> pilots { get; set; }
+        //public IEnumerable<VehiclesMailDTO> vehicles { get; set; }
+        //public IEnumerable<PassengersMailDTO> passengers { get; set; }
+        //public IEnumerable<SecondaryServiceAssignmentMailReceivingDTO> SecondaryServiceAssignmentServiceReg { get; set; }
 
     }
 

@@ -266,10 +266,10 @@ namespace HaloBiz.Controllers
     
         }
 
-        [HttpDelete("DisableProject/{projectId}/{workspacedId}")]
-        public async Task<ApiCommonResponse> DisableProject(long projectId, long workspacedId)
+        [HttpDelete("DisableProject/{projectId}")]
+        public async Task<ApiCommonResponse> DisableProject(long projectId)
         {
-            return await _projectAllocationService.removeProject(HttpContext, projectId, workspacedId);
+            return await _projectAllocationService.removeProject(HttpContext, projectId);
 
         }
 
@@ -767,11 +767,10 @@ namespace HaloBiz.Controllers
 
         }
         
-        [HttpPost("ResolveQuotesToProjects/{fulfillmentTypeId}/{instanceTypeId}")]
-        public async Task<ApiCommonResponse> CreateDefaultWorkspace(long instanceTypeId,string fulfillmentTypeId)
+        [HttpPost("ResolveQuotesToProjects")]
+        public async Task<ApiCommonResponse> CreateDefaultWorkspace(ProjectFulfilmentDto projectFulfilmentDto)
         {
-            
-            return await _projectAllocationService.ResolveQuotesIntoProjects(HttpContext,instanceTypeId,fulfillmentTypeId);
+            return await _projectAllocationService.ResolveQuotesIntoProjects(HttpContext,projectFulfilmentDto);
 
         }
         

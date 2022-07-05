@@ -157,7 +157,7 @@ namespace HaloBiz.Repository.Impl
                 .Include(s => s.CreatedBy).Include(s => s.ServiceRegistration).Include(s => s.ServiceRegistration.Service)
                         .Include(s => s.ArmedEscortType.ServiceRegistration).Include(s => s.ServiceRegistration.ApplicableArmedEscortTypes)
                         .Include(s => s.ArmedEscortType.ServiceRegistration.Service)
-                .FirstOrDefaultAsync(s => s.Id == Id && s.IsDeleted == false);
+                .FirstOrDefaultAsync(s => s.Id == Id &&  s.IsDeleted == false);
         }
 
         public async Task<ArmedEscortResourceRequiredPerService> FindArmedEscortResourceByServiceRegId(long seviceRegId)

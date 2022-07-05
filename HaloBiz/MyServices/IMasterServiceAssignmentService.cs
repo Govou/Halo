@@ -14,11 +14,13 @@ namespace HaloBiz.MyServices
         Task<ApiCommonResponse> AddMasterAutoServiceAssignment(HttpContext context, MasterServiceAssignmentReceivingDTO masterReceivingDTO);
         Task<ApiCommonResponse> GetAllMasterServiceAssignments();
         //For AutoAsssign Cart
+        Task<ApiCommonResponse> GetAllMasterServiceAssignmentsForCartByClientId(long clientId);
         Task<ApiCommonResponse> GetAllMasterServiceAssignmentsByClientId(long clientId);
         //For Schedule Cart
         Task<ApiCommonResponse> GetAllMasterServiceAssignmentsForScheduleCartByClientId(long clientId);
         Task<ApiCommonResponse> GetAllCompletedTripsByClientId(long clientId);
         Task<ApiCommonResponse> GetAllCompletedTripsCountByClientId(long clientId);
+        Task<ApiCommonResponse> GetAllFrequentRouteCountByClientId(long clientId);
         Task<ApiCommonResponse> GetAllScheduledMasterServiceAssignments();
         Task<ApiCommonResponse> GetMasterServiceAssignmentById(long id);
         Task<ApiCommonResponse> UpdateMasterServiceAssignment(HttpContext context, long id, MasterServiceAssignmentReceivingDTO masterReceivingDTO);

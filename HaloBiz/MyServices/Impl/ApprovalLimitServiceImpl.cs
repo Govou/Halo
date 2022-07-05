@@ -54,6 +54,21 @@ namespace HaloBiz.MyServices.Impl
             return CommonResponse.Send(ResponseCodes.SUCCESS);
         }
 
+        public async Task<ApiCommonResponse> DeleteApprovalLimitModule(long id)
+        {
+            var approvalLimitToDelete = await _approvalLimitRepo.FindApprovalLimitById(id);
+            if (approvalLimitToDelete == null)
+            {
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE); ;
+            }
+            if (!await _approvalLimitRepo.DeleteApprovalLimitModule(approvalLimitToDelete))
+            {
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "Some system errors occurred");
+            }
+
+            return CommonResponse.Send(ResponseCodes.SUCCESS);
+        }
+
         public async Task<ApiCommonResponse> GetAllApprovalLimit()
         {
             var approvalLimit = await _approvalLimitRepo.GetApprovalLimits();

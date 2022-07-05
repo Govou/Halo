@@ -27,6 +27,7 @@ using DocumentFormat.OpenXml.Spreadsheet;
 using Google.Apis.Calendar.v3.Data;
 using Google.Apis.Services;
 using Google.Apis.Util.Store;
+using HaloBiz.EnumResponse;
 using HaloBiz.Models;
 using MailKit.Search;
 using Microsoft.AspNetCore.Hosting;
@@ -42,13 +43,14 @@ namespace HaloBiz.MyServices.Impl
         private readonly ILogger<ProjectAllocationServiceImpl> _logger;
         private readonly IProjectAllocationRepositoryImpl _projectAllocationRepository;
         private readonly IMapper _mapper;
+        private IProjectManagementMailService _projectManagementMailService;
         private IWebHostEnvironment _hostEnvironment;
         private readonly IEmailService _emailService;
 
 
         public ProjectAllocationServiceImpl(IEmailService emailService, IWebHostEnvironment environment,
             IProjectResolver projectResolver, HalobizContext context,
-            IProjectAllocationRepositoryImpl projectAllocationRepository, ILogger<ProjectAllocationServiceImpl> logger,
+            IProjectAllocationRepositoryImpl projectAllocationRepository,IProjectManagementMailService projectManagementMailService, ILogger<ProjectAllocationServiceImpl> logger,
             IMapper mapper)
         {
             this._mapper = mapper;
@@ -58,6 +60,7 @@ namespace HaloBiz.MyServices.Impl
             _emailService = emailService;
             this._projectResolver = projectResolver;
             _hostEnvironment = environment;
+            _projectManagementMailService = projectManagementMailService;
         }
 
 
@@ -122,9 +125,6 @@ namespace HaloBiz.MyServices.Impl
 
         public async Task<ApiCommonResponse> CreateNewWorkspace(HttpContext context, WorkspaceDTO workspaceDTO)
         {
-
-
-
             var savedWorkSpaces = await _projectAllocationRepository.createWorkspace(context, workspaceDTO);
 
             if (savedWorkSpaces == null)
@@ -1535,6 +1535,7 @@ namespace HaloBiz.MyServices.Impl
             getDeliverableToUpdate.IsPicked = true;
             _context.Deliverables.Update(getDeliverableToUpdate);
             _context.SaveChanges();
+            await _projectManagementMailService.BuildMail(ProjectManagementOption.DeliverableMovement, deliverableId);
 
             var getCurrentStatus =
                 await _context.StatusFlows.FirstOrDefaultAsync(x => x.IsDeleted == false && x.Id == statusId);
@@ -1770,6 +1771,7 @@ namespace HaloBiz.MyServices.Impl
             getDeliverableToApprove.IsDeclined = false;
             _context.Deliverables.Update(getDeliverableToApprove);
             _context.SaveChanges();
+            
 
             return CommonResponse.Send(ResponseCodes.SUCCESS, null,
                 "Deliverable " + getDeliverableToApprove.Caption + " was approved successfuly");
@@ -1838,18 +1840,16 @@ namespace HaloBiz.MyServices.Impl
                                 "The requirement " + required.Caption +
                                 " is missing an upload,therefore it cannot be pushed for approval");
                         }
-
-
                     }
                 }
-
-
             }
 
             getDeliverable.IsPushedForApproval = true;
             getDeliverable.DatePushedForApproval = DateTime.Now;
             _context.Deliverables.Update(getDeliverable);
             _context.SaveChanges();
+            await _projectManagementMailService.BuildMail(ProjectManagementOption.DeliverableApproval, getDeliverable.Id);
+
             return CommonResponse.Send(ResponseCodes.SUCCESS, getDeliverable,
                 "All " + requirementCount + " requirement(s) where met,therefore " + getDeliverable.Caption +
                 "has been successfully pushed for Approval");
@@ -3508,7 +3508,7 @@ namespace HaloBiz.MyServices.Impl
         public async Task<ApiCommonResponse> addMoreTaskAssignees(HttpContext context, long taskId,
             List<TaskAssigneeDTO> taskAssigneeDTO)
         {
-            var getTask = await _context.Tasks.FirstOrDefaultAsync(x => x.IsActive == true && x.Id == taskId);
+            var getTask = await _context.Tasks.AsNoTracking().FirstOrDefaultAsync(x => x.IsActive == true && x.Id == taskId);
             if (getTask == null)
             {
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);
@@ -3521,7 +3521,7 @@ namespace HaloBiz.MyServices.Impl
             {
                 foreach (var existing in taskAssigneeDTO)
                 {
-                    var findAssignee = await _context.TaskAssignees.FirstOrDefaultAsync(x =>
+                    var findAssignee = await _context.TaskAssignees.AsNoTracking().FirstOrDefaultAsync(x =>
                         x.TaskAssigneeId == existing.TaskAssigneeId && x.TaskId == existing.TaskId &&
                         x.IsActive == true);
                     if (findAssignee != null)
@@ -3551,12 +3551,12 @@ namespace HaloBiz.MyServices.Impl
 
             }
 
-            var getUpdatedAssigneeById = await _context.TaskAssignees
+            var getUpdatedAssigneeById = await _context.TaskAssignees.AsNoTracking()
                 .Where(x => x.IsActive == true && x.TaskId == taskId).ToListAsync();
-            var distinctAssigneeId = getUpdatedAssigneeById.GroupBy(x => x.TaskAssigneeId)
-                .Select(g => g.First())
-                .ToList();
-            return CommonResponse.Send(ResponseCodes.SUCCESS, distinctAssigneeId);
+            // var distinctAssigneeId = getUpdatedAssigneeById.GroupBy(x => x.TaskAssigneeId)
+            //     .Select(g => g.First())
+            //     .ToList();
+            return CommonResponse.Send(ResponseCodes.SUCCESS, getUpdatedAssigneeById);
 
 
 
@@ -3564,8 +3564,9 @@ namespace HaloBiz.MyServices.Impl
 
         public async Task<ApiCommonResponse> disableTaskAssignee(HttpContext context, long taskId, long assigneeId)
         {
-            var getAssignee = await _context.TaskAssignees.FirstOrDefaultAsync(x =>
-                x.TaskAssigneeId == assigneeId && x.TaskId == taskId && x.IsActive == true);
+            var getAssignee = await _context.TaskAssignees.AsNoTracking()
+                .Where(x =>x.Id == assigneeId && x.TaskId == taskId && x.IsActive == true)
+                .FirstOrDefaultAsync();
             if (getAssignee == null)
             {
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);
@@ -3577,13 +3578,14 @@ namespace HaloBiz.MyServices.Impl
                 _context.TaskAssignees.Update(getAssignee);
                 await _context.SaveChangesAsync();
 
-                var getUpdatedAssigneeById = await _context.TaskAssignees
+                var getUpdatedAssigneeById = await _context.TaskAssignees.AsNoTracking()
+                    .Include(x=>x.CreatedBy)
                     .Where(x => x.IsActive == true && x.TaskId == taskId).ToListAsync();
-                var getDistinctUpdatedAssignee = getUpdatedAssigneeById.GroupBy(x => x.TaskAssigneeId)
-                    .Select(g => g.First())
-                    .ToList();
+                // var getDistinctUpdatedAssignee = getUpdatedAssigneeById.GroupBy(x => x.TaskAssigneeId)
+                //     .Select(assignee => assignee.First())
+                //     .ToList();
 
-                return CommonResponse.Send(ResponseCodes.SUCCESS, getUpdatedAssigneeById);
+                return CommonResponse.Send(ResponseCodes.SUCCESS, getUpdatedAssigneeById,"successfully disabled");
             }
         }
 
@@ -3647,31 +3649,13 @@ namespace HaloBiz.MyServices.Impl
 
                     await _context.TaskAssignees.AddRangeAsync(taskAssigneeArray);
                     await _context.SaveChangesAsync();
+                    await _projectManagementMailService.BuildMail(ProjectManagementOption.TaskCreation,
+                        TaskToBeSaved.Id);
                     var getUpdatedList = await _context.Tasks
                         .Where(x => x.ProjectId == projectId && x.CreatedById == context.GetLoggedInUserId())
                         .ToListAsync();
                     return CommonResponse.Send(ResponseCodes.SUCCESS, getUpdatedList);
 
-                    //foreach (var item in getUpdatedList)
-                    //{
-                    //    var taskSummary = new TaskSummaryDTO();
-                    //    taskSummary.Alias = item.Alias;
-                    //    taskSummary.Caption = item.Caption;
-                    //    taskSummary.CreatedAt = item.CreatedAt;
-                    //    taskSummary.CreatedById = item.CreatedById;
-                    //    taskSummary.Description = item.Description;
-                    //    taskSummary.IsAssigned = item.IsAssigned;
-                    //    taskSummary.IsMilestone = item.IsMilestone;
-                    //    taskSummary.IsReassigned = item.IsReassigned;
-                    //    taskSummary.IsWorkbenched = item.IsWorkbenched;
-                    //    taskSummary.ProjectId = item.ProjectId;
-                    //    taskSummary.TaskEndDate = item.TaskEndDate;
-                    //    taskSummary.TaskStartDate = item.TaskStartDate;
-                    //    taskSummary.Project = await _context.Projects.FirstOrDefaultAsync(x => x.Id == item.ProjectId && x.IsActive == true);
-                    //    taskSummary.TaskAssignees = await _context.TaskAssignees.Where(X => X.TaskId == item.Id && X.IsActive == true).ToListAsync();
-                    //    taskSummary.workspace = await _context.Workspaces.FirstOrDefaultAsync(x => x.Id == taskSummary.Project.WorkspaceId && x.IsActive == true);
-                    //    taskSummaryList.Add(taskSummary);
-                    //}
 
                 }
 
@@ -4019,12 +4003,16 @@ namespace HaloBiz.MyServices.Impl
 
         public async Task<ApiCommonResponse> getProjectByWorkspaceId(HttpContext httpContext, long workspaceId)
         {
-            var getProjectsByWorkspaceId = await _context.Projects.AsNoTracking().Where(x =>
+            var getProjectsByWorkspaceId = await _context.Projects.AsNoTracking()
+                .Where(x =>
                     x.WorkspaceId == workspaceId && x.CreatedById == httpContext.GetLoggedInUserId() &&
                     x.IsActive == true)
+                .Include(x=>x.Tasks.Where(task=>task.IsActive == true))
+                .ThenInclude(x=>x.Deliverables.Where(deliverable=>deliverable.IsActive == true))
+                .Include(x=>x.Watchers.Where(watcher=>watcher.IsActive == true))
+                .Include(x=>x.Workspace)
                 .ToListAsync();
-            var ProjectArr = new List<ProjectSummaryDTO>();
-            if (getProjectsByWorkspaceId.Count() == 0)
+            if (!getProjectsByWorkspaceId.Any())
             {
 
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);
@@ -4032,31 +4020,7 @@ namespace HaloBiz.MyServices.Impl
 
             else
             {
-                foreach (var item in getProjectsByWorkspaceId)
-                {
-                    var projectInstance = new ProjectSummaryDTO();
-
-                    projectInstance.Alias = item.Alias;
-                    projectInstance.Caption = item.Caption;
-                    projectInstance.CreatedById = item.CreatedById;
-                    projectInstance.Description = item.Description;
-                    projectInstance.Id = item.Id;
-                    projectInstance.IsActive = item.IsActive;
-                    projectInstance.ProjectImage = item.ProjectImage;
-                    projectInstance.CreatedAt = item.CreatedAt;
-                    projectInstance.Tasks = await _context.Tasks
-                        .AsNoTracking()
-                        .Where(x => x.ProjectId == item.Id && x.CreatedById == httpContext.GetLoggedInUserId())
-                        .Include(x=>x.Deliverables.Where(x=>x.IsActive == true))
-                        .ToListAsync();
-                    projectInstance.Watchers = await _context.Watchers.AsNoTracking().Where(x =>
-                        x.ProjectId == item.Id && x.CreatedById == httpContext.GetLoggedInUserId() &&
-                        x.IsActive == true).ToListAsync();
-                    projectInstance.Workspace = await _context.Workspaces.AsNoTracking().FirstOrDefaultAsync(x =>
-                        x.Id == workspaceId && x.IsActive == true && x.CreatedById == httpContext.GetLoggedInUserId());
-                    ProjectArr.Add(projectInstance);
-                }
-                return CommonResponse.Send(ResponseCodes.SUCCESS, ProjectArr);
+                return CommonResponse.Send(ResponseCodes.SUCCESS, getProjectsByWorkspaceId,"Successfully retrieved  projects");
             }
         }
 
@@ -4145,7 +4109,6 @@ namespace HaloBiz.MyServices.Impl
                 CreatedById = httpContext.GetLoggedInUserId(),
                 CreatedAt = DateTime.Now,
             };
-
             _context.Projects.Add(projectTobeSaved);
             await _context.SaveChangesAsync();
 
@@ -4165,6 +4128,7 @@ namespace HaloBiz.MyServices.Impl
             }
 
             await _context.SaveChangesAsync();
+            await _projectManagementMailService.BuildMail(ProjectManagementOption.ProjectCreation, projectTobeSaved.Id);
             var getAllProjects = await _context.Projects.Where(x =>
                 x.WorkspaceId == projectDTO.WorkspaceId && x.CreatedById == httpContext.GetLoggedInUserId() &&
                 x.IsActive == true).ToListAsync();
@@ -4351,10 +4315,10 @@ namespace HaloBiz.MyServices.Impl
         }
 
 
-        public async Task<ApiCommonResponse> removeProject(HttpContext httpContext, long projectId, long workspaceId)
+        public async Task<ApiCommonResponse> removeProject(HttpContext httpContext, long projectId)
         {
             var ifProjectExist = await _context.Projects.FirstOrDefaultAsync(x =>
-                x.Id == projectId && x.WorkspaceId == workspaceId && x.IsActive == true);
+                x.Id == projectId && x.IsActive == true);
             if (ifProjectExist == null)
             {
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);
@@ -4369,9 +4333,7 @@ namespace HaloBiz.MyServices.Impl
                     ifProjectExist.IsActive = false;
                     _context.Projects.Update(ifProjectExist);
                     await _context.SaveChangesAsync();
-                    var getUpdatedProject = await _context.Projects
-                        .Where(x => x.WorkspaceId == workspaceId && x.IsActive == true).ToListAsync();
-                    return CommonResponse.Send(ResponseCodes.SUCCESS, getUpdatedProject,
+                    return CommonResponse.Send(ResponseCodes.SUCCESS, null,
                         "Project successfully disabled");
                 }
                 else
@@ -4954,6 +4916,7 @@ namespace HaloBiz.MyServices.Impl
                 foreach (var item in getUpdatedTaskownerShip)
                 {
                     var taskGotten = await _context.Tasks.AsNoTracking()
+                        .Include(x=>x.Project)
                         .Where(x => x.IsActive == true && x.TaskOwnershipId == item.Id).ToListAsync();
                     taskArray.AddRange(taskGotten);
                 }
@@ -5033,116 +4996,116 @@ namespace HaloBiz.MyServices.Impl
 
 
 
-
-        public async Task<ApiCommonResponse> ResolveQuotesIntoProjects(HttpContext httpContext, long instanceId,
-            string fulfillmentType)
-        {
-            if (fulfillmentType.ToLower().Trim() == "Contract Creation".ToLower().Trim())
-            {
-                var getNewLeadWithQuotes = await _context.LeadDivisions.AsNoTracking()
-                    .Include(lead => lead.LeadOrigin)
-                    .Include(lead => lead.Lead)
-                    .Include(lead => lead.LeadType)
-                    .Include(lead => lead.LeadDivisionKeyPeople.Where(x => x.IsDeleted == false))
-                    .Include(lead => lead.Quote)
-                    .ThenInclude(quote => quote.QuoteServices.Where(x => x.IsDeleted == false))
-                    .ThenInclude(x => x.Service)
-                    .ThenInclude(x => x.Division)
-                    .FirstOrDefaultAsync(x => x.LeadId == instanceId);
-
-                if (getNewLeadWithQuotes != null)
-                {
-                    var quotesServiceArray = new List<QuoteService>();
-                    foreach (var leadQuotes in getNewLeadWithQuotes.Quote.QuoteServices)
-                    {
-                        quotesServiceArray.AddRange(leadQuotes.Quote.QuoteServices);
-                    }
-
-                    var structuredService = await _projectResolver.StructureServices(quotesServiceArray);
-                    var createFulfilmentProject =
-                        await _projectResolver.CreateProjectForFulfilmentProject(httpContext, getNewLeadWithQuotes,
-                            structuredService);
-                    return CommonResponse.Send(ResponseCodes.SUCCESS, null, "Successfully resolved projects and tasks");
-                }
-                else
-                {
-                    return CommonResponse.Send(ResponseCodes.FAILURE, null, "Couldn't resolve task and projects");
-                }
-            }
-            else if (fulfillmentType.ToLower().Trim() == "Endorsements".ToLower().Trim())
-            {
-
-                var getNewEndorsementById = await _context.ContractServiceForEndorsements.AsNoTracking()
-                    .Include(x => x.EndorsementType)
-                    .Include(x => x.Service)
-                    .ThenInclude(x => x.Division).AsNoTracking()
-                    .Include(x => x.CustomerDivision)
-                    .Where(x => x.IsRequestedForApproval && !x.IsApproved && !x.IsDeclined && x.Id == instanceId)
-                    .FirstOrDefaultAsync();
-                if (getNewEndorsementById != null)
-                {
-                    var createEndorseMent =
-                        await _projectResolver.CreateEndorseMentProject(httpContext, getNewEndorsementById);
-                    if (createEndorseMent.responseCode == "00")
-                    {
-                        return CommonResponse.Send(ResponseCodes.SUCCESS, null,
-                            "Endorsement was successfully resolved into project");
-                    }
-                    else
-                    {
-                        return CommonResponse.Send(ResponseCodes.FAILURE, null,
-                            "Endorsement couldn't be resolved into project");
-                    }
-                }
-                else
-                {
-                    return CommonResponse.Send(ResponseCodes.FAILURE, null,
-                        $"Endorsement with id {instanceId} couldn't be found");
-                }
-
-
-            }
-            else
-            {
-                var getService = await _context.Services
-                    .Include(service => service.Target)
-                    .Include(service => service.ServiceType)
-                    .Include(service => service.Account)
-                    .Include(service => service.Division)
-                    .Include(service => service.ServiceCategory).AsNoTracking()
-                    .Include(service => service.ServiceGroup).AsNoTracking()
-                    .Include(service => service.Division)
-                    .Include(service => service.OperatingEntity).AsNoTracking()
-                    .Include(service => service.CreatedBy)
-                    .Include(service => service.ServiceRequiredServiceDocuments.Where(row => row.IsDeleted == false))
-                    .ThenInclude(row => row.RequiredServiceDocument)
-                    .Include(service =>
-                        service.ServiceRequredServiceQualificationElements.Where(row => row.IsDeleted == false))
-                    .ThenInclude(row => row.RequredServiceQualificationElement)
-                    .Where(service => service.IsRequestedForPublish == true && service.IsPublished == false &&
-                                      service.IsDeleted == false && service.Id == instanceId)
-                    .FirstOrDefaultAsync();
-
-                if (getService != null)
-                {
-                    var createProject = await _projectResolver.CreateServiceProject(httpContext, getService);
-
-                    if (createProject.responseCode == "00")
-                    {
-                        return CommonResponse.Send(ResponseCodes.SUCCESS, null,
-                            "Service was successfully resolved into project");
-                    }
-                    else
-                    {
-                        return CommonResponse.Send(ResponseCodes.FAILURE, null,
-                            "Service couldn't be resolved into project");
-                    }
-                }
-
-                return CommonResponse.Send(ResponseCodes.FAILURE, null,
-                    $"Service with id {instanceId} couldn't be found");
-            }
-        }
+        //
+        // public async Task<ApiCommonResponse> ResolveQuotesIntoProjects(HttpContext httpContext, long instanceId,
+        //     string fulfillmentType)
+        // {
+        //     if (fulfillmentType.ToLower().Trim() == "Contract Creation".ToLower().Trim())
+        //     {
+        //         var getNewLeadWithQuotes = await _context.LeadDivisions.AsNoTracking()
+        //             .Include(lead => lead.LeadOrigin)
+        //             .Include(lead => lead.Lead)
+        //             .Include(lead => lead.LeadType)
+        //             .Include(lead => lead.LeadDivisionKeyPeople.Where(x => x.IsDeleted == false))
+        //             .Include(lead => lead.Quote)
+        //             .ThenInclude(quote => quote.QuoteServices.Where(x => x.IsDeleted == false))
+        //             .ThenInclude(x => x.Service)
+        //             .ThenInclude(x => x.Division)
+        //             .FirstOrDefaultAsync(x => x.LeadId == instanceId);
+        //
+        //         if (getNewLeadWithQuotes != null)
+        //         {
+        //             var quotesServiceArray = new List<QuoteService>();
+        //             foreach (var leadQuotes in getNewLeadWithQuotes.Quote.QuoteServices)
+        //             {
+        //                 quotesServiceArray.AddRange(leadQuotes.Quote.QuoteServices);
+        //             }
+        //
+        //             var structuredService = await _projectResolver.StructureServices(quotesServiceArray);
+        //             var createFulfilmentProject =
+        //                 await _projectResolver.CreateProjectForFulfilmentProject(httpContext, getNewLeadWithQuotes,
+        //                     structuredService);
+        //             return CommonResponse.Send(ResponseCodes.SUCCESS, null, "Successfully resolved projects and tasks");
+        //         }
+        //         else
+        //         {
+        //             return CommonResponse.Send(ResponseCodes.FAILURE, null, "Couldn't resolve task and projects");
+        //         }
+        //     }
+        //     else if (fulfillmentType.ToLower().Trim() == "Endorsements".ToLower().Trim())
+        //     {
+        //
+        //         var getNewEndorsementById = await _context.ContractServiceForEndorsements.AsNoTracking()
+        //             .Include(x => x.EndorsementType)
+        //             .Include(x => x.Service)
+        //             .ThenInclude(x => x.Division).AsNoTracking()
+        //             .Include(x => x.CustomerDivision)
+        //             .Where(x => x.IsRequestedForApproval && !x.IsApproved && !x.IsDeclined && x.Id == instanceId)
+        //             .FirstOrDefaultAsync();
+        //         if (getNewEndorsementById != null)
+        //         {
+        //             var createEndorseMent =
+        //                 await _projectResolver.CreateEndorseMentProject(httpContext, getNewEndorsementById);
+        //             if (createEndorseMent.responseCode == "00")
+        //             {
+        //                 return CommonResponse.Send(ResponseCodes.SUCCESS, null,
+        //                     "Endorsement was successfully resolved into project");
+        //             }
+        //             else
+        //             {
+        //                 return CommonResponse.Send(ResponseCodes.FAILURE, null,
+        //                     "Endorsement couldn't be resolved into project");
+        //             }
+        //         }
+        //         else
+        //         {
+        //             return CommonResponse.Send(ResponseCodes.FAILURE, null,
+        //                 $"Endorsement with id {instanceId} couldn't be found");
+        //         }
+        //
+        //
+        //     }
+        //     else
+        //     {
+        //         var getService = await _context.Services
+        //             .Include(service => service.Target)
+        //             .Include(service => service.ServiceType)
+        //             .Include(service => service.Account)
+        //             .Include(service => service.Division)
+        //             .Include(service => service.ServiceCategory).AsNoTracking()
+        //             .Include(service => service.ServiceGroup).AsNoTracking()
+        //             .Include(service => service.Division)
+        //             .Include(service => service.OperatingEntity).AsNoTracking()
+        //             .Include(service => service.CreatedBy)
+        //             .Include(service => service.ServiceRequiredServiceDocuments.Where(row => row.IsDeleted == false))
+        //             .ThenInclude(row => row.RequiredServiceDocument)
+        //             .Include(service =>
+        //                 service.ServiceRequredServiceQualificationElements.Where(row => row.IsDeleted == false))
+        //             .ThenInclude(row => row.RequredServiceQualificationElement)
+        //             .Where(service => service.IsRequestedForPublish == true && service.IsPublished == false &&
+        //                               service.IsDeleted == false && service.Id == instanceId)
+        //             .FirstOrDefaultAsync();
+        //
+        //         if (getService != null)
+        //         {
+        //             var createProject = await _projectResolver.CreateServiceProject(httpContext, getService);
+        //
+        //             if (createProject.responseCode == "00")
+        //             {
+        //                 return CommonResponse.Send(ResponseCodes.SUCCESS, null,
+        //                     "Service was successfully resolved into project");
+        //             }
+        //             else
+        //             {
+        //                 return CommonResponse.Send(ResponseCodes.FAILURE, null,
+        //                     "Service couldn't be resolved into project");
+        //             }
+        //         }
+        //
+        //         return CommonResponse.Send(ResponseCodes.FAILURE, null,
+        //             $"Service with id {instanceId} couldn't be found");
+        //     }
+        // }
 
 
 
@@ -5503,6 +5466,7 @@ namespace HaloBiz.MyServices.Impl
 
             var valueToBeSaved = await _context.ProjectComments.AddAsync(projectComment);
             await _context.SaveChangesAsync();
+            await _projectManagementMailService.BuildMail(ProjectManagementOption.ProjectComment, projectComment.Id);
             return CommonResponse.Send(ResponseCodes.SUCCESS, valueToBeSaved.Entity, "SuccessFully savedComments");
         }
 
@@ -5610,9 +5574,35 @@ namespace HaloBiz.MyServices.Impl
 
             var valueToBeSaved = await _context.TaskComments.AddAsync(taskComment);
             await _context.SaveChangesAsync();
+            await _projectManagementMailService.BuildMail(ProjectManagementOption.TaskComment, taskComment.Id);
             return CommonResponse.Send(ResponseCodes.SUCCESS, valueToBeSaved.Entity, "SuccessFully savedComments");
 
         }
+        
+        public async Task<ApiCommonResponse> ResolveQuotesIntoProjects(HttpContext httpContext,ProjectFulfilmentDto projectFulfilment)
+        {
+            var finalResult = new ApiCommonResponse();
+            if (projectFulfilment != null)
+            {
+                switch (projectFulfilment.RequestClass.ToLower().Trim()) 
+                {
+                    case "leads": 
+                        finalResult = await _projectResolver.ResolveLead(projectFulfilment.RequestId,httpContext);
+                        break;
+                    case "endorsements":
+                        finalResult = await _projectResolver.ResolveEndorsement(projectFulfilment.RequestId,httpContext);
+                        break;
+                }
+            }
+            return CommonResponse.Send(ResponseCodes.SUCCESS, finalResult, finalResult.responseMsg);
+        }
+
+
+     
+
+       
+
 
     }
+   
 }

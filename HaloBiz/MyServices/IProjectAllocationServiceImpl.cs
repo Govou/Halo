@@ -41,7 +41,7 @@ namespace HaloBiz.MyServices
         Task<ApiCommonResponse> getProjectById(HttpContext httpContext, long projectId);
         Task<ApiCommonResponse> createDefaultStatus(HttpContext httpContext, List<DefaultStatusDTO> defaultStatusDTOs);
         Task<ApiCommonResponse> updateStatusFlowOptionToCustom(HttpContext httpContext, long workspaceId, List<StatusFlowDTO> statusFlowDTOs);
-        Task<ApiCommonResponse> removeProject(HttpContext httpContext, long projectId, long workspaceId);
+        Task<ApiCommonResponse> removeProject(HttpContext httpContext, long projectId);
         Task<ApiCommonResponse> removeTask(HttpContext httpContext, long taskId, long projectId);
         Task<ApiCommonResponse> removeDeliverable(HttpContext httpContext, long deliverableId, long taskId);
         Task<ApiCommonResponse> updateWorkspace(HttpContext httpContext, long id, UpdateWorkspaceDTO workspaceDTO);
@@ -141,8 +141,8 @@ namespace HaloBiz.MyServices
         Task<ApiCommonResponse> getAllDataForWorkspaceSideBar(HttpContext httpContext);
         Task<ApiCommonResponse> getWorkspaceById(HttpContext httpContext, long workspaceId);
         //Task<ApiCommonResponse> CreateDefaultWorkspace();
-        Task<ApiCommonResponse> ResolveQuotesIntoProjects(HttpContext httpContext,long serviceId, string fulfillmentType);
-        //Task<ApiCommonResponse> FetchAmortizationData(int year, int month);
+        // Task<ApiCommonResponse> ResolveQuotesIntoProjects(HttpContext httpContext,long serviceId, string fulfillmentType);
+        // //Task<ApiCommonResponse> FetchAmortizationData(int year, int month);
         Task<ApiCommonResponse> FetchAmortizationMaster(int year, int month);
 
         Task<ApiCommonResponse> FetchAmortizationDetails();
@@ -166,5 +166,9 @@ namespace HaloBiz.MyServices
 
          Task<ApiCommonResponse> MakeTaskComment(ProjectCommentRequest projectCommentRequest, long taskId,
              HttpContext httpContext);
+
+         Task<ApiCommonResponse> ResolveQuotesIntoProjects(HttpContext httpContext,
+             ProjectFulfilmentDto projectFulfilment);
+
     }
 }

@@ -25,5 +25,14 @@ namespace HaloBiz.DTOs.TransferDTOs
     public class BRPairableCheckDTO
     {
         public long? ServiceRegistrationId { get; set; }
+
+        public bool IsQuantityRequired { get; set; }
+        public long MaxQuantity { get; set; }
+        public bool IsPairingRequired { get; set; }
+    }
+
+    public class BusinessRuleCheckDTO
+    {
+        public long? BusinessRuleId { get; set; }
     }
 }

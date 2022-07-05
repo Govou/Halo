@@ -59,6 +59,7 @@ namespace HaloBiz.MyServices.Impl
         {
             var transaction = _context.Database.BeginTransaction();
             var master = _mapper.Map<MasterServiceAssignment>(masterReceivingDTO);
+            var master2 = _mapper.Map<MasterServiceAssignment>(masterReceivingDTO);
             //var master = new MasterServiceAssignment();
             var secondary = new SecondaryServiceAssignment();
             var vehicle = new VehicleServiceAssignmentDetail();
@@ -102,20 +103,27 @@ namespace HaloBiz.MyServices.Impl
 
                 if (masterReceivingDTO.IsReturnJourney == true)
                 {
-                    master.Id = 0;
-                    master.PickoffLocation = masterReceivingDTO.DropoffLocation;
-                    master.DropoffLocation = masterReceivingDTO.PickoffLocation;
-                    master.TripTypeId = 2;
-                    master.SAExecutionStatus = 0;
+                    master2.Id = 0;
+                    master2.PickoffLocation = masterReceivingDTO.DropoffLocation;
+                    master2.DropoffLocation = masterReceivingDTO.PickoffLocation;
+
+                    master2.PickupLocationLatitude = masterReceivingDTO.DropoffLocationLatitude;
+                    master2.PickupLocationLongitude = masterReceivingDTO.DropoffLocationLongitude;
+                    master2.PickUpLocationGeometry = masterReceivingDTO.DropOffLocationGeometry;
+
+                    master2.DropoffLocationLatitude = masterReceivingDTO.PickupLocationLatitude;
+                    master2.DropoffLocationLongitude = masterReceivingDTO.PickupLocationLongitude;
+                    master2.DropOffLocationGeometry = masterReceivingDTO.PickUpLocationGeometry;
+                    master2.TripTypeId = 2;
+                    master2.SAExecutionStatus = 0;
                     //master.PickoffTime = pickofftime;
-                    master.AssignmentStatus = "open";
-                    master.PrimaryTripAssignmentId = getId;
-                    master.CreatedById = context.GetLoggedInUserId();
-                    master.CreatedAt = DateTime.Now;
-                    var savedItem = await _serviceAssignmentMasterRepository.SaveServiceAssignment(master);
+                    master2.AssignmentStatus = "Open";
+                    master2.PrimaryTripAssignmentId = getId;
+                    master2.CreatedById = context.GetLoggedInUserId();
+                    master2.CreatedAt = DateTime.Now;
+                    var savedItem = await _serviceAssignmentMasterRepository.SaveServiceAssignment(master2);
                     if (savedItem == null)
                     {
-                       
                         return CommonResponse.Send(ResponseCodes.FAILURE, null, ResponseMessage.InternalServer500);
                     }
                 }
@@ -506,6 +514,7 @@ namespace HaloBiz.MyServices.Impl
         public async Task<ApiCommonResponse> AddMasterServiceAssignment(HttpContext context, MasterServiceAssignmentReceivingDTO masterReceivingDTO)
         {
             var master = _mapper.Map<MasterServiceAssignment>(masterReceivingDTO);
+            var master2 = _mapper.Map<MasterServiceAssignment>(masterReceivingDTO);
             var secondary = new SecondaryServiceAssignment();
             DateTime pickofftime = Convert.ToDateTime(masterReceivingDTO.PickoffTime.AddHours(1));
             pickofftime = pickofftime.AddSeconds(-1 * pickofftime.Second);
@@ -537,17 +546,25 @@ namespace HaloBiz.MyServices.Impl
 
             if(masterReceivingDTO.IsReturnJourney == true)
             {
-                master.Id = 0;
-                master.PickoffLocation = masterReceivingDTO.DropoffLocation;
-                master.DropoffLocation = masterReceivingDTO.PickoffLocation;
-                master.TripTypeId = 2;
-                master.SAExecutionStatus = 0;
+                master2.Id = 0;
+                master2.PickoffLocation = masterReceivingDTO.DropoffLocation;
+                master2.DropoffLocation = masterReceivingDTO.PickoffLocation;
+                master2.PickupLocationLatitude = masterReceivingDTO.DropoffLocationLatitude;
+                master2.PickupLocationLongitude = masterReceivingDTO.DropoffLocationLongitude;
+                master2.PickUpLocationGeometry = masterReceivingDTO.DropOffLocationGeometry;
+
+                master2.DropoffLocationLatitude = masterReceivingDTO.PickupLocationLatitude;
+                master2.DropoffLocationLongitude = masterReceivingDTO.PickupLocationLongitude;
+                master2.DropOffLocationGeometry = masterReceivingDTO.PickUpLocationGeometry;
+
+                master2.TripTypeId = 2;
+                master2.SAExecutionStatus = 0;
                 //master.PickoffTime = pickofftime;
-                master.AssignmentStatus = "open";
-                master.PrimaryTripAssignmentId = getId ;
-                master.CreatedById = context.GetLoggedInUserId();
-                master.CreatedAt = DateTime.Now;
-                 var savedItem = await _serviceAssignmentMasterRepository.SaveServiceAssignment(master);
+                master2.AssignmentStatus = "Open";
+                master2.PrimaryTripAssignmentId = getId ;
+                master2.CreatedById = context.GetLoggedInUserId();
+                master2.CreatedAt = DateTime.Now;
+                 var savedItem = await _serviceAssignmentMasterRepository.SaveServiceAssignment(master2);
                 if (savedItem == null)
                 {
                     return CommonResponse.Send(ResponseCodes.FAILURE, null, ResponseMessage.InternalServer500);
@@ -1093,6 +1110,18 @@ namespace HaloBiz.MyServices.Impl
             return CommonResponse.Send(ResponseCodes.SUCCESS, master.Count(), ResponseMessage.Success200);
         }
 
+        public async Task<ApiCommonResponse> GetAllFrequentRouteCountByClientId(long clientId)
+        {
+            var master = await _serviceAssignmentMasterRepository.FindAllFrequentRoutesCountByClientId(clientId);
+            if (master == null)
+            {
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);
+            }
+            return CommonResponse.Send(ResponseCodes.SUCCESS, master.Count(), ResponseMessage.Success200);
+        }
+
+        
+
         public async Task<ApiCommonResponse> GetAllCustomerDivisions()
         {
             var CustomerDivisions = await _serviceAssignmentMasterRepository.FindAllCustomerDivision();
@@ -1116,9 +1145,9 @@ namespace HaloBiz.MyServices.Impl
             return CommonResponse.Send(ResponseCodes.SUCCESS, TransferDTO, ResponseMessage.Success200);
         }
 
-        public async Task<ApiCommonResponse> GetAllMasterServiceAssignmentsByClientId(long clientId)
+        public async Task<ApiCommonResponse> GetAllMasterServiceAssignmentsForCartByClientId(long clientId)
         {
-            var master = await _serviceAssignmentMasterRepository.FindAllServiceAssignmentsByClientId(clientId);
+            var master = await _serviceAssignmentMasterRepository.FindAllServiceAssignmentsForCartByClientId(clientId);
             if (master == null)
             {
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);
@@ -1287,6 +1316,17 @@ namespace HaloBiz.MyServices.Impl
             }
 
             return CommonResponse.Send(ResponseCodes.SUCCESS, null, ResponseMessage.Success200);
+        }
+
+        public async Task<ApiCommonResponse> GetAllMasterServiceAssignmentsByClientId(long clientId)
+        {
+            var master = await _serviceAssignmentMasterRepository.FindAllServiceAssignmentsByClientId(clientId);
+            if (master == null)
+            {
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE);
+            }
+          
+            return CommonResponse.Send(ResponseCodes.SUCCESS, master, ResponseMessage.Success200);
         }
     }
 }

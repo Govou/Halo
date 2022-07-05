@@ -32,7 +32,7 @@ namespace HaloBiz.Repository.Impl
             return await SaveChanges();
         }
 
-        public async Task<bool> DeleteCommanderServiceAssignmentDetailByAssignmentId(CommanderServiceAssignmentDetail serviceAssignmentDetail)
+        public async Task<bool> DeleteCommanderServiceAssignmentDetailById(CommanderServiceAssignmentDetail serviceAssignmentDetail)
         {
             serviceAssignmentDetail.IsDeleted = true;
             _context.CommanderServiceAssignmentDetails.Update(serviceAssignmentDetail);
@@ -50,7 +50,7 @@ namespace HaloBiz.Repository.Impl
             return await SaveChanges();
         }
 
-        public async Task<bool> DeleteEscortServiceAssignmentDetailByAssignmentId(ArmedEscortServiceAssignmentDetail serviceAssignmentDetail)
+        public async Task<bool> DeleteEscortServiceAssignmentDetailById(ArmedEscortServiceAssignmentDetail serviceAssignmentDetail)
         {
             serviceAssignmentDetail.IsDeleted = true;
             _context.ArmedEscortServiceAssignmentDetails.Update(serviceAssignmentDetail);
@@ -81,7 +81,7 @@ namespace HaloBiz.Repository.Impl
             return await SaveChanges();
         }
 
-        public async Task<bool> DeletePilotServiceAssignmentDetailByAssignmentId(PilotServiceAssignmentDetail serviceAssignmentDetail)
+        public async Task<bool> DeletePilotServiceAssignmentDetailById(PilotServiceAssignmentDetail serviceAssignmentDetail)
         {
             serviceAssignmentDetail.IsDeleted = true;
             _context.PilotServiceAssignmentDetails.Update(serviceAssignmentDetail);
@@ -98,7 +98,7 @@ namespace HaloBiz.Repository.Impl
             return await SaveChanges();
         }
 
-        public async Task<bool> DeleteVehicleServiceAssignmentDetailByAssignmentId(VehicleServiceAssignmentDetail serviceAssignmentDetail)
+        public async Task<bool> DeleteVehicleServiceAssignmentDetailById(VehicleServiceAssignmentDetail serviceAssignmentDetail)
         {
             serviceAssignmentDetail.IsDeleted = true;
             _context.VehicleServiceAssignmentDetails.Update(serviceAssignmentDetail);
@@ -117,9 +117,9 @@ namespace HaloBiz.Repository.Impl
         public async Task<IEnumerable<CommanderServiceAssignmentDetail>> FindAllCommanderServiceAssignmentDetailsByAssignmentId(long assignmentId)
         {
             return await _context.CommanderServiceAssignmentDetails.Where(type => type.IsDeleted == false  && type.ServiceAssignmentId == assignmentId)
-               .Include(ct => ct.CommanderResource).Include(t => t.CommanderResource.Profile).Include(t => t.TiedVehicleResource).Include(t => t.ServiceAssignment)
+               .Include(ct => ct.CommanderResource).ThenInclude(t => t.Profile).Include(t => t.TiedVehicleResource).Include(t => t.ServiceAssignment)
                .Include(ct => ct.ServiceAssignment.ServiceRegistration).Include(ct => ct.ServiceAssignment.ServiceRegistration.Service)
-               .Include(t => t.TempReleaseType).Include(t => t.CreatedBy).Include(t => t.ActionReleaseType).Include(t => t.CommanderResource.CommanderType)
+              .Include(t => t.CommanderResource.CommanderType)
                .OrderByDescending(x => x.Id)
                .ToListAsync();
         }
@@ -247,40 +247,92 @@ namespace HaloBiz.Repository.Impl
               .ToListAsync();
         }
 
-        public async Task<IEnumerable<CommanderServiceAssignmentDetail>> FindAllUniqueCommanderServiceAssignmentDetails()
+        public async Task<IEnumerable<CommanderProfile>> FindAllUniqueAvailableCommanderServiceAssignmentDetails()
         {
-            return _context.CommanderServiceAssignmentDetails.Where(type => type.IsDeleted == false)
-              .Include(ct => ct.CommanderResource).Include(t => t.CommanderResource.Profile).Include(t => t.TiedVehicleResource).Include(t => t.ServiceAssignment)
-              .Include(t => t.TempReleaseType).Include(t => t.CreatedBy).Include(t => t.ActionReleaseType).Include(t => t.CommanderResource.CommanderType)
+            var query = _context.CommanderServiceAssignmentDetails.Where(type => type.IsDeleted == false && type.IsTemporarilyHeld == true)
+              //.Include(ct => ct.CommanderResource).Include(t => t.CommanderResource.Profile).Include(t => t.TiedVehicleResource).Include(t => t.ServiceAssignment)
+              //.Include(t => t.TempReleaseType).Include(t => t.CreatedBy).Include(t => t.ActionReleaseType).Include(t => t.CommanderResource.CommanderType)
               .OrderByDescending(x => x.Id).DistinctBy(y => y.CommanderResourceId).ToList();
+            var resourceList = _context.CommanderProfiles.Where(cm => cm.IsDeleted == false).Include(x=>x.Profile).Include(x=>x.CommanderType).ToList();
+            var newList = new List<CommanderProfile>();
+            newList = resourceList.Where(x => !query.Any(y => y.CommanderResourceId == x.Id)).ToList();
+            return  newList.ToList();
             
         }
 
-        public async Task<IEnumerable<ArmedEscortServiceAssignmentDetail>> FindAllUniqueEscortServiceAssignmentDetails()
+        public async Task<IEnumerable<ArmedEscortProfile>> FindAllUniqueAvailableEscortServiceAssignmentDetails()
         {
-            return  _context.ArmedEscortServiceAssignmentDetails.Where(type => type.IsDeleted == false)
-             .Include(ct => ct.ArmedEscortResource).Include(t => t.ActionReleaseType).Include(t => t.TempReleaseType).Include(t => t.ServiceAssignment)
-             .Include(t => t.TempReleaseType).Include(t => t.CreatedBy).Include(t => t.ArmedEscortResource.ArmedEscortType)
+            var query =   _context.ArmedEscortServiceAssignmentDetails.Where(type => type.IsDeleted == false && type.IsTemporarilyHeld == true)
+             //.Include(ct => ct.ArmedEscortResource).Include(t => t.ActionReleaseType).Include(t => t.TempReleaseType).Include(t => t.ServiceAssignment)
+             //.Include(t => t.TempReleaseType).Include(t => t.CreatedBy).Include(t => t.ArmedEscortResource.ArmedEscortType)
              .OrderByDescending(x => x.Id).DistinctBy(c=>c.ArmedEscortResourceId)
              .ToList();
+            var resourceList = _context.ArmedEscortProfiles.Where(cm => cm.IsDeleted == false).Include(x=>x.ServiceAssignment).Include(x=>x.ArmedEscortType).ToList();
+            var newList = new List<ArmedEscortProfile>();
+            newList = resourceList.Where(x => !query.Any(y => y.ArmedEscortResourceId == x.Id)).ToList();
+            return newList.ToList();
         }
 
-        public async Task<IEnumerable<PilotServiceAssignmentDetail>> FindAllUniquePilotServiceAssignmentDetails()
+        public async Task<IEnumerable<PilotProfile>> FindAllUniqueAvailablePilotServiceAssignmentDetails()
         {
-            return  _context.PilotServiceAssignmentDetails.Where(type => type.IsDeleted == false)
-             .Include(ct => ct.PilotResource).Include(t => t.ActionReleaseType).Include(t => t.TempReleaseType).Include(t => t.ServiceAssignment)
-             .Include(t => t.TempReleaseType).Include(t => t.CreatedBy).Include(t => t.PilotResource.PilotType)
-             .OrderByDescending(x => x.Id).DistinctBy(c=>c.PilotResourceId)
-             .ToList();
+            var query =  _context.PilotServiceAssignmentDetails.Where(type => type.IsDeleted == false && type.IsTemporarilyHeld == true)
+             //.Include(ct => ct.PilotResource).Include(t => t.ActionReleaseType).Include(t => t.TempReleaseType).Include(t => t.ServiceAssignment)
+             //.Include(t => t.TempReleaseType).Include(t => t.CreatedBy).Include(t => t.PilotResource.PilotType)
+             .OrderByDescending(x => x.Id).DistinctBy(c=>c.PilotResourceId).ToList();
+
+            var resourceList = _context.PilotProfiles.Where(cm => cm.IsDeleted == false).Include(x=>x.PilotType).ToList();
+            var newList = new List<PilotProfile>();
+            newList = resourceList.Where(x => !query.Any(y => y.PilotResourceId == x.Id)).ToList();
+            return newList.ToList();
         }
 
-        public async Task<IEnumerable<VehicleServiceAssignmentDetail>> FindAllUniqueVehicleServiceAssignmentDetails()
+        public async Task<IEnumerable<Vehicle>> FindAllUniqueAvailableVehicleServiceAssignmentDetails()
         {
-            return  _context.VehicleServiceAssignmentDetails.Where(type => type.IsDeleted == false)
-           .Include(ct => ct.VehicleResource).Include(t => t.ActionReleaseType).Include(t => t.TempReleaseType).Include(t => t.ServiceAssignment)
-           .Include(t => t.TempReleaseType).Include(t => t.CreatedBy).Include(t => t.VehicleResource.SupplierService).Include(t => t.VehicleResource.VehicleType)
-           .OrderByDescending(x => x.Id).DistinctBy(c=>c.VehicleResourceId)
-           .ToList();
+            var query =  _context.VehicleServiceAssignmentDetails.Where(type => type.IsDeleted == false && type.IsTemporarilyHeld == true)
+           //.Include(ct => ct.VehicleResource).Include(t => t.ActionReleaseType).Include(t => t.TempReleaseType).Include(t => t.ServiceAssignment)
+           //.Include(t => t.TempReleaseType).Include(t => t.CreatedBy).Include(t => t.VehicleResource.SupplierService).Include(t => t.VehicleResource.VehicleType)
+           .OrderByDescending(x => x.Id).DistinctBy(c=>c.VehicleResourceId).ToList();
+
+            var resourceList = _context.Vehicles.Where(cm => cm.IsDeleted == false).Include(x=>x.SupplierService).Include(x=>x.VehicleType).ToList();
+            var newList = new List<Vehicle>();
+            newList = resourceList.Where(x => !query.Any(y => y.VehicleResourceId == x.Id)).ToList();
+            return newList.ToList();
+        }
+
+        public async Task<IEnumerable<CommanderServiceAssignmentDetail>> FindAllUniqueHeldCommanderServiceAssignmentDetails()
+        {
+            var query = _context.CommanderServiceAssignmentDetails.Where(type => type.IsDeleted == false && type.IsTemporarilyHeld == true)
+             .Include(ct => ct.CommanderResource).ThenInclude(t => t.Profile).Include(t => t.ServiceAssignment)
+             .Include(t => t.CommanderResource.CommanderType)
+             .OrderByDescending(x => x.Id).DistinctBy(y => y.CommanderResourceId);
+
+            return query.ToList();
+        }
+
+        public async Task<IEnumerable<ArmedEscortServiceAssignmentDetail>> FindAllUniqueHeldEscortServiceAssignmentDetails()
+        {
+            var query = _context.ArmedEscortServiceAssignmentDetails.Where(type => type.IsDeleted == false && type.IsTemporarilyHeld == true)
+            .Include(ct => ct.ArmedEscortResource).Include(t => t.ServiceAssignment).Include(t => t.ArmedEscortResource.ArmedEscortType)
+            .OrderByDescending(x => x.Id).DistinctBy(c => c.ArmedEscortResourceId);
+
+            return query.ToList();
+        }
+
+        public async Task<IEnumerable<PilotServiceAssignmentDetail>> FindAllUniqueHeldPilotServiceAssignmentDetails()
+        {
+            var query = _context.PilotServiceAssignmentDetails.Where(type => type.IsDeleted == false && type.IsTemporarilyHeld == true)
+            .Include(ct => ct.PilotResource).Include(t => t.ServiceAssignment).Include(t => t.PilotResource.PilotType)
+            .OrderByDescending(x => x.Id).DistinctBy(c => c.PilotResourceId);
+            return query.ToList();
+        }
+
+        public async Task<IEnumerable<VehicleServiceAssignmentDetail>> FindAllUniqueHeldVehicleServiceAssignmentDetails()
+        {
+            var query = _context.VehicleServiceAssignmentDetails.Where(type => type.IsDeleted == false && type.IsTemporarilyHeld == true)
+           .Include(ct => ct.VehicleResource).Include(t => t.ServiceAssignment)
+          .Include(t => t.VehicleResource.SupplierService).Include(t => t.VehicleResource.VehicleType)
+           .OrderByDescending(x => x.Id).DistinctBy(c => c.VehicleResourceId);
+            return query.ToList();
         }
 
         public async Task<IEnumerable<VehicleServiceAssignmentDetail>> FindAllVehicleServiceAssignmentDetails()

@@ -891,8 +891,8 @@ namespace HaloBiz.MyServices.Impl.LAMS
             var (success, msg) = await _leadConversionService.CreateAccounts(
                                             contractServiceDifference,
                                             customerDivision,
-                                            (long)contractServiceForEndorsement.BranchId,
-                                            (long)contractServiceForEndorsement.OfficeId,
+                                            (long) contractServiceForEndorsement.BranchId,
+                                            (long) contractServiceForEndorsement.OfficeId,
                                             service,
                                             financialVoucherType,
                                             null,
@@ -991,7 +991,7 @@ namespace HaloBiz.MyServices.Impl.LAMS
                     invoices = invoicesToUpdate
                                    .Where(x => x.StartDate >= contractServiceForEndorsement.DateForNewContractToTakeEffect && !x.IsDeleted);
 
-                    var (interval,billbalbleForInvoicingPeriod, tax) = _leadConversionService.CalculateTotalBillableForPeriod(contractService);
+                    var (interval,billbalbleForInvoicingPeriod, tax, wht) = _leadConversionService.CalculateTotalBillableForPeriod(contractService);
 
                     foreach (var invoice in invoices)
                     {
