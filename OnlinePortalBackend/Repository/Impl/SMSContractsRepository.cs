@@ -27,6 +27,7 @@ namespace OnlinePortalBackend.Repository.Impl
         private readonly ILogger<SMSContractsRepository> _logger;
         private long LoggedInUserId = 0;
         private bool? isRetail = null;
+        private ICustomerInfoRepository _customerInfoRepository;
 
         private readonly string ReceivableControlAccount = "Receivable";
         private readonly string VatControlAccount = "VAT";
@@ -39,12 +40,13 @@ namespace OnlinePortalBackend.Repository.Impl
         private readonly string RETAIL = "RETAIL";
         private IMapper _mapper;
 
-        public SMSContractsRepository(HalobizContext context, ILogger<SMSContractsRepository> logger, IMapper mapper, IConfiguration configuration)
+        public SMSContractsRepository(HalobizContext context, ILogger<SMSContractsRepository> logger, IMapper mapper, IConfiguration configuration, ICustomerInfoRepository customerInfoRepository)
         {
             _context = context;
             _logger = logger;
             _mapper = mapper;
             _configuration = configuration;
+            _customerInfoRepository = customerInfoRepository;
         }
 
         public SMSContractsRepository()
@@ -1090,7 +1092,7 @@ namespace OnlinePortalBackend.Repository.Impl
                     {
                         Name = $"{customerDivision.DivisionName} VAT",
                         Description = $"VAT Account of {customerDivision.DivisionName}",
-                        Alias = customerDivision.DTrackCustomerNumber,
+                        Alias = String.IsNullOrEmpty(customerDivision.DTrackCustomerNumber) ? await _customerInfoRepository.GetDtrackCustomerNumber(customerDivision) : customerDivision.DTrackCustomerNumber,
                         IsDebitBalance = true,
                         ControlAccountId = controlAccount.Id,
                         CreatedById = loggedInUserId
@@ -1346,7 +1348,7 @@ namespace OnlinePortalBackend.Repository.Impl
                     {
                         Name = $"{customerDivision.DivisionName} Receivable",
                         Description = $"Receivable Account of {customerDivision.DivisionName}",
-                        Alias = customerDivision.DTrackCustomerNumber,
+                        Alias = String.IsNullOrEmpty(customerDivision.DTrackCustomerNumber) ? await _customerInfoRepository.GetDtrackCustomerNumber(customerDivision) : customerDivision.DTrackCustomerNumber,
                         IsDebitBalance = true,
                         ControlAccountId = controlAccount.Id,
                         CreatedById = createdById,
@@ -1557,7 +1559,7 @@ namespace OnlinePortalBackend.Repository.Impl
                 {
                     Name = serviceClientIncomeAccountName,
                     Description = $"{service.Name} Income Account for {customerDivision.DivisionName}",
-                    Alias = customerDivision.DTrackCustomerNumber ?? "",
+                    Alias = String.IsNullOrEmpty(customerDivision.DTrackCustomerNumber) ? await _customerInfoRepository.GetDtrackCustomerNumber(customerDivision) : customerDivision.DTrackCustomerNumber,
                     IsDebitBalance = true,
                     ControlAccountId = (long)service.ControlAccountId,
                     CreatedById = LoggedInUserId
@@ -1745,16 +1747,19 @@ namespace OnlinePortalBackend.Repository.Impl
 
                     foreach (var item in request.ContractServices)
                     {
-                        //var ms = _context.MasterServiceAssignments.FirstOrDefault(x => x.ContractServiceId == item.Id && x.IsAddedToCart == true && x.IsPaidFor == false && x.IsDeleted == false && x.IsScheduled == false);
-                        //if (ms != null)
-                        //{
-                        //    validContactServices.Add(item);
-                        //}
+
                         var conSer = contractServices.FirstOrDefault(x => x.Id == item);
                         if (conSer != null)
                         {
                             validContactServices.Add(conSer);
                         }
+                        else
+                        {
+                            var invalidContractService = _context.ContractServices.FirstOrDefault(x => x.Id == conSer.Id);
+                            invalidContractService.IsDeleted = true;
+                            _context.SaveChanges();
+                        }
+
                     }
 
                     var invoicesIds = new List<long>();
@@ -1768,10 +1773,10 @@ namespace OnlinePortalBackend.Repository.Impl
                             ContractServiceId = item.Id,
                             DateToBeSent = DateTime.UtcNow.AddHours(1),
                             CustomerDivisionId = customerDivisionId.Value,
-                            UnitPrice = item.UnitPrice.Value,
+                            UnitPrice = item.BillableAmount.Value,
                             EndDate = item.ContractEndDate.Value,
                             StartDate = item.ContractStartDate.Value,
-                            Quantity = item.Quantity,
+                            Quantity = item.Quantity
                         };
 
                         var response = await AddInvoice(invoice);

@@ -37,7 +37,7 @@ namespace OnlinePortalBackend.MyServices
 
         public async Task<ApiCommonResponse> SendWelcomeOnboarding(NewUserSignupDTO request)
         {
-            var baseUrl = $"{_mailBaseUrl}/Mail/SendNewUserSignup";
+            var baseUrl = $"{_mailBaseUrl}/Mail/SendNewCustomerSignup";
             try
             {
                 var response = await baseUrl.AllowAnyHttpStatus()

@@ -25,6 +25,7 @@ namespace OnlinePortalBackend.Repository.Impl
         private readonly HalobizContext _context;
         private readonly ILogger<SMSAccountRepository> _logger;
         private readonly IMapper _mapper;
+        private readonly ICustomerInfoRepository _customerInfoRepository;
 
         private readonly IConfiguration _configuration;
 
@@ -32,11 +33,13 @@ namespace OnlinePortalBackend.Repository.Impl
         private readonly string VatControlAccount = "VAT";
         public SMSAccountRepository(HalobizContext context,
             ILogger<SMSAccountRepository> logger,
-            IMapper mapper, IConfiguration configuration)
+            IMapper mapper, IConfiguration configuration,
+            ICustomerInfoRepository customerInfoRepository)
         {
             _logger = logger;
             _context = context;
             _mapper = mapper;
+            _customerInfoRepository = customerInfoRepository;
             _configuration = configuration;
         }
         public async Task<(bool success, string message)> CreateBusinessAccount(SMSBusinessAccountDTO accountDTO)
@@ -785,16 +788,7 @@ namespace OnlinePortalBackend.Repository.Impl
 
 
 
-         //   using var trx = await _context.Database.BeginTransactionAsync();
-            string initials = GetInitials(profile.SupplierName);
-            var acctTrxs = _context.Accounts.Where(x => x.Alias.StartsWith("SUP"));
-            var acctTrx = acctTrxs.OrderByDescending(x => x.Id).FirstOrDefault();
-            long acctTrxId = 0;
-            if (acctTrx == null)
-                acctTrxId = 1;
-            else
-                acctTrxId = acctTrx.Id + 1;
-
+             var dtrack = await _customerInfoRepository.GetDtrackCustomerNumber(new CustomerDivision { DivisionName = profile.SupplierName });
 
             var account = new Account
             {
@@ -806,7 +800,7 @@ namespace OnlinePortalBackend.Repository.Impl
                 Description = acctName,
                 Name = acctName,
                 IsDebitBalance = false,
-                Alias = "SUP_" + $"{initials}_" + $"0{acctTrxId}",
+                Alias = dtrack
             };
 
             var accountId = await SaveAccount(account);

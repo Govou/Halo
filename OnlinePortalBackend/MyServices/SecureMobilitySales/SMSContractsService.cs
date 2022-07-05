@@ -215,7 +215,7 @@ namespace OnlinePortalBackend.MyServices.SecureMobilitySales
                                                                                 .Replace("{{ServiceDescription}}", "Total")
                                                                                 .Replace("{{Quantity}}", "")
                                                                                 .Replace("{{Amount}}", "")
-                                                                                .Replace("{{total}}", $"{double.Parse(request.Amount).ToString("0.00")}");
+                                                                                .Replace("{{total}}", $"{amount.ToString("0.00")}");
 
             receiptDetailPartialPage += HTMLGenerator.GenerateReceiptVAT()
                                                                                 .Replace("{{ServiceName}}", "")

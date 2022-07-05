@@ -230,9 +230,8 @@ namespace OnlinePortalBackend.Repository.Impl
             _context.AccountMasters.Add(accountMaster);
             _context.SaveChanges();
 
-
             var debitCashBook = _configuration["SupplierDebitCashBookID"] ?? _configuration.GetSection("AppSettings:SupplierDebitCashBookID").Value;
-            //  var creditCashBook = _configuration["SupplierCreditCashBookID"] ?? _configuration.GetSection("AppSettings:SupplierCreditCashBookID").Value;
+
             var creditCashBook = await _accountRepository.GetServiceIncomeAccountForSupplier(supplier);
 
             var accountDetail1 = new AccountDetail
@@ -293,8 +292,6 @@ namespace OnlinePortalBackend.Repository.Impl
                 PaymentGatewayResponseDescription = "Approved",
                 PaymentGateway = request.PaymentGateway,
             };
-
-
            
                 _context.OnlineTransactions.Add(transaction);
                 _context.SaveChanges();
@@ -331,7 +328,12 @@ namespace OnlinePortalBackend.Repository.Impl
             dashB.AssetAwaitingInspection = dashB.AssetAwaitingInspection ?? "0";
 
             return dashB;
+        }
 
+        public Task<AssetUnderManagementDTO> AssetsUnderManagement(int profileId)
+        {
+            var assets = _context.SupplierServices.Where(x => x.SupplierId == profileId);
+           
         }
     }
 }

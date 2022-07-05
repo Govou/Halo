@@ -45,7 +45,7 @@ namespace HaloBiz.Repository.Impl.LAMS
             }
             client.Contracts = await _context.Contracts
                 .Where(x => x.CustomerDivisionId == client.Id && x.HasAddedSBU && x.IsApproved)
-                .Include(x => x.ContractServices.Where(x => x.Version == (int)VersionType.Latest && x.ContractEndDate >= DateTime.Now))
+                .Include(x => x.ContractServices.Where(x => x.Version == (int)VersionType.Latest && x.ContractEndDate >= DateTime.Now && x.IsDeleted == false))
                     .ThenInclude(x => x.Service)
                 .ToListAsync();
             

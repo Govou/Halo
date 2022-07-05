@@ -21,15 +21,17 @@ namespace OnlinePortalBackend.Repository.Impl
         private readonly HalobizContext _context;
         private readonly ILogger<WalletRepository> _logger;
         private readonly IConfiguration _configuration;
+        private readonly ICustomerInfoRepository _customerInfoRepository;
 
         private readonly string RETAIL_VAT_ACCOUNT = "RETAIL VAT ACCOUNT";
         private readonly string VatControlAccount = "VAT";
 
 
-        public WalletRepository(HalobizContext context, ILogger<WalletRepository> logger, IConfiguration configuration)
+        public WalletRepository(HalobizContext context, ILogger<WalletRepository> logger, IConfiguration configuration, ICustomerInfoRepository customerInfoRepository)
         {
             _context = context;
             _logger = logger;
+            _customerInfoRepository = customerInfoRepository;
             _configuration = configuration;
         }
         public async Task<(bool isSuccess, string message)> ActivateWallet(ActivateWalletDTO request)
@@ -43,16 +45,16 @@ namespace OnlinePortalBackend.Repository.Impl
             var controlAccount = _configuration["WalletControlAccountID"] ?? _configuration.GetSection("AppSettings:WalletControlAccountID").Value;
             var controlAccountId = int.Parse(controlAccount);
 
-            using var trx = await _context.Database.BeginTransactionAsync();
-            string initials = GetInitials(profile.Name);
-            var acctTrxs = _context.Accounts.Where(x => x.Alias.StartsWith("W"));
-            var acctTrx = acctTrxs.OrderByDescending(x => x.Id).FirstOrDefault();
-            long acctTrxId = 0;
-            if (acctTrx == null)
-                acctTrxId = 1;
-            else
-                acctTrxId = acctTrx.Id + 1;
+            var alias = string.Empty;
+            var custDiv = _context.CustomerDivisions.FirstOrDefault(x => x.Id == profile.CustomerDivisionId);
 
+            if (custDiv != null)
+            {
+                alias = custDiv.DTrackCustomerNumber;
+            }
+
+            using var trx = await _context.Database.BeginTransactionAsync();
+           
             try
             {
                 var account = new Account {
@@ -64,7 +66,7 @@ namespace OnlinePortalBackend.Repository.Impl
                     Description = $"Liability Account for {profile.Name.ToUpper()}",
                     Name = profile.Name,
                     IsDebitBalance = false,
-                    Alias = "W_" + $"{initials}_" +  $"0{acctTrxId}",
+                    Alias = string.IsNullOrEmpty(alias) ? await _customerInfoRepository.GetDtrackCustomerNumber(new CustomerDivision { DivisionName = profile.Name }) : alias
                 };
 
                 await SaveAccount(account);
@@ -183,7 +185,6 @@ namespace OnlinePortalBackend.Repository.Impl
 
                 _context.AccountMasters.Add(accountMaster);
                 _context.SaveChanges();
-
 
                 var debitCashBook = _configuration["WalletDebitCashBookID"] ?? _configuration.GetSection("AppSettings:WalletDebitCashBookID").Value;
                 var accountDetail1 = new AccountDetail
@@ -417,7 +418,6 @@ namespace OnlinePortalBackend.Repository.Impl
                 //acctToCredit.Value = acctToCredit.Value + request.Amount;
                 //_context.SaveChanges();
 
-
                 var transactions = _context.WalletDetails.Where(x => x.WalletMasterId == walletMaster.Id);
                 var creditTransactions = transactions.Where(x => x.TransactionType == (int)WalletTransactionType.Load);
                 var totalCreditAmt = 0d;
@@ -546,7 +546,7 @@ namespace OnlinePortalBackend.Repository.Impl
                 {
                     Name = serviceClientIncomeAccountName,
                     Description = $"{service.Name} Income Account for {customerDivision.DivisionName}",
-                    Alias = customerDivision.DTrackCustomerNumber ?? "",
+                    Alias = String.IsNullOrEmpty(customerDivision.DTrackCustomerNumber) ? await _customerInfoRepository.GetDtrackCustomerNumber(customerDivision) : customerDivision.DTrackCustomerNumber,
                     IsDebitBalance = true,
                     ControlAccountId = (long)service.ControlAccountId,
                     CreatedById = createdBy

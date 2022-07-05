@@ -95,13 +95,13 @@ namespace HaloBiz.DTOs.ReceivingDTOs
         public string PickoffLocation { get; set; }
         public string[] Recepients { get; set; }
         public string[] Recepients1 { get; set; }
-        public DateTime PickupDate { get; set; }
+        public string PickupDate { get; set; }
         public string Subject { get; set; }
         public string CreatedBy { get; set; }
         public string CreatedByMobile { get; set; }
         public string CreatedByPic { get; set; }
         public string ClientName { get; set; }
-        public DateTime PickoffTime { get; set; }
+        public string PickoffTime { get; set; }
         public ServiceMailDTO ServiceMailDTO { get; set; }
         public ClientInfosMailDTO clientInfo { get; set; }
 

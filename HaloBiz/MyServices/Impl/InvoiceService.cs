@@ -1826,8 +1826,8 @@ namespace HaloBiz.MyServices.Impl
             MasterServiceAssignmentMailVMDTO masterServiceAssignmentMailDTO = new MasterServiceAssignmentMailVMDTO()
             {
                 id = invoice.Id,
-                PickupDate = invoice.PickupDate,
-                PickoffTime = invoice.PickoffTime,
+                PickupDate = invoice.PickupDate.ToString("dd-MMM-yyyy"),
+                PickoffTime = invoice.PickoffTime.ToString("t"),
                 PickoffLocation = invoice.PickoffLocation,
                 ServiceRegistrationId = invoice.ServiceRegistrationId,
                 DropoffLocation = invoice.DropoffLocation,
