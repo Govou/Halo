@@ -59,5 +59,11 @@ namespace OnlinePortalBackend.Controllers.SecureMobilitySales
         {
             return _supplierService.GetDashboardDetails(profileId);
         }
+
+        [HttpGet("AssetsUnderManagement")]
+        public Task<ApiCommonResponse> AssetsUnderManagement(int profileId)
+        {
+            return _supplierService.AssetsUnderManagement(profileId);
+        }
     }
 }

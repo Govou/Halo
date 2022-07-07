@@ -14,5 +14,6 @@ namespace OnlinePortalBackend.Repository
         Task<(bool isSuccess, bool status)> GetWalletActivationStatus(int profileId);
         Task<bool> WalletLogin(WalletLoginDTO request);
         Task<WalletTransactionHistoryDTO> GetWalletTransactionHistory(int propfileId);
+        Task<WalletTransactionStatistics> GetWalletTransactionStatistics(int profileId);
     }
 }

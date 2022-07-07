@@ -57,6 +57,17 @@ namespace OnlinePortalBackend.MyServices.SecureMobilitySales
             return CommonResponse.Send(ResponseCodes.SUCCESS, result);
         }
 
+        public async Task<ApiCommonResponse> GetWalletTransactionStatistics(int profileId)
+        {
+            var result = await _walletRepository.GetWalletTransactionStatistics(profileId);
+            if (result == null)
+            {
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "profile does not have a wallet");
+            }
+
+            return CommonResponse.Send(ResponseCodes.SUCCESS, result, "success");
+        }
+
         public async Task<ApiCommonResponse> LoadWallet(LoadWalletDTO request)
         {
             var result = await _walletRepository.LoadWallet(request);

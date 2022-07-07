@@ -63,5 +63,11 @@ namespace OnlinePortalBackend.Controllers.SecureMobilitySales
         {
             return await _walletService.GetWalletTransactionHistory(profileId);
         }
+
+        [HttpGet("GetWalletTransactionStatistics")]
+        public async Task<ApiCommonResponse> GetWalletTransactionStatistics(int profileId)
+        {
+            return await _walletService.GetWalletTransactionStatistics(profileId);
+        }
     }
 }

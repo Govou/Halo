@@ -330,10 +330,37 @@ namespace OnlinePortalBackend.Repository.Impl
             return dashB;
         }
 
-        public Task<AssetUnderManagementDTO> AssetsUnderManagement(int profileId)
+        public async Task<AssetUnderManagementDTO> AssetsUnderManagement(int profileId)
         {
-            var assets = _context.SupplierServices.Where(x => x.SupplierId == profileId);
-           
+            var supplierId = _context.OnlineProfiles.FirstOrDefault(x => x.Id == profileId).SupplierId;
+            var assets = _context.SupplierServices.Where(x => x.SupplierId == supplierId);
+            var pendingAssets = assets.Where(x => x.IsReady == false).Select(x => new Asset
+            {
+                ServiceName = x.ServiceName,
+                PlateNumber = x.IdentificationNumber,
+                DateAdded = x.CreatedAt.ToString("MMMM dd, yyyy"),
+                PercentageCompleted = 0,
+                DaysLeft = 10,
+                ImageUrl = x.FrontViewImage
+            });
+
+            var completedAssets = assets.Where(x => x.IsReady == true).Select(x => new Asset
+            {
+                ServiceName = x.ServiceName,
+                PlateNumber = x.IdentificationNumber,
+                DateAdded = x.CreatedAt.ToString("MMMM dd, yyyy"),
+                PercentageCompleted = 100,
+                DaysLeft = 0,
+                ImageUrl = x.FrontViewImage
+            });
+
+            var allAssets = new AssetUnderManagementDTO
+            {
+                CompletedReview = completedAssets,
+                PendingReview = pendingAssets
+            };
+
+            return allAssets;
         }
     }
 }

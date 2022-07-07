@@ -602,5 +602,28 @@ namespace OnlinePortalBackend.Repository.Impl
 
         }
 
+        public async Task<WalletTransactionStatistics> GetWalletTransactionStatistics(int profileId)
+        {
+
+            var walletmaster = _context.WalletMasters.FirstOrDefault(x => x.OnlineProfileId == profileId);
+            if (walletmaster == null)
+                return null;
+
+            var stat = new WalletTransactionStatistics();
+
+            var walletTrx = _context.WalletDetails.Where(x => x.WalletMasterId == walletmaster.Id).ToList();
+
+            stat.TotalTransactions = walletTrx.Count();
+            stat.TopUpCount = walletTrx.Where(x => x.TransactionType == (int)WalletTransactionType.Load).Select( x=> x.TransactionValue).Count();
+            stat.SpendCount = walletTrx.Where(x => x.TransactionType == (int)WalletTransactionType.Spend).Select( x=> x.TransactionValue).Count();
+
+            if (stat.TotalTransactions > 0)
+            {
+                stat.TopUpPercent = (stat.TopUpCount / stat.TotalTransactions) * 100;
+                stat.TopUpPercent = (stat.SpendCount / stat.TotalTransactions) * 100;
+            }
+            
+            return stat;
+        }
     }
 }

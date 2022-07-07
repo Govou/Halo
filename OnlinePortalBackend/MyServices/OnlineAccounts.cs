@@ -37,6 +37,7 @@ namespace OnlinePortalBackend.MyServices
         Task<ApiCommonResponse> SupplierLogin(LoginDTO login);
         Task<ApiCommonResponse> CommanderLogin(LoginDTO login);
         Task<ApiCommonResponse> VerifyCode(CodeVerifyModel model);
+        Task<ApiCommonResponse> ResendCode(string email);
     }
 
     public class OnlineAccounts : IOnlineAccounts
@@ -235,16 +236,16 @@ namespace OnlinePortalBackend.MyServices
         {
             try
             {
-                var codModel = _context.UsersCodeVerifications.Where(x => x.Email == model.Email && x.CodeExpiryTime >= DateTime.Now && x.Code == model.Code && x.Purpose==CodePurpose.Onboarding).FirstOrDefault();
-                if (codModel == null)
+                var codes = _context.UsersCodeVerifications.Where(x => x.Email == model.Email && x.CodeExpiryTime >= DateTime.Now && x.Code == model.Code && x.Purpose==CodePurpose.Onboarding).OrderByDescending(x => x.Id);
+                if (codes == null)
                 {
                     return CommonResponse.Send(ResponseCodes.FAILURE, null, $"The code for {model.Email} is invalid or expired");
                 }
-
-                codModel.CodeUsedTime = DateTime.Now;
+                var code = codes.FirstOrDefault();
+                code.CodeUsedTime = DateTime.Now;
                 await _context.SaveChangesAsync();
 
-                var profile = _context.OnlineProfiles.FirstOrDefault(x => x.Email == codModel.Email);
+                var profile = _context.OnlineProfiles.FirstOrDefault(x => x.Email == code.Email);
                 if (profile != null)
                 {
                     profile.EmailConfirmed = true;
@@ -698,6 +699,60 @@ namespace OnlinePortalBackend.MyServices
                 _context.RefreshTokens.Add(token);
                 _context.SaveChanges();
                 return token.Token;
+            }
+        }
+
+        public async Task<ApiCommonResponse> ResendCode(string email)
+        {
+            try
+            {
+                var codes = _context.UsersCodeVerifications.Where(x => x.Email == email && x.Purpose == CodePurpose.Onboarding).OrderByDescending(x => x.Id);
+
+                if (codes.Count() == 0)
+                {
+                    return CommonResponse.Send(ResponseCodes.FAILURE, null, $"No verification code for user");
+                }
+
+                var latestCode = codes.FirstOrDefault();
+
+                if(latestCode.CodeUsedTime != null)
+                {
+                    return CommonResponse.Send(ResponseCodes.FAILURE, null, $"No verification code for user");
+                }
+                var code = await GenerateCode();
+                var codeModel = new UsersCodeVerification
+                {
+                    Email = email,
+                    CodeExpiryTime = DateTime.UtcNow.AddHours(1).AddMinutes(10),
+                    Code = code,
+                    Purpose = CodePurpose.Onboarding
+                };
+
+                var entity = await _context.UsersCodeVerifications.AddAsync(codeModel);
+                await _context.SaveChangesAsync();
+
+                List<string> detail = new List<string>();
+                detail.Add($"Your verification code for the online portal is <strong>{code}</strong>. Please note that it expires it 10 minutes");
+
+                //send email with the code
+                var request = new OnlinePortalDTO
+                {
+                    Recepients = new string[] { email },
+                    Name = "",
+                    Salutation = "Hi",
+                    Subject = "Confirmation code for Account Creation",
+                    DetailsInPara = detail
+                };
+
+                var mailresponse = await _mailService.ConfirmCodeSending(request);
+                mailresponse.responseData = $"Verfication Code has been sent to {email}";
+                return mailresponse;
+
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.StackTrace);
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, ex.Message);
             }
         }
     }
