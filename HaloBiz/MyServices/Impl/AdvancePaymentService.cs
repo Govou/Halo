@@ -113,7 +113,7 @@ namespace HaloBiz.MyServices.Impl
                             IsDebitBalance = false,
                             CreatedById = userId,
                             CreatedAt = DateTime.Now,
-                            Alias = "PA",
+                            Alias = "33010110",
                             IsActive = true,
                             ClientId = customerDivion?.Id,
                         });
