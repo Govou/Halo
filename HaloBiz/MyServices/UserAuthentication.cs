@@ -351,7 +351,14 @@ namespace HaloBiz.MyServices
                 };
 
                 _context.RefreshTokens.Add(token);
-                _context.SaveChanges();
+                try
+                {
+                    _context.SaveChangesAsync().ConfigureAwait(true);
+                }
+                catch (Exception ex)
+                {
+                    
+                }
                 return token.Token;
             }
         }
