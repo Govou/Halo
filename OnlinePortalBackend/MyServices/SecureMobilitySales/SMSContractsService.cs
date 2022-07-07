@@ -149,41 +149,6 @@ namespace OnlinePortalBackend.MyServices.SecureMobilitySales
 
         private async Task SendReceiptViaEmail(SendReceiptDTO request)
         {
-            //var sendReceiptDetail1 = new SendReceiptDetailDTO
-            //{
-            //    Amount = "7000",
-            //    Description = "Secure mobility test",
-            //    Quantity = "2",
-            //    ServiceName = "Pilot service",
-            //    Total = "43000"
-            //};
-
-            //var sendReceiptDetail2 = new SendReceiptDetailDTO
-            //{
-            //    Amount = "7000",
-            //    Description = "Secure mobility test",
-            //    Quantity = "2",
-            //    ServiceName = "Pilot service",
-            //    Total = "43000"
-            //};
-
-            //var sendReceiptDetails = new List<SendReceiptDetailDTO>();
-            //sendReceiptDetails.Add(sendReceiptDetail1);
-            //sendReceiptDetails.Add(sendReceiptDetail2);
-
-            //var acct = new SendReceiptDTO
-            //{
-            //    Amount = "350000",
-            //    CustomerName = "Abolade Samuel",
-            //    Email = "guvoekemauton@gmail.com",
-            //    Date = DateTime.Now.ToString(),
-            //    SendReceiptDetailDTOs = sendReceiptDetails
-            //};
-
-            //var amountInWords = NumberToWordConverter.ChangeToWordsInMoney("35000");
-
-            //request = acct;
-
             var amountInWords = NumberToWordConverter_v2.ConvertMoneyToWords(request.Amount);
 
             var VAT = 0.075 * double.Parse(request.Amount);
@@ -215,7 +180,7 @@ namespace OnlinePortalBackend.MyServices.SecureMobilitySales
                                                                                 .Replace("{{ServiceDescription}}", "Total")
                                                                                 .Replace("{{Quantity}}", "")
                                                                                 .Replace("{{Amount}}", "")
-                                                                                .Replace("{{total}}", $"{double.Parse(request.Amount).ToString("0.00")}");
+                                                                                .Replace("{{total}}", $"{amount.ToString("0.00")}");
 
             receiptDetailPartialPage += HTMLGenerator.GenerateReceiptVAT()
                                                                                 .Replace("{{ServiceName}}", "")

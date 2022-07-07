@@ -20,4 +20,13 @@ namespace OnlinePortalBackend.DTOs.TransferDTOs
         public DateTime TransactionDate { get; set; }
         public decimal Amount { get; set; }
     }
+
+    public class WalletTransactionStatistics
+    {
+        public int TotalTransactions { get; set; }
+        public int TopUpCount { get; set; }
+        public int TopUpPercent { get; set; }
+        public int SpendCount { get; set; }
+        public int SpendPercent { get; set; }
+    }
 }

@@ -1,4 +1,6 @@
 ﻿using HalobizMigrations.Data;
+using HalobizMigrations.Models;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using OnlinePortalBackend.DTOs.TransferDTOs;
 using OnlinePortalBackend.Helpers;
@@ -115,6 +117,43 @@ namespace OnlinePortalBackend.Repository.Impl
                 return null;
             }
             
+        }
+
+        public async Task<string> GetDtrackCustomerNumber(CustomerDivision customer)
+        {
+            var dTrackCustomerNumber = $"{GenerateClientAlias(customer.DivisionName)}_{await GenerateNextCustomerNumberSequence()}";
+            return dTrackCustomerNumber;
+        }
+
+        private string GenerateClientAlias(string divisionName)
+        {
+            string[] names = divisionName.Trim().Split(" ");
+            string initial = "";
+            foreach (var name in names)
+            {
+                initial += name.Substring(0, 1).ToUpper();
+            }
+            return initial;
+        }
+
+        private async Task<string> GenerateNextCustomerNumberSequence()
+        {
+            var sequenceTracker = await _context.SequenceTrackers.SingleOrDefaultAsync();
+            if (sequenceTracker == null)
+            {
+                sequenceTracker = new SequenceTracker { CustomerNumber = 1 };
+                await _context.SequenceTrackers.AddAsync(sequenceTracker);
+                await _context.SaveChangesAsync();
+                return sequenceTracker.CustomerNumber.ToString().PadLeft(3, '0');
+            }
+            else
+            {
+                long nextSequence = (sequenceTracker.CustomerNumber + 1) > 999 ? 1 : (sequenceTracker.CustomerNumber + 1);
+                sequenceTracker.CustomerNumber = nextSequence;
+                _context.SequenceTrackers.Update(sequenceTracker);
+                await _context.SaveChangesAsync();
+                return sequenceTracker.CustomerNumber.ToString().PadLeft(3, '0');
+            }
         }
     }
 }

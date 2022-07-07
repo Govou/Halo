@@ -230,9 +230,8 @@ namespace OnlinePortalBackend.Repository.Impl
             _context.AccountMasters.Add(accountMaster);
             _context.SaveChanges();
 
-
             var debitCashBook = _configuration["SupplierDebitCashBookID"] ?? _configuration.GetSection("AppSettings:SupplierDebitCashBookID").Value;
-            //  var creditCashBook = _configuration["SupplierCreditCashBookID"] ?? _configuration.GetSection("AppSettings:SupplierCreditCashBookID").Value;
+
             var creditCashBook = await _accountRepository.GetServiceIncomeAccountForSupplier(supplier);
 
             var accountDetail1 = new AccountDetail
@@ -293,8 +292,6 @@ namespace OnlinePortalBackend.Repository.Impl
                 PaymentGatewayResponseDescription = "Approved",
                 PaymentGateway = request.PaymentGateway,
             };
-
-
            
                 _context.OnlineTransactions.Add(transaction);
                 _context.SaveChanges();
@@ -331,7 +328,39 @@ namespace OnlinePortalBackend.Repository.Impl
             dashB.AssetAwaitingInspection = dashB.AssetAwaitingInspection ?? "0";
 
             return dashB;
+        }
 
+        public async Task<AssetUnderManagementDTO> AssetsUnderManagement(int profileId)
+        {
+            var supplierId = _context.OnlineProfiles.FirstOrDefault(x => x.Id == profileId).SupplierId;
+            var assets = _context.SupplierServices.Where(x => x.SupplierId == supplierId);
+            var pendingAssets = assets.Where(x => x.IsReady == false).Select(x => new Asset
+            {
+                ServiceName = x.ServiceName,
+                PlateNumber = x.IdentificationNumber,
+                DateAdded = x.CreatedAt.ToString("MMMM dd, yyyy"),
+                PercentageCompleted = 0,
+                DaysLeft = 10,
+                ImageUrl = x.FrontViewImage
+            });
+
+            var completedAssets = assets.Where(x => x.IsReady == true).Select(x => new Asset
+            {
+                ServiceName = x.ServiceName,
+                PlateNumber = x.IdentificationNumber,
+                DateAdded = x.CreatedAt.ToString("MMMM dd, yyyy"),
+                PercentageCompleted = 100,
+                DaysLeft = 0,
+                ImageUrl = x.FrontViewImage
+            });
+
+            var allAssets = new AssetUnderManagementDTO
+            {
+                CompletedReview = completedAssets,
+                PendingReview = pendingAssets
+            };
+
+            return allAssets;
         }
     }
 }

@@ -18,5 +18,6 @@ namespace OnlinePortalBackend.MyServices.SecureMobilitySales
         Task<ApiCommonResponse> GetWalletBalance(int profileId);
         Task<ApiCommonResponse> GetWalletActivationStatus(int profileId);
         Task<ApiCommonResponse> GetWalletTransactionHistory(int profileId);
+        Task<ApiCommonResponse> GetWalletTransactionStatistics(int profileId);
     }
 }

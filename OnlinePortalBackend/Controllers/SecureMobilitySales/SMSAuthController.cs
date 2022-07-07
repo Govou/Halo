@@ -55,6 +55,20 @@ namespace OnlinePortalBackend.Controllers.SecureMobilitySales
             return await _authService.VerifyCode(model);
         }
 
+        [AllowAnonymous]
+        [HttpPost("ResendVerificationCode")]
+        public async Task<ApiCommonResponse> ResendCode(string email)
+        {
+            return await _authService.ResendCode(email);
+        }
+
+        //[AllowAnonymous]
+        //[HttpPost("ResendVerificationCode")]
+        //public async Task<ApiCommonResponse> ResendCode(string email)
+        //{
+        //    return await _authService.ResendCode(email);
+        //}
+
 
     }
 }

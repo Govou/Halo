@@ -187,5 +187,16 @@ namespace OnlinePortalBackend.MyServices.SecureMobilitySales
             }
             return CommonResponse.Send(ResponseCodes.SUCCESS, result, "success");
         }
+
+        public async Task<ApiCommonResponse> AssetsUnderManagement(int profileId)
+        {
+            var result = await _supplierRepo.AssetsUnderManagement(profileId);
+
+            if (result == null)
+            {
+                return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE, null, "failed");
+            }
+            return CommonResponse.Send(ResponseCodes.SUCCESS, result, "success");
+        }
     }
 }
