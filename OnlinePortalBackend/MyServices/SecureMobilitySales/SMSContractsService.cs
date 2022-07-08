@@ -149,7 +149,8 @@ namespace OnlinePortalBackend.MyServices.SecureMobilitySales
 
         private async Task SendReceiptViaEmail(SendReceiptDTO request)
         {
-            var amountInWords = NumberToWordConverter_v2.ConvertMoneyToWords(request.Amount);
+            var tAmount = double.Parse(request.Amount);
+            var amountInWords = Utility.MoneyToWordsConverter(tAmount);
 
             var VAT = 0.075 * double.Parse(request.Amount);
             var amount = double.Parse(request.Amount) - VAT;

@@ -72,6 +72,7 @@ namespace OnlinePortalBackend.Repository.Impl
                     ServiceName = request.ServiceName,
                     RightViewImage = request.RightViewImage,
                     CreatedById = createdBy,
+                    Type = request.Type,
                 };
                 _context.SupplierServices.Add(supplierService);
                 try
@@ -321,11 +322,17 @@ namespace OnlinePortalBackend.Repository.Impl
                 dashB.TotalAssetUnderManagement = services.Count.ToString();
                 dashB.DistinctTypes = services.DistinctBy(x => x.ServiceName).Count().ToString();
                 dashB.AssetAwaitingInspection = services.Count.ToString();
+                dashB.AssetAddedInCurrentMonth = services.Where(x => x.CreatedAt.Year == DateTime.Today.Year && x.CreatedAt.Month == DateTime.Today.Month).Count().ToString();
+                dashB.TotalAssetsDueForReAccreditation = 0.ToString();
+                dashB.PreferredServiceCentre = 0.ToString();
             }
 
             dashB.TotalAssetUnderManagement = dashB.TotalAssetUnderManagement ?? "0";
             dashB.DistinctTypes = dashB.DistinctTypes ?? "0";
             dashB.AssetAwaitingInspection = dashB.AssetAwaitingInspection ?? "0";
+            dashB.AssetAddedInCurrentMonth = dashB.AssetAddedInCurrentMonth ?? "0";
+            dashB.TotalAssetsDueForReAccreditation = dashB.TotalAssetsDueForReAccreditation ?? "0";
+            dashB.PreferredServiceCentre = dashB.PreferredServiceCentre ?? "0";
 
             return dashB;
         }
