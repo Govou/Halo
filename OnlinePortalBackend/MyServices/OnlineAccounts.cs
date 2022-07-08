@@ -236,8 +236,8 @@ namespace OnlinePortalBackend.MyServices
         {
             try
             {
-                var codes = _context.UsersCodeVerifications.Where(x => x.Email == model.Email && x.CodeExpiryTime >= DateTime.Now && x.Code == model.Code && x.Purpose==CodePurpose.Onboarding).OrderByDescending(x => x.Id);
-                if (codes == null)
+                var codes = _context.UsersCodeVerifications.Where(x => x.Email == model.Email && x.CodeExpiryTime >= DateTime.Now && x.Code == model.Code && x.Purpose==CodePurpose.Onboarding).OrderByDescending(x => x.Id).ToList();
+                if (codes.Count == 0)
                 {
                     return CommonResponse.Send(ResponseCodes.FAILURE, null, $"The code for {model.Email} is invalid or expired");
                 }

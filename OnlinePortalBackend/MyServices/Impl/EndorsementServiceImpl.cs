@@ -193,9 +193,9 @@ namespace OnlinePortalBackend.MyServices.Impl
 
             ApiCommonResponse responseData = new ApiCommonResponse();
             var endorsementDetailDTOs = new List<ContractServiceForEndorsementReceivingDto>();
-            var topup = _context.EndorsementTypes.FirstOrDefault(x => x.Caption.ToLower().Contains("reduction"))?.Id;
+            var reduction = _context.EndorsementTypes.FirstOrDefault(x => x.Caption.ToLower().Contains("reduction"))?.Id;
 
-            if (topup == null)
+            if (reduction == null)
             {
                 responseData.responseMsg = "An error occured";
                 return responseData;
@@ -204,7 +204,7 @@ namespace OnlinePortalBackend.MyServices.Impl
             foreach (var item in endorsements)
             {
                 //  item.CreatedById = userId;
-                item.EndorsementType = (int)topup.Value;
+                item.EndorsementType = (int)reduction.Value;
             }
 
             foreach (var item in endorsements)
