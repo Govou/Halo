@@ -69,5 +69,11 @@ namespace OnlinePortalBackend.Controllers.SecureMobilitySales
         {
             return await _walletService.GetWalletTransactionStatistics(profileId);
         }
+
+        [HttpGet("CheckWalletFundedEnough")]
+        public async Task<ApiCommonResponse> CheckWalletFundedEnough(long profileId, double amount)
+        {
+            return await _walletService.CheckWalletFundedEnough(profileId, amount);
+        }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using Flurl.Http;
+using Flutterwave.Net;
 using HalobizMigrations.Data;
 using HalobizMigrations.Models.OnlinePortal;
 using Microsoft.Extensions.Configuration;
@@ -53,31 +54,26 @@ namespace OnlinePortalBackend.Adapters
             {
                 case PaymentGateway.Flutterwave:
 
-                    var flutterwaveUrl = $"{_flutterWaveBaseUrl}/{referenceCode}/verify";
-
-                    responseString = await flutterwaveUrl.AllowAnyHttpStatus()
-                        .WithOAuthBearerToken(_flutterWaveSecretKey)
-                        .GetStringAsync();
-
                     try
                     {
-                        var response = JsonConvert.DeserializeObject<TransactionVerificationResponse>(responseString);
-                        
-                        if (response.data.tx_ref != referenceCode) verifyPaymentResponse.Errors.Add("Verification reference does not match.");
-                        if (response.data.status != "successful") verifyPaymentResponse.Errors.Add("Payment verification not successful.");
-                        if (response.data.currency != "NGN")  verifyPaymentResponse.Errors.Add("Payment currency not in Naira.");
 
-                        if (verifyPaymentResponse.Errors.Any())
+                        string flutterwaveSecretKey = "FLWSECK_TEST-6a3f1783bea589e157df281ccc640782-X"; //ConfigurationManager.AppSettings["FlutterwaveSecretKey"];
+                        var api = new FlutterwaveApi(flutterwaveSecretKey);
+                        var trx = int.Parse(referenceCode);
+                        var response = api.Transactions.VerifyTransaction(trx);
+
+                        if (response.Status == "success")
+                        {
+                            verifyPaymentResponse.PaymentSuccessful = true;
+                            return verifyPaymentResponse;
+
+                        }
+                        else
                         {
                             verifyPaymentResponse.PaymentSuccessful = false;
                             return verifyPaymentResponse;
                         }
-                        else
-                        {
-                            verifyPaymentResponse.PaymentSuccessful = true;
-                            verifyPaymentResponse.PaymentAmount = response.data.amount;
-                            return verifyPaymentResponse;
-                        }
+                        return verifyPaymentResponse;
                     }
                     catch (Exception ex)
                     {

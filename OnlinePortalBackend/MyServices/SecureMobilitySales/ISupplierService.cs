@@ -15,5 +15,7 @@ namespace OnlinePortalBackend.MyServices.SecureMobilitySales
         Task<ApiCommonResponse> GetSupplierCategories();
         Task<ApiCommonResponse> GetDashboardDetails(int profileId);
         Task<ApiCommonResponse> AssetsUnderManagement(int profileId);
+        Task<ApiCommonResponse> PostInspectionDetails(InspectionDetailDTO request);
+        Task<ApiCommonResponse> CheckIdentificatioNumberExists(string idNumber);
     }
 }

@@ -65,5 +65,17 @@ namespace OnlinePortalBackend.Controllers.SecureMobilitySales
         {
             return _supplierService.AssetsUnderManagement(profileId);
         }
+
+        [HttpPost("PostInspectionDetails")]
+        public Task<ApiCommonResponse> PostInspectionDetails(InspectionDetailDTO request)
+        {
+            return _supplierService.PostInspectionDetails(request);
+        }
+
+        [HttpGet("CheckIdentificatioNumberExists")]
+        public Task<ApiCommonResponse> CheckIdentificatioNumberExists(string idNumber)
+        {
+            return _supplierService.CheckIdentificatioNumberExists(idNumber);
+        }
     }
 }

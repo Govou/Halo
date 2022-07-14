@@ -80,5 +80,16 @@ namespace OnlinePortalBackend.Helpers
 
             return totalInWords;
         }
+
+        public static string GenerateSupplierTransRef(string idNumber)
+        {
+            return "SMP_" + idNumber + "_" + new Random().Next(100_000_000, 1_000_000_000).ToString();
+        }
+
+        public static string ExtractIdentificationNumber(string trxRef)
+        {
+            var parts = trxRef.Split('_');
+            return parts[1];
+        }
     }
 }

@@ -625,5 +625,44 @@ namespace OnlinePortalBackend.Repository.Impl
             
             return stat;
         }
+
+        public async Task<bool> CheckWalletFundedEnough(long profileId, double amount)
+        {
+            var walletMaster = _context.WalletMasters.FirstOrDefault(x => x.OnlineProfileId == profileId);
+
+            if (walletMaster == null)
+            {
+                return false;
+            }
+
+            var balance = double.Parse(new AesCryptoUtil().Decrypt(walletMaster.WalletBalance));
+
+            if (balance < amount)
+            {
+                return false;
+            }
+
+            var custDivId = _context.OnlineProfiles.FirstOrDefault(x => x.Id == profileId).CustomerDivisionId;
+
+            var pendindingTrips = _context.MasterServiceAssignments.Where(x => x.CustomerDivisionId == custDivId && x.AssignmentStatus == "Open" && x.IsScheduled == true && x.IsPaidFor == false);
+
+            if (pendindingTrips.Count() > 0)
+            {
+                var amountPending = 0d;
+                foreach (var item in pendindingTrips)
+                {
+                    var amt = _context.ContractServices.FirstOrDefault(x => x.Id == item.ContractServiceId).BillableAmount.Value;
+                    amountPending += amt;
+                }
+
+                if ((amountPending + amount) > balance)
+                {
+                    return false;
+                }
+                return true;
+            }
+
+            return true;
+        }
     }
 }

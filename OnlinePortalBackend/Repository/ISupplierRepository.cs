@@ -14,5 +14,7 @@ namespace OnlinePortalBackend.Repository
         Task<IEnumerable<SupplierCategoryDTO>> GetSupplierCategories();
         Task<SupplierDashboardDetails> GetDashboardDetails(int profileId);
         Task<AssetUnderManagementDTO> AssetsUnderManagement(int profileId);
+        Task<bool> PostInspectionDetails(InspectionDetailDTO request);
+        Task<bool> CheckIdentificatioNumberExists(string idNumber);
     }
 }

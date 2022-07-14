@@ -43,7 +43,7 @@ namespace OnlinePortalBackend.MyServices.SecureMobilitySales
         //}
 
 
-      
+
 
 
         public async Task<ApiCommonResponse> GetServiceCenters(string state)
@@ -120,20 +120,20 @@ namespace OnlinePortalBackend.MyServices.SecureMobilitySales
             request.AddParameter("application/json", jBody, ParameterType.RequestBody);
 
             IRestResponse response = client.Execute(request);
-           
+
             var result = JsonConvert.DeserializeObject<ServiceInspectionDTO>(response.Content);
-            
+
             return result;
         }
 
         //private Task<bool> PostTransactionToAccounts(PostTransactionDTO request)
         //{
-           
+
         //}
 
         public async Task<ApiCommonResponse> NewAssetAddition(AssetAdditionDTO request)
         {
-           var result = await _supplierRepo.AddNewAsset(request);
+            var result = await _supplierRepo.AddNewAsset(request);
 
             if (!result)
             {
@@ -177,7 +177,7 @@ namespace OnlinePortalBackend.MyServices.SecureMobilitySales
             return CommonResponse.Send(ResponseCodes.SUCCESS, result, "success");
         }
 
-        public  async Task<ApiCommonResponse> GetDashboardDetails(int profileId)
+        public async Task<ApiCommonResponse> GetDashboardDetails(int profileId)
         {
             var result = await _supplierRepo.GetDashboardDetails(profileId);
 
@@ -195,6 +195,28 @@ namespace OnlinePortalBackend.MyServices.SecureMobilitySales
             if (result == null)
             {
                 return CommonResponse.Send(ResponseCodes.NO_DATA_AVAILABLE, null, "failed");
+            }
+            return CommonResponse.Send(ResponseCodes.SUCCESS, result, "success");
+        }
+
+        public async Task<ApiCommonResponse> PostInspectionDetails(InspectionDetailDTO request)
+        {
+            var result = await _supplierRepo.PostInspectionDetails(request);
+
+            if (result == false)
+            {
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "failed");
+            }
+            return CommonResponse.Send(ResponseCodes.SUCCESS, "successfully posted", "success");
+        }
+
+        public async Task<ApiCommonResponse> CheckIdentificatioNumberExists(string idNumber)
+        {
+            var result = await _supplierRepo.CheckIdentificatioNumberExists(idNumber);
+
+            if (result == null)
+            {
+                return CommonResponse.Send(ResponseCodes.FAILURE, null, "failed");
             }
             return CommonResponse.Send(ResponseCodes.SUCCESS, result, "success");
         }

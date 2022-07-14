@@ -1,5 +1,6 @@
 ﻿using HalobizMigrations.Data;
 using HalobizMigrations.Models;
+using HalobizMigrations.Models.Halobiz;
 using HalobizMigrations.Models.OnlinePortal;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -60,10 +61,10 @@ namespace OnlinePortalBackend.Repository.Impl
                     ModelNumber = request.ModelNumber,
                     ImageUrl = request.ImageUrl,
                     TrackerId = request.TrackerId,
-                    ReferenceNumber1 = request.ReferenceNumber1,
+                  //  ReferenceNumber1 = request.ReferenceNumber1,
                     Make = request.Make,
-                    ReferenceNumber2 = request.ReferenceNumber2,
-                    ReferenceNumber3 = request.ReferenceNumber3,
+                    //ReferenceNumber2 = request.ReferenceNumber2,
+                    //ReferenceNumber3 = request.ReferenceNumber3,
                     TopViewImage = request.TopViewImage,
                     IdentificationNumber = request.IdentificationNumber,
                     StandardDiscount = request.StandardDiscount,
@@ -108,7 +109,7 @@ namespace OnlinePortalBackend.Repository.Impl
                         Amount = request.BookingAmount,
                         Address = request.BookingAddress,
                         State = request.BookingState,
-                        CarModel = request.Model,
+                        CarModel = request.Make + " " + request.Model + " " + request.ModelNumber,
                         CarYear = request.Year,
                         PaymentReference = request.PaymentReference,
                         PaymentGateway = request.PaymentGateway,
@@ -141,9 +142,7 @@ namespace OnlinePortalBackend.Repository.Impl
                     _logger.LogError(ex.Message);
                     _logger.LogError(ex.StackTrace);
                 }
-            }
-           
-           
+            }           
           
             return false;
         }
@@ -203,107 +202,106 @@ namespace OnlinePortalBackend.Repository.Impl
         {
             try
             {
-            var transactionId = "SMP" + new Random().Next(100_000_000, 1_000_000_000);
-            var createdBy = _configuration["OnlineUserId"] ?? _configuration.GetSection("AppSettings:OnlineUserId").Value;
-            var office = _configuration["OnlineOfficeId"] ?? _configuration.GetSection("AppSettings:OnlineOfficeId").Value;
-            var branch = _configuration["OnlineBranchId"] ?? _configuration.GetSection("AppSettings:OnlineBranchId").Value;
+                var profile = _context.OnlineProfiles.FirstOrDefault(p => p.Id == request.ProfileId);
 
-            var profile = _context.OnlineProfiles.FirstOrDefault(p => p.Id == request.ProfileId);
+                var supplier = _context.Suppliers.FirstOrDefault(p => p.Id == profile.SupplierId);
+                var transactionId = Utility.GenerateSupplierTransRef(request.PaymentReferenceInternal);
+                var createdBy = _configuration["OnlineUserId"] ?? _configuration.GetSection("AppSettings:OnlineUserId").Value;
+                var office = _configuration["OnlineOfficeId"] ?? _configuration.GetSection("AppSettings:OnlineOfficeId").Value;
+                var branch = _configuration["OnlineBranchId"] ?? _configuration.GetSection("AppSettings:OnlineBranchId").Value;
 
-            var supplier = _context.Suppliers.FirstOrDefault(p => p.Id == profile.SupplierId);
-
-            var voucher = _configuration["WalletTopupVoucherTypeID"] ?? _configuration.GetSection("AppSettings:WalletTopupVoucherTypeID").Value;
+                var voucher = _configuration["WalletTopupVoucherTypeID"] ?? _configuration.GetSection("AppSettings:WalletTopupVoucherTypeID").Value;
                 var payDesc = $"Payment on {profile.Name}'s supply with reference number {transactionId} on {GeneralHelper.ConvertDateToLongString(DateTime.UtcNow.AddHours(1))}";
 
-            var accountMaster = new AccountMaster
-            {
-                CreatedAt = DateTime.UtcNow.AddHours(1),
-                UpdatedAt = DateTime.UtcNow.AddHours(1),
-                CreatedById = long.Parse(createdBy),
-                VoucherId = long.Parse(voucher),
-                Value = Convert.ToDouble(request.Value),
-                OfficeId = long.Parse(office),
-                BranchId = long.Parse(branch),
-                TransactionId = transactionId,
-                Description = payDesc
-            };
+                var accountMaster = new AccountMaster
+                {
+                    CreatedAt = DateTime.UtcNow.AddHours(1),
+                    UpdatedAt = DateTime.UtcNow.AddHours(1),
+                    CreatedById = long.Parse(createdBy),
+                    VoucherId = long.Parse(voucher),
+                    Value = Convert.ToDouble(request.Value),
+                    OfficeId = long.Parse(office),
+                    BranchId = long.Parse(branch),
+                    TransactionId = transactionId,
+                    Description = payDesc
+                };
 
-            _context.AccountMasters.Add(accountMaster);
-            _context.SaveChanges();
+                _context.AccountMasters.Add(accountMaster);
+                _context.SaveChanges();
 
-            var debitCashBook = _configuration["SupplierDebitCashBookID"] ?? _configuration.GetSection("AppSettings:SupplierDebitCashBookID").Value;
+                var debitCashBook = _configuration["SupplierDebitCashBookID"] ?? _configuration.GetSection("AppSettings:SupplierDebitCashBookID").Value;
 
-            var creditCashBook = await _accountRepository.GetServiceIncomeAccountForSupplier(supplier);
+                var creditCashBook = await _accountRepository.GetServiceIncomeAccountForSupplier(supplier);
 
-            var accountDetail1 = new AccountDetail
-            {
-                VoucherId = accountMaster.VoucherId,
-                AccountMasterId = accountMaster.Id,
-                CreatedById = long.Parse(createdBy),
-                CreatedAt = DateTime.UtcNow.AddHours(1),
-                UpdatedAt = DateTime.UtcNow.AddHours(1),
-                BranchId = long.Parse(branch),
-                OfficeId = long.Parse(office),
-                TransactionDate = DateTime.UtcNow.AddHours(1),
-                Debit = Convert.ToDouble(request.Value),
-                AccountId = int.Parse(debitCashBook),
-                Description = payDesc,
-                TransactionId = transactionId,
-            };
+                var accountDetail1 = new AccountDetail
+                {
+                    VoucherId = accountMaster.VoucherId,
+                    AccountMasterId = accountMaster.Id,
+                    CreatedById = long.Parse(createdBy),
+                    CreatedAt = DateTime.UtcNow.AddHours(1),
+                    UpdatedAt = DateTime.UtcNow.AddHours(1),
+                    BranchId = long.Parse(branch),
+                    OfficeId = long.Parse(office),
+                    TransactionDate = DateTime.UtcNow.AddHours(1),
+                    Debit = Convert.ToDouble(request.Value),
+                    AccountId = int.Parse(debitCashBook),
+                    Description = payDesc,
+                    TransactionId = transactionId,
+                };
 
-            var accountDetail2 = new AccountDetail
-            {
-                VoucherId = accountMaster.VoucherId,
-                AccountMasterId = accountMaster.Id,
-                CreatedById = long.Parse(createdBy),
-                CreatedAt = DateTime.UtcNow.AddHours(1),
-                UpdatedAt = DateTime.UtcNow.AddHours(1),
-                BranchId = long.Parse(branch),
-                OfficeId = long.Parse(office),
-                TransactionDate = DateTime.UtcNow.AddHours(1),
-                Credit = Convert.ToDouble(request.Value),
-                AccountId = creditCashBook,
-                Description = payDesc,
-                TransactionId = transactionId,
-            };
+                var accountDetail2 = new AccountDetail
+                {
+                    VoucherId = accountMaster.VoucherId,
+                    AccountMasterId = accountMaster.Id,
+                    CreatedById = long.Parse(createdBy),
+                    CreatedAt = DateTime.UtcNow.AddHours(1),
+                    UpdatedAt = DateTime.UtcNow.AddHours(1),
+                    BranchId = long.Parse(branch),
+                    OfficeId = long.Parse(office),
+                    TransactionDate = DateTime.UtcNow.AddHours(1),
+                    Credit = Convert.ToDouble(request.Value),
+                    AccountId = creditCashBook,
+                    Description = payDesc,
+                    TransactionId = transactionId,
+                };
 
-            _context.AccountDetails.Add(accountDetail1);
-            _context.SaveChanges();
+                _context.AccountDetails.Add(accountDetail1);
+                _context.SaveChanges();
 
-            _context.AccountDetails.Add(accountDetail2);
-            _context.SaveChanges();
+                _context.AccountDetails.Add(accountDetail2);
+                _context.SaveChanges();
 
-            var transaction = new OnlineTransaction
-            {
-                CreatedAt = DateTime.UtcNow.AddHours(1),
-                CreatedById = long.Parse(createdBy),
-                PaymentConfirmation = true,
-                PaymentFulfilment = true,
-                VAT = request.Value * Convert.ToDecimal(0.075),
-                Value = request.Value - (request.Value * Convert.ToDecimal(0.075)),
-                UpdatedAt = DateTime.UtcNow.AddHours(1),
-                TotalValue = request.Value,
-                TransactionSource = "Web",
-                TransactionType = "Secure mobility supplier",
-                PaymentReferenceGateway = request.PaymentReferenceGateway,
-                SessionId = "SMP" + new Random().Next(100_000_000, 1_000_000_000).ToString() + new Random().Next(100_000_000, 1_000_000_000).ToString(),
-                ProfileId = request.ProfileId,
-                PaymentReferenceInternal = "SMP" + new Random().Next(100_000_000, 1_000_000_000).ToString(),
-                PaymentGatewayResponseCode = "00",
-                PaymentGatewayResponseDescription = "Approved",
-                PaymentGateway = request.PaymentGateway,
-            };
+                var transaction = new OnlineTransaction
+                {
+                    CreatedAt = DateTime.UtcNow.AddHours(1),
+                    CreatedById = long.Parse(createdBy),
+                    PaymentConfirmation = true,
+                    PaymentFulfilment = true,
+                    VAT = request.Value * Convert.ToDecimal(0.075),
+                    Value = request.Value - (request.Value * Convert.ToDecimal(0.075)),
+                    UpdatedAt = DateTime.UtcNow.AddHours(1),
+                    TotalValue = request.Value,
+                    TransactionSource = "Web",
+                    TransactionType = "Secure mobility supplier",
+                    PaymentReferenceGateway = request.PaymentReferenceGateway,
+                    SessionId = Guid.NewGuid().ToString(),
+                    ProfileId = request.ProfileId,
+                    PaymentReferenceInternal = transactionId,
+                    PaymentGatewayResponseCode = "00",
+                    PaymentGatewayResponseDescription = "Approved",
+                    PaymentGateway = request.PaymentGateway,
+                };
            
                 _context.OnlineTransactions.Add(transaction);
                 _context.SaveChanges();
                 return true;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex.Message);
-                _logger.LogError(ex.StackTrace);
-                return false;
-            }
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex.Message);
+                    _logger.LogError(ex.StackTrace);
+                    return false;
+                }
            
         }
 
@@ -319,7 +317,7 @@ namespace OnlinePortalBackend.Repository.Impl
 
             if (services.Count > 0)
             {
-                dashB.TotalAssetUnderManagement = services.Count.ToString();
+                dashB.TotalAssetUnderManagement = services.Where(x => x.IsReady).Count().ToString();
                 dashB.DistinctTypes = services.DistinctBy(x => x.ServiceName).Count().ToString();
                 dashB.AssetAwaitingInspection = services.Count.ToString();
                 dashB.AssetAddedInCurrentMonth = services.Where(x => x.CreatedAt.Year == DateTime.Today.Year && x.CreatedAt.Month == DateTime.Today.Month).Count().ToString();
@@ -368,6 +366,41 @@ namespace OnlinePortalBackend.Repository.Impl
             };
 
             return allAssets;
+        }
+
+        public async Task<bool> PostInspectionDetails(InspectionDetailDTO request)
+        {
+            try
+            {
+
+                var idNumber = Utility.ExtractIdentificationNumber(request.TransactionRef);
+                var supplierServiceId = _context.SupplierServices.FirstOrDefault(x => x.IdentificationNumber == idNumber).Id;
+                var inspectDetails = new SupplierServiceInspection
+                {
+                    CreatedDate = DateTime.UtcNow.AddHours(1),
+                    DateOfInspection = DateTime.UtcNow.AddHours(1),
+                    InspectionStatus = request.InspectionStatus,
+                    SupplierServiceId = supplierServiceId,
+                    InspectionPercentageStatus = 100,
+                    IsInspected = true,
+                    Reason = request.Comment
+                };
+
+                _context.SupplierServiceInspections.Add(inspectDetails);
+                await _context.SaveChangesAsync();
+                return true;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+
+        }
+
+        public async Task<bool> CheckIdentificatioNumberExists(string idNumber)
+        {
+           var numberExist = _context.SupplierServices.Any(x => x.IdentificationNumber == idNumber);
+           return numberExist;
         }
     }
 }

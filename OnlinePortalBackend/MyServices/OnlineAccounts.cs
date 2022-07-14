@@ -480,7 +480,6 @@ namespace OnlinePortalBackend.MyServices
                     LockoutEnabled = profile.LockoutEnabled,
                     Name = profile.Name,
                     Id = profile.Id,
-                    
                 };
 
                 var contract = _context.Contracts.Where(x => x.CustomerDivisionId == profile.CustomerDivisionId && x.IsDeleted == false && x.Caption.ToLower().Contains("booked")).OrderByDescending(x => x.Id).FirstOrDefault();

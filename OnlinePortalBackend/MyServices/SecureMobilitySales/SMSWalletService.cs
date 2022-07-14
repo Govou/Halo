@@ -24,6 +24,17 @@ namespace OnlinePortalBackend.MyServices.SecureMobilitySales
             return CommonResponse.Send(ResponseCodes.SUCCESS, result.message);
         }
 
+        public async Task<ApiCommonResponse> CheckWalletFundedEnough(long profileId, double amount)
+        {
+            var result = await _walletRepository.CheckWalletFundedEnough(profileId, amount);
+            if (!result)
+            {
+                return CommonResponse.Send(ResponseCodes.FAILURE, false, "failed");
+            }
+
+            return CommonResponse.Send(ResponseCodes.SUCCESS, result, "success");
+        }
+
         public async Task<ApiCommonResponse> GetWalletActivationStatus(int profileId)
         {
             var result = await _walletRepository.GetWalletActivationStatus(profileId);
