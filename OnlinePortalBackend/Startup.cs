@@ -46,7 +46,7 @@ namespace OnlinePortalBackend
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddDbContext<HalobizContext>(options =>
-                    options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
+                    options.UseSqlServer("Data Source=halobiz-db.northeurope.cloudapp.azure.com,1433;Initial Catalog=halobiz-tes_2021-02-04T18-50Z;User ID=halobiz;Password=A87HBG@#&&&;Connect Timeout=30;Encrypt=True;TrustServerCertificate=True;MultipleActiveResultSets=True;ApplicationIntent=ReadWrite;MultiSubnetFailover=False;"));
 
             services
                .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
