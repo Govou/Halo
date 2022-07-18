@@ -48,7 +48,18 @@ namespace OnlinePortalBackend
             services.AddDbContext<HalobizContext>(options =>
                     options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
 
-
+            services
+               .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+               .AddJwtBearer(options =>
+               {
+                   options.TokenValidationParameters = new TokenValidationParameters
+                   {
+                       ValidateIssuerSigningKey = true,
+                       IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(Configuration["JWTSecretKey"] ?? Configuration.GetSection("AppSettings:JWTSecretKey").Value)),
+                       ValidateIssuer = false,
+                       ValidateAudience = false
+                   };
+               });
 
             //services
             services.AddScoped<ISecurityQuestionService, SecurityQuestionServiceImpl>();
@@ -149,6 +160,8 @@ namespace OnlinePortalBackend
             }
 
             app.UseSwagger();
+
+            app.UseExceptionHandlerMiddleware();
             app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "OnlinePortalBackend v1"));
 
             PrepDb.PrepDatabase(app);
@@ -159,10 +172,13 @@ namespace OnlinePortalBackend
 
             app.UseRouting();
 
-            app.UseAuthentication();
+          //  app.UseAuthentication();
 
-            app.UseAuthorization();
+           // app.UseAuthorization();
            // app.UseMiddleware<AuthenticationHandler>();
+
+            app.UseAuthentication();
+            app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
             {

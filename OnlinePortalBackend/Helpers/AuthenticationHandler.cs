@@ -45,7 +45,29 @@ namespace OnlinePortalBackend.Helpers
 
             var controllerName = controllerActionDescriptor?.ControllerName;
             var actionName = controllerActionDescriptor?.ActionName;
+
+            var allowedMethods = new List<string>();
+            allowedMethods.Add("SendCode");
+            allowedMethods.Add("CreatePassword");
+            allowedMethods.Add("Login");
+            allowedMethods.Add("VerifyCode");
+            allowedMethods.Add("SupplierLogin");
+            allowedMethods.Add("ResendVerificationCode");
+            allowedMethods.Add("GetStates");
+            allowedMethods.Add("GetLocalGovtAreas");
+            allowedMethods.Add("GetStateById");
+            allowedMethods.Add("GetLocalGovtAreaById");
+            allowedMethods.Add("GetBusinessTypes");
+            allowedMethods.Add("GenerateToken");
+            allowedMethods.Add("GenerateTokenFromRefreshToken");
             //var actionVerb = context.Request.Method;
+            var anonymousMethod = false;
+
+            if (allowedMethods.Any(x => x == actionName))
+            {
+               anonymousMethod = true;
+            }
+            
 
 
             if (string.IsNullOrEmpty(controllerName) || string.IsNullOrEmpty(actionName))
@@ -56,7 +78,7 @@ namespace OnlinePortalBackend.Helpers
                 return;
             }            
 
-            if (controllerName.ToLower() != "onlineauth")
+            if (anonymousMethod == false)
             {
                 var token = context.Request?.Headers["Authorization"].FirstOrDefault()?.Split(" ")?.Last();
                 if (token != null)

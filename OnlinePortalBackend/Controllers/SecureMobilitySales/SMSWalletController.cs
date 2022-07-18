@@ -1,5 +1,6 @@
 ﻿using Halobiz.Common.DTOs.ApiDTOs;
 using Halobiz.Common.DTOs.ReceivingDTOs;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using OnlinePortalBackend.DTOs.ReceivingDTOs;
@@ -10,6 +11,7 @@ namespace OnlinePortalBackend.Controllers.SecureMobilitySales
 {
     [Route("api/[controller]")]
     [ApiController]
+  //  [Authorize]
     public class SMSWalletController : ControllerBase
     {
         private readonly ISMSWalletService _walletService;
