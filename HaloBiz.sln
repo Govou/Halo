@@ -7,10 +7,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HaloBiz", "HaloBiz\HaloBiz.
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Halobiz.Common", "Halobiz.Common\Halobiz.Common.csproj", "{89E1CDA2-5433-4616-8DB4-719E446380CD}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OnlinePortalBackend", "OnlinePortalBackend\OnlinePortalBackend.csproj", "{BD7E767E-547C-48A2-8657-D2236FD5AFF3}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HalobizIdentityServer", "HalobizIdentityServer\HalobizIdentityServer.csproj", "{F5FAD992-57F0-407E-87E2-560533EE2C53}"
-EndProject
+
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
